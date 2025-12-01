@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import User from '../assets/3.jpg'
+import PBD from '../assets/PBD.jpg';
+import { FaInstagram, FaLinkedinIn, FaTwitter, FaCheckCircle } from "react-icons/fa";
 import Logo from '../assets/Wiggle Logo.png';
 // --- 1. IMPORT Link from react-router-dom ---
 import { Link } from 'react-router-dom'; 
@@ -91,9 +94,35 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* The right-side visual panel remains the same */}
-      <div className="relative hidden lg:flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-[#111111]">
-        {/* ... */}
+      <div className="relative hidden lg:flex flex-col h-full w-full bg-gray-50 dark:bg-gray-900">
+  {/* 1. The Background Image */}
+  <img 
+    src={User}
+    alt="Office Workspace" 
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  
+  {/* 2. The Overlay (Gradient) to make text readable */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+  {/* 3. The Text at the bottom */}
+  <div className="relative z-10 mt-auto p-12 text-white">
+    <blockquote className="text-2xl font-medium leading-relaxed mb-6">
+      "EasyPost completely changed how our agency manages content. We save about 15 hours a week."
+    </blockquote>
+    <div className="flex items-center gap-4">
+      <img 
+        src={PBD}
+        alt="User" 
+        className="w-12 h-12 rounded-full border-2 border-white"
+      />
+      <div>
+        <p className="font-bold">Dr Ahmed Abdullah</p>
+        <p className="text-sm text-gray-300">Social Media Manager @ PBD</p>
       </div>
+    </div>
+  </div>
+</div>
     </div>
   );
 };
