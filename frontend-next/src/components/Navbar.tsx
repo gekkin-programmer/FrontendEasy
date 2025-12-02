@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
+import Image from "next/image";
 import {
   FaMoon, 
   FaSun, 
@@ -25,7 +26,7 @@ import {
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
-// --- DATA OBJECTS (Kept exactly the same) ---
+// --- DATA OBJECTS ---
 const megaMenuData = {
   type: 'mega' as const,
   columns: [
@@ -164,6 +165,7 @@ const Navbar: React.FC = () => {
         {content.featured && (
           <div className="pl-5 w-48 flex-shrink-0">
             <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative h-full">
+              {/* Using standard img for external URL to avoid config requirements, or configure next.config.ts */}
               <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
               <div className="absolute bottom-0 left-0 p-4">
@@ -203,7 +205,13 @@ const Navbar: React.FC = () => {
 
           {/* LEFT: Logo */}
           <Link href="/" className="flex items-center gap-2 z-50 mr-8">
-            <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-10 h-10 object-contain" />
+            <Image 
+              src="/assets/WiggleLogo.png" 
+              alt="Wiggle Logo" 
+              width={40} 
+              height={40} 
+              className="w-10 h-10 object-contain" 
+            />
             <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">asyPost</span>
           </Link>
           
