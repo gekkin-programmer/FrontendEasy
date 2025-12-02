@@ -17,15 +17,15 @@ import {
   FaLinkedinIn, 
   FaPinterestP, 
   FaTiktok, 
-  FaMagic,
-  FaUsers,
-  FaHandshake,
-  FaPlayCircle,
+  FaMagic, 
+  FaUsers, 
+  FaHandshake, 
+  FaPlayCircle, 
   FaTimes 
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
-// Data for Mega Menu
+// --- DATA OBJECTS (Kept exactly the same) ---
 const megaMenuData = {
   type: 'mega' as const,
   columns: [
@@ -92,21 +92,13 @@ const Navbar: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
-  const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>(null);
   
   const { language, toggleLanguage, t } = useLanguage();
 
-  // --- FIXED DARK MODE LOGIC ---
-  
   // 1. Check LocalStorage on mount
-    useEffect(() => {
-    // Check if user previously selected dark mode
+  useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    
-    // Check system preference
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Logic: If saved is dark, OR (no save AND system is dark)
     if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
       setIsDark(true);
       document.documentElement.classList.add("dark");
@@ -117,7 +109,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   // 2. Toggle and Save Preference
-    const toggleDarkMode = () => {
+  const toggleDarkMode = () => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
@@ -147,6 +139,7 @@ const Navbar: React.FC = () => {
     return language === 'fr' ? text.fr : text.en;
   };
 
+  // --- SUB COMPONENT: Mega Menu ---
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
       <div className="flex p-5">
@@ -184,6 +177,7 @@ const Navbar: React.FC = () => {
     </motion.div>
   );
 
+  // --- SUB COMPONENT: Channels Menu ---
   const ChannelsMenu = ({ content }: { content: typeof channelsMenuData }) => (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
       <div className="grid grid-cols-3 gap-4 p-6">
@@ -198,14 +192,19 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
+      ${scrolled 
+        ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm" 
+        : "bg-transparent border-b border-transparent shadow-none"
+      }
+    `}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20">
 
           {/* LEFT: Logo */}
           <Link href="/" className="flex items-center gap-2 z-50 mr-8">
             <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-10 h-10 object-contain" />
-            <span className="text-2xl font-bold text-gray-900 text-[#3C48F6] tracking-tight">asyPost</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">asyPost</span>
           </Link>
           
           {/* CENTER: Desktop Menu */}
