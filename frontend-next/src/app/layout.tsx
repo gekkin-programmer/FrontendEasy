@@ -1,6 +1,13 @@
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
+import { JetBrains_Mono } from "next/font/google";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono", // This defines the CSS variable name
+  display: "swap",
+});
 
 export const metadata = {
   title: "Wiggle",
@@ -14,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-white dark:bg-gray-900">
+      <body className={`${jetbrainsMono.variable} antialiased`}>
         <LanguageProvider>
           <Navbar />
           <main className="pt-16">

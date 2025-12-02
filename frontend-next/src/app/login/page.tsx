@@ -1,138 +1,245 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link'; // NEXTJS CHANGE
-import { useRouter } from 'next/navigation'; // NEXTJS CHANGE
-import { FaGoogle, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa6';
-import { login } from '../../api'; 
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link"; 
+import {
+  FaMoon, FaSun, FaChevronDown, FaBars, FaGlobe, FaRocket, FaPaperPlane,
+  FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaPinterestP, FaTiktok, FaMagic,
+  FaUsers, FaHandshake, FaPlayCircle, FaTimes
+} from "react-icons/fa"; 
+import { useLanguage } from "@/src/context/LanguageContext";
 
-// NOTE: Make sure you move your api.ts file to src/api.ts
-// If you haven't moved api.ts yet, comment this line out for now.
+// --- BRAND COLOR HEX: #3C48F6 ---
 
-
-const LoginPage = () => {
-  const router = useRouter(); // NEXTJS CHANGE
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await login(email, password);
-      alert("Login successful! Redirecting to dashboard...");
-      router.push('/'); // NEXTJS CHANGE
-    } catch (err: any) {
-      // Fallback for now if API isn't ready
-      console.error(err);
-      setError("Login logic needs api.ts");
-      // For testing UI without API, uncomment next line:
-      // router.push('/');
-    } finally {
-      setIsLoading(false);
+// Data for Mega Menu
+const megaMenuData = {
+  type: 'mega' as const,
+  columns: [
+    { 
+      heading: { en: "Core Tools", fr: "Outils Principaux" }, 
+      links: [ 
+        { label: { en: "Publishing", fr: "Publication" }, description: { en: "Plan and schedule content", fr: "Planifiez et programmez du contenu" }, href: "#", Icon: FaRocket }, 
+        { label: { en: "Analytics", fr: "Analytique" }, description: { en: "Measure your performance", fr: "Mesurez vos performances" }, href: "#", Icon: FaPaperPlane } 
+      ] 
+    },
+    { 
+      heading: { en: "Advanced", fr: "Avancé" }, 
+      links: [ 
+        { label: { en: "Engagement", fr: "Engagement" }, description: { en: "Respond to comments", fr: "Répondez aux commentaires" }, href: "#", Icon: FaRocket }, 
+        { label: { en: "AI Assistant", fr: "Assistant IA" }, description: { en: "Generate post ideas", fr: "Générez des idées de publications" }, href: "#", Icon: FaPaperPlane } 
+      ] 
+    },
+    {
+      heading: { en: "Platform", fr: "Plateforme" },
+      links: [
+        { label: { en: "Create", fr: "Créer" }, description: { en: "Craft content with our editor", fr: "Créez du contenu avec notre éditeur" }, href: "#", Icon: FaMagic },
+        { label: { en: "Collaborate", fr: "Collaborer" }, description: { en: "Work together with your team", fr: "Travaillez avec votre équipe" }, href: "#", Icon: FaHandshake },
+        { label: { en: "Community", fr: "Communauté" }, description: { en: "Join other creators & brands", fr: "Rejoignez d'autres créateurs" }, href: "#", Icon: FaUsers },
+        { label: { en: "Start Page", fr: "Page de Démarrage" }, description: { en: "Build a beautiful link-in-bio", fr: "Créez une belle page de lien en bio" }, href: "#", Icon: FaPlayCircle }
+      ]
     }
+  ],
+  featured: { 
+    label: { en: "New! Introducing Channels", fr: "Nouveau ! Présentation des Canaux" }, 
+    description: { en: "Connect all your social accounts.", fr: "Connectez tous vos comptes sociaux." }, 
+    href: "#", 
+    image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400" 
+  },
+};
+
+const channelsMenuData = {
+  type: 'channels' as const,
+  channels: [
+    { label: { en: "Facebook", fr: "Facebook" }, href: "#", Icon: FaFacebookF },
+    { label: { en: "Instagram", fr: "Instagram" }, href: "#", Icon: FaInstagram },
+    { label: { en: "Twitter", fr: "Twitter" }, href: "#", Icon: FaTwitter },
+    { label: { en: "LinkedIn", fr: "LinkedIn" }, href: "#", Icon: FaLinkedinIn },
+    { label: { en: "Pinterest", fr: "Pinterest" }, href: "#", Icon: FaPinterestP },
+    { label: { en: "TikTok", fr: "TikTok" }, href: "#", Icon: FaTiktok },
+  ]
+};
+
+type NavLink = {
+  label: { en: string; fr: string };
+  href?: string;
+  hasDropdown?: boolean;
+  dropdownContent?: typeof megaMenuData | typeof channelsMenuData;
+};
+
+const navLinks: NavLink[] = [
+  { label: { en: "Features", fr: "Fonctionnalités" }, hasDropdown: true, dropdownContent: megaMenuData },
+  { label: { en: "Channels", fr: "Canaux" }, hasDropdown: true, dropdownContent: channelsMenuData },
+  { label: { en: "Pricing", fr: "Tarifs" }, href: "/pricing" },
+  { label: { en: "Community", fr: "Communauté" }, href: "/#support-section" },
+];
+
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
+  const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>(null);
+  
+  const { language, toggleLanguage, t } = useLanguage();
+
+  const toggleDarkMode = () => { 
+    setIsDark(!isDark); 
+    document.documentElement.classList.toggle("dark"); 
   };
 
+  useEffect(() => { 
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll); 
+    return () => window.removeEventListener('scroll', handleScroll); 
+  }, []);
+
+  useEffect(() => { 
+    if(isMobileMenuOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+  }, [isMobileMenuOpen]);
+
+  const getTranslatedText = (text: { en: string; fr: string } | string) => {
+    if (typeof text === 'string') return text;
+    return language === 'fr' ? text.fr : text.en;
+  };
+
+  const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+      <div className="flex p-5">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-4 pr-5 border-r border-gray-200 dark:border-gray-700">
+          {content.columns.map((col) => (
+            <div key={getTranslatedText(col.heading)}>
+              <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3 whitespace-nowrap">{getTranslatedText(col.heading)}</h3>
+              <div className="space-y-2">
+                {col.links.map((link) => (
+                  <a key={getTranslatedText(link.label)} href={link.href} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <link.Icon className="w-5 h-5 mt-1 text-[#3C48F6]" />
+                    <div>
+                      <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{getTranslatedText(link.label)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{getTranslatedText(link.description)}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const ChannelsMenu = ({ content }: { content: typeof channelsMenuData }) => (
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+      <div className="grid grid-cols-3 gap-4 p-6">
+        {content.channels.map((channel) => (
+          <a key={getTranslatedText(channel.label)} href={channel.href} className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <channel.Icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{getTranslatedText(channel.label)}</span>
+          </a>
+        ))}
+      </div>
+    </motion.div>
+  );
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 lg:grid lg:grid-cols-2">
-      
-      {/* --- LEFT SIDE: FORM --- */}
-      <div className="flex flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div>
-            <Link href="/">
-              {/* NEXTJS CHANGE: Path points to public/assets */}
-              <img className="h-10 w-auto" src="/assets/WiggleLogo.png" alt="Wiggle Logo" />
-            </Link>
-            <h1 className="mt-8 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Welcome back</h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Sign in to continue to Wiggle.</p>
-          </div>
-          <div className="mt-10">
-            <div>
-              <button type="button" className="w-full flex items-center justify-center gap-3 rounded-md bg-white dark:bg-gray-800 px-3 py-2.5 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <FaGoogle className="w-5 h-5" /> Continue with Google
-              </button>
-            </div>
-            <div className="relative mt-6">
-              <div className="absolute inset-0 flex items-center" aria-hidden="true"><div className="w-full border-t border-gray-200 dark:border-gray-700" /></div>
-              <div className="relative flex justify-center text-sm"><span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">OR</span></div>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">Email Address</label>
-                <div className="mt-2">
-                  <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="block w-full rounded-md border-0 py-2.5 text-gray-900 dark:bg-gray-800 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all" />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">Password</label>
-                <div className="relative mt-2">
-                  <input id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="block w-full rounded-md border-0 py-2.5 text-gray-900 dark:bg-gray-800 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all pr-10" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label={showPassword ? 'Hide password' : 'Show password'}>
-                    {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </div>
-              {error && (<div className="rounded-md bg-red-50 p-4"><div className="flex"><div className="ml-3"><p className="text-sm font-medium text-red-800">{error}</p></div></div></div>)}
-              
-              <div className="text-sm text-right">
-                <Link href="/forgot-password" className="font-semibold text-primary hover:text-blue-500">
-                  Forgot password?
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm`}>
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+
+          {/* LEFT: Logo */}
+          <Link href="/" className="flex items-center gap-2 z-50 mr-8">
+            <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-10 h-10 object-contain" />
+            <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Wiggle</span>
+          </Link>
+          
+          {/* CENTER: Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-8">
+            {navLinks.map((item) => (
+              <div key={getTranslatedText(item.label)} className="relative" onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} onMouseLeave={() => setHoveredDropdown(null)}>
+                <Link href={item.href || "#"} className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#3C48F6] dark:hover:text-[#3C48F6] transition" onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}>
+                  {getTranslatedText(item.label)}
+                  {item.hasDropdown && <FaChevronDown className="w-3 h-3" />}
                 </Link>
+                <AnimatePresence>
+                  {item.hasDropdown && hoveredDropdown === getTranslatedText(item.label) && item.dropdownContent && (
+                    <>
+                      {item.dropdownContent.type === 'mega' && (<MegaMenu content={item.dropdownContent} />)}
+                      {item.dropdownContent.type === 'channels' && (<ChannelsMenu content={item.dropdownContent} />)}
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
+            ))}
+          </div>
 
-              <div>
-                <button type="submit" disabled={isLoading} className="flex w-full justify-center rounded-md bg-primary px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                  {isLoading ? <FaSpinner className="animate-spin h-5 w-5" /> : 'Sign in'}
-                </button>
-              </div>
-            </form>
-            <p className="mt-10 text-center text-sm text-gray-500">Don't have an account?{' '}
-              <Link href="/signup" className="font-semibold leading-6 text-primary hover:text-blue-500">
-                Sign up for free
-              </Link>
-            </p>
+          {/* RIGHT: Actions (Buttons styled with Brand Color) */}
+          <div className="hidden lg:flex items-center gap-4">
+            {/* Connexion Button (Text Brand Color) */}
+            <Link 
+              href="/login" 
+              className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors"
+            >
+              {t("Log in", "Connexion")}
+            </Link>
+            
+            {/* Get Started Button (Background Brand Color, Rounded) */}
+            <Link 
+              href="/signup" 
+              className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+            >
+              {t("Get started now", "Commencer")}
+            </Link>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
+            <button onClick={toggleLanguage} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><FaGlobe className="w-5 h-5" /></button>
+            <button onClick={toggleDarkMode} className="p-2 rounded-lg text-gray-800 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">{isDark ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}</button>
+          </div>
+
+          {/* Mobile Toggle */}
+          <div className="lg:hidden flex items-center gap-3">
+            <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Get started", "Démarrer")}</Link>
+            <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-lg text-gray-700 dark:text-gray-300"><FaBars className="w-6 h-6" /></button>
           </div>
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: VISUAL --- */}
-      <div className="relative hidden lg:flex flex-col h-full w-full bg-gray-50 dark:bg-gray-900">
-        {/* NEXTJS CHANGE: Points to public/assets/3.jpg */}
-        <img 
-          src="/assets/3.jpg" 
-          alt="Office Workspace" 
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        <div className="relative z-10 mt-auto p-12 text-white">
-          <blockquote className="text-2xl font-medium leading-relaxed mb-6">
-            "EasyPost completely changed how our agency manages content. We save about 15 hours a week."
-          </blockquote>
-          <div className="flex items-center gap-4">
-            {/* NEXTJS CHANGE: Points to public/assets/PBD.jpg */}
-            <img 
-              src="/assets/PBD.jpg"
-              alt="User" 
-              className="w-12 h-12 rounded-full border-2 border-white"
-            />
-            <div>
-              <p className="font-bold">Dr Ahmed Abdullah</p>
-              <p className="text-sm text-gray-300">Social Media Manager @ PBD</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 z-[999]" onClick={() => setIsMobileMenuOpen(false)} />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} className="fixed right-0 top-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-[1000] flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+                <span className="font-semibold text-lg">{t('Menu', 'Menu')}</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"><FaTimes className="w-6 h-6" /></button>
+              </div>
+              
+              <div className="flex-grow p-4 space-y-4">
+                {navLinks.map((item) => (
+                   <div key={getTranslatedText(item.label)} className="border-b border-gray-100 dark:border-gray-800 pb-4">
+                     <Link href={item.href || "#"} onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-gray-800 dark:text-white block">
+                       {getTranslatedText(item.label)}
+                     </Link>
+                   </div>
+                ))}
+                
+                <div className="mt-8 space-y-3">
+                   <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                      {t("Log in", "Connexion")}
+                   </Link>
+                   <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                      {t("Get started now", "Commencer")}
+                   </Link>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </nav>
   );
 };
 
-export default LoginPage;
+export default Navbar;

@@ -2,12 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link"; // Changed from react-router-dom
-import { usePathname } from "next/navigation"; 
+import Link from "next/link"; 
 import {
-  FaMoon, FaSun, FaChevronDown, FaBars, FaGlobe, FaRocket, FaPaperPlane,
-  FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaPinterestP, FaTiktok, FaMagic,
-  FaUsers, FaHandshake, FaPlayCircle, FaTimes
+  FaMoon, 
+  FaSun, 
+  FaChevronDown, 
+  FaBars, 
+  FaGlobe, 
+  FaRocket, 
+  FaPaperPlane,
+  FaFacebookF, 
+  FaInstagram, 
+  FaTwitter, 
+  FaLinkedinIn, 
+  FaPinterestP, 
+  FaTiktok, 
+  FaMagic,
+  FaUsers,
+  FaHandshake,
+  FaPlayCircle,
+  FaTimes 
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
@@ -73,7 +87,7 @@ const navLinks: NavLink[] = [
   { label: { en: "Community", fr: "Communauté" }, href: "/#support-section" },
 ];
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -82,17 +96,47 @@ const Navbar = () => {
   
   const { language, toggleLanguage, t } = useLanguage();
 
-  const toggleDarkMode = () => { 
-    setIsDark(!isDark); 
-    document.documentElement.classList.toggle("dark"); 
+  // --- FIXED DARK MODE LOGIC ---
+  
+  // 1. Check LocalStorage on mount
+    useEffect(() => {
+    // Check if user previously selected dark mode
+    const savedTheme = localStorage.getItem("theme");
+    
+    // Check system preference
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Logic: If saved is dark, OR (no save AND system is dark)
+    if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+      setIsDark(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  // 2. Toggle and Save Preference
+    const toggleDarkMode = () => {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
   };
 
+  // Scroll detection
   useEffect(() => { 
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll); 
     return () => window.removeEventListener('scroll', handleScroll); 
   }, []);
 
+  // Lock body scroll when mobile menu is open
   useEffect(() => { 
     if(isMobileMenuOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
@@ -103,7 +147,6 @@ const Navbar = () => {
     return language === 'fr' ? text.fr : text.en;
   };
 
-  // ... MegaMenu and ChannelsMenu components are mostly same logic ...
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
       <div className="flex p-5">
@@ -114,7 +157,7 @@ const Navbar = () => {
               <div className="space-y-2">
                 {col.links.map((link) => (
                   <a key={getTranslatedText(link.label)} href={link.href} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <link.Icon className="w-5 h-5 mt-1 text-primary" />
+                    <link.Icon className="w-5 h-5 mt-1 text-[#3C48F6]" />
                     <div>
                       <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{getTranslatedText(link.label)}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{getTranslatedText(link.description)}</p>
@@ -125,6 +168,18 @@ const Navbar = () => {
             </div>
           ))}
         </div>
+        {content.featured && (
+          <div className="pl-5 w-48 flex-shrink-0">
+            <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative h-full">
+              <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
+              <div className="absolute bottom-0 left-0 p-4">
+                <p className="font-semibold text-white text-sm">{getTranslatedText(content.featured.label)}</p>
+                <p className="text-xs text-gray-200">{getTranslatedText(content.featured.description)}</p>
+              </div>
+            </a>
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -143,21 +198,21 @@ const Navbar = () => {
   );
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-gray-900/95 shadow-md' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14' : 'h-16'}`}>
+        <div className="flex items-center justify-between h-20">
 
-          {/* LEFT: Logo (Using /assets path) */}
+          {/* LEFT: Logo */}
           <Link href="/" className="flex items-center gap-2 z-50 mr-8">
             <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-10 h-10 object-contain" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">asyPost</span>
+            <span className="text-2xl font-bold text-gray-900 text-[#3C48F6] tracking-tight">asyPost</span>
           </Link>
           
           {/* CENTER: Desktop Menu */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((item) => (
               <div key={getTranslatedText(item.label)} className="relative" onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} onMouseLeave={() => setHoveredDropdown(null)}>
-                <Link href={item.href || "#"} className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition" onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}>
+                <Link href={item.href || "#"} className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#3C48F6] dark:hover:text-[#3C48F6] transition" onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}>
                   {getTranslatedText(item.label)}
                   {item.hasDropdown && <FaChevronDown className="w-3 h-3" />}
                 </Link>
@@ -174,32 +229,58 @@ const Navbar = () => {
           </div>
 
           {/* RIGHT: Actions */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Link href="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">{t("Log in", "Connexion")}</Link>
-            <Link href="/signup" className="px-5 py-2 bg-primary text-white font-medium text-sm rounded-ful bg-blue-600 transition-colors">{t("Get started now", "Commencer")}</Link>
-            <button onClick={toggleLanguage} className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><FaGlobe className="w-5 h-5" /></button>
-            <button onClick={toggleDarkMode} className="p-2 rounded-lg text-gray-800 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">{isDark ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}</button>
+          <div className="hidden lg:flex items-center gap-4">
+            <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
+              {t("Log in", "Connexion")}
+            </Link>
+            <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+              {t("Get started now", "Commencer")}
+            </Link>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
+            <button onClick={toggleLanguage} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><FaGlobe className="w-5 h-5" /></button>
+            <button onClick={toggleDarkMode} className="p-2 rounded-lg text-gray-800 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              {isDark ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
+            </button>
           </div>
 
           {/* Mobile Toggle */}
-          <div className="lg:hidden flex items-center gap-2">
-            <Link href="/signup" className="px-4 py-2 bg-primary text-white font-medium text-sm rounded-lg hover:bg-blue-600 transition">{t("Get started", "Démarrer")}</Link>
+          <div className="lg:hidden flex items-center gap-3">
+            <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Get started", "Démarrer")}</Link>
             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-lg text-gray-700 dark:text-gray-300"><FaBars className="w-6 h-6" /></button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu (Simplification for brevity) */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 z-[999]" onClick={() => setIsMobileMenuOpen(false)} />
             <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} className="fixed right-0 top-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-[1000] flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b">
-                <span className="font-semibold">{t('Menu', 'Menu')}</span>
-                <button onClick={() => setIsMobileMenuOpen(false)}><FaTimes className="w-6 h-6" /></button>
+              <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+                <span className="font-semibold text-lg">{t('Menu', 'Menu')}</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"><FaTimes className="w-6 h-6" /></button>
               </div>
-              {/* ... Mobile Links would go here ... */}
+              
+              <div className="flex-grow p-4 space-y-4">
+                {navLinks.map((item) => (
+                   <div key={getTranslatedText(item.label)} className="border-b border-gray-100 dark:border-gray-800 pb-4">
+                     <Link href={item.href || "#"} onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-gray-800 dark:text-white block">
+                       {getTranslatedText(item.label)}
+                     </Link>
+                   </div>
+                ))}
+                <div className="mt-8 space-y-3">
+                   <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                      {t("Log in", "Connexion")}
+                   </Link>
+                   <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                      {t("Get started now", "Commencer")}
+                   </Link>
+                </div>
+              </div>
             </motion.div>
           </>
         )}
