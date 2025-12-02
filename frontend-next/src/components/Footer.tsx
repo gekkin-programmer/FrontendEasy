@@ -1,5 +1,7 @@
+"use client";
+
 import React from 'react';
-import Logo from '../assets/Wiggle Logo.png';
+import Link from 'next/link';
 import {
   FaTwitter,
   FaFacebookF,
@@ -7,10 +9,10 @@ import {
   FaLinkedinIn,
   FaYoutube,
 } from 'react-icons/fa6';
-import { useLanguage } from '../context/LanguageContext'; // <-- added
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer: React.FC = () => {
-  const { t } = useLanguage(); // <-- added for translation
+  const { t } = useLanguage();
 
   // --- DATA: Updated with bilingual text ---
   const footerSections = [
@@ -52,29 +54,32 @@ const Footer: React.FC = () => {
     },
   ];
 
-  // --- DATA: Social links with brand hover colors ---
+  // --- DATA: Fixed Tailwind Classes ---
+  // Tailwind needs the FULL class name string to work, it can't compute "text-[" + color + "]" dynamically
   const socialLinks = [
-    { name: 'Instagram', Icon: FaInstagram, href: '#', hoverColor: 'text-[#E1306C]' },
-    { name: 'Facebook', Icon: FaFacebookF, href: '#', hoverColor: 'text-[#1877F2]' },
-    { name: 'Twitter', Icon: FaTwitter, href: '#', hoverColor: 'text-[#1DA1F2]' },
-    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', hoverColor: 'text-[#0A66C2]' },
-    { name: 'YouTube', Icon: FaYoutube, href: '#', hoverColor: 'text-[#FF0000]' },
+    { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'group-hover:text-[#E1306C]' },
+    { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'group-hover:text-[#1877F2]' },
+    { name: 'Twitter', Icon: FaTwitter, href: '#', className: 'group-hover:text-[#1DA1F2]' },
+    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', className: 'group-hover:text-[#0A66C2]' },
+    { name: 'YouTube', Icon: FaYoutube, href: '#', className: 'group-hover:text-[#FF0000]' },
   ];
 
   return (
     <footer className="bg-slate-50 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+          
           {/* Logo and company description section */}
           <div className="space-y-8 xl:col-span-1">
-            <a href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
+              {/* Pointing directly to public/assets */}
               <img
                 className="h-8 w-auto"
-                src={Logo}
+                src="/assets/WiggleLogo.png" 
                 alt="EasyPost Logo"
               />
-            </a>
-            <p className="text-slate-500 dark:text-slate-400 text-base">
+            </Link>
+            <p className="text-slate-500 dark:text-slate-400 text-base max-w-xs">
               {t(
                 'The simplest way to plan, create, and share content on social media.',
                 'La manière la plus simple de planifier, créer et partager du contenu sur les réseaux sociaux.'
@@ -86,9 +91,9 @@ const Footer: React.FC = () => {
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               {footerSections.slice(0, 2).map((section) => (
-                <div key={section.title}>
+                <div key={section.title} className="mb-10 md:mb-0">
                   <h3
-                    className="text-sm font-semibold tracking-wider uppercase"
+                    className="text-sm font-bold tracking-wider uppercase"
                     style={{ color: '#3C48F6' }}
                   >
                     {section.title}
@@ -96,12 +101,12 @@ const Footer: React.FC = () => {
                   <ul className="mt-4 space-y-4">
                     {section.links.map((link) => (
                       <li key={link.label}>
-                        <a
+                        <Link
                           href={link.href}
                           className="text-base text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors duration-200"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -110,9 +115,9 @@ const Footer: React.FC = () => {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               {footerSections.slice(2, 4).map((section) => (
-                <div key={section.title} className="mt-12 md:mt-0">
+                <div key={section.title} className="mb-10 md:mb-0">
                   <h3
-                    className="text-sm font-semibold tracking-wider uppercase"
+                    className="text-sm font-bold tracking-wider uppercase"
                     style={{ color: '#3C48F6' }}
                   >
                     {section.title}
@@ -120,12 +125,12 @@ const Footer: React.FC = () => {
                   <ul className="mt-4 space-y-4">
                     {section.links.map((link) => (
                       <li key={link.label}>
-                        <a
+                        <Link
                           href={link.href}
                           className="text-base text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors duration-200"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -150,7 +155,7 @@ const Footer: React.FC = () => {
               >
                 <span className="sr-only">{link.name}</span>
                 <link.Icon
-                  className={`h-6 w-6 transition-colors duration-300 group-hover:${link.hoverColor}`}
+                  className={`h-6 w-6 transition-colors duration-300 ${link.className}`}
                   aria-hidden="true"
                 />
               </a>

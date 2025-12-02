@@ -67,12 +67,21 @@ const Hero: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative bg-gray-50 dark:bg-gray-900 overflow-hidden min-h-[90vh] py-20 px-4 sm:px-6 flex items-center justify-center">
-      {/* --- BACKGROUND GRIDS --- */}
+    <section className="relative w-full min-h-screen pt-20">
+            {/* --- LIGHT MODE GRID (Gray lines on White) --- */}
       <div
-        className="absolute inset-0 opacity-10 md:opacity-30 dark:hidden pointer-events-none"
+        className="absolute inset-0 z-0 opacity-30 dark:hidden pointer-events-none"
         style={{
           backgroundImage: `linear-gradient(#d1d5db 1px, transparent 1px), linear-gradient(90deg, #d1d5db 1px, transparent 1px)`,
+          backgroundSize: "30px 30px",
+        }}
+      />
+
+      {/* --- DARK MODE GRID (Dark Gray lines on Black) --- */}
+      <div
+        className="absolute inset-0 z-0 opacity-20 hidden dark:block pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(#374151 1px, transparent 1px), linear-gradient(90deg, #374151 1px, transparent 1px)`,
           backgroundSize: "30px 30px",
         }}
       />

@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import { JetBrains_Mono } from "next/font/google";
+import Preloader from "../components/Preloader";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jetbrainsMono.variable} antialiased`}>
+        <Preloader />
         <LanguageProvider>
           <Navbar />
           <main className="pt-16">
