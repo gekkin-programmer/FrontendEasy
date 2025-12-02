@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa6';
-// Adjust this import path if api.ts is in a different location
-import { login } from '../../api'; 
+import { login } from '../../api';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -23,8 +22,8 @@ const LoginPage = () => {
 
     try {
       await login(email, password);
-      // Next.js router method for redirecting
-      router.push('/');
+      // Redirect to the Dashboard
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || "An error occurred during login");
     } finally {
@@ -34,8 +33,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 lg:grid lg:grid-cols-2">
-      
-      {/* LEFT COLUMN: LOGIN FORM */}
+      {/* Left Column: Form */}
       <div className="flex flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div>
@@ -158,10 +156,9 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: VISUAL PANEL */}
+      {/* Right Column: Visual Panel */}
       <div className="relative hidden lg:flex flex-col h-full w-full bg-gray-50 dark:bg-gray-900">
-        
-        {/* Optimized Background Image */}
+        {/* Background Image using Next/Image fill */}
         <div className="absolute inset-0 w-full h-full">
           <Image 
             src="/assets/3.jpg"
@@ -176,7 +173,7 @@ const LoginPage = () => {
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        {/* Content */}
+        {/* Testimonial Content */}
         <div className="relative z-10 mt-auto p-12 text-white">
           <blockquote className="text-2xl font-medium leading-relaxed mb-6">
             "EasyPost completely changed how our agency manages content. We save about 15 hours a week."

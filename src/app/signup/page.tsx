@@ -24,7 +24,7 @@ const SignupPage = () => {
       // Simulate signup
       // await signup(email, password);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || "An error occurred during signup");
     } finally {

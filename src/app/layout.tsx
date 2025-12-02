@@ -6,7 +6,7 @@ import Preloader from "../components/Preloader";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono", // This defines the CSS variable name
+  variable: "--font-jetbrains-mono", 
   display: "swap",
 });
 
@@ -25,8 +25,7 @@ export default function RootLayout({
       <body className={`${jetbrainsMono.variable} antialiased`}>
         <Preloader />
         <LanguageProvider>
-          <Navbar />
-          <main className="pt-16">
+          <main>
              {children}
           </main>
         </LanguageProvider>
