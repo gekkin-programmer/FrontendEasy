@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from 'next/navigation'; // 1. Ensure this is imported
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
@@ -89,6 +90,9 @@ const navLinks: NavLink[] = [
 ];
 
 const Navbar: React.FC = () => {
+  // 2. Get the current path
+  const pathname = usePathname(); 
+  
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -96,7 +100,7 @@ const Navbar: React.FC = () => {
   
   const { language, toggleLanguage, t } = useLanguage();
 
-  // 1. Check LocalStorage on mount
+  // Check LocalStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -109,7 +113,7 @@ const Navbar: React.FC = () => {
     }
   }, []);
 
-  // 2. Toggle and Save Preference
+  // Toggle and Save Preference
   const toggleDarkMode = () => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
@@ -165,7 +169,6 @@ const Navbar: React.FC = () => {
         {content.featured && (
           <div className="pl-5 w-48 flex-shrink-0">
             <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative h-full">
-              {/* Using standard img for external URL to avoid config requirements, or configure next.config.ts */}
               <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
               <div className="absolute bottom-0 left-0 p-4">
@@ -192,6 +195,11 @@ const Navbar: React.FC = () => {
       </div>
     </motion.div>
   );
+
+  // 3. CONDITIONAL RENDER: If not home page, return null
+  if (pathname !== "/") {
+    return null;
+  }
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
