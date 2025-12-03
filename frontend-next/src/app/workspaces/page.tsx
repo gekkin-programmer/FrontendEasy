@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   getWorkspaces, createWorkspace, updateWorkspace, deleteWorkspace, Workspace 
 } from '@/services/workspaceApi';
-
 const MAX_WORKSPACES = 5;
 
 export default function WorkspaceManager() {
@@ -170,7 +169,7 @@ export default function WorkspaceManager() {
 
                   {/* Footer */}
                   <div className="flex justify-between items-center z-10 mt-auto pointer-events-auto">
-                     <Link href="/dashboard">
+                    <Link href={`/dashboard/${ws.id}`}>
                       <button className="text-sm font-bold text-white bg-[#3C48F6] px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
                           Enter <FiCheck />
                       </button>

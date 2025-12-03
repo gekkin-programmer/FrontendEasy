@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaGoogle, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa6';
-// import { signup } from '../../api';
 
 const SignupPage = () => {
   const router = useRouter();
@@ -21,10 +20,12 @@ const SignupPage = () => {
     setError(null);
 
     try {
-      // Simulate signup
-      // await signup(email, password);
+      // Simulate signup API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push('/dashboard');
+      
+      // ✅ SUCCESS: Redirect to Workspace Manager first
+      router.push('/workspaces');
+      
     } catch (err: any) {
       setError(err.message || "An error occurred during signup");
     } finally {

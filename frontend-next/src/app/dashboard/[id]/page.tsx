@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FiHome, FiGrid, FiUsers, FiBell, FiSearch, FiPlus, 
   FiMoreVertical, FiCheckCircle, FiClock, FiEdit3, FiTrendingUp 
 } from 'react-icons/fi';
 import { FaSlack, FaJira, FaFigma } from 'react-icons/fa';
+import { useParams } from 'next/navigation';
 
 // --- Mock Data ---
 const members = [
@@ -27,6 +28,18 @@ const posts = [
 ];
 
 export default function BrandDashboard() {
+  const params = useParams();
+  const workspaceId = params.id;
+  const [workspaceName, setWorkspaceName] = useState('Loading...');
+
+   useEffect(() => {
+    // In a real app, you would fetch(API / workspaces / workspaceId)
+    // Here we just fake it for the demo
+    if (workspaceId === '1') setWorkspaceName('Stark Industries');
+    else if (workspaceId === '2') setWorkspaceName('Side Hustle');
+    else setWorkspaceName(`Workspace #${workspaceId}`);
+  }, [workspaceId]);
+
   const [activeTab, setActiveTab] = useState('posts');
 
   return (

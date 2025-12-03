@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image'; // Import Next.js Image
 
 const Preloader = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -33,36 +34,35 @@ const Preloader = () => {
             transition: { duration: 0.5, ease: "easeInOut" } // Fade out entire screen
           }}
         >
-          <div className="flex items-center justify-center gap-2">
-            {/* --- LOGO ICON (WIGGLE EFFECT) --- */}
-            <motion.svg
-              width="80"
-              height="80"
-              viewBox="0 0 100 100"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+          <div className="flex items-center justify-center gap-1"> {/* Gap-1 keeps the E close to text */}
+            
+            {/* --- LOGO IMAGE (The "E") --- */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0, rotate: -45 }}
+              animate={{ 
+                scale: 1, 
+                opacity: 1, 
+                rotate: 0,
+                transition: { 
+                  duration: 0.8, 
+                  ease: [0.34, 1.56, 0.64, 1], // "Pop" / Bouncy effect
+                  delay: 0.2 
+                }
+              }}
             >
-              <motion.path
-                d="M62.6,71.2C49.9,71,43.3,60.5,43.4,49c0.1-13.3,11.5-22.1,23.1-20.9c6.1,0.6,12,5.2,12.7,11.2c0.9,7.6-3.8,14.7-10.7,16.8 c-7.4,2.2-15.5-0.1-20.1-6.1C44,44.2,46.5,37,52,34.4c8-3.8,17.2-0.1,21.3,7.2c3.4,6.2,2.3,14-2.8,18.9 c-7.3,7-18.1,7.9-26.6,2.8C35,58,31,48.2,33.5,38.5C36.8,26,48.2,16.6,60.8,18.7"
-                stroke="#3C48F6"
-                strokeWidth="6" // Made slightly thinner for elegance
-                strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ 
-                  pathLength: 1, 
-                  opacity: 1,
-                  transition: { 
-                    duration: 2, 
-                    ease: "easeInOut",
-                    delay: 0.2 
-                  }
-                }}
+              <Image 
+                src="/assets/WiggleLogo.png" // Make sure the image is saved here!
+                alt="E"
+                width={70} 
+                height={70}
+                className="object-contain"
+                priority
               />
-            </motion.svg>
+            </motion.div>
 
-            {/* --- TEXT ANIMATION --- */}
+            {/* --- TEXT ANIMATION ("asyPost") --- */}
             <motion.div 
-              className="text-5xl font-extrabold text-[#3C48F6] flex overflow-hidden"
+              className="text-5xl font-extrabold text-[#3C48F6] flex overflow-hidden pb-2" // pb-2 fixes font clipping
               initial="hidden"
               animate="visible"
             >
@@ -70,13 +70,13 @@ const Preloader = () => {
                 <motion.span
                   key={index}
                   variants={{
-                    hidden: { y: 20, opacity: 0 },
+                    hidden: { y: 40, opacity: 0 },
                     visible: {
                       y: 0,
                       opacity: 1,
                       transition: {
-                        delay: 0.8 + (index * 0.1), // Starts after logo draws
-                        duration: 0.4,
+                        delay: 0.6 + (index * 0.1), // Starts after logo pops in
+                        duration: 0.5,
                         ease: "easeOut"
                       }
                     }
