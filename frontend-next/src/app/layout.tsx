@@ -11,7 +11,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Wiggle",
+  title: "EasyPost",
   description: "Social Media Scheduler",
 };
 

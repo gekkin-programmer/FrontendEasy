@@ -1,19 +1,50 @@
-// src/api.ts
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-export const login = async (email: string, password: string) => {
-  console.log("Attempting login with:", email);
-  
-  // Simulate a network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+// 1. Create the instance
+const apiClient = axios.create({
+  // Ensure this matches your FastAPI URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api', 
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  // Mock success (You can change this logic later)
-  if (email && password) {
-    return {
-      success: true,
-      token: "fake-jwt-token-123",
-      user: { name: "Dr Ahmed", email: email }
-    };
+// 2. Request Interceptor (Attaches Token)
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
   }
+);
 
-  throw new Error("Invalid credentials");
-};
+// 3. Response Interceptor (Handles 401 & 422)
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (error.response) {
+      // Handle 401 Unauthorized (Token expired)
+      if (error.response.status === 401) {
+        if (typeof window !== 'undefined') {
+          // Optional: Clear token before redirect
+          localStorage.removeItem('token'); 
+          window.location.href = '/login';
+        }
+      }
+
+      // Handle 422 Validation Errors (FastAPI specific)
+      if (error.response.status === 422) {
+        console.error('FastAPI Validation Error:', error.response.data);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
