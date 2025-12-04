@@ -1,255 +1,282 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Toaster, toast } from 'sonner';
 import { 
-  FiHome, FiGrid, FiUsers, FiBell, FiSearch, FiPlus, 
-  FiMoreVertical, FiCheckCircle, FiClock, FiEdit3, FiTrendingUp 
+  FiLayers, FiBarChart2, FiMessageCircle, FiSettings, 
+  FiSearch, FiBell, FiCheck, FiChevronDown, FiPlus, FiUsers, FiLoader
 } from 'react-icons/fi';
-import { FaSlack, FaJira, FaFigma } from 'react-icons/fa';
-import { useParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// --- Mock Data ---
-const members = [
-  { id: 1, name: 'Sarah K.', role: 'Admin', img: 'https://i.pravatar.cc/150?u=1' },
-  { id: 2, name: 'Mike R.', role: 'Editor', img: 'https://i.pravatar.cc/150?u=2' },
-  { id: 3, name: 'Jessica', role: 'Viewer', img: 'https://i.pravatar.cc/150?u=3' },
-];
+// Component Imports
+import Composer from '@/src/components/easypost/Composer';
+import PostFeed from '@/src/components/easypost/PostFeed';
+import Analytics from '@/src/components/easypost/Analytics';
+import { INITIAL_POSTS, Post } from '@/src/components/easypost/types';
 
-const notifications = [
-  { id: 1, text: 'Sarah commented on "Q3 Roadmap"', time: '2m ago', type: 'comment' },
-  { id: 2, text: 'System: Monthly report ready', time: '1h ago', type: 'system' },
-  { id: 3, text: 'New member joined: Alex D.', time: '3h ago', type: 'user' },
-];
+// Services
+import { getWorkspaces, Workspace } from '@/services/workspaceApi';
+import { createPost } from '@/services/postApi';
 
-const posts = [
-  { title: 'Introducing the new API', status: 'Scheduled', date: 'Tomorrow, 9AM', category: 'DevRel' },
-  { title: '5 Tips for Productivity', status: 'Draft', date: 'Last edited 10m ago', category: 'Marketing' },
-  { title: 'Welcome to the team', status: 'Published', date: 'Yesterday', category: 'HR' },
-];
+type TabType = 'queue' | 'analytics' | 'engagement' | 'settings' | 'team';
 
-export default function BrandDashboard() {
-  const params = useParams();
-  const workspaceId = params.id;
-  const [workspaceName, setWorkspaceName] = useState('Loading...');
+export default function BufferDashboard() {
+    const params = useParams();
+    const router = useRouter();
+    const workspaceId = Number(params.id); // Get ID from URL
 
-   useEffect(() => {
-    // In a real app, you would fetch(API / workspaces / workspaceId)
-    // Here we just fake it for the demo
-    if (workspaceId === '1') setWorkspaceName('Stark Industries');
-    else if (workspaceId === '2') setWorkspaceName('Side Hustle');
-    else setWorkspaceName(`Workspace #${workspaceId}`);
-  }, [workspaceId]);
+    // --- REAL STATE ---
+    const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+    const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // --- UI STATE ---
+    const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+    const [activeTab, setActiveTab] = useState<TabType>('queue');
+    const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('posts');
-
-  return (
-    <div className="flex min-h-screen bg-[#F8F9FC] font-sans text-gray-800">
-      
-      {/* 1. Slim Sidebar (Navigation) */}
-      <aside className="w-20 bg-white border-r border-gray-100 flex flex-col items-center py-8 sticky top-0 h-screen z-20">
-        {/* Brand Logo */}
-        <div className="w-10 h-10 bg-[#3C48F6] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/30 mb-10">
-          H
-        </div>
-
-        {/* Nav Icons */}
-        <nav className="flex-1 space-y-6 w-full flex flex-col items-center">
-          <NavIcon icon={FiHome} active />
-          <NavIcon icon={FiGrid} />
-          <NavIcon icon={FiUsers} />
-          <div className="relative">
-            <NavIcon icon={FiBell} />
-            <span className="absolute top-0 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-          </div>
-        </nav>
-
-        {/* User Profile */}
-        <img src="https://i.pravatar.cc/150?u=8" className="w-10 h-10 rounded-full border-2 border-gray-100" alt="User" />
-      </aside>
-
-      {/* 2. Main Content */}
-      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
-        
-        {/* Header: Workspace & Actions */}
-        <header className="flex justify-between items-center mb-10">
-          <div>
-            <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-              <span>Workspaces</span> / <span className="text-gray-800 font-medium">Acme Corp</span>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">Overview</h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Search Pill */}
-            <div className="hidden md:flex items-center bg-white px-4 py-2.5 rounded-full border border-gray-200 shadow-sm focus-within:border-[#3C48F6] transition-colors">
-              <FiSearch className="text-gray-400 mr-2" />
-              <input type="text" placeholder="Search projects..." className="bg-transparent outline-none text-sm w-48" />
-            </div>
+    // 1. LOAD REAL DATA
+    useEffect(() => {
+        const load = async () => {
+            const all = await getWorkspaces();
+            setWorkspaces(all);
             
-            {/* Primary Action Button */}
-            <button className="bg-[#3C48F6] hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all transform hover:-translate-y-0.5">
-              <FiPlus className="w-4 h-4" /> Create Post
-            </button>
-          </div>
-        </header>
+            const found = all.find(w => w.id === workspaceId);
+            if (found) {
+                setCurrentWorkspace(found);
+            } else if (all.length > 0) {
+                // Fallback if ID invalid: go to first workspace
+                router.push(`/dashboard/${all[0].id}`);
+            } else {
+                // No workspaces at all? Go create one
+                router.push('/workspaces');
+            }
+            setIsLoading(false);
+        };
+        load();
+    }, [workspaceId, router]);
 
-        {/* Top Grid: Analytics & Members */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-          
-          {/* Analytics (Span 8) */}
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-            <div className="flex justify-between items-start">
-              <div>
-                 <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Reach</h3>
-                 <div className="flex items-baseline gap-3 mt-1">
-                    <span className="text-4xl font-bold text-gray-900">128.4K</span>
-                 </div>
-              </div>
-              {/* Interactive Tabs */}
-              <div className="flex bg-gray-50 p-1 rounded-lg">
-                <button className="px-3 py-1 text-xs font-medium rounded-md bg-white text-gray-900 shadow-sm">7 Days</button>
-                <button className="px-3 py-1 text-xs font-medium rounded-md text-gray-500 hover:text-gray-900">30 Days</button>
-              </div>
-            </div>
+    // 2. HANDLE SWITCHING WORKSPACES
+    const switchWorkspace = (id: number) => {
+        setIsAccountMenuOpen(false);
+        router.push(`/dashboard/${id}`); // Next.js handles the reload/transition
+    };
 
-            {/* Styled Bar Chart using Brand Color */}
-            <div className="mt-8 h-32 flex items-end gap-2 justify-between">
-              {[35, 55, 40, 70, 50, 90, 65, 85, 60, 75, 95, 60, 80, 50].map((h, i) => (
-                <div key={i} className="w-full bg-[#3C48F6]/10 rounded-t-sm relative group cursor-pointer" style={{ height: `${h}%` }}>
-                  <div className="absolute bottom-0 w-full bg-[#3C48F6] rounded-t-sm transition-all duration-300 h-0 group-hover:h-full opacity-80"></div>
-                  <div className="w-full h-full bg-[#3C48F6] rounded-t-sm opacity-20"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Members & Quick Actions (Span 4) */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            {/* Members Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex-1">
-               <div className="flex justify-between items-center mb-4">
-                 <h3 className="font-bold text-gray-900">Team Members</h3>
-                 <button className="text-[#3C48F6] text-xs font-bold hover:underline">Invite</button>
-               </div>
-               <div className="space-y-4">
-                  {members.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3">
-                       <img src={m.img} alt={m.name} className="w-9 h-9 rounded-full" />
-                       <div className="flex-1">
-                         <p className="text-sm font-medium text-gray-900">{m.name}</p>
-                         <p className="text-xs text-gray-400">{m.role}</p>
-                       </div>
-                       <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    </div>
-                  ))}
-               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Middle Section: Content & Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Posts Manager (Span 2) */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-              <h3 className="font-bold text-gray-900 text-lg">Content Pipeline</h3>
-              <div className="flex gap-4 text-sm">
-                 {['Posts', 'Projects', 'Files'].map(tab => (
-                   <button 
-                    key={tab}
-                    className={`pb-1 font-medium transition-colors ${activeTab === tab.toLowerCase() ? 'text-[#3C48F6] border-b-2 border-[#3C48F6]' : 'text-gray-400'}`}
-                   >
-                     {tab}
-                   </button>
-                 ))}
-              </div>
-            </div>
+    // 3. CONNECT TO API (Using the FastAPI logic we built)
+    const handleAddPost = async (postData: any, file?: File | null) => {
+        try {
+            // Optimistic UI Update (Show immediately)
+            const tempPost = { ...postData, id: Date.now(), media: file ? URL.createObjectURL(file) : undefined };
+            setPosts([tempPost, ...posts]);
             
-            {/* Post List */}
-            <div className="divide-y divide-gray-50">
-              {posts.map((post, i) => (
-                <div key={i} className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between group">
-                   <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-lg ${
-                        post.status === 'Published' ? 'bg-green-100 text-green-600' : 
-                        post.status === 'Scheduled' ? 'bg-blue-100 text-blue-600' : 
-                        'bg-gray-100 text-gray-500'
-                      }`}>
-                        {post.status === 'Published' ? <FiCheckCircle /> : post.status === 'Scheduled' ? <FiClock /> : <FiEdit3 />}
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-900">{post.title}</h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{post.date}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                            {post.category}
-                          </span>
+            // Real API Call
+            await createPost(postData, file);
+            toast.success("Post scheduled successfully!");
+        } catch (err) {
+            toast.error("Failed to schedule post");
+            // Revert optimistic update if needed
+        }
+    };
+
+    if (isLoading || !currentWorkspace) return <div className="h-screen flex items-center justify-center"><FiLoader className="animate-spin text-blue-600 w-8 h-8"/></div>;
+
+    // --- PLAN LIMIT LOGIC ---
+    const PLAN_LIMITS: any = {
+        'free': { posts: 10, color: 'bg-gray-500' },
+        'starter': { posts: 100, color: 'bg-blue-500' },
+        'pro': { posts: 500, color: 'bg-purple-500' },
+        'agency': { posts: 9999, color: 'bg-indigo-600' }
+    };
+    const currentLimit = PLAN_LIMITS[currentWorkspace.plan || 'free'];
+
+    return (
+        <div className="flex h-screen bg-[#F5F5F5] font-sans text-gray-800">
+            <Toaster position="bottom-right" richColors />
+
+            {/* --- SIDEBAR --- */}
+            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col z-20 flex-shrink-0 transition-all">
+                
+                {/* 1. Dynamic Account Switcher */}
+                <div className="relative border-b border-gray-100">
+                    <button 
+                        onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                        className="w-full h-16 flex items-center px-4 hover:bg-gray-50 transition-colors text-left group"
+                    >
+                        <div 
+                            className="w-8 h-8 rounded-md flex items-center justify-center text-white font-bold mr-3 shadow-sm transition-transform group-hover:scale-105"
+                            style={{ backgroundColor: currentWorkspace.color || '#3C48F6' }}
+                        >
+                            {currentWorkspace.name.charAt(0).toUpperCase()}
                         </div>
-                      </div>
-                   </div>
-                   <button className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-[#3C48F6] transition-all">
-                     <FiMoreVertical />
-                   </button>
-                </div>
-              ))}
-            </div>
-            <div className="p-3 text-center">
-              <button className="text-sm font-medium text-gray-500 hover:text-[#3C48F6] transition-colors">View All Content</button>
-            </div>
-          </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-sm truncate text-gray-800">{currentWorkspace.name}</h3>
+                            <p className="text-xs text-gray-400 capitalize">{currentWorkspace.plan || 'Free'} Plan</p>
+                        </div>
+                        <FiChevronDown className={`text-gray-400 transition-transform duration-200 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
 
-          {/* Notifications & Connected Apps (Span 1) */}
-          <div className="space-y-6">
-             {/* Notifications Widget */}
-             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  Activity Feed 
-                  <span className="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full">3 New</span>
-                </h3>
-                <div className="space-y-4 relative before:absolute before:left-2 before:top-2 before:h-full before:w-0.5 before:bg-gray-100">
-                  {notifications.map((notif) => (
-                    <div key={notif.id} className="relative pl-6">
-                       <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-white border-2 border-[#3C48F6]"></div>
-                       <p className="text-sm text-gray-800 leading-tight">{notif.text}</p>
-                       <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
+                    {/* Workspace Dropdown */}
+                    <AnimatePresence>
+                        {isAccountMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute top-full left-2 right-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden mt-1"
+                            >
+                                <div className="max-h-60 overflow-y-auto">
+                                    {workspaces.map(ws => (
+                                        <button 
+                                            key={ws.id} 
+                                            onClick={() => switchWorkspace(ws.id)}
+                                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                                        >
+                                            <div className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: ws.color }}>
+                                                {ws.name.charAt(0)}
+                                            </div>
+                                            <span className={`text-sm font-medium flex-1 truncate ${currentWorkspace.id === ws.id ? 'text-blue-600' : 'text-gray-700'}`}>
+                                                {ws.name}
+                                            </span>
+                                            {currentWorkspace.id === ws.id && <FiCheck className="text-blue-600" />}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button onClick={() => router.push('/workspaces')} className="w-full flex items-center gap-2 border-t border-gray-100 bg-gray-50 px-4 py-3 text-xs font-bold text-blue-600 hover:bg-blue-50 transition-colors">
+                                    <FiPlus /> Manage / Add New
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* 2. Navigation */}
+                <nav className="p-4 space-y-1 flex-1">
+                    <SidebarItem icon={FiLayers} label="Queue" active={activeTab === 'queue'} onClick={() => setActiveTab('queue')} />
+                    <SidebarItem icon={FiBarChart2} label="Analytics" active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} />
+                    <SidebarItem icon={FiMessageCircle} label="Engagement" active={activeTab === 'engagement'} onClick={() => setActiveTab('engagement')} />
+                    
+                    {/* 3. Smart Upgrade: Only show 'Team' if Agency/Enterprise */}
+                    {['agency', 'enterprise'].includes(currentWorkspace.plan || '') && (
+                        <SidebarItem icon={FiUsers} label="Team Members" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />
+                    )}
+                    
+                    <SidebarItem icon={FiSettings} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+                </nav>
+                
+                {/* 4. Plan Usage Indicator */}
+                <div className="p-6 border-t border-gray-100">
+                    <div className={`rounded-xl p-4 text-white shadow-lg relative overflow-hidden ${currentLimit.color}`}>
+                        {/* Abstract Background Shape */}
+                        <div className="absolute -top-2 -right-2 w-12 h-12 bg-white/20 rounded-full blur-md"></div>
+                        
+                        <div className="flex justify-between items-center mb-2 relative z-10">
+                            <p className="text-xs font-medium opacity-90 capitalize">{currentWorkspace.plan || 'Free'} Plan</p>
+                            <button className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors">Upgrade</button>
+                        </div>
+                        
+                        <div className="w-full bg-black/20 h-1.5 rounded-full mb-2 overflow-hidden relative z-10">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '45%' }} // Mock usage data
+                                className="bg-white h-full rounded-full"
+                            />
+                        </div>
+                        <p className="text-[10px] font-bold relative z-10">45 / {currentLimit.posts} Posts</p>
                     </div>
-                  ))}
                 </div>
-             </div>
+            </aside>
 
-             {/* Connected Apps (Workspace) */}
-             <div className="bg-[#3C48F6] rounded-2xl p-6 text-white relative overflow-hidden">
-                <div className="relative z-10">
-                  <h3 className="font-bold mb-1">Integrations</h3>
-                  <p className="text-blue-100 text-xs mb-4">3 apps connected</p>
-                  <div className="flex -space-x-2 mb-4">
-                     <div className="w-8 h-8 rounded-full bg-white text-gray-900 flex items-center justify-center border-2 border-[#3C48F6]"><FaSlack size={14}/></div>
-                     <div className="w-8 h-8 rounded-full bg-white text-gray-900 flex items-center justify-center border-2 border-[#3C48F6]"><FaJira size={14}/></div>
-                     <div className="w-8 h-8 rounded-full bg-white text-gray-900 flex items-center justify-center border-2 border-[#3C48F6]"><FaFigma size={14}/></div>
-                  </div>
-                  <button className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 rounded-lg transition">Manage</button>
+            {/* --- MAIN CONTENT --- */}
+            <main className="flex-1 flex flex-col overflow-hidden">
+                
+                {/* HEADER */}
+                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0">
+                    <div className="flex items-center gap-4">
+                        <h2 className="font-bold text-lg capitalize text-gray-800 tracking-tight">
+                            {activeTab === 'queue' ? 'Content Queue' : activeTab}
+                        </h2>
+                        {/* Breadcrumb / Context */}
+                        <span className="hidden md:block text-sm text-gray-400 border-l border-gray-200 pl-4">
+                            {currentWorkspace.name}
+                        </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                            <FiSearch size={14} />
+                            <input type="text" placeholder="Search..." className="bg-transparent text-sm outline-none w-32 md:w-48" />
+                        </div>
+                        
+                        <button className="relative text-gray-400 hover:text-gray-600 transition-colors">
+                            <FiBell size={20} />
+                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+                        
+                        <button className="group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-white border border-purple-100 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300">
+                            <div className="w-7 h-7 flex items-center justify-center rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 text-white">
+                                <MagicIcon className="w-3.5 h-3.5 animate-pulse" />
+                            </div>
+                            <span className="text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent group-hover:opacity-80">
+                                EasyAI
+                            </span>
+                        </button>
+                    </div>
+                </header>
+
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide">
+                    <div className="max-w-[1200px] mx-auto">
+                        
+                        {/* TAB: QUEUE */}
+                        {activeTab === 'queue' && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }} 
+                                animate={{ opacity: 1, y: 0 }} 
+                                transition={{ duration: 0.4 }}
+                            >
+                                <Composer onAdd={handleAddPost} />
+                                <PostFeed posts={posts} setPosts={setPosts} />
+                            </motion.div>
+                        )}
+
+                        {/* TAB: ANALYTICS */}
+                        {activeTab === 'analytics' && <Analytics />}
+
+                        {/* TAB: SETTINGS/OTHER */}
+                        {(activeTab === 'engagement' || activeTab === 'settings' || activeTab === 'team') && (
+                            <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="h-[60vh] flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50"
+                            >
+                                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4 text-gray-400">
+                                    <FiSettings size={32} />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-600 capitalize">{activeTab} Module</h3>
+                                <p className="text-gray-400 max-w-xs mt-2">This module is under construction. Connect your API to see real data here.</p>
+                            </motion.div>
+                        )}
+                    </div>
                 </div>
-                {/* Decorative circles */}
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
-             </div>
-
-          </div>
+            </main>
         </div>
-      </main>
-    </div>
-  );
+    );
 }
 
-// Subcomponent for Nav
-function NavIcon({ icon: Icon, active = false }: { icon: any; active?: boolean }) {
-  return (
-    <button className={`p-3 rounded-xl transition-all duration-200 group relative flex items-center justify-center
-      ${active ? 'bg-[#3C48F6]/10 text-[#3C48F6]' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'}`}>
-      <Icon className="w-6 h-6" />
-      {active && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-1 h-8 bg-[#3C48F6] rounded-r-full"></div>
-      )}
+// Sub-components
+const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (
+    <button 
+        onClick={onClick} 
+        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200
+        ${active 
+            ? 'bg-blue-50 text-blue-600 shadow-sm' 
+            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+        }`}
+    >
+        <Icon size={18} className={active ? 'text-blue-600' : 'text-gray-400'} /> {label}
     </button>
-  );
-}
+);
+
+const MagicIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}><path d="M12 4L14.4 9.6L20 12L14.4 14.4L12 20L9.6 14.4L4 12L9.6 9.6L12 4Z" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+);

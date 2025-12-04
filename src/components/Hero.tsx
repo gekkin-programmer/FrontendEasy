@@ -108,7 +108,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* --- MAIN CONTENT --- */}
-      <div className="relative z-10 text-center max-w-3xl mx-auto mt-7">
+      <div className="relative z-10 text-center max-w-3xl mx-auto mt-12">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
