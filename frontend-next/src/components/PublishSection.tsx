@@ -13,6 +13,7 @@ export default function PublishSection() {
   const pasta = "/assets/Pasta1.jpg";
   const pasta2 = "/assets/Pasta2.jpg";
   const avatar = "/assets/Avatar.svg";
+  const publish = "/assets/postKanban.PNG";
 
   return (
     <section className="bg-purple-50 dark:bg-purple-900/10 min-h-screen flex flex-col items-center justify-center px-4 py-12 md:py-16 lg:py-20 font-sans">
@@ -25,62 +26,11 @@ export default function PublishSection() {
             w-full max-w-md p-6 flex flex-col mx-auto 
             transition-transform duration-500 hover:scale-[1.02]
           ">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center -space-x-2">
-                <img
-                  src={avatar}
-                  alt={t("User", "Utilisateur")}
-                  className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100"
-                />
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                  <FaStore className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                </div>
-                <div className="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                  <FaFacebookF className="w-4 h-4 text-white" />
-                </div>
-                <div className="w-8 h-8 bg-gradient-to-tr from-yellow-400 to-pink-600 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                  <FaInstagram className="w-4 h-4 text-white" />
-                </div>
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                  <FaXTwitter className="w-4 h-4 text-white" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span>{t("Scheduled", "Programmé")}</span>
-              </div>
-            </div>
-
-            {/* Post Text */}
-            <div className="mb-4">
-              <p className="text-base font-medium text-gray-900 dark:text-white leading-snug">
-                {t("Nothing beats the taste of fresh, homemade pasta 🍝", "Rien ne vaut le goût des pâtes fraîches faites maison 🍝")}
-              </p>
-              <p className="text-sm text-primary mt-1 font-medium">
-                {t("#ChefsOfThreads #Pasta #Food", "#ChefsOfThreads #Pâtes #Nourriture")}
-              </p>
-            </div>
-
-            {/* Images Grid */}
-            <div className="grid grid-cols-2 gap-2 mb-6">
-              <div className="relative group overflow-hidden rounded-lg">
-                <img
-                  src={pasta}
-                  alt={t("Pasta", "Pâtes")}
-                  className="w-full h-40 object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
-              <div className="relative group overflow-hidden rounded-lg">
-                <img
-                  src={pasta2}
-                  alt={t("Plate", "Assiette")}
-                  className="w-full h-40 object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
-            </div>
-
+            <img 
+               src={publish}
+               alt="Kanban View"
+              className="w-full h-120 object-cover rounded-lg mb-6" 
+            />
             {/* Footer Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
               <button className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">

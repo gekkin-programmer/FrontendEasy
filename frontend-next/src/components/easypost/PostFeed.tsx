@@ -1,148 +1,159 @@
 'use client';
-import React, { useState } from 'react';
-import { Reorder } from 'framer-motion';
-import MediaGallery from './MediaGallery'; 
-import { FiImage } from 'react-icons/fi';
-import { FiClock, FiMoreHorizontal, FiTrash2, FiEdit, FiCopy, FiRefreshCw, FiCalendar, FiList, FiAlertCircle, FiColumns, FiCheckCircle } from 'react-icons/fi';
-import { Post, CHANNELS, getChannelIcon, PostStatus } from './types';
-import { toast } from 'sonner';
+import React from 'react';
+import { FiTrash2, FiClock, FiEdit2, FiCheckCircle, FiFileText } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Post, CHANNELS, getChannelIcon } from './types';
 
-interface FeedProps {
+interface PostFeedProps {
   posts: Post[];
-  setPosts: (posts: Post[]) => void;
+  onDelete: (id: number, status: string) => void;
+  onStatusChange: (id: number, newStatus: 'queued' | 'draft') => void;
 }
 
-export default function PostFeed({ posts, setPosts }: FeedProps) {
-  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban' | 'gallery'>('kanban');
+export default function PostFeed({ posts, onDelete, onStatusChange }: PostFeedProps) {
+  
+  const drafts = posts.filter(p => p.status === 'draft');
+  const queued = posts.filter(p => p.status === 'queued' || p.status === 'published');
 
-  const handleDelete = (id: number) => {
-    if(confirm('Delete post?')) setPosts(posts.filter(p => p.id !== id));
+  // --- DRAG LOGIC ---
+  const handleDragStart = (e: React.DragEvent, id: number) => {
+    e.dataTransfer.setData("postId", id.toString());
   };
 
+  const handleDropToQueue = (e: React.DragEvent) => {
+    e.preventDefault();
+    const id = Number(e.dataTransfer.getData("postId"));
+    const post = posts.find(p => p.id === id);
+    
+    // Only allow dragging Draft -> Queue
+    if (post && post.status === 'draft') {
+      onStatusChange(id, 'queued');
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+
   return (
-    <div>
-      {/* View Switcher */}
-        <div className="bg-white border border-gray-200 rounded-lg p-1 flex shadow-sm">
-    <button onClick={() => setViewMode('list')} title="List" className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}><FiList /></button>
-    <button onClick={() => setViewMode('kanban')} title="Board" className={`p-2 rounded ${viewMode === 'kanban' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}><FiColumns /></button>
-    <button onClick={() => setViewMode('calendar')} title="Calendar" className={`p-2 rounded ${viewMode === 'calendar' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}><FiCalendar /></button>
-    {/* NEW GALLERY BUTTON */}
-    <button onClick={() => setViewMode('gallery')} title="Asset Library" className={`p-2 rounded ${viewMode === 'gallery' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}><FiImage /></button>
-    </div>
-
-      {/* --- KANBAN VIEW (BUFFER STYLE) --- */}
-      {viewMode === 'kanban' && (
-        <div className="grid grid-cols-4 gap-4 h-[600px] overflow-x-auto pb-4">
-            <KanbanColumn title="Drafts" color="bg-gray-200" posts={posts.filter(p => p.status === 'draft')} onDelete={handleDelete} />
-            <KanbanColumn title="In Review" color="bg-orange-200" posts={posts.filter(p => p.status === 'review')} onDelete={handleDelete} />
-            <KanbanColumn title="Scheduled" color="bg-blue-200" posts={posts.filter(p => p.status === 'queued')} onDelete={handleDelete} />
-            <KanbanColumn title="Published" color="bg-green-200" posts={posts.filter(p => p.status === 'published')} onDelete={handleDelete} />
-        </div>
-      )}
-
-      {/* --- LIST VIEW --- */}
-      {viewMode === 'list' && (
-        <div className="space-y-4 pb-20">
-          {posts.map((post) => (
-              <div key={post.id} className={`bg-white border rounded-xl p-5 flex shadow-sm hover:shadow-md transition-all group relative
-                  ${post.status === 'failed' ? 'border-red-200 bg-red-50/30' : 'border-gray-200'}`}>
-                <div className={`w-1.5 rounded-l-xl absolute left-0 top-0 bottom-0 
-                    ${post.status === 'queued' ? 'bg-blue-500' : post.status === 'published' ? 'bg-green-500' : 'bg-gray-300'}`}>
-                </div>
-                <div className="pl-4 flex-1">
-                  <div className="flex justify-between items-start mb-3">
-                     <div className="flex gap-1">
-                       {post.channels.map(cId => {
-                          const ch = CHANNELS.find(c => c.id === cId);
-                          const Icon = ch ? getChannelIcon(ch.type) : FiAlertCircle;
-                          return (
-                            <div key={cId} className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 border border-white shadow-sm">
-                                <Icon size={10} />
-                            </div>
-                          );
-                       })}
-                     </div>
-                     <span className="text-xs font-bold text-gray-400 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded uppercase">
-                        {post.status}
-                     </span>
-                  </div>
-                  <div className="flex gap-4">
-                     <div className="flex-1"><p className="text-gray-700 text-sm font-medium leading-relaxed">{post.content}</p></div>
-                     {post.media && <img src={post.media} className="w-16 h-16 object-cover rounded-lg border border-gray-200" />}
-                  </div>
-                </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20">
+      
+      {/* --- LEFT COLUMN: DRAFTS --- */}
+      <div>
+        <h3 className="font-bold text-gray-500 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+          <FiFileText /> Drafts ({drafts.length})
+        </h3>
+        
+        <div className="space-y-4 min-h-[200px]">
+          <AnimatePresence>
+            {drafts.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                onDelete={() => onDelete(post.id, 'draft')} 
+                draggable={true}
+                onDragStart={(e: any) => handleDragStart(e, post.id)}
+              />
+            ))}
+            {drafts.length === 0 && (
+              <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 text-sm">
+                No drafts saved.
               </div>
-          ))}
+            )}
+          </AnimatePresence>
         </div>
-      )}
+      </div>
 
-      {/* --- CALENDAR VIEW --- */}
-      {viewMode === 'calendar' && (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-            <div className="grid grid-cols-7 gap-4 text-center mb-4">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => <div key={d} className="text-xs font-bold text-gray-400 uppercase">{d}</div>)}
-            </div>
-            <div className="grid grid-cols-7 gap-2">
-                {Array.from({length: 31}).map((_, i) => {
-                    const dayPosts = posts.filter(p => i % 7 === 0 && p.id % 2 === 0);
-                    return (
-                        <div key={i} className="min-h-[100px] border border-gray-100 rounded-lg p-2 bg-gray-50/30 hover:bg-white transition-colors relative group">
-                            <span className="text-xs font-bold text-gray-400">{i+1}</span>
-                            <div className="mt-2 space-y-1">
-                                {dayPosts.slice(0,2).map((p, idx) => (
-                                    <div key={idx} className="bg-blue-100 text-blue-700 text-[10px] px-1 py-0.5 rounded truncate font-bold">
-                                        {p.content}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
+      {/* --- RIGHT COLUMN: QUEUE (DROP ZONE) --- */}
+      <div 
+        onDrop={handleDropToQueue} 
+        onDragOver={handleDragOver}
+        className="relative group"
+      >
+        <h3 className="font-bold text-[#3C48F6] text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+          <FiClock /> Queue / Scheduled ({queued.length})
+        </h3>
+
+        {/* Visual Drop Zone Hint */}
+        <div className="absolute inset-0 -z-10 bg-blue-50 rounded-xl border-2 border-blue-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"></div>
+
+        <div className="space-y-4 min-h-[200px] rounded-xl transition-colors">
+          <AnimatePresence>
+            {queued.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                onDelete={() => onDelete(post.id, post.status)} 
+                isQueued
+              />
+            ))}
+            {queued.length === 0 && (
+               <div className="text-center p-8 border-2 border-dashed border-blue-100 bg-blue-50/50 rounded-xl text-blue-400 text-sm">
+                 Drag a draft here to schedule it!
+               </div>
+            )}
+          </AnimatePresence>
         </div>
-      )}
+      </div>
+
     </div>
   );
 }
 
-// --- KANBAN COLUMN COMPONENT ---
-const KanbanColumn = ({ title, color, posts, onDelete }: { title: string, color: string, posts: Post[], onDelete: (id: number) => void }) => {
-    return (
-        <div className="bg-gray-50 rounded-xl p-3 flex flex-col h-full border border-gray-200">
-            <div className="flex justify-between items-center mb-3 px-1">
-                <h3 className="text-xs font-bold uppercase text-gray-500 flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${color.replace('bg-', 'bg-').replace('200', '500')}`}></div>
-                    {title}
-                </h3>
-                <span className="text-xs font-bold text-gray-400">{posts.length}</span>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-hide">
-                {posts.length === 0 && (
-                    <div className="h-full border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-300 text-xs font-medium">
-                        Empty
-                    </div>
-                )}
-                {posts.map(post => (
-                    <div key={post.id} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
-                        <div className="flex gap-1 mb-2">
-                            {post.channels.map(cId => {
-                                const ch = CHANNELS.find(c => c.id === cId);
-                                const Icon = ch ? getChannelIcon(ch.type) : FiAlertCircle;
-                                return <Icon key={cId} size={12} className="text-gray-400" />
-                            })}
-                        </div>
-                        <p className="text-sm text-gray-800 line-clamp-3 mb-2 font-medium">{post.content}</p>
-                        {post.media && <div className="h-24 w-full rounded-md overflow-hidden mb-2"><img src={post.media} className="w-full h-full object-cover" /></div>}
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-50">
-                            <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1">
-                                <FiClock /> {new Date(post.scheduledTime || Date.now()).toLocaleDateString()}
-                            </span>
-                            <button onClick={() => onDelete(post.id)} className="text-gray-300 hover:text-red-500"><FiTrash2 size={12} /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+// --- SINGLE POST CARD COMPONENT ---
+const PostCard = ({ post, onDelete, isQueued, draggable, onDragStart }: any) => {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      className={`bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition-all group cursor-default ${draggable ? 'cursor-grab active:cursor-grabbing border-gray-200' : 'border-blue-100'}`}
+    >
+      {/* Header: Channels & Status */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex -space-x-2">
+          {post.channels.map((c: string) => {
+            // Mock finding channel icon
+            const ch = CHANNELS.find(x => x.id === c);
+            const Icon = ch ? getChannelIcon(ch.type) : FiCheckCircle;
+            return (
+              <div key={c} className="w-6 h-6 rounded-full bg-gray-100 border border-white flex items-center justify-center text-gray-500">
+                <Icon size={12} />
+              </div>
+            )
+          })}
         </div>
-    )
-}
+        <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${isQueued ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+          {post.status}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="flex gap-3">
+        {post.media && (
+           <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+             <img src={post.media} className="w-full h-full object-cover" alt="Post media" />
+           </div>
+        )}
+        <p className="text-sm text-gray-700 line-clamp-2 flex-1">{post.content}</p>
+      </div>
+
+      {/* Footer: Time & Actions */}
+      <div className="mt-3 pt-3 border-t border-gray-50 flex justify-between items-center">
+        <div className="flex items-center gap-1 text-xs text-gray-400">
+           {isQueued ? <FiClock /> : <FiEdit2 />}
+           <span>{post.scheduledTime ? new Date(post.scheduledTime).toLocaleDateString() : 'Unscheduled'}</span>
+        </div>
+        
+        <button 
+          onClick={onDelete} 
+          className="text-gray-300 hover:text-red-500 transition-colors p-1 rounded"
+          title="Delete Post"
+        >
+          <FiTrash2 size={16} />
+        </button>
+      </div>
+    </motion.div>
+  );
+};

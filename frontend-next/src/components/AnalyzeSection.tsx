@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 import { IoBarChartOutline } from 'react-icons/io5';
 import { FiUsers, FiTag, FiCheckCircle } from 'react-icons/fi';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
 
 // --- LEFT COLUMN COMPONENTS (Kept Same) ---
 interface FeatureItemProps {
@@ -133,6 +133,7 @@ const MainDashboardVisual = () => (
 );
 
 const AnalyzeSection = () => {
+  const Insights = "./assets/Insights.PNG";
   const { t } = useLanguage();
 
   return (
@@ -173,7 +174,7 @@ const AnalyzeSection = () => {
         
         {/* Right Column (New Visual) */}
         <div className="relative flex items-center justify-center lg:justify-end">
-            <MainDashboardVisual />
+            <img src={Insights} alt="Analysis Kanban" />
         </div>
 
       </div>
