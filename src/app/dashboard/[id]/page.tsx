@@ -14,6 +14,7 @@ import Composer from '@/src/components/easypost/Composer';
 import PostFeed from '@/src/components/easypost/PostFeed';
 import Analytics from '@/src/components/easypost/Analytics';
 import Engagement from "@/src/components/easypost/Engagement";
+import Settings from '@/src/components/easypost/Settings';
 import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 import { INITIAL_POSTS, Post } from '@/src/components/easypost/types';
 
@@ -388,6 +389,12 @@ export default function BufferDashboard() {
                         {activeTab === 'engagement' && (
   <EngagementWithTabs />
 )}
+        {activeTab === 'settings' && (
+            <Settings 
+                workspaceName={currentWorkspace.name}
+                workspacePlan={currentWorkspace.plan}
+            />
+        )}
                     </div>
                 </div>
             </main>
