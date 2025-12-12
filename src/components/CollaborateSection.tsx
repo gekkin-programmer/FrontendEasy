@@ -1,126 +1,83 @@
 "use client";
 
 import React from 'react';
-import { ArrowRight, Check, X } from 'lucide-react';
+import { FiArrowRight } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext'; 
-
-// Reusable helper for comments
-function CommentBubble({
-  avatar,
-  text,
-  className = '',
-}: {
-  avatar: string;
-  text: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`absolute z-20 flex items-center gap-2 bg-white rounded-full shadow-lg px-3 py-1.5 text-sm font-medium animate-bounce-slow ${className}`}
-    >
-      <img src={avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-      <span className="text-gray-800 whitespace-nowrap">{text}</span>
-    </div>
-  );
-}
 
 export default function CollaborateSection() {
   const { t } = useLanguage();
 
-  // Define the path to your local image
-  const autumnImage = "/assets/Automn.jpg";
-
   return (
-    <div className="relative bg-amber-50 dark:bg-amber-900/20 rounded-3xl p-8 md:p-10 shadow-sm overflow-hidden h-full flex flex-col border border-amber-100 dark:border-amber-800/50">
+    <div className="w-full h-full p-4">
       
-      {/* === Top: Text Content === */}
-      <div className="space-y-6 flex-1 relative z-10">
-        <p className="text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider text-sm">
-          {t("Collaborate", "Collaborer")}
-        </p>
-
-        <h2 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-          {t("Great Content, Created Together", "Du contenu génial, créé ensemble")}
-        </h2>
-
-        <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg leading-relaxed">
-          {t(
-            "Collaborate seamlessly with your team. Invite unlimited collaborators, assign roles and permissions, and keep everyone aligned with saved drafts and notes.",
-            "Collaborez facilement avec votre équipe. Invitez des collaborateurs illimités, attribuez des rôles et des autorisations, et gardez tout le monde aligné."
-          )}
-        </p>
-      </div>
-
-      {/* === Visual Showcase === */}
-      <div className="relative mt-10 mb-12 flex justify-center">
+      {/* Main Container Card */}
+      <div className="relative bg-amber-50 dark:bg-amber-900/20 rounded-[2.5rem] pt-16 pb-0 px-6 md:px-12 shadow-sm overflow-hidden border border-amber-100 dark:border-amber-800/50 flex flex-col items-center text-center h-full">
         
-        {/* Floating comment bubbles */}
-        <CommentBubble
-          avatar="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop"
-          text={t("Looks good!", "Superbe !")}
-          className="-left-4 top-10 md:left-0"
-        />
+        {/* === 1. Top Text Content === */}
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6 mb-12">
+          <p className="text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider text-sm">
+            {t("Collaborate", "Collaborer")}
+          </p>
 
-        <CommentBubble
-          avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"
-          text={t("Approved ✅", "Validé ✅")}
-          className="-right-4 bottom-20 md:right-0"
-        />
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight">
+            {t("Great Content, Created Together", "Du contenu génial, créé ensemble")}
+          </h2>
 
-        {/* Central post card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 max-w-xs md:max-w-sm mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-start gap-3">
-            <img
-              src={autumnImage}
-              alt="User avatar"
-              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-            />
-            <div className="flex-1">
-              <p className="font-bold text-gray-900 dark:text-white text-sm">yoyo_ceramics</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                {t(
-                  "Our new autumn collection just dropped! Let us know your favourite piece…",
-                  "Notre nouvelle collection d'automne vient de sortir ! Dites-nous quelle pièce vous préférez…"
-                )}
-              </p>
-            </div>
-          </div>
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+            {t(
+              "Collaborate seamlessly with your team. Invite unlimited collaborators, assign roles and permissions, and keep everyone aligned with saved drafts and notes.",
+              "Collaborez facilement avec votre équipe. Invitez des collaborateurs illimités, attribuez des rôles et des autorisations, et gardez tout le monde aligné."
+            )}
+          </p>
 
-          {/* Post image placeholder */}
-          <div className="mt-4 relative group">
-            <img
-              src={autumnImage}
-              alt={t("Autumn pottery collection", "Collection de poterie d'automne")}
-              className="w-full h-40 md:h-48 object-cover rounded-xl shadow-sm group-hover:brightness-110 transition-all"
-            />
-            {/* Fake 'Tag' on image */}
-            <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md">
-                @pottery_daily
-            </div>
-          </div>
-
-          {/* Approval buttons */}
-          <div className="mt-4 flex gap-3 justify-center pt-2 border-t border-gray-100 dark:border-gray-700">
-            <button className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors">
-              <X className="w-3 h-3" />
-              {t("Reject", "Refuser")}
-            </button>
-            <button className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-green-600 bg-green-50 hover:bg-green-100 rounded-full transition-colors">
-              <Check className="w-3 h-3" />
-              {t("Approve", "Approuver")}
-            </button>
+          <div className="pt-4 flex justify-center">
+            <a
+              href="#"
+              className="bg-primary text-white font-semibold py-3.5 px-8 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:bg-blue-700 transition-all hover:scale-105"
+            >
+              {t("Learn more", "En savoir plus")} <FiArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
-      </div>
 
-      {/* === Learn More Button === */}
-      <div className="mt-auto pt-4">
-        <a
-          href="#"
-          className="bg-primary text-white font-semibold py-3 px-6 rounded-full flex items-center justify-center gap-2 w-fit shadow-lg shadow-primary/30 hover:bg-blue-700 transition-all hover:scale-105"
-        >
-          {t("Learn more", "En savoir plus")} <ArrowRight className="w-4 h-4" />
-        </a>
+        {/* === 2. Huge Video Section === */}
+        <div className="relative w-full max-w-6xl mx-auto perspective-1000 mt-auto">
+          
+          <div className="relative transform rotate-x-12 hover:rotate-0 transition-all duration-700 ease-out group">
+            
+            {/* The Color Glow (Behind) */}
+            <div className="absolute -inset-1 top-4 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 rounded-[2rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
+
+            {/* The Video Container */}
+            <div className="relative rounded-t-2xl md:rounded-t-[2rem] overflow-hidden border-t border-l border-r border-gray-200 dark:border-gray-700 bg-gray-900 shadow-2xl">
+              
+              {/* Browser Window Header */}
+              <div className="bg-white dark:bg-gray-800 h-8 flex items-center px-4 gap-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+
+              {/* Video Wrapper */}
+              <div className="aspect-video w-full bg-gray-50 dark:bg-gray-900">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster="/assets/comment.PNG" 
+                  className="w-full h-full object-cover"
+                >
+                  <source src="/assets/CommentVideo.mp4" type="video/mp4" />
+                  {/* Fallback if video fails */}
+                  <img src="/assets/comment.PNG" alt="Fallback" className="w-full h-full object-cover" />
+                </video>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );
