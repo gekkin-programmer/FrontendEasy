@@ -42,9 +42,8 @@ export default function Home() {
       <PublishSection />
       <CreateSection />
       
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 px-4 py-12">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-1 gap-5 px-4 py-12">
         <CollaborateSection />
-        <EngageSection />
       </div>
       
       <div className="max-w-7xl mx-auto mt-8 px-4">
