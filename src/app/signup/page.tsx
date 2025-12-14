@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa6';
 
 // Import your custom loader
-import SpinningLoader from '@/src/components/SpinningLoader';
+import SpinningLoader from '@/src/component/SpinningLoader';
 
 // --- DATA CONFIGURATION ---
 

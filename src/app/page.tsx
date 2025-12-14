@@ -1,17 +1,17 @@
 import React from 'react';
 
 // Components
-import Hero from '../components/Hero';
-import StatsSection from '../components/StatsSection';
-import PublishSection from '../components/PublishSection';
-import CreateSection from '../components/CreateSection';
-import CollaborateSection from '../components/CollaborateSection';
-import EngageSection from '../components/EngageSection';
-import AnalyzeSection from '../components/AnalyzeSection';
-import ConnectSection from '../components/ConnectSection';
-import GrowSection from '../components/GrowSection';
-import SupportSection from '../components/SupportSection';
-import Footer from '../components/Footer';
+import Hero from '../component/Hero';
+import StatsSection from '../component/StatsSection';
+import PublishSection from '../component/PublishSection';
+import CreateSection from '../component/CreateSection';
+import CollaborateSection from '../component/CollaborateSection';
+import EngageSection from '../component/EngageSection';
+import AnalyzeSection from '../component/AnalyzeSection';
+import ConnectSection from '../component/ConnectSection';
+import GrowSection from '../component/GrowSection';
+import SupportSection from '../component/SupportSection';
+import Footer from '../component/Footer';
 
 // Icons for the Social Proof section
 import { FaGoogle, FaMicrosoft, FaSpotify, FaAmazon, FaApple } from "react-icons/fa";

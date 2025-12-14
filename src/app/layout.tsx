@@ -1,8 +1,8 @@
 import "./globals.css";
-import Navbar from "../components/Navbar";
+import Navbar from "../component/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import { JetBrains_Mono } from "next/font/google";
-import Preloader from "../components/Preloader";
+import Preloader from "../component/Preloader";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
