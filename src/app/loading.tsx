@@ -1,4 +1,4 @@
-import SpinningLoader from "@/src/component/SpinningLoader";
+import SpinningLoader from "@/src/components/SpinningLoader";
 
 export default function Loading() {
   // This automatically shows whenever Next.js is fetching data for a new page

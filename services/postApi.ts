@@ -1,5 +1,5 @@
 import apiClient from '@/src/api';
-import { Post } from '@/src/component/easypost/types' // Assuming types are here
+import { Post } from '@/src/components/easypost/types' // Assuming types are here
 
 export const createPost = async (postData: any, file?: File | null) => {
   const formData = new FormData();

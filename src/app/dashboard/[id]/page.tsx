@@ -16,12 +16,12 @@ import {
 } from 'lucide-react'; 
 
 // Custom Components
-import Composer from '@/src/component/easypost/Composer';
-import PostFeed from '@/src/component/easypost/PostFeed';
-import Analytics from '@/src/component/easypost/Analytics';
-import Engagement from "@/src/component/easypost/Engagement";
-import Settings from '@/src/component/easypost/Settings';
-import EngagementAnalytics from '@/src/component/easypost/EngagementAnalytics';
+import Composer from '@/src/components/easypost/Composer';
+import PostFeed from '@/src/components/easypost/PostFeed';
+import Analytics from '@/src/components/easypost/Analytics';
+import Engagement from "@/src/components/easypost/Engagement";
+import Settings from '@/src/components/easypost/Settings';
+import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 
 // --- TYPES ---
 type TabType = 'queue' | 'analytics' | 'engagement' | 'settings' | 'team';
