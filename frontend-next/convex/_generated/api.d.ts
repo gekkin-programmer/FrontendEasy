@@ -13,6 +13,7 @@ import type * as accounts from "../accounts.js";
 import type * as analytics from "../analytics.js";
 import type * as crons from "../crons.js";
 import type * as posts from "../posts.js";
+import type * as users from "../users.js";
 import type * as workspaces from "../workspaces.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   crons: typeof crons;
   posts: typeof posts;
+  users: typeof users;
   workspaces: typeof workspaces;
 }>;
 
