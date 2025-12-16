@@ -1,16 +1,16 @@
 "use client";
 
-import { usePathname } from 'next/navigation'; // 1. Ensure this is imported
+import { usePathname } from 'next/navigation';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
 import Image from "next/image";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // <--- CLERK IMPORTS
 import {
   FaMoon, 
   FaSun, 
   FaChevronDown, 
   FaBars, 
-  FaGlobe, 
   FaRocket, 
   FaPaperPlane,
   FaFacebookF, 
@@ -23,7 +23,8 @@ import {
   FaUsers, 
   FaHandshake, 
   FaPlayCircle, 
-  FaTimes 
+  FaTimes,
+  FaGlobe
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
@@ -90,7 +91,6 @@ const navLinks: NavLink[] = [
 ];
 
 const Navbar: React.FC = () => {
-  // 2. Get the current path
   const pathname = usePathname(); 
   
   const [scrolled, setScrolled] = useState(false);
@@ -100,7 +100,6 @@ const Navbar: React.FC = () => {
   
   const { language, toggleLanguage, t } = useLanguage();
 
-  // Check LocalStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -113,7 +112,6 @@ const Navbar: React.FC = () => {
     }
   }, []);
 
-  // Toggle and Save Preference
   const toggleDarkMode = () => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
@@ -126,14 +124,12 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Scroll detection
   useEffect(() => { 
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll); 
     return () => window.removeEventListener('scroll', handleScroll); 
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => { 
     if(isMobileMenuOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
@@ -144,9 +140,8 @@ const Navbar: React.FC = () => {
     return language === 'fr' ? text.fr : text.en;
   };
 
-  // --- SUB COMPONENT: Mega Menu ---
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50">
       <div className="flex p-5">
         <div className="grid grid-cols-3 gap-x-6 gap-y-4 pr-5 border-r border-gray-200 dark:border-gray-700">
           {content.columns.map((col) => (
@@ -182,9 +177,8 @@ const Navbar: React.FC = () => {
     </motion.div>
   );
 
-  // --- SUB COMPONENT: Channels Menu ---
   const ChannelsMenu = ({ content }: { content: typeof channelsMenuData }) => (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50">
       <div className="grid grid-cols-3 gap-4 p-6">
         {content.channels.map((channel) => (
           <a key={getTranslatedText(channel.label)} href={channel.href} className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
@@ -196,7 +190,8 @@ const Navbar: React.FC = () => {
     </motion.div>
   );
 
-  // 3. CONDITIONAL RENDER: If not home page, return null
+  // NOTE: This hides the marketing navbar on non-home pages.
+  // If you want the navbar on /pricing, change to: if (pathname !== "/" && pathname !== "/pricing")
   if (pathname !== "/") {
     return null;
   }
@@ -245,12 +240,24 @@ const Navbar: React.FC = () => {
 
           {/* RIGHT: Actions */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
-              {t("Log in", "Connexion")}
-            </Link>
-            <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-              {t("Get started now", "Commencer")}
-            </Link>
+            
+            {/* GUEST VIEW */}
+            <SignedOut>
+              <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
+                {t("Log in", "Connexion")}
+              </Link>
+              <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                {t("Get started now", "Commencer")}
+              </Link>
+            </SignedOut>
+
+            {/* LOGGED IN VIEW */}
+            <SignedIn>
+              <Link href="/dashboard" className="px-5 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-sm">
+                {t("Dashboard", "Tableau de bord")}
+              </Link>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
 
             <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
@@ -262,7 +269,12 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Toggle */}
           <div className="lg:hidden flex items-center gap-3">
-            <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Get started", "Démarrer")}</Link>
+            <SignedOut>
+              <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Get started", "Démarrer")}</Link>
+            </SignedOut>
+            <SignedIn>
+               <Link href="/dashboard" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Dashboard", "Tableau")}</Link>
+            </SignedIn>
             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-lg text-gray-700 dark:text-gray-300"><FaBars className="w-6 h-6" /></button>
           </div>
         </div>
@@ -287,14 +299,28 @@ const Navbar: React.FC = () => {
                      </Link>
                    </div>
                 ))}
+                
+                {/* MOBILE BOTTOM ACTIONS */}
                 <div className="mt-8 space-y-3">
-                   <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                      {t("Log in", "Connexion")}
-                   </Link>
-                   <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                      {t("Get started now", "Commencer")}
-                   </Link>
+                   <SignedOut>
+                      <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                          {t("Log in", "Connexion")}
+                      </Link>
+                      <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                          {t("Get started now", "Commencer")}
+                      </Link>
+                   </SignedOut>
+                   
+                   <SignedIn>
+                      <Link href="/dashboard" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                          {t("Go to Dashboard", "Tableau de bord")}
+                      </Link>
+                      <div className="flex justify-center pt-4">
+                         <UserButton afterSignOutUrl="/" showName />
+                      </div>
+                   </SignedIn>
                 </div>
+
               </div>
             </motion.div>
           </>
