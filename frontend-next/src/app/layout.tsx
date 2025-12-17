@@ -1,12 +1,10 @@
 import "./globals.css";
-// FIX: Changed 'component' to 'components'
 import Navbar from "../components/Navbar"; 
 import Preloader from "../components/Preloader";
 import { LanguageProvider } from "../context/LanguageContext";
 import { JetBrains_Mono } from "next/font/google";
-
-// FIX: Import the provider we made earlier
 import ConvexClientProvider from "./ConvexClientProvider"; 
+import EasyAI from "@/src/components/easypost/EasyAI"; // <--- 1. Import EasyAI
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -27,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        {/* 1. Wrap everything in Convex Provider */}
+        {/* Wrap everything in Convex Provider */}
         <ConvexClientProvider>
           
           <Preloader />
@@ -37,8 +35,11 @@ export default function RootLayout({
             <main>
                {children}
             </main>
+            
+            {/* 2. Add EasyAI here so it overlays on top of everything */}
+            <EasyAI />
+            
           </LanguageProvider>
-
         </ConvexClientProvider>
       </body>
     </html>

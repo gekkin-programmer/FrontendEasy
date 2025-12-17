@@ -39,6 +39,8 @@ export const createPost = mutation({
     accountId: v.id("accounts"),
     content: v.string(),
     scheduledTime: v.number(),
+    category: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
     // 2. NEW: Accept Media Details
     mediaStorageIds: v.optional(v.array(v.id("_storage"))),
     mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
@@ -50,6 +52,8 @@ export const createPost = mutation({
       content: args.content,
       scheduledTime: args.scheduledTime,
       status: "scheduled",
+      category: args.category || "General", 
+      tags: args.tags || [],
       mediaStorageIds: args.mediaStorageIds,
       mediaType: args.mediaType,
     });

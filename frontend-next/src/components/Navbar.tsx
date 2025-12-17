@@ -5,60 +5,45 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
 import Image from "next/image";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // <--- CLERK IMPORTS
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
-  FaMoon, 
-  FaSun, 
-  FaChevronDown, 
-  FaBars, 
-  FaRocket, 
-  FaPaperPlane,
-  FaFacebookF, 
-  FaInstagram, 
-  FaTwitter, 
-  FaLinkedinIn, 
-  FaPinterestP, 
-  FaTiktok, 
-  FaMagic, 
-  FaUsers, 
-  FaHandshake, 
-  FaPlayCircle, 
-  FaTimes,
-  FaGlobe
+  FaMoon, FaSun, FaChevronDown, FaBars, FaRocket, FaPaperPlane,
+  FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaPinterestP, 
+  FaTiktok, FaMagic, FaUsers, FaHandshake, FaPlayCircle, FaTimes, FaGlobe
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
-// --- DATA OBJECTS ---
+// ... (Keep your existing data objects: megaMenuData, channelsMenuData, navLinks) ...
+// For brevity, I'm assuming the data objects are here as before.
+
 const megaMenuData = {
   type: 'mega' as const,
   columns: [
     { 
       heading: { en: "Core Tools", fr: "Outils Principaux" }, 
       links: [ 
-        { label: { en: "Publishing", fr: "Publication" }, description: { en: "Plan and schedule content", fr: "Planifiez et programmez du contenu" }, href: "#", Icon: FaRocket }, 
-        { label: { en: "Analytics", fr: "Analytique" }, description: { en: "Measure your performance", fr: "Mesurez vos performances" }, href: "#", Icon: FaPaperPlane } 
+        { label: { en: "Publishing", fr: "Publication" }, description: { en: "Plan & schedule", fr: "Planifiez" }, href: "#", Icon: FaRocket }, 
+        { label: { en: "Analytics", fr: "Analytique" }, description: { en: "Measure stats", fr: "Mesurez" }, href: "#", Icon: FaPaperPlane } 
       ] 
     },
     { 
       heading: { en: "Advanced", fr: "Avancé" }, 
       links: [ 
-        { label: { en: "Engagement", fr: "Engagement" }, description: { en: "Respond to comments", fr: "Répondez aux commentaires" }, href: "#", Icon: FaRocket }, 
-        { label: { en: "AI Assistant", fr: "Assistant IA" }, description: { en: "Generate post ideas", fr: "Générez des idées de publications" }, href: "#", Icon: FaPaperPlane } 
+        { label: { en: "Engagement", fr: "Engagement" }, description: { en: "Social inbox", fr: "Boîte de réception" }, href: "#", Icon: FaUsers }, 
+        { label: { en: "AI Assistant", fr: "Assistant IA" }, description: { en: "Generate ideas", fr: "Générez des idées" }, href: "#", Icon: FaMagic } 
       ] 
     },
     {
       heading: { en: "Platform", fr: "Plateforme" },
       links: [
-        { label: { en: "Create", fr: "Créer" }, description: { en: "Craft content with our editor", fr: "Créez du contenu avec notre éditeur" }, href: "#", Icon: FaMagic },
-        { label: { en: "Collaborate", fr: "Collaborer" }, description: { en: "Work together with your team", fr: "Travaillez avec votre équipe" }, href: "#", Icon: FaHandshake },
-        { label: { en: "Community", fr: "Communauté" }, description: { en: "Join other creators & brands", fr: "Rejoignez d'autres créateurs" }, href: "#", Icon: FaUsers },
-        { label: { en: "Start Page", fr: "Page de Démarrage" }, description: { en: "Build a beautiful link-in-bio", fr: "Créez une belle page de lien en bio" }, href: "#", Icon: FaPlayCircle }
+        { label: { en: "Collaborate", fr: "Collaborer" }, description: { en: "For teams", fr: "Pour les équipes" }, href: "#", Icon: FaHandshake },
+        { label: { en: "Start Page", fr: "Page Bio" }, description: { en: "Link-in-bio", fr: "Lien en bio" }, href: "#", Icon: FaPlayCircle }
       ]
     }
   ],
   featured: { 
-    label: { en: "New! Introducing Channels", fr: "Nouveau ! Présentation des Canaux" }, 
-    description: { en: "Connect all your social accounts.", fr: "Connectez tous vos comptes sociaux." }, 
+    label: { en: "New! Channels", fr: "Nouveau ! Canaux" }, 
+    description: { en: "Connect all your social accounts.", fr: "Connectez tous vos comptes." }, 
     href: "#", 
     image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400" 
   },
@@ -87,17 +72,16 @@ const navLinks: NavLink[] = [
   { label: { en: "Features", fr: "Fonctionnalités" }, hasDropdown: true, dropdownContent: megaMenuData },
   { label: { en: "Channels", fr: "Canaux" }, hasDropdown: true, dropdownContent: channelsMenuData },
   { label: { en: "Pricing", fr: "Tarifs" }, href: "/pricing" },
-  { label: { en: "Community", fr: "Communauté" }, href: "/#support-section" },
+  { label: { en: "Community", fr: "Communauté" }, href: "/community" },
 ];
 
 const Navbar: React.FC = () => {
+  // 1. ALL HOOKS MUST RUN FIRST
   const pathname = usePathname(); 
-  
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
-  
   const { language, toggleLanguage, t } = useLanguage();
 
   useEffect(() => {
@@ -112,6 +96,17 @@ const Navbar: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => { 
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll); 
+    return () => window.removeEventListener('scroll', handleScroll); 
+  }, []);
+
+  useEffect(() => { 
+    if(isMobileMenuOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+  }, [isMobileMenuOpen]);
+
   const toggleDarkMode = () => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
@@ -124,36 +119,35 @@ const Navbar: React.FC = () => {
     }
   };
 
-  useEffect(() => { 
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll); 
-    return () => window.removeEventListener('scroll', handleScroll); 
-  }, []);
-
-  useEffect(() => { 
-    if(isMobileMenuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-  }, [isMobileMenuOpen]);
-
   const getTranslatedText = (text: { en: string; fr: string } | string) => {
     if (typeof text === 'string') return text;
     return language === 'fr' ? text.fr : text.en;
   };
 
+  // --- SUB-COMPONENTS (Defined inside or outside, better outside but here is fine) ---
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50">
-      <div className="flex p-5">
-        <div className="grid grid-cols-3 gap-x-6 gap-y-4 pr-5 border-r border-gray-200 dark:border-gray-700">
+    <motion.div 
+      initial={{ opacity: 0, y: -5 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, y: -5 }} 
+      className="absolute top-full left-0 lg:-left-20 pt-6 w-[800px] z-50 cursor-default"
+    >
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden flex">
+        <div className="flex-1 p-6 grid grid-cols-3 gap-6 bg-white dark:bg-gray-900">
           {content.columns.map((col) => (
             <div key={getTranslatedText(col.heading)}>
-              <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3 whitespace-nowrap">{getTranslatedText(col.heading)}</h3>
-              <div className="space-y-2">
+              <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
+                {getTranslatedText(col.heading)}
+              </h3>
+              <div className="space-y-3">
                 {col.links.map((link) => (
-                  <a key={getTranslatedText(link.label)} href={link.href} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <link.Icon className="w-5 h-5 mt-1 text-[#3C48F6]" />
+                  <a key={getTranslatedText(link.label)} href={link.href} className="group flex items-start gap-3 p-2 -ml-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="mt-1 p-1.5 bg-blue-50 dark:bg-blue-900/20 text-[#3C48F6] rounded-md group-hover:scale-110 transition-transform">
+                      <link.Icon className="w-4 h-4" />
+                    </div>
                     <div>
-                      <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{getTranslatedText(link.label)}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{getTranslatedText(link.description)}</p>
+                      <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-[#3C48F6] transition-colors">{getTranslatedText(link.label)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{getTranslatedText(link.description)}</p>
                     </div>
                   </a>
                 ))}
@@ -162,15 +156,24 @@ const Navbar: React.FC = () => {
           ))}
         </div>
         {content.featured && (
-          <div className="pl-5 w-48 flex-shrink-0">
-            <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative h-full">
-              <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
-              <div className="absolute bottom-0 left-0 p-4">
-                <p className="font-semibold text-white text-sm">{getTranslatedText(content.featured.label)}</p>
-                <p className="text-xs text-gray-200">{getTranslatedText(content.featured.description)}</p>
-              </div>
-            </a>
+          <div className="w-64 bg-gray-50 dark:bg-gray-800/50 p-5 flex flex-col justify-end relative overflow-hidden group">
+            <div className="absolute inset-0">
+               <Image 
+                 src={content.featured.image} 
+                 alt="Featured" 
+                 fill 
+                 className="object-cover opacity-100 group-hover:scale-105 transition-transform duration-700" 
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            </div>
+            <div className="relative z-10">
+              <span className="inline-block px-2 py-1 bg-[#3C48F6] text-white text-[10px] font-bold rounded-full mb-2">New</span>
+              <p className="font-bold text-white text-base mb-1">{getTranslatedText(content.featured.label)}</p>
+              <p className="text-xs text-gray-200 mb-3">{getTranslatedText(content.featured.description)}</p>
+              <a href={content.featured.href} className="text-xs font-bold text-white underline decoration-white/50 hover:decoration-white transition-all">
+                Learn more &rarr;
+              </a>
+            </div>
           </div>
         )}
       </div>
@@ -178,28 +181,38 @@ const Navbar: React.FC = () => {
   );
 
   const ChannelsMenu = ({ content }: { content: typeof channelsMenuData }) => (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50">
-      <div className="grid grid-cols-3 gap-4 p-6">
-        {content.channels.map((channel) => (
-          <a key={getTranslatedText(channel.label)} href={channel.href} className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <channel.Icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{getTranslatedText(channel.label)}</span>
-          </a>
-        ))}
+    <motion.div 
+      initial={{ opacity: 0, y: -5 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, y: -5 }} 
+      className="absolute top-full left-1/2 -translate-x-1/2 pt-6 w-[360px] z-50 cursor-default"
+    >
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-2">Supported Platforms</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {content.channels.map((channel) => (
+            <a key={getTranslatedText(channel.label)} href={channel.href} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
+              <channel.Icon className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-[#3C48F6] transition-colors" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{getTranslatedText(channel.label)}</span>
+            </a>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
 
-  // NOTE: This hides the marketing navbar on non-home pages.
-  // If you want the navbar on /pricing, change to: if (pathname !== "/" && pathname !== "/pricing")
-  if (pathname !== "/") {
+  // 2. CHECK VISIBILITY (AFTER HOOKS)
+  const showNavbar = pathname === "/" || pathname === "/pricing" || pathname === "/community";
+
+  if (!showNavbar) {
     return null;
   }
 
+  // 3. RENDER
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
       ${scrolled 
-        ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm" 
+        ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm" 
         : "bg-transparent border-b border-transparent shadow-none"
       }
     `}>
@@ -221,11 +234,25 @@ const Navbar: React.FC = () => {
           {/* CENTER: Desktop Menu */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((item) => (
-              <div key={getTranslatedText(item.label)} className="relative" onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} onMouseLeave={() => setHoveredDropdown(null)}>
-                <Link href={item.href || "#"} className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#3C48F6] dark:hover:text-[#3C48F6] transition" onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}>
+              <div 
+                key={getTranslatedText(item.label)} 
+                className="relative h-20 flex items-center"
+                onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} 
+                onMouseLeave={() => setHoveredDropdown(null)}
+              >
+                <Link 
+                  href={item.href || "#"} 
+                  className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                    hoveredDropdown === getTranslatedText(item.label) 
+                      ? "text-[#3C48F6]" 
+                      : "text-gray-600 dark:text-gray-300 hover:text-[#3C48F6]"
+                  }`}
+                  onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}
+                >
                   {getTranslatedText(item.label)}
-                  {item.hasDropdown && <FaChevronDown className="w-3 h-3" />}
+                  {item.hasDropdown && <FaChevronDown className={`w-2.5 h-2.5 transition-transform duration-200 ${hoveredDropdown === getTranslatedText(item.label) ? "rotate-180" : ""}`} />}
                 </Link>
+                
                 <AnimatePresence>
                   {item.hasDropdown && hoveredDropdown === getTranslatedText(item.label) && item.dropdownContent && (
                     <>
@@ -241,17 +268,15 @@ const Navbar: React.FC = () => {
           {/* RIGHT: Actions */}
           <div className="hidden lg:flex items-center gap-4">
             
-            {/* GUEST VIEW */}
             <SignedOut>
               <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
                 {t("Log in", "Connexion")}
               </Link>
               <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-                {t("Get started now", "Commencer")}
+                {t("Get started", "Commencer")}
               </Link>
             </SignedOut>
 
-            {/* LOGGED IN VIEW */}
             <SignedIn>
               <Link href="/dashboard" className="px-5 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-sm">
                 {t("Dashboard", "Tableau de bord")}
@@ -291,16 +316,27 @@ const Navbar: React.FC = () => {
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"><FaTimes className="w-6 h-6" /></button>
               </div>
               
-              <div className="flex-grow p-4 space-y-4">
+              <div className="flex-grow p-4 space-y-4 overflow-y-auto">
                 {navLinks.map((item) => (
                    <div key={getTranslatedText(item.label)} className="border-b border-gray-100 dark:border-gray-800 pb-4">
-                     <Link href={item.href || "#"} onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-gray-800 dark:text-white block">
+                     <Link href={item.href || "#"} onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-gray-800 dark:text-white block mb-2">
                        {getTranslatedText(item.label)}
                      </Link>
+                     {item.hasDropdown && item.dropdownContent && (
+                       <div className="pl-4 space-y-2 mt-2">
+                          {item.dropdownContent.type === 'mega' && item.dropdownContent.columns.map(col => (
+                             col.links.map(l => (
+                               <div key={getTranslatedText(l.label)} className="text-sm text-gray-500">{getTranslatedText(l.label)}</div>
+                             ))
+                          ))}
+                          {item.dropdownContent.type === 'channels' && item.dropdownContent.channels.map(c => (
+                             <div key={getTranslatedText(c.label)} className="text-sm text-gray-500">{getTranslatedText(c.label)}</div>
+                          ))}
+                       </div>
+                     )}
                    </div>
                 ))}
                 
-                {/* MOBILE BOTTOM ACTIONS */}
                 <div className="mt-8 space-y-3">
                    <SignedOut>
                       <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
@@ -320,7 +356,6 @@ const Navbar: React.FC = () => {
                       </div>
                    </SignedIn>
                 </div>
-
               </div>
             </motion.div>
           </>

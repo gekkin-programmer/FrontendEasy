@@ -1,117 +1,24 @@
-// src/components/easypost/Engagement.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useParams } from 'next/navigation';
+import { Id } from "@/convex/_generated/dataModel";
+import { toast } from 'sonner';
+
+// Icons
 import { 
-  FiMessageCircle, FiHeart, FiRepeat, FiAtSign, FiMail,
-  FiFilter, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
-  FiSend, FiSmile, FiThumbsUp, FiThumbsDown, FiMinus,
-  FiChevronDown, FiArchive, FiTrash2, FiUser,
-  FiCpu, FiClock, FiExternalLink, FiRefreshCw, FiZap
+  FiMessageCircle, FiFilter, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
+  FiSend, FiSmile, FiArchive, FiTrash2, FiUser,
+  FiExternalLink, FiRefreshCw, FiZap
 } from 'react-icons/fi';
 import { 
   FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok 
 } from 'react-icons/fa';
-
-// --- TYPES ---
-type Platform = 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok';
-type EngagementType = 'comment' | 'mention' | 'dm' | 'reply' | 'like' | 'repost';
-type Sentiment = 'positive' | 'negative' | 'neutral' | 'question';
-type Status = 'unread' | 'read' | 'replied' | 'archived';
-
-interface Engagement {
-  id: number;
-  platform: Platform;
-  type: EngagementType;
-  sentiment: Sentiment;
-  status: Status;
-  author: {
-    name: string;
-    handle: string;
-    avatar: string;
-    verified?: boolean;
-    followers?: number;
-  };
-  content: string;
-  originalPost?: string;
-  timestamp: string;
-  assignedTo?: string;
-  aiSuggestions?: string[];
-}
-
-// --- MOCK DATA ---
-const MOCK_ENGAGEMENTS: Engagement[] = [
-  {
-    id: 1,
-    platform: 'twitter',
-    type: 'mention',
-    sentiment: 'positive',
-    status: 'unread',
-    author: { name: 'Sarah Chen', handle: '@sarahchen', avatar: 'SC', verified: true, followers: 12400 },
-    content: "Just discovered @easypost and it's a game changer for our social media workflow! 🚀 Highly recommend checking it out.",
-    timestamp: '2m',
-    aiSuggestions: [
-      "Thanks so much Sarah! We're thrilled you're loving EasyPost! 💙",
-      "Welcome aboard! Let us know if you need any help getting started! 🎉"
-    ]
-  },
-  {
-    id: 2,
-    platform: 'instagram',
-    type: 'comment',
-    sentiment: 'question',
-    status: 'unread',
-    author: { name: 'Mike Johnson', handle: '@mikej_photo', avatar: 'MJ', followers: 8200 },
-    content: "Love this! What camera settings did you use for this shot? Would love to recreate something similar 🙏",
-    originalPost: "Behind the scenes of our latest product shoot...",
-    timestamp: '15m',
-    aiSuggestions: [
-      "Shot on Sony A7IV, f/2.8, 1/200s, ISO 400! Happy to share more tips 📷"
-    ]
-  },
-  {
-    id: 3,
-    platform: 'facebook',
-    type: 'dm',
-    sentiment: 'neutral',
-    status: 'unread',
-    author: { name: 'Emily Rose', handle: 'emily.rose', avatar: 'ER', followers: 540 },
-    content: "Hi! I'm interested in your enterprise plan. Can someone from your team reach out to discuss pricing for 50+ users?",
-    timestamp: '32m',
-    aiSuggestions: [
-      "Hi Emily! I'd love to help. Let me connect you with our enterprise team."
-    ]
-  },
-  {
-    id: 4,
-    platform: 'twitter',
-    type: 'reply',
-    sentiment: 'negative',
-    status: 'unread',
-    author: { name: 'Alex Turner', handle: '@alexturner99', avatar: 'AT', followers: 320 },
-    content: "The app keeps crashing when I try to schedule posts. Been happening for 3 days now. Very frustrating!",
-    originalPost: "Excited to announce our new scheduling features!",
-    timestamp: '1h',
-    aiSuggestions: [
-      "So sorry about this Alex! Can you DM us your device info? We'll fix this ASAP 🔧"
-    ]
-  },
-  {
-    id: 5,
-    platform: 'linkedin',
-    type: 'comment',
-    sentiment: 'positive',
-    status: 'read',
-    author: { name: 'David Kim', handle: 'david-kim-cto', avatar: 'DK', verified: true, followers: 45000 },
-    content: "Great insights on social media automation. We've been using similar strategies at our company with excellent results.",
-    originalPost: "5 Ways AI is Revolutionizing Social Media Management",
-    timestamp: '2h',
-    assignedTo: 'Marketing Team',
-  },
-];
+import { formatDistanceToNow } from 'date-fns';
 
 // --- CONFIGS ---
-const PLATFORM_ICONS: Record<Platform, React.ReactNode> = {
+const PLATFORM_ICONS: any = {
   twitter: <FaTwitter />,
   instagram: <FaInstagram />,
   facebook: <FaFacebook />,
@@ -119,37 +26,65 @@ const PLATFORM_ICONS: Record<Platform, React.ReactNode> = {
   tiktok: <FaTiktok />,
 };
 
-const PLATFORM_STYLES: Record<Platform, string> = {
-  twitter: 'text-gray-900',
-  instagram: 'text-gray-900',
-  facebook: 'text-gray-900',
-  linkedin: 'text-gray-900',
-  tiktok: 'text-gray-900',
-};
-
-const SENTIMENT_STYLES: Record<Sentiment, string> = {
+const SENTIMENT_STYLES: any = {
   positive: 'text-green-600 bg-green-50 border-green-200',
   negative: 'text-red-600 bg-red-50 border-red-200',
   neutral: 'text-gray-600 bg-gray-50 border-gray-200',
   question: 'text-blue-600 bg-blue-50 border-blue-200',
 };
 
-// --- MAIN COMPONENT ---
 export default function Engagement() {
-  const [engagements, setEngagements] = useState<Engagement[]>(MOCK_ENGAGEMENTS);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [replyText, setReplyText] = useState('');
-  
-  const activeEngagement = engagements.find(e => e.id === activeId);
+  const params = useParams();
+  const workspaceId = params.id as Id<"workspaces">;
 
-  const handleReply = () => {
-    if (!activeId) return;
-    setEngagements(prev => prev.map(e => e.id === activeId ? { ...e, status: 'replied' } : e));
-    setReplyText('');
+  // 1. CONVEX HOOKS
+  const engagements = useQuery(api.engagement.getEngagements, { workspaceId });
+  const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
+  
+  const replyMutation = useMutation(api.engagement.reply);
+  const statusMutation = useMutation(api.engagement.updateStatus);
+  const seedMutation = useMutation(api.engagement.seedMockData);
+
+  // 2. STATE
+  const [activeId, setActiveId] = useState<Id<"engagements"> | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [filter, setFilter] = useState('all');
+  
+  // 3. DERIVED STATE
+  const activeEngagement = engagements?.find(e => e._id === activeId);
+  const filteredEngagements = engagements?.filter(e => {
+      if (filter === 'unread') return e.status === 'unread';
+      return true;
+  });
+
+  // 4. ACTIONS
+  const handleReply = async () => {
+    if (!activeId || !replyText) return;
+    try {
+        await replyMutation({ engagementId: activeId, text: replyText });
+        setReplyText('');
+        toast.success("Reply sent!");
+    } catch (e) {
+        toast.error("Failed to send reply");
+    }
   };
 
+  const handleStatusChange = async (id: Id<"engagements">, status: string) => {
+    await statusMutation({ id, status });
+    if (status === 'archived' && activeId === id) setActiveId(null);
+    toast.success(`Marked as ${status}`);
+  };
+
+  const handleSeed = async () => {
+    if (!accounts || accounts.length === 0) return toast.error("Connect an account first!");
+    await seedMutation({ workspaceId, accountId: accounts[0]._id });
+    toast.success("Added test messages!");
+  };
+
+  if (!engagements) return <div className="p-10 text-center">Loading inbox...</div>;
+
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+    <div className="flex h-[calc(100vh-140px)] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm animate-in fade-in">
       
       {/* LEFT PANEL: INBOX LIST */}
       <div className="w-[380px] flex flex-col border-r border-gray-200 bg-white">
@@ -160,7 +95,7 @@ export default function Engagement() {
             <h2 className="text-sm font-semibold text-gray-900 px-1">Inbox</h2>
             <div className="flex gap-1">
                 <button className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"><FiFilter size={14} /></button>
-                <button className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"><FiRefreshCw size={14} /></button>
+                <button onClick={handleSeed} className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors" title="Generate Test Data"><FiRefreshCw size={14} /></button>
             </div>
           </div>
           <div className="relative">
@@ -172,37 +107,40 @@ export default function Engagement() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label="All" active />
-             <FilterBadge label="Unread" count={4} />
-             <FilterBadge label="Mentions" />
-             <FilterBadge label="DMs" />
+             <FilterBadge label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
+             <FilterBadge label="Unread" active={filter === 'unread'} count={engagements.filter(e => e.status === 'unread').length} onClick={() => setFilter('unread')} />
           </div>
         </div>
 
         {/* List */}
         <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
-          {engagements.map((e) => (
+          {filteredEngagements?.length === 0 && (
+             <div className="p-8 text-center text-gray-400 text-sm">No messages found.</div>
+          )}
+          {filteredEngagements?.map((e) => (
             <div 
-              key={e.id}
-              onClick={() => setActiveId(e.id)}
-              className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors group relative ${activeId === e.id ? 'bg-blue-50/50' : ''}`}
+              key={e._id}
+              onClick={() => setActiveId(e._id)}
+              className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors group relative ${activeId === e._id ? 'bg-blue-50/50' : ''}`}
             >
-              {activeId === e.id && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />}
+              {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />}
               <div className="flex gap-3">
                  <div className="flex-shrink-0 relative">
                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-100">
-                        {e.author.avatar}
+                        {e.authorAvatar || e.authorName.charAt(0)}
                     </div>
                     <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-gray-100 shadow-sm">
-                        <span className={`text-[10px] ${PLATFORM_STYLES[e.platform]}`}>{PLATFORM_ICONS[e.platform]}</span>
+                        <span className={`text-[10px] text-gray-600`}>{PLATFORM_ICONS[e.platform]}</span>
                     </div>
                  </div>
                  <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-0.5">
                         <span className={`text-sm font-medium truncate ${e.status === 'unread' ? 'text-gray-900' : 'text-gray-600'}`}>
-                            {e.author.name}
+                            {e.authorName}
                         </span>
-                        <span className="text-[10px] text-gray-400 tabular-nums">{e.timestamp}</span>
+                        <span className="text-[10px] text-gray-400 tabular-nums">
+                            {formatDistanceToNow(e.receivedAt, { addSuffix: true })}
+                        </span>
                     </div>
                     <p className={`text-xs line-clamp-2 ${e.status === 'unread' ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
                         {e.content}
@@ -213,9 +151,11 @@ export default function Engagement() {
                                  <FiCheck size={8} /> Replied
                              </span>
                          )}
-                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${SENTIMENT_STYLES[e.sentiment]}`}>
-                             {e.sentiment}
-                         </span>
+                         {e.sentiment && (
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${SENTIMENT_STYLES[e.sentiment]}`}>
+                                {e.sentiment}
+                            </span>
+                         )}
                     </div>
                  </div>
               </div>
@@ -232,14 +172,16 @@ export default function Engagement() {
              <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
                 <div className="flex items-center gap-3">
                    <div className="flex -space-x-1">
-                      <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px]">{activeEngagement.author.avatar}</div>
+                      <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px]">
+                         {activeEngagement.authorAvatar || activeEngagement.authorName.charAt(0)}
+                      </div>
                    </div>
-                   <span className="text-sm font-medium text-gray-900">{activeEngagement.author.name}</span>
-                   <span className="text-xs text-gray-400">{activeEngagement.author.handle}</span>
+                   <span className="text-sm font-medium text-gray-900">{activeEngagement.authorName}</span>
+                   <span className="text-xs text-gray-400">{activeEngagement.authorHandle}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <ActionButton icon={<FiCheckCircle />} tooltip="Mark resolved" />
-                    <ActionButton icon={<FiArchive />} tooltip="Archive" />
+                    <ActionButton icon={<FiCheckCircle />} tooltip="Mark Read" onClick={() => handleStatusChange(activeEngagement._id, 'read')} />
+                    <ActionButton icon={<FiArchive />} tooltip="Archive" onClick={() => handleStatusChange(activeEngagement._id, 'archived')} />
                     <ActionButton icon={<FiTrash2 />} tooltip="Delete" />
                     <div className="w-px h-4 bg-gray-200 mx-1" />
                     <ActionButton icon={<FiMoreHorizontal />} />
@@ -248,18 +190,17 @@ export default function Engagement() {
 
              {/* Content Area */}
              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
-                 {/* Thread View */}
                  <div className="max-w-3xl mx-auto space-y-6">
                      
                      {/* Context (Original Post) */}
-                     {activeEngagement.originalPost && (
+                     {activeEngagement.originalPostContent && (
                          <div className="flex gap-4 opacity-60 hover:opacity-100 transition-opacity">
                              <div className="w-8 flex flex-col items-center pt-2">
                                  <div className="w-0.5 h-full bg-gray-200" />
                              </div>
                              <div className="bg-white border border-gray-200 rounded-lg p-4 flex-1 shadow-sm">
                                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Replied to post</p>
-                                 <p className="text-sm text-gray-600">{activeEngagement.originalPost}</p>
+                                 <p className="text-sm text-gray-600">{activeEngagement.originalPostContent}</p>
                              </div>
                          </div>
                      )}
@@ -267,21 +208,21 @@ export default function Engagement() {
                      {/* The Message */}
                      <div className="flex gap-4">
                          <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-sm font-bold text-gray-600 border border-gray-100 shadow-sm z-10">
-                            {activeEngagement.author.avatar}
+                            {activeEngagement.authorAvatar || activeEngagement.authorName.charAt(0)}
                          </div>
                          <div className="flex-1">
                              <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div className="flex justify-between mb-2">
                                      <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-gray-900 text-sm">{activeEngagement.author.name}</span>
-                                        <span className="text-xs text-gray-400">{activeEngagement.timestamp} ago</span>
+                                        <span className="font-semibold text-gray-900 text-sm">{activeEngagement.authorName}</span>
+                                        <span className="text-xs text-gray-400">{new Date(activeEngagement.receivedAt).toLocaleTimeString()}</span>
                                      </div>
                                      <span className="text-gray-400 hover:text-gray-600 cursor-pointer"><FiExternalLink size={12} /></span>
                                 </div>
                                 <p className="text-gray-800 text-sm leading-relaxed">{activeEngagement.content}</p>
                              </div>
                              
-                             {/* AI Suggestions */}
+                             {/* AI Suggestions (Stored in DB) */}
                              {activeEngagement.aiSuggestions && (
                                 <div className="mt-4 space-y-2">
                                    <div className="flex items-center gap-2 text-xs font-medium text-violet-600 mb-2">
@@ -314,7 +255,7 @@ export default function Engagement() {
                            value={replyText}
                            onChange={(e) => setReplyText(e.target.value)}
                            className="w-full p-3 text-sm focus:outline-none bg-transparent resize-none min-h-[80px]"
-                           placeholder={`Reply to ${activeEngagement.author.handle}...`}
+                           placeholder={`Reply to ${activeEngagement.authorHandle}...`}
                         />
                         <div className="flex items-center justify-between p-2 bg-gray-50 border-t border-gray-100 rounded-b-lg">
                             <div className="flex gap-1">
@@ -352,18 +293,18 @@ export default function Engagement() {
 
 // --- SUB COMPONENTS ---
 
-const FilterBadge = ({ label, active, count }: { label: string, active?: boolean, count?: number }) => (
-    <button className={`
+const FilterBadge = ({ label, active, count, onClick }: any) => (
+    <button onClick={onClick} className={`
         whitespace-nowrap px-2.5 py-1 rounded text-xs font-medium border transition-colors flex items-center gap-1.5
         ${active ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}
     `}>
         {label}
-        {count && <span className={`px-1 rounded-full text-[9px] ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>{count}</span>}
+        {count !== undefined && <span className={`px-1 rounded-full text-[9px] ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>{count}</span>}
     </button>
 );
 
-const ActionButton = ({ icon, tooltip }: { icon: React.ReactNode, tooltip?: string }) => (
-    <button className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors" title={tooltip}>
+const ActionButton = ({ icon, tooltip, onClick }: any) => (
+    <button onClick={onClick} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors" title={tooltip}>
         {React.cloneElement(icon as React.ReactElement, { size: 16 })}
     </button>
 );

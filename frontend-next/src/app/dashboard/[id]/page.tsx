@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
-import { useQuery, useMutation } from "convex/react";
+// 1. Import useConvexAuth to check login state
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -22,6 +23,7 @@ import Analytics from '@/src/components/easypost/Analytics';
 import Engagement from "@/src/components/easypost/Engagement";
 import Settings from '@/src/components/easypost/Settings';
 import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
+import Team from '@/src/components/easypost/Team';
 
 // --- TYPES ---
 type TabType = 'queue' | 'analytics' | 'engagement' | 'settings' | 'team';
@@ -39,10 +41,13 @@ export default function DashboardPage() {
     const params = useParams();
     const router = useRouter();
     
-    // 1. GET ID FROM URL
+    // 2. Get Auth State
+    const { isAuthenticated } = useConvexAuth();
+    
+    // 3. GET ID FROM URL
     const workspaceId = params.id as Id<"workspaces">;
 
-    // 2. CONVEX QUERIES
+    // 4. CONVEX QUERIES
     const currentWorkspace = useQuery(api.workspaces.getById, { id: workspaceId });
     const myWorkspaces = useQuery(api.workspaces.getMyWorkspaces);
     
@@ -50,21 +55,25 @@ export default function DashboardPage() {
     const posts = useQuery(api.posts.getWorkspacePosts, { workspaceId }); 
     const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
 
-    // Ensure User Exists
+    // 5. STORE USER (FIXED)
     const storeUser = useMutation(api.users.store);
+    
     useEffect(() => {
-        storeUser(); 
-    }, [storeUser]);
+        // Only attempt to store user if we are actually logged in
+        if (isAuthenticated) {
+            storeUser(); 
+        }
+    }, [storeUser, isAuthenticated]);
 
-    // 3. MUTATIONS
+    // 6. MUTATIONS
     const createPostMutation = useMutation(api.posts.createPost);
 
-    // 4. UI STATE
+    // 7. UI STATE
     const [activeTab, setActiveTab] = useState<TabType>('queue');
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    // 5. NOTIFICATION STATE (Mocked)
+    // 8. NOTIFICATION STATE (Mocked)
     const [notifications, setNotifications] = useState<Notification[]>([
         { id: 1, type: 'general', message: 'Welcome to EasyPost!', time: '2m ago', read: true }
     ]);
@@ -74,14 +83,14 @@ export default function DashboardPage() {
 
     // --- HANDLERS ---
 
-    // UPDATED: Now accepts storageId and mediaType
     const handleAddPost = async (
         content: string, 
         date?: Date, 
         storageId?: string, 
-        mediaType?: "image" | "video"
+        mediaType?: "image" | "video",
+        category?: string,
+        tags?: string[]
     ) => {
-        // Validation: Need an account to post to
         if (!accounts || accounts.length === 0) {
             toast.error("Please connect a social account first.", {
                 description: "Go to Settings to connect Twitter or LinkedIn."
@@ -89,15 +98,15 @@ export default function DashboardPage() {
             return;
         }
 
-        // Logic: Post to the first account (In production, let user select)
         const promise = createPostMutation({
             workspaceId,
             accountId: accounts[0]._id, 
             content: content,
             scheduledTime: date ? date.getTime() : Date.now(),
-            // Pass media details to DB
             mediaStorageIds: storageId ? [storageId as Id<"_storage">] : [],
             mediaType: mediaType,
+            category: category,
+            tags: tags
         });
 
         toast.promise(promise, {
@@ -109,7 +118,7 @@ export default function DashboardPage() {
 
     // --- RENDER ---
     
-    // 1. Loading State
+    // Loading State
     if (currentWorkspace === undefined || posts === undefined || accounts === undefined || myWorkspaces === undefined) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
@@ -121,7 +130,7 @@ export default function DashboardPage() {
         );
     }
 
-    // 2. Not Found State
+    // Not Found State
     if (currentWorkspace === null) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
@@ -263,7 +272,6 @@ export default function DashboardPage() {
                             />
                         </div>
                         
-                        {/* NOTIFICATION BELL */}
                         <div className="relative">
                             <button 
                                 onClick={() => setShowNotifs(!showNotifs)}
@@ -304,7 +312,7 @@ export default function DashboardPage() {
                         )}
 
                         {activeTab === 'analytics' && <Analytics />}
-                        
+                        {activeTab === 'team' && <Team workspaceId={workspaceId} />}
                         {activeTab === 'engagement' && <EngagementWithTabs />}
                         {activeTab === 'settings' && (
                             <Settings 

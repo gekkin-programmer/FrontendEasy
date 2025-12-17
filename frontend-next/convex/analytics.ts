@@ -30,6 +30,55 @@ export const saveSnapshot = internalMutation({
   },
 });
 
+// 5. QUERY: Niche Performance (Group by Category)
+export const getNichePerformance = query({
+  args: { workspaceId: v.id("workspaces") },
+  handler: async (ctx, args) => {
+    const posts = await ctx.db
+      .query("posts")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .collect();
+
+    const categoryStats: Record<string, { totalLikes: number; count: number; avg: number }> = {};
+    const tagStats: Record<string, { totalLikes: number; count: number }> = {};
+
+    for (const post of posts) {
+      if (!post.currentStats) continue;
+      
+      const likes = post.currentStats.likes;
+      const cat = post.category || "Uncategorized";
+
+      // 1. Aggregate Categories
+      if (!categoryStats[cat]) categoryStats[cat] = { totalLikes: 0, count: 0, avg: 0 };
+      categoryStats[cat].totalLikes += likes;
+      categoryStats[cat].count += 1;
+
+      // 2. Aggregate Hashtags
+      if (post.tags) {
+        for (const tag of post.tags) {
+          if (!tagStats[tag]) tagStats[tag] = { totalLikes: 0, count: 0 };
+          tagStats[tag].totalLikes += likes;
+          tagStats[tag].count += 1;
+        }
+      }
+    }
+
+    // Calculate Averages & Format for Chart
+    const categories = Object.entries(categoryStats).map(([name, data]) => ({
+      name,
+      posts: data.count,
+      avgLikes: Math.round(data.totalLikes / data.count)
+    })).sort((a, b) => b.avgLikes - a.avgLikes); // Best performing first
+
+    const topTags = Object.entries(tagStats)
+      .map(([tag, data]) => ({ tag, count: data.count, totalLikes: data.totalLikes }))
+      .sort((a, b) => b.totalLikes - a.totalLikes)
+      .slice(0, 5); // Top 5 tags
+
+    return { categories, topTags };
+  },
+});
+
 // 2. PUBLIC QUERY: Get History for a Single Post (For Post Details)
 export const getPostHistory = query({
   args: { postId: v.id("posts") },
