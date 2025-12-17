@@ -9,7 +9,7 @@ import { Id } from "@/convex/_generated/dataModel";
 // UI & Icons
 import { 
   Image as ImageIcon, Video, Smile, Zap, Calendar as CalendarIcon, 
-  X, Clock, Send, Facebook, Instagram, Linkedin, Twitter 
+  X, Clock, Send, Facebook, Instagram, Linkedin, Twitter, Tag
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
@@ -22,14 +22,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 
 interface ComposerProps {
-  // Updated signature to accept Media ID and Type
+  // Updated signature to accept Category and Tags
   onSchedule: (
     content: string, 
     date?: Date, 
     storageId?: string, 
-    mediaType?: "image" | "video"
+    mediaType?: "image" | "video",
+    category?: string,
+    tags?: string[]
   ) => Promise<void>;
 }
+
+const CATEGORIES = ["General", "Technology", "Marketing", "Personal", "News", "Meme", "Educational"];
 
 export default function Composer({ onSchedule }: ComposerProps) {
   const params = useParams();
@@ -42,6 +46,7 @@ export default function Composer({ onSchedule }: ComposerProps) {
   // 2. Local State
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  const [category, setCategory] = useState("General");
   
   // File State
   const [file, setFile] = useState<File | null>(null);
@@ -56,8 +61,8 @@ export default function Composer({ onSchedule }: ComposerProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      setFile(selectedFile); // Store raw file for upload
-      setMediaPreview(URL.createObjectURL(selectedFile)); // Local preview
+      setFile(selectedFile);
+      setMediaPreview(URL.createObjectURL(selectedFile));
     }
   };
 
@@ -76,6 +81,12 @@ export default function Composer({ onSchedule }: ComposerProps) {
     toast.success("AI Hashtags added!");
   };
 
+  // Helper to find #hashtags in the text
+  const extractHashtags = (content: string) => {
+    const regex = /#[a-z0-9_]+/gi;
+    return content.match(regex) || [];
+  };
+
   const handleSubmit = async (type: 'queue' | 'draft') => {
     if (!text && !file) return toast.error("Post cannot be empty");
     
@@ -86,13 +97,8 @@ export default function Composer({ onSchedule }: ComposerProps) {
     try {
       // 1. Handle File Upload (If exists)
       if (file) {
-        // Determine type immediately
         mediaType = file.type.startsWith('video') ? 'video' : 'image';
-
-        // A. Get Secure Upload URL from Convex
         const postUrl = await generateUploadUrl();
-
-        // B. Upload file to that URL
         const result = await fetch(postUrl, {
           method: "POST",
           headers: { "Content-Type": file.type },
@@ -100,20 +106,21 @@ export default function Composer({ onSchedule }: ComposerProps) {
         });
 
         if (!result.ok) throw new Error(`Upload failed: ${result.statusText}`);
-
-        // C. Get the Storage ID
         const json = await result.json();
         storageId = json.storageId;
       }
 
-      // 2. Pass Data to Parent (Dashboard)
+      // 2. Prepare Data
       const scheduledDate = type === 'queue' ? (date || new Date()) : undefined;
+      const extractedTags = extractHashtags(text);
+
+      // 3. Pass Data to Parent (Dashboard)
+      await onSchedule(text, scheduledDate, storageId, mediaType, category, extractedTags);
       
-      await onSchedule(text, scheduledDate, storageId, mediaType);
-      
-      // 3. Reset Form
+      // 4. Reset Form
       setText('');
       setDate(undefined);
+      setCategory("General");
       removeMedia();
 
     } catch (error) {
@@ -154,10 +161,6 @@ export default function Composer({ onSchedule }: ComposerProps) {
             </div>
           ))
         )}
-        
-        <button className="w-8 h-8 rounded-full border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors">
-            <span className="text-lg leading-none">+</span>
-        </button>
       </div>
 
       {/* 2. Composer Body */}
@@ -192,17 +195,29 @@ export default function Composer({ onSchedule }: ComposerProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 pt-4 border-t border-border gap-4">
           
           {/* Left Tools */}
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="Add Media" disabled={isSubmitting} />
             <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="Add Video" disabled={isSubmitting} />
             <ToolButton icon={Smile} tooltip="Emoji (Coming Soon)" disabled={isSubmitting} />
             
+            {/* Category Selector */}
+            <div className="flex items-center ml-2 pl-2 border-l border-gray-200 relative group">
+                <Tag size={16} className="text-gray-400 absolute left-4 pointer-events-none" />
+                <select 
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="pl-8 pr-2 py-1.5 text-xs font-medium bg-gray-50 border border-gray-200 rounded-md text-gray-700 outline-none hover:bg-gray-100 cursor-pointer appearance-none transition-colors"
+                >
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+            </div>
+
             <button 
               onClick={handleAiAssist} 
               disabled={isSubmitting}
               className="ml-2 flex items-center gap-1.5 text-xs font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50"
             >
-              <Zap size={14} /> AI Assist
+              
             </button>
           </div>
           
