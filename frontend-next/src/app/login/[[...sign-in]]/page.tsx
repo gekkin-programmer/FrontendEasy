@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useSignIn } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaGoogle, FaGithub } from 'react-icons/fa6';
 import { Loader2 } from 'lucide-react';
 
@@ -24,8 +23,9 @@ export default function LoginPage() {
     
     return signIn.authenticateWithRedirect({
       strategy,
-      redirectUrl: '/sso-callback',
-      redirectUrlComplete: '/dashboard', // Login goes straight to dashboard
+      // IMPORTANT: This must match the folder 'src/app/sso-callback/page.tsx'
+      redirectUrl: '/sso-callback', 
+      redirectUrlComplete: '/dashboard', 
     });
   };
 
@@ -44,14 +44,13 @@ export default function LoginPage() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
+        // Force router push to ensure client-side navigation works immediately
         router.push('/dashboard');
       } else {
-        // Handle MFA or other steps if needed (advanced)
         console.log(result);
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
-      // Clerk errors usually come in an array
       setError(err.errors?.[0]?.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
@@ -65,6 +64,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
         <div className="relative z-10">
           <Link href="/">
+            {/* Ensure path exists or change to text */}
             <img 
               src="/assets/WiggleLogo.png" 
               alt="Brand Logo" 
@@ -103,13 +103,11 @@ export default function LoginPage() {
       {/* --- RIGHT SIDE: Custom Login Form --- */}
       <div className="flex flex-col justify-center px-6 py-12 lg:px-20 xl:px-24 bg-white h-screen overflow-y-auto">
         
-        {/* Container Limit */}
         <div className="mx-auto w-full max-w-[480px]">
           
-          {/* Mobile Logo */}
           <div className="mb-10 lg:hidden">
              <Link href="/" className="inline-block">
-               <img className="h-10 w-auto object-contain" src="/assets/WiggleLogo.png" alt="Logo" />
+               <span className="text-2xl font-bold text-[#3C48F6]">EasyPost</span>
              </Link>
           </div>
 
@@ -118,7 +116,6 @@ export default function LoginPage() {
             <p className="mt-2 text-base text-gray-600">Please enter your details to sign in.</p>
           </div>
 
-          {/* Social Buttons */}
           <div className="flex gap-4 mb-8">
             <button 
               onClick={() => signInWith('oauth_google')}

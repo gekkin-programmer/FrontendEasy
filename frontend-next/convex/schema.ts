@@ -1,73 +1,88 @@
-// convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // Sync Clerk users here via webhooks or just store refs
   users: defineTable({
-    tokenIdentifier: v.string(), // Clerk ID
+    tokenIdentifier: v.string(),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
+    username: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    preferences: v.optional(v.object({
+      emailAlerts: v.boolean(),
+      failedPostAlerts: v.boolean(),
+      marketingEmails: v.boolean(),
+    })),
   }).index("by_token", ["tokenIdentifier"]),
 
-  // Workspaces (e.g., "Agency A", "Personal Brand")
   workspaces: defineTable({
     name: v.string(),
-    ownerId: v.string(), // Clerk ID
-    members: v.array(v.string()), // Array of User IDs
-    // --- ADDED THIS FIELD ---
-    plan: v.optional(v.union(v.literal("free"), v.literal("pro"), v.literal("agency"))),
+    ownerId: v.string(),
+    members: v.array(v.string()),
+    plan: v.optional(v.string()),
   }),
 
-  // Social Accounts connected to a workspace
   accounts: defineTable({
     workspaceId: v.id("workspaces"),
-    platform: v.union(v.literal("twitter"), v.literal("linkedin"), v.literal("instagram")),
+    platform: v.string(), 
+    platformAccountId: v.optional(v.string()), 
     platformUsername: v.string(),
     avatarUrl: v.optional(v.string()),
-    // CRITICAL: Never return tokens to the client. Keep them server-side only.
-    accessToken: v.string(), 
+    accessToken: v.optional(v.string()), 
     refreshToken: v.optional(v.string()),
     tokenExpiresAt: v.optional(v.number()),
+    credentials: v.optional(v.object({
+      botToken: v.string(),
+      chatId: v.string(),
+    })),
+    metadata: v.optional(v.any()),
   }).index("by_workspace", ["workspaceId"]),
 
-  // The actual content to be posted
   posts: defineTable({
     workspaceId: v.id("workspaces"),
-    projectId: v.optional(v.id("projects")), // Optional organization layer
     accountId: v.id("accounts"),
     content: v.string(),
-    mediaStorageIds: v.optional(v.array(v.string())), // Images/Videos in Convex Storage
+    
+    // MEDIA HANDLING
+    mediaStorageIds: v.optional(v.array(v.id("_storage"))), 
+    mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
+
+    // STATUS & SCHEDULING
     status: v.union(
       v.literal("draft"), 
       v.literal("scheduled"), 
       v.literal("published"), 
-      v.literal("failed")
+      v.literal("failed"),
+      v.literal("archived")
     ),
-    scheduledTime: v.number(), // Unix timestamp
-    publishedTime: v.optional(v.number()),
+    scheduledTime: v.number(), 
+    publishedTime: v.optional(v.number()), // Needed for the 365-day tracking window
+    
+    // EXTERNAL API DATA
+    publishedRemoteId: v.optional(v.string()),
+    failureReason: v.optional(v.string()),
+
+    // NEW: LIVE STATS CACHE (For quick display in Feed/Grid)
+    currentStats: v.optional(v.object({
+      likes: v.number(),
+      comments: v.number(),
+      shares: v.number(),
+      impressions: v.number(),
+    })),
   })
   .index("by_workspace", ["workspaceId"])
-  .index("by_status", ["status"]), 
+  .index("by_status", ["status"])
+  // NEW INDEX: Optimized for the Cron Job to find active, published posts quickly
+  .index("by_status_published", ["status", "publishedTime"]),
 
-  // 1. Account Growth Over Time
-  analytics_account_daily: defineTable({
-    accountId: v.id("accounts"),
-    date: v.string(), // ISO Date "2023-10-27"
-    followers: v.number(),
-    impressions: v.number(),
-    profileViews: v.number(),
-    platformData: v.any(), 
-  }).index("by_account_date", ["accountId", "date"]),
-
-  // 2. Post Performance Snapshots
-  analytics_post_snapshots: defineTable({
+  // NEW TABLE: ANALYTICS HISTORY
+  // Stores a snapshot of a post's stats at a specific point in time
+  daily_metrics: defineTable({
     postId: v.id("posts"),
-    timestamp: v.number(), // When did we check?
+    timestamp: v.number(), // When this snapshot was taken
     likes: v.number(),
     comments: v.number(),
     shares: v.number(),
-    clicks: v.number(),
-    engagementRate: v.number(), // Calculated field
-  }).index("by_post", ["postId"]),
+    impressions: v.number(),
+  }).index("by_post", ["postId"]), // Fast lookup for charts
 });

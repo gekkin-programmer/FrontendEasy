@@ -11,8 +11,12 @@
 import type * as SocialActions from "../SocialActions.js";
 import type * as accounts from "../accounts.js";
 import type * as analytics from "../analytics.js";
+import type * as analyticsActions from "../analyticsActions.js";
 import type * as crons from "../crons.js";
+import type * as http from "../http.js";
+import type * as meta from "../meta.js";
 import type * as posts from "../posts.js";
+import type * as publish from "../publish.js";
 import type * as users from "../users.js";
 import type * as workspaces from "../workspaces.js";
 
@@ -26,8 +30,12 @@ declare const fullApi: ApiFromModules<{
   SocialActions: typeof SocialActions;
   accounts: typeof accounts;
   analytics: typeof analytics;
+  analyticsActions: typeof analyticsActions;
   crons: typeof crons;
+  http: typeof http;
+  meta: typeof meta;
   posts: typeof posts;
+  publish: typeof publish;
   users: typeof users;
   workspaces: typeof workspaces;
 }>;
