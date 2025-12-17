@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Loader2, 
-  Sparkles 
+  Sparkles, Home 
 } from 'lucide-react'; 
 
 // Custom Components
@@ -43,15 +43,18 @@ export default function DashboardPage() {
     const workspaceId = params.id as Id<"workspaces">;
 
     // 2. CONVEX QUERIES
-    // A. Get the single workspace we are looking at
     const currentWorkspace = useQuery(api.workspaces.getById, { id: workspaceId });
-    
-    // B. Get ALL workspaces for the dropdown switcher
     const myWorkspaces = useQuery(api.workspaces.getMyWorkspaces);
     
-    // C. Get Content
+    // We get posts enriched with media URLs now
     const posts = useQuery(api.posts.getWorkspacePosts, { workspaceId }); 
     const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
+
+    // Ensure User Exists
+    const storeUser = useMutation(api.users.store);
+    useEffect(() => {
+        storeUser(); 
+    }, [storeUser]);
 
     // 3. MUTATIONS
     const createPostMutation = useMutation(api.posts.createPost);
@@ -71,7 +74,13 @@ export default function DashboardPage() {
 
     // --- HANDLERS ---
 
-    const handleAddPost = async (content: string, date?: Date) => {
+    // UPDATED: Now accepts storageId and mediaType
+    const handleAddPost = async (
+        content: string, 
+        date?: Date, 
+        storageId?: string, 
+        mediaType?: "image" | "video"
+    ) => {
         // Validation: Need an account to post to
         if (!accounts || accounts.length === 0) {
             toast.error("Please connect a social account first.", {
@@ -86,6 +95,9 @@ export default function DashboardPage() {
             accountId: accounts[0]._id, 
             content: content,
             scheduledTime: date ? date.getTime() : Date.now(),
+            // Pass media details to DB
+            mediaStorageIds: storageId ? [storageId as Id<"_storage">] : [],
+            mediaType: mediaType,
         });
 
         toast.promise(promise, {
@@ -98,7 +110,6 @@ export default function DashboardPage() {
     // --- RENDER ---
     
     // 1. Loading State
-    // We check if data is undefined (loading) vs null (not found)
     if (currentWorkspace === undefined || posts === undefined || accounts === undefined || myWorkspaces === undefined) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
@@ -110,7 +121,7 @@ export default function DashboardPage() {
         );
     }
 
-    // 2. Not Found State (Security check failed or ID invalid)
+    // 2. Not Found State
     if (currentWorkspace === null) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
@@ -137,11 +148,6 @@ export default function DashboardPage() {
     const PLAN_LIMITS: any = { 'free': 10, 'pro': 500, 'agency': 9999 };
     const currentLimit = PLAN_LIMITS[currentWorkspace.plan || 'free'] || 10;
     const postCount = posts.filter(p => p.status === 'scheduled').length;
-
-    // Filter Notifications
-    const filteredNotifs = notifFilter === 'all' 
-        ? notifications 
-        : notifications.filter(n => n.type === notifFilter);
 
     return (
         <div className="flex h-screen bg-[#F5F5F5] font-sans text-gray-900">
@@ -174,7 +180,7 @@ export default function DashboardPage() {
                                 className="absolute top-full left-2 right-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden mt-1"
                             >
                                 <div className="max-h-60 overflow-y-auto">
-                                    {myWorkspaces.map(ws => (
+                                    {myWorkspaces?.map(ws => (
                                         <button 
                                             key={ws._id} 
                                             onClick={() => { setIsAccountMenuOpen(false); router.push(`/dashboard/${ws._id}`); }} 
@@ -207,8 +213,16 @@ export default function DashboardPage() {
                     <SidebarItem icon={SettingsIcon} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
                 </nav>
                 
-                {/* Plan Indicator */}
-                <div className="p-6 border-t border-gray-200">
+                {/* BOTTOM SECTION */}
+                <div className="p-4 border-t border-gray-200 space-y-4">
+                    <button 
+                        onClick={() => router.push('/')}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#3C48F6] hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                        <Home size={18} />
+                        Back to Home
+                    </button>
+
                     <div className="rounded-xl p-4 text-white shadow-lg relative overflow-hidden bg-gradient-to-br from-[#3C48F6] to-blue-700">
                         <div className="flex justify-between items-center mb-2 relative z-10">
                             <p className="text-xs font-medium opacity-90 capitalize">{currentWorkspace.plan || 'Free'} Plan</p>
@@ -292,9 +306,9 @@ export default function DashboardPage() {
                         {activeTab === 'analytics' && <Analytics />}
                         
                         {activeTab === 'engagement' && <EngagementWithTabs />}
-                        
                         {activeTab === 'settings' && (
                             <Settings 
+                                workspaceId={workspaceId}
                                 workspaceName={currentWorkspace.name}
                                 workspacePlan={currentWorkspace.plan}
                             />

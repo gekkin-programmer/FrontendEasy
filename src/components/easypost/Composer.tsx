@@ -1,12 +1,16 @@
 'use client';
+
 import React, { useState, useRef } from 'react';
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from 'next/navigation';
 import { Id } from "@/convex/_generated/dataModel";
 
 // UI & Icons
-import { Image as ImageIcon, Video, Smile, Zap, Calendar as CalendarIcon, X, Clock, Send, ChevronDown } from 'lucide-react';
+import { 
+  Image as ImageIcon, Video, Smile, Zap, Calendar as CalendarIcon, 
+  X, Clock, Send, Facebook, Instagram, Linkedin, Twitter 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -18,20 +22,31 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 
 interface ComposerProps {
-  onSchedule: (content: string, date?: Date) => Promise<void>;
+  // Updated signature to accept Media ID and Type
+  onSchedule: (
+    content: string, 
+    date?: Date, 
+    storageId?: string, 
+    mediaType?: "image" | "video"
+  ) => Promise<void>;
 }
 
 export default function Composer({ onSchedule }: ComposerProps) {
   const params = useParams();
   const workspaceId = params.id as Id<"workspaces">;
 
-  // 1. Fetch Real Accounts for the header
+  // 1. Data Fetching
   const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
+  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
 
   // 2. Local State
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  
+  // File State
+  const [file, setFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,42 +54,71 @@ export default function Composer({ onSchedule }: ComposerProps) {
   // --- HANDLERS ---
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // In a real Convex app, you would upload to `generateUploadUrl` here
-      // For now, we just show a preview
-      const objectUrl = URL.createObjectURL(file);
-      setMediaPreview(objectUrl);
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile); // Store raw file for upload
+      setMediaPreview(URL.createObjectURL(selectedFile)); // Local preview
     }
   };
 
   const removeMedia = () => {
+    setFile(null);
     setMediaPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAiAssist = () => {
-    // Mock AI insertion
-    setText(prev => prev + "\n\n🚀 #Growth #SaaS #BuildingInPublic");
-    toast.success("AI Hashtags generated!");
+    if (!text) {
+        setText("Check out this amazing update! 🚀 #BuildingInPublic #SaaS");
+    } else {
+        setText(prev => prev + "\n\n🚀 #Growth #Tech #SocialMedia");
+    }
+    toast.success("AI Hashtags added!");
   };
 
   const handleSubmit = async (type: 'queue' | 'draft') => {
-    if (!text) return toast.error("Post cannot be empty");
+    if (!text && !file) return toast.error("Post cannot be empty");
     
     setIsSubmitting(true);
+    let storageId: string | undefined = undefined;
+    let mediaType: "image" | "video" | undefined = undefined;
+
     try {
-      // If type is 'queue', we use the selected date or default to now
-      // If type is 'draft', we might pass null date (handled in parent)
-      await onSchedule(text, type === 'queue' ? (date || new Date()) : undefined);
+      // 1. Handle File Upload (If exists)
+      if (file) {
+        // Determine type immediately
+        mediaType = file.type.startsWith('video') ? 'video' : 'image';
+
+        // A. Get Secure Upload URL from Convex
+        const postUrl = await generateUploadUrl();
+
+        // B. Upload file to that URL
+        const result = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!result.ok) throw new Error(`Upload failed: ${result.statusText}`);
+
+        // C. Get the Storage ID
+        const json = await result.json();
+        storageId = json.storageId;
+      }
+
+      // 2. Pass Data to Parent (Dashboard)
+      const scheduledDate = type === 'queue' ? (date || new Date()) : undefined;
       
-      // Reset Form
+      await onSchedule(text, scheduledDate, storageId, mediaType);
+      
+      // 3. Reset Form
       setText('');
       setDate(undefined);
       removeMedia();
+
     } catch (error) {
       console.error(error);
-      // Toast handled in parent
+      toast.error("Failed to upload/schedule post");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,18 +135,19 @@ export default function Composer({ onSchedule }: ComposerProps) {
         {accounts === undefined ? (
            <div className="h-8 w-24 bg-gray-200 animate-pulse rounded-full" />
         ) : accounts.length === 0 ? (
-           <span className="text-xs text-red-400">No accounts connected</span>
+           <span className="text-xs text-red-400">No accounts connected. Go to Settings.</span>
         ) : (
           accounts.map(acc => (
             <div 
               key={acc._id}
-              className="relative w-9 h-9 rounded-full border-2 border-primary bg-white flex items-center justify-center shadow-sm cursor-pointer"
+              className="relative group w-9 h-9 rounded-full border-2 border-primary bg-white flex items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-transform"
               title={acc.platformUsername}
             >
-              {/* Account Avatar Mock - In real app use acc.avatarUrl */}
-              <span className="text-xs font-bold text-gray-700">{acc.platformUsername.charAt(0).toUpperCase()}</span>
-              
-              {/* Platform Badge */}
+              {acc.avatarUrl ? (
+                 <img src={acc.avatarUrl} alt={acc.platformUsername} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                 <span className="text-xs font-bold text-gray-700">{acc.platformUsername.charAt(0).toUpperCase()}</span>
+              )}
               <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 rounded-full p-[2px] shadow-sm border border-gray-100">
                 <PlatformIcon platform={acc.platform} />
               </div>
@@ -121,15 +166,21 @@ export default function Composer({ onSchedule }: ComposerProps) {
           value={text} 
           onChange={e => setText(e.target.value)}
           placeholder="What's new with your project?" 
-          className="min-h-[100px] border-none shadow-none resize-none focus-visible:ring-0 text-base p-0 placeholder:text-muted-foreground"
+          className="min-h-[120px] border-none shadow-none resize-none focus-visible:ring-0 text-base p-0 placeholder:text-muted-foreground bg-transparent"
         />
         
         {/* Media Preview */}
         {mediaPreview && (
           <div className="relative w-full h-64 bg-gray-100 dark:bg-zinc-800 rounded-lg overflow-hidden mt-4 group border border-border">
-             <img src={mediaPreview} className="w-full h-full object-cover" alt="Preview" />
+             {file?.type.startsWith('video') ? (
+                <video src={mediaPreview} controls className="w-full h-full object-cover" />
+             ) : (
+                <img src={mediaPreview} className="w-full h-full object-cover" alt="Preview" />
+             )}
+             
              <button 
                onClick={removeMedia} 
+               disabled={isSubmitting}
                className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-red-500 transition-colors backdrop-blur-sm"
              >
                <X size={16} />
@@ -142,13 +193,14 @@ export default function Composer({ onSchedule }: ComposerProps) {
           
           {/* Left Tools */}
           <div className="flex gap-1">
-            <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="Add Media" />
-            <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="Add Video" />
-            <ToolButton icon={Smile} tooltip="Emoji" />
+            <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="Add Media" disabled={isSubmitting} />
+            <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="Add Video" disabled={isSubmitting} />
+            <ToolButton icon={Smile} tooltip="Emoji (Coming Soon)" disabled={isSubmitting} />
             
             <button 
               onClick={handleAiAssist} 
-              className="ml-2 flex items-center gap-1.5 text-xs font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-md hover:bg-purple-100 transition-colors"
+              disabled={isSubmitting}
+              className="ml-2 flex items-center gap-1.5 text-xs font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50"
             >
               <Zap size={14} /> AI Assist
             </button>
@@ -156,12 +208,12 @@ export default function Composer({ onSchedule }: ComposerProps) {
           
           {/* Right Actions */}
           <div className="flex items-center gap-2">
-             {/* Date Picker Popover */}
              <Popover>
                <PopoverTrigger asChild>
                  <Button
                    variant={"outline"}
                    size="sm"
+                   disabled={isSubmitting}
                    className={cn(
                      "justify-start text-left font-normal h-9",
                      !date && "text-muted-foreground border-transparent hover:bg-gray-100"
@@ -183,6 +235,7 @@ export default function Composer({ onSchedule }: ComposerProps) {
                       type="time" 
                       className="w-full text-sm p-1 border rounded bg-transparent"
                       onChange={(e) => {
+                        if (!e.target.value) return;
                         const [h, m] = e.target.value.split(':');
                         const newDate = date || new Date();
                         newDate.setHours(parseInt(h));
@@ -196,7 +249,6 @@ export default function Composer({ onSchedule }: ComposerProps) {
 
              <div className="h-6 w-[1px] bg-gray-200 mx-1"></div>
 
-             {/* Submit Buttons */}
              {date ? (
                <Button 
                 disabled={isSubmitting}
@@ -204,15 +256,26 @@ export default function Composer({ onSchedule }: ComposerProps) {
                 className="bg-primary hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
                >
                  <Clock className="w-4 h-4 mr-2" />
-                 {isSubmitting ? 'Scheduling...' : 'Schedule Post'}
+                 {isSubmitting ? 'Uploading...' : 'Schedule Post'}
                </Button>
              ) : (
                <>
-                 <Button variant="ghost" size="sm" onClick={() => handleSubmit('draft')} className="text-muted-foreground">
+                 <Button 
+                   variant="ghost" 
+                   size="sm" 
+                   onClick={() => handleSubmit('draft')} 
+                   disabled={isSubmitting}
+                   className="text-muted-foreground"
+                 >
                    Save Draft
                  </Button>
-                 <Button disabled={isSubmitting} onClick={() => handleSubmit('queue')}>
-                   <Send className="w-4 h-4 mr-2" /> Post Now
+                 <Button 
+                    disabled={isSubmitting} 
+                    onClick={() => handleSubmit('queue')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                 >
+                   <Send className="w-4 h-4 mr-2" /> 
+                   {isSubmitting ? 'Posting...' : 'Post Now'}
                  </Button>
                </>
              )}
@@ -225,11 +288,12 @@ export default function Composer({ onSchedule }: ComposerProps) {
 
 // --- SUB COMPONENTS ---
 
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (
+const ToolButton = ({ icon: Icon, onClick, tooltip, disabled }: any) => (
   <Button 
     variant="ghost" 
     size="icon" 
     onClick={onClick} 
+    disabled={disabled}
     title={tooltip} 
     className="text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-zinc-800"
   >
@@ -238,9 +302,19 @@ const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (
 );
 
 const PlatformIcon = ({ platform }: { platform?: string }) => {
-  switch (platform) {
-    case 'twitter': return <span className="text-[10px] text-blue-400">𝕏</span>;
-    case 'linkedin': return <span className="text-[10px] text-blue-700">in</span>;
-    default: return <span className="text-[10px] text-gray-400">#</span>;
+  switch (platform?.toLowerCase()) {
+    case 'facebook': 
+      return <Facebook size={12} className="text-blue-600 fill-blue-600" />;
+    case 'instagram': 
+      return <Instagram size={12} className="text-pink-600" />;
+    case 'twitter': 
+    case 'x':
+      return <Twitter size={12} className="text-black fill-black dark:text-white dark:fill-white" />;
+    case 'linkedin': 
+      return <Linkedin size={12} className="text-blue-700 fill-blue-700" />;
+    case 'tiktok':
+        return <span className="text-[8px] font-bold text-black dark:text-white">TT</span>;
+    default: 
+      return <span className="text-[10px] text-gray-400">#</span>;
   }
 };

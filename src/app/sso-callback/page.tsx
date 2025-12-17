@@ -1,13 +1,11 @@
 import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 
 export default function SSOCallback() {
+  // We explicitly tell it: "Once you are done processing, GO HERE"
   return (
-    <div className="flex h-screen items-center justify-center bg-white">
-      {/* This component handles the token exchange automatically */}
-      <AuthenticateWithRedirectCallback 
-        signInForceRedirectUrl="/onboarding"
-        signUpForceRedirectUrl="/onboarding"
-      />
-    </div>
+    <AuthenticateWithRedirectCallback 
+      signInForceRedirectUrl="/dashboard" 
+      signUpForceRedirectUrl="/onboarding"
+    />
   );
 }

@@ -1,64 +1,89 @@
-// convex/analytics.ts
-import { internalAction, internalMutation } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 
-// 1. The Coordinator: Finds all accounts and schedules updates
-export const triggerDailySync = internalAction({
-  args: {},
-  handler: async (ctx) => {
-    // In a real app, paginate this or use a queue if you have 10k+ accounts
-    const accounts = await ctx.runQuery(internal.accounts.getAllInternal);
-    
-    for (const account of accounts) {
-      await ctx.runAction(internal.analytics.syncAccountStats, { 
-        accountId: account._id 
-      });
-    }
+// 1. MUTATION: Save the Snapshot to DB (Called by Cron Job)
+export const saveSnapshot = internalMutation({
+  args: {
+    postId: v.id("posts"),
+    stats: v.object({
+      likes: v.number(),
+      comments: v.number(),
+      shares: v.number(),
+      impressions: v.number(),
+    })
+  },
+  handler: async (ctx, args) => {
+    // A. Add a new row to history (for trends over time)
+    await ctx.db.insert("daily_metrics", {
+      postId: args.postId,
+      timestamp: Date.now(),
+      likes: args.stats.likes,
+      comments: args.stats.comments,
+      shares: args.stats.shares,
+      impressions: args.stats.impressions,
+    });
+
+    // B. Update the main post object (for fast feed access)
+    await ctx.db.patch(args.postId, {
+      currentStats: args.stats
+    });
   },
 });
 
-// 2. The Worker: Fetches data for ONE account
-export const syncAccountStats = internalAction({
-  args: { accountId: v.id("accounts") },
+// 2. PUBLIC QUERY: Get History for a Single Post (For Post Details)
+export const getPostHistory = query({
+  args: { postId: v.id("posts") },
   handler: async (ctx, args) => {
-    const account = await ctx.runQuery(internal.accounts.getAccountInternal, { accountId: args.accountId });
-    
-    // FETCH EXTERNAL DATA
-    // Example: Fetch Twitter User Metrics
-    let stats = { followers: 0, impressions: 0 };
-    if (account.platform === "twitter") {
-       // const data = await fetch(`https://api.twitter.com/2/users/${id}/metrics`, ...);
-       // stats = data...
-    }
-
-    // SAVE TO DB
-    await ctx.runMutation(internal.analytics.saveDailySnapshot, {
-      accountId: args.accountId,
-      stats,
-      date: new Date().toISOString().split('T')[0] // "2023-10-27"
-    });
-  }
+    return await ctx.db
+      .query("daily_metrics")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
+      .order("desc")
+      .take(30);
+  },
 });
 
-// 3. The Saver: Writes to the DB
-export const saveDailySnapshot = internalMutation({
-  args: { accountId: v.id("accounts"), stats: v.any(), date: v.string() },
+// 3. PUBLIC QUERY: Get Aggregate Workspace Stats (For Dashboard Page)
+export const getWorkspaceStats = query({
+  args: { workspaceId: v.id("workspaces") },
   handler: async (ctx, args) => {
-    // Upsert (Update if exists, Insert if new) logic to prevent duplicates
-    const existing = await ctx.db
-      .query("analytics_account_daily")
-      .withIndex("by_account_date", q => q.eq("accountId", args.accountId).eq("date", args.date))
-      .first();
+    // A. Get all posts for this workspace
+    const posts = await ctx.db
+      .query("posts")
+      .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
+      .collect();
 
-    if (existing) {
-      await ctx.db.patch(existing._id, { ...args.stats });
-    } else {
-      await ctx.db.insert("analytics_account_daily", {
-        accountId: args.accountId,
-        date: args.date,
-        ...args.stats
-      });
+    const postIds = new Set(posts.map(p => p._id));
+
+    // B. Calculate Totals (Current Snapshot)
+    let totals = { likes: 0, comments: 0, shares: 0, posts: posts.length };
+    
+    // Sum up the 'currentStats' cached on the post objects
+    for (const post of posts) {
+        if (post.currentStats) {
+            totals.likes += post.currentStats.likes;
+            totals.comments += post.currentStats.comments;
+            totals.shares += post.currentStats.shares;
+        }
     }
-  }
+
+    // C. Get History for Charting (Last 100 entries)
+    // In production, you would use a dedicated aggregation table for performance.
+    const recentMetrics = await ctx.db
+        .query("daily_metrics")
+        .order("desc")
+        .take(100);
+
+    // Filter metrics that belong to this workspace's posts
+    // and reverse them so the chart goes Left->Right (Old->New)
+    const chartData = recentMetrics
+        .filter(m => postIds.has(m.postId))
+        .map(m => ({
+            timestamp: m.timestamp,
+            likes: m.likes,
+            comments: m.comments
+        }))
+        .reverse();
+
+    return { totals, chartData };
+  },
 });
