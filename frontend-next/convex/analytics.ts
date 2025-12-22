@@ -2,6 +2,8 @@ import { internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 // 1. MUTATION: Save the Snapshot to DB (Called by Cron Job)
+// convex/analytics.ts
+
 export const saveSnapshot = internalMutation({
   args: {
     postId: v.id("posts"),
@@ -13,20 +15,34 @@ export const saveSnapshot = internalMutation({
     })
   },
   handler: async (ctx, args) => {
-    // A. Add a new row to history (for trends over time)
-    await ctx.db.insert("daily_metrics", {
-      postId: args.postId,
-      timestamp: Date.now(),
-      likes: args.stats.likes,
-      comments: args.stats.comments,
-      shares: args.stats.shares,
-      impressions: args.stats.impressions,
+    const now = Date.now();
+    const oneHourAgo = now - (60 * 60 * 1000);
+
+    // 1. Update the main post object (This keeps the 1-minute live updates visible)
+    await ctx.db.patch(args.postId, {
+      currentStats: args.stats,
+      lastStatsUpdate: now,
     });
 
-    // B. Update the main post object (for fast feed access)
-    await ctx.db.patch(args.postId, {
-      currentStats: args.stats
-    });
+    // 2. CHECK: Do we already have a history entry for this post from the last hour?
+    const recentHistory = await ctx.db
+      .query("daily_metrics")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
+      .order("desc")
+      .first();
+
+    // 3. Only insert into history if the last entry is older than 1 hour
+    // This prevents the DB from filling up with 1-minute duplicates
+    if (!recentHistory || recentHistory.timestamp < oneHourAgo) {
+      await ctx.db.insert("daily_metrics", {
+        postId: args.postId,
+        timestamp: now,
+        likes: args.stats.likes,
+        comments: args.stats.comments,
+        shares: args.stats.shares,
+        impressions: args.stats.impressions,
+      });
+    }
   },
 });
 
@@ -95,43 +111,35 @@ export const getPostHistory = query({
 export const getWorkspaceStats = query({
   args: { workspaceId: v.id("workspaces") },
   handler: async (ctx, args) => {
-    // A. Get all posts for this workspace
     const posts = await ctx.db
       .query("posts")
       .withIndex("by_workspace", (q) => q.eq("workspaceId", args.workspaceId))
       .collect();
 
-    const postIds = new Set(posts.map(p => p._id));
-
-    // B. Calculate Totals (Current Snapshot)
     let totals = { likes: 0, comments: 0, shares: 0, posts: posts.length };
     
-    // Sum up the 'currentStats' cached on the post objects
+    // Process totals
     for (const post of posts) {
-        if (post.currentStats) {
-            totals.likes += post.currentStats.likes;
-            totals.comments += post.currentStats.comments;
-            totals.shares += post.currentStats.shares;
-        }
+      if (post.currentStats) {
+        totals.likes += post.currentStats.likes;
+        totals.comments += post.currentStats.comments;
+        totals.shares += post.currentStats.shares;
+      }
     }
 
-    // C. Get History for Charting (Last 100 entries)
-    // In production, you would use a dedicated aggregation table for performance.
-    const recentMetrics = await ctx.db
-        .query("daily_metrics")
-        .order("desc")
-        .take(100);
-
-    // Filter metrics that belong to this workspace's posts
-    // and reverse them so the chart goes Left->Right (Old->New)
-    const chartData = recentMetrics
-        .filter(m => postIds.has(m.postId))
-        .map(m => ({
-            timestamp: m.timestamp,
-            likes: m.likes,
-            comments: m.comments
-        }))
-        .reverse();
+    // Process Chart Data: Get the last 50 snapshots for the most recent post
+    // or aggregate them. For a simple dashboard, we'll take the workspace's
+    // latest metrics.
+    const chartData = [];
+    if (posts.length > 0) {
+        const latestMetrics = await ctx.db
+            .query("daily_metrics")
+            .withIndex("by_post", (q) => q.eq("postId", posts[0]._id)) // Primary post trend
+            .order("desc")
+            .take(24); // Last 24 hours of history
+        
+        chartData.push(...latestMetrics.reverse());
+    }
 
     return { totals, chartData };
   },

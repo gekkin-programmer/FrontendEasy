@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api"; 
 import { Id } from "@/convex/_generated/dataModel";
 import { useParams } from 'next/navigation';
@@ -11,8 +11,7 @@ import {
   FaTiktok, FaPinterest, FaYoutube, FaSlack, FaTelegram 
 } from 'react-icons/fa6';
 import { 
-  FiCheck, FiPlus, FiAlertCircle, 
-  FiTrash2, FiRefreshCw, FiLoader, FiSettings 
+  FiCheck, FiPlus, FiTrash2, FiLoader, FiSettings 
 } from 'react-icons/fi';
 
 // --- CONFIGURATION ---
@@ -28,85 +27,133 @@ const PLATFORM_CONFIG: Record<string, any> = {
 
 const BOT_USERNAME = "EasyPost_Dev_Bot"; 
 
+// Declare FB for TypeScript
+declare global {
+  interface Window {
+    FB: any;
+  }
+}
+
 export default function ConnectAccounts() {
   const params = useParams();
   const workspaceId = params.id as Id<"workspaces">;
 
-  // Real Data
+  // --- CONVEX HOOKS ---
   const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
   const disconnect = useMutation(api.accounts.disconnect);
-  
-  // This is for the platforms we haven't built real auth for yet
+  const saveAccount = useMutation(api.accounts.saveAccount); 
+  const getAuthUrl = useAction(api.auth.getAuthUrl);
   const connectMock = useMutation(api.accounts.mockConnect);
 
-  // Local UI State
   const [connecting, setConnecting] = useState<string | null>(null);
 
   // --- HANDLERS ---
 
-    const handleMetaLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_META_CLIENT_ID;
-    if (!clientId) return toast.error("Missing Client ID");
+  const handleFacebookConnect = () => {
+    if (!window.FB) {
+      toast.error("Facebook SDK not loaded. Refreshing...");
+      return;
+    }
 
-    // 1. SAVE THE WORKSPACE ID
-    // This allows us to know where to save the account when we get back
-    localStorage.setItem("connecting_workspace_id", workspaceId);
+    window.FB.login((response: any) => {
+      if (response.authResponse) {
+        const userToken = response.authResponse.accessToken;
 
-    const redirectUri = `${window.location.origin}/dashboard/settings/integrations/callback`;
-    const scopes = ["pages_show_list", "pages_read_engagement", "pages_manage_posts"].join(",");
-    const url = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes}&response_type=code`;
+        // Fetch pages managed by the user
+        window.FB.api('/me/accounts', { access_token: userToken }, (res: any) => {
+          if (res.data && res.data.length > 0) {
+            // Auto-select the first page (EasyPost)
+            const page = res.data[0]; 
 
-    window.location.href = url;
+            saveAccount({
+              workspaceId,
+              platform: "facebook",
+              platformAccountId: page.id,        // REAL API ID: 8428...
+              platformUsername: page.name,       // "EasyPost"
+              accessToken: page.access_token,    // PERMANENT PAGE TOKEN
+              avatarUrl: `https://graph.facebook.com/${page.id}/picture?type=normal`
+            }).then(() => {
+              toast.success(`Connected to ${page.name}!`);
+              setConnecting(null);
+            }).catch((err) => {
+              toast.error("Failed to save account to database.");
+              console.error(err);
+              setConnecting(null);
+            });
+          } else {
+            toast.error("No Facebook Pages found. Make sure you are an Admin.");
+            setConnecting(null);
+          }
+        });
+      } else {
+        setConnecting(null);
+        toast.error("Facebook login cancelled.");
+      }
+    }, { 
+      scope: 'pages_read_engagement,pages_manage_posts,pages_show_list,publish_video' 
+    });
   };
 
   const handleConnect = async (platformId: string) => {
-    // A. META (Real Logic)
-    if (platformId === 'facebook' || platformId === 'instagram') {
-        handleMetaLogin();
-        return;
-    }
+    try {
+      setConnecting(platformId);
 
-    // B. TELEGRAM (Real Logic)
-    if (platformId === 'telegram') {
+      // 1. FACEBOOK (Real SDK Flow)
+      if (platformId === 'facebook') {
+        handleFacebookConnect();
+        return;
+      }
+
+      // 2. LINKEDIN (OAuth Redirect)
+      if (platformId === 'linkedin') {
+        const url = await getAuthUrl({ platform: 'linkedin', workspaceId });
+        if (url) window.location.href = url;
+        return;
+      }
+
+      // 3. TELEGRAM (Deep Link)
+      if (platformId === 'telegram') {
         const magicLink = `https://t.me/${BOT_USERNAME}?start=${workspaceId}`;
         window.open(magicLink, '_blank');
-        toast.info("Opening Telegram...", { description: "Click START in the bot to connect." });
-        return;
-    }
-
-    // C. OTHERS (Mock Logic for Demo)
-    setConnecting(platformId);
-    await new Promise(r => setTimeout(r, 1500)); 
-
-    try {
-        await connectMock({
-            workspaceId,
-            platform: platformId as any,
-            username: `@${platformId}_user`,
-            platformAccountId: `mock_${Date.now()}`
-        });
-        toast.success(`Connected ${PLATFORM_CONFIG[platformId].name}`);
-    } catch(e: any) {
-        toast.error(e.message || "Failed to connect");
-    } finally {
+        toast.info("Opening Telegram...");
         setConnecting(null);
+        return;
+      }
+
+      // 4. MOCK (Others)
+      await new Promise(r => setTimeout(r, 1000)); 
+      await connectMock({
+        workspaceId,
+        platform: platformId as any,
+        username: `@${platformId}_user`,
+        platformAccountId: `mock_${Date.now()}`
+      });
+      toast.success(`Connected ${PLATFORM_CONFIG[platformId].name}`);
+
+    } catch (e: any) {
+      toast.error(e.message || "Failed to connect");
+    } finally {
+      if (platformId !== 'facebook' && platformId !== 'linkedin') {
+        setConnecting(null);
+      }
     }
   };
 
   const handleDisconnect = async (id: Id<"accounts">) => {
     if (confirm('Disconnect this account? Scheduled posts may fail.')) {
-        await disconnect({ accountId: id });
-        toast.success("Disconnected");
+      await disconnect({ accountId: id });
+      toast.success("Disconnected");
     }
   };
 
-  
-
-  if (accounts === undefined) return <div className="p-12 flex justify-center"><FiLoader className="animate-spin text-gray-400 w-6 h-6"/></div>;
+  if (accounts === undefined) return (
+    <div className="p-12 flex justify-center">
+      <FiLoader className="animate-spin text-gray-400 w-6 h-6"/>
+    </div>
+  );
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-6">
         <div>
@@ -116,60 +163,37 @@ export default function ConnectAccounts() {
           </p>
         </div>
         <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${accounts.length > 0 ? 'bg-green-400' : 'bg-gray-400'}`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${accounts.length > 0 ? 'bg-green-500' : 'bg-gray-500'}`}></span>
-            </span>
             <span className="text-xs font-medium text-gray-600">
                 {accounts.length} / 10 Channels Used
             </span>
         </div>
       </div>
 
-      {/* Grid Layout */}
+      {/* Integration Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.keys(PLATFORM_CONFIG).map((key) => {
-            const config = PLATFORM_CONFIG[key];
-            const existingAccount = accounts.find(a => a.platform === key);
-            const isConnecting = connecting === key;
+          const config = PLATFORM_CONFIG[key];
+          const existingAccount = accounts.find(a => a.platform === key);
+          const isConnecting = connecting === key;
 
-            return (
-                <IntegrationCard 
-                    key={key}
-                    platformId={key}
-                    config={config}
-                    account={existingAccount}
-                    isConnecting={isConnecting}
-                    onConnect={() => handleConnect(key)}
-                    onDisconnect={() => existingAccount && handleDisconnect(existingAccount._id)}
-                />
-            )
+          return (
+            <IntegrationCard 
+              key={key}
+              platformId={key}
+              config={config}
+              account={existingAccount}
+              isConnecting={isConnecting}
+              onConnect={() => handleConnect(key)}
+              onDisconnect={() => existingAccount && handleDisconnect(existingAccount._id)}
+            />
+          )
         })}
-      </div>
-
-      {/* Workflow Integrations (Static for now) */}
-      <div className="pt-8">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Workflow Integrations</h3>
-          <div className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100">
-              <WorkflowRow 
-                name="Slack" 
-                desc="Receive notifications in your team channel." 
-                icon={<FaSlack />} 
-                connected={false} 
-              />
-              <WorkflowRow 
-                name="Bitly" 
-                desc="Automatically shorten links in your posts." 
-                icon={<span className="font-bold text-orange-600">b</span>} 
-                connected={true} 
-              />
-          </div>
       </div>
     </div>
   );
 }
 
-// --- SUB COMPONENTS ---
+// --- SHARED COMPONENTS (Design preserved) ---
 
 function IntegrationCard({ 
     platformId, config, account, isConnecting, onConnect, onDisconnect 
@@ -182,13 +206,10 @@ function IntegrationCard({
         relative group flex flex-col justify-between p-5 rounded-lg border transition-all duration-200
         ${isConnected ? 'bg-white border-gray-200' : 'bg-gray-50/50 border-gray-200 hover:border-gray-300'}
     `}>
-      
-      {/* Top: Icon & Status */}
       <div className="flex justify-between items-start mb-4">
         <div className={`w-10 h-10 flex items-center justify-center rounded-lg border bg-white shadow-sm text-xl ${config.color} border-gray-100`}>
           <Icon />
         </div>
-        
         {isConnected && (
             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-semibold bg-green-50 text-green-700 border border-green-100">
                 <FiCheck size={10} /> Connected
@@ -196,7 +217,6 @@ function IntegrationCard({
         )}
       </div>
 
-      {/* Middle: Info */}
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-900">{config.name}</h3>
         {isConnected ? (
@@ -210,7 +230,6 @@ function IntegrationCard({
         )}
       </div>
 
-      {/* Bottom: Actions */}
       <div className="mt-auto">
         {isConnected ? (
            <div className="flex gap-2">
@@ -220,7 +239,6 @@ function IntegrationCard({
                <button 
                   onClick={onDisconnect}
                   className="px-3 py-2 text-gray-400 hover:text-red-600 border border-transparent hover:bg-red-50 rounded-md transition-colors"
-                  title="Disconnect"
                 >
                   <FiTrash2 size={14} />
                </button>
@@ -238,27 +256,4 @@ function IntegrationCard({
       </div>
     </div>
   );
-}
-
-function WorkflowRow({ name, desc, icon, connected }: any) {
-    return (
-        <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-            <div className="flex items-center gap-4">
-                <div className="w-8 h-8 flex items-center justify-center rounded bg-gray-100 text-gray-600 text-lg">
-                    {icon}
-                </div>
-                <div>
-                    <h4 className="text-sm font-medium text-gray-900">{name}</h4>
-                    <p className="text-xs text-gray-500">{desc}</p>
-                </div>
-            </div>
-            <button className={`px-3 py-1.5 text-xs font-medium rounded-md border shadow-sm transition-colors ${
-                connected 
-                ? 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                : 'bg-gray-900 border-transparent text-white hover:bg-black'
-            }`}>
-                {connected ? 'Manage' : 'Install'}
-            </button>
-        </div>
-    )
 }

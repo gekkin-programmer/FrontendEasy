@@ -9,6 +9,7 @@ export default defineSchema({
     email: v.optional(v.string()),
     username: v.optional(v.string()),
     bio: v.optional(v.string()),
+    picture: v.optional(v.string()),
     preferences: v.optional(v.object({
       emailAlerts: v.boolean(),
       failedPostAlerts: v.boolean(),
@@ -48,6 +49,7 @@ export default defineSchema({
     accountId: v.id("accounts"),
     content: v.string(),
     
+    
     // MEDIA
     mediaStorageIds: v.optional(v.array(v.id("_storage"))), 
     mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
@@ -70,6 +72,8 @@ export default defineSchema({
     // EXTERNAL API
     publishedRemoteId: v.optional(v.string()),
     failureReason: v.optional(v.string()),
+
+    lastStatsUpdate: v.optional(v.number()),
 
     // CACHED STATS
     currentStats: v.optional(v.object({
@@ -152,12 +156,12 @@ export default defineSchema({
   }).index("by_user", ["userId"]),
 
   // 10. ANALYTICS HISTORY
-  daily_metrics: defineTable({
-    postId: v.id("posts"),
-    timestamp: v.number(),
-    likes: v.number(),
-    comments: v.number(),
-    shares: v.number(),
-    impressions: v.number(),
-  }).index("by_post", ["postId"]),
+daily_metrics: defineTable({
+  postId: v.id("posts"),
+  timestamp: v.number(),
+  likes: v.number(),
+  comments: v.number(),
+  shares: v.number(),
+  impressions: v.number(),
+}).index("by_post", ["postId"]), 
 });

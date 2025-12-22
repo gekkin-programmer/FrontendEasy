@@ -1,9 +1,7 @@
-// convex/auth.config.ts
 export default {
   providers: [
     {
-      // NO https:// here!
-      domain: "stirring-starling-4.clerk.accounts.dev", 
+      domain: process.env.CLERK_JWT_ISSUER_DOMAIN, // <--- THIS is the name you need
       applicationID: "convex",
     },
   ],
