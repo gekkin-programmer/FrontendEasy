@@ -23,23 +23,23 @@ const CATEGORIES = [
 
 const PLANS: Record<string, any[]> = {
   personal: [
-    { id: 'free', name: 'Free', price: '$0', period: '/mo', features: ['1 Workspace', '2 Social Accounts', '10 Posts/month'] },
-    { id: 'pro', name: 'Basic', price: '$9', period: '/mo', features: ['1 Workspace', '5 Social Accounts', '50 Posts/month'] },
+    { id: 'personal-free', name: 'Free', price: '$0', period: '/mo', features: ['1 Workspace', '2 Social Accounts', '10 Posts/month'] },
+    { id: 'personal-pro', name: 'Basic', price: '$9', period: '/mo', features: ['1 Workspace', '5 Social Accounts', '50 Posts/month'] },
   ],
   business: [
-    { id: 'pro', name: 'Starter', price: '$29', period: '/mo', features: ['2 Workspaces', '10 Social Accounts', '100 Posts/month'] },
-    { id: 'pro', name: 'Pro', price: '$79', period: '/mo', isPopular: true, features: ['5 Workspaces', '25 Social Accounts', '500 Posts/month'] },
+    { id: 'business-starter', name: 'Starter', price: '$29', period: '/mo', features: ['2 Workspaces', '10 Social Accounts', '100 Posts/month'] },
+    { id: 'business-pro', name: 'Pro', price: '$79', period: '/mo', isPopular: true, features: ['5 Workspaces', '25 Social Accounts', '500 Posts/month'] },
   ],
   creator: [
-    { id: 'pro', name: 'Starter', price: '$19', period: '/mo', features: ['1 Workspace', 'Multi-platform', 'Analytics'] },
-    { id: 'pro', name: 'Pro', price: '$49', period: '/mo', features: ['Audience Insights', 'Collab Tools', 'Unlimited Posts'] },
+    { id: 'creator-starter', name: 'Starter', price: '$19', period: '/mo', features: ['1 Workspace', 'Multi-platform', 'Analytics'] },
+    { id: 'creator-pro', name: 'Pro', price: '$49', period: '/mo', features: ['Audience Insights', 'Collab Tools', 'Unlimited Posts'] },
   ],
   agency: [
-    { id: 'agency', name: 'Team', price: '$149', period: '/mo', features: ['Unlimited Clients', 'White-label Reports', '5 Seats'] },
-    { id: 'agency', name: 'Agency', price: '$399', period: '/mo', features: ['API Access', 'Priority Support', '15 Seats'] },
+    { id: 'agency-team', name: 'Team', price: '$149', period: '/mo', features: ['Unlimited Clients', 'White-label Reports', '5 Seats'] },
+    { id: 'agency-pro', name: 'Agency', price: '$399', period: '/mo', features: ['API Access', 'Priority Support', '15 Seats'] },
   ],
   enterprise: [
-    { id: 'agency', name: 'Custom', price: 'Contact', period: '', features: ['Custom Limits', 'SLA Support', 'Dedicated Manager'] }
+    { id: 'enterprise-custom', name: 'Custom', price: 'Contact', period: '', features: ['Custom Limits', 'SLA Support', 'Dedicated Manager'] }
   ]
 };
 

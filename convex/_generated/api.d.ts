@@ -17,6 +17,7 @@ import type * as collaboration from "../collaboration.js";
 import type * as crons from "../crons.js";
 import type * as engagement from "../engagement.js";
 import type * as engagementActions from "../engagementActions.js";
+import type * as facebook from "../facebook.js";
 import type * as http from "../http.js";
 import type * as meta from "../meta.js";
 import type * as posts from "../posts.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   engagement: typeof engagement;
   engagementActions: typeof engagementActions;
+  facebook: typeof facebook;
   http: typeof http;
   meta: typeof meta;
   posts: typeof posts;

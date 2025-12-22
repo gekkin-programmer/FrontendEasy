@@ -15,48 +15,71 @@ export const fetchPostStats = internalAction({
     let stats = { likes: 0, comments: 0, shares: 0, impressions: 0 };
 
     try {
-      // === FACEBOOK LOGIC ===
       if (platform === "facebook") {
-        const fields = "likes.summary(true),comments.summary(true),shares";
-        const url = `https://graph.facebook.com/v19.0/${remoteId}?fields=${fields}&access_token=${accessToken}`;
+        const account = await ctx.runQuery(internal.accounts.getAccountByPost, { postId: args.postId });
+        const pageId = account?.platformAccountId;
         
-        const res = await fetch(url);
+        if (!pageId) {
+          console.error("❌ FB Error: Page ID missing in database for this account.");
+          return;
+        }
+
+        // 1. EXCHANGE USER TOKEN FOR PAGE TOKEN
+        // This is required to see "Impressions" and "Private" post data
+        const pageTokenUrl = `https://graph.facebook.com/v21.0/${pageId}?fields=access_token&access_token=${accessToken}`;
+        const pageTokenRes = await fetch(pageTokenUrl);
+        const pageTokenData = await pageTokenRes.json();
+
+        if (pageTokenData.error) {
+          console.error(`❌ FB Token Exchange Error: ${pageTokenData.error.message}`);
+          return;
+        }
+        const pageAccessToken = pageTokenData.access_token;
+
+        // 2. FORMAT THE ID CORRECTLY
+        // Combines your Page ID (6158...) with your Post Alias (pfbid...)
+        const finalFbId = remoteId.includes('_') ? remoteId : `${pageId}_${remoteId}`;
+
+        // 3. FETCH FULL ANALYTICS
+        // Now including impressions.metric(post_impressions)
+        const fields = [
+          "id",
+          "shares",
+          "likes.summary(true)",
+          "comments.summary(true)",
+          "insights.metric(post_impressions)"
+        ].join(",");
+
+        const statsUrl = `https://graph.facebook.com/v21.0/${finalFbId}?fields=${fields}&access_token=${pageAccessToken}`;
+        
+        const res = await fetch(statsUrl);
         const data = await res.json();
         
-        // --- ERROR HANDLING ---
         if (data.error) {
-            const code = data.error.code;
-            // Code 100 = Object does not exist (Deleted)
-            // Code 10 = Permission denied (or deleted)
-            if (code === 100 || code === 10 || code === 21) {
-                console.warn(`⚠️ Post ${remoteId} seems deleted on FB. Archiving local copy.`);
-                
-                // STOP TRACKING: Update DB so Cron doesn't check this again
-                await ctx.runMutation(internal.posts.markAsArchived, { 
-                    postId: args.postId 
-                });
-                return;
-            }
-            
-            console.error(`❌ FB Analytics Error: ${data.error.message}`);
-            return;
+          console.error(`❌ FB API Data Error: ${data.error.message}`);
+          return;
         }
         
+        // 4. MAP DATA TO OBJECT
         stats.likes = data.likes?.summary?.total_count || 0;
         stats.comments = data.comments?.summary?.total_count || 0;
         stats.shares = data.shares?.count || 0;
-      }
-      
-      // ... (Keep LinkedIn logic same) ...
+        
+        // Find the impressions value inside the insights array
+        const impressionsData = data.insights?.data?.find((m: any) => m.name === "post_impressions");
+        stats.impressions = impressionsData?.values?.[0]?.value || 0;
 
-      // Success: Save Stats
+        console.log(`✅ Stats Sync: ${stats.likes} Likes, ${stats.impressions} Impressions for ${finalFbId}`);
+      }
+
+      // 5. SAVE SNAPSHOT
       await ctx.runMutation(internal.analytics.saveSnapshot, {
         postId: args.postId,
         stats
       });
 
     } catch (error) {
-      console.error(`System Error:`, error);
+      console.error(`🚨 Critical System Error:`, error);
     }
   },
 });
