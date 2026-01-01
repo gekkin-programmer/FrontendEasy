@@ -3,8 +3,7 @@ import Navbar from "../components/Navbar";
 import Preloader from "../components/Preloader";
 import { LanguageProvider } from "../context/LanguageContext";
 import { JetBrains_Mono } from "next/font/google";
-import ConvexClientProvider from "./ConvexClientProvider"; 
-import EasyAI from "@/src/components/easypost/EasyAI"; // <--- 1. Import EasyAI
+import EasyAI from "@/src/components/easypost/EasyAI";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -13,8 +12,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "EasyPost",
-  description: "Social Media Scheduler",
+  title: "EasyPost - Dominer le marketing digital en Afrique",
+  description: "Social Media Scheduler pour les communautés africaines",
 };
 
 export default function RootLayout({
@@ -23,11 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        {/* Wrap everything in Convex Provider */}
-        <ConvexClientProvider>
-          
           <Preloader />
           
           <LanguageProvider>
@@ -36,12 +32,11 @@ export default function RootLayout({
                {children}
             </main>
             
-            {/* 2. Add EasyAI here so it overlays on top of everything */}
+            {/* L'IA reste accessible partout */}
             <EasyAI />
-            
           </LanguageProvider>
-        </ConvexClientProvider>
       </body>
     </html>
   );
 }
+
