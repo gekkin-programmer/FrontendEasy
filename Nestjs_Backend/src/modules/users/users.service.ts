@@ -1,28 +1,35 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(skip: number = 0, take: number = 10) {
     return this.prisma.user.findMany({
+      skip,
+      take,
       select: {
         id: true,
         email: true,
         phone: true,
         firstName: true,
         lastName: true,
-        role: true,
+        avatar: true,
+        accountType: true,
+        emailVerified: true,
+        phoneVerified: true,
         status: true,
+        lastLoginAt: true,
         createdAt: true,
-        updatedAt: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findOne(id: string) {
+  async findById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -31,50 +38,94 @@ export class UsersService {
         phone: true,
         firstName: true,
         lastName: true,
-        role: true,
+        avatar: true,
+        accountType: true,
+        emailVerified: true,
+        phoneVerified: true,
         status: true,
-        frequentPaymentNumbers: true,
+        lastLoginAt: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
     if (!user) {
-      throw new NotFoundException(`Utilisateur avec ID ${id} non trouvé`);
+      throw new NotFoundException('User not found');
     }
 
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    await this.findOne(id); // Vérifie si l'utilisateur existe
+  async create(createUserDto: CreateUserDto) {
+    const hashedPassword = createUserDto.password 
+      ? await bcrypt.hash(createUserDto.password, 10)
+      : null;
 
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
+    return this.prisma.user.create({
+      data: {
+        email: createUserDto.email,
+        phone: createUserDto.phone,
+        password: hashedPassword,
+        firstName: createUserDto.firstName,
+        lastName: createUserDto.lastName,
+        avatar: createUserDto.avatar,
+      },
       select: {
         id: true,
         email: true,
         phone: true,
         firstName: true,
         lastName: true,
-        role: true,
+        avatar: true,
+        accountType: true,
+        emailVerified: true,
+        phoneVerified: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const updateData: any = { ...updateUserDto };
+
+    if (updateUserDto.password) {
+      updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        accountType: true,
+        emailVerified: true,
+        phoneVerified: true,
         status: true,
         updatedAt: true,
       },
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id); // Vérifie si l'utilisateur existe
-
+  async delete(id: string) {
+    // Soft delete by setting status to INACTIVE
     return this.prisma.user.update({
       where: { id },
       data: { status: 'INACTIVE' },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+      },
     });
   }
 
-  async getUserStats() {
+  async getStats() {
     const totalUsers = await this.prisma.user.count();
     const activeUsers = await this.prisma.user.count({
       where: { status: 'ACTIVE' },
@@ -87,10 +138,11 @@ export class UsersService {
       },
     });
 
-    return {
-      totalUsers,
-      activeUsers,
+    return { 
+      totalUsers, 
+      activeUsers, 
       newUsersThisMonth,
+      inactiveUsers: totalUsers - activeUsers,
     };
   }
 }
