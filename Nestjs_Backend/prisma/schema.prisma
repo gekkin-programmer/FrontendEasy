@@ -8,11 +8,170 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ENUMS - Define enums first
+enum AccountType {
+  PERSONAL
+  ADMIN
+  ORGANIZATION
+  AGENCY
+}
+
+enum WorkspaceType {
+  PERSONAL
+  ORGANIZATION
+  AGENCY
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+enum TeamRole {
+  LEADER
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  PINTEREST
+  THREADS
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  GIF
+  CAROUSEL
+  STORY
+}
+
+enum ApprovalStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum StreamType {
+  HOME
+  MENTIONS
+  DIRECT_MESSAGES
+  HASHTAG
+  KEYWORD
+  LIST
+  SCHEDULED
+}
+
+enum ReportType {
+  OVERVIEW
+  ENGAGEMENT
+  AUDIENCE
+  CONTENT_PERFORMANCE
+  CUSTOM
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  POST_PUBLISHED
+  POST_FAILED
+  MENTION
+  COMMENT
+  APPROVAL_REQUESTED
+  APPROVAL_GRANTED
+  APPROVAL_REJECTED
+  TASK_ASSIGNED
+  MEMBER_JOINED
+  ACCOUNT_CONNECTED
+  REPORT_READY
+}
+
+enum PlanType {
+  FREE
+  STARTER
+  PROFESSIONAL
+  BUSINESS
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+}
+
+enum CommentSentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+  QUESTION
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
 // Utilisateur de la plateforme
 model User {
   id        String  @id @default(cuid())
-  email     String  @unique
-  phone     String  @unique
+  email     String? @unique
+  phone     String? @unique
   password  String?
   firstName String?
   lastName  String?
@@ -41,22 +200,39 @@ model User {
   workspaceMembers      WorkspaceMember[]
   createdSocialAccounts SocialAccount[]   @relation("AccountCreator")
   posts                 Post[]
-  comments              Comment[]
+  comments              PostComment[]
   assignedTasks         Task[]            @relation("AssignedUser")
   createdTasks          Task[]            @relation("TaskCreator")
   notifications         Notification[]
   activities            ActivityLog[]
+  sessions              Session[]
 
   // Security
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
 
   // Timestamps
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  postComments PostComment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@index([expiresAt])
+  @@map("sessions")
 }
 
 // Add OTP verification model
@@ -92,16 +268,16 @@ model Workspace {
   settings Json? // Workspace preferences, branding, etc.
 
   // Relations
-  members         WorkspaceMember[]
-  teams           Team[]
-  socialAccounts  SocialAccount[]
-  posts           Post[]
-  campaigns       Campaign[]
-  contentCalendar ContentCalendar[]
-  tags            Tag[]
-  labels          Label[]
-  streams         Stream[]
-  reports         Report[]
+  members          WorkspaceMember[]
+  teams            Team[]
+  socialAccounts   SocialAccount[]
+  posts            Post[]
+  campaigns        Campaign[]
+  contentCalendars ContentCalendar[]
+  tags             Tag[]
+  labels           Label[]
+  streams          Stream[]
+  reports          Report[]
 
   // Limits tracking (for billing)
   currentMemberCount        Int @default(1)
@@ -346,6 +522,9 @@ model PostComment {
   parentId String?
   parent   PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies  PostComment[] @relation("CommentReplies")
+
+  // Sentiment analysis
+  sentiment CommentSentiment?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -638,177 +817,4 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
-}
-
-// ENUMS (inchangés)
-enum AccountType {
-  PERSONAL
-  ADMIN
-  ORGANIZATION
-  AGENCY
-}
-
-enum WorkspaceType {
-  PERSONAL
-  ORGANIZATION
-  AGENCY
-}
-
-enum WorkspaceStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum WorkspaceRole {
-  OWNER
-  ADMIN
-  MANAGER
-  MEMBER
-  VIEWER
-}
-
-enum TeamRole {
-  LEADER
-  MEMBER
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  READY_FOR_DELIVERY
-  ASSIGNED_TO_DRIVER
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-  REFUNDED
-  FAILED
-}
-
-enum PaymentMethod {
-  MTN_MOBILE_MONEY
-  ORANGE_MONEY
-}
-
-enum MemberStatus {
-  ACTIVE
-  INVITED
-  SUSPENDED
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum SocialPlatform {
-  FACEBOOK
-  INSTAGRAM
-  TWITTER
-  LINKEDIN
-  TIKTOK
-  YOUTUBE
-  PINTEREST
-  THREADS
-}
-
-enum PostStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHING
-  PUBLISHED
-  FAILED
-  CANCELLED
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  GIF
-  CAROUSEL
-  STORY
-}
-
-enum ApprovalStatus {
-  NONE
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum CampaignStatus {
-  ACTIVE
-  PAUSED
-  COMPLETED
-  ARCHIVED
-}
-
-enum StreamType {
-  HOME // Home timeline
-  MENTIONS // Mentions and replies
-  DIRECT_MESSAGES
-  HASHTAG // Hashtag tracking
-  KEYWORD // Keyword search
-  LIST // Social media list
-  SCHEDULED // Scheduled posts
-}
-
-enum ReportType {
-  OVERVIEW
-  ENGAGEMENT
-  AUDIENCE
-  CONTENT_PERFORMANCE
-  CUSTOM
-}
-
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-  CANCELLED
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum NotificationType {
-  POST_PUBLISHED
-  POST_FAILED
-  MENTION
-  COMMENT
-  APPROVAL_REQUESTED
-  APPROVAL_GRANTED
-  APPROVAL_REJECTED
-  TASK_ASSIGNED
-  MEMBER_JOINED
-  ACCOUNT_CONNECTED
-  REPORT_READY
-}
-
-enum PlanType {
-  FREE
-  STARTER
-  PROFESSIONAL
-  BUSINESS
-  ENTERPRISE
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  PAST_DUE
-  CANCELLED
-  TRIALING
-}
-
-enum Comment {
-  POSITIVE
-  NEGATIVE
-  NEUTRAL
-  QUESTION
 }

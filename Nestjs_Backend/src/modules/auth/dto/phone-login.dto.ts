@@ -1,51 +1,29 @@
-// import { IsPhoneNumber, IsNotEmpty, IsString } from 'class-validator';
-
-// export class PhoneLoginDto {
-//   @IsPhoneNumber()
-//   @IsNotEmpty()
-//   phone: string;
-// }
-
-// export class VerifyOtpDto {
-//   @IsPhoneNumber()
-//   @IsNotEmpty()
-//   phone: string;
-
-//   @IsNotEmpty()
-//   @IsString()
-//   code: string;
-// }
-
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPhoneNumber, IsNotEmpty, IsString } from 'class-validator';
+import { IsPhoneNumber, IsString, Length, Matches } from 'class-validator';
 
-export class PhoneLoginDto {
+export class SendOtpDto {
   @ApiProperty({
-    example: '+237655123456',
-    description: 'Numéro de téléphone au format international',
-    required: true
+    description: 'Phone number to send OTP to',
+    example: '+1234567890',
   })
   @IsPhoneNumber()
-  @IsNotEmpty()
   phone: string;
 }
 
 export class VerifyOtpDto {
   @ApiProperty({
-    example: '+237655123456',
-    description: 'Numéro de téléphone',
-    required: true
+    description: 'Phone number to verify',
+    example: '+1234567890',
   })
   @IsPhoneNumber()
-  @IsNotEmpty()
   phone: string;
 
   @ApiProperty({
+    description: '6-digit OTP code',
     example: '123456',
-    description: 'Code OTP reçu par SMS',
-    required: true
   })
-  @IsNotEmpty()
   @IsString()
+  @Length(6, 6)
+  @Matches(/^\d{6}$/)
   code: string;
 }
