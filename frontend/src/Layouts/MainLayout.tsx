@@ -3,13 +3,18 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const MainLayout: React.FC = () => {
+const MainLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div>
       <Navbar />
-      <main className="flex-grow">
-        {/* The <Outlet /> is a placeholder where the current page's content will be rendered */}
-        <Outlet />
+      <main>
+        {/* 
+          This is the crucial part. The <Outlet> component will render 
+          whatever child route is currently active. 
+          - If the URL is '/', it will render <HomePage /> here.
+          - If the URL is '/pricing', it will render <PricingPage /> here.
+        */}
+        <Outlet />  {/* <--- 2. ADD THE OUTLET COMPONENT */}
       </main>
       <Footer />
     </div>

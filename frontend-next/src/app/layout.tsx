@@ -15,28 +15,21 @@ export const metadata = {
   title: "EasyPost - Dominer le marketing digital en Afrique",
   description: "Social Media Scheduler pour les communautés africaines",
 };
-
-export default function RootLayout({
-  children,
-}: {
   children: React.ReactNode;
 }) {
   return (
     <html lang="fr">
       <body className={`${jetbrainsMono.variable} antialiased`}>
-          <Preloader />
           
           <LanguageProvider>
-            <Navbar />
-            <main>
-               {children}
-            </main>
-            
-            {/* L'IA reste accessible partout */}
             <EasyAI />
           </LanguageProvider>
+            {/* 2. Add EasyAI here so it overlays on top of everything */}
+            <EasyAI />
+            
+          </LanguageProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );
 }
-

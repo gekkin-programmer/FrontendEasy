@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from '../assets/Wiggle Logo.png';
 import {
   FaTwitter,
   FaFacebookF,
@@ -69,7 +70,7 @@ const Footer: React.FC = () => {
             <a href="/" className="flex items-center gap-2">
               <img
                 className="h-8 w-auto"
-                src="/Wiggle Logo.png"
+                src={Logo}
                 alt="EasyPost Logo"
               />
             </a>

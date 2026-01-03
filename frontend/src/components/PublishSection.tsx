@@ -1,4 +1,7 @@
 import React from 'react';
+import pasta from '../assets/Pasta1.jpg';
+import pasta2 from '../assets/Pasta2.jpg';
+import avatar from '../assets/Avatar.svg';
 import { Calendar, Clock, Wand2, Bell } from "lucide-react";
 import { useLanguage } from '../context/LanguageContext'; // adjust path if needed
 
@@ -9,12 +12,17 @@ export default function PublishSection() {
     <section className="bg-purple-50 min-h-screen flex flex-col items-center justify-center px-4 py-12 md:py-16 lg:py-20">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 max-w-7xl w-full">
         {/* ---------- LEFT – Post Composer ---------- */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md lg:max-w-lg p-6 flex flex-col mx-auto">
+        <div className="p-8 bg-blue-200 rounded-3xl"> 
+        <div   className="
+    bg-white rounded-2xl shadow-xl border border-gray-200 
+    w-full max-w-md lg:max-w-lg p-6 flex flex-col mx-auto 
+    transition-transform duration-300 hover:scale-105
+  ">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center -space-x-2">
               <img
-                src="../../public/avatar.svg"
+                src={avatar}
                 alt={t("User", "Utilisateur")}
                 className="w-10 h-10 rounded-full border-2 border-white"
               />
@@ -60,7 +68,7 @@ export default function PublishSection() {
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="relative">
               <img
-                src="../../public/Pasta1.jpg"
+                src={pasta}
                 alt={t("Pasta", "Pâtes")}
                 className="w-full h-40 object-cover rounded-lg"
               />
@@ -72,7 +80,7 @@ export default function PublishSection() {
             </div>
             <div className="relative">
               <img
-                src="../../public/Pasta2.jpg"
+                src={pasta2}
                 alt={t("Plate", "Assiette")}
                 className="w-full h-40 object-cover rounded-lg"
               />
@@ -100,6 +108,7 @@ export default function PublishSection() {
               </button>
             </div>
           </div>
+        </div>
         </div>
 
         {/* ---------- RIGHT – Copy & CTA ---------- */}

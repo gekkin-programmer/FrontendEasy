@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaMoon, FaSun, FaChevronDown, FaBars, FaXmark, FaGlobe, FaRocket, FaPaperPlane,
-  FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaPinterestP, FaTiktok
-} from "react-icons/fa6";
+  FaMoon, 
+  FaSun, 
+  FaChevronDown, 
+  FaBars, 
+  FaGlobe, 
+  FaRocket, 
+  FaPaperPlane,
+  FaFacebookF, 
+  FaInstagram, 
+  FaTwitter, 
+  FaLinkedinIn, 
+  FaPinterestP, 
+  FaTiktok, 
+  FaMagic,
+  FaUsers,
+  FaHandshake,
+  FaPlayCircle,
+  FaTimes // <-- Added this for the close button
+} from "react-icons/fa"; 
 import { Link } from 'react-router-dom';
 import { useLanguage } from "../context/LanguageContext";
 
-// Data for the "Features" dropdown
+// Import the logo
+import Logo from '../assets/WiggleLogo.png'; 
+
+// Data for the "Features" dropdown (Mega Menu)
 const megaMenuData = {
   type: 'mega' as const,
   columns: [
@@ -45,6 +64,35 @@ const megaMenuData = {
         } 
       ] 
     },
+    {
+      heading: { en: "Platform", fr: "Plateforme" },
+      links: [
+        {
+          label: { en: "Create", fr: "Créer" },
+          description: { en: "Craft content with our editor", fr: "Créez du contenu avec notre éditeur" },
+          href: "#",
+          Icon: FaMagic
+        },
+        {
+          label: { en: "Collaborate", fr: "Collaborer" },
+          description: { en: "Work together with your team", fr: "Travaillez avec votre équipe" },
+          href: "#",
+          Icon: FaHandshake
+        },
+        {
+          label: { en: "Community", fr: "Communauté" },
+          description: { en: "Join other creators & brands", fr: "Rejoignez d'autres créateurs" },
+          href: "#",
+          Icon: FaUsers
+        },
+        {
+          label: { en: "Start Page", fr: "Page de Démarrage" },
+          description: { en: "Build a beautiful link-in-bio", fr: "Créez une belle page de lien en bio" },
+          href: "#",
+          Icon: FaPlayCircle
+        }
+      ]
+    }
   ],
   featured: { 
     label: { en: "New! Introducing Channels", fr: "Nouveau ! Présentation des Canaux" }, 
@@ -58,12 +106,12 @@ const megaMenuData = {
 const channelsMenuData = {
   type: 'channels' as const,
   channels: [
-    { label: { en: 'Facebook', fr: 'Facebook' }, Icon: FaFacebookF, href: '#' },
-    { label: { en: 'Instagram', fr: 'Instagram' }, Icon: FaInstagram, href: '#' },
-    { label: { en: 'X / Twitter', fr: 'X / Twitter' }, Icon: FaTwitter, href: '#' },
-    { label: { en: 'LinkedIn', fr: 'LinkedIn' }, Icon: FaLinkedinIn, href: '#' },
-    { label: { en: 'Pinterest', fr: 'Pinterest' }, Icon: FaPinterestP, href: '#' },
-    { label: { en: 'TikTok', fr: 'TikTok' }, Icon: FaTiktok, href: '#' },
+    { label: { en: "Facebook", fr: "Facebook" }, href: "#", Icon: FaFacebookF },
+    { label: { en: "Instagram", fr: "Instagram" }, href: "#", Icon: FaInstagram },
+    { label: { en: "Twitter", fr: "Twitter" }, href: "#", Icon: FaTwitter },
+    { label: { en: "LinkedIn", fr: "LinkedIn" }, href: "#", Icon: FaLinkedinIn },
+    { label: { en: "Pinterest", fr: "Pinterest" }, href: "#", Icon: FaPinterestP },
+    { label: { en: "TikTok", fr: "TikTok" }, href: "#", Icon: FaTiktok },
   ]
 };
 
@@ -112,40 +160,33 @@ const Navbar: React.FC = () => {
   };
 
   useEffect(() => { 
-    const handleScroll = () => { 
-      setScrolled(window.scrollY > 10); 
-    }; 
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll); 
-    return () => { 
-      window.removeEventListener('scroll', handleScroll); 
-    }; 
+    return () => window.removeEventListener('scroll', handleScroll); 
   }, []);
 
   useEffect(() => { 
-    if (isMobileMenuOpen) document.body.style.overflow = 'hidden'; 
-    else document.body.style.overflow = 'unset'; 
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'unset';
     return () => { document.body.style.overflow = 'unset'; }; 
   }, [isMobileMenuOpen]);
 
-  // Helper function to get translated text
   const getTranslatedText = (text: { en: string; fr: string } | string) => {
     if (typeof text === 'string') return text;
     return language === 'fr' ? text.fr : text.en;
   };
 
-  // Full component implementation for the "Features" Mega Menu
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
     <motion.div 
       initial={{ opacity: 0, y: -10 }} 
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[550px] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50"
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50"
     >
-      <div className="grid grid-cols-3 gap-4 p-5">
-        <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-4">
+      <div className="flex p-5">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-4 pr-5 border-r border-gray-200 dark:border-gray-700">
           {content.columns.map((col) => (
             <div key={getTranslatedText(col.heading)}>
-              <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3">
+              <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-3 whitespace-nowrap">
                 {getTranslatedText(col.heading)}
               </h3>
               <div className="space-y-2">
@@ -171,24 +212,25 @@ const Navbar: React.FC = () => {
           ))}
         </div>
         {content.featured && (
-          <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative">
-            <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
-            <div className="absolute bottom-0 left-0 p-4">
-              <p className="font-semibold text-white text-sm">
-                {getTranslatedText(content.featured.label)}
-              </p>
-              <p className="text-xs text-gray-200">
-                {getTranslatedText(content.featured.description)}
-              </p>
-            </div>
-          </a>
+          <div className="pl-5 w-48 flex-shrink-0">
+            <a href={content.featured.href} className="group block rounded-lg overflow-hidden relative h-full">
+              <img src={content.featured.image} alt={getTranslatedText(content.featured.label)} className="w-full h-full object-cover"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
+              <div className="absolute bottom-0 left-0 p-4">
+                <p className="font-semibold text-white text-sm">
+                  {getTranslatedText(content.featured.label)}
+                </p>
+                <p className="text-xs text-gray-200">
+                  {getTranslatedText(content.featured.description)}
+                </p>
+              </div>
+            </a>
+          </div>
         )}
       </div>
     </motion.div>
   );
 
-  // Full component implementation for the "Channels" Icon Menu
   const ChannelsMenu = ({ content }: { content: typeof channelsMenuData }) => (
     <motion.div 
       initial={{ opacity: 0, y: -10 }} 
@@ -217,10 +259,16 @@ const Navbar: React.FC = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-gray-900/95 shadow-md' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14' : 'h-16'}`}>
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/Wiggle Logo.png" alt="EasyPost Logo" className="h-8 w-auto" />
+
+          {/* --- LEFT SIDE: LOGO --- */}
+          <Link to="/" className="flex items-center gap-2 z-50 mr-8">
+            <img src={Logo} alt="Wiggle Logo" className="w-10 h-10 object-contain" />
+            <span className="text-3xl font-extrabold text-[#3C48F6] dark:text-white tracking-tight">
+              easyPost
+            </span>
           </Link>
           
+          {/* --- CENTER: DESKTOP MENU --- */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((item) => (
               <div 
@@ -234,6 +282,7 @@ const Navbar: React.FC = () => {
                 <Link 
                   to={item.href || "#"} 
                   className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#3C48F6] dark:hover:text-[#3C48F6] transition"
+                  onClick={(e) => { if (item.hasDropdown) e.preventDefault(); }}
                 >
                   {getTranslatedText(item.label)}
                   {item.hasDropdown && <FaChevronDown className="w-3 h-3" />}
@@ -250,6 +299,7 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
+          {/* --- RIGHT SIDE: ACTIONS --- */}
           <div className="hidden lg:flex items-center gap-3">
             <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-[#3C48F6] transition-colors">
               {t("Log in", "Connexion")}
@@ -265,6 +315,7 @@ const Navbar: React.FC = () => {
             </button>
           </div>
 
+          {/* --- MOBILE TOGGLE BUTTON --- */}
           <div className="lg:hidden flex items-center gap-2">
             <Link to="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-lg hover:bg-blue-600 transition">
               {t("Get started", "Démarrer")}
@@ -276,6 +327,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
+      {/* --- MOBILE MENU OVERLAY --- */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -283,7 +335,7 @@ const Navbar: React.FC = () => {
             <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 220 }} className="fixed right-0 top-0 h-full w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-[1000] flex flex-col">
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
                 <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  {language === 'fr' ? 'Menu' : 'Menu'}
+                  {t('Menu', 'Menu')}
                 </span>
                 <div className="flex items-center gap-2">
                   <button aria-label="Toggle language" onClick={toggleLanguage} className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -293,7 +345,7 @@ const Navbar: React.FC = () => {
                     {isDark ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
                   </button>
                   <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <FaXmark className="w-6 h-6" />
+                    <FaTimes className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -322,7 +374,7 @@ const Navbar: React.FC = () => {
                         <AnimatePresence>
                           {item.hasDropdown && activeMobileDropdown === getTranslatedText(item.label) && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                              {item.dropdownContent && item.dropdownContent.type === 'mega' && (
+                              {item.dropdownContent?.type === 'mega' && (
                                 <div className="pl-4 pt-2 pb-4 space-y-4">
                                   {item.dropdownContent.columns.map((col) => (
                                     <div key={getTranslatedText(col.heading)}>
@@ -353,7 +405,7 @@ const Navbar: React.FC = () => {
                                   ))}
                                 </div>
                               )}
-                              {item.dropdownContent && item.dropdownContent.type === 'channels' && (
+                              {item.dropdownContent?.type === 'channels' && (
                                 <div className="pl-4 pt-2 pb-4 space-y-1">
                                   {item.dropdownContent.channels.map((channel) => (
                                     <Link 
@@ -378,20 +430,11 @@ const Navbar: React.FC = () => {
                   </div>
                 ))}
                 
-                {/* Login and Get Started buttons positioned after nav links */}
                 <div className="mt-6 space-y-3">
-                  <Link 
-                    to="/login" 
-                    className="block w-full text-center py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" 
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
+                  <Link to="/login" className="block w-full text-center py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
                     {t("Log in", "Connexion")}
                   </Link>
-                  <Link 
-                    to="/signup" 
-                    className="block w-full text-center py-3 bg-[#3C48F6] text-white font-medium rounded-xl hover:bg-blue-600 transition-colors" 
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
+                  <Link to="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-medium rounded-xl hover:bg-blue-600 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
                     {t("Get started now", "Commencer")}
                   </Link>
                 </div>

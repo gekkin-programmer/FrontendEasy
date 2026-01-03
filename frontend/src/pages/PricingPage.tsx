@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Logo from '../assets/Wiggle Logo.png';
 import { motion } from 'framer-motion';
 import { FaCheckCircle } from 'react-icons/fa';
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import Automn from '../assets/Automn.jpg';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext'; // adjust path if needed
 
@@ -79,7 +80,7 @@ export default function CollaborateSection() {
         <div className="bg-white rounded-2xl shadow-md p-5 max-w-md mx-auto">
           <div className="flex items-start gap-3">
             <img
-              src="/Automn.jpg"
+              src={Automn}
               alt="yoyo_ceramics"
               className="w-10 h-10 rounded-full object-cover"
             />
@@ -97,7 +98,7 @@ export default function CollaborateSection() {
           {/* Post image placeholder */}
           <div className="mt-4">
             <img
-              src="/Automn.jpg"
+              src={Automn}
               alt={t("Autumn pottery collection", "Collection de poterie d'automne")}
               className="w-full h-48 md:h-56 object-cover rounded-xl shadow-sm"
             />
@@ -119,7 +120,12 @@ export default function CollaborateSection() {
 
       {/* === Learn More Button – Bottom Left === */}
       <div className="mt-auto">
-        <LearnMoreButton />
+                <a
+          href="#"
+          className="bg-[#3C48F6] text-white font-semibold py-3 px-6 rounded-3xl flex items-center justify-center gap-2 w-fit transition-transform duration-400 hover:scale-105 hover:shadow-3xl hover:bg-[#3C48F6] ease-in-out"
+        >
+          {t("Learn more", "En savoir plus")}
+        </a>
       </div>
     </div>
   );

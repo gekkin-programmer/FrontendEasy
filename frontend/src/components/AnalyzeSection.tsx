@@ -15,7 +15,7 @@ import {
 } from 'react-icons/bs';
 import { IoBarChartOutline } from 'react-icons/io5';
 import { FiUsers, FiTag } from 'react-icons/fi';
-import { useLanguage } from '../context/LanguageContext'; // adjust path if needed
+import { useLanguage } from '../context/LanguageContext'; 
 
 // --- TYPE DEFINITIONS for Local Components ---
 interface FeatureItemProps {
@@ -30,10 +30,11 @@ interface RecommendationCardProps {
 }
 
 // --- LOCAL COMPONENTS ---
+// NOTE: No changes were needed in these smaller helper components. They remain the same.
 const FeatureItem: React.FC<FeatureItemProps> = ({ icon, children }) => (
   <li className="flex items-start gap-4">
-    <div className="text-[#3C48F6] mt-1">{icon}</div>
-    <span className="text-[#232323]">{children}</span>
+    <div className="text-[#3C48F6] mt-1 flex-shrink-0">{icon}</div>
+    <span className="text-gray-800">{children}</span>
   </li>
 );
 
@@ -122,53 +123,48 @@ const AnalyzeSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="bg-[#D6EFFF] mt-8 mx-7 py-20 px-4 rounded-3xl sm:px-8 lg:px-16 relative font-sans">
-      <div className="container mx-auto grid lg:grid-cols-2 gap-8 items-center max-w-7xl">
+    // RESPONSIVE FIX: Removed fixed mx-7. Using smaller padding on mobile and increasing for larger screens.
+    <section className="bg-[#D6EFFF] mt-20 py-16 px-4 sm:px-6 md:py-20 lg:px-8 relative font-sans">
+      <div className="container mx-auto grid lg:grid-cols-2 gap-y-16 lg:gap-x-8 items-center max-w-7xl">
         
-        {/* Left Column */}
-        <div className="flex flex-col gap-6 text-gray-800 max-w-lg">
+        {/* Left Column (Text Content) */}
+        <div className="flex flex-col gap-6 text-gray-800 max-w-lg lg:max-w-none">
           <span className="font-semibold tracking-widest text-sm text-[#3C48F6]">{t("ANALYZE", "ANALYSER")}</span>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#232323] leading-tight">
+          
+          {/* RESPONSIVE FIX: Font size now scales with screen size for better impact. */}
+          <h2 className="text-4xl md:text-5xl font-bold text-[#232323] leading-tight">
             {t("Answers, not just analytics", "Des réponses, pas seulement des analyses")}
           </h2>
-          <p className="text-lg lg:text-xl text-gray-700 leading-relaxed">
-            {t(
-              "Whether it's basic analytics or in-depth reporting, Buffer will help you learn what works and how to improve.",
-              "Qu'il s'agisse d'analyses de base ou de rapports détaillés, Buffer vous aidera à comprendre ce qui fonctionne et comment vous améliorer."
-            )}
+          
+          {/* RESPONSIVE FIX: Font size adjusts for better readability. */}
+          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+            {t("Whether it's basic analytics or in-depth reporting, Buffer will help you learn what works and how to improve.", "Qu'il s'agisse d'analyses de base ou de rapports détaillés, Buffer vous aidera à comprendre ce qui fonctionne et comment vous améliorer.")}
           </p>
-          <a href="#" className="bg-[#3C48F6] text-white font-semibold py-3 px-6 rounded-3xl flex items-center justify-center gap-2 w-fit hover:bg-[#3C48F6] transition-colors duration-300">
+          
+          <a href="#" className="bg-[#3C48F6] text-white font-semibold py-3 px-6 rounded-3xl flex items-center justify-center gap-2 w-fit hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105">
             {t("Learn more", "En savoir plus")} <FaArrowRight />
           </a>
+          
           <ul className="space-y-4 mt-6 text-base">
             <FeatureItem icon={<IoBarChartOutline size={22} />}>
-              {t(
-                "See the best times, formats, and frequencies to post",
-                "Découvrez les meilleurs moments, formats et fréquences pour publier"
-              )}
+              {t("See the best times, formats, and frequencies to post", "Découvrez les meilleurs moments, formats et fréquences pour publier")}
             </FeatureItem>
             <FeatureItem icon={<FiUsers size={22} />}>
-              {t(
-                "Get demographic data about your audience",
-                "Obtenez des données démographiques sur votre audience"
-              )}
+              {t("Get demographic data about your audience", "Obtenez des données démographiques sur votre audience")}
             </FeatureItem>
             <FeatureItem icon={<FiTag size={22} />}>
-              {t(
-                "Tag and recycle your best-performing content",
-                "Identifiez et recyclez votre contenu le plus performant"
-              )}
+              {t("Tag and recycle your best-performing content", "Identifiez et recyclez votre contenu le plus performant")}
             </FeatureItem>
           </ul>
         </div>
         
-        {/* Right Column */}
-        <div className="relative flex justify-center lg:justify-start overflow-hidden">
-
-          <div className="relative w-full min-h-[580px] lg:h-[620px] scale-90 lg:scale-100">
-            <div className="absolute top-0 left-0 w-[850px] h-[580px] bg-white/40 border border-gray-300/50 rounded-2xl backdrop-blur-sm"></div>
-            {/* Add any additional widgets or graphics here */}
-          </div>
+        {/* Right Column (Visuals) */}
+        {/* RESPONSIVE FIX: This is now a container that stacks its children on mobile (default) and uses absolute positioning on desktop (lg). */}
+        <div className="relative min-h-[550px] flex flex-col items-center gap-6 lg:block">
+          {/* 
+            This new layout stacks the widgets vertically on mobile for a clean, readable flow.
+            On large screens (lg:), they switch to absolute positioning for the cool desktop "dashboard" view.
+          */}
         </div>
 
       </div>

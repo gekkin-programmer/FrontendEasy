@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import Rosine from '../assets/Rosine 3.jpg';
+import ProfilePic from '../assets/Profile pic.svg';
+import JDK from '../assets/JDK.jpg';
+import PBD from '../assets/PBD.jpg';
+import MeetOrMatch from '../assets/meetormatch.jpg';
+import JFN from '../assets/logo.JFN.png'; 
 import { FaCheck, FaInstagram, FaLinkedinIn, FaPaintBrush, FaStore, FaBullhorn } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { useLanguage } from '../context/LanguageContext'; // adjust path if needed
@@ -79,19 +85,19 @@ const CreatorCard: React.FC<CreatorData> = ({
 
 // --- MOCK DATA ---
 const creatorsData: CreatorData[] = [
-  { imgSrc: '/Rosine 3.jpg', name: '@rosine_ng', followers: '34.9K', platform: 'Followers on X', platformIcon: <FaXTwitter size={16}/>, iconBgClass: 'bg-black' },
-  { imgSrc: '/Profile pic.svg', name: '@Pauldelabaume', followers: '21K', platform: 'Followers on LinkedIn', platformIcon: <FaLinkedinIn size={16}/>, iconBgClass: 'bg-[#0A66C2]' },
-  { imgSrc: '/JDK.jpg', name: '@jdk_fashion', followers: '14.6K', platform: 'Followers on Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
+  { imgSrc: Rosine, name: '@rosine_ng', followers: '34.9K', platform: 'Followers on X', platformIcon: <FaXTwitter size={16}/>, iconBgClass: 'bg-black' },
+  { imgSrc: ProfilePic, name: '@Pauldelabaume', followers: '21K', platform: 'Followers on LinkedIn', platformIcon: <FaLinkedinIn size={16}/>, iconBgClass: 'bg-[#0A66C2]' },
+  { imgSrc: JDK, name: '@jdk_fashion', followers: '14.6K', platform: 'Followers on Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
 ];
 
 const businessesData: CreatorData[] = [
-  { imgSrc: '/PBD.jpg', name: 'PBD', followers: '8.2K', platform: 'Fans on Facebook', platformIcon: <FaStore size={16}/>, iconBgClass: 'bg-green-600' },
-  { imgSrc: '/meetormatch.jpg', name: 'MeetOrMatch', followers: '15.7K', platform: 'Followers on Pinterest', platformIcon: <FaPaintBrush size={16}/>, iconBgClass: 'bg-red-500' },
-  { imgSrc: '/logo.JFN.png  ', name: 'JFN High Tech University', followers: '25.3K', platform: 'Followers on Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
+  { imgSrc: PBD, name: 'PBD', followers: '8.2K', platform: 'Fans on Facebook', platformIcon: <FaStore size={16}/>, iconBgClass: 'bg-green-600' },
+  { imgSrc: MeetOrMatch, name: 'MeetOrMatch', followers: '15.7K', platform: 'Followers on Pinterest', platformIcon: <FaPaintBrush size={16}/>, iconBgClass: 'bg-red-500' },
+  { imgSrc: JFN, name: 'JFN High Tech University', followers: '25.3K', platform: 'Followers on Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
 ];
 
 const agenciesData: CreatorData[] = [
-  { imgSrc: '/YungEra.jpg', name: 'Yung Era Agency', followers: '150+', platform: 'Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from yellow-400 via red-500 to purple-600' },
+  { imgSrc: '/agency1.jpg', name: 'Yung Era Agency', followers: '150+', platform: 'Instagram', platformIcon: <FaInstagram size={16}/>, iconBgClass: 'bg-gradient-to-br from yellow-400 via red-500 to purple-600' },
   { imgSrc: '/agency2.jpg', name: 'Creative Labs', followers: '99K', platform: 'Followers on LinkedIn', platformIcon: <FaLinkedinIn size={16}/>, iconBgClass: 'bg-[#0A66C2]' },
   { imgSrc: '/agency3.jpg', name: 'Pixel Perfect', followers: 'Top Rated', platform: 'on Dribbble', platformIcon: <FaPaintBrush size={16}/>, iconBgClass: 'bg-pink-500' },
 ];
