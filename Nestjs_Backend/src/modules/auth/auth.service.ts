@@ -30,8 +30,8 @@ export class AuthService {
         data: {
           provider: 'google',
           providerId: sub,
-          avatar: picture,
-          emailVerified: email_verified,
+          avatar: picture || user.avatar,
+          emailVerified: true,
           firstName: given_name,
           lastName: family_name,
         },
@@ -56,45 +56,57 @@ export class AuthService {
     }
 
     return user;
+  } catch (error) {
+    throw new UnauthorizedException('Invalid Google credentials');
   }
   
 
-  async createDefaultWorkspace(userId: string) {
+    async createDefaultWorkspace(user: any) {
+    // Generating a friendly slug: "Steve" -> "Steve-workspace"
+    const baseSlug = (user.firstName + '-' + (user.lastName || ''))
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-') 
+      .replace(/-+/g, '-'); 
+    
+    // random string to ensure uniqueness
+    const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
     const workspace = await this.prisma.workspace.create({
       data: {
-        name: 'My Workspace',
-        slug: `workspace-${Date.now()}`,
-        ownerId: userId,
+        name: `${user.firstName}'s Workspace`,
+        slug: slug,
+        ownerId: user.id,
       },
     });
-
-    await this.prisma.workspaceMember.create({
+        await this.prisma.workspaceMember.create({
       data: {
         workspaceId: workspace.id,
-        userId: userId,
+        userId: user.id,
         role: 'OWNER',
+        status: 'ACTIVE'
       },
     });
 
     return workspace;
   }
 
-  async generateTokens(user: any, workspaceId?: string): Promise<AuthResponseDto> {
+    async generateTokens(user: any, workspaceId?: string): Promise<AuthResponseDto> {
     const payload = {
       sub: user.id,
       email: user.email,
       accountType: user.accountType,
-      workspaceId,
+      workspaceId, 
     };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: '7d',
+        expiresIn: '15m', 
       }),
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET') + '-refresh',
-        expiresIn: '30d',
+        // different secret for refresh tokens in .env
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET') + '-refresh',
+        expiresIn: '7d', 
       }),
     ]);
 
@@ -103,14 +115,16 @@ export class AuthService {
       data: {
         userId: user.id,
         refreshToken,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
+        userAgent: 'Unknown', 
+        ipAddress: '0.0.0.0'  
       },
     });
 
     return {
       accessToken,
       refreshToken,
-      expiresIn: 7 * 24 * 60 * 60, // 7 days in seconds
+      expiresIn: 900, 
       tokenType: 'Bearer',
       user: {
         id: user.id,

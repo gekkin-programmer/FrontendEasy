@@ -7,18 +7,18 @@ import {
   Req,
   HttpCode,
   HttpStatus,
-  Query,
   Redirect,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GoogleAuthDto } from './dto/google-auth.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { SendOtpDto, VerifyOtpDto } from './dto/phone-login.dto';
-import { ConfigService } from '@nestjs/config';
+import { RefreshTokenDto } from './dto/refresh-token.dto'; 
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -28,62 +28,54 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
+  // ==========================================
+  // GOOGLE AUTH
+  // ==========================================
+
   @Get('google')
-  @ApiOperation({ summary: 'Initiate Google OAuth flow' })
-  @ApiQuery({
-    name: 'workspaceId',
-    required: false,
-    description: 'Workspace ID to associate user with',
-  })
-  @ApiQuery({
-    name: 'redirect',
-    required: false,
-    description: 'Frontend redirect URL after authentication',
-  })
   @UseGuards(GoogleAuthGuard)
-  async googleAuth(
-    @Query('workspaceId') workspaceId?: string,
-    @Query('redirect') redirect?: string,
-  ) {
-    // This route is handled by GoogleAuthGuard
+  @ApiOperation({ summary: 'Initiate Google OAuth flow' })
+  async googleAuth() {
+    // Guard redirects to Google automatically.
+    // Nothing in this function body executes.
   }
 
-  @Get('google/callback')
-  @ApiOperation({ summary: 'Google OAuth callback endpoint' })
+  @Get('google/redirect') 
   @UseGuards(GoogleAuthGuard)
-  @Redirect() // Will redirect to frontend
+  @Redirect()
+  @ApiOperation({ summary: 'Google OAuth callback endpoint' })
   async googleAuthCallback(@Req() req) {
     try {
+      // req.user comes from GoogleStrategy.validate()
       const user = req.user;
-      const workspaceId = req.session?.workspaceId;
       
       // Generate tokens
-      const tokens = await this.authService.generateTokens(user, workspaceId);
+      const tokens = await this.authService.generateTokens(user);
       
-      // Redirect to frontend with tokens
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+      // Build Redirect URL
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
       const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
       
+      // pass tokens, not the full user object
+      // The frontend should use the token to fetch user details via /auth/profile
       redirectUrl.searchParams.set('accessToken', tokens.accessToken);
       redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
-      redirectUrl.searchParams.set('expiresIn', tokens.expiresIn.toString());
-      redirectUrl.searchParams.set('user', JSON.stringify(tokens.user));
       
       return { url: redirectUrl.toString() };
     } catch (error) {
-      // Redirect to frontend error page
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-      const errorUrl = new URL(`${frontendUrl}/auth/error`);
-      
-      errorUrl.searchParams.set('error', error.message);
-      return { url: errorUrl.toString() };
+      console.error('Google Auth Error:', error);
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+      return { url: `${frontendUrl}/login?error=auth_failed` };
     }
   }
+
+  // ==========================================
+  // PHONE AUTH
+  // ==========================================
 
   @Post('phone/send-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send OTP to phone number' })
-  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
   async sendOtp(@Body() sendOtpDto: SendOtpDto) {
     return this.authService.sendOtp(sendOtpDto.phone);
   }
@@ -106,31 +98,33 @@ export class AuthController {
     };
   }
 
+  // ==========================================
+  // TOKEN MANAGEMENT
+  // ==========================================
+
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
-  async refreshToken(@Body('refreshToken') refreshToken: string) {
-    if (!refreshToken) {
-      throw new BadRequestException('Refresh token is required');
-    }
-    
-    return this.authService.refreshToken(refreshToken);
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refreshToken);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Logout user' })
-  async logout(@Req() req) {
-    const refreshToken = req.body.refreshToken;
-    return this.authService.logout(req.user.id, refreshToken);
+  async logout(@Req() req, @Body() dto: RefreshTokenDto) {
+    // optionally pass refreshToken to kill that specific session
+    // req.user.id comes from JwtAuthGuard
+    return this.authService.logout(req.user['sub'], dto.refreshToken);
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@Req() req) {
-    return this.authService.validateUserById(req.user.id);
+    // req.user['sub'] is the userId from the JWT
+    return this.authService.validateUserById(req.user['sub']);
   }
 }

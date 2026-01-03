@@ -481,6 +481,7 @@ model Post {
   socialAccountId String?
 
   @@map("posts")
+  @@index([status, scheduledFor])
 }
 
 model PostSocialAccount {
