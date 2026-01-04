@@ -1,37 +1,30 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
 
-  // Security middleware
-  app.use(helmet());
-  
-  app.enableCors({
-    origin: configService.get('FRONTEND_URL') || 'http://localhost:3001',
-    credentials: true,
-  });
-
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-
-  // Global prefix
   app.setGlobalPrefix('api');
 
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`🔐 Google OAuth callback: ${configService.get('GOOGLE_CALLBACK_URL')}`);
-}
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+  app.enableCors();
+
+  //  Swagger 
+  const config = new DocumentBuilder()
+    .setTitle('EasyPost API')
+    .setDescription('The Digital Marketing Engine for Africa')
+    .setVersion('1.0')
+    .addBearerAuth() 
+    .build();
+    
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  await app.listen(3000);
+  console.log(` Server running on http://localhost:3000/api`);
+  console.log(` Swagger Docs at http://localhost:3000/api/docs`);
+}
 bootstrap();

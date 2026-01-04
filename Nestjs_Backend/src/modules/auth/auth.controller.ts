@@ -11,14 +11,20 @@ import {
   BadRequestException,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+
+// Services & Guards
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
+// DTOs
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { SendOtpDto, VerifyOtpDto } from './dto/phone-login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto'; 
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { SendOtpDto, VerifyOtpDto } from './dto/otp.dto'; 
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -29,35 +35,35 @@ export class AuthController {
   ) {}
 
   // ==========================================
-  // GOOGLE AUTH
+  // 1. GOOGLE AUTH
   // ==========================================
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
-  @ApiOperation({ summary: 'Initiate Google OAuth flow' })
+  @ApiOperation({ summary: 'Step 1: Redirect to Google Login' })
   async googleAuth() {
-    // Guard redirects to Google automatically.
-    // Nothing in this function body executes.
+    // Guard redirects automatically
   }
 
-  @Get('google/redirect') 
+  @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   @Redirect()
-  @ApiOperation({ summary: 'Google OAuth callback endpoint' })
+  @ApiOperation({ summary: 'Step 2: Google Callback (Handle Redirect)' })
   async googleAuthCallback(@Req() req) {
     try {
-      // req.user comes from GoogleStrategy.validate()
-      const user = req.user;
+      const googleProfile = req.user;
       
-      // Generate tokens
-      const tokens = await this.authService.generateTokens(user);
+      // 1. Validate & Create/Update User in DB
+      const dbUser = await this.authService.validateGoogleUser(googleProfile);
       
-      // Build Redirect URL
+      // 2. Generate Tokens
+      const tokens = await this.authService.generateTokens(dbUser);
+      
+      // 3. Build Redirect URL for Frontend
       const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
       const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
       
-      // pass tokens, not the full user object
-      // The frontend should use the token to fetch user details via /auth/profile
+      // Pass tokens in URL (Frontend will strip them and save to localStorage)
       redirectUrl.searchParams.set('accessToken', tokens.accessToken);
       redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
       
@@ -70,41 +76,50 @@ export class AuthController {
   }
 
   // ==========================================
-  // PHONE AUTH
+  // 2. EMAIL & PASSWORD AUTH
+  // ==========================================
+
+  @Post('register')
+  @ApiOperation({ summary: 'Register with Email & Password' })
+  @ApiResponse({ status: 201, type: AuthResponseDto })
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with Email & Password' })
+  @ApiResponse({ status: 200, type: AuthResponseDto })
+  async login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
+  }
+
+  // ==========================================
+  // 3. PHONE / OTP AUTH
   // ==========================================
 
   @Post('phone/send-otp')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Send OTP to phone number' })
-  async sendOtp(@Body() sendOtpDto: SendOtpDto) {
-    return this.authService.sendOtp(sendOtpDto.phone);
+  @ApiOperation({ summary: 'Step 1: Send OTP to phone' })
+  async sendOtp(@Body() dto: SendOtpDto) {
+    return this.authService.sendOtp(dto.phone);
   }
 
   @Post('phone/verify')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Verify phone OTP and login' })
+  @ApiOperation({ summary: 'Step 2: Verify OTP and Login' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    const user = await this.authService.verifyOtp(
-      verifyOtpDto.phone,
-      verifyOtpDto.code,
-    );
-    
-    const tokens = await this.authService.generateTokens(user);
-    
-    return {
-      ...tokens,
-      message: 'Phone verified successfully',
-    };
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto.phone, dto.code);
   }
 
   // ==========================================
-  // TOKEN MANAGEMENT
+  // 4. TOKEN MANAGEMENT
   // ==========================================
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOperation({ summary: 'Get new Access Token using Refresh Token' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
   async refreshToken(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refreshToken);
@@ -113,18 +128,15 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Logout user' })
+  @ApiOperation({ summary: 'Logout (Kill Session)' })
   async logout(@Req() req, @Body() dto: RefreshTokenDto) {
-    // optionally pass refreshToken to kill that specific session
-    // req.user.id comes from JwtAuthGuard
     return this.authService.logout(req.user['sub'], dto.refreshToken);
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiOperation({ summary: 'Get current logged-in user details' })
   async getProfile(@Req() req) {
-    // req.user['sub'] is the userId from the JWT
     return this.authService.validateUserById(req.user['sub']);
   }
 }
