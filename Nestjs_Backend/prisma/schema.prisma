@@ -195,6 +195,12 @@ enum AiTone {
   CAMFRANGLAIS // Local Slang (Cameroon)
   PIDGIN // Local Slang (Nigeria/Cameroon)
 }
+enum ChatMessageType {
+  TEXT
+  AUDIO
+  IMAGE
+  FILE
+}
 
 // ============================================================================
 // USER & AUTH
@@ -238,6 +244,7 @@ model User {
   notifications         Notification[]
   activities            ActivityLog[]
   sessions              Session[]
+  chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader") // Relation to Media Library
 
   // Security
@@ -311,6 +318,7 @@ model Workspace {
   labels           Label[]
   streams          Stream[]
   reports          Report[]
+  channels         ChatChannel[]
   
   // New Relations for MVO
   mediaLibrary     MediaLibrary[]
@@ -952,4 +960,43 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
+}
+model ChatChannel {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  name        String   // e.g. "general", "announcements"
+  description String?
+  
+  messages    ChatMessage[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, name]) // Cannot have two #general channels in same workspace
+  @@map("chat_channels")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  channelId String
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  
+  content   String   @db.Text
+  type      ChatMessageType @default(TEXT)
+  attachmentUrl String?
+  
+  // Future proofing: Reply to threads or attaching files
+  parentId  String?  // For threading
+  attachments Json?  // File URLs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, createdAt]) // Optimize loading history
+  @@map("chat_messages")
 }
