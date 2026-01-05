@@ -1,6 +1,6 @@
 import { 
   Controller, Post, UseInterceptors, UploadedFile, UseGuards, Req, 
-  ParseFilePipe, MaxFileSizeValidator, FileTypeValidator 
+  ParseFilePipe, MaxFileSizeValidator, UnauthorizedException 
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
@@ -16,15 +16,12 @@ export class MediaController {
 
   @Post('upload')
   @ApiOperation({ summary: 'Upload an image/video' })
-  @ApiConsumes('multipart/form-data') // 👈 Critical for Swagger File Upload
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
+        file: { type: 'string', format: 'binary' },
       },
     },
   })
@@ -35,12 +32,21 @@ export class MediaController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), 
-          // new FileTypeValidator({ fileType: /(jpg|jpeg|png|mp4|mov)$/ }), // Uncomment strict check later
         ],
       }),
     )
     file: any,
   ) {
-    return this.mediaService.processUpload(file, req.user.sub);
+    // 🕵️ DEBUGGING: Print the user object to the terminal
+    console.log('🔍 Request User:', req.user);
+
+    // Safety Check: Get ID from 'sub' OR 'userId'
+    const userId = req.user?.sub || req.user?.userId;
+
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in token');
+    }
+
+    return this.mediaService.processUpload(file, userId);
   }
 }
