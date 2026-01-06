@@ -1,19 +1,16 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Id } from "@/convex/_generated/dataModel";
+import { toast } from 'sonner';
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 // UI & Icons
 import { 
   Image as ImageIcon, Video, Smile, Zap, Calendar as CalendarIcon, 
-  X, Clock, Send, Facebook, Instagram, Linkedin, Twitter, Tag
+  X, Clock, Send, Facebook, Instagram, Linkedin, Twitter, Tag, Sparkles
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 
 // Shadcn Components
 import { Button } from "@/components/ui/button";
@@ -22,11 +19,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 
 interface ComposerProps {
-  // Updated signature to accept Category and Tags
   onSchedule: (
     content: string, 
     date?: Date, 
-    storageId?: string, 
+    mediaUrl?: string, 
     mediaType?: "image" | "video",
     category?: string,
     tags?: string[]
@@ -37,24 +33,44 @@ const CATEGORIES = ["General", "Technology", "Marketing", "Personal", "News", "M
 
 export default function Composer({ onSchedule }: ComposerProps) {
   const params = useParams();
-  const workspaceId = params.id as Id<"workspaces">;
+  const workspaceId = params.id as string;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
-  // 1. Data Fetching
-  const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
-  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
-
-  // 2. Local State
+  // 1. Local State
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
   const [category, setCategory] = useState("General");
+  const [accounts, setAccounts] = useState<any[]>([]); // To store connected accounts
   
   // File State
   const [file, setFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- 2. FETCH ACCOUNTS (On Mount) ---
+  useEffect(() => {
+    const fetchAccounts = async () => {
+        const token = localStorage.getItem('accessToken');
+        if(!token) return;
+        try {
+            // We fetch the workspace details to get connected accounts
+            const res = await fetch(`${API_URL}/workspaces/${workspaceId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if(res.ok) {
+                const data = await res.json();
+                setAccounts(data.socialAccounts || []);
+            }
+        } catch (e) {
+            console.error("Failed to load accounts", e);
+        }
+    };
+    if(workspaceId) fetchAccounts();
+  }, [workspaceId, API_URL]);
+
 
   // --- HANDLERS ---
 
@@ -72,50 +88,73 @@ export default function Composer({ onSchedule }: ComposerProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleAiAssist = () => {
-    if (!text) {
-        setText("Check out this amazing update! 🚀 #BuildingInPublic #SaaS");
-    } else {
-        setText(prev => prev + "\n\n🚀 #Growth #Tech #SocialMedia");
+  const handleAiAssist = async () => {
+    setIsAiLoading(true);
+    const token = localStorage.getItem('accessToken');
+    
+    try {
+        const res = await fetch(`${API_URL}/ai/test-copywriting`, { // Replace with real endpoint later
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ 
+                product: text || "Social Media Post", 
+                tone: "CASUAL" 
+            })
+        });
+        
+        const generatedText = await res.text(); // Or .json() depending on your endpoint
+        setText(generatedText);
+        toast.success("AI Magic applied! ✨");
+    } catch (e) {
+        toast.error("AI Assistant is taking a nap. Try again.");
+    } finally {
+        setIsAiLoading(false);
     }
-    toast.success("AI Hashtags added!");
   };
 
-  // Helper to find #hashtags in the text
   const extractHashtags = (content: string) => {
     const regex = /#[a-z0-9_]+/gi;
     return content.match(regex) || [];
   };
 
+  // --- SUBMIT LOGIC ---
   const handleSubmit = async (type: 'queue' | 'draft') => {
     if (!text && !file) return toast.error("Post cannot be empty");
     
     setIsSubmitting(true);
-    let storageId: string | undefined = undefined;
+    let uploadedUrl: string | undefined = undefined;
     let mediaType: "image" | "video" | undefined = undefined;
 
     try {
-      // 1. Handle File Upload (If exists)
+      // 1. Handle File Upload (To NestJS -> Cloudinary)
       if (file) {
         mediaType = file.type.startsWith('video') ? 'video' : 'image';
-        const postUrl = await generateUploadUrl();
-        const result = await fetch(postUrl, {
-          method: "POST",
-          headers: { "Content-Type": file.type },
-          body: file,
+        
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const token = localStorage.getItem('accessToken');
+        const uploadRes = await fetch(`${API_URL}/media/upload`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` }, // Do NOT set Content-Type for FormData
+            body: formData
         });
 
-        if (!result.ok) throw new Error(`Upload failed: ${result.statusText}`);
-        const json = await result.json();
-        storageId = json.storageId;
+        if (!uploadRes.ok) throw new Error('Upload failed');
+        
+        const uploadData = await uploadRes.json();
+        uploadedUrl = uploadData.media.url; // Assuming NestJS returns { media: { url: ... } }
       }
 
       // 2. Prepare Data
       const scheduledDate = type === 'queue' ? (date || new Date()) : undefined;
       const extractedTags = extractHashtags(text);
 
-      // 3. Pass Data to Parent (Dashboard)
-      await onSchedule(text, scheduledDate, storageId, mediaType, category, extractedTags);
+      // 3. Pass Data to Parent
+      await onSchedule(text, scheduledDate, uploadedUrl, mediaType, category, extractedTags);
       
       // 4. Reset Form
       setText('');
@@ -125,7 +164,7 @@ export default function Composer({ onSchedule }: ComposerProps) {
 
     } catch (error) {
       console.error(error);
-      toast.error("Failed to upload/schedule post");
+      toast.error("Failed to post. Check your connection.");
     } finally {
       setIsSubmitting(false);
     }
@@ -139,21 +178,19 @@ export default function Composer({ onSchedule }: ComposerProps) {
       <div className="bg-gray-50 dark:bg-zinc-950 px-4 py-3 border-b border-border flex items-center gap-3 overflow-x-auto scrollbar-hide">
         <span className="text-xs font-bold text-muted-foreground uppercase mr-2 whitespace-nowrap">Post to:</span>
         
-        {accounts === undefined ? (
-           <div className="h-8 w-24 bg-gray-200 animate-pulse rounded-full" />
-        ) : accounts.length === 0 ? (
+        {accounts.length === 0 ? (
            <span className="text-xs text-red-400">No accounts connected. Go to Settings.</span>
         ) : (
           accounts.map(acc => (
             <div 
-              key={acc._id}
+              key={acc.id}
               className="relative group w-9 h-9 rounded-full border-2 border-primary bg-white flex items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-transform"
-              title={acc.platformUsername}
+              title={acc.username}
             >
-              {acc.avatarUrl ? (
-                 <img src={acc.avatarUrl} alt={acc.platformUsername} className="w-full h-full rounded-full object-cover" />
+              {acc.avatar ? (
+                 <img src={acc.avatar} alt={acc.username} className="w-full h-full rounded-full object-cover" />
               ) : (
-                 <span className="text-xs font-bold text-gray-700">{acc.platformUsername.charAt(0).toUpperCase()}</span>
+                 <span className="text-xs font-bold text-gray-700">{acc.username?.charAt(0).toUpperCase()}</span>
               )}
               <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 rounded-full p-[2px] shadow-sm border border-gray-100">
                 <PlatformIcon platform={acc.platform} />
@@ -214,10 +251,11 @@ export default function Composer({ onSchedule }: ComposerProps) {
 
             <button 
               onClick={handleAiAssist} 
-              disabled={isSubmitting}
+              disabled={isSubmitting || isAiLoading}
               className="ml-2 flex items-center gap-1.5 text-xs font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50"
             >
-              
+              <Sparkles size={14} className={isAiLoading ? "animate-spin" : ""} />
+              {isAiLoading ? "Thinking..." : "AI Assist"}
             </button>
           </div>
           

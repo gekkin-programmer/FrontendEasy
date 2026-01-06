@@ -1,9 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useParams } from 'next/navigation';
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from 'sonner';
 
 // Icons
@@ -33,55 +30,76 @@ const SENTIMENT_STYLES: any = {
   question: 'text-blue-600 bg-blue-50 border-blue-200',
 };
 
+// --- MOCK DATA ---
+const MOCK_ENGAGEMENTS = [
+  {
+    _id: '1',
+    authorName: 'Sarah Jenkins',
+    authorHandle: '@sarahj',
+    authorAvatar: '',
+    platform: 'twitter',
+    content: 'Love this new feature! Does it support video uploads?',
+    receivedAt: Date.now() - 3600000, // 1 hour ago
+    status: 'unread',
+    sentiment: 'question',
+    aiSuggestions: ['Yes, we support MP4 and MOV formats up to 100MB.', 'Glad you like it! Video support is fully integrated.']
+  },
+  {
+    _id: '2',
+    authorName: 'TechDaily',
+    authorHandle: '@techdaily',
+    authorAvatar: '',
+    platform: 'linkedin',
+    content: 'Great insights on the latest post.',
+    receivedAt: Date.now() - 7200000,
+    status: 'read',
+    sentiment: 'positive',
+    aiSuggestions: ['Thanks for the support!', 'We appreciate the feedback.']
+  }
+];
+
 export default function Engagement() {
   const params = useParams();
-  const workspaceId = params.id as Id<"workspaces">;
+  const workspaceId = params.id as string;
 
-  // 1. CONVEX HOOKS
-  const engagements = useQuery(api.engagement.getEngagements, { workspaceId });
-  const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
-  
-  const replyMutation = useMutation(api.engagement.reply);
-  const statusMutation = useMutation(api.engagement.updateStatus);
-  const seedMutation = useMutation(api.engagement.seedMockData);
-
-  // 2. STATE
-  const [activeId, setActiveId] = useState<Id<"engagements"> | null>(null);
+  // 1. STATE
+  // 🛑 MOCK: Using static data until Engagement Module is built
+  const [engagements, setEngagements] = useState(MOCK_ENGAGEMENTS);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [filter, setFilter] = useState('all');
   
-  // 3. DERIVED STATE
-  const activeEngagement = engagements?.find(e => e._id === activeId);
-  const filteredEngagements = engagements?.filter(e => {
+  // 2. DERIVED STATE
+  const activeEngagement = engagements.find(e => e._id === activeId);
+  const filteredEngagements = engagements.filter(e => {
       if (filter === 'unread') return e.status === 'unread';
       return true;
   });
 
-  // 4. ACTIONS
+  // 3. ACTIONS
   const handleReply = async () => {
     if (!activeId || !replyText) return;
     try {
-        await replyMutation({ engagementId: activeId, text: replyText });
-        setReplyText('');
+        // TODO: Call POST /api/engagement/:id/reply
         toast.success("Reply sent!");
+        
+        // Mock update UI
+        setEngagements(prev => prev.map(e => 
+            e._id === activeId ? { ...e, status: 'replied' } : e
+        ));
+        setReplyText('');
     } catch (e) {
         toast.error("Failed to send reply");
     }
   };
 
-  const handleStatusChange = async (id: Id<"engagements">, status: string) => {
-    await statusMutation({ id, status });
+  const handleStatusChange = (id: string, status: string) => {
+    setEngagements(prev => prev.map(e => 
+        e._id === id ? { ...e, status } : e
+    ));
     if (status === 'archived' && activeId === id) setActiveId(null);
     toast.success(`Marked as ${status}`);
   };
-
-  const handleSeed = async () => {
-    if (!accounts || accounts.length === 0) return toast.error("Connect an account first!");
-    await seedMutation({ workspaceId, accountId: accounts[0]._id });
-    toast.success("Added test messages!");
-  };
-
-  if (!engagements) return <div className="p-10 text-center">Loading inbox...</div>;
 
   return (
     <div className="flex h-[calc(100vh-140px)] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm animate-in fade-in">
@@ -95,7 +113,7 @@ export default function Engagement() {
             <h2 className="text-sm font-semibold text-gray-900 px-1">Inbox</h2>
             <div className="flex gap-1">
                 <button className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"><FiFilter size={14} /></button>
-                <button onClick={handleSeed} className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors" title="Generate Test Data"><FiRefreshCw size={14} /></button>
+                <button className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors" title="Generate Test Data"><FiRefreshCw size={14} /></button>
             </div>
           </div>
           <div className="relative">
@@ -114,10 +132,10 @@ export default function Engagement() {
 
         {/* List */}
         <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
-          {filteredEngagements?.length === 0 && (
+          {filteredEngagements.length === 0 && (
              <div className="p-8 text-center text-gray-400 text-sm">No messages found.</div>
           )}
-          {filteredEngagements?.map((e) => (
+          {filteredEngagements.map((e) => (
             <div 
               key={e._id}
               onClick={() => setActiveId(e._id)}
@@ -192,19 +210,6 @@ export default function Engagement() {
              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
                  <div className="max-w-3xl mx-auto space-y-6">
                      
-                     {/* Context (Original Post) */}
-                     {activeEngagement.originalPostContent && (
-                         <div className="flex gap-4 opacity-60 hover:opacity-100 transition-opacity">
-                             <div className="w-8 flex flex-col items-center pt-2">
-                                 <div className="w-0.5 h-full bg-gray-200" />
-                             </div>
-                             <div className="bg-white border border-gray-200 rounded-lg p-4 flex-1 shadow-sm">
-                                 <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Replied to post</p>
-                                 <p className="text-sm text-gray-600">{activeEngagement.originalPostContent}</p>
-                             </div>
-                         </div>
-                     )}
-
                      {/* The Message */}
                      <div className="flex gap-4">
                          <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-sm font-bold text-gray-600 border border-gray-100 shadow-sm z-10">
@@ -305,12 +310,12 @@ const FilterBadge = ({ label, active, count, onClick }: any) => (
 
 const ActionButton = ({ icon, tooltip, onClick }: any) => (
     <button onClick={onClick} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors" title={tooltip}>
-        {React.cloneElement(icon as React.ReactElement, { size: 16 })}
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );
 
 const IconButton = ({ icon }: { icon: React.ReactNode }) => (
     <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors">
-        {React.cloneElement(icon as React.ReactElement, { size: 14 })}
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 14 })}
     </button>
 );

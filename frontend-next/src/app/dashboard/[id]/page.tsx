@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
-// 1. Import useConvexAuth to check login state
-import { useQuery, useMutation, useConvexAuth } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 
 // UI Components
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,73 +36,128 @@ interface Notification {
 export default function DashboardPage() {
     const params = useParams();
     const router = useRouter();
-    
-    // 2. Get Auth State
-    const { isAuthenticated } = useConvexAuth();
-    
-    // 3. GET ID FROM URL
-    const workspaceId = params.id as Id<"workspaces">;
+    const workspaceId = params.id as string;
 
-    // 4. CONVEX QUERIES
-    const currentWorkspace = useQuery(api.workspaces.getById, { id: workspaceId });
-    const myWorkspaces = useQuery(api.workspaces.getMyWorkspaces);
-    
-    // We get posts enriched with media URLs now
-    const posts = useQuery(api.posts.getWorkspacePosts, { workspaceId }); 
-    const accounts = useQuery(api.accounts.getByWorkspace, { workspaceId });
+    // 🌍 Config
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
-    // 5. STORE USER (FIXED)
-    const storeUser = useMutation(api.users.store);
-    
-    useEffect(() => {
-        // Only attempt to store user if we are actually logged in
-        if (isAuthenticated) {
-            storeUser(); 
-        }
-    }, [storeUser, isAuthenticated]);
-
-    // 6. MUTATIONS
-    const createPostMutation = useMutation(api.posts.createPost);
-
-    // 7. UI STATE
+    // UI State
     const [activeTab, setActiveTab] = useState<TabType>('queue');
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(true);
 
-    // 8. NOTIFICATION STATE (Mocked)
+    // Data State (Replaces Convex Cache)
+    const [currentWorkspace, setCurrentWorkspace] = useState<any>(null);
+    const [myWorkspaces, setMyWorkspaces] = useState<any[]>([]);
+    const [posts, setPosts] = useState<any[]>([]);
+    const [accounts, setAccounts] = useState<any[]>([]);
+
+    // Notifications (Mocked for now)
     const [notifications, setNotifications] = useState<Notification[]>([
         { id: 1, type: 'general', message: 'Welcome to EasyPost!', time: '2m ago', read: true }
     ]);
     const [showNotifs, setShowNotifs] = useState(false);
-    const [notifFilter, setNotifFilter] = useState<'all' | NotifType>('all');
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // --- HANDLERS ---
+    // --- 1. FETCH DATA ---
+    const fetchData = useCallback(async () => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
 
+        try {
+            // A. Get All Workspaces
+            const wsRes = await fetch(`${API_URL}/workspaces`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const workspaces = await wsRes.json();
+            setMyWorkspaces(workspaces);
+
+            // B. Find Current Workspace
+            const current = workspaces.find((w: any) => w.id === workspaceId);
+            if (!current) {
+                // If ID matches nothing, default to first one or 404
+                if (workspaces.length > 0) {
+                    setCurrentWorkspace(workspaces[0]);
+                    // Update URL silently without reload if user landed on wrong ID
+                    // router.replace(`/dashboard/${workspaces[0].id}`);
+                } else {
+                    setCurrentWorkspace(null); // No workspaces
+                }
+            } else {
+                setCurrentWorkspace(current);
+            }
+
+            // C. Get Posts (Queue)
+            if (workspaceId) {
+                // TODO: You need to implement GET /workspaces/:id/posts in NestJS
+                // For now, let's mock empty or use a generic endpoints
+                // const postsRes = await fetch(`${API_URL}/posts?workspaceId=${workspaceId}`, ...);
+                setPosts([]); // Placeholder
+            }
+
+            // D. Get Accounts
+            if (workspaceId) {
+                // We fetch social accounts linked to this workspace
+                // Assuming GET /workspaces/:id returns socialAccounts array via Prisma include
+                if (current && current.socialAccounts) {
+                    setAccounts(current.socialAccounts);
+                }
+            }
+
+        } catch (error) {
+            console.error("Dashboard fetch error:", error);
+            toast.error("Failed to load dashboard data");
+        } finally {
+            setLoading(false);
+        }
+    }, [API_URL, router, workspaceId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+
+    // --- 2. CREATE POST HANDLER ---
     const handleAddPost = async (
         content: string, 
         date?: Date, 
-        storageId?: string, 
+        mediaUrl?: string, 
         mediaType?: "image" | "video",
         category?: string,
         tags?: string[]
     ) => {
+        const token = localStorage.getItem('accessToken');
+        
+        // Validation
         if (!accounts || accounts.length === 0) {
             toast.error("Please connect a social account first.", {
-                description: "Go to Settings to connect Twitter or LinkedIn."
+                description: "Go to Settings to connect Facebook or LinkedIn."
             });
             return;
         }
 
-        const promise = createPostMutation({
-            workspaceId,
-            accountId: accounts[0]._id, 
-            content: content,
-            scheduledTime: date ? date.getTime() : Date.now(),
-            mediaStorageIds: storageId ? [storageId as Id<"_storage">] : [],
-            mediaType: mediaType,
-            category: category,
-            tags: tags
+        const promise = fetch(`${API_URL}/posts`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                workspaceId,
+                content,
+                scheduledFor: date ? date.toISOString() : new Date().toISOString(),
+                socialAccountIds: [accounts[0].id], // Default to first account for now
+                mediaUrls: mediaUrl ? [mediaUrl] : [],
+                mediaType: mediaType ? mediaType.toUpperCase() : 'IMAGE'
+            })
+        }).then(async (res) => {
+            if (!res.ok) throw new Error('Failed');
+            // Refresh posts
+            // fetchData(); 
         });
 
         toast.promise(promise, {
@@ -119,7 +170,7 @@ export default function DashboardPage() {
     // --- RENDER ---
     
     // Loading State
-    if (currentWorkspace === undefined || posts === undefined || accounts === undefined || myWorkspaces === undefined) {
+    if (loading) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
                 <div className="flex flex-col items-center gap-4">
@@ -131,17 +182,17 @@ export default function DashboardPage() {
     }
 
     // Not Found State
-    if (currentWorkspace === null) {
+    if (!currentWorkspace) {
         return (
             <div className="h-screen flex items-center justify-center bg-[#F5F5F5]">
                 <div className="text-center">
                     <h2 className="text-xl font-bold mb-2">Workspace not found</h2>
-                    <p className="text-gray-500 mb-4">You don't have access to this workspace.</p>
+                    <p className="text-gray-500 mb-4">You don't have access to this workspace or it doesn't exist.</p>
                     <button 
                         onClick={() => router.push('/onboarding')}
                         className="bg-[#3C48F6] text-white px-4 py-2 rounded-lg font-bold"
                     >
-                        Go to Home
+                        Create Workspace
                     </button>
                 </div>
             </div>
@@ -150,13 +201,14 @@ export default function DashboardPage() {
 
     // Filter posts for search
     const filteredPosts = posts.filter(p => 
-        p.content.toLowerCase().includes(searchTerm.toLowerCase())
+        p.content?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Mock Plan Limits
+    // Mock Plan Limits (Update logic later with real subscription data)
     const PLAN_LIMITS: any = { 'free': 10, 'pro': 500, 'agency': 9999 };
-    const currentLimit = PLAN_LIMITS[currentWorkspace.plan || 'free'] || 10;
-    const postCount = posts.filter(p => p.status === 'scheduled').length;
+    // Assuming plan is stored in workspace.description or a separate field
+    const currentLimit = 10; 
+    const postCount = posts.filter(p => p.status === 'SCHEDULED').length;
 
     return (
         <div className="flex h-screen bg-[#F5F5F5] font-sans text-gray-900">
@@ -175,7 +227,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                             <h3 className="font-bold text-sm truncate text-gray-800">{currentWorkspace.name}</h3>
-                            <p className="text-xs text-gray-400 capitalize">{currentWorkspace.plan || 'Free'} Plan</p>
+                            <p className="text-xs text-gray-400 capitalize">Free Plan</p>
                         </div>
                         <ChevronDown className={`text-gray-400 w-4 h-4 transition-transform duration-200 ${isAccountMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -189,19 +241,19 @@ export default function DashboardPage() {
                                 className="absolute top-full left-2 right-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden mt-1"
                             >
                                 <div className="max-h-60 overflow-y-auto">
-                                    {myWorkspaces?.map(ws => (
+                                    {myWorkspaces.map(ws => (
                                         <button 
-                                            key={ws._id} 
-                                            onClick={() => { setIsAccountMenuOpen(false); router.push(`/dashboard/${ws._id}`); }} 
+                                            key={ws.id} 
+                                            onClick={() => { setIsAccountMenuOpen(false); router.push(`/dashboard/${ws.id}`); }} 
                                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
                                         >
                                             <div className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold bg-gray-400">
                                                 {ws.name.charAt(0)}
                                             </div>
-                                            <span className={`text-sm font-medium flex-1 truncate ${currentWorkspace._id === ws._id ? 'text-[#3C48F6]' : 'text-gray-700'}`}>
+                                            <span className={`text-sm font-medium flex-1 truncate ${currentWorkspace.id === ws.id ? 'text-[#3C48F6]' : 'text-gray-700'}`}>
                                                 {ws.name}
                                             </span>
-                                            {currentWorkspace._id === ws._id && <Check className="text-[#3C48F6] w-4 h-4" />}
+                                            {currentWorkspace.id === ws.id && <Check className="text-[#3C48F6] w-4 h-4" />}
                                         </button>
                                     ))}
                                 </div>
@@ -234,7 +286,7 @@ export default function DashboardPage() {
 
                     <div className="rounded-xl p-4 text-white shadow-lg relative overflow-hidden bg-gradient-to-br from-[#3C48F6] to-blue-700">
                         <div className="flex justify-between items-center mb-2 relative z-10">
-                            <p className="text-xs font-medium opacity-90 capitalize">{currentWorkspace.plan || 'Free'} Plan</p>
+                            <p className="text-xs font-medium opacity-90 capitalize">Free Plan</p>
                             <button className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors">Upgrade</button>
                         </div>
                         <div className="w-full bg-black/20 h-1.5 rounded-full mb-2 overflow-hidden relative z-10">
@@ -318,7 +370,7 @@ export default function DashboardPage() {
                             <Settings 
                                 workspaceId={workspaceId}
                                 workspaceName={currentWorkspace.name}
-                                workspacePlan={currentWorkspace.plan}
+                                workspacePlan={currentWorkspace.plan || 'free'}
                             />
                         )}
                     </div>

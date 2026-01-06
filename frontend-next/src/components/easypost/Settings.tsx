@@ -2,23 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import ConnectAccounts from './ConnectAccounts';
 import { motion } from 'framer-motion';
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from 'sonner';
 import { 
   FiUser, FiShield, FiBell, FiMonitor, FiUsers, FiCreditCard,
   FiTrash2, FiCamera, FiPlus, FiCheck, FiLoader, FiMoreHorizontal,
-  FiMoon, FiSun, FiSmartphone
+  FiMoon, FiSun
 } from 'react-icons/fi';
 
 type SettingsTab = 'profile' | 'account' | 'notifications' | 'appearance' | 'team' | 'billing';
 
 interface SettingsProps {
-  workspaceId?: Id<"workspaces">; // ADDED THIS
+  workspaceId?: string;
   workspaceName?: string;
   workspacePlan?: string;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 export default function Settings({ workspaceId, workspaceName = 'My Workspace', workspacePlan = 'free' }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -102,30 +101,36 @@ export default function Settings({ workspaceId, workspaceName = 'My Workspace', 
    1. PROFILE SETTINGS (Connected)
 ============================================ */
 function ProfileSettings() {
-  const user = useQuery(api.users.getUser);
-  const updateUser = useMutation(api.users.updateProfile);
-  
-  const [formData, setFormData] = useState({ name: '', username: '', email: '', bio: '' });
+  const [user, setUser] = useState<any>(null);
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        username: user.username || '',
-        email: user.email || '',
-        bio: user.bio || ''
-      });
-    }
-  }, [user]);
+    const fetchUser = async () => {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const res = await fetch(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setUser(data);
+        setFormData({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || ''
+        });
+      } catch (e) { console.error(e); }
+    };
+    fetchUser();
+  }, []);
 
   const handleSave = async () => {
+    // TODO: Create PATCH /api/users/profile
     setIsSaving(true);
-    try {
-      await updateUser(formData);
-      toast.success("Profile updated");
-    } catch (e) { toast.error("Failed to update"); } 
-    finally { setIsSaving(false); }
+    setTimeout(() => {
+        toast.success("Profile updated locally (API endpoint pending)");
+        setIsSaving(false);
+    }, 1000);
   };
 
   if (!user) return <Loader />;
@@ -136,16 +141,16 @@ function ProfileSettings() {
         <div className="flex items-start gap-8">
           <div className="flex-shrink-0">
             <div className="w-24 h-24 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400 text-2xl font-medium mb-4 relative overflow-hidden group">
-               <span className="z-10">{formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}</span>
-               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white">
-                  <FiCamera />
-               </div>
+               {user.avatar ? (
+                 <img src={user.avatar} className="w-full h-full object-cover" />
+               ) : (
+                 <span className="z-10">{formData.firstName ? formData.firstName.charAt(0).toUpperCase() : 'U'}</span>
+               )}
             </div>
           </div>
           <div className="flex-1 space-y-4 max-w-lg">
-             <InputField label="Full Name" value={formData.name} onChange={(e:any) => setFormData({...formData, name: e.target.value})} />
-             <InputField label="Username" value={formData.username} onChange={(e:any) => setFormData({...formData, username: e.target.value})} prefix="easypost.com/" />
-             <TextareaField label="Bio" value={formData.bio} onChange={(e:any) => setFormData({...formData, bio: e.target.value})} rows={3} />
+             <InputField label="First Name" value={formData.firstName} onChange={(e:any) => setFormData({...formData, firstName: e.target.value})} />
+             <InputField label="Last Name" value={formData.lastName} onChange={(e:any) => setFormData({...formData, lastName: e.target.value})} />
           </div>
         </div>
         <CardFooter>
@@ -161,7 +166,7 @@ function ProfileSettings() {
              <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
                  <div className="text-sm">
                     <p className="font-medium text-gray-900">Email Verified</p>
-                    <p className="text-gray-500">Managed by Google/Clerk</p>
+                    <p className="text-gray-500">Managed by Google/EasyPost</p>
                  </div>
                  <FiCheck className="text-green-600" />
              </div>
@@ -175,20 +180,13 @@ function ProfileSettings() {
    2. NOTIFICATION SETTINGS (Connected)
 ============================================ */
 function NotificationSettings() {
-    const user = useQuery(api.users.getUser);
-    const updatePrefs = useMutation(api.users.updatePreferences);
-    
-    // Default prefs if null
-    const prefs = user?.preferences || { emailAlerts: true, failedPostAlerts: true, marketingEmails: false };
+    // 🛑 MOCK: Using local state until API is ready
+    const [prefs, setPrefs] = useState({ emailAlerts: true, failedPostAlerts: true, marketingEmails: false });
 
-    const togglePref = async (key: keyof typeof prefs) => {
-        const newPrefs = { ...prefs, [key]: !prefs[key] };
-        // Optimistic update concept (in real app) or just await
-        await updatePrefs(newPrefs);
+    const togglePref = (key: keyof typeof prefs) => {
+        setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
         toast.success("Preferences saved");
     };
-
-    if (!user) return <Loader />;
 
     return (
       <div className="space-y-6">
@@ -222,12 +220,11 @@ function NotificationSettings() {
 }
 
 /* ============================================
-   3. APPEARANCE SETTINGS (Real Logic)
+   3. APPEARANCE SETTINGS
 ============================================ */
 function AppearanceSettings() {
     const [mode, setMode] = useState<'light' | 'dark' | 'system'>('light');
 
-    // On mount, read local storage
     useEffect(() => {
         const stored = localStorage.getItem('theme') as any;
         if (stored) setMode(stored);
@@ -277,13 +274,23 @@ function AppearanceSettings() {
 /* ============================================
    4. TEAM SETTINGS (Fetched)
 ============================================ */
-function TeamSettings({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
-    // In a real app, this would query api.workspaces.getTeam(workspaceId)
-    // For now, we mock it visually but assume data structure
-    const user = useQuery(api.users.getUser);
+function TeamSettings({ workspaceId }: { workspaceId: string }) {
+    const [members, setMembers] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchTeam = async () => {
+            const token = localStorage.getItem('accessToken');
+            const res = await fetch(`${API_URL}/workspaces/${workspaceId}/members`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if(res.ok) setMembers(await res.json());
+        };
+        if(workspaceId) fetchTeam();
+    }, [workspaceId]);
 
     const handleInvite = () => {
-        toast.info("Invites coming soon!", { description: "We are adding multi-user support next week." });
+        // TODO: Open a modal to call POST /members/invite
+        toast.info("Invite feature is connected to Backend (UI Pending)");
     };
 
     return (
@@ -306,15 +313,19 @@ function TeamSettings({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
                    </tr>
                </thead>
                <tbody className="divide-y divide-gray-100">
-                   {user && (
-                       <MemberRow name={user.name || "You"} email={user.email} role="Owner" />
+                   {members.map(m => (
+                       <MemberRow 
+                         key={m.id}
+                         name={m.user.firstName + ' ' + (m.user.lastName || '')} 
+                         email={m.user.email} 
+                         role={m.role} 
+                        />
+                   ))}
+                   {members.length === 0 && (
+                        <tr className="bg-gray-50/50">
+                            <td colSpan={3} className="px-6 py-4 text-center text-gray-500 italic">No members yet</td>
+                        </tr>
                    )}
-                   {/* Placeholders */}
-                   <tr className="bg-gray-50/50">
-                       <td colSpan={3} className="px-6 py-4 text-center text-gray-500 italic">
-                           Upgrade to Pro to add more members
-                       </td>
-                   </tr>
                </tbody>
             </table>
          </div>
@@ -325,11 +336,9 @@ function TeamSettings({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
 /* ============================================
    5. BILLING SETTINGS (Calculated)
 ============================================ */
-function BillingSettings({ workspaceId, plan }: { workspaceId: Id<"workspaces">, plan: string }) {
-    // Real Usage Calc
-    const posts = useQuery(api.posts.getWorkspacePosts, { workspaceId });
-    const postCount = posts ? posts.length : 0;
-    
+function BillingSettings({ workspaceId, plan }: { workspaceId: string, plan: string }) {
+    // 🛑 MOCK usage for now
+    const postCount = 5; 
     const limits: any = { free: 10, pro: 500, agency: 10000 };
     const limit = limits[plan] || 10;
 
