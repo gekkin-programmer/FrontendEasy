@@ -14,48 +14,46 @@ import { useLanguage } from '../context/LanguageContext';
 const Footer: React.FC = () => {
   const { t } = useLanguage();
 
-  // --- DATA: Updated with bilingual text ---
+  // --- DATA: Updated with Legal Section for Meta Compliance ---
   const footerSections = [
     {
-      title: t('Tools', 'Outils'),
+      title: t('Product', 'Produit'),
       links: [
         { label: t('Publishing', 'Publication'), href: '#' },
         { label: t('Analytics', 'Analytique'), href: '#' },
-        { label: t('Engagement', 'Engagement'), href: '#' },
         { label: t('AI Assistant', 'Assistant IA'), href: '#' },
+        { label: t('Pricing', 'Tarifs'), href: '/pricing' },
       ],
     },
     {
       title: t('Resources', 'Ressources'),
       links: [
         { label: t('Blog', 'Blog'), href: '#' },
-        { label: t('Content Library', 'Bibliothèque de contenu'), href: '#' },
-        { label: t('Browser Extension', 'Extension de navigateur'), href: '#' },
-        { label: t('Free Image Editor', 'Éditeur d’images gratuit'), href: '#' },
-      ],
-    },
-    {
-      title: t('Support', 'Assistance'),
-      links: [
+        { label: t('Community', 'Communauté'), href: '/community' },
         { label: t('Help Center', "Centre d'aide"), href: '#' },
-        { label: t('Status', 'Statut'), href: '#' },
-        { label: t('Changelog', 'Journal des modifications'), href: '#' },
-        { label: t('Contact Us', 'Contactez-nous'), href: '#' },
+        { label: t('Contact', 'Contact'), href: '#' },
       ],
     },
     {
       title: t('Company', 'Entreprise'),
       links: [
-        { label: t('About', 'À propos'), href: '#' },
-        { label: t('Transparency', 'Transparence'), href: '#' },
+        { label: t('About Us', 'À propos'), href: '#' },
         { label: t('Careers', 'Carrières'), href: '#' },
+        { label: t('Partners', 'Partenaires'), href: '#' },
         { label: t('Press', 'Presse'), href: '#' },
+      ],
+    },
+    {
+      title: t('Legal', 'Légal'), // 👈 CRITICAL FOR META
+      links: [
+        { label: t('Privacy Policy', 'Politique de confidentialité'), href: '/legal/privacy' },
+        { label: t('Terms of Service', "Conditions d'utilisation"), href: '/legal/terms' },
+        { label: t('Data Deletion', 'Suppression des données'), href: '/legal/data-deletion' },
+        { label: t('Cookie Policy', 'Cookies'), href: '#' },
       ],
     },
   ];
 
-  // --- DATA: Fixed Tailwind Classes ---
-  // Tailwind needs the FULL class name string to work, it can't compute "text-[" + color + "]" dynamically
   const socialLinks = [
     { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'group-hover:text-[#E1306C]' },
     { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'group-hover:text-[#1877F2]' },
@@ -65,45 +63,42 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-slate-50 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-800">
+    <footer className="bg-slate-50 dark:bg-gray-950 border-t border-slate-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           
-          {/* Logo and company description section */}
+          {/* Logo Section */}
           <div className="space-y-8 xl:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              {/* Pointing directly to public/assets */}
               <img
-                className="h-8 w-auto"
+                className="h-10 w-auto"
                 src="/assets/WiggleLogo.png" 
                 alt="EasyPost Logo"
               />
+              <span className="text-xl font-bold text-gray-900 dark:text-white">EasyPost</span>
             </Link>
-            <p className="text-slate-500 dark:text-slate-400 text-base max-w-xs">
+            <p className="text-slate-500 dark:text-slate-400 text-base max-w-xs leading-relaxed">
               {t(
-                'The simplest way to plan, create, and share content on social media.',
-                'La manière la plus simple de planifier, créer et partager du contenu sur les réseaux sociaux.'
+                'The simplest way to plan, create, and share content on social media across Africa and beyond.',
+                'La manière la plus simple de planifier, créer et partager du contenu sur les réseaux sociaux en Afrique et au-delà.'
               )}
             </p>
           </div>
 
-          {/* Link columns section */}
+          {/* Links Section */}
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               {footerSections.slice(0, 2).map((section) => (
                 <div key={section.title} className="mb-10 md:mb-0">
-                  <h3
-                    className="text-sm font-bold tracking-wider uppercase"
-                    style={{ color: '#3C48F6' }}
-                  >
+                  <h3 className="text-sm font-bold tracking-wider uppercase text-[#3C48F6]">
                     {section.title}
                   </h3>
-                  <ul className="mt-4 space-y-4">
+                  <ul className="mt-4 space-y-3">
                     {section.links.map((link) => (
                       <li key={link.label}>
                         <Link
                           href={link.href}
-                          className="text-base text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors duration-200"
+                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3C48F6] dark:hover:text-white transition-colors duration-200"
                         >
                           {link.label}
                         </Link>
@@ -116,18 +111,15 @@ const Footer: React.FC = () => {
             <div className="md:grid md:grid-cols-2 md:gap-8">
               {footerSections.slice(2, 4).map((section) => (
                 <div key={section.title} className="mb-10 md:mb-0">
-                  <h3
-                    className="text-sm font-bold tracking-wider uppercase"
-                    style={{ color: '#3C48F6' }}
-                  >
+                  <h3 className="text-sm font-bold tracking-wider uppercase text-[#3C48F6]">
                     {section.title}
                   </h3>
-                  <ul className="mt-4 space-y-4">
+                  <ul className="mt-4 space-y-3">
                     {section.links.map((link) => (
                       <li key={link.label}>
                         <Link
                           href={link.href}
-                          className="text-base text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors duration-200"
+                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3C48F6] dark:hover:text-white transition-colors duration-200"
                         >
                           {link.label}
                         </Link>
@@ -140,22 +132,21 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom bar with copyright and social links */}
-        <div className="mt-12 border-t border-slate-200 dark:border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-base text-slate-500 dark:text-slate-400 md:order-1">
-            &copy; {new Date().getFullYear()} EasyPost, Inc.{' '}
-            {t('All rights reserved.', 'Tous droits réservés.')}
+        {/* Bottom Bar */}
+        <div className="mt-12 border-t border-slate-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
+          <p className="text-sm text-slate-500 dark:text-slate-500 md:order-1">
+            &copy; {new Date().getFullYear()} EasyPost Inc. {t('All rights reserved.', 'Tous droits réservés.')}
           </p>
           <div className="flex space-x-6 md:order-2 mt-4 md:mt-0">
             {socialLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-slate-400 group transition-transform duration-200 hover:-translate-y-1"
+                className="text-slate-400 hover:scale-110 transition-transform duration-200"
               >
                 <span className="sr-only">{link.name}</span>
                 <link.Icon
-                  className={`h-6 w-6 transition-colors duration-300 ${link.className}`}
+                  className={`h-5 w-5 transition-colors duration-300 ${link.className}`}
                   aria-hidden="true"
                 />
               </a>

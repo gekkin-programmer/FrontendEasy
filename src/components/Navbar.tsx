@@ -1,20 +1,21 @@
 "use client";
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
 import Image from "next/image";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
   FaMoon, FaSun, FaChevronDown, FaBars, FaRocket, FaPaperPlane,
   FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaPinterestP, 
-  FaTiktok, FaMagic, FaUsers, FaHandshake, FaPlayCircle, FaTimes, FaGlobe
+  FaTiktok, FaMagic, FaUsers, FaHandshake, FaPlayCircle, FaTimes, FaGlobe,
+  FaSignOutAlt, FaUserCircle
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
 
-// ... (Keep your existing data objects: megaMenuData, channelsMenuData, navLinks) ...
-// For brevity, I'm assuming the data objects are here as before.
+// ============================================================================
+// DATA CONSTANTS (Kept exactly as they were)
+// ============================================================================
 
 const megaMenuData = {
   type: 'mega' as const,
@@ -76,13 +77,34 @@ const navLinks: NavLink[] = [
 ];
 
 const Navbar: React.FC = () => {
-  // 1. ALL HOOKS MUST RUN FIRST
   const pathname = usePathname(); 
+  const router = useRouter();
+  
+  // State
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
+  
+  // Auth State (Replaces Clerk)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
   const { language, toggleLanguage, t } = useLanguage();
+
+  // 1. Check Auth on Mount
+  useEffect(() => {
+    // Look for the token we saved during login/signup
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // 2. Handle Logout
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setIsAuthenticated(false);
+    router.push('/login');
+  };
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -124,7 +146,7 @@ const Navbar: React.FC = () => {
     return language === 'fr' ? text.fr : text.en;
   };
 
-  // --- SUB-COMPONENTS (Defined inside or outside, better outside but here is fine) ---
+  // --- SUB-COMPONENTS ---
   const MegaMenu = ({ content }: { content: typeof megaMenuData }) => (
     <motion.div 
       initial={{ opacity: 0, y: -5 }} 
@@ -201,14 +223,12 @@ const Navbar: React.FC = () => {
     </motion.div>
   );
 
-  // 2. CHECK VISIBILITY (AFTER HOOKS)
   const showNavbar = pathname === "/" || pathname === "/pricing" || pathname === "/community";
 
   if (!showNavbar) {
     return null;
   }
 
-  // 3. RENDER
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
       ${scrolled 
@@ -268,21 +288,31 @@ const Navbar: React.FC = () => {
           {/* RIGHT: Actions */}
           <div className="hidden lg:flex items-center gap-4">
             
-            <SignedOut>
-              <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
-                {t("Log in", "Connexion")}
-              </Link>
-              <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-                {t("Get started", "Commencer")}
-              </Link>
-            </SignedOut>
-
-            <SignedIn>
-              <Link href="/dashboard" className="px-5 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-sm">
-                {t("Dashboard", "Tableau de bord")}
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+            {/* 🔒 AUTHENTICATED STATE */}
+            {isAuthenticated ? (
+              <>
+                <Link href="/dashboard" className="px-5 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-sm">
+                  {t("Dashboard", "Tableau de bord")}
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+                  title="Sign Out"
+                >
+                  <FaSignOutAlt className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              /* 🔓 LOGGED OUT STATE */
+              <>
+                <Link href="/login" className="text-sm font-semibold text-[#3C48F6] hover:text-blue-700 transition-colors">
+                  {t("Log in", "Connexion")}
+                </Link>
+                <Link href="/signup" className="px-6 py-2.5 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                  {t("Get started", "Commencer")}
+                </Link>
+              </>
+            )}
 
             <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
@@ -294,12 +324,12 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Toggle */}
           <div className="lg:hidden flex items-center gap-3">
-            <SignedOut>
+            {!isAuthenticated && (
               <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Get started", "Démarrer")}</Link>
-            </SignedOut>
-            <SignedIn>
+            )}
+            {isAuthenticated && (
                <Link href="/dashboard" className="px-4 py-2 bg-[#3C48F6] text-white font-medium text-sm rounded-full hover:bg-blue-700 transition">{t("Dashboard", "Tableau")}</Link>
-            </SignedIn>
+            )}
             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-lg text-gray-700 dark:text-gray-300"><FaBars className="w-6 h-6" /></button>
           </div>
         </div>
@@ -338,23 +368,25 @@ const Navbar: React.FC = () => {
                 ))}
                 
                 <div className="mt-8 space-y-3">
-                   <SignedOut>
-                      <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                          {t("Log in", "Connexion")}
-                      </Link>
-                      <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                          {t("Get started now", "Commencer")}
-                      </Link>
-                   </SignedOut>
-                   
-                   <SignedIn>
-                      <Link href="/dashboard" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                          {t("Go to Dashboard", "Tableau de bord")}
-                      </Link>
-                      <div className="flex justify-center pt-4">
-                         <UserButton afterSignOutUrl="/" showName />
-                      </div>
-                   </SignedIn>
+                   {!isAuthenticated ? (
+                      <>
+                        <Link href="/login" className="block w-full text-center py-3 text-[#3C48F6] font-bold border border-[#3C48F6] rounded-full hover:bg-blue-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                            {t("Log in", "Connexion")}
+                        </Link>
+                        <Link href="/signup" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                            {t("Get started now", "Commencer")}
+                        </Link>
+                      </>
+                   ) : (
+                      <>
+                        <Link href="/dashboard" className="block w-full text-center py-3 bg-[#3C48F6] text-white font-bold rounded-full hover:bg-blue-700 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                            {t("Go to Dashboard", "Tableau de bord")}
+                        </Link>
+                        <button onClick={handleLogout} className="flex items-center justify-center w-full py-3 text-red-500 font-bold border border-red-500 rounded-full hover:bg-red-50 transition-colors">
+                           <FaSignOutAlt className="mr-2" /> {t("Sign Out", "Se déconnecter")}
+                        </button>
+                      </>
+                   )}
                 </div>
               </div>
             </motion.div>

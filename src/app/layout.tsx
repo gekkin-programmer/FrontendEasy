@@ -1,34 +1,42 @@
+import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar"; 
+import Navbar from "../components/Navbar";
 import Preloader from "../components/Preloader";
 import { LanguageProvider } from "../context/LanguageContext";
-import { JetBrains_Mono } from "next/font/google";
-import EasyAI from "@/src/components/easypost/EasyAI";
+import EasyAI from "../components/easypost/EasyAI";
+import Footer from "../components/Footer"; 
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono", 
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "EasyPost - Dominer le marketing digital en Afrique",
   description: "Social Media Scheduler pour les communautés africaines",
 };
+
+export default function RootLayout({
+  children,
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="fr">
       <body className={`${jetbrainsMono.variable} antialiased`}>
+        <LanguageProvider>
+          <Preloader />
+          <Navbar />
           
-          <LanguageProvider>
-            <EasyAI />
-          </LanguageProvider>
-            {/* 2. Add EasyAI here so it overlays on top of everything */}
-            <EasyAI />
-            
-          </LanguageProvider>
-        </ConvexClientProvider>
+          <main className="min-h-screen">
+            {children}
+          </main>
+
+          <EasyAI />
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );
