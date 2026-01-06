@@ -54,6 +54,7 @@ export default function Home() {
       <GrowSection />
       <SupportSection />
       <Footer />
+      
     </main>
   );
 }
