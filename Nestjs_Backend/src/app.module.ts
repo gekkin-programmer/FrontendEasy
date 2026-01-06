@@ -11,7 +11,8 @@ import { AssistantModule } from './modules/assistant/assistant.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { CloudinaryModule } from './modules/providers/cloudinary.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
-import { MembersModule } from './modules/workspaces/members/members.module'; 
+import { MembersModule } from './modules/workspaces/members/members.module';
+import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module'; 
 
 
 @Module({
@@ -26,7 +27,8 @@ import { MembersModule } from './modules/workspaces/members/members.module';
     PaymentsModule,
     CloudinaryModule,
     WorkspacesModule,
-    MembersModule, 
+    MembersModule,
+    SocialAccountsModule, 
   ],
   controllers: [AppController],
   providers: [AppService],
