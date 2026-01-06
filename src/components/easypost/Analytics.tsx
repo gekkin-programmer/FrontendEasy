@@ -1,34 +1,53 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import React, { useState } from 'react';
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Charting
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend
+  BarChart, Bar
 } from 'recharts';
 
 // Icons
 import { 
-  ThumbsUp, MessageCircle, Share2, TrendingUp, Clock, 
+  ThumbsUp, MessageCircle, TrendingUp, Clock, 
   Eye, Search, AlertCircle, LayoutDashboard, List, 
-  Filter, Sparkles, Hash, Tag
+  Sparkles, Hash, Tag, Filter
 } from "lucide-react";
 
 // Utils
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
+
+// --- MOCK DATA GENERATORS (Until API is ready) ---
+const generateMockHistory = () => {
+  return Array.from({ length: 24 }, (_, i) => ({
+    timeLabel: `${i}:00`,
+    likes: Math.floor(Math.random() * 50) + (i * 2),
+    timestamp: Date.now() - (24 - i) * 3600000
+  }));
+};
+
+const MOCK_NICHE_DATA = {
+  categories: [
+    { name: 'Tech', avgLikes: 120 },
+    { name: 'Lifestyle', avgLikes: 85 },
+    { name: 'Education', avgLikes: 200 },
+    { name: 'Meme', avgLikes: 450 },
+  ],
+  topTags: [
+    { tag: 'marketing', totalLikes: 5000 },
+    { tag: 'growth', totalLikes: 3200 },
+    { tag: 'business', totalLikes: 2100 },
+  ]
+};
 
 // --- MAIN COMPONENT ---
 
 export default function Analytics() {
   const params = useParams();
-  const workspaceId = params.id as Id<"workspaces">;
+  const workspaceId = params.id as string;
 
   // View State (Tabs)
   const [viewMode, setViewMode] = useState<'stream' | 'strategy'>('stream');
@@ -83,8 +102,9 @@ export default function Analytics() {
 // VIEW 1: STRATEGY (NICHE INTELLIGENCE)
 // ============================================================================
 
-function StrategyView({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
-    const nicheData = useQuery(api.analytics.getNichePerformance, { workspaceId });
+function StrategyView({ workspaceId }: { workspaceId: string }) {
+    // 🛑 MOCK: Using static data until Analytics Module is built
+    const nicheData = MOCK_NICHE_DATA;
 
     return (
         <motion.div 
@@ -108,35 +128,31 @@ function StrategyView({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
                     </div>
                     
                     <div className="h-[300px] w-full">
-                        {nicheData?.categories && nicheData.categories.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={nicheData.categories} layout="vertical" margin={{ left: 20 }}>
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F3F4F6" />
-                                    <XAxis type="number" hide />
-                                    <YAxis 
-                                        dataKey="name" 
-                                        type="category" 
-                                        tick={{fontSize: 13, fill: '#374151', fontWeight: 600}} 
-                                        width={100}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <Tooltip 
-                                        cursor={{fill: '#F9FAFB'}} 
-                                        contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}}
-                                    />
-                                    <Bar 
-                                        dataKey="avgLikes" 
-                                        name="Avg Likes"
-                                        fill="#3C48F6" 
-                                        radius={[0, 4, 4, 0]} 
-                                        barSize={24}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <EmptyState message="Categorize your posts to see insights here." />
-                        )}
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={nicheData.categories} layout="vertical" margin={{ left: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F3F4F6" />
+                                <XAxis type="number" hide />
+                                <YAxis 
+                                    dataKey="name" 
+                                    type="category" 
+                                    tick={{fontSize: 13, fill: '#374151', fontWeight: 600}} 
+                                    width={100}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <Tooltip 
+                                    cursor={{fill: '#F9FAFB'}} 
+                                    contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}}
+                                />
+                                <Bar 
+                                    dataKey="avgLikes" 
+                                    name="Avg Likes"
+                                    fill="#3C48F6" 
+                                    radius={[0, 4, 4, 0]} 
+                                    barSize={24}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
@@ -149,28 +165,24 @@ function StrategyView({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
                             Winning Hashtags
                         </h3>
                         <div className="space-y-3">
-                            {nicheData?.topTags && nicheData.topTags.length > 0 ? (
-                                nicheData.topTags.map((tag, i) => (
-                                    <div key={tag.tag} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
-                                        <div className="flex items-center gap-3">
-                                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
-                                                #{i + 1}
-                                            </span>
-                                            <span className="font-medium text-gray-700">{tag.tag}</span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="block font-bold text-gray-900">{tag.totalLikes}</span>
-                                            <span className="text-[10px] text-gray-400 uppercase font-medium">Total Likes</span>
-                                        </div>
+                            {nicheData.topTags.map((tag, i) => (
+                                <div key={tag.tag} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
+                                            #{i + 1}
+                                        </span>
+                                        <span className="font-medium text-gray-700">{tag.tag}</span>
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-400 text-sm italic">No hashtag data available yet.</p>
-                            )}
+                                    <div className="text-right">
+                                        <span className="block font-bold text-gray-900">{tag.totalLikes}</span>
+                                        <span className="text-[10px] text-gray-400 uppercase font-medium">Total Likes</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* AI Insight Box (Future Integration) */}
+                    {/* AI Insight Box (Static for now) */}
                     <div className="p-5 bg-gradient-to-br from-purple-50 to-white rounded-xl border border-purple-100 shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Sparkles size={100} className="text-purple-600" />
@@ -202,22 +214,17 @@ function StrategyView({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
 // VIEW 2: LIVE MONITOR (The Split View)
 // ============================================================================
 
-function LiveStreamView({ workspaceId }: { workspaceId: Id<"workspaces"> }) {
-    // 1. Fetch Real Data
-    const allPosts = useQuery(api.posts.getWorkspacePosts, { workspaceId });
-    // Filter strictly for published
-    const publishedPosts = allPosts?.filter(p => p.status === 'published') || [];
+function LiveStreamView({ workspaceId }: { workspaceId: string }) {
+    // 🛑 MOCK: Replace 'useQuery(api.posts...)' with local state or fetch
+    // For now, we simulate an empty list or static list
+    const [publishedPosts, setPublishedPosts] = useState<any[]>([
+      { _id: '1', content: 'Launching our new product! #startup', status: 'published', currentStats: { likes: 120, comments: 15, shares: 5, impressions: 500 }, publishedTime: Date.now() - 3600000, category: 'Launch' },
+      { _id: '2', content: 'Monday motivation for developers.', status: 'published', currentStats: { likes: 45, comments: 2, shares: 0, impressions: 120 }, publishedTime: Date.now() - 7200000, category: 'Motivation' }
+    ]);
 
     // 2. State
-    const [selectedPostId, setSelectedPostId] = useState<Id<"posts"> | null>(null);
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-
-    // Auto-select first post
-    useEffect(() => {
-        if (publishedPosts.length > 0 && !selectedPostId) {
-            setSelectedPostId(publishedPosts[0]._id);
-        }
-    }, [publishedPosts, selectedPostId]);
 
     const selectedPost = publishedPosts.find(p => p._id === selectedPostId);
     const filteredPosts = publishedPosts.filter(p => 
@@ -307,7 +314,7 @@ function PostListCard({ post, isSelected, onClick }: { post: any, isSelected: bo
             {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />}
             <div className="flex justify-between items-start mb-2">
                 <span className="text-[10px] text-gray-500 font-medium bg-gray-100 px-1.5 py-0.5 rounded-full">
-                     {formatDistanceToNow(post.publishedTime || Date.now(), { addSuffix: true })}
+                     Just now
                 </span>
                 <div className="flex gap-1">
                     {post.category && post.category !== 'General' && (
@@ -333,11 +340,8 @@ function PostListCard({ post, isSelected, onClick }: { post: any, isSelected: bo
 }
 
 function PostAnalyticsDetail({ post }: { post: any }) {
-    const history = useQuery(api.analytics.getPostHistory, { postId: post._id });
-    const chartData = history ? [...history].reverse().map(h => ({
-        ...h,
-        timeLabel: new Date(h.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', month: 'short', day: 'numeric'})
-    })) : [];
+    // 🛑 MOCK: History Data
+    const chartData = generateMockHistory();
     const stats = post.currentStats || { likes: 0, comments: 0, shares: 0, impressions: 0 };
     const engagementRate = stats.impressions > 0 
         ? ((stats.likes + stats.comments + stats.shares) / stats.impressions * 100).toFixed(1) 
@@ -348,15 +352,7 @@ function PostAnalyticsDetail({ post }: { post: any }) {
             {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-start gap-6">
                 <div className="w-24 h-24 bg-gray-50 rounded-xl flex-shrink-0 overflow-hidden border border-gray-100 shadow-sm relative group">
-                    {post.mediaUrl ? (
-                         post.mediaType === 'video' ? (
-                            <video src={post.mediaUrl} className="w-full h-full object-cover" />
-                         ) : (
-                            <img src={post.mediaUrl} className="w-full h-full object-cover" />
-                         )
-                    ) : (
-                         <div className="w-full h-full flex items-center justify-center text-gray-300 font-bold text-xl">TxT</div>
-                    )}
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 font-bold text-xl">TxT</div>
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
@@ -365,11 +361,6 @@ function PostAnalyticsDetail({ post }: { post: any }) {
                         <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-xs font-medium">{post.category || "General"}</span>
                     </div>
                     <h1 className="text-lg font-bold text-gray-900 leading-snug line-clamp-2">{post.content}</h1>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {post.tags?.map((t: string) => (
-                            <span key={t} className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-medium">{t}</span>
-                        ))}
-                    </div>
                 </div>
             </div>
 
@@ -393,29 +384,21 @@ function PostAnalyticsDetail({ post }: { post: any }) {
                     </div>
                 </div>
                 <div className="w-full h-[280px]">
-                    {chartData.length > 1 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
-                                <defs>
-                                    <linearGradient id="colorLikes" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3C48F6" stopOpacity={0.15}/>
-                                        <stop offset="95%" stopColor="#3C48F6" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-                                <XAxis dataKey="timeLabel" tick={{fontSize: 10, fill: '#9CA3AF'}} axisLine={false} tickLine={false} minTickGap={40} dy={10} />
-                                <YAxis tick={{fontSize: 10, fill: '#9CA3AF'}} axisLine={false} tickLine={false} dx={-10} />
-                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }} cursor={{ stroke: '#3C48F6', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                                <Area type="monotone" dataKey="likes" stroke="#3C48F6" strokeWidth={3} fill="url(#colorLikes)" activeDot={{ r: 6, strokeWidth: 0, fill: '#3C48F6' }} />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/30">
-                            <Clock className="w-10 h-10 text-gray-300 mb-3" />
-                            <p className="text-gray-900 font-bold">Data Collection in Progress</p>
-                            <p className="text-sm text-gray-500 text-center mt-1">Check back after the next hourly scan.</p>
-                        </div>
-                    )}
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                            <defs>
+                                <linearGradient id="colorLikes" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3C48F6" stopOpacity={0.15}/>
+                                    <stop offset="95%" stopColor="#3C48F6" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
+                            <XAxis dataKey="timeLabel" tick={{fontSize: 10, fill: '#9CA3AF'}} axisLine={false} tickLine={false} minTickGap={40} dy={10} />
+                            <YAxis tick={{fontSize: 10, fill: '#9CA3AF'}} axisLine={false} tickLine={false} dx={-10} />
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }} cursor={{ stroke: '#3C48F6', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                            <Area type="monotone" dataKey="likes" stroke="#3C48F6" strokeWidth={3} fill="url(#colorLikes)" activeDot={{ r: 6, strokeWidth: 0, fill: '#3C48F6' }} />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
         </div>

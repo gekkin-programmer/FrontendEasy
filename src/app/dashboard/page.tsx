@@ -1,32 +1,48 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardRootPage() {
   const router = useRouter();
-  
-  // Fetch user's workspaces
-  const workspaces = useQuery(api.workspaces.getMyWorkspaces);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
   useEffect(() => {
-    // 1. Still loading? Do nothing.
-    if (workspaces === undefined) return;
+    const checkWorkspaces = async () => {
+      const token = localStorage.getItem('accessToken');
+      
+      if (!token) {
+        router.push('/login');
+        return;
+      }
 
-    // 2. No workspaces? Send to Onboarding to create one.
-    if (workspaces.length === 0) {
-      router.push("/onboarding");
-    } 
-    // 3. Has workspaces? Send to the first one.
-    else {
-      router.push(`/dashboard/${workspaces[0]._id}`);
-    }
-  }, [workspaces, router]);
+      try {
+        // Fetch Workspaces from NestJS
+        const res = await fetch(`${API_URL}/workspaces`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-  // Show a loading spinner while we decide where to go
+        if (!res.ok) throw new Error('Failed');
+
+        const workspaces = await res.json();
+
+        // Logic: Where to go?
+        if (workspaces.length === 0) {
+          router.push("/onboarding"); // No workspace -> Create one
+        } else {
+          router.push(`/dashboard/${workspaces[0].id}`); // Found -> Go to first one
+        }
+
+      } catch (error) {
+        console.error("Dashboard Redirect Error:", error);
+        router.push('/login');
+      }
+    };
+
+    checkWorkspaces();
+  }, [router, API_URL]);
+
   return (
     <div className="h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
       <Loader2 className="h-8 w-8 animate-spin text-blue-600" />

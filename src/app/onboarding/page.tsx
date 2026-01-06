@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useUser } from "@clerk/nextjs";
-import { api } from "../../../convex/_generated/api"; 
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useConvexAuth } from "convex/react";
 import Image from 'next/image';
 import { FaArrowLeft, FaUser, FaBriefcase, FaCamera, FaGlobe, FaBuilding, FaCheck } from 'react-icons/fa6';
 import { Loader2 } from "lucide-react"; 
 
-// --- 1. DATA CONFIGURATION ---
+// --- 1. DATA CONFIGURATION (Unchanged) ---
 
 type CategoryType = 'personal' | 'business' | 'creator' | 'agency' | 'enterprise';
 
@@ -46,18 +43,26 @@ const PLANS: Record<string, any[]> = {
 // --- 2. COMPONENT ---
 
 export default function OnboardingPage() {
-  const { isAuthenticated } = useConvexAuth();
-  const { user, isLoaded } = useUser();
   const router = useRouter();
-
-  // Convex Mutations
-  const createWorkspace = useMutation(api.workspaces.create);
-  const storeUser = useMutation(api.users.store);
 
   // State
   const [step, setStep] = useState(1); // 1 = Category, 2 = Plan
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
+  // 🌍 Config
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+  // --- AUTH CHECK ---
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.push('/login');
+    } else {
+      setIsAuthChecking(false);
+    }
+  }, [router]);
 
   // --- HANDLERS ---
 
@@ -67,43 +72,47 @@ export default function OnboardingPage() {
   };
 
   const handleFinalSubmit = async (planId: string) => {
-    if (!isAuthenticated || !user) {
-      console.error("Not authenticated with Convex yet");
-      return;
-    }
-
     setIsLoading(true);
+    const token = localStorage.getItem('accessToken');
 
     try {
-      // 1. Ensure User is synced to Convex DB
-      await storeUser();
+      // 1. Determine Workspace Name based on plan/category (Optional customization)
+      const safeCategory = selectedCategory || 'personal';
+      const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
 
-      // 2. Create the Workspace
-      // We default the name to "[Name]'s Workspace"
-      const workspaceName = user.firstName 
-        ? `${user.firstName}'s Workspace` 
-        : "My Workspace";
-
-      const workspaceId = await createWorkspace({ 
-        name: workspaceName,
-        plan: planId
-        // Note: Ensure your backend mutation accepts 'plan' if you want to store it
-        // For now, we mainly need the workspace created.
+      // 2. Call NestJS API to create Workspace
+      const res = await fetch(`${API_URL}/workspaces`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          name: workspaceName,
+          description: `Plan: ${planId}` // Store plan info in description for now
+        }),
       });
 
-      // 3. Redirect to Dashboard
-      router.push(`/dashboard/${workspaceId}`);
+      if (!res.ok) throw new Error('Failed to create workspace');
+
+      const workspace = await res.json();
+
+      // 3. Redirect to Dashboard with the new Workspace ID
+      // Assuming your dashboard route is /dashboard/[workspaceId]
+      // Or if you have a general dashboard, just /dashboard
+      router.push(`/dashboard`); 
 
     } catch (err) {
       console.error("Onboarding failed:", err);
+      // Optional: toast.error("Something went wrong")
+    } finally {
       setIsLoading(false);
-      // Optional: Add a toast.error("Something went wrong") here
     }
   };
 
   // --- RENDER STEPS ---
 
-  if (!isLoaded) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-600"/></div>;
+  if (isAuthChecking) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-600"/></div>;
 
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">

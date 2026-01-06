@@ -1,57 +1,102 @@
 'use client';
 
 import React from 'react';
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from 'sonner';
 
-// Helper to look up account details
+// --- TYPES ---
+interface Post {
+  id: string; // Changed from _id to id
+  content: string;
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED'; // Updated to match Prisma Enum
+  scheduledFor?: string; // ISO String
+  socialAccountIds?: string[];
+  mediaUrls?: string[];
+}
+
+interface Account {
+  id: string;
+  platform: string;
+  username?: string;
+  platformUsername?: string; // Fallback
+}
+
+interface PostFeedProps {
+  posts: Post[];
+  accounts: Account[];
+}
+
+// Helper
 const PlatformIcon = ({ platform }: { platform?: string }) => {
-  switch (platform) {
+  switch (platform?.toLowerCase()) {
     case 'twitter': return <span className="text-blue-400">𝕏</span>;
     case 'linkedin': return <span className="text-blue-700">in</span>;
     case 'instagram': return <span className="text-pink-600">IG</span>;
+    case 'facebook': return <span className="text-blue-600">FB</span>;
     default: return <span className="text-gray-400">#</span>;
   }
 };
 
-interface PostFeedProps {
-  posts: Doc<"posts">[]; 
-  accounts: Doc<"accounts">[];
-}
-
 export default function PostFeed({ posts, accounts }: PostFeedProps) {
-  const updateStatus = useMutation(api.posts.updateStatus);
-  const deletePost = useMutation(api.posts.deletePost);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
-  const drafts = posts.filter(p => p.status === 'draft');
-  const queued = posts.filter(p => p.status === 'scheduled' || p.status === 'published');
+  const drafts = posts.filter(p => p.status === 'DRAFT');
+  const queued = posts.filter(p => p.status === 'SCHEDULED' || p.status === 'PUBLISHED');
+
+  // --- ACTIONS ---
+
+  const deletePost = async (postId: string) => {
+    const token = localStorage.getItem('accessToken');
+    try {
+        await fetch(`${API_URL}/posts/${postId}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Post deleted");
+        // Note: In a real app, you would call a refresh function passed from parent
+        window.location.reload(); 
+    } catch (e) {
+        toast.error("Failed to delete");
+    }
+  };
+
+  const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
+    const token = localStorage.getItem('accessToken');
+    try {
+        await fetch(`${API_URL}/posts/${postId}`, {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}` 
+            },
+            body: JSON.stringify({ 
+                status, 
+                scheduledFor: new Date(scheduledFor).toISOString() 
+            })
+        });
+        toast.success("Post scheduled!");
+        window.location.reload();
+    } catch (e) {
+        toast.error("Failed to update status");
+    }
+  };
 
   // --- DRAG LOGIC ---
   const handleDragStart = (e: React.DragEvent, id: string) => {
-    // We are using Native HTML5 Drag, not Framer gestures
     e.dataTransfer.setData("postId", id);
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDropToQueue = async (e: React.DragEvent) => {
     e.preventDefault();
-    const id = e.dataTransfer.getData("postId") as Id<"posts">;
+    const id = e.dataTransfer.getData("postId");
     
-    try {
-      await updateStatus({ 
-        postId: id, 
-        status: 'scheduled', 
-        scheduledTime: Date.now() + 3600000 
-      });
-    } catch (err) {
-      console.error("Failed to schedule", err);
-    }
+    // Default to 1 hour from now
+    await updateStatus(id, 'SCHEDULED', Date.now() + 3600000);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -72,12 +117,12 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           <AnimatePresence mode="popLayout">
             {drafts.map((post) => (
               <PostCard 
-                key={post._id} 
+                key={post.id} 
                 post={post} 
                 accounts={accounts}
-                onDelete={() => deletePost({ postId: post._id })}
+                onDelete={() => deletePost(post.id)}
                 draggable={true}
-                onDragStart={(e) => handleDragStart(e, post._id)}
+                onDragStart={(e) => handleDragStart(e, post.id)}
               />
             ))}
           </AnimatePresence>
@@ -106,10 +151,10 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           <AnimatePresence mode="popLayout">
             {queued.map((post) => (
               <PostCard 
-                key={post._id} 
+                key={post.id} 
                 post={post}
                 accounts={accounts}
-                onDelete={() => deletePost({ postId: post._id })}
+                onDelete={() => deletePost(post.id)}
                 isQueued
               />
             ))}
@@ -129,8 +174,8 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
 // --- SINGLE POST CARD COMPONENT ---
 
 interface PostCardProps {
-  post: Doc<"posts">;
-  accounts: Doc<"accounts">[];
+  post: Post;
+  accounts: Account[];
   onDelete: () => void;
   isQueued?: boolean;
   draggable?: boolean;
@@ -138,7 +183,9 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }: PostCardProps) => {
-  const account = accounts.find(a => a._id === post.accountId);
+  // Find linked account (Simplified: matches first ID if array)
+  const accountId = post.socialAccountIds?.[0];
+  const account = accounts.find(a => a.id === accountId);
 
   return (
     <motion.div
@@ -148,7 +195,6 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
       draggable={draggable}
-      // FIX: Cast to 'any' to resolve conflict between Framer's onDragStart and HTML5 onDragStart
       onDragStart={onDragStart as any}
       className={cn(
         "group relative bg-white dark:bg-zinc-900 border rounded-xl p-4 shadow-sm transition-all",
@@ -169,8 +215,8 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
              <PlatformIcon platform={account?.platform} />
           </div>
           <div className="text-xs text-muted-foreground">
-            <p className="font-semibold text-foreground">{account?.platformUsername || "Unknown Account"}</p>
-            <p className="opacity-70">{account?.platform}</p>
+            <p className="font-semibold text-foreground">{account?.username || account?.platformUsername || "Unknown Account"}</p>
+            <p className="opacity-70">{account?.platform || "Unknown"}</p>
           </div>
         </div>
 
@@ -181,9 +227,9 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
 
       {/* Content Body */}
       <div className={cn("flex gap-3", draggable && "pl-4")}>
-        {post.mediaStorageIds && post.mediaStorageIds.length > 0 && (
-           <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 border">
-             <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">IMG</div>
+        {post.mediaUrls && post.mediaUrls.length > 0 && (
+           <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 border relative">
+             <img src={post.mediaUrls[0]} alt="Post Media" className="w-full h-full object-cover" />
            </div>
         )}
         <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 flex-1 leading-relaxed">
@@ -196,8 +242,8 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
            <span className="font-medium">
-             {post.scheduledTime 
-               ? new Date(post.scheduledTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
+             {post.scheduledFor 
+               ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
                : 'No date set'}
            </span>
         </div>

@@ -1,14 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { useSignIn } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaGoogle, FaGithub } from 'react-icons/fa6';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
 
   // STATE
@@ -17,41 +15,44 @@ export default function LoginPage() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // 1. SOCIAL LOGIN
-  const signInWith = (strategy: 'oauth_google' | 'oauth_github') => {
-    if (!isLoaded) return;
-    
-    return signIn.authenticateWithRedirect({
-      strategy,
-      // IMPORTANT: This must match the folder 'src/app/sso-callback/page.tsx'
-      redirectUrl: '/sso-callback', 
-      redirectUrlComplete: '/dashboard', 
-    });
+  // 🌍 CONFIG: Backend URL
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+  // 1. SOCIAL LOGIN (Redirects to Backend)
+  const handleGoogleLogin = () => {
+    // We do a full browser redirect to the NestJS Google Guard
+    window.location.href = `${API_URL}/auth/google`;
   };
 
-  // 2. EMAIL/PASS LOGIN
+  // 2. EMAIL/PASS LOGIN (Native Fetch)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
     setIsLoading(true);
     setError('');
 
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password,
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
-        // Force router push to ensure client-side navigation works immediately
-        router.push('/dashboard');
-      } else {
-        console.log(result);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Invalid email or password');
       }
+
+      // ✅ SUCCESS: Store Tokens
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+
+      // 🔄 FORCE REDIRECT (Ensures Navbar updates state)
+      window.location.href = '/dashboard';
+
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
-      setError(err.errors?.[0]?.message || 'Invalid email or password');
+      console.error(err);
+      setError(err.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +65,6 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
         <div className="relative z-10">
           <Link href="/">
-            {/* Ensure path exists or change to text */}
             <img 
               src="/assets/WiggleLogo.png" 
               alt="Brand Logo" 
@@ -118,14 +118,16 @@ export default function LoginPage() {
 
           <div className="flex gap-4 mb-8">
             <button 
-              onClick={() => signInWith('oauth_google')}
+              onClick={handleGoogleLogin}
               className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm"
             >
               <FaGoogle className="text-red-500" /> Google
             </button>
+            {/* GitHub is disabled visually until backend implementation */}
             <button 
-              onClick={() => signInWith('oauth_github')}
-              className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm"
+              disabled
+              className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-200 bg-gray-50 rounded-xl text-gray-400 cursor-not-allowed font-semibold shadow-none opacity-60"
+              title="Coming soon"
             >
               <FaGithub /> GitHub
             </button>
@@ -180,7 +182,7 @@ export default function LoginPage() {
               className="w-full bg-[#3C48F6] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 className="animate-spin w-4 h-4"/>}
-              Sign In
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
