@@ -53,8 +53,6 @@ export default function Home() {
       <ConnectSection />
       <GrowSection />
       <SupportSection />
-      <Footer />
-      
     </main>
   );
 }
