@@ -5,6 +5,7 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PostStatus } from '@prisma/client';
@@ -14,7 +15,9 @@ import { PostStatus } from '@prisma/client';
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService,
+  private readonly prisma: PrismaService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new post' })

@@ -13,7 +13,8 @@ import { CloudinaryModule } from './modules/providers/cloudinary.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { MembersModule } from './modules/workspaces/members/members.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
-import { PostsModule } from './modules/posts/posts.module'; 
+import { PostsModule } from './modules/posts/posts.module';
+import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module'; 
 
 
 @Module({
@@ -30,7 +31,8 @@ import { PostsModule } from './modules/posts/posts.module';
     WorkspacesModule,
     MembersModule,
     SocialAccountsModule,
-    PostsModule
+    PostsModule,
+    ContentCalendarModule
   ],
   controllers: [AppController],
   providers: [AppService],

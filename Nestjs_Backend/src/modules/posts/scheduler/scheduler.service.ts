@@ -1,0 +1,50 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { PublisherService } from '../publishing/publisher.service';
+
+@Injectable()
+export class SchedulerService {
+  private readonly logger = new Logger(SchedulerService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private publisher: PublisherService
+  ) {}
+
+  // Run every 60 seconds
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleCron() {
+    this.logger.debug('⏰ Checking for scheduled posts...');
+
+    const now = new Date();
+
+    // 1. Find Due Posts
+    // Status must be SCHEDULED and Time must be passed
+    const duePosts = await this.prisma.post.findMany({
+      where: {
+        status: 'SCHEDULED',
+        scheduledFor: { lte: now }
+      },
+      take: 10, // Process in batches of 10 to avoid memory spikes
+    });
+
+    if (duePosts.length === 0) return;
+
+    this.logger.log(`Found ${duePosts.length} posts to publish.`);
+
+    // 2. Process Each Post
+    for (const post of duePosts) {
+      // Locking Mechanism: Mark as PUBLISHING immediately so next Cron doesn't grab it
+      await this.prisma.post.update({
+        where: { id: post.id },
+        data: { status: 'PUBLISHING' }
+      });
+
+      // Hand off to the worker
+      // We don't await this because we want to process the batch quickly
+      // The PublisherService handles the rest asynchronously
+      this.publisher.publishPost(post.id);
+    }
+  }
+}
