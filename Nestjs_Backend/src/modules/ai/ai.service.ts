@@ -100,6 +100,48 @@ export class AiService {
   }
 
   // ======================================================
+  // 🤝 THE SUPPORT AGENT (Customer Service)
+  // ======================================================
+  async chatWithSupport(userMessage: string): Promise<string> {
+    if (!this.groq) return "Support AI is offline. Contact support@easypost.cm";
+
+    const systemPrompt = `
+      ROLE: You are "EasyBot", the AI Support Agent for EasyPost Africa.
+      
+      CORE KNOWLEDGE:
+      - EasyPost is a Social Media Scheduler for African creators & businesses.
+      - We support Facebook, LinkedIn, TikTok, Whatsapp, Instagram, Youtube, Pinterest, Threads.
+      - We integrate Mobile Money payments (Orange/MTN).
+      - We have an AI Content Generator tailored for local slang (Camfranglais/Nouchi).
+      
+      RULES:
+      1. **BILINGUAL:** Detect the user's language (English or French). Reply in the SAME language.
+      2. **CONCISE:** Keep answers under 3 sentences. Use bullet points if needed.
+      3. **PROFESSIONAL:** Be helpful, warm, but direct. No fluff.
+      4. **FALLBACK:** If you are unsure, do NOT hallucinate. Say: "I'm not sure about that. Please email our team at support@easypost.cm".
+      
+      Example EN: "Pricing starts at $9/mo. It includes 5 accounts."
+      Example FR: "Le tarif commence à $9/mois. Cela inclut 5 comptes."
+    `;
+
+    try {
+      const response = await this.groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        temperature: 0.3, // Lower temperature = more focused/consistent answers
+      });
+
+      return response.choices[0].message.content || "I didn't catch that.";
+    } catch (error) {
+      this.logger.error('Support Chat Error', error);
+      throw new InternalServerErrorException('Support AI failed');
+    }
+  }
+
+  // ======================================================
   // ✍️ THE EXPERT COPYWRITER (Llama-3-70b via Groq)
   // ======================================================
   async generateMarketingCopy(
