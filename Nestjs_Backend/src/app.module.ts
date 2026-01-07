@@ -14,6 +14,7 @@ import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { MembersModule } from './modules/workspaces/members/members.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module'; 
 
 
@@ -32,6 +33,7 @@ import { ContentCalendarModule } from './modules/content-calendar/content-calend
     MembersModule,
     SocialAccountsModule,
     PostsModule,
+    AnalyticsModule,
     ContentCalendarModule
   ],
   controllers: [AppController],

@@ -48,19 +48,34 @@ export class PublisherService {
         });
         successCount++;
 
-      } catch (error) {
-        this.logger.error(`❌ Failed to publish to ${account.platform}`, error);
-        
-        // 3b. Failure Update
-        await this.prisma.postSocialAccount.update({
-          where: { id: postAccount.id },
-          data: { 
-            status: 'FAILED', 
-            errorMessage: error.message 
-          }
-        });
-        failCount++;
-      }
+} catch (error) {
+  this.logger.error(` Failed to publish to ${account.platform}`, error);
+
+  // 1. Check for Token Expiry (FB/LI usually return 401 or specific codes)
+  const isAuthError = error.response?.status === 401 || error.message.includes('token');
+
+  if (isAuthError) {
+    // A. Mark Account as Disconnected
+    await this.prisma.socialAccount.update({
+      where: { id: account.id },
+      data: { isActive: false } 
+    });
+
+    // B. Send Email Alert (Using your EmailService)
+    const user = await this.prisma.user.findUnique({ where: { id: post.createdById } });
+    // await this.emailService.sendReconnectAlert(user.email, account.platform);
+  }
+
+  // 3b. Failure Update (Existing logic)
+  await this.prisma.postSocialAccount.update({
+    where: { id: postAccount.id },
+    data: { 
+      status: 'FAILED', 
+      errorMessage: isAuthError ? 'Token Expired. Please Reconnect.' : error.message 
+    }
+  });
+  failCount++;
+}
     }
 
     // 4. Update Main Post Status

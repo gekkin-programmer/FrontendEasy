@@ -1,73 +1,39 @@
-// src/modules/analytics/dto/analytics-filter.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsDateString, IsEnum, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsEnum, IsOptional, IsString, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum AnalyticsPeriod {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-  YEAR = 'year',
-  CUSTOM = 'custom'
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  YEAR = 'YEAR',
+  CUSTOM = 'CUSTOM',
 }
 
 export enum AnalyticsType {
-  SALES = 'sales',
-  ORDERS = 'orders',
-  PRODUCTS = 'products',
-  REGIONS = 'regions',
-  DRIVERS = 'drivers',
-  OVERVIEW = 'overview'
+  OVERVIEW = 'OVERVIEW',
+  ACCOUNTS = 'ACCOUNTS', // Performance by Platform
+  POSTS = 'POSTS',       // Top Content
 }
 
 export class AnalyticsFilterDto {
-  @ApiProperty({ 
-    enum: AnalyticsPeriod, 
-    default: AnalyticsPeriod.MONTH, 
-    required: false 
-  })
-  @IsEnum(AnalyticsPeriod)
   @IsOptional()
+  @IsEnum(AnalyticsPeriod)
   period?: AnalyticsPeriod;
 
-  @ApiProperty({ 
-    enum: AnalyticsType, 
-    default: AnalyticsType.OVERVIEW, 
-    required: false 
-  })
-  @IsEnum(AnalyticsType)
   @IsOptional()
+  @IsEnum(AnalyticsType)
   type?: AnalyticsType;
 
-  @ApiProperty({ 
-    required: false,
-    description: 'Date de début (format: YYYY-MM-DD) - utilisé avec period="custom"' 
-  })
-  @IsDateString()
   @IsOptional()
+  @IsString()
   startDate?: string;
 
-  @ApiProperty({ 
-    required: false,
-    description: 'Date de fin (format: YYYY-MM-DD) - utilisé avec period="custom"' 
-  })
-  @IsDateString()
   @IsOptional()
+  @IsString()
   endDate?: string;
 
-  @ApiProperty({ 
-    required: false,
-    description: 'Limite de résultats (par exemple pour les top produits)' 
-  })
-  @Transform(({ value }) => parseInt(value))
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   limit?: number;
-
-  @ApiProperty({ 
-    required: false,
-    description: 'Région spécifique pour filtrer' 
-  })
-  @IsString()
-  @IsOptional()
-  region?: string;
 }
