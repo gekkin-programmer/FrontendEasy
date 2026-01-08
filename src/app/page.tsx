@@ -12,6 +12,7 @@ import ConnectSection from '../components/ConnectSection';
 import GrowSection from '../components/GrowSection';
 import SupportSection from '../components/SupportSection';
 import Footer from '../components/Footer';
+import EasyAI from '../components/easypost/EasyAI';
 
 // Icons for the Social Proof section
 import { FaGoogle, FaMicrosoft, FaSpotify, FaAmazon, FaApple } from "react-icons/fa";
@@ -53,6 +54,8 @@ export default function Home() {
       <ConnectSection />
       <GrowSection />
       <SupportSection />
+      <Footer />
+      <EasyAI />
     </main>
   );
 }

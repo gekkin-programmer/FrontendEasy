@@ -33,9 +33,6 @@ export default function RootLayout({
           <main className="min-h-screen">
             {children}
           </main>
-
-          <EasyAI />
-          <Footer />
         </LanguageProvider>
       </body>
     </html>

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaGoogle, FaGithub } from 'react-icons/fa6';
+import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // 🌍 CONFIG: Backend URL
+  //  CONFIG: Backend URL
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
   // 1. SOCIAL LOGIN (Redirects to Backend)
@@ -43,11 +44,11 @@ export default function LoginPage() {
         throw new Error(data.message || 'Invalid email or password');
       }
 
-      // ✅ SUCCESS: Store Tokens
+      //  SUCCESS: Store Tokens
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
 
-      // 🔄 FORCE REDIRECT (Ensures Navbar updates state)
+      //  FORCE REDIRECT (Ensures Navbar updates state)
       window.location.href = '/dashboard';
 
     } catch (err: any) {
@@ -121,7 +122,7 @@ export default function LoginPage() {
               onClick={handleGoogleLogin}
               className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm"
             >
-              <FaGoogle className="text-red-500" /> Google
+              <FcGoogle className="text-xl" /> Google
             </button>
             {/* GitHub is disabled visually until backend implementation */}
             <button 
