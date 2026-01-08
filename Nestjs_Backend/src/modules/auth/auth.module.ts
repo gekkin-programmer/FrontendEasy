@@ -9,10 +9,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { EmailModule } from '../../common/providers/email/email.module';
 
 @Module({
   imports: [
     PrismaModule,
+    EmailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

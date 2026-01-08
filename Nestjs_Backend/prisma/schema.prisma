@@ -277,7 +277,8 @@ model Session {
 
 model OtpVerification {
   id        String   @id @default(cuid())
-  phone     String   @unique
+  phone     String?   @unique
+  email     String?   @unique
   code      String
   expiresAt DateTime
   attempts  Int      @default(0)

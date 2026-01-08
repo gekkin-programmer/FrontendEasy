@@ -139,4 +139,10 @@ export class AuthController {
   async getProfile(@Req() req) {
     return this.authService.validateUserById(req.user['sub']);
   }
+
+  @Post('email/send-otp')
+  @ApiOperation({ summary: 'Send verification code to email' })
+  async sendEmailOtp(@Body() body: { email: string }) { 
+    return this.authService.sendEmailOtp(body.email);
+  }
 }

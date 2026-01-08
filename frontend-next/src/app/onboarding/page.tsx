@@ -76,7 +76,8 @@ export default function OnboardingPage() {
     const token = localStorage.getItem('accessToken');
 
     try {
-      // 1. Determine Workspace Name based on plan/category (Optional customization)
+      // 1. Determine Workspace Name based on plan/category
+      // Fallback to "Personal" if null
       const safeCategory = selectedCategory || 'personal';
       const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
 
@@ -89,7 +90,8 @@ export default function OnboardingPage() {
         },
         body: JSON.stringify({ 
           name: workspaceName,
-          description: `Plan: ${planId}` // Store plan info in description for now
+          // We can store plan info in description for now or add a 'plan' field to DTO later
+          description: `Plan: ${planId}` 
         }),
       });
 
@@ -98,9 +100,7 @@ export default function OnboardingPage() {
       const workspace = await res.json();
 
       // 3. Redirect to Dashboard with the new Workspace ID
-      // Assuming your dashboard route is /dashboard/[workspaceId]
-      // Or if you have a general dashboard, just /dashboard
-      router.push(`/dashboard`); 
+      router.push(`/dashboard/${workspace.id}`); 
 
     } catch (err) {
       console.error("Onboarding failed:", err);
