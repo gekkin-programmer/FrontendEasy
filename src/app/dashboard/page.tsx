@@ -13,25 +13,25 @@ export default function DashboardRootPage() {
     const routeUser = async () => {
       // 1. Check Token Existence
       const token = localStorage.getItem('accessToken');
-      console.log("🔍 Checking Token:", token ? "Found" : "Missing");
+      console.log(" Checking Token:", token ? "Found" : "Missing");
 
       if (!token) {
-        console.warn("❌ No token. Redirecting to Login.");
+        console.warn(" No token. Redirecting to Login.");
         router.push('/login');
         return;
       }
 
       try {
         // 2. Fetch Workspaces
-        console.log("🚀 Fetching workspaces...");
+        console.log(" Fetching workspaces...");
         const res = await fetch(`${API_URL}/workspaces`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("📡 API Status:", res.status);
+        console.log(" API Status:", res.status);
 
         if (res.status === 401) {
-          console.error("⛔ Unauthorized (401). Token invalid.");
+          console.error(" Unauthorized (401). Token invalid.");
           localStorage.clear(); // Clear bad token
           router.push('/login');
           return;
@@ -40,19 +40,19 @@ export default function DashboardRootPage() {
         if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
 
         const workspaces = await res.json();
-        console.log("✅ Workspaces Data:", workspaces);
+        console.log(" Workspaces Data:", workspaces);
 
         // 3. Routing Logic
         if (Array.isArray(workspaces) && workspaces.length > 0) {
-          console.log(`➡️ Redirecting to workspace: ${workspaces[0].id}`);
+          console.log(` Redirecting to workspace: ${workspaces[0].id}`);
           router.push(`/dashboard/${workspaces[0].id}`);
         } else {
-          console.log("🆕 No workspaces. Redirecting to Onboarding.");
+          console.log(" No workspaces. Redirecting to Onboarding.");
           router.push("/onboarding");
         }
 
       } catch (error) {
-        console.error("💥 Critical Error in Dashboard Router:", error);
+        console.error(" Critical Error in Dashboard Router:", error);
         // Do NOT redirect to login immediately on network error.
         // Show error state instead so you can debug.
         setStatus('error');

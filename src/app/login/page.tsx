@@ -16,18 +16,17 @@ export default function LoginPage() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  //  CONFIG: Backend URL
+  // CONFIG
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
-  // 1. SOCIAL LOGIN (Redirects to Backend)
+  // 1. SOCIAL LOGIN
   const handleGoogleLogin = () => {
-    // We do a full browser redirect to the NestJS Google Guard
     window.location.href = `${API_URL}/auth/google`;
   };
 
-  // 2. EMAIL/PASS LOGIN (Native Fetch)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 2. EMAIL LOGIN
+  const handleSubmit = async () => {
+    // Note: No e.preventDefault() needed because we are not using 'submit' type
     setIsLoading(true);
     setError('');
 
@@ -44,11 +43,11 @@ export default function LoginPage() {
         throw new Error(data.message || 'Invalid email or password');
       }
 
-      //  SUCCESS: Store Tokens
+      // SUCCESS
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
 
-      //  FORCE REDIRECT (Ensures Navbar updates state)
+      // Force Redirect
       window.location.href = '/dashboard';
 
     } catch (err: any) {
@@ -62,24 +61,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 lg:grid lg:grid-cols-2 relative">
       
-      {/* --- LEFT SIDE: Visual / Testimonial --- */}
+      {/* LEFT SIDE: Visual (Unchanged) */}
       <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
         <div className="relative z-10">
           <Link href="/">
-            <img 
-              src="/assets/WiggleLogo.png" 
-              alt="Brand Logo" 
-              className="w-12 h-12 object-contain mb-8 cursor-pointer opacity-90 hover:opacity-100 transition-opacity" 
-            />
+            <img src="/assets/WiggleLogo.png" alt="Brand Logo" className="w-12 h-12 object-contain mb-8 cursor-pointer opacity-90 hover:opacity-100 transition-opacity" />
           </Link>
           <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">Manage your social empire from one command center.</h1>
           <p className="text-gray-400 text-lg">Join 12,000+ creators and teams.</p>
         </div>
-
-        {/* Abstract Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#3C48F6]/20 rounded-full blur-[120px] pointer-events-none" />
-
-        {/* Testimonial */}
         <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
           <div className="flex gap-1 mb-3">
             {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
@@ -87,11 +78,7 @@ export default function LoginPage() {
           <p className="text-gray-200 mb-6 leading-relaxed">"The workspace feature changed how we handle multiple clients. It's simply the best tool out there."</p>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
-                <img 
-                    src="/assets/3.jpg" 
-                    alt="User Profile" 
-                    className="w-full h-full object-cover" 
-                />
+                <img src="/assets/3.jpg" alt="User Profile" className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="font-bold text-sm">Alex Rivera</p>
@@ -101,9 +88,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: Custom Login Form --- */}
+      {/* RIGHT SIDE: Form */}
       <div className="flex flex-col justify-center px-6 py-12 lg:px-20 xl:px-24 bg-white h-screen overflow-y-auto">
-        
         <div className="mx-auto w-full max-w-[480px]">
           
           <div className="mb-10 lg:hidden">
@@ -118,18 +104,10 @@ export default function LoginPage() {
           </div>
 
           <div className="flex gap-4 mb-8">
-            <button 
-              onClick={handleGoogleLogin}
-              className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm"
-            >
+            <button type="button" onClick={handleGoogleLogin} className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm">
               <FcGoogle className="text-xl" /> Google
             </button>
-            {/* GitHub is disabled visually until backend implementation */}
-            <button 
-              disabled
-              className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-200 bg-gray-50 rounded-xl text-gray-400 cursor-not-allowed font-semibold shadow-none opacity-60"
-              title="Coming soon"
-            >
+            <button type="button" disabled className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-200 bg-gray-50 rounded-xl text-gray-400 cursor-not-allowed font-semibold shadow-none opacity-60">
               <FaGithub /> GitHub
             </button>
           </div>
@@ -141,14 +119,14 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* FORM (No onSubmit, Button handles click) */}
+          <div className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Email address</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required 
                 className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm" 
                 placeholder="you@example.com" 
               />
@@ -165,7 +143,6 @@ export default function LoginPage() {
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required 
                 className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm" 
                 placeholder="••••••••" 
               />
@@ -178,14 +155,15 @@ export default function LoginPage() {
             )}
 
             <button 
-              type="submit" 
+              type="button" // 👈 NUCLEAR OPTION: Prevents any form reload
+              onClick={handleSubmit}
               disabled={isLoading}
               className="w-full bg-[#3C48F6] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading && <Loader2 className="animate-spin w-4 h-4"/>}
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
-          </form>
+          </div>
 
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600">
@@ -198,7 +176,6 @@ export default function LoginPage() {
 
         </div>
       </div>
-
     </div>
   );
 }

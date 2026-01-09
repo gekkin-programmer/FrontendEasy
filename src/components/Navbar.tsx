@@ -105,13 +105,24 @@ export default function Navbar() {
     checkAuth();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
-    setUser(null);
-    setIsProfileOpen(false);
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        // Tell Backend to kill the session
+        await api.post('/auth/logout', { refreshToken });
+      }
+    } catch (e) {
+      console.error("Logout error", e);
+    } finally {
+      // Always clean up client side, even if server fails
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setIsAuthenticated(false);
+      setUser(null);
+      setIsProfileOpen(false);
+      router.push('/login');
+    }
   };
 
   // Scroll Listener
