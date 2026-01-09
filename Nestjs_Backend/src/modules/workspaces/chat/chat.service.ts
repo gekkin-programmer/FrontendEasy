@@ -7,14 +7,28 @@ import { ChatMessageType } from '@prisma/client';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  // ➤ 1. Create a Channel (e.g. #marketing)
+  // ➤ 1. Create a Channel 
   async createChannel(workspaceId: string, userId: string, dto: CreateChannelDto) {
     await this.verifyMembership(workspaceId, userId);
     
+    const name = dto.name.toLowerCase().replace(/\s/g, '-');
+
+    // Check if exists first to avoid error
+    const existing = await this.prisma.chatChannel.findUnique({
+      where: {
+        workspaceId_name: {
+          workspaceId,
+          name
+        }
+      }
+    });
+
+    if (existing) return existing; 
+
     return this.prisma.chatChannel.create({
       data: {
         workspaceId,
-        name: dto.name.toLowerCase().replace(/\s/g, '-'), // "My Chat" -> "my-chat"
+        name,
         description: dto.description
       }
     });

@@ -7,7 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AiModule } from './modules/ai/ai.module';
 import { MediaModule } from './modules/media/media.module';
-import { AssistantModule } from './modules/assistant/assistant.module';
+import { AssistantModule } from './modules/assisstant/assistant.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { CloudinaryModule } from './modules/providers/cloudinary.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
@@ -15,7 +15,7 @@ import { MembersModule } from './modules/workspaces/members/members.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
-import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module'; 
+import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
 
 
 @Module({
@@ -25,8 +25,8 @@ import { ContentCalendarModule } from './modules/content-calendar/content-calend
     AuthModule,
     UsersModule,
     AiModule,
-    MediaModule,
     AssistantModule,
+    MediaModule,
     PaymentsModule,
     CloudinaryModule,
     WorkspacesModule,

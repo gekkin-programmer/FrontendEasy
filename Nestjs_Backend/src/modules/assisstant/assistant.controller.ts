@@ -36,17 +36,9 @@ export class AssistantController {
   @UseInterceptors(FileInterceptor('file'))
   async handleVoiceCommand(
     @Req() req,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB
-          // Accept audio files (mp3, wav, m4a, ogg)
-          new FileTypeValidator({ fileType: /(audio\/|application\/octet-stream)/ }), 
-        ],
-      }),
-    )
-    file: any,
+    @UploadedFile() file: any,
   ) {
+    console.log(" Received File:", file);
     return this.assistantService.processVoiceCommand(file, req.user.sub);
   }
 }

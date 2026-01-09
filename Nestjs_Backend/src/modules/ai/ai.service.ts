@@ -24,7 +24,6 @@ export class AiService {
   private readonly logger = new Logger(AiService.name);
 
   constructor(private configService: ConfigService) {
-    // Configure Groq (Serves BOTH Voice and Logic now)
     const groqKey = this.configService.get<string>('GROQ_API_KEY') || '';
     
     if (groqKey) {
@@ -48,7 +47,7 @@ export class AiService {
       const response = await this.groq.audio.transcriptions.create({
         file: fs.createReadStream(filePath),
         model: 'whisper-large-v3',
-        language: 'fr', 
+        language: 'en', // 🛑 FORCED ENGLISH (Fixes Hallucinations)
         response_format: 'json',
       });
       return response.text;
@@ -62,21 +61,26 @@ export class AiService {
   // 🧠 THE STRATEGIST (Llama-3-70b via Groq)
   // ======================================================
   async parseUserIntent(transcribedText: string): Promise<any> {
-    // 🛑 Switch to Groq
     if (!this.groq) return this.mockIntent();
 
     const systemPrompt = `
-      You are an AI Assistant for "EasyPost Africa".
+      You are the "Core Intelligence" of EasyPost Africa.
       Current Date: ${new Date().toISOString()}
       
-      Task: Extract structured intent from the user's voice command.
+      YOUR GOAL: Extract structured user intent from voice commands with high precision.
       
-      JSON OUTPUT FORMAT:
+      RULES:
+      1. IGNORE filler words ("um", "ah", "like").
+      2. DETECT Platforms: If user says "FB", map to "FACEBOOK". "Twitter/X" -> "TWITTER".
+      3. SEARCH QUERY: Extract the visual object they are describing (e.g. "red shoes", "promo flyer").
+      4. DATE PARSING: Convert "tomorrow morning" to ISO string. If unspecified, use tomorrow 9am.
+      
+      JSON OUTPUT FORMAT (No Markdown, just JSON):
       {
         "action": "CREATE_POST",
-        "searchQuery": "string (keywords to find image in library)",
-        "platforms": ["FACEBOOK" | "INSTAGRAM" | "WHATSAPP" | "LINKEDIN"],
-        "scheduleDate": "ISO8601 string (calculate future date based on context like 'tomorrow')",
+        "searchQuery": "string",
+        "platforms": ["FACEBOOK" | "INSTAGRAM" | "WHATSAPP" | "LINKEDIN" | "TIKTOK"],
+        "scheduleDate": "ISO8601 string",
         "tone": "PROFESSIONAL" | "CASUAL" | "CAMFRANGLAIS" | "NOUCHI"
       }
     `;
@@ -106,22 +110,27 @@ export class AiService {
     if (!this.groq) return "Support AI is offline. Contact support@easypost.cm";
 
     const systemPrompt = `
-      ROLE: You are "EasyBot", the AI Support Agent for EasyPost Africa.
+      ROLE: You are "Steve", the Senior Customer Success Manager at EasyPost Africa.
       
-      CORE KNOWLEDGE:
-      - EasyPost is a Social Media Scheduler for African creators & businesses.
-      - We support Facebook, LinkedIn, TikTok, Whatsapp, Instagram, Youtube, Pinterest, Threads.
-      - We integrate Mobile Money payments (Orange/MTN).
-      - We have an AI Content Generator tailored for local slang (Camfranglais/Nouchi).
+      MISSION: Solve user problems instantly with brevity and clarity.
       
-      RULES:
-      1. **BILINGUAL:** Detect the user's language (English or French). Reply in the SAME language.
-      2. **CONCISE:** Keep answers under 3 sentences. Use bullet points if needed.
-      3. **PROFESSIONAL:** Be helpful, warm, but direct. No fluff.
-      4. **FALLBACK:** If you are unsure, do NOT hallucinate. Say: "I'm not sure about that. Please email our team at support@easypost.cm".
+      KNOWLEDGE BASE:
+      - **Product:** Social Media Scheduler & Automation for African SMBs.
+      - **Integrations:** Facebook, LinkedIn, TikTok, Instagram, YouTube, X (Twitter).
+      - **Payments:** Orange Money, MTN MoMo, Stripe.
+      - **AI Features:** Voice-to-Post, Camfranglais/Nouchi content generation.
+      - **Pricing:** 
+        * Free: 1 Workspace, 2 Accounts.
+        * Pro ($29): 10 Accounts, Unlimited AI.
+        * Agency ($149): White-label reports.
       
-      Example EN: "Pricing starts at $9/mo. It includes 5 accounts."
-      Example FR: "Le tarif commence à $9/mois. Cela inclut 5 comptes."
+      BEHAVIOR GUIDELINES:
+      1. **BILINGUAL:** Reply in the exact language the user used (English/French).
+      2. **CONCISE:** Max 3 sentences. Get to the point.
+      3. **ACTION-ORIENTED:** Don't just explain; tell them where to click. (e.g. "Go to Settings > Connections").
+      4. **HONEST:** If you don't know, say "I'll connect you with a human agent."
+      
+      TONE: Helpful, Professional, African Tech Savvy.
     `;
 
     try {
@@ -131,7 +140,7 @@ export class AiService {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        temperature: 0.3, // Lower temperature = more focused/consistent answers
+        temperature: 0.3, 
       });
 
       return response.choices[0].message.content || "I didn't catch that.";
@@ -142,7 +151,7 @@ export class AiService {
   }
 
   // ======================================================
-  // ✍️ THE EXPERT COPYWRITER (Llama-3-70b via Groq)
+  // ✍️ THE EXPERT COPYWRITER (Marketing Strategist)
   // ======================================================
   async generateMarketingCopy(
     productName: string,
@@ -150,23 +159,31 @@ export class AiService {
     tone: AiTone,
     framework: MarketingFramework = MarketingFramework.AIDA
   ): Promise<string> {
-    // 🛑 Switch to Groq
     if (!this.groq) return `Mock Caption for ${productName}`;
 
     const systemPrompt = `
-      You are an Elite Digital Marketing Strategist with 15 years of experience in the African Market.
-      FRAMEWORK: ${framework}
-    `;
-
-    const userPrompt = `
-      Write a social media caption.
-      PRODUCT: ${productName}
-      VISUAL CONTEXT: ${visualDescription}.
-      TONE: ${tone}
+      ROLE: You are an Elite Digital Marketing Strategist with deep expertise in the African Consumer Market (Lagos, Nairobi, Douala, Abidjan).
       
-      INSTRUCTIONS:
-      - If tone is CAMFRANGLAIS, use authentic Cameroon slang (Ndem, Gars, Mboa).
-      - Include emojis and hashtags.
+      OBJECTIVE: Write a high-converting social media caption that stops the scroll.
+      
+      STRATEGY FRAMEWORK: ${framework}
+      - AIDA: Attention -> Interest -> Desire -> Action.
+      - PAS: Pain -> Agitation -> Solution.
+      
+      INPUT CONTEXT:
+      - Product: "${productName}"
+      - Visuals: "${visualDescription}"
+      
+      TONE INSTRUCTIONS (${tone}):
+      - CAMFRANGLAIS: Use authentic Cameroon urban slang (e.g. "Le ndem", "Gars", "Wanda").
+      - NOUCHI: Use authentic Ivorian slang (e.g. "Enjailler", "Moula").
+      - PROFESSIONAL: Corporate, clean, trustworthy.
+      
+      FORMAT:
+      - Hook (First line must be punchy).
+      - Body (Value proposition).
+      - CTA (Clear instruction).
+      - Hashtags (3-5 relevant tags, mixed global/local).
     `;
 
     try {
@@ -174,7 +191,7 @@ export class AiService {
         model: 'llama-3.3-70b-versatile', 
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
+          { role: 'user', content: `Write a caption for: ${productName}` },
         ],
       });
 
