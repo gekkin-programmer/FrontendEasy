@@ -164,9 +164,9 @@ export default function EasyAI() {
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                                {isDashboard ? "EasyAI Copilot" : "Support Team"}
+                                {isDashboard ? "EasyAI Copilot" : "Steve Support Team"}
                             </h3>
-                            <p className="text-xs text-gray-500">Replies instantly</p>
+                            <p className="text-xs text-gray-500">Digital Marketing Expert</p>
                         </div>
                     </div>
                     
