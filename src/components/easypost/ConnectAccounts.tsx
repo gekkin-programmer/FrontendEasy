@@ -55,11 +55,9 @@ export default function ConnectAccounts() {
 
   // --- 2. CONNECT HANDLER (Redirect) ---
   const handleConnect = (platformId: string) => {
-    setConnecting(platformId);
-    
-    // Redirect to NestJS OAuth Endpoint
-    // The backend handles the redirect to FB/LinkedIn and back to Dashboard
-    window.location.href = `${API_URL}/social-accounts/connect/${platformId}`;
+    const token = localStorage.getItem('accessToken');
+    // Pass token in query param so backend can read it
+    window.location.href = `${API_URL}/social-accounts/connect/${platformId}?token=${token}`;
   };
 
   // --- 3. DISCONNECT HANDLER ---
