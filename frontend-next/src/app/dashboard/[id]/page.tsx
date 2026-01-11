@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Loader2, 
-  Menu, X, Home, LayoutGrid 
+  Menu, X, Home 
 } from 'lucide-react'; 
 
 import Composer from '@/src/components/easypost/Composer';
@@ -52,40 +52,50 @@ export default function DashboardPage() {
         document.documentElement.classList.add('dark');
     }, []);
 
+    // ✨ HELPER: Generate Unique Workspace Avatar
+    const getAvatarUrl = (seed: string) => 
+        `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=e5e7eb`;
+
     // --- FETCH DATA ---
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem('accessToken');
         if (!token) { router.push('/login'); return; }
 
         try {
-            const wsRes = await fetch(`${API_URL}/workspaces`, { headers: { Authorization: `Bearer ${token}` } });
-            const workspaces = await wsRes.json();
+            // 1. Fetch Workspaces
+            const wsRes = await fetch(`${API_URL}/workspaces`, { 
+                headers: { Authorization: `Bearer ${token}` } 
+            });
             
-            if (Array.isArray(workspaces)) {
-                setMyWorkspaces(workspaces);
-            } else {
-                setMyWorkspaces([]);
+            if (!wsRes.ok) throw new Error("Failed to fetch workspaces");
+            
+            const workspacesData = await wsRes.json();
+            
+            // 🛑 CRASH FIX: Ensure it is an array
+            const workspaces = Array.isArray(workspacesData) ? workspacesData : [];
+            setMyWorkspaces(workspaces);
+
+            if (workspaces.length === 0) { router.push('/onboarding'); return; }
+
+            // 2. Set Current Workspace
+            const current = workspaces.find((w: any) => w.id === workspaceId);
+            if (!current) { router.replace(`/dashboard/${workspaces[0].id}`); return; }
+
+            setCurrentWorkspace(current);
+            setAccounts(current.socialAccounts || []);
+
+            // 3. Fetch Posts
+            const postsRes = await fetch(`${API_URL}/posts?workspaceId=${workspaceId}`, { 
+                headers: { Authorization: `Bearer ${token}` } 
+            });
+            if (postsRes.ok) {
+                const postsData = await postsRes.json();
+                setPosts(Array.isArray(postsData) ? postsData : []);
             }
-
-            if (Array.isArray(workspaces) && workspaces.length === 0) { router.push('/onboarding'); return; }
-
-            const current = Array.isArray(workspaces) ? workspaces.find((w: any) => w.id === workspaceId) : null;
-            if (!current && Array.isArray(workspaces) && workspaces.length > 0) { 
-                router.replace(`/dashboard/${workspaces[0].id}`); 
-                return; 
-            }
-
-            if (current) {
-                setCurrentWorkspace(current);
-                setAccounts(current.socialAccounts || []);
-            }
-
-            const postsRes = await fetch(`${API_URL}/posts?workspaceId=${workspaceId}`, { headers: { Authorization: `Bearer ${token}` } });
-            if (postsRes.ok) setPosts(await postsRes.json());
 
         } catch (error) { 
             console.error(error);
-            toast.error("Failed to load dashboard"); 
+            toast.error("Connection Error. Check Backend."); 
         } finally { 
             setLoading(false); 
         }
@@ -131,9 +141,7 @@ export default function DashboardPage() {
     if (!currentWorkspace) return null;
 
     const filteredPosts = posts.filter(p => JSON.stringify(p).toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // DiceBear Helper
-    const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=e5e7eb`;
+    const postCount = posts.filter(p => p.status === 'SCHEDULED').length;
 
     const navItems = [
         { id: 'queue', label: 'Queue', icon: Layers },
@@ -144,16 +152,26 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="flex h-screen font-sans text-foreground overflow-hidden relative">
+        <div className="flex h-screen bg-background font-sans text-foreground overflow-hidden relative">
             <Toaster position="bottom-right" theme="system" />
 
-            {/* 🌌 3D GRID BACKGROUND EFFECT */}
-            <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505]">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-                <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
+            {/* 🌌 3D GRID BACKGROUND */}
+            <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505] overflow-hidden">
+                <div 
+                    className="absolute inset-0 top-1/3"
+                    style={{
+                        backgroundImage: `linear-gradient(to right, #ffffff05 1px, transparent 1px), linear-gradient(to bottom, #ffffff05 1px, transparent 1px)`,
+                        backgroundSize: '40px 40px',
+                        transform: 'perspective(500px) rotateX(60deg) scale(2)',
+                        transformOrigin: 'top center',
+                        maskImage: 'linear-gradient(to bottom, transparent, black 40%, transparent)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40%, transparent)'
+                    }}
+                />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/10 blur-[150px] rounded-full" />
             </div>
 
-            {/* --- MOBILE HEADER (Unchanged) --- */}
+            {/* --- MOBILE HEADER --- */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b border-border z-30 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
@@ -165,6 +183,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <VoiceAiButton onCommand={handleVoiceCommand} />
+                    {/* Mobile Avatar */}
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-border shadow-sm bg-white">
                         <img src={getAvatarUrl(currentWorkspace.name)} className="w-full h-full object-cover" />
                     </div>
@@ -185,7 +204,6 @@ export default function DashboardPage() {
                             transition={{ type: "tween", duration: 0.3 }}
                             className="fixed inset-y-0 left-0 w-72 bg-background border-r border-border flex flex-col z-50"
                         >
-                            {/* Mobile Nav Content */}
                             <div className="p-4 border-b border-border flex justify-between items-center">
                                 <span className="font-bold text-lg">Menu</span>
                                 <button onClick={() => setIsSidebarOpen(false)}><X/></button>
@@ -207,10 +225,10 @@ export default function DashboardPage() {
             </AnimatePresence>
 
             {/* --- MAIN CONTENT --- */}
-            <main className="flex-1 flex flex-col overflow-hidden relative pt-16 md:pt-0 bg-transparent z-10">
+            <main className="flex-1 flex flex-col overflow-hidden relative z-10 bg-transparent">
                 
                 {/* 💻 DESKTOP HEADER */}
-                <header className="hidden md:flex h-16 bg-background/50 backdrop-blur-md border-b border-border items-center justify-between px-8 z-10 sticky top-0">
+                <header className="hidden md:flex h-16 bg-transparent items-center justify-between px-8 z-20">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2">
                             <Image src="/assets/WiggleLogo.png" alt="Logo" width={28} height={28} className="object-contain" />
@@ -221,8 +239,9 @@ export default function DashboardPage() {
                         <div className="relative group">
                             <button 
                                 onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border"
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-muted/20 transition-colors border border-transparent hover:border-white/10"
                             >
+                                {/* Workspace Avatar */}
                                 <div className="w-5 h-5 rounded overflow-hidden flex-shrink-0 bg-white border border-border">
                                     <img src={getAvatarUrl(currentWorkspace.name)} className="w-full h-full object-cover" />
                                 </div>
@@ -230,7 +249,6 @@ export default function DashboardPage() {
                                 <ChevronDown size={14} className="text-muted-foreground" />
                             </button>
                             
-                            {/* Dropdown */}
                             <AnimatePresence>
                                 {isAccountMenuOpen && (
                                     <motion.div 
@@ -272,9 +290,9 @@ export default function DashboardPage() {
                     </div>
                 </header>
 
-                {/* 🆕 HORIZONTAL NAVIGATION PILL (GLASSMORPHISM) */}
+                {/* 🆕 HORIZONTAL NAVIGATION PILL (TRANSPARENT GLASS) */}
                 <div className="hidden md:flex justify-center py-6 sticky top-0 z-30 pointer-events-none">
-                    <nav className="flex items-center p-1.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-full shadow-2xl pointer-events-auto ring-1 ring-white/5">
+                    <nav className="flex items-center p-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full shadow-2xl pointer-events-auto ring-1 ring-white/5">
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
@@ -282,7 +300,7 @@ export default function DashboardPage() {
                                 className={`
                                     flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold transition-all duration-300
                                     ${activeTab === item.id 
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' 
+                                        ? 'bg-primary text-white shadow-[0_0_20px_rgba(48,74,235,0.4)] scale-105' 
                                         : 'text-muted-foreground hover:text-white hover:bg-white/10'
                                     }
                                 `}
