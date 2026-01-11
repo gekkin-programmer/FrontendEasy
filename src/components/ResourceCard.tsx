@@ -21,7 +21,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       {/* Card Image */}
       <div className="relative">
         <img
-          src={resource.imageUrl}
+          src={resource.image}
           alt={resource.title}
           className="w-full h-48 object-cover"
         />
