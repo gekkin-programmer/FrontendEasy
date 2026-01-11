@@ -1,5 +1,5 @@
 import React from 'react';
-import { resourcesData } from '../data/resources';
+import { resources } from '../data/resources';
 import ResourceCard from './ResourceCard';
 
 const ResourcesSection: React.FC = () => {
@@ -20,7 +20,7 @@ const ResourcesSection: React.FC = () => {
 
         {/* Static Grid for Mobile & Tablet (visible below lg breakpoint) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:hidden">
-          {resourcesData.map((resource, index) => (
+          {resources.map((resource, index) => (
             <ResourceCard key={index} resource={resource} />
           ))}
         </div>
@@ -33,7 +33,7 @@ const ResourcesSection: React.FC = () => {
             
             {/* The scrolling content. We render it twice for a seamless loop. */}
             <ul className="flex items-stretch animate-slow-scroll group-hover:[animation-play-state:paused]">
-              {resourcesData.map((resource, index) => (
+              {resources.map((resource, index) => (
                 // Each item needs a fixed width and should not shrink
                 <li key={index} className="flex-shrink-0 w-96 px-4">
                   <ResourceCard resource={resource} />
@@ -43,7 +43,7 @@ const ResourcesSection: React.FC = () => {
             
             {/* The duplicated list for the seamless loop effect */}
             <ul className="flex items-stretch animate-slow-scroll group-hover:[animation-play-state:paused]" aria-hidden="true">
-              {resourcesData.map((resource, index) => (
+              {resources.map((resource, index) => (
                 <li key={index} className="flex-shrink-0 w-96 px-4">
                   <ResourceCard resource={resource} />
                 </li>
