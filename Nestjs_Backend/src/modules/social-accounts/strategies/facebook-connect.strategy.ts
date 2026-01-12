@@ -27,6 +27,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
     const payload = {
       platform: 'FACEBOOK',
       platformUserId: profile.id,
+      avatar: profile.photos?.[0]?.value || profile._json?.picture?.data?.url, 
       name: profile.displayName || 'Facebook User',
       accessToken,
       refreshToken,
