@@ -1,11 +1,11 @@
 import { 
   Controller, Get, Post, Body, Patch, Param, Delete, 
-  UseGuards, Req, Query 
+  UseGuards, Req, Query, UnauthorizedException 
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service'; 
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PostStatus } from '@prisma/client';
@@ -15,30 +15,49 @@ import { PostStatus } from '@prisma/client';
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService,
-  private readonly prisma: PrismaService
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly prisma: PrismaService
   ) {}
+
+  // 🛠️ HELPER: Get Workspace ID safely
+  private async getWorkspaceId(userId: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { ownedWorkspaces: true }
+    });
+    if (!user || user.ownedWorkspaces.length === 0) {
+      throw new UnauthorizedException('User has no workspace');
+    }
+    return user.ownedWorkspaces[0].id;
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a new post' })
-  create(@Body() dto: CreatePostDto, @Req() req) {
-    // Assume user is in at least 1 workspace. In prod, pass workspaceId in header/body.
-    return this.postsService.create(dto, req.user.sub, req.user.workspaceId); 
+  async create(@Body() dto: CreatePostDto, @Req() req) {
+    const userId = req.user.sub;
+    // 👇 FIX: Manually get ID
+    const workspaceId = await this.getWorkspaceId(userId); 
+    
+    return this.postsService.create(dto, userId, workspaceId); 
   }
 
   @Get()
   @ApiOperation({ summary: 'List posts (Filter by Status)' })
   @ApiQuery({ name: 'status', enum: PostStatus, required: false })
-  findAll(@Req() req, @Query('status') status?: PostStatus) {
-    // We need to fetch the user to know their workspaceId if not in JWT
-    // For now, let's assume we fetch it via a service helper or it's in JWT
-    return this.postsService.findAll(req.user.workspaceId, status);
+  async findAll(@Req() req, @Query('status') status?: PostStatus) {
+    const userId = req.user.sub;
+    // 👇 FIX: Manually get ID
+    const workspaceId = await this.getWorkspaceId(userId);
+
+    return this.postsService.findAll(workspaceId, status);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get post details' })
-  findOne(@Param('id') id: string, @Req() req) {
-    return this.postsService.findOne(id, req.user.workspaceId);
+  async findOne(@Param('id') id: string, @Req() req) {
+    const workspaceId = await this.getWorkspaceId(req.user.sub);
+    return this.postsService.findOne(id, workspaceId);
   }
 
   @Patch(':id')
@@ -49,8 +68,9 @@ export class PostsController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a post' })
-  remove(@Param('id') id: string, @Req() req) {
-    return this.postsService.remove(id, req.user.workspaceId);
+  async remove(@Param('id') id: string, @Req() req) {
+    const workspaceId = await this.getWorkspaceId(req.user.sub);
+    return this.postsService.remove(id, workspaceId);
   }
 
   @Post(':id/approve')
