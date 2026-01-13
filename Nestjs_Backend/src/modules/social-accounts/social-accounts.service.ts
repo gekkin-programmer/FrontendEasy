@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SocialPlatform } from '@prisma/client';
+import axios from 'axios'; // 👈 Needed for FB Page Fetch
 
 @Injectable()
 export class SocialAccountsService {
   constructor(private prisma: PrismaService) {}
 
-  // ➤ SAVE ACCOUNT TO DB (Facebook/LinkedIn)
+  // ➤ SAVE ACCOUNT TO DB (Facebook/LinkedIn/TikTok)
   async linkAccount(userId: string, data: any) {
     // 1. Find User's Default Workspace
     const user = await this.prisma.user.findUnique({
@@ -19,10 +20,14 @@ export class SocialAccountsService {
     }
     const workspaceId = user.ownedWorkspaces[0].id;
 
-    // 2. Normalize Platform Enum (Handle case sensitivity)
     const platformEnum = data.platform.toUpperCase() as SocialPlatform;
 
-    // 3. Upsert (Create or Update if re-connecting)
+    // 🛑 FACEBOOK SPECIAL LOGIC: Get Page Tokens
+    if (platformEnum === 'FACEBOOK') {
+       return this.handleFacebookPages(workspaceId, userId, data.accessToken);
+    }
+
+    // 2. Standard Upsert for other platforms (LinkedIn, TikTok, YouTube)
     const account = await this.prisma.socialAccount.upsert({
       where: {
         workspaceId_platform_platformUserId: {
@@ -35,7 +40,7 @@ export class SocialAccountsService {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken || undefined,
         username: data.name,
-        avatar: data.avatar, // Store avatar if available
+        avatar: data.avatar,
         isActive: true,
         updatedAt: new Date()
       },
@@ -54,6 +59,63 @@ export class SocialAccountsService {
     });
 
     return account;
+  }
+
+  // 👇 NEW HELPER: Fetch & Save Facebook Pages
+  private async handleFacebookPages(workspaceId: string, userId: string, userToken: string) {
+    try {
+      // 1. Fetch Pages from Graph API
+      const res = await axios.get(`https://graph.facebook.com/me/accounts?access_token=${userToken}`);
+      const pages = res.data.data;
+
+      if (!pages || pages.length === 0) {
+        throw new Error("No Facebook Pages found. You must be an admin of a page.");
+      }
+
+      // 2. Save EACH Page as a separate account
+      const savedAccounts: any[] = [];
+      
+      for (const page of pages) {
+        // Fetch Page Picture
+        const picRes = await axios.get(`https://graph.facebook.com/${page.id}/picture?type=normal&redirect=false&access_token=${page.access_token}`);
+        const avatarUrl = picRes.data.data.url;
+
+        const account = await this.prisma.socialAccount.upsert({
+          where: {
+            workspaceId_platform_platformUserId: {
+              workspaceId,
+              platform: 'FACEBOOK',
+              platformUserId: page.id // Page ID
+            }
+          },
+          update: {
+            accessToken: page.access_token, // 👈 THIS IS THE PAGE TOKEN!
+            username: page.name,
+            avatar: avatarUrl,
+            isActive: true,
+            updatedAt: new Date()
+          },
+          create: {
+            workspaceId,
+            createdById: userId,
+            platform: 'FACEBOOK',
+            platformUserId: page.id,
+            username: page.name,
+            avatar: avatarUrl,
+            accessToken: page.access_token, // 👈 THIS IS THE PAGE TOKEN!
+            displayName: page.name,
+            isActive: true
+          }
+        });
+        savedAccounts.push(account);
+      }
+      
+      return savedAccounts[0]; // Return first one for controller redirect
+      
+    } catch (error) {
+      console.error("FB Page Fetch Error", error.response?.data || error);
+      throw new Error("Failed to fetch Facebook Pages");
+    }
   }
 
   // ➤ LIST ACCOUNTS
@@ -83,7 +145,6 @@ export class SocialAccountsService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    // Security: Ensure account belongs to user's workspace
     const account = await this.prisma.socialAccount.findFirst({
       where: { 
         id: accountId,
