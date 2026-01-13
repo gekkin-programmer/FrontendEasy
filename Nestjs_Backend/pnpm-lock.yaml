@@ -50,6 +50,9 @@ importers:
       '@types/twilio':
         specifier: ^3.19.3
         version: 3.19.3
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.2
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
