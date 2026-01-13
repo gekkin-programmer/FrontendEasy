@@ -23,8 +23,8 @@ async function bootstrap() {
 
   // 5. CORS (Allow Frontend)
   app.enableCors({
-    origin: ['http://localhost:3001', 'https://finalpostflow.vercel.app'],
-    credentials: true, // 👈 Important for Cookies!
+    origin: ['http://localhost:3001', 'https://easyposttio.vercel.app'],
+    credentials: true, 
   });
 
   // 6. Swagger
