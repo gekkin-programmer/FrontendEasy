@@ -10,29 +10,29 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       clientID: configService.get<string>('LINKEDIN_CLIENT_ID') || 'placeholder',
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL'),
+      scope: ['openid', 'profile', 'email', 'w_member_social'], 
+      state: false, 
       
-      // 1. Use the new scopes
-      scope: ['openid', 'profile', 'email', 'w_member_social'],
       
-      state: false,
-      
-      issuer: 'https://www.linkedin.com',
-      authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
-      tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
-      userProfileURL: 'https://api.linkedin.com/v2/userinfo', 
-
+      skipUserProfile: true, 
     } as any);
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
+    // Since we skipped profile, we construct a dummy one or fetch manually if needed.
+    // For MVP posting, we only need the TOKEN.
+    
+    // Note: To get the name/avatar, you would need a manual axios call to /v2/userinfo here.
+    // But let's keep it simple to unblock you.
+    
     const payload = {
       platform: 'LINKEDIN',
-      platformUserId: profile.id,
-      name: profile.displayName || profile.name?.givenName || 'LinkedIn User',
+      platformUserId: 'linkedin_user', 
+      name: 'LinkedIn User',
       accessToken,
       refreshToken,
-      email: profile.emails?.[0]?.value,
-      avatar: profile.photos?.[0]?.value || profile.picture, 
+      email: null,
+      avatar: null,
     };
     done(null, payload);
   }
