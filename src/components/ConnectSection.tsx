@@ -1,55 +1,38 @@
 "use client";
 import React from 'react';
 import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaPinterestP,
-  FaTiktok,
-  FaYoutube,
-  FaStore,
+  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube, FaStore
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiThreads } from 'react-icons/si';
 import { useLanguage } from '../context/LanguageContext'; 
 
-// --- FIX: Typed the icon to accept className ---
 interface SocialLinkProps {
   name: string;
   icon: React.ReactElement<{ className?: string }>; 
   hoverColor: string;
+  delay: string;
 }
 
-const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor }) => {
-  const { t } = useLanguage();
-
+const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor, delay }) => {
   return (
-    <div className="relative flex flex-col items-center group">
+    <div className={`relative group transition-transform duration-300 hover:-translate-y-2`}>
       <a
         href="#"
         className="
           flex h-20 w-20 items-center justify-center 
-          rounded-xl border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700
-          shadow-md hover:shadow-xl
-          transition-all duration-300 ease-in-out
-          group-hover:-translate-y-2 group-hover:border-primary
+          bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000]
+          hover:shadow-[8px_8px_0px_0px_#000] transition-all duration-200
         "
       >
-        {/* The cloneElement will now work without error */}
         {React.cloneElement(icon, {
-          className: `h-9 w-9 text-gray-700 dark:text-gray-300 transition-colors duration-300 ${hoverColor}`,
+          className: `h-8 w-8 text-black transition-colors duration-300 ${hoverColor}`,
         })}
       </a>
       
-      <p
-        className="
-          absolute -bottom-10 whitespace-nowrap text-xs font-semibold text-gray-500 dark:text-gray-400
-          opacity-0 transition-all duration-300 ease-in-out translate-y-2
-          group-hover:opacity-100 group-hover:translate-y-0
-        "
-      >
-        {t(`Connect ${name} x EasyPost`, `Connecter x EasyPost ${name}`)} &rarr;
-      </p>
+      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-max opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black text-white text-[10px] font-bold py-1 px-2 uppercase tracking-wider">
+        {name}
+      </div>
     </div>
   );
 };
@@ -58,35 +41,49 @@ const ConnectSection = () => {
   const { t } = useLanguage();
 
   const socialIcons = [
-    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
-    { id: 'google', name: 'Google', icon: <FaStore />, hoverColor: 'group-hover:text-blue-600' },
-    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-pink-500' },
-    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
-    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
-    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
-    { id: 'x', name: 'X', icon: <FaXTwitter />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
-    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
+    { id: 'facebook', name: 'Facebook x EasyPost', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]', delay: '0s' },
+    { id: 'instagram', name: 'Instagram x EasyPost', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]', delay: '0.1s' },
+    { id: 'x', name: 'X x EasyPost', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600', delay: '0.2s' },
+    { id: 'linkedin', name: 'LinkedIn x EasyPost', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]', delay: '0.3s' },
+    { id: 'tiktok', name: 'TikTok x EasyPost', icon: <FaTiktok />, hoverColor: 'group-hover:text-black', delay: '0.4s' },
+    { id: 'youtube', name: 'YouTube x EasyPost', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]', delay: '0.5s' },
+    { id: 'threads', name: 'Threads x EasyPost', icon: <SiThreads />, hoverColor: 'group-hover:text-black', delay: '0.6s' },
+    { id: 'pinterest', name: 'Pinterest x EasyPost', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]', delay: '0.7s' },
+    { id: 'google', name: 'Google x EasyPost', icon: <FaStore />, hoverColor: 'group-hover:text-blue-500', delay: '0.8s' },
   ];
 
   return (
-    <section className="font-sans py-16 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="
-          flex flex-col items-center gap-12 rounded-3xl 
-          bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800
-          p-10 md:p-16 shadow-sm
-        ">
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-center">
-            {t('Connect Your Social Accounts', 'Connectez vos comptes sociaux')}
-          </h3>
-          
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-12 pt-4">
-            {socialIcons.map(({ id, name, icon, hoverColor }) => (
-              <SocialLink key={id} name={name} icon={icon} hoverColor={hoverColor} />
-            ))}
-          </div>
+    <section className="bg-gray-50 border-b-4 border-black py-20 px-4 font-sans relative overflow-hidden">
+      
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-4 bg-black"></div>
+      <div className="absolute bottom-0 left-0 w-full h-4 bg-black"></div>
+
+      <div className="container mx-auto max-w-6xl text-center">
+        
+        <div className="inline-block bg-black text-white font-black text-lg px-6 py-2 border-4 border-transparent hover:border-white transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] mb-8 uppercase tracking-widest">
+            {t("Integrations", "Intégrations")}
         </div>
+
+        <h3 className="text-4xl md:text-6xl font-black text-black mb-16 uppercase leading-none tracking-tight">
+          {t('CONNECT YOUR', 'CONNECTEZ VOS')}<br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3D49F9]">
+             SOCIAL MEDIA.
+          </span>
+        </h3>
+        
+        <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+          {socialIcons.map((props) => (
+            <SocialLink key={props.id} {...props} />
+          ))}
+        </div>
+
+        <div className="mt-16">
+            <p className="text-lg font-bold text-gray-500 uppercase tracking-widest">
+                &  more coming soon
+            </p>
+        </div>
+
       </div>
     </section>
   );
