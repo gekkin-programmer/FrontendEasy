@@ -1,159 +1,296 @@
 "use client";
 
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaArrowRight, 
   FaChartLine, 
   FaLightbulb, 
-  FaUserFriends 
+  FaUserFriends,
+  FaBolt,
+  FaDatabase
 } from 'react-icons/fa';
-import { IoBarChartOutline } from 'react-icons/io5';
-import { FiUsers, FiTag, FiCheckCircle } from 'react-icons/fi';
+import { IoBarChartOutline, IoScanSharp } from 'react-icons/io5';
+import { FiUsers, FiTag, FiCheckCircle, FiActivity } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 
-// --- LEFT COLUMN COMPONENTS (Kept Same) ---
-interface FeatureItemProps {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}
+// --- UTILS ---
 
-const FeatureItem: React.FC<FeatureItemProps> = ({ icon, children }) => (
-  <li className="flex items-start gap-4">
-    <div className="text-primary mt-1 flex-shrink-0">{icon}</div>
-    <span className="text-gray-800 font-medium">{children}</span>
+const AnimatedCounter = ({ value, duration = 1 }: { value: string | number; duration?: number }) => {
+  const [display, setDisplay] = useState(0);
+  const numeric = typeof value === 'string' ? parseInt(value.replace(/\D/g, '')) : value;
+
+  useEffect(() => {
+    let start = 0;
+    const end = numeric;
+    if (start === end) return;
+    const stepTime = Math.abs(Math.floor((duration * 1000) / end));
+    
+    const timer = setInterval(() => {
+      start += Math.ceil(end / 20);
+      if (start >= end) {
+        start = end;
+        clearInterval(timer);
+      }
+      setDisplay(start);
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [value, duration]);
+
+  if (typeof value === 'string' && value.includes('k')) return <>{(display / 10).toFixed(1)}k</>;
+  return <>{display}{typeof value === 'string' && value.includes('%') ? '%' : ''}</>;
+};
+
+// --- NEUBRUTALIST COMPONENTS ---
+
+const HardCard = ({ children, className = "", color = "bg-white", rivets = false }: any) => (
+  <div className={`relative border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${color} ${className}`}>
+    {rivets && (
+      <>
+        <div className="absolute top-1 left-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
+        <div className="absolute top-1 right-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
+        <div className="absolute bottom-1 left-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
+        <div className="absolute bottom-1 right-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
+      </>
+    )}
+    {children}
+  </div>
+);
+
+const HardBadge = ({ children, color = "bg-yellow-400" }: any) => (
+  <span className={`inline-block px-3 py-1 font-bold text-xs uppercase tracking-widest border-2 border-black ${color} text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+    {children}
+  </span>
+);
+
+const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
+  <li className="flex items-start gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default group">
+    <div className="text-black mt-1 flex-shrink-0 bg-yellow-400 p-2 border-2 border-black group-hover:bg-[#3C48F6] group-hover:text-white transition-colors">
+        {icon}
+    </div>
+    <span className="text-black font-bold text-lg leading-tight self-center">{children}</span>
   </li>
 );
 
-// --- NEW ORIGINAL VISUAL COMPONENTS ---
+// --- VISUAL SECTION (Right Column) ---
 
-const InsightCard = () => (
-  <div className="absolute top-1/2 -right-4 md:-right-12 transform -translate-y-1/2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 dark:border-gray-700 w-64 z-20 animate-float-slow">
-    <div className="flex items-center gap-3 mb-3">
-      <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-        <FaLightbulb size={18} />
+const InsightCard = ({ animationKey }: { animationKey: number }) => (
+  <motion.div 
+    key={`insight-${animationKey}`}
+    initial={{ x: 20, opacity: 0, rotate: 5 }}
+    animate={{ x: 0, opacity: 1, rotate: -2 }}
+    transition={{ delay: 2.5, type: "spring" }}
+    className="absolute top-4 -right-2 md:-right-10 z-20 w-56"
+  >
+    <HardCard color="bg-brand-yellow" className="p-4" rivets={true}>
+      <div className="absolute -top-3 -left-3 bg-black text-white px-2 py-1 text-[10px] font-mono font-bold border border-white">
+        PRIORITY_HIGH
       </div>
-      <div>
-        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Insight</p>
-        <p className="text-sm font-bold text-gray-900 dark:text-white">Format Trend</p>
-      </div>
-    </div>
-    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 leading-snug">
-      Carousels are generating <span className="text-green-600 font-bold">2.4x more saves</span> than single images this week.
-    </p>
-    <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg flex items-center gap-2">
-      <FiCheckCircle className="text-primary" />
-      <span className="text-xs font-semibold text-primary">Suggestion: Schedule 2 Carousels</span>
-    </div>
-  </div>
-);
-
-const AudienceNode = () => (
-  <div className="absolute -bottom-6 -left-4 md:-left-8 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-20 flex items-center gap-4 animate-float-medium">
-    <div className="flex -space-x-3">
-       {[1,2,3].map((i) => (
-         <div key={i} className={`w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 bg-gray-200 overflow-hidden`}>
-           <img src={`https://i.pravatar.cc/150?img=${i + 10}`} alt="User" className="w-full h-full object-cover" />
-         </div>
-       ))}
-    </div>
-    <div>
-       <p className="text-sm font-bold text-gray-900 dark:text-white">Top Audience</p>
-       <p className="text-xs text-gray-500">Creators (18-24)</p>
-    </div>
-  </div>
-);
-
-const MainDashboardVisual = () => (
-  <div className="relative w-full max-w-md mx-auto md:ml-auto perspective-1000">
-    {/* Background Decorative Blob */}
-    <div className="absolute -inset-4 bg-gradient-to-tr from-blue-200 to-purple-200 rounded-[40px] opacity-40 blur-2xl transform rotate-6"></div>
-
-    {/* Main Card */}
-    <div className="relative bg-white dark:bg-gray-900 rounded-[30px] shadow-2xl border border-white/50 overflow-hidden p-6 md:p-8 z-10">
-      
-      {/* Card Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b-2 border-black border-dashed">
+        <div className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center text-black">
+          <FaLightbulb size={16} />
+        </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-white">Weekly Growth</h3>
-          <p className="text-sm text-gray-500">Oct 12 - Oct 19</p>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-          <FaChartLine />
+          <p className="text-[10px] font-black uppercase tracking-tighter">Trend_Detection</p>
+          <p className="text-sm font-bold leading-none">Format Spike</p>
         </div>
       </div>
-
-      {/* Custom CSS Graph (Looking more organic than standard charts) */}
-      <div className="relative h-48 w-full">
-        {/* Grid Lines */}
-        <div className="absolute inset-0 flex flex-col justify-between">
-           {[1,2,3,4].map(i => <div key={i} className="h-px w-full bg-gray-100 dark:bg-gray-800 dash" />)}
-        </div>
-        
-        {/* The Organic Curve (SVG) */}
-        <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
-           <defs>
-             <linearGradient id="gradientGraph" x1="0" y1="0" x2="0" y2="1">
-               <stop offset="0%" stopColor="#3C48F6" stopOpacity="0.3" />
-               <stop offset="100%" stopColor="#3C48F6" stopOpacity="0" />
-             </linearGradient>
-           </defs>
-           {/* The Fill */}
-           <path d="M0,150 C50,150 80,100 120,110 C160,120 200,40 250,50 C300,60 350,10 400,20 L400,200 L0,200 Z" fill="url(#gradientGraph)" />
-           {/* The Line */}
-           <path d="M0,150 C50,150 80,100 120,110 C160,120 200,40 250,50 C300,60 350,10 400,20" fill="none" stroke="#3C48F6" strokeWidth="4" strokeLinecap="round" />
-           
-           {/* The "Peak" Point - Connecting to Insight Card */}
-           <circle cx="250" cy="50" r="6" fill="white" stroke="#3C48F6" strokeWidth="3" className="animate-pulse" />
-        </svg>
+      <p className="text-xs font-bold mb-3 leading-snug font-mono">
+         Carousels: <span className="bg-white px-1 border border-black"></span> saves detected.
+      </p>
+      <div className="bg-black text-white p-2 font-mono text-[10px] flex items-center gap-2 border border-white/20">
+        <FiCheckCircle className="text-green-400" />
+        <span>INITIATE_ACTION: CREATE_2</span>
       </div>
-
-      {/* Bottom Stats */}
-      <div className="flex justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-         <div>
-           <p className="text-xs text-gray-500">Engagement</p>
-           <p className="font-bold text-gray-800 dark:text-white">+12.5%</p>
-         </div>
-         <div>
-           <p className="text-xs text-gray-500">Reach</p>
-           <p className="font-bold text-gray-800 dark:text-white">+8.2k</p>
-         </div>
-         <div>
-           <p className="text-xs text-gray-500">Saves</p>
-           <p className="font-bold text-gray-800 dark:text-white">+402</p>
-         </div>
-      </div>
-    </div>
-
-    {/* Floating Elements */}
-    <InsightCard />
-    <AudienceNode />
-
-  </div>
+    </HardCard>
+  </motion.div>
 );
+
+const AudienceNode = ({ animationKey }: { animationKey: number }) => (
+  <motion.div 
+    key={`audience-${animationKey}`}
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay: 2.8, type: "spring" }}
+    className="absolute -bottom-8 -left-4 md:-left-12 z-20 w-56"
+  >
+    <HardCard color="bg-[#00F0FF]" className="p-3" rivets={true}>
+        <div className="flex justify-between items-center mb-2">
+            <p className="font-black text-[10px] uppercase font-mono">Target_Cluster_01</p>
+        </div>
+        <div className="flex -space-x-3 mb-3 pl-1">
+            {[1,2,3].map((i) => (
+                <div key={i} className={`w-8 h-8 rounded-none border-2 border-black bg-white overflow-hidden`}>
+                    <img src={`https://i.pravatar.cc/150?img=${i + 15}`} alt="User" className="w-full h-full object-cover grayscale contrast-125" />
+                </div>
+            ))}
+            <div className="w-8 h-8 bg-black text-white flex items-center justify-center text-[10px] font-bold border-2 border-white">
+                +4k
+            </div>
+        </div>
+        <p className="font-mono text-[10px] font-bold bg-white border-2 border-black px-2 py-1 inline-block">
+          Seg: Creators (18-24)
+        </p>
+    </HardCard>
+  </motion.div>
+);
+
+const MainDashboardVisual = () => {
+  const [animationKey, setAnimationKey] = useState(0);
+  const barHeights = [40, 70, 50, 90, 60, 80, 100];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimationKey((prev) => prev + 1);
+    }, 8000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative w-full max-w-md mx-auto md:ml-auto p-4 select-none">
+      
+      {/* Decorative Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000015_2px,transparent_2px),linear-gradient(to_bottom,#00000015_2px,transparent_2px)] bg-[size:24px_24px] z-0 pointer-events-none"></div>
+
+      {/* Main Card */}
+      <HardCard className="p-6 md:p-8 z-10 min-h-[360px] bg-white overflow-hidden" rivets={true}>
+        
+        {/* 1. Raw Data Stream (Falling Text) */}
+        <div className="absolute top-2 right-2 font-mono text-[8px] text-black/30 leading-tight pointer-events-none text-right">
+             <motion.div
+               key={`data-${animationKey}`}
+               initial={{ opacity: 0, y: -10 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 2 }}
+             >
+                DAT_STREAM_01<br/>
+                CONN_ESTABLISHED<br/>
+                FETCHING_METRICS...
+             </motion.div>
+        </div>
+
+        {/* Header */}
+        <div className="relative z-10 flex justify-between items-start mb-8 border-b-4 border-black pb-4 bg-white">
+          <div>
+            <h3 className="text-3xl font-black text-black uppercase italic leading-none">
+              Weekly<br/>Growth
+            </h3>
+          </div>
+          <div className="w-12 h-12 bg-[#3C48F6] border-4 border-black flex items-center justify-center text-white text-xl shadow-[2px_2px_0px_0px_#000]">
+            {/* --- FIX APPLIED HERE: Changed 'type: spring' to 'ease: easeInOut' --- */}
+            <motion.div
+                key={`icon-${animationKey}`}
+                animate={{ rotate: [0, 90, 0] }}
+                transition={{ delay: 2, duration: 0.8, ease: "easeInOut" }}
+            >
+                <IoScanSharp />
+            </motion.div>
+          </div>
+        </div>
+
+        {/* The Graph Area */}
+        <div className="relative h-40 w-full mb-6 flex items-end justify-between px-2 gap-2 border-b-2 border-dashed border-black/30">
+          
+          {/* THE SCANNER LINE */}
+          <motion.div 
+            key={`scanner-${animationKey}`}
+            className="absolute top-0 bottom-0 w-[2px] bg-yellow-400 z-30 shadow-[0px_0px_8px_rgba(250,204,21,0.8)]"
+            initial={{ left: "-5%", opacity: 1 }}
+            animate={{ left: "110%", opacity: 0 }}
+            transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
+          >
+             <div className="absolute top-0 -left-[20px] bg-black text-white text-[8px] font-mono font-bold px-1 py-0.5 uppercase">
+                SCANNING
+             </div>
+          </motion.div>
+
+          {/* The Bars */}
+          {barHeights.map((h, i) => (
+             <div key={i} className="relative w-full h-full flex items-end group">
+                 {/* Ghost Bar background */}
+                 <div className="absolute bottom-0 w-full bg-neutral-100 border border-neutral-200" style={{ height: `${h}%` }}></div>
+                 
+                 {/* The Animated Real Bar */}
+                 <motion.div
+                    key={`bar-${i}-${animationKey}`}
+                    initial={{ height: "0%" }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ 
+                        duration: 0.3, 
+                        delay: 0.6 + (i * 0.2), 
+                        type: "spring", stiffness: 150 
+                    }}
+                    className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#3C48F6] transition-colors"
+                 >
+                    {/* Hover Value */}
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-300 border-2 border-black px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-[2px_2px_0px_0px_#000]">
+                        {h}%
+                    </div>
+                 </motion.div>
+             </div>
+          ))}
+        </div>
+
+        {/* Bottom Stats (Animated Counter) */}
+        <div className="grid grid-cols-3 gap-2 text-center">
+             <StatBox label="Reach" value="12%" delay={2.1} animationKey={animationKey} />
+             <StatBox label="Saves" value="402" color="bg-[#3C48F6] text-white" delay={2.3} animationKey={animationKey} />
+             <StatBox label="Clicks" value="8.2k" delay={2.5} animationKey={animationKey} />
+        </div>
+      </HardCard>
+
+      <InsightCard animationKey={animationKey} />
+      <AudienceNode animationKey={animationKey} />
+
+    </div>
+  );
+};
+
+// Small helper for the bottom stats
+const StatBox = ({ label, value, color = "bg-gray-100", delay, animationKey }: any) => (
+  <motion.div 
+    key={`stat-${label}-${animationKey}`}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.3 }}
+    className={`${color} border-2 border-black p-1 py-2 shadow-[2px_2px_0px_0px_#000]`}
+  >
+    <p className="text-[9px] font-bold uppercase tracking-wider opacity-80 font-mono">{label}</p>
+    <p className="font-black text-lg leading-none mt-1 font-mono">
+       <AnimatedCounter value={value} />
+    </p>
+  </motion.div>
+);
+
+// --- MAIN SECTION EXPORT ---
 
 const AnalyzeSection = () => {
-  const Insights = "./assets/Insights.PNG";
   const { t } = useLanguage();
 
   return (
-    <section className="bg-[#D6EFFF] mt-20 py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden">
-      <div className="container mx-auto grid lg:grid-cols-2 gap-y-20 lg:gap-x-16 items-center max-w-7xl">
+    <section className="bg-white border-y-4 border-black py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden">
+      
+      <div className="absolute right-0 top-0 w-1/3 h-full bg-[#D6EFFF] border-l-4 border-black hidden lg:block z-0 opacity-50">
+         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:100%_40px]"></div>
+      </div>
+
+      <div className="container mx-auto grid lg:grid-cols-2 gap-y-24 lg:gap-x-20 items-center max-w-7xl relative z-10">
         
-        {/* Left Column (Text Content) */}
-        <div className="flex flex-col gap-8 text-gray-800 max-w-lg lg:max-w-none relative z-10">
+        <div className="flex flex-col gap-8 max-w-lg lg:max-w-none">
           <div>
-            <span className="font-bold tracking-widest text-xs uppercase text-primary bg-blue-100 px-3 py-1 rounded-full">{t("ANALYZE", "ANALYSER")}</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#232323] leading-[1.1] mt-4">
-              {t("Answers, not just analytics", "Des réponses, pas seulement des analyses")}
+            <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
+            <h2 className="text-5xl md:text-7xl font-black text-black leading-[0.9] mt-6 tracking-tighter">
+              ANSWERS.<br/>
+              NOT JUST<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black">NUMBERS.</span>
             </h2>
           </div>
           
-          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+          <p className="text-xl font-bold text-gray-800 leading-snug border-l-8 border-yellow-400 pl-6 py-2 bg-gray-50">
             {t("Most tools just show you a graph and wish you luck. Wiggle analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. Wiggle analyse vos données pour vous dire exactement quoi publier pour grandir.")}
           </p>
           
-          <ul className="space-y-5 mt-2">
+          <ul className="space-y-4 mt-4">
             <FeatureItem icon={<IoBarChartOutline size={24} />}>
               {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
             </FeatureItem>
@@ -165,16 +302,18 @@ const AnalyzeSection = () => {
             </FeatureItem>
           </ul>
 
-          <div className="pt-2">
-            <a href="#" className="bg-primary text-white font-bold py-4 px-8 rounded-full flex items-center justify-center gap-2 w-fit hover:bg-blue-800 transition-all duration-300 shadow-lg hover:shadow-primary/30 hover:-translate-y-1">
-              {t("Start analyzing free", "Commencez l'analyse")} <FaArrowRight />
+          <div className="pt-6">
+            <a 
+                href="#" 
+                className="inline-flex items-center gap-3 bg-black text-white font-black text-xl py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
+            >
+              <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
             </a>
           </div>
         </div>
         
-        {/* Right Column (New Visual) */}
-        <div className="relative flex items-center justify-center lg:justify-end">
-            <img src={Insights} alt="Analysis Kanban" />
+        <div className="relative flex items-center justify-center lg:justify-end py-10 lg:py-0">
+            <MainDashboardVisual />
         </div>
 
       </div>

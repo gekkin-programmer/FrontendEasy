@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"; 
 import Image from "next/image";
@@ -12,11 +12,7 @@ import {
   FaSignOutAlt, FaUser, FaCog, FaChartBar
 } from "react-icons/fa"; 
 import { useLanguage } from "../context/LanguageContext";
-import { api } from "@/src/lib/api"; // Use our helper
-
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
+import { api } from "@/src/lib/api";
 
 const megaMenuData = {
   type: 'mega' as const,
@@ -67,7 +63,6 @@ export default function Navbar() {
   const router = useRouter();
   const { language, toggleLanguage, t } = useLanguage();
   
-  // UI State
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -75,12 +70,11 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Data State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  // 1. Auth Check & Profile Fetch
+  // Auth Check
   useEffect(() => {
     const checkAuth = async () => {
         const token = localStorage.getItem('accessToken');
@@ -89,15 +83,12 @@ export default function Navbar() {
             setIsAuthLoading(false);
             return;
         }
-
         setIsAuthenticated(true);
         try {
-            // Fetch User Profile for Avatar
             const profile = await api.get<any>('/auth/profile');
             setUser(profile);
         } catch (e) {
             console.error("Profile fetch failed", e);
-            // Don't log out immediately on error to avoid flickering, just show generic avatar
         } finally {
             setIsAuthLoading(false);
         }
@@ -108,14 +99,9 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        // Tell Backend to kill the session
-        await api.post('/auth/logout', { refreshToken });
-      }
-    } catch (e) {
-      console.error("Logout error", e);
-    } finally {
-      // Always clean up client side, even if server fails
+      if (refreshToken) await api.post('/auth/logout', { refreshToken });
+    } catch (e) { console.error(e); } 
+    finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       setIsAuthenticated(false);
@@ -125,19 +111,21 @@ export default function Navbar() {
     }
   };
 
-  // Scroll Listener
   useEffect(() => { 
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll); 
     return () => window.removeEventListener('scroll', handleScroll); 
   }, []);
 
-  // Theme Init
+  // Theme Init - Force Dark Mode or Respect Preference
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
+    if (savedTheme === "dark" || !savedTheme) { // Default to Dark if null
         setIsDark(true);
         document.documentElement.classList.add("dark");
+    } else {
+        setIsDark(false);
+        document.documentElement.classList.remove("dark");
     }
   }, []);
 
@@ -158,14 +146,20 @@ export default function Navbar() {
   if (!showNavbar) return null;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm" : "bg-transparent"}`}>
+    <nav 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
+      ${scrolled 
+        ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm" 
+        : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-2 z-50 mr-8">
             <Image src="/assets/WiggleLogo.png" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" />
-            <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">EasyPost</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">asyPost</span>
           </Link>
           
           {/* DESKTOP MENU */}
@@ -179,7 +173,11 @@ export default function Navbar() {
               >
                 <Link 
                   href={item.href || "#"} 
-                  className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${hoveredDropdown === getTranslatedText(item.label) ? "text-[#3C48F6]" : "text-gray-600 dark:text-gray-300 hover:text-[#3C48F6]"}`}
+                  className={`flex items-center gap-1.5 text-sm font-extrabold transition-colors ${
+                    hoveredDropdown === getTranslatedText(item.label) 
+                      ? "text-primary" 
+                      : "text-foreground hover:text-primary"
+                  }`}
                   onClick={(e) => item.hasDropdown && e.preventDefault()}
                 >
                   {getTranslatedText(item.label)}
@@ -193,17 +191,17 @@ export default function Navbar() {
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                         className="absolute top-full left-0 pt-2 w-[600px] z-50"
                     >
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-6 grid grid-cols-2 gap-6">
+                        <div className="bg-popover rounded-2xl shadow-xl border border-border p-6 grid grid-cols-2 gap-6">
                             {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
                                 <div key={idx}>
-                                    <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">{getTranslatedText(col.heading)}</h4>
+                                    <h4 className="text-xs font-bold text-muted-foreground uppercase mb-3">{getTranslatedText(col.heading)}</h4>
                                     <div className="space-y-3">
                                         {col.links.map(link => (
                                             <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600"><link.Icon size={16}/></div>
+                                                <div className="p-2 bg-primary/10 rounded-lg text-primary"><link.Icon size={16}/></div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600">{getTranslatedText(link.label)}</div>
-                                                    <div className="text-xs text-gray-500">{getTranslatedText(link.description)}</div>
+                                                    <div className="text-sm font-bold text-foreground group-hover:text-primary">{getTranslatedText(link.label)}</div>
+                                                    <div className="text-xs text-muted-foreground">{getTranslatedText(link.description)}</div>
                                                 </div>
                                             </Link>
                                         ))}
@@ -213,9 +211,9 @@ export default function Navbar() {
                             {item.dropdownContent?.type === 'channels' && (
                                 <div className="col-span-2 grid grid-cols-2 gap-4">
                                     {item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                            <c.Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                                            <span className="text-sm font-medium text-gray-900 dark:text-white">{getTranslatedText(c.label)}</span>
+                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                                            <c.Icon className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                                            <span className="text-sm font-medium text-foreground">{getTranslatedText(c.label)}</span>
                                         </Link>
                                     ))}
                                 </div>
@@ -231,15 +229,15 @@ export default function Navbar() {
           {/* RIGHT ACTIONS */}
           <div className="hidden lg:flex items-center gap-4">
             {isAuthLoading ? (
-                <div className="w-24 h-9 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-full" />
+                <div className="w-24 h-9 bg-muted animate-pulse rounded-full" />
             ) : isAuthenticated ? (
                 /* 🧑‍💼 LOGGED IN: PROFILE DROPDOWN */
                 <div className="relative" onMouseEnter={() => setIsProfileOpen(true)} onMouseLeave={() => setIsProfileOpen(false)}>
-                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:border-blue-300 transition-colors">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden">
+                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-card border border-border rounded-full hover:border-primary/50 transition-colors">
+                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm overflow-hidden">
                             {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user?.firstName?.charAt(0) || 'U')}
                         </div>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[100px] truncate">
+                        <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
                             {user?.firstName || 'User'}
                         </span>
                     </button>
@@ -250,18 +248,18 @@ export default function Navbar() {
                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                                 className="absolute top-full right-0 pt-2 w-56 z-50"
                             >
-                                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 p-2">
-                                    <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800 mb-1">
-                                        <p className="text-xs font-bold text-gray-500">Signed in as</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.email}</p>
+                                <div className="bg-popover rounded-xl shadow-xl border border-border p-2">
+                                    <div className="px-3 py-2 border-b border-border mb-1">
+                                        <p className="text-xs font-bold text-muted-foreground">Signed in as</p>
+                                        <p className="text-sm font-bold text-foreground truncate">{user?.email}</p>
                                     </div>
-                                    <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
+                                    <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg">
                                         <FaChartBar /> Dashboard
                                     </Link>
-                                    <Link href="/dashboard/settings" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
+                                    <Link href="/dashboard/settings" className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg">
                                         <FaCog /> Settings
                                     </Link>
-                                    <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg mt-1">
+                                    <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg mt-1">
                                         <FaSignOutAlt /> Sign Out
                                     </button>
                                 </div>
@@ -272,28 +270,28 @@ export default function Navbar() {
             ) : (
                 /* 🚪 LOGGED OUT */
                 <>
-                    <Link href="/login" className="text-sm font-bold text-gray-600 hover:text-blue-600 transition-colors">{t("Log in", "Connexion")}</Link>
-                    <Link href="/signup" className="px-5 py-2.5 bg-[#3C48F6] text-white font-bold text-sm rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-blue-500/30">
+                    <Link href="/login" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{t("Log in", "Connexion")}</Link>
+                    <Link href="/signup" className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-sm rounded-full hover:bg-primary/90 transition-all shadow-md hover:shadow-primary/20">
                         {t("Get started", "Commencer")}
                     </Link>
                 </>
             )}
 
-            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
-            <button onClick={toggleLanguage} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"><FaGlobe /></button>
-            <button onClick={toggleDarkMode} className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">{isDark ? <FaSun /> : <FaMoon />}</button>
+            <div className="h-6 w-px bg-border mx-1"></div>
+            <button onClick={toggleLanguage} className="p-2 text-muted-foreground hover:bg-muted rounded-lg"><FaGlobe /></button>
+            <button onClick={toggleDarkMode} className="p-2 text-muted-foreground hover:bg-muted rounded-lg">{isDark ? <FaSun /> : <FaMoon />}</button>
           </div>
 
           {/* MOBILE TOGGLE */}
           <div className="lg:hidden flex items-center gap-3">
              {isAuthenticated ? (
-                 <Link href="/dashboard" className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                 <Link href="/dashboard" className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
                     {user?.firstName?.charAt(0) || <FaUser />}
                  </Link>
              ) : (
-                 <Link href="/signup" className="px-4 py-2 bg-[#3C48F6] text-white font-bold text-xs rounded-full">Start</Link>
+                 <Link href="/signup" className="px-4 py-2 bg-primary text-primary-foreground font-bold text-xs rounded-full">Start</Link>
              )}
-             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-700 dark:text-white"><FaBars size={24} /></button>
+             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-foreground"><FaBars size={24} /></button>
           </div>
         </div>
       </div>
@@ -301,20 +299,20 @@ export default function Navbar() {
       {/* MOBILE MENU (FULL SCREEN) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }} transition={{ type: "tween", duration: 0.3 }} className="fixed inset-0 bg-white dark:bg-gray-950 z-[999] flex flex-col">
+          <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }} transition={{ type: "tween", duration: 0.3 }} className="fixed inset-0 bg-background z-[999] flex flex-col">
              
              {/* Header */}
-             <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
-                <span className="font-bold text-xl tracking-tight">EasyPost</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full"><FaTimes size={20} /></button>
+             <div className="flex items-center justify-between p-5 border-b border-border">
+                <span className="font-bold text-xl tracking-tight text-foreground">EasyPost</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-muted rounded-full"><FaTimes size={20} /></button>
              </div>
 
              {/* Content */}
              <div className="flex-1 overflow-y-auto p-5 space-y-6">
                 {navLinks.map((item) => (
-                   <div key={getTranslatedText(item.label)} className="border-b border-gray-100 dark:border-gray-800 pb-4">
+                   <div key={getTranslatedText(item.label)} className="border-b border-border pb-4">
                      <div 
-                        className="flex justify-between items-center py-2 text-lg font-bold text-gray-900 dark:text-white cursor-pointer"
+                        className="flex justify-between items-center py-2 text-lg font-bold text-foreground cursor-pointer"
                         onClick={() => {
                             if (item.hasDropdown) {
                                 setMobileExpanded(mobileExpanded === item.id ? null : item.id as string);
@@ -325,7 +323,7 @@ export default function Navbar() {
                         }}
                      >
                        {getTranslatedText(item.label)}
-                       {item.hasDropdown && <FaChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${mobileExpanded === item.id ? 'rotate-180' : ''}`} />}
+                       {item.hasDropdown && <FaChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${mobileExpanded === item.id ? 'rotate-180' : ''}`} />}
                      </div>
                      
                      {/* Accordion Content */}
@@ -335,17 +333,17 @@ export default function Navbar() {
                                 <div className="pl-4 pt-2 space-y-3">
                                     {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
                                         <div key={idx} className="space-y-2">
-                                            <p className="text-xs font-bold text-blue-600 uppercase mt-2">{getTranslatedText(col.heading)}</p>
+                                            <p className="text-xs font-bold text-primary uppercase mt-2">{getTranslatedText(col.heading)}</p>
                                             {col.links.map(l => (
-                                                <Link key={getTranslatedText(l.label)} href={l.href} onClick={() => setIsMobileMenuOpen(false)} className="block text-sm text-gray-600 dark:text-gray-400 py-1">
+                                                <Link key={getTranslatedText(l.label)} href={l.href} onClick={() => setIsMobileMenuOpen(false)} className="block text-sm text-muted-foreground py-1">
                                                     {getTranslatedText(l.label)}
                                                 </Link>
                                             ))}
                                         </div>
                                     ))}
                                     {item.dropdownContent?.type === 'channels' && item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                                            <c.Icon className="text-gray-400" /> {getTranslatedText(c.label)}
+                                        <Link key={getTranslatedText(c.label)} href={c.href} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 py-2 text-sm text-muted-foreground">
+                                            <c.Icon className="text-muted-foreground" /> {getTranslatedText(c.label)}
                                         </Link>
                                     ))}
                                 </div>
@@ -357,18 +355,18 @@ export default function Navbar() {
              </div>
 
              {/* Footer Actions */}
-             <div className="p-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+             <div className="p-5 border-t border-border bg-muted/10">
                 {!isAuthenticated ? (
                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl border border-gray-200 bg-white font-bold text-gray-900">Log In</Link>
-                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl bg-[#3C48F6] font-bold text-white shadow-lg shadow-blue-500/30">Sign Up</Link>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl border border-border bg-card font-bold text-foreground">Log In</Link>
+                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl bg-primary font-bold text-primary-foreground shadow-lg">Sign Up</Link>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-bold rounded-xl">
+                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl">
                             <FaChartBar /> Dashboard
                         </Link>
-                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold border border-red-100 rounded-xl">
+                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-destructive font-bold border border-destructive/20 rounded-xl">
                             <FaSignOutAlt /> Sign Out
                         </button>
                     </div>

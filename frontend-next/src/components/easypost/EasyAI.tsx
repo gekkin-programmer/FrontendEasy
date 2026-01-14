@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Sparkles, X, ArrowUp, MessageCircle, Headset, ChevronDown
+  Sparkles, X, ArrowUp, MessageCircle, ChevronDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { api } from "@/src/lib/api";
@@ -18,31 +18,24 @@ interface Message {
 
 export default function EasyAI() {
   const pathname = usePathname();
-  // If user is on dashboard, it's the Creative Copilot. If on landing page, it's Support.
   const isDashboard = pathname?.startsWith('/dashboard');
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  
-  // User Profile State
   const [userAvatar, setUserAvatar] = useState<string>("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Load User Avatar (Client Side Logic)
+  // 1. Load User Avatar
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    
     if (token) {
-        // LOGGED IN: Try to get real name/avatar later. For now, use a "Cool Person" seed.
-        // We use "Felix" or "Sarah" to look like a team member or pro user.
         setUserAvatar(`https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=e5e7eb`);
     } else {
-        // GUEST: Use a generic but human "Guest" seed.
-        setUserAvatar(`https://api.dicebear.com/9.x/notionists/svg?seed=Guest&backgroundColor=transparent`);
+        setUserAvatar(`https://api.dicebear.com/9.x/notionists/svg?seed=Guest&backgroundColor=ffdfbf`);
     }
   }, []);
 
@@ -51,7 +44,7 @@ export default function EasyAI() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping, isOpen]);
 
-  // Focus input on open
+  // Focus
   useEffect(() => {
     if (isOpen) {
         setTimeout(() => inputRef.current?.focus(), 300);
@@ -67,11 +60,10 @@ export default function EasyAI() {
     setIsTyping(true);
 
     try {
-      // Call your NestJS Backend
       const res = await api.post<{reply: string}>('/ai/chat', { message: text });
       setMessages(prev => [...prev, { role: 'ai', content: res.reply }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'ai', content: "I'm having trouble connecting to the server. Please check your internet or try again later." }]);
+      setMessages(prev => [...prev, { role: 'ai', content: "Connection error. Please try again." }]);
     } finally {
       setIsTyping(false);
     }
@@ -79,120 +71,97 @@ export default function EasyAI() {
 
   return (
     <>
-      {/* TRIGGER BUTTON (Hidden when open) */}
+      {/* 🚀 NEUBRUTALIST TRIGGER BUTTON */}
       <AnimatePresence>
         {!isOpen && (
             <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.1, rotate: -3 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-800 shadow-2xl rounded-full group transition-all hover:shadow-blue-500/20"
+                className="fixed bottom-6 right-6 z-[9990] flex items-center gap-3 px-5 py-4 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-full group transition-all"
             >
                 <div className="relative">
-                    {/* 🎬 ANIMATED AVATAR */}
-                    <motion.img 
-                        // The "Notionists" style: Clean, illustrative, non-robotic
+                    <img 
                         src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} 
                         alt="AI" 
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white p-0.5 border border-gray-100"
-                        
-                        // 🌊 Gentle Floating Animation
-                        animate={{ 
-                            y: [0, -4, 0], 
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            repeatDelay: 3,
-                            ease: "easeInOut"
-                        }}
+                        className="w-10 h-10 rounded-full border-2 border-black bg-yellow-300"
                     />
-                    
-                    {/* Online Dot */}
-                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></div>
                 </div>
                 
                 <div className="text-left hidden sm:block">
-                    <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Online</p>
-                    <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
-                        {isDashboard ? "Ask EasyAI" : "Chat with us"}
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Online</p>
+                    <p className="text-sm font-black text-black">
+                        {isDashboard ? "ASK EASY AI" : "NEED HELP?"}
                     </p>
                 </div>
             </motion.button>
         )}
       </AnimatePresence>
 
-      {/* CHAT WINDOW */}
+      {/* 🚀 NEUBRUTALIST CHAT WINDOW */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Mobile Backdrop */}
             <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[9998] sm:bg-transparent sm:backdrop-blur-none"
+                className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-[9998] sm:bg-transparent sm:backdrop-blur-none"
             />
             
             <motion.div 
-                // ANIMATION: Slide Up from Bottom
-                initial={{ y: "100%", opacity: 0 }}
+                initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "100%", opacity: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                
-                // RESPONSIVE STYLING
-                // Mobile: Full width, Fixed to bottom, No rounded corners at bottom
-                // Desktop (sm): Floating card, Rounded, Margin from edges
+                exit={{ y: 100, opacity: 0 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
                 className={cn(
-                    "fixed z-[9999] flex flex-col bg-white dark:bg-[#111827] shadow-2xl overflow-hidden border-t border-gray-200 dark:border-gray-800",
-                    "w-full h-[85dvh] bottom-0 left-0 rounded-t-2xl", // Mobile styles
-                    "sm:w-[400px] sm:h-[600px] sm:max-h-[80vh] sm:bottom-6 sm:right-6 sm:rounded-2xl" // Desktop styles
+                    "fixed z-[9999] flex flex-col bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] overflow-hidden",
+                    "w-full h-[85dvh] bottom-0 left-0 rounded-t-3xl border-b-0", // Mobile
+                    "sm:w-[400px] sm:h-[600px] sm:max-h-[80vh] sm:bottom-6 sm:right-6 sm:rounded-3xl sm:border-b-4" // Desktop
                 )}
             >
                 {/* HEADER */}
-                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md sticky top-0 z-10 cursor-pointer" onClick={() => setIsOpen(false)}>
+                <div className="flex items-center justify-between p-4 border-b-4 border-black bg-yellow-300">
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <img 
                                 src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} 
-                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-100 bg-blue-50"
+                                className="w-10 h-10 rounded-full border-2 border-black bg-white"
                             />
-                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></div>
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                                {isDashboard ? "EasyAI Copilot" : "Steve Support Team"}
+                            <h3 className="font-black text-black text-lg uppercase tracking-tight">
+                                {isDashboard ? "COPILOT" : "SUPPORT"}
                             </h3>
-                            <p className="text-xs text-gray-500">Digital Marketing Expert</p>
+                            <p className="text-xs font-bold text-black/70">ALWAYS ONLINE</p>
                         </div>
                     </div>
                     
-                    {/* Close Button */}
                     <button 
                         onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-500"
+                        className="p-2 bg-white border-2 border-black hover:bg-red-500 hover:text-white transition-colors rounded-lg shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                     >
-                        {/* Chevron Down for "Minimizing" feel */}
-                        <ChevronDown size={24} />
+                        <ChevronDown size={20} />
                     </button>
                 </div>
 
-                {/* MESSAGES AREA */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
+                {/* MESSAGES */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-white bg-[radial-gradient(#00000015_1px,transparent_1px)] [background-size:16px_16px]">
                     {messages.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-0 animate-in fade-in slide-in-from-bottom-2 duration-700">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600">
-                                {isDashboard ? <Sparkles size={28} /> : <MessageCircle size={28} />}
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-100">
+                            <div className="w-20 h-20 bg-blue-100 border-4 border-black rounded-full flex items-center justify-center text-[#3C48F6] shadow-[4px_4px_0px_0px_#000]">
+                                {isDashboard ? <Sparkles size={32} /> : <MessageCircle size={32} />}
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                                    {isDashboard ? "I can write posts for you." : "How can we help today?"}
+                                <p className="font-black text-xl text-black uppercase">
+                                    {isDashboard ? "Let's Create" : "Howdy!"}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">
-                                    Powered by Llama 3.3. I know everything about EasyPost.
+                                <p className="text-sm font-bold text-gray-500 mt-1 max-w-[200px] mx-auto">
+                                    I am EasyBot. I know everything about this app.
                                 </p>
                             </div>
                         </div>
@@ -200,25 +169,24 @@ export default function EasyAI() {
 
                     {messages.map((msg, idx) => (
                         <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
                             key={idx} 
-                            className={cn("flex gap-3", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
+                            className={cn("flex gap-3 items-end", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
                         >
-                            {/* Avatars in Chat */}
                             <img 
                                 src={msg.role === 'ai' 
                                     ? `https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`
                                     : userAvatar
                                 }
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white shadow-sm mt-1"
+                                className="w-8 h-8 rounded-full border-2 border-black bg-white mb-1"
                             />
                             
                             <div className={cn(
-                                "max-w-[85%] p-3 sm:p-3.5 text-sm leading-relaxed shadow-sm",
+                                "max-w-[85%] p-4 text-sm font-bold border-2 border-black shadow-[4px_4px_0px_0px_#000]",
                                 msg.role === 'user' 
-                                    ? "bg-[#3C48F6] text-white rounded-2xl rounded-tr-sm" 
-                                    : "bg-white dark:bg-zinc-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-800 rounded-2xl rounded-tl-sm"
+                                    ? "bg-[#3C48F6] text-white rounded-2xl rounded-br-none" 
+                                    : "bg-white text-black rounded-2xl rounded-bl-none"
                             )}>
                                 {msg.content}
                             </div>
@@ -226,20 +194,20 @@ export default function EasyAI() {
                     ))}
 
                     {isTyping && (
-                        <div className="flex gap-3">
-                             <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white mt-1" />
-                             <div className="bg-white dark:bg-zinc-900 p-3 sm:p-4 rounded-2xl rounded-tl-sm border border-gray-200 shadow-sm flex gap-1 items-center h-10">
-                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                        <div className="flex gap-3 items-end">
+                             <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} className="w-8 h-8 rounded-full border-2 border-black bg-white mb-1" />
+                             <div className="bg-white p-4 rounded-2xl rounded-tl-none border-2 border-black shadow-[4px_4px_0px_0px_#000] flex gap-1 items-center h-12">
+                                 <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                                 <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                                 <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
                              </div>
                         </div>
                     )}
                     <div ref={scrollRef} />
                 </div>
 
-                {/* INPUT AREA */}
-                <div className="p-3 sm:p-4 bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-gray-800 pb-safe">
+                {/* INPUT */}
+                <div className="p-4 bg-white border-t-4 border-black">
                     <div className="relative flex items-center">
                         <input
                             ref={inputRef}
@@ -247,19 +215,16 @@ export default function EasyAI() {
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type a message..."
-                            className="w-full pl-4 pr-12 py-3 sm:py-3.5 bg-gray-100 dark:bg-zinc-950 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl transition-all outline-none text-sm"
+                            className="w-full pl-4 pr-14 py-4 bg-gray-50 border-2 border-black rounded-xl text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] focus:-translate-y-1 focus:-translate-x-1 transition-all"
                             disabled={isTyping}
                         />
                         <button 
                             onClick={() => handleSend()}
                             disabled={!query.trim() || isTyping}
-                            className="absolute right-2 p-1.5 sm:p-2 bg-[#3C48F6] text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-[#3C48F6] transition-colors shadow-sm"
+                            className="absolute right-2 p-2 bg-[#3C48F6] text-white rounded-lg border-2 border-black hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-[#3C48F6] transition-all shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                         >
-                            <ArrowUp size={16} strokeWidth={3} />
+                            <ArrowUp size={20} strokeWidth={3} />
                         </button>
-                    </div>
-                    <div className="text-center mt-2 hidden sm:block">
-                        <p className="text-[10px] text-gray-400">AI can make mistakes. Check important info.</p>
                     </div>
                 </div>
             </motion.div>
