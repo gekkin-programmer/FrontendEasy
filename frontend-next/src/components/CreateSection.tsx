@@ -103,10 +103,10 @@ export default function CreateSection() {
   }, [prompt, isDeleting, currentIndex, t]);
 
   return (
-    <div className="min-h-screen bg-yellow-100 border-b-4 border-black p-6 md:p-12 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-yellow-100 dark:bg-black/90 border-b-4 border-black dark:border-white/5 p-6 md:p-12 relative overflow-hidden font-sans">
       
       {/* Decorative Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-white/5 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start relative z-10">
         
@@ -114,20 +114,20 @@ export default function CreateSection() {
         <div className="space-y-8 pt-10">
           <BrutalBadge color="bg-[#3C48F6]">CREATE</BrutalBadge>
           
-          <h1 className="text-5xl md:text-7xl font-black text-black leading-[0.9] tracking-tighter uppercase">
-            TURN <span className="text-white bg-black px-2">IDEAS</span><br/>
+          <h1 className="text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.9] tracking-tighter uppercase">
+            TURN <span className="text-white bg-black dark:bg-white/5 px-2">IDEAS</span><br/>
             INTO <span className="text-[#3C48F6]">VIRAL</span><br/>
             CONTENT.
           </h1>
 
-          <p className="text-xl font-bold text-black border-l-8 border-[#3C48F6] pl-6 leading-snug">
+          <p className="text-xl font-bold text-black dark:text-gray-300 border-l-8 border-[#3C48F6] pl-6 leading-snug">
             {t(
               "Whether you’re flying solo or working with a team, Wiggle has all the features to help you create, organize, and repurpose your content.",
               "Que vous travailliez seul ou en équipe, Wiggle dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
             )}
           </p>
 
-          <a href="#" className="inline-flex items-center gap-3 bg-white text-black font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
+          <a href="#" className="inline-flex items-center gap-3 bg-white dark:bg-gray-200 text-black font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
             {t('START CREATING', 'COMMENCEZ')} <ArrowRight strokeWidth={3} />
           </a>
 
@@ -137,9 +137,9 @@ export default function CreateSection() {
                 { icon: Grid3X3, text: "Visually organize your ideas" },
                 { icon: Link2, text: "Add a beautiful link-in-bio page" }
             ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 bg-white border-2 border-black">
+                <div key={i} className="flex items-center gap-4 p-3 bg-white dark:bg-gray-200 border-2 border-black">
                     <item.icon size={24} className="text-[#3C48F6]" strokeWidth={2.5} />
-                    <span className="font-bold text-black">{item.text}</span>
+                    <span className="font-bold text-black dark:text-gray-800">{item.text}</span>
                 </div>
             ))}
           </div>
@@ -153,7 +153,7 @@ export default function CreateSection() {
              <div className="flex items-center justify-between mb-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                     <div className="bg-black p-1"><Sparkles className="text-yellow-400 w-5 h-5" /></div>
-                    <h3 className="font-black text-xl uppercase">Easy AI</h3>
+                    <h3 className="font-black text-xl text-black uppercase">Easy AI</h3>
                 </div>
                 <div className="flex gap-1">
                     <div className="w-3 h-3 bg-black rounded-full"></div>
@@ -199,11 +199,11 @@ function Column({ title, cards, color }: { title: string; cards: Card[], color: 
                         <img src={card.image} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
                     </div>
                 )}
-                <h5 className="font-bold text-sm leading-tight mb-1">{t(card.title.en, card.title.fr)}</h5>
+                <h5 className="font-bold text-sm text-black leading-tight mb-1">{t(card.title.en, card.title.fr)}</h5>
                 <p className="text-xs font-mono text-gray-600 line-clamp-2">{t(card.body.en, card.body.fr)}</p>
             </div>
         ))}
-        <div className="border-2 border-dashed border-black p-2 flex justify-center cursor-pointer hover:bg-white/50">
+        <div className="border-2 border-dashed border-black text-black p-2 flex justify-center cursor-pointer hover:bg-white/50">
             <Plus />
         </div>
       </div>

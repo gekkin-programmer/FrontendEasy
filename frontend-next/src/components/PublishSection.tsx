@@ -26,7 +26,7 @@ export default function PublishSection() {
   const publishImage = "/assets/postKanban.PNG"; // Ensure this path is correct
 
   return (
-    <section className="bg-[#E0E7FF] border-b-4 border-black py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative">
+    <section className="bg-[#E0E7FF] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative">
       
       {/* Background Decor */}
       <div className="absolute top-10 left-10 w-20 h-20 bg-pink-400 border-4 border-black rounded-full opacity-50 animate-bounce-slow"></div>
@@ -87,14 +87,14 @@ export default function PublishSection() {
             <span className="inline-block px-3 py-1 font-black text-sm uppercase tracking-widest border-2 border-black bg-pink-400 text-black mb-4">
               {t("PUBLISH", "PUBLIER")}
             </span>
-            <h2 className="text-4xl md:text-6xl font-black text-black leading-[0.95] tracking-tighter uppercase">
+            <h2 className="text-4xl md:text-6xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">
               {t("The complete", "L'ensemble")} <br/>
               <span className="text-[#3C48F6]">publishing</span> <br/>
               {t("suite.", "complet.")}
             </h2>
           </div>
 
-          <p className="text-xl font-bold text-gray-800 leading-snug border-l-8 border-black pl-6">
+          <p className="text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-black pl-6">
             {t(
               "Schedule to Facebook, Instagram, TikTok, LinkedIn, and X from one dashboard. No more tab switching.",
               "Planifiez sur Facebook, Instagram, TikTok, LinkedIn et X depuis un seul tableau de bord."
@@ -117,7 +117,7 @@ export default function PublishSection() {
           </div>
 
           <div className="pt-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-black text-white font-black text-lg border-4 border-transparent hover:bg-white hover:text-black hover:border-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
+            <button className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white/5 text-white font-black text-lg border-4 border-transparent hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
               {t("Start Publishing", "Commencer")}
               <CheckCircle strokeWidth={3} />
             </button>

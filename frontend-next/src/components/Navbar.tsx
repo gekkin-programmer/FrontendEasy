@@ -238,7 +238,7 @@ export default function Navbar() {
                             {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user?.firstName?.charAt(0) || 'U')}
                         </div>
                         <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
-                            {user?.firstName || 'User'}
+                            {user?.firstName || <FaUser className='text-2xl' />}
                         </span>
                     </button>
 
