@@ -3,7 +3,6 @@
 import React from 'react';
 
 const SocialProof = () => {
-  // 1. Add as many logos as you want here. No need to duplicate them manually.
   const logos = [
     "/logos/newDelices.png",
     "/logos/dibato.PNG",
@@ -11,10 +10,31 @@ const SocialProof = () => {
     "/logos/SN_SHOES.jpeg",
     "/logos/LaGeneraleDuBatiment.png",
     "/logos/Denilimport.jpeg",
-    // Add more here...
-    "/logos/newDelices.png",
+    "/logos/BookHub.jpeg",
     "/logos/dibato.PNG",
   ];
+
+  // We define the track content here to reuse it easily without scope issues
+  const LogoGroup = () => (
+    <div className="flex items-center justify-around min-w-full shrink-0 animate-marquee gap-16 px-8">
+      {logos.map((src, i) => (
+        <div key={i} className="group relative flex items-center justify-center">
+          <img 
+            src={src} 
+            alt={`Partner brand ${i}`} 
+            className={`
+              h-16 md:h-20 w-auto object-contain 
+              /* FULL COLOR (No grayscale) */
+              hover:scale-110
+              transition-transform duration-300 ease-out
+              ${/* Keeps white backgrounds transparent for JPEGs */ ''}
+              ${src.toLowerCase().endsWith('.jpeg') || src.toLowerCase().endsWith('.jpg') ? 'mix-blend-multiply' : ''} 
+            `} 
+          />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <section className="relative py-16 bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5 overflow-hidden select-none">
@@ -40,32 +60,27 @@ const SocialProof = () => {
 
                 {/* Marquee Section */}
                 <div className="md:w-3/4 w-full overflow-hidden relative mask-linear">
-                    {/* 
-                       We create a wrapper that holds TWO identical tracks. 
-                       Both tracks animate to the left.
-                    */}
+                    {/* The Wrapper holding TWO tracks */}
                     <div className="flex w-full">
-                        <LogoTrack items={logos} />
-                        <LogoTrack items={logos} />
+                        <LogoGroup />
+                        <LogoGroup />
                     </div>
                 </div>
 
             </div>
         </div>
 
-        <style jsx>{`
-            /* The Animation: Moves exactly -100% of its own width */
+        {/* Global is generally safer for animations to ensure they persist across scopes */}
+        <style jsx global>{`
             @keyframes marquee {
                 0% { transform: translateX(0); }
                 100% { transform: translateX(-100%); }
             }
             
-            /* Apply animation to the track */
             .animate-marquee {
-                animation: marquee 40s linear infinite; /* Adjust '40s' to change speed */
+                animation: marquee 40s linear infinite;
             }
 
-            /* Fade out edges */
             .mask-linear {
                 mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
             }
@@ -73,27 +88,5 @@ const SocialProof = () => {
     </section>
   );
 };
-
-// Sub-component to render the list of images
-// We use min-w-full to ensure the second track waits perfectly off-screen
-const LogoTrack = ({ items }: { items: string[] }) => (
-    <div className="flex items-center justify-around min-w-full shrink-0 animate-marquee gap-16 px-8">
-        {items.map((src, i) => (
-            <div key={i} className="group relative flex items-center justify-center">
-                <img 
-                    src={src} 
-                    alt={`Partner brand ${i}`} 
-                    className={`
-                        h-16 md:h-20 w-auto object-contain 
-                        grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110
-                        transition-all duration-300 ease-out
-                        ${/* Blend mode hack for JPEGs with white backgrounds */ ''}
-                        ${src.toLowerCase().endsWith('.jpeg') || src.toLowerCase().endsWith('.jpg') ? 'mix-blend-multiply' : ''} 
-                    `} 
-                />
-            </div>
-        ))}
-    </div>
-);
 
 export default SocialProof;
