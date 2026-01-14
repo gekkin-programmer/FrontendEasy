@@ -53,7 +53,7 @@ const ConnectSection = () => {
   ];
 
   return (
-    <section className="bg-gray-50 border-b-4 border-black py-20 px-4 font-sans relative overflow-hidden">
+    <section className="bg-gray-50 dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-20 px-4 font-sans relative overflow-hidden">
       
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-4 bg-black"></div>
@@ -61,11 +61,11 @@ const ConnectSection = () => {
 
       <div className="container mx-auto max-w-6xl text-center">
         
-        <div className="inline-block bg-black text-white font-black text-lg px-6 py-2 border-4 border-transparent hover:border-white transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] mb-8 uppercase tracking-widest">
+        <div className="inline-block bg-black dark:bg-white/5 text-white font-black text-lg px-6 py-2 border-4 border-transparent hover:border-white transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] mb-8 uppercase tracking-widest">
             {t("Integrations", "Intégrations")}
         </div>
 
-        <h3 className="text-4xl md:text-6xl font-black text-black mb-16 uppercase leading-none tracking-tight">
+        <h3 className="text-4xl md:text-6xl font-black text-black dark:text-white mb-16 uppercase leading-none tracking-tight">
           {t('CONNECT YOUR', 'CONNECTEZ VOS')}<br/>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3D49F9]">
              SOCIAL MEDIA.

@@ -12,7 +12,7 @@ const BrutalBadge = ({ children }: any) => (
 );
 
 const FeatureTag = ({ icon, text }: any) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-200 border-2 border-black font-bold text-xs uppercase">
+  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-orange-200 border-2 border-black font-bold text-xs uppercase">
     {icon} <span>{text}</span>
   </div>
 );
@@ -24,7 +24,7 @@ export default function CollaborateSection() {
     <div className="w-full py-20 px-4">
       
       {/* Main Container Card */}
-      <div className="relative bg-[#FF9900] border-4 border-black shadow-[12px_12px_0px_0px_#000] p-8 md:p-16 overflow-hidden">
+      <div className="relative bg-[#FF9900] border-4 border-black dark:border-white/5 shadow-[12px_12px_0px_0px_#000] p-8 md:p-16 overflow-hidden">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, black 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
@@ -72,7 +72,7 @@ export default function CollaborateSection() {
                     <div className="w-4 h-4 bg-white border-2 border-black rounded-full"></div>
                     <div className="w-4 h-4 bg-white border-2 border-black rounded-full"></div>
                 </div>
-                <div className="bg-white border-2 border-black px-4 py-1 text-xs font-mono font-bold uppercase truncate max-w-[200px]">
+                <div className="bg-white border-2 text-black border-black px-4 py-1 text-xs font-mono font-bold uppercase truncate max-w-[200px]">
                     app.easypost.cm/team
                 </div>
                 <div className="w-8"></div> {/* Spacer */}
@@ -93,7 +93,7 @@ export default function CollaborateSection() {
                 </video>
                 
                 {/* Floating Label */}
-                <div className="absolute bottom-4 right-4 bg-white border-2 border-black px-3 py-1 font-bold text-xs shadow-[4px_4px_0px_0px_#000]">
+                <div className="absolute bottom-4 right-4 bg-white border-2 text-black border-black px-3 py-1 font-bold text-xs shadow-[4px_4px_0px_0px_#000]">
                     LIVE PREVIEW
                 </div>
               </div>
