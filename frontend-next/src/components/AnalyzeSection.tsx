@@ -116,7 +116,7 @@ const AudienceNode = ({ animationKey }: { animationKey: number }) => (
   >
     <HardCard color="bg-[#00F0FF]" className="p-3" rivets={true}>
         <div className="flex justify-between items-center mb-2">
-            <p className="font-black text-[10px] uppercase font-mono">Target_Cluster_01</p>
+            <p className="font-black text-[10px] text-black uppercase font-mono">Target_Cluster_01</p>
         </div>
         <div className="flex -space-x-3 mb-3 pl-1">
             {[1,2,3].map((i) => (
@@ -128,7 +128,7 @@ const AudienceNode = ({ animationKey }: { animationKey: number }) => (
                 +4k
             </div>
         </div>
-        <p className="font-mono text-[10px] font-bold bg-white border-2 border-black px-2 py-1 inline-block">
+        <p className="font-mono text-[10px] font-bold bg-white border-2 text-black border-black px-2 py-1 inline-block">
           Seg: Creators (18-24)
         </p>
     </HardCard>
@@ -232,7 +232,7 @@ const MainDashboardVisual = () => {
         </div>
 
         {/* Bottom Stats (Animated Counter) */}
-        <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="grid grid-cols-3 gap-2 text-center text-black">
              <StatBox label="Reach" value="12%" delay={2.1} animationKey={animationKey} />
              <StatBox label="Saves" value="402" color="bg-[#3C48F6] text-white" delay={2.3} animationKey={animationKey} />
              <StatBox label="Clicks" value="8.2k" delay={2.5} animationKey={animationKey} />
@@ -268,7 +268,7 @@ const AnalyzeSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="bg-white border-y-4 border-black py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden">
+    <section className="bg-white dark:bg-black/90 border-y-4 border-black dark:border-white/5 py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden">
       
       <div className="absolute right-0 top-0 w-1/3 h-full bg-[#D6EFFF] border-l-4 border-black hidden lg:block z-0 opacity-50">
          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:100%_40px]"></div>
@@ -279,10 +279,10 @@ const AnalyzeSection = () => {
         <div className="flex flex-col gap-8 max-w-lg lg:max-w-none">
           <div>
             <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
-            <h2 className="text-5xl md:text-7xl font-black text-black leading-[0.9] mt-6 tracking-tighter">
+            <h2 className="text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.9] mt-6 tracking-tighter">
               ANSWERS.<br/>
               NOT JUST<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black">NUMBERS.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black dark:decoration-gray-200">NUMBERS.</span>
             </h2>
           </div>
           
@@ -305,7 +305,7 @@ const AnalyzeSection = () => {
           <div className="pt-6">
             <a 
                 href="#" 
-                className="inline-flex items-center gap-3 bg-black text-white font-black text-xl py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
+                className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-xl py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
             >
               <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
             </a>

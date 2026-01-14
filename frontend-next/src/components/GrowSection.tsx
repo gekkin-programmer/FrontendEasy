@@ -108,7 +108,7 @@ const GrowSection = () => {
   const currentData = tabContent[activeTab] || [];
 
   return (
-    <section className="bg-[#E6E6E6] border-b-4 border-black py-24 px-4 font-sans overflow-hidden pattern-grid">
+    <section className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-24 px-4 font-sans overflow-hidden pattern-grid">
       <style jsx>{`
         .pattern-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
@@ -157,9 +157,9 @@ const GrowSection = () => {
             </div>
 
             {/* The Folder Content */}
-            <div className="bg-yellow-300 border-4 border-t-0 border-black p-8 min-h-[400px] shadow-[12px_12px_0px_0px_#000]">
+            <div className="bg-yellow-300 border-4 border-t-0 border-black dark:border-white/5 p-8 min-h-[400px] shadow-[12px_12px_0px_0px_#000]">
                 <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
-                    <h3 className="font-black text-2xl uppercase">COMMUNITY_SHOWCASE.EXE</h3>
+                    <h3 className="font-black text-2xl text-black uppercase">COMMUNITY_SHOWCASE.EXE</h3>
                     <div className="flex gap-2">
                         <div className="w-4 h-4 bg-white border-2 border-black rounded-full"></div>
                         <div className="w-4 h-4 bg-black border-2 border-black rounded-full"></div>
