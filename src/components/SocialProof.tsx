@@ -17,10 +17,10 @@ const SocialProof = () => {
   ];
 
   return (
-    <section className="relative py-16 bg-white border-b-4 border-black overflow-hidden select-none">
+    <section className="relative py-16 bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5 overflow-hidden select-none">
         
         {/* Background "Noise" Text */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 overflow-hidden">
+        <div className="absolute inset-0 flex items-center dark:opacity-0 justify-center pointer-events-none opacity-5 overflow-hidden">
             <h1 className="text-[20vw] font-black uppercase text-black whitespace-nowrap leading-none">
                 EASY POST
             </h1>
@@ -30,8 +30,8 @@ const SocialProof = () => {
             <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                 
                 {/* Header Section */}
-                <div className="md:w-1/4 text-center md:text-left z-20 bg-white md:bg-transparent p-2">
-                    <h3 className="text-3xl font-black text-black uppercase leading-none">
+                <div className="md:w-1/4 text-center md:text-left z-20 bg-white md:bg-transparent dark:bg-white/5 p-2">
+                    <h3 className="text-3xl font-black text-black dark:text-gray-200 uppercase leading-none">
                         TRUSTED<br/>
                         BY LOCAL<br/>
                         <span className="text-[#3C48F6]">BRANDS.</span>

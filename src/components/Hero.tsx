@@ -31,7 +31,7 @@ const icons = [
 // --- SUB-COMPONENT: FLOATING BOX ---
 const BrutalIcon = ({ Icon, pos, color, delay }: any) => (
   <motion.div
-    className={`absolute ${pos} bg-white p-3 border-2 border-black shadow-[4px_4px_0px_0px_#000] hidden md:flex items-center justify-center z-0`}
+    className={`absolute ${pos} bg-white dark:bg-white/5 p-3 border-2 border-black dark:border-white/5 shadow-[4px_4px_0px_0px_#000] hidden md:flex items-center justify-center z-0`}
     initial={{ opacity: 0, scale: 0 }}
     animate={{ 
         opacity: 1, 
@@ -55,7 +55,7 @@ const Hero: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white pt-24 pb-20 border-b-4 border-black">
+    <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-black/90 pt-24 pb-20 border-b-4 border-black dark:border-white/5">
       
       {/* 1. ANIMATED BACKGROUND GRID */}
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
@@ -80,7 +80,7 @@ const Hero: React.FC = () => {
         {/* Headline */}
         <motion.h1 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-6xl md:text-8xl font-black text-black leading-[0.9] tracking-tighter mb-6 relative z-20"
+            className="text-6xl md:text-8xl font-black text-black dark:text-gray-200 leading-[0.9] tracking-tighter mb-6 relative z-20"
         >
             {t("YOUR SOCIAL MEDIA", "VOTRE ESPACE")}
             <br />
@@ -96,7 +96,7 @@ const Hero: React.FC = () => {
         {/* Subheadline */}
         <motion.p 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl text-gray-600 font-medium max-w-2xl mx-auto mb-10 leading-relaxed relative z-20"
+            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-medium max-w-2xl mx-auto mb-10 leading-relaxed relative z-20"
         >
             {t(
                 "Stop juggling apps. Plan, schedule, and automate your content across Facebook, TikTok, and LinkedIn in one place.",
@@ -112,7 +112,7 @@ const Hero: React.FC = () => {
             <Link href="/signup" className="group relative px-8 py-4 bg-black text-white font-bold text-lg rounded-none border-2 border-black shadow-[8px_8px_0px_0px_#3C48F6] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_#3C48F6] transition-all flex items-center gap-2">
                 {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/pricing" className="px-8 py-4 bg-white text-black font-bold text-lg border-2 border-black hover:bg-gray-50 transition-colors">
+            <Link href="/pricing" className="px-8 py-4 bg-gray-200 text-black font-bold text-lg border-2 border-black hover:bg-gray-50 transition-colors hover:translate-x-1 hover:translate-y-1 shadow-[4px_4px_0px_0px_#000] duration-300">
                 {t("View Pricing", "Voir les Tarifs")}
             </Link>
         </motion.div>

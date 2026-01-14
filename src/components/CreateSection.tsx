@@ -103,10 +103,10 @@ export default function CreateSection() {
   }, [prompt, isDeleting, currentIndex, t]);
 
   return (
-    <div className="min-h-screen bg-yellow-100 border-b-4 border-black p-6 md:p-12 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-yellow-100 dark:bg-black/90 border-b-4 border-black dark:border-white/5 p-6 md:p-12 relative overflow-hidden font-sans">
       
       {/* Decorative Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-white/5 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-start relative z-10">
         
@@ -114,13 +114,13 @@ export default function CreateSection() {
         <div className="space-y-8 pt-10">
           <BrutalBadge color="bg-[#3C48F6]">CREATE</BrutalBadge>
           
-          <h1 className="text-5xl md:text-7xl font-black text-black leading-[0.9] tracking-tighter uppercase">
-            TURN <span className="text-white bg-black px-2">IDEAS</span><br/>
+          <h1 className="text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.9] tracking-tighter uppercase">
+            TURN <span className="text-white bg-black dark:bg-white/5 px-2">IDEAS</span><br/>
             INTO <span className="text-[#3C48F6]">VIRAL</span><br/>
             CONTENT.
           </h1>
 
-          <p className="text-xl font-bold text-black border-l-8 border-[#3C48F6] pl-6 leading-snug">
+          <p className="text-xl font-bold text-black dark:text-gray-300 border-l-8 border-[#3C48F6] pl-6 leading-snug">
             {t(
               "Whether you’re flying solo or working with a team, Wiggle has all the features to help you create, organize, and repurpose your content.",
               "Que vous travailliez seul ou en équipe, Wiggle dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
