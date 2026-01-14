@@ -109,7 +109,7 @@ const Hero: React.FC = () => {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 relative z-20"
         >
-            <Link href="/signup" className="group relative px-8 py-4 bg-black text-white font-bold text-lg rounded-none border-2 border-black shadow-[8px_8px_0px_0px_#3C48F6] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_#3C48F6] transition-all flex items-center gap-2">
+            <Link href="/signup" className="group relative px-8 py-4 bg-black dark:bg-white/5 text-white font-bold text-lg rounded-none border-2 border-black shadow-[8px_8px_0px_0px_#3C48F6] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_#3C48F6] transition-all flex items-center gap-2">
                 {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link href="/pricing" className="px-8 py-4 bg-gray-200 text-black font-bold text-lg border-2 border-black hover:bg-gray-50 transition-colors hover:translate-x-1 hover:translate-y-1 shadow-[4px_4px_0px_0px_#000] duration-300">
