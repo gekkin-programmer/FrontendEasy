@@ -14,7 +14,6 @@ import { useLanguage } from '../context/LanguageContext';
 const Footer: React.FC = () => {
   const { t } = useLanguage();
 
-  // --- DATA: Updated with Legal Section for Meta Compliance ---
   const footerSections = [
     {
       title: t('Product', 'Produit'),
@@ -44,7 +43,7 @@ const Footer: React.FC = () => {
       ],
     },
     {
-      title: t('Legal', 'Légal'), // 👈 CRITICAL FOR META
+      title: t('Legal', 'Légal'),
       links: [
         { label: t('Privacy Policy', 'Politique de confidentialité'), href: '/legal/privacy' },
         { label: t('Terms of Service', "Conditions d'utilisation"), href: '/legal/terms' },
@@ -55,102 +54,82 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'group-hover:text-[#E1306C]' },
-    { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'group-hover:text-[#1877F2]' },
-    { name: 'Twitter', Icon: FaTwitter, href: '#', className: 'group-hover:text-[#1DA1F2]' },
-    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', className: 'group-hover:text-[#0A66C2]' },
-    { name: 'YouTube', Icon: FaYoutube, href: '#', className: 'group-hover:text-[#FF0000]' },
+    { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'hover:text-[#E1306C]' },
+    { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'hover:text-[#1877F2]' },
+    { name: 'Twitter', Icon: FaTwitter, href: '#', className: 'hover:text-[#1DA1F2]' },
+    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', className: 'hover:text-[#0A66C2]' },
+    { name: 'YouTube', Icon: FaYoutube, href: '#', className: 'hover:text-[#FF0000]' },
   ];
 
   return (
-    <footer className="bg-slate-50 dark:bg-gray-950 border-t border-slate-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+    <footer className="bg-black text-white border-t-4 border-white font-sans">
+      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           
-          {/* Logo Section */}
-          <div className="space-y-8 xl:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
+          {/* Brand Column */}
+          <div className="lg:col-span-2 space-y-6">
+            <Link href="/" className="flex items-center gap-3 group">
               <img
-                className="h-10 w-auto"
+                className="h-12 w-auto bg-white p-1 rounded-none border-2 border-white group-hover:rotate-3 transition-transform"
                 src="/assets/WiggleLogo.png" 
                 alt="EasyPost Logo"
               />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">EasyPost</span>
+              <span className="text-3xl font-black uppercase tracking-tighter">EasyPost</span>
             </Link>
-            <p className="text-slate-500 dark:text-slate-400 text-base max-w-xs leading-relaxed">
+            <p className="text-lg font-medium text-gray-400 max-w-sm leading-relaxed border-l-4 border-[#3C48F6] pl-4">
               {t(
-                'The simplest way to plan, create, and share content on social media across Africa and beyond.',
-                'La manière la plus simple de planifier, créer et partager du contenu sur les réseaux sociaux en Afrique et au-delà.'
+                'The social OS for Africa. Plan, create, and dominate.',
+                'L\'OS social pour l\'Afrique. Planifiez, créez et dominez.'
               )}
             </p>
+            
+            <div className="flex gap-4">
+                {socialLinks.map((link) => (
+                <a
+                    key={link.name}
+                    href={link.href}
+                    className={`
+                        w-10 h-10 flex items-center justify-center border-2 border-white bg-black 
+                        hover:bg-white hover:text-black transition-all ${link.className}
+                    `}
+                >
+                    <span className="sr-only">{link.name}</span>
+                    <link.Icon className="h-5 w-5" />
+                </a>
+                ))}
+            </div>
           </div>
 
-          {/* Links Section */}
-          <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              {footerSections.slice(0, 2).map((section) => (
-                <div key={section.title} className="mb-10 md:mb-0">
-                  <h3 className="text-sm font-bold tracking-wider uppercase text-[#3C48F6]">
-                    {section.title}
-                  </h3>
-                  <ul className="mt-4 space-y-3">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <Link
-                          href={link.href}
-                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3C48F6] dark:hover:text-white transition-colors duration-200"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+          {/* Links Columns */}
+          {footerSections.map((section) => (
+            <div key={section.title} className="space-y-6">
+              <h3 className="text-sm font-black uppercase tracking-widest text-[#3C48F6]">
+                {section.title}
+              </h3>
+              <ul className="space-y-3">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm font-bold text-gray-300 hover:text-white hover:underline decoration-2 decoration-yellow-400 underline-offset-4 transition-all"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              {footerSections.slice(2, 4).map((section) => (
-                <div key={section.title} className="mb-10 md:mb-0">
-                  <h3 className="text-sm font-bold tracking-wider uppercase text-[#3C48F6]">
-                    {section.title}
-                  </h3>
-                  <ul className="mt-4 space-y-3">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <Link
-                          href={link.href}
-                          className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#3C48F6] dark:hover:text-white transition-colors duration-200"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 border-t border-slate-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-sm text-slate-500 dark:text-slate-500 md:order-1">
-            &copy; {new Date().getFullYear()} EasyPost Inc. {t('All rights reserved.', 'Tous droits réservés.')}
+        <div className="border-t-2 border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm font-mono text-gray-500">
+            &copy; {new Date().getFullYear()} EASYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
-          <div className="flex space-x-6 md:order-2 mt-4 md:mt-0">
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-slate-400 hover:scale-110 transition-transform duration-200"
-              >
-                <span className="sr-only">{link.name}</span>
-                <link.Icon
-                  className={`h-5 w-5 transition-colors duration-300 ${link.className}`}
-                  aria-hidden="true"
-                />
-              </a>
-            ))}
+          <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Systems Operational</span>
           </div>
         </div>
       </div>
