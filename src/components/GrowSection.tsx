@@ -19,7 +19,7 @@ type CreatorData = {
 // --- DATA ---
 const creatorsData: CreatorData[] = [
   { imgSrc: '/assets/Rosine 3.jpg', name: '@rosine_ng', followers: '34.9K', platform: 'X', platformIcon: <FaXTwitter size={14}/>, iconBgClass: 'bg-black' },
-  { imgSrc: '/assets/Profile pic.svg', name: '@Paul', followers: '21K', platform: 'LinkedIn', platformIcon: <FaLinkedinIn size={14}/>, iconBgClass: 'bg-[#0A66C2]' },
+  { imgSrc: '/assets/brutalism5.jpg', name: '@YungKids', followers: '21K', platform: 'Instagram', platformIcon: <FaInstagram size={14}/>, iconBgClass: 'bg-[#0A66C2]' },
   { imgSrc: '/assets/JDK.jpg', name: '@jdk_fashion', followers: '14.6K', platform: 'Instagram', platformIcon: <FaInstagram size={14}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
 ];
 
