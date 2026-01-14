@@ -1,110 +1,130 @@
 "use client";
 
 import React from 'react';
-import { Calendar, Clock, Wand2, Bell } from "lucide-react";
-import { FaStore, FaFacebookF, FaInstagram } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import { Calendar, Clock, Wand2, Bell, CheckCircle } from "lucide-react";
 import { useLanguage } from '../context/LanguageContext'; 
+
+// --- NEUBRUTALIST COMPONENTS ---
+
+const HardCard = ({ children, className = "", color = "bg-white" }: any) => (
+  <div className={`border-4 border-black shadow-[8px_8px_0px_0px_#000] ${color} ${className}`}>
+    {children}
+  </div>
+);
+
+const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
+  <div className="flex items-start gap-4 p-4 border-2 border-black bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] transition-all cursor-default">
+    <div className="flex-shrink-0 w-12 h-12 bg-yellow-300 border-2 border-black flex items-center justify-center text-black">
+      {icon}
+    </div>
+    <p className="text-base font-bold text-black leading-tight pt-1">{text}</p>
+  </div>
+);
 
 export default function PublishSection() {
   const { t } = useLanguage();
-
-  // Define image paths
-  const pasta = "/assets/Pasta1.jpg";
-  const pasta2 = "/assets/Pasta2.jpg";
-  const avatar = "/assets/Avatar.svg";
-  const publish = "/assets/postKanban.PNG";
+  const publishImage = "/assets/postKanban.PNG"; // Ensure this path is correct
 
   return (
-    <section className="bg-purple-50 dark:bg-purple-900/10 min-h-screen flex flex-col items-center justify-center px-4 py-12 md:py-16 lg:py-20 font-sans">
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 max-w-7xl w-full">
-        
-        {/* ---------- LEFT – Post Composer Visual ---------- */}
-        <div className="relative p-6 md:p-12 bg-blue-200 dark:bg-blue-900/30 rounded-[2.5rem] w-full lg:w-1/2 flex items-center justify-center"> 
-          <div className="
-            bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700
-            w-full max-w-md p-6 flex flex-col mx-auto 
-            transition-transform duration-500 hover:scale-[1.02]
-          ">
-            <img 
-               src={publish}
-               alt="Kanban View"
-              className="w-full h-120 object-cover rounded-lg mb-6" 
-            />
-            {/* Footer Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-              <button className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                {t("Save Draft", "Brouillon")}
-              </button>
+    <section className="bg-[#E0E7FF] border-b-4 border-black py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative">
+      
+      {/* Background Decor */}
+      <div className="absolute top-10 left-10 w-20 h-20 bg-pink-400 border-4 border-black rounded-full opacity-50 animate-bounce-slow"></div>
+      <div className="absolute bottom-10 right-10 w-32 h-32 bg-green-400 border-4 border-black rotate-12 opacity-50"></div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>11:45 AM</span>
+      <div className="container mx-auto grid lg:grid-cols-2 gap-16 items-center max-w-7xl relative z-10">
+        
+        {/* LEFT – VISUAL (The Browser Window) */}
+        <div className="relative">
+            {/* The Window Frame */}
+            <HardCard className="rounded-xl overflow-hidden p-0 bg-gray-900">
+                {/* Browser Bar */}
+                <div className="bg-white border-b-4 border-black p-3 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                        <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-black"></div>
+                        <div className="w-4 h-4 rounded-full bg-yellow-400 border-2 border-black"></div>
+                        <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-black"></div>
+                    </div>
+                    <div className="flex-1 bg-gray-100 border-2 border-black h-6 mx-4 rounded-full"></div>
                 </div>
-                <button className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-bold text-sm transition-colors shadow-lg shadow-blue-500/30">
-                  {t("Schedule", "Programmer")}
-                </button>
-              </div>
+                
+                {/* Image Content */}
+                <div className="p-4 bg-gray-100">
+                    <div className="border-2 border-black rounded-lg overflow-hidden">
+                        <img 
+                           src={publishImage}
+                           alt="Kanban View"
+                           className="w-full h-auto object-cover" 
+                        />
+                    </div>
+                    
+                    {/* Simulated UI Actions */}
+                    <div className="flex justify-between items-center mt-4">
+                        <button className="px-4 py-2 bg-white text-black font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] text-xs uppercase">
+                            {t("Save Draft", "Brouillon")}
+                        </button>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1 text-xs font-mono font-bold bg-white border-2 border-black px-2 py-1">
+                                <Clock className="w-3 h-3" /> 11:45 AM
+                            </div>
+                            <button className="px-6 py-2 bg-[#3C48F6] text-white font-black border-2 border-black shadow-[4px_4px_0px_0px_#000] text-xs uppercase hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
+                                {t("Schedule", "Programmer")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </HardCard>
+
+            {/* Floating Sticker */}
+            <div className="absolute -top-6 -right-6 md:-right-10 bg-yellow-300 text-black font-black px-4 py-2 border-4 border-black shadow-[4px_4px_0px_0px_#000] rotate-6 transform">
+                AUTO-POST
             </div>
-          </div>
         </div>
 
-        {/* ---------- RIGHT – Copy & CTA ---------- */}
-        <div className="flex-1 max-w-lg space-y-8 text-center lg:text-left">
+        {/* RIGHT – COPY */}
+        <div className="space-y-8">
           <div>
-            <p className="text-sm font-bold text-primary uppercase tracking-wider mb-2">
+            <span className="inline-block px-3 py-1 font-black text-sm uppercase tracking-widest border-2 border-black bg-pink-400 text-black mb-4">
               {t("PUBLISH", "PUBLIER")}
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
-              {t("The most complete set of publishing integrations", "L'ensemble le plus complet d'intégrations")}
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-[0.95] tracking-tighter uppercase">
+              {t("The complete", "L'ensemble")} <br/>
+              <span className="text-[#3C48F6]">publishing</span> <br/>
+              {t("suite.", "complet.")}
             </h2>
           </div>
 
-          <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className="text-xl font-bold text-gray-800 leading-snug border-l-8 border-black pl-6">
             {t(
-              "Schedule your content to the most popular platforms including Facebook, Instagram, TikTok, LinkedIn, Threads, Bluesky, YouTube Shorts, Pinterest, and X.",
-              "Planifiez votre contenu sur les plateformes les plus populaires : Facebook, Instagram, TikTok, LinkedIn, Threads, Bluesky, YouTube Shorts, Pinterest et X."
+              "Schedule to Facebook, Instagram, TikTok, LinkedIn, and X from one dashboard. No more tab switching.",
+              "Planifiez sur Facebook, Instagram, TikTok, LinkedIn et X depuis un seul tableau de bord."
             )}
           </p>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <FeatureItem
-              icon={<Bell className="w-5 h-5 text-primary" />}
-              text={t("Auto-publish your content or get a notification when it's time to post", "Publiez automatiquement votre contenu ou recevez une notification lorsqu'il est temps de poster")}
+              icon={<Bell className="w-6 h-6" />}
+              text={t("Auto-publish or get notified when it's time.", "Publication auto ou notifications.")}
             />
             <FeatureItem
-              icon={<Wand2 className="w-5 h-5 text-primary" />}
-              text={t("Magically customize and repurpose your post for each platform", "Personnalisez et réutilisez magiquement votre post pour chaque plateforme")}
+              icon={<Wand2 className="w-6 h-6" />}
+              text={t("Magically repurpose posts for every platform.", "Réutilisez le contenu pour chaque plateforme.")}
             />
             <FeatureItem
-              icon={<Calendar className="w-5 h-5 text-primary" />}
-              text={t("See everything you have scheduled in a calendar or queue view", "Voyez tout ce que vous avez programmé dans un calendrier ou une vue de file d'attente")}
+              icon={<Calendar className="w-6 h-6" />}
+              text={t("Visual calendar view for your entire month.", "Vue calendrier visuelle pour tout le mois.")}
             />
           </div>
 
           <div className="pt-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-full font-bold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-              {t("Start Publishing", "Commencer à publier")}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+            <button className="w-full sm:w-auto px-8 py-4 bg-black text-white font-black text-lg border-4 border-transparent hover:bg-white hover:text-black hover:border-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
+              {t("Start Publishing", "Commencer")}
+              <CheckCircle strokeWidth={3} />
             </button>
           </div>
         </div>
+
       </div>
     </section>
-  );
-}
-
-/* Helper component */
-function FeatureItem({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
-      <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-        {icon}
-      </div>
-      <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 text-left leading-relaxed pt-1">{text}</p>
-    </div>
   );
 }
