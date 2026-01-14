@@ -13,16 +13,13 @@ interface StatsCardProps {
 
 const StatsCard: React.FC<StatsCardProps> = ({ end, label, suffix = "", duration = 2 }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: true, margin: "-50px" });
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-
     let start = 0;
-    // Calculate step size to fit animation within 'duration' seconds (assuming 60fps)
     const increment = end / (duration * 60);
-    
     const timer = setInterval(() => {
       start += increment;
       if (start >= end) {
@@ -32,19 +29,15 @@ const StatsCard: React.FC<StatsCardProps> = ({ end, label, suffix = "", duration
         setCount(Math.floor(start));
       }
     }, 1000 / 60);
-
     return () => clearInterval(timer);
   }, [inView, end, duration]);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 md:p-8 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-      <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-        <span ref={ref}>
-          {count.toLocaleString()}
-          {suffix}
-        </span>
+    <div className="flex flex-col items-center justify-center p-8 border-r-4 border-black last:border-r-0 hover:bg-yellow-300 transition-colors cursor-default group">
+      <div className="text-4xl md:text-6xl font-black font-mono text-black group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
+        <span ref={ref}>{count.toLocaleString()}</span>{suffix}
       </div>
-      <p className="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400 uppercase tracking-wider font-medium">
+      <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 group-hover:text-black">
         {label}
       </p>
     </div>
@@ -56,16 +49,16 @@ const StatsSection: React.FC = () => {
 
   const stats = [
     { end: 191726, label: t("Active users", "Utilisateurs actifs") },
-    { end: 7858881, label: t("Posts published last month", "Publications publiées le mois dernier") },
-    { end: 11, label: t("Social platforms supported", "Plateformes sociales prises en charge") },
+    { end: 7858881, label: t("Posts published", "Posts publiés") },
+    { end: 11, label: t("Platforms", "Plateformes") },
   ];
 
   return (
-    <section className="w-full bg-white dark:bg-gray-900 py-12 md:py-16 border-t border-gray-200/50 dark:border-gray-800/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+    <section className="w-full bg-white border-b-4 border-black">
+      <div className="container mx-auto px-0">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y-4 md:divide-y-0 divide-black">
           {stats.map((item) => (
-            <StatsCard key={item.label} end={item.end} label={item.label} />
+            <StatsCard key={item.label} {...item} />
           ))}
         </div>
       </div>
