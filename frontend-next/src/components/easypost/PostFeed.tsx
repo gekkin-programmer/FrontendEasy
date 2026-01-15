@@ -3,10 +3,28 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+
+// --- NEU COMPONENTS ---
+
+const NeuBadge = ({ children, className }: any) => (
+  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black", className)}>
+    {children}
+  </span>
+);
+
+const NeuButton = ({ onClick, children, className }: any) => (
+  <button 
+    onClick={onClick} 
+    className={cn(
+      "p-2 border-2 border-transparent hover:border-black hover:bg-yellow-200 transition-all text-black", 
+      className
+    )}
+  >
+    {children}
+  </button>
+);
 
 // --- TYPES ---
 interface Post {
@@ -33,10 +51,10 @@ interface PostFeedProps {
 // Helper
 const PlatformIcon = ({ platform }: { platform?: string }) => {
   switch (platform?.toLowerCase()) {
-    case 'twitter': return <span className="text-blue-400 font-bold text-[10px]">𝕏</span>;
-    case 'linkedin': return <span className="text-blue-600 font-bold text-[10px]">in</span>;
-    case 'instagram': return <span className="text-pink-600 font-bold text-[10px]">IG</span>;
-    case 'facebook': return <span className="text-blue-600 font-bold text-[10px]">FB</span>;
+    case 'twitter': return <span className="text-black font-black text-[10px]">X</span>;
+    case 'linkedin': return <span className="text-[#0077b5] font-black text-[10px]">IN</span>;
+    case 'instagram': return <span className="text-[#e1306c] font-black text-[10px]">IG</span>;
+    case 'facebook': return <span className="text-[#1877f2] font-black text-[10px]">FB</span>;
     default: return <span className="text-gray-400 text-[10px]">#</span>;
   }
 };
@@ -45,7 +63,7 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
   const drafts = posts.filter(p => p.status === 'DRAFT');
-  const queued = posts.filter(p => p.status !== 'DRAFT'); // Include Published/Failed too
+  const queued = posts.filter(p => p.status !== 'DRAFT');
 
   // --- ACTIONS ---
   const deletePost = async (postId: string) => {
@@ -55,10 +73,10 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success("Post deleted");
+        toast.success("POST_DELETED");
         window.location.reload(); 
     } catch (e) {
-        toast.error("Failed to delete");
+        toast.error("FAILED_TO_DELETE");
     }
   };
 
@@ -76,10 +94,10 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
                 scheduledFor: new Date(scheduledFor).toISOString() 
             })
         });
-        toast.success("Post scheduled!");
+        toast.success("POST_SCHEDULED");
         window.location.reload();
     } catch (e) {
-        toast.error("Failed to update status");
+        toast.error("UPDATE_FAILED");
     }
   };
 
@@ -101,15 +119,17 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-black">
       
       {/* --- LEFT COLUMN: DRAFTS --- */}
       <div className="flex flex-col gap-4">
-        <h3 className="font-bold text-muted-foreground text-xs uppercase tracking-wider flex items-center gap-2 px-1">
-          <FileText className="w-3.5 h-3.5" /> Drafts ({drafts.length})
-        </h3>
+        <div className="bg-yellow-400 p-2 border-2 border-black inline-block w-full">
+            <h3 className="font-black text-sm uppercase flex items-center gap-2">
+              <FileText className="w-4 h-4" /> Drafts ({drafts.length})
+            </h3>
+        </div>
         
-        <div className="space-y-3 min-h-[200px]">
+        <div className="space-y-4 min-h-[200px]">
           <AnimatePresence mode="popLayout">
             {drafts.map((post) => (
               <PostCard 
@@ -124,8 +144,8 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           </AnimatePresence>
           
           {drafts.length === 0 && (
-            <div className="text-center p-8 border border-dashed border-border rounded-xl text-muted-foreground text-sm bg-card/50">
-              No drafts yet. Start writing!
+            <div className="text-center p-8 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
+              No_Drafts_Yet
             </div>
           )}
         </div>
@@ -137,14 +157,16 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
         onDragOver={handleDragOver}
         className="relative group flex flex-col gap-4"
       >
-        <h3 className="font-bold text-[#304AEB] text-xs uppercase tracking-wider flex items-center gap-2 px-1">
-          <Clock className="w-3.5 h-3.5" /> Queue / Scheduled ({queued.length})
-        </h3>
+        <div className="bg-black text-white p-2 border-2 border-black inline-block w-full">
+            <h3 className="font-black text-sm uppercase flex items-center gap-2">
+              <Clock className="w-4 h-4" /> Queue / Scheduled ({queued.length})
+            </h3>
+        </div>
 
         {/* Drop Zone Highlight */}
-        <div className="absolute inset-0 top-8 -z-10 bg-[#304AEB]/5 rounded-xl border-2 border-[#304AEB]/20 border-dashed opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+        <div className="absolute inset-0 top-10 -z-10 bg-blue-100 border-2 border-black border-dashed opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
 
-        <div className="space-y-3 min-h-[200px] z-10">
+        <div className="space-y-4 min-h-[200px] z-10">
           <AnimatePresence mode="popLayout">
             {queued.map((post) => (
               <PostCard 
@@ -158,8 +180,8 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           </AnimatePresence>
           
           {queued.length === 0 && (
-             <div className="text-center p-12 border border-dashed border-border bg-card/50 rounded-xl text-muted-foreground text-sm">
-               Drag a draft here to schedule it automatically.
+             <div className="text-center p-12 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
+               DRAG_DRAFT_HERE_TO_SCHEDULE
              </div>
           )}
         </div>
@@ -185,10 +207,10 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#304AEB]/15 text-[#304AEB] border border-[#304AEB]/20";
-        case 'PUBLISHED': return "bg-green-500/15 text-green-400 border border-green-500/20";
-        case 'FAILED': return "bg-red-500/15 text-red-400 border border-red-500/20";
-        default: return "bg-zinc-100 dark:bg-zinc-800 text-muted-foreground border border-border";
+        case 'SCHEDULED': return "bg-[#3C48F6] text-white";
+        case 'PUBLISHED': return "bg-green-500 text-black";
+        case 'FAILED': return "bg-red-500 text-white";
+        default: return "bg-gray-200 text-gray-600";
     }
   };
 
@@ -202,65 +224,60 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
       draggable={draggable}
       onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-card border rounded-xl p-4 shadow-sm transition-all hover:shadow-md",
-        draggable ? "cursor-grab active:cursor-grabbing hover:border-[#304AEB]/50" : "border-border"
+        "group relative bg-white border-2 border-black p-4 transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000]",
+        draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50" : ""
       )}
     >
       {/* Drag Handle Indicator */}
       {draggable && (
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity">
-          <GripVertical size={14} />
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+          <GripVertical size={16} />
         </div>
       )}
 
       {/* Header */}
       <div className={cn("flex justify-between items-start mb-3", draggable && "pl-4")}>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-none bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
              <PlatformIcon platform={account?.platform} />
           </div>
-          <div className="text-xs text-muted-foreground">
-            <p className="font-semibold text-foreground">{account?.username || account?.platformUsername || "Unknown"}</p>
-            <p className="opacity-70 text-[10px] uppercase">{account?.platform || "—"}</p>
+          <div className="text-xs">
+            <p className="font-black uppercase">{account?.username || account?.platformUsername || "Unknown"}</p>
+            <p className="opacity-70 text-[10px] font-mono">{account?.platform || "—"}</p>
           </div>
         </div>
 
-        <Badge variant="outline" className={cn("text-[10px] font-bold px-2 py-0.5 shadow-none", getStatusColor(post.status))}>
+        <NeuBadge className={getStatusColor(post.status)}>
           {post.status}
-        </Badge>
+        </NeuBadge>
       </div>
 
       {/* Content Body */}
       <div className={cn("flex gap-3", draggable && "pl-4")}>
         {post.mediaUrls && post.mediaUrls.length > 0 && (
-           <div className="w-16 h-16 rounded-lg bg-background overflow-hidden flex-shrink-0 border border-border relative">
-             <img src={post.mediaUrls[0]} alt="Post Media" className="w-full h-full object-cover" />
+           <div className="w-16 h-16 bg-gray-100 border-2 border-black overflow-hidden flex-shrink-0 relative shadow-[2px_2px_0px_0px_#000]">
+             <img src={post.mediaUrls[0]} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
            </div>
         )}
-        <p className="text-sm text-foreground/90 line-clamp-2 flex-1 leading-relaxed">
+        <p className="text-sm font-medium text-black line-clamp-2 flex-1 leading-relaxed border-l-2 border-gray-200 pl-3">
           {post.content}
         </p>
       </div>
 
       {/* Footer */}
-      <div className={cn("mt-4 pt-3 border-t border-border flex justify-between items-center", draggable && "pl-4")}>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className={cn("mt-4 pt-3 border-t-2 border-black flex justify-between items-center", draggable && "pl-4")}>
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500">
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
-           <span className="font-medium">
+           <span>
              {post.scheduledFor 
                ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
-               : 'No date set'}
+               : 'NO_DATE_SET'}
            </span>
         </div>
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        >
+        <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
           <Trash2 size={14} />
-        </Button>
+        </NeuButton>
       </div>
     </motion.div>
   );
