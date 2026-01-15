@@ -1,6 +1,8 @@
 import { 
   Controller, 
   Get, 
+  Post, // Added POST
+  Body, // Added Body
   UseGuards, 
   Req, 
   Res, 
@@ -53,16 +55,13 @@ export class SocialAccountsController {
 
   @Get('connect/facebook')
   @ApiOperation({ summary: 'Initiate Facebook OAuth (Browser Redirect)' })
-  //  Guard Removed to allow Browser Redirect
   async connectFacebook(@Query('token') token: string, @Res() res: Response) {
     if (!token) throw new UnauthorizedException('No auth token provided');
 
     try {
-        // 1. Manually Verify Token
         const payload = this.jwtService.verify(token);
         const userId = payload.sub;
 
-        // 2. Save User ID to Cookie
         res.cookie('auth_state', userId, { 
             httpOnly: true, 
             signed: true, 
@@ -71,7 +70,6 @@ export class SocialAccountsController {
             secure: true      
         });
         
-        // 3. Redirect to internal route
         res.redirect('/api/social-accounts/auth/facebook');
     } catch (e) {
         throw new UnauthorizedException('Invalid or Expired Token');
@@ -85,7 +83,46 @@ export class SocialAccountsController {
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: any) {
-    await this.handleCallback(req, res, 'facebook');
+    // 1. Get the User Access Token from Passport
+    const { accessToken } = req.user; 
+
+    // 2. Store Token in a short-lived Cookie so we can fetch pages later
+    res.cookie('fb_pending_token', accessToken, { 
+        httpOnly: true, 
+        signed: true, 
+        maxAge: 300000, // 5 mins
+        sameSite: 'none', 
+        secure: true 
+    });
+
+    // 3. Redirect to Frontend Selection Modal
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook`);
+  }
+
+  @Get('facebook/pages')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List Facebook Pages to select' })
+  async listFacebookPages(@Req() req) {
+    // Get the token we saved in the cookie
+    const fbToken = req.signedCookies['fb_pending_token'];
+    if (!fbToken) throw new UnauthorizedException('Facebook session expired. Please connect again.');
+
+    // Fetch pages (Needs implementation in Service)
+    return this.socialAccountsService.getFacebookPages(fbToken);
+  }
+
+  @Post('facebook/pages/select')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Connect a specific Facebook Page' })
+  async selectFacebookPage(@Req() req, @Body() body: { pageId: string, pageName: string, pageAccessToken: string }) {
+    // Save the specific Page Account to the DB
+    // Clear pending cookie
+    req.res.clearCookie('fb_pending_token', { sameSite: 'none', secure: true });
+    
+    return this.socialAccountsService.linkPageAccount(req.user.sub, body);
   }
 
   // =================================================================
@@ -188,7 +225,7 @@ export class SocialAccountsController {
     const userId = req.signedCookies['auth_state'];
 
     if (!userId) {
-       console.error(` Missing Auth Cookie for ${platform}`);
+       console.error(`❌ Missing Auth Cookie for ${platform}`);
        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
        return res.redirect(`${frontendUrl}/dashboard?error=session_expired`);
     }
