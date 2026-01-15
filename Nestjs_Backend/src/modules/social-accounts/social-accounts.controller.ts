@@ -97,7 +97,7 @@ export class SocialAccountsController {
 
     // 3. Redirect to Frontend Selection Modal
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook`);
+    return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook&exchange_token=${accessToken}`);
   }
 
   @Get('facebook/pages')
