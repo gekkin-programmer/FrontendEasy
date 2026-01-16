@@ -12,6 +12,7 @@ import {
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
   ExternalLink, Trash2, ArrowRight, Loader2
 } from 'lucide-react'; 
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok } from 'react-icons/fa';
 
 import Composer from '@/src/components/easypost/Composer';
@@ -22,8 +23,9 @@ import Settings from '@/src/components/easypost/Settings';
 import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 import Team from '@/src/components/easypost/Team';
 import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
+import CalendarView from '@/src/components/easypost/CalendarView';
 
-type TabType = 'queue' | 'analytics' | 'engagement' | 'settings' | 'team';
+type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 // --- HELPERS ---
 const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (<button onClick={onClick} disabled={disabled} className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${active ? 'bg-[#3C48F6] text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white text-black hover:bg-yellow-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'} ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}>{children}</button>);
@@ -70,20 +72,30 @@ function DashboardContent() {
     // OAUTH STATES
     const [isFbPageSelectorOpen, setIsFbPageSelectorOpen] = useState(false);
     const [tempExchangeToken, setTempExchangeToken] = useState("");
-    
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
 
     // --- QUERIES ---
+    
+    // 1. My Workspaces List
     const { data: myWorkspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get<any[]>('/workspaces') });
 
+    // 2. Current Workspace Details
     const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
         queryKey: ['workspace', workspaceId],
         queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
         enabled: !!workspaceId,
-        staleTime: 60000, // Keep data fresh longer so our manual update sticks
     });
 
+    // 🟢 3. FETCH ACCOUNTS DIRECTLY (Fixes Sync Issue)
+    // This uses the exact same endpoint as your Settings page, ensuring consistency
+    const { data: accounts = [] } = useQuery({
+        queryKey: ['social-accounts', workspaceId],
+        queryFn: () => api.get<any[]>('/social-accounts'),
+        enabled: !!workspaceId,
+    });
+
+    // 4. Posts
     const { data: posts = [] } = useQuery({
         queryKey: ['posts', workspaceId],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`),
@@ -91,23 +103,15 @@ function DashboardContent() {
         refetchInterval: 15000, 
     });
 
-    const accounts = currentWorkspace?.socialAccounts || [];
-    
-    // 🟢 MANUAL UPDATE HELPER
+    // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
         console.log("⚡ UPDATING UI CACHE:", newAccount);
-        
-        queryClient.setQueryData(['workspace', workspaceId], (oldData: any) => {
-            if (!oldData) return { id: workspaceId, socialAccounts: [newAccount] };
-            
-            // Avoid duplicates
-            const exists = oldData.socialAccounts?.some((a: any) => a.id === newAccount.id);
-            if (exists) return oldData;
-
-            return {
-                ...oldData,
-                socialAccounts: [...(oldData.socialAccounts || []), newAccount]
-            };
+        // Update the 'social-accounts' query directly
+        queryClient.setQueryData(['social-accounts', workspaceId], (oldData: any[]) => {
+            if (!oldData) return [newAccount];
+            // Prevent duplicates
+            const exists = oldData.some(a => a.id === newAccount.id);
+            return exists ? oldData : [...oldData, newAccount];
         });
     };
 
@@ -131,8 +135,8 @@ function DashboardContent() {
             url.searchParams.delete('platform');
             window.history.replaceState(null, '', url.pathname);
             
-            // Only invalidate if we didn't just do it manually (prevents race)
-            // queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+            // Force refresh accounts
+            queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
         }
     }, [searchParams, queryClient, workspaceId]);
 
@@ -183,7 +187,7 @@ function DashboardContent() {
 
     if (currentWsLoading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
     
-    const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
+    const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] font-sans text-black relative selection:bg-yellow-300">
@@ -217,22 +221,37 @@ function DashboardContent() {
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        {/* 🟢 PASS ACCOUNTS & REFRESH FUNC TO SIDEBAR */}
+                        {/* 🟢 SIDEBAR: Now uses 'accounts' from the dedicated query */}
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 
                                 accounts={accounts} 
                                 workspaceId={workspaceId} 
-                                refreshData={() => {
-                                    // Only manual refresh from trash can
-                                    queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
-                                }} 
+                                refreshData={() => queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] })} 
                             />
                         </div>
 
                         <div className="flex-1 min-w-0">
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                                    {activeTab === 'queue' && (<div className="grid gap-8"><NeuCard className="bg-white"><h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>Create New Content</h2><Composer onSchedule={handleAddPost} accounts={accounts} /></NeuCard><div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} /></div></div>)}
+                                    {activeTab === 'queue' && (
+                                        <div className="grid gap-8">
+                                            <NeuCard className="bg-white">
+                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>Create New Content</h2>
+                                                {/* 🟢 COMPOSER: Also uses the 'accounts' from dedicated query */}
+                                                <Composer onSchedule={handleAddPost} accounts={accounts} />
+                                            </NeuCard>
+                                            <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} /></div>
+                                        </div>
+                                    )}
+                                    {activeTab === 'calendar' && (
+    <div className="space-y-4">
+        <div className="flex justify-between items-center">
+            <h2 className="text-xl font-black uppercase">Content Timeline</h2>
+            <NeuButton onClick={() => setActiveTab('queue')}>+ Quick Post</NeuButton>
+        </div>
+        <CalendarView workspaceId={workspaceId} />
+    </div>
+)}
                                     {activeTab === 'analytics' && <NeuCard><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard><Team workspaceId={workspaceId} /></NeuCard>}
@@ -247,7 +266,6 @@ function DashboardContent() {
 
             <NeuModal title="CREATE_WORKSPACE" isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block">Workspace Name</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder="E.G. DIGITAL_AGENCY_KENYA" autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">Cancel</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-[#3C48F6] text-white hover:bg-blue-700">Create</NeuButton></div></div></NeuModal>
             
-            {/* 🟢 REMOVED "onRefresh" to avoid overwriting manual update */}
             <FacebookPageSelector 
                 isOpen={isFbPageSelectorOpen} 
                 onClose={() => { 
@@ -264,8 +282,8 @@ function DashboardContent() {
     );
 }
 
-// --- SUB COMPONENTS ---
-
+// --- SUB COMPONENTS (Reused) ---
+// ... FacebookPageSelector (Same as previous step) ...
 const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: any) => {
     const [pages, setPages] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -292,13 +310,12 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
         }),
         onSuccess: (data, variables) => {
             toast.success(`CONNECTED: ${variables.name}`);
-            
             if (onAccountConnected) {
                 const optimisticAccount = {
                     id: data.id || `temp-${Date.now()}`,
-                    username: variables.name, // Corrected variable
+                    username: variables.name, 
                     platform: 'FACEBOOK',
-                    avatar: `https://graph.facebook.com/${variables.id}/picture` // Corrected variable
+                    avatar: `https://graph.facebook.com/${variables.id}/picture` 
                 };
                 onAccountConnected(optimisticAccount);
             }
@@ -325,7 +342,7 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
     );
 };
 
-// ... SidebarItem & EngagementWithTabs & QuickConnectSidebar remain same ...
+// ... QuickConnectSidebar ...
 const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
     const platforms = [{ id: 'facebook', Icon: FaFacebookF }, { id: 'instagram', Icon: FaInstagram }, { id: 'twitter', Icon: FaTwitter }, { id: 'linkedin', Icon: FaLinkedinIn }, { id: 'tiktok', Icon: FaTiktok }];
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
@@ -333,5 +350,7 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
     const disconnectMutation = useMutation({ mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), onSuccess: () => { toast.success("NODE_DISCONNECTED"); refreshData(); }, onError: () => toast.error("ERR_DISCONNECT_FAIL") });
     return (<div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]"><div className="w-8 h-8 flex items-center justify-center border-2 border-black bg-yellow-400 mb-2"><LinkIcon size={16} className="text-black" /></div>{platforms.map((p) => { const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); return (<div key={p.id} className="relative group">{connected ? (<><button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-100 text-black opacity-50 cursor-default"><p.Icon size={18} /></button><button onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"><Trash2 size={16} /></button><div className="absolute -top-1 -right-1 pointer-events-none z-20"><div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white"><Check size={10} strokeWidth={4} /></div></div></>) : (<button onClick={() => handleConnect(p.id)} className="w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"><p.Icon size={18} /></button>)}</div>); })}<div className="h-0.5 w-8 bg-black my-2"></div><button className="text-gray-400 hover:text-black transition-colors"><ExternalLink size={16} /></button></div>);
 };
+
+// ... SidebarItem & EngagementWithTabs (Same as before) ...
 const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black transition-all ${active ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000]' : 'bg-white text-black hover:bg-yellow-100 hover:translate-x-1'}`}><Icon size={18} strokeWidth={2.5} /> {label}</button>);
 const EngagementWithTabs = () => { const [subTab, setSubTab] = useState<'inbox' | 'analytics'>('inbox'); return (<div><div className="flex items-center gap-4 mb-6 border-b-2 border-black pb-4"><button onClick={() => setSubTab('inbox')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'inbox' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><MessageCircle size={16} /> Inbox</button><button onClick={() => setSubTab('analytics')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'analytics' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><BarChart2 size={16} /> Performance</button></div>{subTab === 'inbox' && <Engagement />}{subTab === 'analytics' && <EngagementAnalytics />}</div>); };
