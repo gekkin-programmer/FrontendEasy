@@ -62,7 +62,13 @@ export class WorkspacesService {
       where: { id },
       include: {
         socialAccounts: true,
-        members: { include: { user: true } },
+          members: { 
+    include: { 
+      user: { 
+        select: { id: true, firstName: true, lastName: true, avatar: true, email: true } 
+      } 
+    } 
+  },
       }
     });
 
