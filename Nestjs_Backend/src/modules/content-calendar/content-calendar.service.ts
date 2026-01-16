@@ -19,7 +19,6 @@ export class ContentCalendarService {
         content: true,
         scheduledFor: true,
         status: true,
-        
         socialAccounts: {
           select: {
             socialAccount: {
@@ -31,14 +30,13 @@ export class ContentCalendarService {
           }
         }
       },
-      orderBy: {
-        scheduledFor: 'asc',
-      },
+      orderBy: { scheduledFor: 'asc' },
     });
 
+    //Flatten the response
     return posts.map(post => ({
       ...post,
-      socialAccounts: post.socialAccounts.map(link => link.socialAccount)
+      socialAccounts: post.socialAccounts.map(link => link.socialAccount) 
     }));
   }
 }

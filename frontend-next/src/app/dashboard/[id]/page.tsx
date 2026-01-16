@@ -159,6 +159,7 @@ function DashboardContent() {
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
             queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+            queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
         },
         onError: () => toast.error("TRANSACTION_FAILED")
     });
