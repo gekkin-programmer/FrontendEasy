@@ -25,7 +25,7 @@ import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
 
 type TabType = 'queue' | 'analytics' | 'engagement' | 'settings' | 'team';
 
-// --- HELPERS & STYLES ---
+// --- HELPERS ---
 const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (<button onClick={onClick} disabled={disabled} className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${active ? 'bg-[#3C48F6] text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white text-black hover:bg-yellow-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'} ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}>{children}</button>);
 const NeuCard = ({ children, className = "" }: any) => (<div className={`bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 ${className}`}>{children}</div>);
 const NeuInput = (props: any) => (<input {...props} className="bg-white border-2 border-black p-2 font-bold text-sm placeholder:text-gray-400 focus:outline-none focus:bg-yellow-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all w-full font-mono" />);
@@ -46,7 +46,6 @@ const NeuModal = ({ title, isOpen, onClose, children }: any) => {
     );
 };
 
-// 🟢 1. WRAPPER COMPONENT (MANDATORY FOR SEARCH PARAMS)
 export default function DashboardPage() {
     return (
         <Suspense fallback={<div className="h-screen w-full flex items-center justify-center font-bold">LOADING_INTERFACE...</div>}>
@@ -55,7 +54,6 @@ export default function DashboardPage() {
     );
 }
 
-// 🟢 2. MAIN CONTENT
 function DashboardContent() {
     const params = useParams();
     const router = useRouter();
@@ -77,28 +75,50 @@ function DashboardContent() {
     const [searchTerm, setSearchTerm] = useState("");
 
     // --- QUERIES ---
-    const { data: myWorkspaces = [], isLoading: wsListLoading } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get<any[]>('/workspaces') });
-    const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({ queryKey: ['workspace', workspaceId], queryFn: () => api.get<any>(`/workspaces/${workspaceId}`), enabled: !!workspaceId });
-    const { data: posts = [] } = useQuery({ queryKey: ['posts', workspaceId], queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`), enabled: !!workspaceId, refetchInterval: 15000 });
+    const { data: myWorkspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get<any[]>('/workspaces') });
+
+    const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
+        queryKey: ['workspace', workspaceId],
+        queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
+        enabled: !!workspaceId,
+        staleTime: 60000, // Keep data fresh longer so our manual update sticks
+    });
+
+    const { data: posts = [] } = useQuery({
+        queryKey: ['posts', workspaceId],
+        queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`),
+        enabled: !!workspaceId,
+        refetchInterval: 15000, 
+    });
 
     const accounts = currentWorkspace?.socialAccounts || [];
-    const loading = wsListLoading || currentWsLoading;
+    
+    // 🟢 MANUAL UPDATE HELPER
+    const manuallyAddAccount = (newAccount: any) => {
+        console.log("⚡ UPDATING UI CACHE:", newAccount);
+        
+        queryClient.setQueryData(['workspace', workspaceId], (oldData: any) => {
+            if (!oldData) return { id: workspaceId, socialAccounts: [newAccount] };
+            
+            // Avoid duplicates
+            const exists = oldData.socialAccounts?.some((a: any) => a.id === newAccount.id);
+            if (exists) return oldData;
 
-    // 🟢 3. DEBUGGED OAUTH LOGIC
+            return {
+                ...oldData,
+                socialAccounts: [...(oldData.socialAccounts || []), newAccount]
+            };
+        });
+    };
+
+    // --- OAUTH LOGIC ---
     useEffect(() => {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
         const token = searchParams.get('exchange_token');
 
-        console.log("🔍 OAUTH CHECK:", { selectionMode, connected, hasToken: !!token });
-
         if (selectionMode === 'facebook') {
-            console.log("🔵 FACEBOOK MODE ACTIVE");
-            if (token) {
-                console.log("🔑 Token captured, opening modal...");
-                setTempExchangeToken(token);
-            }
-            // Force modal open even if token comes slightly later (React Query handles component lifecycle)
+            if (token) setTempExchangeToken(token);
             setIsFbPageSelectorOpen(true);
         }
 
@@ -108,10 +128,14 @@ function DashboardContent() {
             url.searchParams.delete('social_connected');
             url.searchParams.delete('social_selection');
             url.searchParams.delete('exchange_token');
+            url.searchParams.delete('platform');
             window.history.replaceState(null, '', url.pathname);
-            queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+            
+            // Only invalidate if we didn't just do it manually (prevents race)
+            // queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
         }
     }, [searchParams, queryClient, workspaceId]);
+
 
     // --- MUTATIONS ---
     const createWorkspaceMutation = useMutation({
@@ -157,7 +181,7 @@ function DashboardContent() {
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
     const filteredPosts = posts.filter((p:any) => JSON.stringify(p).toLowerCase().includes(searchTerm.toLowerCase()));
 
-    if (loading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
+    if (currentWsLoading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
     
     const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
 
@@ -182,7 +206,8 @@ function DashboardContent() {
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 backdrop-blur-sm border-b-4 border-black items-center justify-between px-8 shadow-sm">
-                    <div className="flex items-center gap-8"><div className="flex items-center gap-2"><div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-2xl border-2 border-transparent">E</div><span className="font-black text-2xl tracking-tighter italic">EASYPOST.</span></div>
+                    <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-2"><div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-2xl border-2 border-transparent">E</div><span className="font-black text-2xl tracking-tighter italic">EASYPOST.</span></div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black rounded-none overflow-hidden bg-gray-100"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px]">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black" /></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map(ws => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 border-2 border-transparent hover:border-black transition-all"><div className="w-5 h-5 border border-black overflow-hidden bg-gray-50"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
@@ -192,7 +217,18 @@ function DashboardContent() {
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        <div className="hidden lg:block sticky top-32 z-10 self-start"><QuickConnectSidebar accounts={accounts} workspaceId={workspaceId} refreshData={() => queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] })} /></div>
+                        {/* 🟢 PASS ACCOUNTS & REFRESH FUNC TO SIDEBAR */}
+                        <div className="hidden lg:block sticky top-32 z-10 self-start">
+                            <QuickConnectSidebar 
+                                accounts={accounts} 
+                                workspaceId={workspaceId} 
+                                refreshData={() => {
+                                    // Only manual refresh from trash can
+                                    queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+                                }} 
+                            />
+                        </div>
+
                         <div className="flex-1 min-w-0">
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
@@ -211,22 +247,26 @@ function DashboardContent() {
 
             <NeuModal title="CREATE_WORKSPACE" isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block">Workspace Name</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder="E.G. DIGITAL_AGENCY_KENYA" autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">Cancel</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-[#3C48F6] text-white hover:bg-blue-700">Create</NeuButton></div></div></NeuModal>
             
-            {/*  MODAL PLACED HERE FOR SURE VISIBILITY */}
-            <FacebookPageSelector isOpen={isFbPageSelectorOpen} onClose={() => { 
-                setIsFbPageSelectorOpen(false); 
-                // Remove facebook params from URL when closed
-                const url = new URL(window.location.href);
-                url.searchParams.delete('social_selection');
-                url.searchParams.delete('exchange_token');
-                window.history.replaceState(null, '', url.pathname);
-            }} onRefresh={() => queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] })} exchangeToken={tempExchangeToken} />
+            {/* 🟢 REMOVED "onRefresh" to avoid overwriting manual update */}
+            <FacebookPageSelector 
+                isOpen={isFbPageSelectorOpen} 
+                onClose={() => { 
+                    setIsFbPageSelectorOpen(false); 
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('social_selection');
+                    url.searchParams.delete('exchange_token');
+                    window.history.replaceState(null, '', url.pathname);
+                }} 
+                onAccountConnected={manuallyAddAccount} 
+                exchangeToken={tempExchangeToken} 
+            />
         </div>
     );
 }
 
 // --- SUB COMPONENTS ---
 
-const FacebookPageSelector = ({ isOpen, onClose, onRefresh, exchangeToken }: any) => {
+const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: any) => {
     const [pages, setPages] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -234,31 +274,34 @@ const FacebookPageSelector = ({ isOpen, onClose, onRefresh, exchangeToken }: any
         if (isOpen) {
             setIsLoading(true);
             let endpoint = '/social-accounts/facebook/pages';
-            if (exchangeToken) endpoint += `?exchange_token=${exchangeToken}`;
+            if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;
             
-            console.log("📡 FETCHING FB PAGES from:", endpoint); 
-
             api.get<any>(endpoint)
                 .then(data => {
                     const list = Array.isArray(data) ? data : (data.data || []);
-                    console.log(" FB PAGES:", list); 
                     setPages(list);
                 })
-                .catch((e) => {
-                    console.error(" FB FETCH ERROR:", e);
-                    toast.error("FB_FETCH_FAILED");
-                })
+                .catch(() => toast.error("FB_FETCH_FAILED"))
                 .finally(() => setIsLoading(false));
         }
     }, [isOpen, exchangeToken]);
 
     const selectMutation = useMutation({
-        mutationFn: (page: any) => api.post('/social-accounts/facebook/pages/select', {
+        mutationFn: (page: any) => api.post<any>('/social-accounts/facebook/pages/select', {
             pageId: page.id, pageName: page.name, pageAccessToken: page.access_token, exchangeToken
         }),
         onSuccess: (data, variables) => {
             toast.success(`CONNECTED: ${variables.name}`);
-            onRefresh();
+            
+            if (onAccountConnected) {
+                const optimisticAccount = {
+                    id: data.id || `temp-${Date.now()}`,
+                    username: variables.name, // Corrected variable
+                    platform: 'FACEBOOK',
+                    avatar: `https://graph.facebook.com/${variables.id}/picture` // Corrected variable
+                };
+                onAccountConnected(optimisticAccount);
+            }
             onClose();
         },
         onError: () => toast.error("CONNECTION_FAILED")
@@ -282,25 +325,13 @@ const FacebookPageSelector = ({ isOpen, onClose, onRefresh, exchangeToken }: any
     );
 };
 
+// ... SidebarItem & EngagementWithTabs & QuickConnectSidebar remain same ...
 const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
     const platforms = [{ id: 'facebook', Icon: FaFacebookF }, { id: 'instagram', Icon: FaInstagram }, { id: 'twitter', Icon: FaTwitter }, { id: 'linkedin', Icon: FaLinkedinIn }, { id: 'tiktok', Icon: FaTiktok }];
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
-    
-    const handleConnect = (platform: string) => {
-        const token = localStorage.getItem('accessToken');
-        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
-    };
-
-    const disconnectMutation = useMutation({
-        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
-        onSuccess: () => { toast.success("NODE_DISCONNECTED"); refreshData(); },
-        onError: () => toast.error("ERR_DISCONNECT_FAIL")
-    });
-
-    return (
-        <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]"><div className="w-8 h-8 flex items-center justify-center border-2 border-black bg-yellow-400 mb-2"><LinkIcon size={16} className="text-black" /></div>{platforms.map((p) => { const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); return (<div key={p.id} className="relative group">{connected ? (<><button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-100 text-black opacity-50 cursor-default"><p.Icon size={18} /></button><button onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"><Trash2 size={16} /></button><div className="absolute -top-1 -right-1 pointer-events-none z-20"><div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white"><Check size={10} strokeWidth={4} /></div></div></>) : (<button onClick={() => handleConnect(p.id)} className="w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"><p.Icon size={18} /></button>)}</div>); })}<div className="h-0.5 w-8 bg-black my-2"></div><button className="text-gray-400 hover:text-black transition-colors"><ExternalLink size={16} /></button></div>
-    );
+    const handleConnect = (platform: string) => { const token = localStorage.getItem('accessToken'); window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; };
+    const disconnectMutation = useMutation({ mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), onSuccess: () => { toast.success("NODE_DISCONNECTED"); refreshData(); }, onError: () => toast.error("ERR_DISCONNECT_FAIL") });
+    return (<div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]"><div className="w-8 h-8 flex items-center justify-center border-2 border-black bg-yellow-400 mb-2"><LinkIcon size={16} className="text-black" /></div>{platforms.map((p) => { const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); return (<div key={p.id} className="relative group">{connected ? (<><button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-100 text-black opacity-50 cursor-default"><p.Icon size={18} /></button><button onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"><Trash2 size={16} /></button><div className="absolute -top-1 -right-1 pointer-events-none z-20"><div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white"><Check size={10} strokeWidth={4} /></div></div></>) : (<button onClick={() => handleConnect(p.id)} className="w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"><p.Icon size={18} /></button>)}</div>); })}<div className="h-0.5 w-8 bg-black my-2"></div><button className="text-gray-400 hover:text-black transition-colors"><ExternalLink size={16} /></button></div>);
 };
-
 const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black transition-all ${active ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000]' : 'bg-white text-black hover:bg-yellow-100 hover:translate-x-1'}`}><Icon size={18} strokeWidth={2.5} /> {label}</button>);
 const EngagementWithTabs = () => { const [subTab, setSubTab] = useState<'inbox' | 'analytics'>('inbox'); return (<div><div className="flex items-center gap-4 mb-6 border-b-2 border-black pb-4"><button onClick={() => setSubTab('inbox')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'inbox' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><MessageCircle size={16} /> Inbox</button><button onClick={() => setSubTab('analytics')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'analytics' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><BarChart2 size={16} /> Performance</button></div>{subTab === 'inbox' && <Engagement />}{subTab === 'analytics' && <EngagementAnalytics />}</div>); };
