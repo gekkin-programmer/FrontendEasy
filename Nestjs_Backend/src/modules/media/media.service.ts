@@ -9,30 +9,51 @@ export class MediaService {
     private cloudinary: CloudinaryService
   ) {}
 
+  //Query Workspace directly instead of User relations
+  async findAll(userId: string) {
+    try {
+      // Find the first workspace owned by this user
+      // (If you have a 'members' relation, you can add an OR clause here later)
+      const workspace = await this.prisma.workspace.findFirst({
+        where: {
+          ownerId: userId
+        }
+      });
+
+      if (!workspace) {
+        // If they don't own one, return empty array or handle error
+        return []; 
+      }
+
+      // Fetch media for that workspace
+      return this.prisma.mediaLibrary.findMany({
+        where: { workspaceId: workspace.id },
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Could not fetch media');
+    }
+  }
+
+  // same logic to upload
   async processUpload(file: any, userId: string) {
     try {
-      // 1. Upload to Cloudinary
       const cloudResult = await this.cloudinary.uploadFile(file);
       
-      // 2. Find User's Workspace
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: { ownedWorkspaces: true }
+      // Find Workspace by Owner ID
+      const workspace = await this.prisma.workspace.findFirst({
+        where: { ownerId: userId }
       });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      
-      if (!user.ownedWorkspaces.length) {
-        throw new NotFoundException('User has no workspace');
-      }
-      const workspaceId = user.ownedWorkspaces[0].id
 
-      // 3. Save to DB
+      if (!workspace) {
+        throw new NotFoundException('No workspace found for this user');
+      }
+
       const media = await this.prisma.mediaLibrary.create({
         data: {
           uploaderId: userId,
-          workspaceId: workspaceId,
+          workspaceId: workspace.id,
           url: cloudResult.secure_url,
           filename: file.originalname,
           mimeType: file.mimetype,
