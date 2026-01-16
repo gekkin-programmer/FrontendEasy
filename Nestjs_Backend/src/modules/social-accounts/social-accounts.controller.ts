@@ -104,15 +104,19 @@ export class SocialAccountsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'List Facebook Pages to select' })
-  async listFacebookPages(@Req() req) {
-    // Get the token we saved in the cookie
-    const fbToken = req.signedCookies['fb_pending_token'];
-    if (!fbToken) throw new UnauthorizedException('Facebook session expired. Please connect again.');
+  async listFacebookPages(
+    @Req() req, 
+    @Query('exchange_token') queryToken: string 
+  ) {
+    const fbToken = queryToken || req.signedCookies['fb_pending_token'];
 
-    // Fetch pages (Needs implementation in Service)
+    if (!fbToken) {
+        console.error(" FB Pages Error: No token found in Query or Cookie");
+        throw new UnauthorizedException('Facebook session missing. Please reconnect.');
+    }
+
     return this.socialAccountsService.getFacebookPages(fbToken);
   }
-
   @Post('facebook/pages/select')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
