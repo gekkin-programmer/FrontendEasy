@@ -1,83 +1,84 @@
 // src/lib/api.ts
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// 1. Ensure the URL doesn't have a trailing slash to avoid double slashes (e.g., //posts)
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api').replace(/\/$/, '');
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
 export const api = {
-  // 1. GET Request
-  get: async <T>(endpoint: string): Promise<T> => {
-    return request<T>(endpoint, { method: 'GET' });
-  },
+  get: <T>(endpoint: string) => request<T>(endpoint, { method: 'GET' }),
 
-  // 2. POST Request (JSON)
-  post: async <T>(endpoint: string, body: any): Promise<T> => {
-    return request<T>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  },
+  post: <T>(endpoint: string, body: any) => request<T>(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }),
 
-  // 3. POST Request (File Upload / FormData)
-  upload: async <T>(endpoint: string, formData: FormData): Promise<T> => {
-    return request<T>(endpoint, {
-      method: 'POST',
-      // Note: Content-Type is auto-set by browser for FormData
-      body: formData,
-    });
-  },
+  // Specifically for Cloudinary/Form uploads
+  upload: <T>(endpoint: string, formData: FormData) => request<T>(endpoint, {
+    method: 'POST',
+    body: formData, // Browser automatically sets Content-Type with boundary
+  }),
 
-  // 4. PATCH Request
-  patch: async <T>(endpoint: string, body: any): Promise<T> => {
-    return request<T>(endpoint, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  },
+  patch: <T>(endpoint: string, body: any) => request<T>(endpoint, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }),
 
-  // 5. DELETE Request
-  delete: async <T>(endpoint: string): Promise<T> => {
-    return request<T>(endpoint, { method: 'DELETE' });
-  },
+  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 };
 
-// --- INTERNAL HELPER ---
 async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  // 1. Get Token from Storage
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  // 1. Clean endpoint string (ensure it starts with /)
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${BASE_URL}${cleanEndpoint}`;
 
-  // 2. Attach Headers
+  // 2. Token Injection
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   const headers: Record<string, string> = { ...options.headers };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // 3. Make the call
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(url, { ...options, headers });
 
-  // 4. Handle Auth Errors (Token Expired)
-  if (response.status === 401) {
-    if (typeof window !== 'undefined') {
-      console.error("Session expired. Logging out...");
-      // localStorage.clear(); // Optional: clear data
-      // window.location.href = '/login'; // Force redirect
+    // 3. Handle 401 Unauthorized (Session Expired)
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        console.warn("SESSION_EXPIRED :: Redirecting to login");
+        localStorage.removeItem('accessToken'); // Clear the bad token
+        // Optimization: only redirect if we aren't already on the login page
+        if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/login?reason=expired';
+        }
+      }
+      throw new Error('UNAUTHORIZED');
     }
-    throw new Error('Unauthorized');
-  }
 
-  // 5. Handle other errors
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `API Error: ${response.status}`);
-  }
+    // 4. Handle Empty Content (204 No Content)
+    if (response.status === 204) return {} as T;
 
-  // 6. Return Data
-  return response.json();
+    // 5. Parse JSON
+    const data = await response.json().catch(() => ({}));
+
+    // 6. Handle Logic Errors
+    if (!response.ok) {
+        // Log the error for production monitoring
+        console.error(`API_ERROR [${response.status}] ${url}`, data);
+        throw new Error(data.message || `API_ERR_${response.status}`);
+    }
+
+    return data as T;
+  } catch (error: any) {
+    // 7. Handle Network Errors (Common on 3G in Yaoundé)
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+       console.error("NETWORK_DISCONNECTED :: Check 3G/Fiber status");
+       throw new Error('NETWORK_OFFLINE');
+    }
+    throw error;
+  }
 }

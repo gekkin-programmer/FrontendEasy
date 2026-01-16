@@ -1,5 +1,5 @@
 import { 
-  Controller, Post, UseInterceptors, UploadedFile, UseGuards, Req, 
+  Controller, Post, Get, UseInterceptors, UploadedFile, UseGuards, Req, 
   ParseFilePipe, MaxFileSizeValidator, UnauthorizedException 
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -13,6 +13,15 @@ import { ApiTags, ApiConsumes, ApiBody, ApiOperation, ApiBearerAuth } from '@nes
 @UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
+
+  // List all media for the user's workspace
+  @Get()
+  @ApiOperation({ summary: 'List all media files for user workspace' })
+  async findAll(@Req() req) {
+    const userId = req.user?.sub || req.user?.userId;
+    if (!userId) throw new UnauthorizedException('User ID invalid');
+    return this.mediaService.findAll(userId);
+  }
 
   @Post('upload')
   @ApiOperation({ summary: 'Upload an image/video' })
@@ -37,10 +46,7 @@ export class MediaController {
     )
     file: any,
   ) {
-    // 🕵️ DEBUGGING: Print the user object to the terminal
-    console.log('🔍 Request User:', req.user);
-
-    // Safety Check: Get ID from 'sub' OR 'userId'
+    console.log(' Request User:', req.user);
     const userId = req.user?.sub || req.user?.userId;
 
     if (!userId) {

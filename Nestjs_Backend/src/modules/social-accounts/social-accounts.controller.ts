@@ -1,4 +1,16 @@
-import { Controller, Get, UseGuards, Req, Res, Param, Delete, UnauthorizedException } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Post, // Added POST
+  Body, // Added Body
+  UseGuards, 
+  Req, 
+  Res, 
+  Param, 
+  Delete, 
+  UnauthorizedException, 
+  Query 
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SocialAccountsService } from './social-accounts.service';
 import { FacebookConnectGuard } from './guards/facebook-connect.guard';
@@ -7,15 +19,18 @@ import { TikTokConnectGuard } from './guards/tiktok-connect.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Social Accounts')
 @Controller('social-accounts')
 export class SocialAccountsController {
-  constructor(private readonly socialAccountsService: SocialAccountsService) {}
+  constructor(
+    private readonly socialAccountsService: SocialAccountsService,
+    private readonly jwtService: JwtService
+  ) {}
 
   // =================================================================
-  // 1. LIST & MANAGE ACCOUNTS
+  // 1. LIST & MANAGE ACCOUNTS (Keep Guard here - API calls)
   // =================================================================
 
   @Get()
@@ -39,20 +54,26 @@ export class SocialAccountsController {
   // =================================================================
 
   @Get('connect/facebook')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async connectFacebook(@Req() req, @Res() res: Response) {
-    // 1. Save User ID to Cookie (5 mins expiry)
-    res.cookie('auth_state', req.user.sub, { 
-        httpOnly: true, 
-        signed: true, 
-        maxAge: 300000,
-        sameSite: 'none', // Crucial for cross-site redirects (Ngrok/Render)
-        secure: true      // Crucial for HTTPS
-    });
-    
-    // 2. Redirect to internal route that triggers Passport
-    res.redirect('/api/social-accounts/auth/facebook');
+  @ApiOperation({ summary: 'Initiate Facebook OAuth (Browser Redirect)' })
+  async connectFacebook(@Query('token') token: string, @Res() res: Response) {
+    if (!token) throw new UnauthorizedException('No auth token provided');
+
+    try {
+        const payload = this.jwtService.verify(token);
+        const userId = payload.sub;
+
+        res.cookie('auth_state', userId, { 
+            httpOnly: true, 
+            signed: true, 
+            maxAge: 300000,
+            sameSite: 'none', 
+            secure: true      
+        });
+        
+        res.redirect('/api/social-accounts/auth/facebook');
+    } catch (e) {
+        throw new UnauthorizedException('Invalid or Expired Token');
+    }
   }
 
   @Get('auth/facebook')
@@ -62,7 +83,50 @@ export class SocialAccountsController {
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: any) {
-    await this.handleCallback(req, res, 'facebook');
+    // 1. Get the User Access Token from Passport
+    const { accessToken } = req.user; 
+
+    // 2. Store Token in a short-lived Cookie so we can fetch pages later
+    res.cookie('fb_pending_token', accessToken, { 
+        httpOnly: true, 
+        signed: true, 
+        maxAge: 300000, // 5 mins
+        sameSite: 'none', 
+        secure: true 
+    });
+
+    // 3. Redirect to Frontend Selection Modal
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook&exchange_token=${accessToken}`);
+  }
+
+  @Get('facebook/pages')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List Facebook Pages to select' })
+  async listFacebookPages(
+    @Req() req, 
+    @Query('exchange_token') queryToken: string 
+  ) {
+    const fbToken = queryToken || req.signedCookies['fb_pending_token'];
+
+    if (!fbToken) {
+        console.error(" FB Pages Error: No token found in Query or Cookie");
+        throw new UnauthorizedException('Facebook session missing. Please reconnect.');
+    }
+
+    return this.socialAccountsService.getFacebookPages(fbToken);
+  }
+  @Post('facebook/pages/select')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Connect a specific Facebook Page' })
+  async selectFacebookPage(@Req() req, @Body() body: { pageId: string, pageName: string, pageAccessToken: string }) {
+    // Save the specific Page Account to the DB
+    // Clear pending cookie
+    req.res.clearCookie('fb_pending_token', { sameSite: 'none', secure: true });
+    
+    return this.socialAccountsService.linkPageAccount(req.user.sub, body);
   }
 
   // =================================================================
@@ -70,11 +134,19 @@ export class SocialAccountsController {
   // =================================================================
 
   @Get('connect/linkedin')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async connectLinkedIn(@Req() req, @Res() res: Response) {
-    res.cookie('auth_state', req.user.sub, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-    res.redirect('/api/social-accounts/auth/linkedin');
+  @ApiOperation({ summary: 'Initiate LinkedIn OAuth' })
+  async connectLinkedIn(@Query('token') token: string, @Res() res: Response) {
+    if (!token) throw new UnauthorizedException('No auth token provided');
+
+    try {
+        const payload = this.jwtService.verify(token);
+        const userId = payload.sub;
+
+        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
+        res.redirect('/api/social-accounts/auth/linkedin');
+    } catch (e) {
+        throw new UnauthorizedException('Invalid Token');
+    }
   }
 
   @Get('auth/linkedin')
@@ -92,11 +164,19 @@ export class SocialAccountsController {
   // =================================================================
 
   @Get('connect/tiktok')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async connectTikTok(@Req() req, @Res() res: Response) {
-    res.cookie('auth_state', req.user.sub, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-    res.redirect('/api/social-accounts/auth/tiktok');
+  @ApiOperation({ summary: 'Initiate TikTok OAuth' })
+  async connectTikTok(@Query('token') token: string, @Res() res: Response) {
+    if (!token) throw new UnauthorizedException('No auth token provided');
+
+    try {
+        const payload = this.jwtService.verify(token);
+        const userId = payload.sub;
+
+        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
+        res.redirect('/api/social-accounts/auth/tiktok');
+    } catch (e) {
+        throw new UnauthorizedException('Invalid Token');
+    }
   }
 
   @Get('auth/tiktok')
@@ -114,11 +194,19 @@ export class SocialAccountsController {
   // =================================================================
 
   @Get('connect/youtube')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async connectYoutube(@Req() req, @Res() res: Response) {
-    res.cookie('auth_state', req.user.sub, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-    res.redirect('/api/social-accounts/auth/youtube');
+  @ApiOperation({ summary: 'Initiate YouTube OAuth' })
+  async connectYoutube(@Query('token') token: string, @Res() res: Response) {
+    if (!token) throw new UnauthorizedException('No auth token provided');
+
+    try {
+        const payload = this.jwtService.verify(token);
+        const userId = payload.sub;
+
+        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
+        res.redirect('/api/social-accounts/auth/youtube');
+    } catch (e) {
+        throw new UnauthorizedException('Invalid Token');
+    }
   }
 
   @Get('auth/youtube')

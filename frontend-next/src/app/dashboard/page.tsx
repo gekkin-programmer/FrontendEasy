@@ -1,38 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
 import { Loader2 } from "lucide-react";
 
 export default function DashboardRootPage() {
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-  const [status, setStatus] = useState('loading'); // 'loading', 'error', 'success'
+  const searchParams = useSearchParams(); // 🟢 Hook to get URL params
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+  const [status, setStatus] = useState('loading');
 
   useEffect(() => {
     const routeUser = async () => {
-      // 1. Check Token Existence
       const token = localStorage.getItem('accessToken');
-      console.log(" Checking Token:", token ? "Found" : "Missing");
-
       if (!token) {
-        console.warn(" No token. Redirecting to Login.");
         router.push('/login');
         return;
       }
 
       try {
-        // 2. Fetch Workspaces
-        console.log(" Fetching workspaces...");
         const res = await fetch(`${API_URL}/workspaces`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log(" API Status:", res.status);
-
         if (res.status === 401) {
-          console.error(" Unauthorized (401). Token invalid.");
-          localStorage.clear(); // Clear bad token
+          localStorage.clear();
           router.push('/login');
           return;
         }
@@ -40,44 +32,45 @@ export default function DashboardRootPage() {
         if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
 
         const workspaces = await res.json();
-        console.log(" Workspaces Data:", workspaces);
 
-        // 3. Routing Logic
         if (Array.isArray(workspaces) && workspaces.length > 0) {
-          console.log(` Redirecting to workspace: ${workspaces[0].id}`);
-          router.push(`/dashboard/${workspaces[0].id}`);
+          const firstId = workspaces[0].id;
+          
+          // 🟢 CRITICAL FIX: FORWARD THE PARAMS (Facebook Token, etc.)
+          const currentParams = searchParams.toString();
+          const targetUrl = currentParams 
+            ? `/dashboard/${firstId}?${currentParams}` 
+            : `/dashboard/${firstId}`;
+
+          console.log(`🔀 Forwarding to: ${targetUrl}`);
+          router.replace(targetUrl); // Use replace to avoid back-button loops
         } else {
-          console.log(" No workspaces. Redirecting to Onboarding.");
           router.push("/onboarding");
         }
 
       } catch (error) {
-        console.error(" Critical Error in Dashboard Router:", error);
-        // Do NOT redirect to login immediately on network error.
-        // Show error state instead so you can debug.
+        console.error("Critical Router Error:", error);
         setStatus('error');
       }
     };
 
-    // Small delay to ensure localStorage is hydrated
-    setTimeout(routeUser, 500); 
+    routeUser();
 
-  }, [router, API_URL]);
+  }, [router, searchParams, API_URL]); // 🟢 Add searchParams to dependency array
 
   if (status === 'error') {
     return (
-      <div className="h-screen flex flex-col items-center justify-center gap-4 text-red-500">
-        <p>Failed to load dashboard. Check console logs (F12).</p>
-        <button onClick={() => window.location.reload()} className="underline">Retry</button>
-        <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="text-gray-500 text-sm">Logout</button>
+      <div className="h-screen flex flex-col items-center justify-center gap-4 text-red-500 font-mono">
+        <p>ROUTER_MALFUNCTION. CHECK_LOGS.</p>
+        <button onClick={() => window.location.reload()} className="underline font-bold">RETRY_CONNECTION</button>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      <p className="text-sm text-gray-500">Connecting to your workspace...</p>
+    <div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] gap-4">
+      <Loader2 className="h-12 w-12 animate-spin text-black" />
+      <p className="text-sm font-bold uppercase tracking-widest">Routing...</p>
     </div>
   );
 }

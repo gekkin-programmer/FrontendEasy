@@ -3,24 +3,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 // Icons
 import { 
   Users, Mail, Trash2, Send, MessageSquare, 
-  Clock, X, PlusCircle
+  Clock, X, PlusCircle, UserPlus, Hash, Shield, Crown, RefreshCw
 } from 'lucide-react';
 
 // UI
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 
-// --- COLORS ---
-const COLORS = {
-  primary: '#314BEC',
-  dark: '#111827',
-  bg: '#F9FAFB', 
-  white: '#FFFFFF'
+// 🚀 LIVE BACKEND URL
+const API_URL = 'https://easypostv2.onrender.com/api'; 
+
+// Available Roles based on Prisma defaults
+const ROLES = ['ADMIN', 'MEMBER', 'VIEWER'];
+
+// --- NEU COMPONENTS ---
+
+const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
+  const baseStyles = "relative font-bold text-sm transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
+  
+  const variants = {
+    default: "bg-white text-black hover:bg-yellow-100 shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+    primary: "bg-[#3C48F6] text-white hover:bg-blue-700 shadow-[4px_4px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+    ghost: "bg-transparent border-transparent hover:bg-gray-100 shadow-none hover:shadow-none translate-0"
+  };
+
+  return (
+    <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.default, className)} {...props}>
+      {children}
+    </button>
+  );
 };
 
 interface TeamProps {
@@ -28,14 +43,12 @@ interface TeamProps {
 }
 
 export default function Team({ workspaceId }: TeamProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-
   // --- STATE ---
   const [members, setMembers] = useState<any[]>([]);
-  // We mock "Invites" for now as the API returns all in one list
   const [invites, setInvites] = useState<any[]>([]); 
+  const [loading, setLoading] = useState(true);
   
-  // Chat State
+  // Chat State (Mocked mostly, but structure ready)
   const [channels, setChannels] = useState<any[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -48,87 +61,41 @@ export default function Team({ workspaceId }: TeamProps) {
   
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // --- 1. FETCH TEAM DATA ---
+  // --- 1. FETCH MEMBERS (GET /workspaces/:id/members) ---
   const fetchTeam = async () => {
     const token = localStorage.getItem('accessToken');
+    if (!token) return;
+
     try {
         const res = await fetch(`${API_URL}/workspaces/${workspaceId}/members`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+        
+        if (!res.ok) throw new Error("Failed to load members");
+
         const data = await res.json();
         
-        // Split into Active vs Invited
-        setMembers(data.filter((m: any) => m.status === 'ACTIVE'));
-        setInvites(data.filter((m: any) => m.status === 'INVITED'));
+        // Filter based on status if your backend returns mixed list
+        // Assuming backend returns array of Member objects with { status: 'ACTIVE' | 'INVITED' }
+        setMembers(data.filter((m: any) => m.status === 'ACTIVE' || m.status === 'JOINED'));
+        setInvites(data.filter((m: any) => m.status === 'INVITED' || m.status === 'PENDING'));
+        
     } catch (e) {
-        console.error("Failed to load team", e);
+        console.error(e);
+        toast.error("COULD_NOT_LOAD_TEAM");
+    } finally {
+        setLoading(false);
     }
   };
 
-  // --- 2. FETCH CHAT CHANNELS ---
-  const fetchChannels = async () => {
-    const token = localStorage.getItem('accessToken');
-    try {
-        const res = await fetch(`${API_URL}/workspaces/${workspaceId}/channels`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setChannels(data);
-        if (data.length > 0 && !activeChannelId) {
-            setActiveChannelId(data[0].id);
-        } else if (data.length === 0) {
-            // Auto-create 'general' channel if none exist
-            createChannel('general');
-        }
-    } catch (e) { console.error(e); }
-  };
-
-  const createChannel = async (name: string) => {
-    const token = localStorage.getItem('accessToken');
-    await fetch(`${API_URL}/workspaces/${workspaceId}/channels`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name })
-    });
-    fetchChannels();
-  };
-
-  // --- 3. FETCH MESSAGES ---
   useEffect(() => {
-    if (!activeChannelId) return;
-    
-    const fetchMessages = async () => {
-        const token = localStorage.getItem('accessToken');
-        const res = await fetch(`${API_URL}/channels/${activeChannelId}/messages`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        if(res.ok) setMessages(await res.json());
-    };
-
-    fetchMessages();
-    // Poll every 5s for new messages (Simple real-time)
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-  }, [activeChannelId]);
-
-  // Initial Load
-  useEffect(() => {
-    if(workspaceId) {
-        fetchTeam();
-        fetchChannels();
-    }
+    if(workspaceId) fetchTeam();
   }, [workspaceId]);
 
-  // Scroll to bottom
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
-
-  // --- HANDLERS ---
-
+  // --- 2. INVITE MEMBER (POST /workspaces/:id/members/invite) ---
   const handleInvite = async () => {
-    if (!email.includes('@')) return toast.error("Invalid email address");
+    if (!email.includes('@')) return toast.error("INVALID_EMAIL");
     setIsSubmitting(true);
     const token = localStorage.getItem('accessToken');
 
@@ -142,192 +109,184 @@ export default function Team({ workspaceId }: TeamProps) {
             body: JSON.stringify({ email, role })
         });
 
-        if (!res.ok) throw new Error('Failed');
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Failed');
         
-        toast.success("Invitation sent!");
+        toast.success("INVITATION_SENT");
         setEmail("");
-        fetchTeam();
-    } catch {
-        toast.error("Failed to send invite");
+        fetchTeam(); // Refresh list
+    } catch (e: any) {
+        toast.error(typeof e.message === 'string' ? e.message : "INVITE_FAILED");
     } finally {
         setIsSubmitting(false);
     }
   };
 
+  // --- 3. REMOVE MEMBER (DELETE /workspaces/:id/members/:memberId) ---
   const handleRemove = async (id: string) => {
-    if(!confirm("Remove this user?")) return;
+    if(!confirm("REMOVE_USER? They will lose access immediately.")) return;
     const token = localStorage.getItem('accessToken');
     
     try {
-        await fetch(`${API_URL}/workspaces/${workspaceId}/members/${id}`, {
+        const res = await fetch(`${API_URL}/workspaces/${workspaceId}/members/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
-        toast.success("Member removed");
+
+        if (!res.ok) throw new Error("Failed to remove");
+
+        toast.success("MEMBER_REMOVED");
         fetchTeam();
-    } catch (e) { toast.error("Failed"); }
+    } catch (e) { toast.error("ACTION_FAILED"); }
   };
 
+  // --- 4. UPDATE ROLE (PATCH /workspaces/:id/members/:memberId) ---
   const handleRoleChange = async (memberId: string, newRole: string) => {
       const token = localStorage.getItem('accessToken');
-      await fetch(`${API_URL}/workspaces/${workspaceId}/members/${memberId}`, {
-          method: 'PATCH',
-          headers: { 
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}` 
-          },
-          body: JSON.stringify({ role: newRole })
-      });
-      toast.success("Role updated");
-      fetchTeam();
+      
+      // Optimistic update
+      setMembers(prev => prev.map(m => m.id === memberId ? { ...m, role: newRole } : m));
+
+      try {
+          const res = await fetch(`${API_URL}/workspaces/${workspaceId}/members/${memberId}`, {
+              method: 'PATCH',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}` 
+              },
+              body: JSON.stringify({ role: newRole })
+          });
+
+          if (!res.ok) throw new Error("Update failed");
+          
+          toast.success("ROLE_UPDATED");
+      } catch (e) { 
+          toast.error("FAILED_TO_UPDATE_ROLE");
+          fetchTeam(); // Revert on fail
+      }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  // --- MOCK CHAT LOGIC (Placeholder for next module) ---
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatMsg.trim() || !activeChannelId) return;
-    
-    const tempContent = chatMsg;
-    setChatMsg(""); 
-    
-    const token = localStorage.getItem('accessToken');
-    await fetch(`${API_URL}/channels/${activeChannelId}/messages`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({ content: tempContent })
-    });
-    
-    // Optimistic UI update could go here, but polling handles it soon enough
+    if (!chatMsg.trim()) return;
+    setMessages([...messages, { id: Date.now(), content: chatMsg, sender: { firstName: 'Me' }, createdAt: new Date() }]);
+    setChatMsg("");
   };
+
+  if (loading && members.length === 0) return <div className="p-8 text-center font-mono animate-pulse">LOADING_CREW...</div>;
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 font-sans text-[#111827]">
+    <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 font-sans text-black">
       
-      {/* =======================
-          LEFT PANEL: MANAGEMENT
-      ======================== */}
+      {/* LEFT: MANAGEMENT */}
       <div className="w-full lg:w-2/3 flex flex-col gap-6 min-h-0">
         
-        {/* 1. Invite Box */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-shrink-0">
-            <div className="flex justify-between items-start mb-4">
+        {/* Invite Box */}
+        <div className="bg-white p-6 border-2 border-black shadow-[6px_6px_0px_0px_#000] flex-shrink-0">
+            <div className="flex justify-between items-start mb-6 border-b-2 border-dashed border-gray-300 pb-4">
                 <div>
-                    <h2 className="text-xl font-bold" style={{ color: COLORS.dark }}>Team Management</h2>
-                    <p className="text-sm text-gray-500">Invite colleagues to collaborate on content.</p>
+                    <h2 className="text-2xl font-black uppercase tracking-tight">Team_Management</h2>
+                    <p className="text-sm font-medium text-gray-500 font-mono mt-1"> ACCESS_LEVEL: ADMIN</p>
                 </div>
-                <div className="p-2 bg-gray-50 rounded-lg">
-                    <Users size={20} style={{ color: COLORS.primary }} />
+                <div className="p-3 bg-yellow-400 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                    <UserPlus size={24} className="text-black" />
                 </div>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4 flex-col sm:flex-row">
                 <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
                     <input 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="colleague@company.com"
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#314BEC]/20 transition-all"
+                        placeholder="EMAIL@COMPANY.COM"
+                        className="w-full pl-10 pr-4 py-3 bg-white border-2 border-black font-bold placeholder:text-gray-400 focus:outline-none focus:bg-yellow-50 transition-all uppercase"
                         onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                     />
                 </div>
-                <select 
-                    value={role} 
-                    onChange={e => setRole(e.target.value)}
-                    className="bg-gray-50 border border-gray-200 rounded-lg px-3 text-sm font-medium text-gray-700 outline-none cursor-pointer"
-                >
-                    {["ADMIN", "MEMBER", "VIEWER"].map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <Button 
-                    onClick={handleInvite} 
-                    disabled={isSubmitting}
-                    className="text-white font-medium px-6"
-                    style={{ backgroundColor: COLORS.primary }}
-                >
-                    {isSubmitting ? 'Sending...' : 'Invite'}
-                </Button>
+                <div className="relative">
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-black z-10 pointer-events-none" size={16} />
+                    <select 
+                        value={role} 
+                        onChange={e => setRole(e.target.value)}
+                        className="h-full bg-white border-2 border-black pl-10 pr-8 py-3 font-bold text-sm outline-none cursor-pointer appearance-none uppercase w-full sm:w-auto hover:bg-gray-50"
+                    >
+                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                </div>
+                <NeuButton onClick={handleInvite} disabled={isSubmitting} variant="primary" className="px-8 py-3">
+                    {isSubmitting ? 'SENDING...' : 'INVITE'}
+                </NeuButton>
             </div>
         </div>
 
-        {/* 2. Lists (Members / Invites) */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col min-h-0">
-             {/* Tabs */}
-             <div className="flex border-b border-gray-100 flex-shrink-0">
-                 <button 
-                    onClick={() => setActiveTab('members')}
-                    className={`px-6 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'members' ? 'border-[#314BEC] text-[#314BEC]' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
-                 >
-                    Active Members <span className="bg-gray-100 text-gray-600 px-1.5 rounded-full text-xs">{members.length}</span>
+        {/* Member Lists */}
+        <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] overflow-hidden flex-1 flex flex-col min-h-0">
+             <div className="flex border-b-2 border-black flex-shrink-0 bg-gray-50">
+                 <button onClick={() => setActiveTab('members')} className={`px-6 py-4 text-sm font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black ${activeTab === 'members' ? 'bg-yellow-400' : 'bg-transparent hover:bg-gray-100'}`}>
+                    ACTIVE_CREW <span className="bg-black text-white px-1.5 py-0.5 text-xs font-mono">{members.length}</span>
                  </button>
-                 <button 
-                    onClick={() => setActiveTab('invites')}
-                    className={`px-6 py-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'invites' ? 'border-[#314BEC] text-[#314BEC]' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
-                 >
-                    Pending Invites <span className="bg-gray-100 text-gray-600 px-1.5 rounded-full text-xs">{invites.length}</span>
+                 <button onClick={() => setActiveTab('invites')} className={`px-6 py-4 text-sm font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black ${activeTab === 'invites' ? 'bg-yellow-400' : 'bg-transparent hover:bg-gray-100'}`}>
+                    PENDING <span className="bg-black text-white px-1.5 py-0.5 text-xs font-mono">{invites.length}</span>
                  </button>
+                 <button onClick={fetchTeam} className="ml-auto px-4 hover:bg-gray-200 border-l-2 border-black"><RefreshCw size={16} /></button>
              </div>
 
-             <div className="flex-1 overflow-y-auto bg-gray-50/30">
+             <div className="flex-1 overflow-y-auto bg-white p-4">
                  {/* LIST: MEMBERS */}
                  {activeTab === 'members' && (
-                     <div className="divide-y divide-gray-100">
+                     <div className="grid grid-cols-1 gap-3">
                          {members.map((m) => (
-                             <div key={m.id} className="p-4 flex items-center justify-between hover:bg-white transition-colors group">
-                                 <div className="flex items-center gap-3">
-                                     <Avatar className="h-10 w-10 border border-gray-200">
-                                         <AvatarFallback style={{ backgroundColor: COLORS.primary, color: 'white' }} className="font-bold text-xs">
-                                             {m.user.firstName?.charAt(0)}
+                             <div key={m.id} className="p-4 border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-between hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all bg-white">
+                                 <div className="flex items-center gap-4">
+                                     <Avatar className="h-10 w-10 border-2 border-black rounded-none">
+                                         <AvatarFallback className="font-black bg-blue-100 text-black text-sm rounded-none">
+                                             {m.user?.firstName?.charAt(0) || m.user?.email?.charAt(0) || 'U'}
                                          </AvatarFallback>
                                      </Avatar>
                                      <div>
-                                         <p className="text-sm font-bold text-gray-900">{m.user.firstName} {m.user.lastName}</p>
-                                         <p className="text-xs text-gray-500">{m.user.email}</p>
+                                         <p className="text-sm font-black uppercase">{m.user?.firstName || 'User'} {m.user?.lastName}</p>
+                                         <p className="text-xs font-mono text-gray-500">{m.user?.email}</p>
                                      </div>
                                  </div>
                                  <div className="flex items-center gap-4">
                                      {m.role === 'OWNER' ? (
-                                         <Badge className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-100">Owner</Badge>
+                                         <div className="flex items-center gap-1 bg-black text-white px-2 py-1 text-xs font-bold border-2 border-black"><Crown size={12} className="text-yellow-400" /> OWNER</div>
                                      ) : (
-                                         <select 
-                                            value={m.role}
-                                            onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                                            className="text-xs font-medium text-gray-600 bg-transparent border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-500 cursor-pointer"
-                                         >
-                                            {["ADMIN", "MEMBER", "VIEWER"].map(r => <option key={r} value={r}>{r}</option>)}
+                                         <select value={m.role} onChange={(e) => handleRoleChange(m.id, e.target.value)} className="text-xs font-bold uppercase bg-gray-100 border-2 border-black px-2 py-1 outline-none cursor-pointer hover:bg-white">
+                                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                                          </select>
                                      )}
-                                     
                                      {m.role !== 'OWNER' && (
-                                         <button onClick={() => handleRemove(m.id)} className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                             <Trash2 size={16} />
-                                         </button>
+                                         <button onClick={() => handleRemove(m.id)} className="text-black hover:text-red-600 border-2 border-transparent hover:border-black p-1 transition-all"><Trash2 size={18} strokeWidth={2.5} /></button>
                                      )}
                                  </div>
                              </div>
                          ))}
+                         {members.length === 0 && <div className="p-8 text-center text-gray-400 font-mono">NO_ACTIVE_MEMBERS</div>}
                      </div>
                  )}
 
                  {/* LIST: INVITES */}
                  {activeTab === 'invites' && (
-                     <div className="divide-y divide-gray-100">
-                         {invites.length === 0 && <div className="p-8 text-center text-gray-400 text-sm">No pending invites.</div>}
+                     <div className="grid grid-cols-1 gap-3">
+                         {invites.length === 0 && (
+                            <div className="p-8 text-center border-2 border-dashed border-gray-300 bg-gray-50">
+                                <p className="font-bold text-gray-400 uppercase">No pending invites</p>
+                            </div>
+                         )}
                          {invites.map((inv) => (
-                             <div key={inv.id} className="p-4 flex items-center justify-between hover:bg-white transition-colors">
+                             <div key={inv.id} className="p-4 border-2 border-black bg-gray-50 flex items-center justify-between">
                                  <div className="flex items-center gap-3">
-                                     <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 border-dashed">
-                                         <Clock size={16} className="text-gray-400" />
-                                     </div>
+                                     <div className="h-10 w-10 bg-white flex items-center justify-center border-2 border-black"><Clock size={20} className="text-black" /></div>
                                      <div>
-                                         <p className="text-sm font-bold text-gray-900">{inv.user.email}</p>
-                                         <p className="text-xs text-gray-500">Role: {inv.role}</p>
+                                         <p className="text-sm font-bold">{inv.user?.email || 'Unknown Email'}</p>
+                                         <p className="text-xs font-mono bg-yellow-200 inline-block px-1 border border-black mt-1">{inv.role}</p>
                                      </div>
                                  </div>
-                                 <button onClick={() => handleRemove(inv.id)} className="text-gray-400 hover:text-red-600 p-2">
-                                     <X size={16} />
-                                 </button>
+                                 <button onClick={() => handleRemove(inv.id)} className="text-black hover:bg-red-500 hover:text-white border-2 border-black p-1 transition-all"><X size={16} /></button>
                              </div>
                          ))}
                      </div>
@@ -336,87 +295,30 @@ export default function Team({ workspaceId }: TeamProps) {
         </div>
       </div>
 
-      {/* =======================
-          RIGHT PANEL: TEAM CHAT
-      ======================== */}
-      <div className="w-full lg:w-1/3 flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden h-full">
-         
-         {/* Chat Header */}
-         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white z-10 flex-shrink-0">
+      {/* RIGHT: CHAT (Visual Only for now) */}
+      <div className="w-full lg:w-1/3 flex flex-col bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] overflow-hidden h-full">
+         <div className="p-4 border-b-2 border-black flex items-center justify-between bg-yellow-400 z-10 flex-shrink-0">
              <div className="flex items-center gap-2">
-                 <div className="p-1.5 rounded-lg bg-[#314BEC]/10">
-                    <MessageSquare size={16} style={{ color: COLORS.primary }} />
-                 </div>
-                 <select 
-                    value={activeChannelId || ''} 
-                    onChange={(e) => setActiveChannelId(e.target.value)}
-                    className="font-bold text-sm text-gray-900 bg-transparent outline-none cursor-pointer hover:bg-gray-50 rounded px-1"
-                 >
-                    {channels.map(c => <option key={c.id} value={c.id}>#{c.name}</option>)}
-                 </select>
-                 <PlusCircle size={14} className="text-gray-400 cursor-pointer hover:text-blue-600" onClick={() => createChannel(prompt("Channel Name:") || 'new-channel')} />
-             </div>
-             
-             {/* Online Avatars (Mocked visual) */}
-             <div className="flex -space-x-2">
-                 {members.slice(0, 3).map(m => (
-                     <div key={m.id} className="w-6 h-6 rounded-full border-2 border-white bg-gray-200 text-[8px] flex items-center justify-center font-bold text-gray-600 overflow-hidden">
-                         {m.user.firstName?.charAt(0)}
-                     </div>
-                 ))}
+                 <div className="p-1 bg-black text-white border-2 border-black"><Hash size={16} /></div>
+                 <span className="font-black text-sm uppercase">TEAM_CHAT</span>
              </div>
          </div>
-
-         {/* Messages Area */}
-         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#F9FAFB] flex flex-col-reverse">
+         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white flex flex-col-reverse bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]">
              <div ref={chatEndRef} /> 
-             {/* Note: Flex-col-reverse means last element is bottom. So map reversed or natural order? 
-                 Usually chat APIs return oldest first. 
-                 We want newest at bottom. So standard map is fine if we scroll to bottom. 
-             */}
-             {[...messages].map((msg) => (
-                 <div key={msg.id} className={`flex gap-2.5 items-end ${false ? 'flex-row-reverse' : ''}`}>
-                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 mb-1 border border-gray-200 bg-white text-gray-700`}>
-                         {msg.sender.firstName.charAt(0)}
-                     </div>
+             {messages.map((msg) => (
+                 <div key={msg.id} className="flex gap-2 items-end">
+                     <div className="w-8 h-8 border-2 border-black bg-blue-100 flex items-center justify-center text-[10px] font-black flex-shrink-0 mb-1 shadow-[2px_2px_0px_0px_#000]">{msg.sender.firstName.charAt(0)}</div>
                      <div className="flex flex-col gap-1 max-w-[85%]">
-                         <div className="flex items-baseline gap-2 ml-1">
-                             <span className="text-[10px] font-bold text-gray-700">{msg.sender.firstName}</span>
-                             <span className="text-[9px] text-gray-400">{formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}</span>
-                         </div>
-                         <div className="px-3 py-2 rounded-2xl rounded-bl-none text-sm shadow-sm bg-white border border-gray-200 text-gray-800">
-                             {msg.content}
-                         </div>
+                         <div className="px-3 py-2 bg-white border-2 border-black text-sm font-medium shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]">{msg.content}</div>
                      </div>
                  </div>
              ))}
-             
-             {messages.length === 0 && (
-                 <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                     <MessageSquare size={32} className="opacity-20 mb-2" />
-                     <p className="text-xs font-medium">No messages yet.</p>
-                     <p className="text-[10px]">Start the conversation!</p>
-                 </div>
-             )}
+             {messages.length === 0 && <div className="flex flex-col items-center justify-center h-full text-gray-400 opacity-50"><MessageSquare size={48} strokeWidth={1} className="mb-2" /><p className="text-xs font-bold uppercase tracking-widest">START_CONVERSATION</p></div>}
          </div>
-
-         {/* Chat Input */}
-         <form onSubmit={handleSendMessage} className="p-3 border-t border-gray-200 bg-white flex-shrink-0">
-             <div className="relative w-full">
-                 <input 
-                     value={chatMsg}
-                     onChange={(e) => setChatMsg(e.target.value)}
-                     placeholder={`Message #${channels.find(c => c.id === activeChannelId)?.name || 'chat'}...`}
-                     className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#314BEC] focus:ring-1 focus:ring-[#314BEC] transition-all placeholder:text-gray-400"
-                 />
-                 <button 
-                    type="submit"
-                    disabled={!chatMsg.trim()}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-white disabled:opacity-50 disabled:bg-gray-300 transition-all shadow-sm hover:shadow-md flex items-center justify-center"
-                    style={{ backgroundColor: !chatMsg.trim() ? '#9CA3AF' : COLORS.primary }}
-                 >
-                     <Send size={16} className="ml-0.5" />
-                 </button>
+         <form onSubmit={handleSendMessage} className="p-3 border-t-2 border-black bg-white flex-shrink-0">
+             <div className="relative w-full flex gap-2">
+                 <input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)} placeholder="TYPE_MESSAGE..." className="w-full pl-4 pr-4 py-3 bg-gray-100 border-2 border-black font-bold text-sm focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_#000] transition-all placeholder:text-gray-400 uppercase" />
+                 <button type="submit" disabled={!chatMsg.trim()} className="px-4 bg-black text-white border-2 border-black hover:bg-yellow-400 hover:text-black disabled:opacity-50 disabled:bg-gray-300 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,0)] hover:shadow-[2px_2px_0px_0px_#000]"><Send size={18} strokeWidth={3} /></button>
              </div>
          </form>
       </div>
