@@ -1,96 +1,127 @@
-// src/components/easypost/EngagementAnalytics.tsx
 'use client';
+
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/src/lib/api';
 import { motion } from 'framer-motion';
 import {
-  FiClock, FiUsers, FiTrendingUp, FiTrendingDown, 
-  FiCalendar, FiArrowUpRight, FiMessageCircle, FiCheckCircle,
-  FiActivity, FiZap, FiBarChart2
+  FiTrendingUp, FiTrendingDown, FiArrowUpRight, FiDownload, FiLoader,
+  FiActivity, FiUsers, FiBarChart2, FiLayers
 } from 'react-icons/fi';
 import {
-  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok
+  FaTwitter, FaInstagram, FaFacebookF, FaLinkedinIn, FaTiktok, FaYoutube
 } from 'react-icons/fa';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
-// --- TYPES ---
+// --- CONFIG ---
+const ICONS: Record<string, any> = {
+  FACEBOOK: FaFacebookF, LINKEDIN: FaLinkedinIn, TWITTER: FaTwitter, 
+  INSTAGRAM: FaInstagram, TIKTOK: FaTiktok, YOUTUBE: FaYoutube
+};
+
 type TimeRange = '7d' | '30d' | '90d';
 
-// --- MOCK DATA ---
-const KPI_DATA = [
-  { label: 'Total Messages', value: '2,847', change: 23.5, trend: 'up' },
-  { label: 'Avg Response Time', value: '8m 42s', change: 12.0, trend: 'down' }, // down is good for time
-  { label: 'Resolution Rate', value: '94.2%', change: 1.2, trend: 'up' },
-  { label: 'CSAT Score', value: '4.8/5.0', change: 0.5, trend: 'up' },
-];
-
-const HOURLY_VOLUME = [
-  { hour: '00', value: 12 }, { hour: '02', value: 8 }, { hour: '04', value: 5 }, 
-  { hour: '06', value: 25 }, { hour: '08', value: 85 }, { hour: '10', value: 120 }, 
-  { hour: '12', value: 95 }, { hour: '14', value: 110 }, { hour: '16', value: 145 }, 
-  { hour: '18', value: 130 }, { hour: '20', value: 65 }, { hour: '22', value: 30 }
-];
-
-const PLATFORM_PERFORMANCE = [
-  { platform: 'Twitter', icon: FaTwitter, color: 'text-gray-900', volume: 892, time: '5m', sat: 96 },
-  { platform: 'Instagram', icon: FaInstagram, color: 'text-gray-900', volume: 756, time: '12m', sat: 91 },
-  { platform: 'LinkedIn', icon: FaLinkedin, color: 'text-blue-700', volume: 423, time: '24m', sat: 98 },
-  { platform: 'Facebook', icon: FaFacebook, color: 'text-blue-600', volume: 534, time: '45m', sat: 88 },
-];
-
-const TEAM_PERFORMANCE = [
-  { name: 'Alex M.', avatar: 'AM', solved: 456, time: '4m 12s', sat: 4.9 },
-  { name: 'Jordan K.', avatar: 'JK', solved: 389, time: '5m 45s', sat: 4.8 },
-  { name: 'Sam R.', avatar: 'SR', solved: 312, time: '6m 10s', sat: 4.7 },
-  { name: 'Casey L.', avatar: 'CL', solved: 278, time: '3m 50s', sat: 4.9 },
-];
-
 export default function EngagementAnalytics() {
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+  const params = useParams();
+  const workspaceId = typeof params?.id === 'string' ? params.id : '';
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+
+  // 🟢 FETCH & TRANSFORM DATA
+  const { data, isLoading } = useQuery({
+    queryKey: ['analytics-dashboard', workspaceId, timeRange],
+    queryFn: async () => {
+      // mapping '7d' -> 'WEEK', '30d' -> 'MONTH' for your DTO
+      const periodMap: Record<string, string> = { '7d': 'WEEK', '30d': 'MONTH', '90d': 'YEAR' };
+      const period = periodMap[timeRange] || 'MONTH';
+
+      // Fetch Overview and Accounts in parallel
+      const [overview, accounts] = await Promise.all([
+        api.get<any>(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW&period=${period}`),
+        api.get<any[]>(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS&period=${period}`)
+      ]);
+
+      // TRANSFORM: Backend Data -> UI Structure
+      return {
+        kpi: [
+          { label: 'Total Posts', value: overview.overview.totalPosts, trend: 'neutral' },
+          { label: 'Total Reach', value: overview.overview.totalReach, trend: 'up' },
+          { label: 'Engagement', value: overview.overview.totalLikes, trend: 'up' }, // Using Likes as proxy for engagement
+          { label: 'Engagement Rate', value: overview.overview.engagementRate, trend: 'up' },
+        ],
+        platforms: accounts.map((acc: any) => ({
+          platform: acc.platform,
+          username: acc.username,
+          volume: acc.postsCount,
+          engagement: acc.totalEngagement,
+          efficiency: acc.efficiency
+        })),
+        // Mocking hourly volume as backend doesn't provide it yet
+        volume: [
+            { hour: '00', value: 12 }, { hour: '06', value: 45 }, 
+            { hour: '12', value: 120 }, { hour: '18', value: 80 }
+        ] 
+      };
+    },
+    enabled: !!workspaceId
+  });
+
+  const handleDownload = () => toast.success("REPORT_GENERATION_QUEUED");
+
+  if (isLoading) return (
+    <div className="flex flex-col items-center justify-center h-64 border-2 border-black bg-white">
+        <FiLoader className="animate-spin w-8 h-8 mb-4" />
+        <p className="font-black font-mono">CALCULATING_METRICS...</p>
+    </div>
+  );
+
+  const stats = data || { kpi: [], platforms: [], volume: [] };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-8 font-sans text-black">
       
       {/* HEADER */}
-      <div className="flex items-center justify-between border-b border-gray-200 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-black pb-6 gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Engagement Overview</h2>
-          <p className="text-sm text-gray-500 mt-1">Metrics across all connected channels</p>
+          <h2 className="text-3xl font-black italic tracking-tight uppercase">Engagement Hub</h2>
+          <p className="text-sm font-mono text-gray-600 mt-1">LIVE DATA ACROSS CONNECTED NODES</p>
         </div>
         
-        <div className="flex bg-gray-100 p-1 rounded-lg">
-          {[
-            { value: '7d', label: '7D' },
-            { value: '30d', label: '30D' },
-            { value: '90d', label: '90D' },
-          ].map(range => (
-            <button
-              key={range.value}
-              onClick={() => setTimeRange(range.value as TimeRange)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                timeRange === range.value
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
+        <div className="flex gap-4">
+            <div className="flex bg-white border-2 border-black p-1 shadow-[4px_4px_0px_0px_#000]">
+            {['7d', '30d', '90d'].map((range) => (
+                <button
+                key={range}
+                onClick={() => setTimeRange(range as TimeRange)}
+                className={`px-4 py-1 text-xs font-black transition-all ${
+                    timeRange === range ? 'bg-black text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                }`}
+                >
+                {range.toUpperCase()}
+                </button>
+            ))}
+            </div>
+            <button 
+                onClick={handleDownload}
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 border-2 border-black font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"
             >
-              {range.label}
+                <FiDownload /> Report
             </button>
-          ))}
         </div>
       </div>
 
       {/* KPI GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {KPI_DATA.map((kpi, idx) => (
-          <div key={idx} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{kpi.label}</p>
-            <div className="mt-2 flex items-baseline gap-3">
-              <span className="text-2xl font-semibold text-gray-900 tabular-nums">{kpi.value}</span>
-              <span className={`flex items-center text-xs font-medium ${
-                (kpi.trend === 'up' && kpi.label !== 'Avg Response Time') || (kpi.trend === 'down' && kpi.label === 'Avg Response Time')
-                  ? 'text-green-600 bg-green-50 px-1.5 py-0.5 rounded' 
-                  : 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded'
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.kpi.map((kpi: any, idx: number) => (
+          <div key={idx} className="bg-white border-2 border-black p-5 shadow-[6px_6px_0px_0px_#000] hover:-translate-y-1 transition-transform">
+            <p className="text-xs font-black text-gray-500 uppercase tracking-widest">{kpi.label}</p>
+            <div className="mt-3 flex items-end justify-between">
+              <span className="text-3xl font-black text-black tabular-nums">{kpi.value}</span>
+              <span className={`flex items-center text-xs font-bold border-2 border-black px-1.5 py-0.5 ${
+                kpi.trend === 'up' ? 'bg-green-300 text-black' : 'bg-gray-200'
               }`}>
-                {kpi.trend === 'up' ? <FiTrendingUp size={10} className="mr-1" /> : <FiTrendingDown size={10} className="mr-1" />}
-                {kpi.change}%
+                {kpi.trend === 'up' ? <FiTrendingUp size={10} className="mr-1" /> : <FiLayers size={10} className="mr-1" />}
+                DATA
               </span>
             </div>
           </div>
@@ -98,97 +129,52 @@ export default function EngagementAnalytics() {
       </div>
 
       {/* CHARTS ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Main Volume Chart */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-sm font-semibold text-gray-900">Incoming Volume (24h)</h3>
-            <span className="text-xs text-gray-500">Avg: 54 msgs/hr</span>
+        {/* Main Volume Chart (Mock Visual) */}
+        <div className="lg:col-span-2 bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-black uppercase">Traffic Volume</h3>
+            <span className="text-xs font-mono bg-black text-white px-2 py-1">24H CYCLE</span>
           </div>
-          
-          <div className="h-48 flex items-end gap-2">
-            {HOURLY_VOLUME.map((point, idx) => (
-              <div key={idx} className="flex-1 flex flex-col justify-end gap-2 group cursor-pointer">
-                 <div className="relative w-full bg-gray-100 rounded-sm hover:bg-gray-200 transition-colors" style={{ height: `${(point.value / 150) * 100}%` }}>
-                    <div className="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none">
-                        {point.value} msgs
-                    </div>
-                 </div>
-                 <span className="text-[10px] text-gray-400 text-center">{point.hour}</span>
+          <div className="h-48 flex items-end gap-2 border-b-2 border-black pb-1">
+            {stats.volume.map((point: any, idx: number) => (
+              <div key={idx} className="flex-1 flex flex-col justify-end gap-2 group cursor-pointer h-full">
+                 <div className="relative w-full bg-blue-600 border border-black hover:bg-yellow-400 transition-colors" style={{ height: `${(point.value / 150) * 100}%` }}></div>
+                 <span className="text-[10px] font-bold text-gray-500 text-center">{point.hour}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Platform Breakdown */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-           <h3 className="text-sm font-semibold text-gray-900 mb-6">Channel Performance</h3>
-           <div className="space-y-5">
-              {PLATFORM_PERFORMANCE.map((p) => (
-                <div key={p.platform} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-1.5 rounded-md bg-gray-50 border border-gray-100 ${p.color}`}>
-                           <p.icon size={14} />
+        <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
+           <h3 className="text-lg font-black uppercase mb-6">Channel Efficiency</h3>
+           <div className="space-y-4">
+              {stats.platforms.length === 0 && <p className="text-xs font-mono text-gray-400">NO_CONNECTED_CHANNELS</p>}
+              {stats.platforms.map((p: any) => {
+                const Icon = ICONS[p.platform] || ICONS.FACEBOOK;
+                return (
+                    <div key={p.platform + p.username} className="flex items-center justify-between border-b-2 border-gray-100 pb-2 last:border-0">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-black">
+                                <Icon size={14} />
+                            </div>
+                            <div>
+                                <p className="text-xs font-black uppercase">{p.platform}</p>
+                                <p className="text-[10px] font-mono text-gray-500 truncate max-w-[100px]">{p.username}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-900">{p.platform}</p>
-                            <p className="text-xs text-gray-500">{p.volume} msgs</p>
+                        <div className="text-right">
+                            <p className="text-xs font-black">{p.volume} Posts</p>
+                            <p className="text-[10px] font-bold text-green-600 bg-green-100 px-1">Ratio: {p.efficiency}</p>
                         </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900 tabular-nums">{p.time}</p>
-                        <p className="text-xs text-green-600">{p.sat}% CSAT</p>
-                    </div>
-                </div>
-              ))}
+                );
+              })}
            </div>
         </div>
       </div>
-
-      {/* TEAM TABLE */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-gray-900">Team Leaderboard</h3>
-            <button className="text-xs font-medium text-gray-500 hover:text-gray-900 flex items-center gap-1">
-                View Full Report <FiArrowUpRight />
-            </button>
-        </div>
-        <table className="w-full text-left text-sm">
-            <thead className="bg-white text-gray-500 border-b border-gray-100">
-                <tr>
-                    <th className="px-6 py-3 font-medium text-xs uppercase tracking-wider">Agent</th>
-                    <th className="px-6 py-3 font-medium text-xs uppercase tracking-wider text-right">Resolved</th>
-                    <th className="px-6 py-3 font-medium text-xs uppercase tracking-wider text-right">Avg Time</th>
-                    <th className="px-6 py-3 font-medium text-xs uppercase tracking-wider text-right">CSAT</th>
-                    <th className="px-6 py-3 font-medium text-xs uppercase tracking-wider text-right">Activity</th>
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-                {TEAM_PERFORMANCE.map((member) => (
-                    <tr key={member.name} className="hover:bg-gray-50/50">
-                        <td className="px-6 py-3 font-medium text-gray-900 flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-600 font-bold">
-                                {member.avatar}
-                            </div>
-                            {member.name}
-                        </td>
-                        <td className="px-6 py-3 text-right text-gray-600 tabular-nums">{member.solved}</td>
-                        <td className="px-6 py-3 text-right text-gray-600 tabular-nums">{member.time}</td>
-                        <td className="px-6 py-3 text-right font-medium text-green-600 tabular-nums">{member.sat}</td>
-                        <td className="px-6 py-3 text-right">
-                            <div className="flex justify-end gap-1">
-                                {[1,2,3,4,5].map(i => (
-                                    <div key={i} className={`w-1 h-3 rounded-full ${i <= 4 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-                                ))}
-                            </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-      </div>
-
     </div>
   );
 }
