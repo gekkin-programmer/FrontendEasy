@@ -6,13 +6,12 @@ export class ContentCalendarService {
   constructor(private prisma: PrismaService) {}
 
   async getCalendarEvents(workspaceId: string, start: string, end: string) {
-    // 1. Fetch posts in range
     const posts = await this.prisma.post.findMany({
       where: {
-        workspaceId,
+        workspaceId: workspaceId,
         scheduledFor: {
-          gte: new Date(start), // Greater than or equal to Start
-          lte: new Date(end),   // Less than or equal to End
+          gte: new Date(start),
+          lte: new Date(end),
         },
       },
       select: {
@@ -20,22 +19,26 @@ export class ContentCalendarService {
         content: true,
         scheduledFor: true,
         status: true,
+        
         socialAccounts: {
-          select: { socialAccount: { select: { platform: true } } }
+          select: {
+            socialAccount: {
+              select: {
+                platform: true,
+                username: true
+              }
+            }
+          }
         }
-      }
+      },
+      orderBy: {
+        scheduledFor: 'asc',
+      },
     });
 
-    // 2. Format for Frontend (FullCalendar / React Big Calendar format)
     return posts.map(post => ({
-      id: post.id,
-      title: post.content.substring(0, 30) + '...', // Short title
-      start: post.scheduledFor,
-      // end: post.scheduledFor (For posts, start = end usually)
-      extendedProps: {
-        status: post.status,
-        platforms: post.socialAccounts.map(sa => sa.socialAccount.platform)
-      }
+      ...post,
+      socialAccounts: post.socialAccounts.map(link => link.socialAccount)
     }));
   }
 }
