@@ -5,26 +5,27 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TestAiDto } from './dto/test-ai.dto';
 
 @ApiTags('AI Engine')
-@ApiBearerAuth() // ⚠️ Comment this out if you want Support Chat to work for guests (Landing Page)
+@ApiBearerAuth()
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  // ➤ 1. Marketing Copy Generation (Protected)
+  // ➤ 1. Marketing Copy Generation
   @Post('test-copywriting')
-  @UseGuards(JwtAuthGuard) // Keep this protected
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Generate marketing copy' })
   async testCopywriting(@Body() dto: TestAiDto) {
-    return this.aiService.generateMarketingCopy(
+    const generatedText = await this.aiService.generateMarketingCopy(
       dto.product,
       "A generic test image description",
       dto.tone,
       MarketingFramework.AIDA
     );
+    
+    return { content: generatedText };
   }
 
-  // ➤ 2. Support Chat (Public or Protected?)
-  // Since it's on the landing page ("How can we help?"), it should probably be PUBLIC.
+  // ➤ 2. Support Chat
   @Post('chat')
   @ApiOperation({ summary: 'Chat with EasyAI Support' })
   @ApiBody({ schema: { type: 'object', properties: { message: { type: 'string' } } } })
