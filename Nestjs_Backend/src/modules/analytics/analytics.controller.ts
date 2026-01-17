@@ -20,4 +20,54 @@ export class AnalyticsController {
     if (!workspaceId) throw new BadRequestException('Workspace ID is required');
     return this.analyticsService.getAnalytics(workspaceId, query);
   }
+
+  // =================================================================
+  // ➤ STRATEGIC INSIGHTS (The "Smart" Layer)
+  // =================================================================
+
+  @Get('insights/best-time')
+  @ApiOperation({ summary: 'Get best posting times based on history' })
+  getBestPostingTimes(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.analyzeBestTimes(workspaceId);
+  }
+
+  @Get('insights/hashtags')
+  @ApiOperation({ summary: 'Get top performing hashtags' })
+  getTopHashtags(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.analyzeHashtags(workspaceId);
+  }
+
+  @Get('insights/content-mix')
+  @ApiOperation({ summary: 'Compare Image vs Video vs Text performance' })
+  getContentMix(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.analyzeContentMix(workspaceId);
+  }
+
+  // =================================================================
+  // ➤ ADVANCED INVESTOR METRICS (Deep Dive)
+  // =================================================================
+
+  @Get('insights/health')
+  @ApiOperation({ summary: 'Calculate Account Consistency & Health Score' })
+  getAccountHealth(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.analyzeAccountHealth(workspaceId);
+  }
+
+  @Get('insights/forecast')
+  @ApiOperation({ summary: 'Predict future engagement (Linear Regression)' })
+  getGrowthForecast(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.calculateGrowthForecast(workspaceId);
+  }
+
+  @Get('insights/smart-copy')
+  @ApiOperation({ summary: 'Analyze words that trigger engagement (NLP)' })
+  getSmartCopyAnalysis(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.analyzeSmartCopy(workspaceId);
+  }
 }
