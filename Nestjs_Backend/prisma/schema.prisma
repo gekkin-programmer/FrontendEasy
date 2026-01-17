@@ -504,7 +504,7 @@ model Post {
   // Relation to Smart Media Library
   media       PostMedia[] 
   
-  // Legacy/Simple media handling (optional, keep for flexibility)
+  // Legacy/Simple media handling
   mediaUrls   Json? 
   mediaType   MediaType?
   
@@ -517,6 +517,13 @@ model Post {
   publishedAt  DateTime?
   expiresAt    DateTime?
 
+  // --- SYNC ENGINE FIELDS (NEW) ---
+  externalId   String?   // The ID from the platform (e.g., "123456789_987654321")
+  metaData     Json?     // Raw JSON from provider (for AI analysis)
+  metrics      Json?     // Snapshot: { likes: 10, comments: 2 } - simpler for offline lists
+  platform     SocialPlatform? // Useful to know platform without joining
+  // --------------------------------
+
   // Relations
   socialAccounts PostSocialAccount[]
   campaignId     String?
@@ -524,19 +531,15 @@ model Post {
   tags           PostTag[]
   labels         PostLabel[]
   
-  // 🤝 Collaboration & Approval
   createdById    String
   createdBy      User           @relation(fields: [createdById], references: [id])
   approvalStatus ApprovalStatus @default(NONE)
   approvedBy     String?
   approvedAt     DateTime?
   
-  // Relation to External Reviews (Client Validation)
   externalReviews ExternalReview[]
+  comments        PostComment[]
   
-  comments PostComment[]
-  
-  // Platform specific
   platformData Json?
   errorMessage String?
   retryCount   Int     @default(0)
@@ -544,12 +547,14 @@ model Post {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   
-  // Helper field for quick access
   socialAccountId String? 
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
   @@map("posts")
-  @@index([status, scheduledFor]) // Critical for Scheduler Performance
+  @@index([status, scheduledFor])
+  
+  // REQUIRED FOR UPSERT: Ensures we don't import the same FB post twice for this account
+  @@unique([socialAccountId, externalId]) 
 }
 
 // Join table for Post <-> MediaLibrary

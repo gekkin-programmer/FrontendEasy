@@ -1,11 +1,19 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SocialPlatform } from '@prisma/client';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import axios from 'axios';
 
 @Injectable()
 export class SocialAccountsService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(SocialAccountsService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    // INJECT THE QUEUE HERE
+    @InjectQueue('social-sync') private syncQueue: Queue,
+  ) {}
 
   // ➤ LIST ACCOUNTS
   async findAll(userId: string) {
@@ -58,14 +66,13 @@ export class SocialAccountsService {
     const workspaceId = user.ownedWorkspaces[0].id;
     const platformEnum = data.platform.toUpperCase() as SocialPlatform;
 
-    //  FACEBOOK SPECIAL CASE: Just return, don't save yet.
-    // The Controller will redirect to the frontend selection modal instead.
+    // FACEBOOK SPECIAL CASE
     if (platformEnum === 'FACEBOOK') {
        return { status: 'selection_required', accessToken: data.accessToken };
     }
 
-    // Standard Upsert for others
-    return this.prisma.socialAccount.upsert({
+    // Upsert Account
+    const account = await this.prisma.socialAccount.upsert({
       where: {
         workspaceId_platform_platformUserId: {
           workspaceId,
@@ -94,6 +101,11 @@ export class SocialAccountsService {
         isActive: true
       }
     });
+
+    // ➤ TRIGGER BACKGROUND SYNC
+    await this.triggerSync(account);
+
+    return account;
   }
 
   // =================================================================
@@ -104,9 +116,9 @@ export class SocialAccountsService {
   async getFacebookPages(userAccessToken: string) {
     try {
       const res = await axios.get(`https://graph.facebook.com/me/accounts?access_token=${userAccessToken}`);
-      return res.data.data; // Array of { name, id, access_token, category }
+      return res.data.data; 
     } catch (error) {
-      console.error("FB Graph Error:", error.response?.data || error);
+      this.logger.error("FB Graph Error:", error.response?.data || error);
       throw new UnauthorizedException("Failed to fetch Facebook Pages");
     }
   }
@@ -123,14 +135,15 @@ export class SocialAccountsService {
     }
     const workspaceId = user.ownedWorkspaces[0].id;
 
-    // Fetch Avatar for the Page
+    // Fetch Avatar
     let avatarUrl = '';
     try {
         const picRes = await axios.get(`https://graph.facebook.com/${pageData.pageId}/picture?type=normal&redirect=false&access_token=${pageData.pageAccessToken}`);
         avatarUrl = picRes.data.data.url;
-    } catch (e) { console.warn("Could not fetch page avatar"); }
+    } catch (e) { this.logger.warn("Could not fetch page avatar"); }
 
-    return this.prisma.socialAccount.upsert({
+    // Upsert Page
+    const account = await this.prisma.socialAccount.upsert({
         where: {
           workspaceId_platform_platformUserId: {
             workspaceId,
@@ -157,5 +170,35 @@ export class SocialAccountsService {
           isActive: true
         }
     });
+
+    // ➤ TRIGGER BACKGROUND SYNC
+    await this.triggerSync(account);
+
+    return account;
+  }
+
+  /**
+   * Helper to push job to Redis Queue
+   */
+  private async triggerSync(account: any) {
+    try {
+      await this.syncQueue.add(
+        'fetch-history',
+        {
+          socialAccountId: account.id,
+          platform: account.platform,
+          accessToken: account.accessToken,
+          externalId: account.platformUserId,
+        },
+        {
+          priority: 1, 
+          attempts: 3
+        }
+      );
+      this.logger.log(`Queued sync for account: ${account.username} (${account.platform})`);
+    } catch (error) {
+      this.logger.error(`Failed to queue sync: ${error.message}`);
+      // Don't throw error here, so the user still gets the "Account Connected" success message
+    }
   }
 }
