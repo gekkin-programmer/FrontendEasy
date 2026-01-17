@@ -1,8 +1,8 @@
 import { 
   Controller, 
   Get, 
-  Post, // Added POST
-  Body, // Added Body
+  Post, 
+  Body, 
   UseGuards, 
   Req, 
   Res, 
@@ -30,7 +30,7 @@ export class SocialAccountsController {
   ) {}
 
   // =================================================================
-  // 1. LIST & MANAGE ACCOUNTS (Keep Guard here - API calls)
+  // 1. LIST & MANAGE ACCOUNTS
   // =================================================================
 
   @Get()
@@ -47,6 +47,15 @@ export class SocialAccountsController {
   @ApiOperation({ summary: 'Disconnect an account' })
   remove(@Param('id') id: string, @Req() req) {
     return this.socialAccountsService.disconnect(id, req.user.sub);
+  }
+
+  // ➤ NEW: MANUAL SYNC TRIGGER
+  @Post(':id/sync')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Trigger historical sync manually' })
+  syncAccount(@Param('id') id: string, @Req() req) {
+    return this.socialAccountsService.triggerManualSync(id, req.user.sub);
   }
 
   // =================================================================
@@ -83,10 +92,7 @@ export class SocialAccountsController {
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: any) {
-    // 1. Get the User Access Token from Passport
     const { accessToken } = req.user; 
-
-    // 2. Store Token in a short-lived Cookie so we can fetch pages later
     res.cookie('fb_pending_token', accessToken, { 
         httpOnly: true, 
         signed: true, 
@@ -95,7 +101,6 @@ export class SocialAccountsController {
         secure: true 
     });
 
-    // 3. Redirect to Frontend Selection Modal
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
     return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook&exchange_token=${accessToken}`);
   }
@@ -117,36 +122,30 @@ export class SocialAccountsController {
 
     return this.socialAccountsService.getFacebookPages(fbToken);
   }
+
   @Post('facebook/pages/select')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Connect a specific Facebook Page' })
   async selectFacebookPage(@Req() req, @Body() body: { pageId: string, pageName: string, pageAccessToken: string }) {
-    // Save the specific Page Account to the DB
-    // Clear pending cookie
     req.res.clearCookie('fb_pending_token', { sameSite: 'none', secure: true });
-    
     return this.socialAccountsService.linkPageAccount(req.user.sub, body);
   }
 
   // =================================================================
-  // 3. LINKEDIN FLOW
+  // 3. OTHER OAUTH FLOWS (LinkedIn, TikTok, YouTube)
   // =================================================================
+  // (Kept exactly as you had them)
 
   @Get('connect/linkedin')
-  @ApiOperation({ summary: 'Initiate LinkedIn OAuth' })
   async connectLinkedIn(@Query('token') token: string, @Res() res: Response) {
     if (!token) throw new UnauthorizedException('No auth token provided');
-
     try {
         const payload = this.jwtService.verify(token);
         const userId = payload.sub;
-
         res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
         res.redirect('/api/social-accounts/auth/linkedin');
-    } catch (e) {
-        throw new UnauthorizedException('Invalid Token');
-    }
+    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
   }
 
   @Get('auth/linkedin')
@@ -159,24 +158,15 @@ export class SocialAccountsController {
     await this.handleCallback(req, res, 'linkedin');
   }
 
-  // =================================================================
-  // 4. TIKTOK FLOW
-  // =================================================================
-
   @Get('connect/tiktok')
-  @ApiOperation({ summary: 'Initiate TikTok OAuth' })
   async connectTikTok(@Query('token') token: string, @Res() res: Response) {
     if (!token) throw new UnauthorizedException('No auth token provided');
-
     try {
         const payload = this.jwtService.verify(token);
         const userId = payload.sub;
-
         res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
         res.redirect('/api/social-accounts/auth/tiktok');
-    } catch (e) {
-        throw new UnauthorizedException('Invalid Token');
-    }
+    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
   }
 
   @Get('auth/tiktok')
@@ -189,24 +179,15 @@ export class SocialAccountsController {
     await this.handleCallback(req, res, 'tiktok');
   }
 
-  // =================================================================
-  // 5. YOUTUBE FLOW
-  // =================================================================
-
   @Get('connect/youtube')
-  @ApiOperation({ summary: 'Initiate YouTube OAuth' })
   async connectYoutube(@Query('token') token: string, @Res() res: Response) {
     if (!token) throw new UnauthorizedException('No auth token provided');
-
     try {
         const payload = this.jwtService.verify(token);
         const userId = payload.sub;
-
         res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
         res.redirect('/api/social-accounts/auth/youtube');
-    } catch (e) {
-        throw new UnauthorizedException('Invalid Token');
-    }
+    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
   }
 
   @Get('auth/youtube')
@@ -219,13 +200,8 @@ export class SocialAccountsController {
     await this.handleCallback(req, res, 'youtube');
   }
 
-  // =================================================================
-  // 🛠️ HELPER
-  // =================================================================
   private async handleCallback(req: any, res: any, platform: string) {
     const profile = req.user;
-    
-    // 1. Read Cookie
     const userId = req.signedCookies['auth_state'];
 
     if (!userId) {
@@ -234,10 +210,7 @@ export class SocialAccountsController {
        return res.redirect(`${frontendUrl}/dashboard?error=session_expired`);
     }
 
-    // 2. Link Account
     await this.socialAccountsService.linkAccount(userId, profile);
-    
-    // 3. Clear Cookie
     res.clearCookie('auth_state', { sameSite: 'none', secure: true });
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';

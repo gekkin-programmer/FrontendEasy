@@ -14,11 +14,9 @@ export class PostsService {
 
   // ➤ CREATE POST
   async create(dto: CreatePostDto, userId: string, workspaceId: string) {
-    // 1. Determine Status
     let status = dto.status || PostStatus.DRAFT;
     if (dto.scheduledFor) status = PostStatus.SCHEDULED;
 
-    // 2. Create Post + Relations
     return this.prisma.post.create({
       data: {
         content: dto.content,
@@ -26,16 +24,12 @@ export class PostsService {
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : null,
         workspaceId,
         createdById: userId,
-        
-        // Connect Social Accounts (Many-to-Many via PostSocialAccount)
         socialAccounts: {
           create: dto.socialAccountIds.map(accId => ({
             socialAccount: { connect: { id: accId } },
-            status: status // Propagate status to individual platform entries
+            status: status 
           }))
         },
-
-        // Connect Media (Many-to-Many via PostMedia)
         media: dto.mediaIds ? {
           create: dto.mediaIds.map((mediaId, index) => ({
             media: { connect: { id: mediaId } },
@@ -47,32 +41,47 @@ export class PostsService {
     });
   }
 
-  // ➤ LIST POSTS (Filterable)
-  async findAll(workspaceId: string, status?: PostStatus) {
+  // ➤ LIST POSTS (Updated for Analytics Filters)
+  async findAll(workspaceId: string, query: any = {}) {
+    const { status, limit = 50 } = query;
+
     return this.prisma.post.findMany({
       where: { 
         workspaceId,
-        ...(status ? { status } : {}) // Add filter if provided
+        // If status is provided, filter by it. 
+        // For Analytics, we usually want "PUBLISHED"
+        ...(status ? { status: status as PostStatus } : {})
       },
       include: { 
         socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
         media: { include: { media: true } },
         createdBy: { select: { firstName: true, avatar: true } }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { 
+        // For Analytics (published posts), order by publishedAt
+        // For Drafts, order by updatedAt
+        publishedAt: status === 'PUBLISHED' ? 'desc' : undefined,
+        createdAt: status !== 'PUBLISHED' ? 'desc' : undefined
+      },
+      take: Number(limit)
     });
   }
 
-  // ➤ GET ONE
-  async findOne(id: string, workspaceId: string) {
+  // ➤ GET ONE (Robust)
+  async findOne(id: string, workspaceId?: string) {
     const post = await this.prisma.post.findFirst({
-      where: { id, workspaceId },
+      where: { 
+        id,
+        // Optional: Ensure it belongs to workspace if ID provided
+        ...(workspaceId ? { workspaceId } : {})
+      },
       include: {
         socialAccounts: { include: { socialAccount: true } },
         media: { include: { media: true } },
         comments: true
       }
     });
+
     if (!post) throw new NotFoundException('Post not found');
     return post;
   }
@@ -82,42 +91,33 @@ export class PostsService {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
     
-    // Permission: Only Creator or Admin can edit (Simplified)
-    if (post.createdById !== userId) {
-       // In real app: Check workspace role too
-    }
-
     return this.prisma.post.update({
       where: { id },
       data: {
         content: dto.content,
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
         status: dto.status,
-        // Updating relations is complex (delete old, add new), skip for MVO
       }
     });
   }
 
   // ➤ DELETE
   async remove(id: string, workspaceId: string) {
-    // Verify ownership first
     const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
     if (!post) throw new NotFoundException('Post not found');
 
     return this.prisma.post.delete({ where: { id } });
   }
 
-  // ➤ APPROVE (Team Workflow)
+  // ➤ APPROVE
   async approve(id: string, approverId: string) {
-    // 1. Verify Approver is Admin/Manager (Skip logic for MVO speed)
-    
     return this.prisma.post.update({
       where: { id },
       data: {
         approvalStatus: ApprovalStatus.APPROVED,
         approvedBy: approverId,
         approvedAt: new Date(),
-        status: PostStatus.SCHEDULED // Auto-schedule upon approval
+        status: PostStatus.SCHEDULED 
       }
     });
   }
