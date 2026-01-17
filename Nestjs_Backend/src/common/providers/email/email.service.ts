@@ -16,7 +16,22 @@ export class EmailService {
     }
   }
 
-  // ➤ SEND OTP (With Your Premium Template)
+  // ➤ SEND TOKEN EXPIRY ALERT (New Method)
+  async sendTokenExpiryAlert(to: string, userName: string, platform: string) {
+    const html = `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2 style="color: #d93025;">Action Required</h2>
+        <p>Hello ${userName},</p>
+        <p>Your connection to <strong>${platform}</strong> has expired. This often happens for security reasons.</p>
+        <p>To continue scheduling posts and viewing analytics, please <strong>reconnect your account</strong> in EasyPost.</p>
+        <br/>
+        <p>Best,<br/>The EasyPost Team</p>
+      </div>
+    `;
+    await this.send(to, `Action Required: Reconnect your ${platform} account`, html);
+  }
+
+  // ➤ SEND OTP
   async sendOtp(email: string, otp: string) {
     const html = `
       <!DOCTYPE html>
@@ -84,7 +99,7 @@ export class EmailService {
     await this.send(email, `Invitation to ${workspaceName}`, html);
   }
 
-  // --- BREVO HTTP API CALL (Bypasses SMTP Ports) ---
+  // --- BREVO HTTP API CALL ---
   private async send(to: string, subject: string, htmlContent: string) {
     if (!this.apiKey) {
       this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
@@ -92,7 +107,6 @@ export class EmailService {
     }
 
     try {
-      // Clean sender email format: "EasyPost <email>" -> { name: "EasyPost", email: "email" }
       const senderMatch = this.senderEmail.match(/(.*)<(.+)>/);
       const senderName = senderMatch ? senderMatch[1].trim() : "EasyPost";
       const senderAddr = senderMatch ? senderMatch[2].trim() : this.senderEmail;
@@ -101,7 +115,7 @@ export class EmailService {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'api-key': this.apiKey, // 👈 Using API Key header
+          'api-key': this.apiKey, 
           'content-type': 'application/json'
         },
         body: JSON.stringify({
@@ -120,8 +134,8 @@ export class EmailService {
       this.logger.log(`📧 Email sent successfully to ${to} via Brevo API`);
     } catch (e) {
       this.logger.error('Email Delivery Failed', e);
-      // In Production, throwing error here ensures the user knows the email failed
-      throw new Error("Failed to send email. Please try again.");
+      // In Production, swallow error to prevent job crash
+      // throw new Error("Failed to send email. Please try again.");
     }
   }
 }

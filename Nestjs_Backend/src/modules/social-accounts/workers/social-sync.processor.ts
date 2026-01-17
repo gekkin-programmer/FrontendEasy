@@ -3,10 +3,11 @@ import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { FacebookService } from '../platforms/facebook.service';
-// Ensure these imports match the files we just fixed above
 import { SocialPlatform } from '../../../common/enums/social-platform.enum';
 import { PostStatus } from '../../../common/enums/post-status.enum';
-import { NormalizedSocialPost } from '../interfaces/social-platform.interface'; // <--- Import this
+import { NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import { SocialTokenExpiredException } from '../../../common/exceptions/token-expired.exception'; // Ensure imported
+import { EmailService } from '../../../common/providers/email/email.service'; // Ensure imported
 
 interface SyncJobData {
   socialAccountId: string;
@@ -22,6 +23,7 @@ export class SocialSyncProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly facebookService: FacebookService,
+    private readonly emailService: EmailService, // Added dependency
   ) {
     super();
   }
@@ -40,7 +42,6 @@ export class SocialSyncProcessor extends WorkerHost {
         throw new Error(`SocialAccount ${socialAccountId} not found`);
       }
 
-      // ➤ FIX: Explicitly type the array here
       let posts: NormalizedSocialPost[] = []; 
 
       switch (platform) {
@@ -54,12 +55,11 @@ export class SocialSyncProcessor extends WorkerHost {
 
       this.logger.log(`Fetched ${posts.length} posts. Upserting to Database...`);
 
-      // 3. Batch Persist (Upsert)
+      // 3. Batch Persist
       await this.prisma.$transaction(
         posts.map((post) =>
           this.prisma.post.upsert({
             where: {
-              // Ensure your schema.prisma has @@unique([socialAccountId, externalId])
               socialAccountId_externalId: {
                 socialAccountId: socialAccountId,
                 externalId: post.externalId
@@ -93,8 +93,34 @@ export class SocialSyncProcessor extends WorkerHost {
 
       this.logger.log(`[Job ${job.id}] Sync complete.`);
     } catch (error) {
+      
+      // ➤ HANDLE TOKEN EXPIRY
+      if (error instanceof SocialTokenExpiredException) {
+        this.logger.warn(`Token expired for ${socialAccountId}. Disabling and notifying user.`);
+        
+        await this.prisma.socialAccount.update({
+            where: { id: socialAccountId },
+            data: { isActive: false } // Mark inactive
+        });
+
+        // Fetch user email
+        const account = await this.prisma.socialAccount.findUnique({
+            where: { id: socialAccountId },
+            include: { createdBy: true }
+        });
+
+        if (account?.createdBy?.email) {
+            await this.emailService.sendTokenExpiryAlert(
+                account.createdBy.email, 
+                account.createdBy.firstName || 'User', 
+                platform
+            );
+        }
+        return; // Don't throw error, so queue doesn't retry
+      }
+
       this.logger.error(`[Job ${job.id}] Sync failed: ${error.message}`);
-      throw error;
+      throw error; // Retry other errors
     }
   }
 }

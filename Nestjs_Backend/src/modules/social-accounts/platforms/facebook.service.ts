@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { ISocialPlatform, NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import { SocialTokenExpiredException } from '../../../common/exceptions/token-expired.exception'; // Ensure this file exists from previous step
 
 @Injectable()
 export class FacebookService implements ISocialPlatform {
@@ -20,7 +21,6 @@ export class FacebookService implements ISocialPlatform {
     since?: Date,
   ): Promise<NormalizedSocialPost[]> {
     try {
-      // ➤ We request deeper fields to ensure we get images
       const fields = 'id,message,created_time,full_picture,attachments{media,media_type,subattachments},shares,comments.summary(true),likes.summary(true),insights.metric(post_impressions_unique)';
       
       const url = `${this.GRAPH_URL}/${pageId}/feed?fields=${fields}&limit=50&access_token=${accessToken}`;
@@ -32,7 +32,7 @@ export class FacebookService implements ISocialPlatform {
       return data.data.map((post: any) => ({
         externalId: post.id,
         content: post.message || '',
-        mediaUrls: this.extractMedia(post), // Improved extraction
+        mediaUrls: this.extractMedia(post), 
         publishedAt: new Date(post.created_time),
         engagement: {
           likes: post.likes?.summary?.total_count || 0,
@@ -44,13 +44,28 @@ export class FacebookService implements ISocialPlatform {
       }));
 
     } catch (error) {
-      this.logger.error(`Facebook API Error: ${error.response?.data?.error?.message || error.message}`);
-      throw new Error('Failed to fetch Facebook history');
+      this.handleFacebookError(error);
+      return []; 
     }
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
     return refreshToken; 
+  }
+
+  // ➤ ERROR HANDLER
+  private handleFacebookError(error: any) {
+    const fbError = error.response?.data?.error;
+    
+    // Facebook Error Code 190 = Access Token Expired/Invalid
+    // Facebook Error Code 102 = Session Invalid
+    if (fbError && (fbError.code === 190 || fbError.code === 102)) {
+        this.logger.warn(`Facebook Token Expired: ${fbError.message}`);
+        throw new SocialTokenExpiredException('FACEBOOK');
+    }
+
+    this.logger.error(`Facebook API Error: ${fbError?.message || error.message}`);
+    throw new Error('Failed to fetch Facebook history');
   }
 
   // ➤ IMPROVED MEDIA EXTRACTOR
@@ -60,11 +75,9 @@ export class FacebookService implements ISocialPlatform {
     // 1. Check Attachments (Albums, Multi-photo)
     if (post.attachments?.data) {
       post.attachments.data.forEach((att: any) => {
-        // Direct Image
         if (att.media?.image?.src) {
             images.push(att.media.image.src);
         }
-        // Album / Subattachments
         if (att.subattachments?.data) {
             att.subattachments.data.forEach((sub: any) => {
                 if (sub.media?.image?.src) {
@@ -75,7 +88,7 @@ export class FacebookService implements ISocialPlatform {
       });
     }
 
-    // 2. Fallback to Full Picture (Thumbnail or Single Image)
+    // 2. Fallback to Full Picture
     if (images.length === 0 && post.full_picture) {
         images.push(post.full_picture);
     }
