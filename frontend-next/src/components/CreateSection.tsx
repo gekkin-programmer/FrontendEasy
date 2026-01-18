@@ -49,7 +49,7 @@ const doneCards: Card[] = [
 const textsToType = [
   { en: "Create stunning posts effortlessly!", fr: "Créez des publications époustouflantes facilement !" },
   { en: "Plan, schedule, and post in seconds", fr: "Planifiez, programmez et publiez en quelques secondes" },
-  { en: "Wiggle makes posting fun and simple", fr: "Wiggle rend la publication amusante et simple" },
+  { en: "EasyPost makes posting fun and simple", fr: "EasyPost rend la publication amusante et simple" },
 ];
 
 const TYPE_SPEED = 70;
@@ -162,7 +162,12 @@ export default function CreateSection() {
              </div>
              
              <div className="bg-gray-100 border-2 border-black p-4 font-mono text-sm min-h-[80px] mb-4">
-                <span className="text-[#3C48F6] font-bold">{">"}</span> {prompt}<span className="animate-pulse w-3 h-5 bg-black inline-block align-middle ml-1"></span>
+                <span className="text-[#3C48F6] font-bold">{">"}</span>
+                <span className="text-black dark:text-black font-bold">
+                {prompt}
+                </span>
+                <span className="animate-pulse w-3 h-5 bg-black inline-block align-middle ml-1">
+                </span>
              </div>
 
              <button className="w-full bg-[#3C48F6] text-white font-black py-3 border-4 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">

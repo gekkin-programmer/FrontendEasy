@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 
@@ -212,7 +213,15 @@ function DashboardContent() {
             <main className="relative z-10 flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 backdrop-blur-sm border-b-4 border-black items-center justify-between px-8 shadow-sm">
                     <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-2"><div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-2xl border-2 border-transparent">E</div><span className="font-black text-2xl tracking-tighter italic">EASYPOST.</span></div>
+                        <div className="flex items-center gap-2"><div className="w-10 h-10 border-2 border-black bg-white overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+  <Image 
+    src="/applogo.png" 
+    alt="EasyPost Logo" 
+    width={40} 
+    height={40} 
+    className="object-contain p-1" // 'p-1' adds a tiny breathing room inside the box
+  />
+</div><span className="font-black text-2xl tracking-tighter italic">ASYPOST.</span></div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black rounded-none overflow-hidden bg-gray-100"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px]">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black" /></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map(ws => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 border-2 border-transparent hover:border-black transition-all"><div className="w-5 h-5 border border-black overflow-hidden bg-gray-50"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
