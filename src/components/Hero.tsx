@@ -51,7 +51,7 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: any) => (
     
     {/* The Sticker Card (Organic Border Radius) */}
     <div 
-        className="bg-white dark:bg-zinc-900 p-3 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
+        className="bg-white dark:bg-white p-3 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
         style={{
             // This creates the "Hand Cut" paper look
             borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" 

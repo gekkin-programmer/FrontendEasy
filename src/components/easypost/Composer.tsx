@@ -9,7 +9,7 @@ import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
   Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
   ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Save, Eraser, 
-  FileCheck, Loader2
+  FileCheck, Loader2, Sparkles, Zap
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/src/lib/api'; 
 
-// ... (Keep existing Interfaces: AssetType, LibraryItem, TemplateItem) ...
+// --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
 interface LibraryItem { id: string; type: AssetType; name?: string; url?: string; parentId: string | null; }
 interface TemplateItem { id: number; title: string; content: string; }
@@ -36,8 +36,22 @@ interface ComposerProps {
 
 const CATEGORIES = ['General', 'Technology', 'Marketing', 'Personal', 'News', 'Meme', 'Educational'];
 
-// ... (Keep NeuButton, NeuModal, RetroFolder, ToolButton, PlatformIcon) ...
-// (I am omitting them for brevity, assume they are unchanged from previous code)
+const AI_TONES = [
+  { id: 'PROFESSIONAL', label: 'PROFESSIONAL 👔' },
+  { id: 'CASUAL', label: 'CASUAL 😎' },
+  { id: 'CAMFRANGLAIS', label: 'CAMFRANGLAIS 🇨🇲' },
+  { id: 'NOUCHI', label: 'NOUCHI 🇨🇮' },
+  { id: 'URGENT', label: 'URGENT 🚨' },
+];
+
+const AI_FRAMEWORKS = [
+  { id: 'AIDA', label: 'AIDA (ATTENTION)' },
+  { id: 'PAS', label: 'PAS (PAIN-SOLVE)' },
+  { id: 'STORY', label: 'STORYTELLING 📖' },
+  { id: 'DIRECT', label: 'DIRECT SALES 💰' },
+];
+
+// --- NEU COMPONENTS (Reused) ---
 const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
   const baseStyles = "relative font-black text-xs uppercase tracking-wide transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
   const variants = {
@@ -84,11 +98,17 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
 
   // UI State
   const [isLibraryOpen, setIsLibraryOpen] = useState(false); 
+  const [isAiOpen, setIsAiOpen] = useState(false); // 🟢 AI Toggle
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
   
+  // AI Params
+  const [aiContext, setAiContext] = useState("");
+  const [aiTone, setAiTone] = useState(AI_TONES[0].id);
+  const [aiFramework, setAiFramework] = useState(AI_FRAMEWORKS[0].id);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+
   // Modals / Data
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -108,11 +128,10 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
     }
   }, [accounts]);
 
-  // 🟢 FETCH MEDIA LIBRARY 
+  // FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
     try {
         const mediaList = await api.get<any[]>('/media');
-        
         const formattedMedia = mediaList.map((m: any) => ({
             id: m.id,
             type: (m.mimeType?.includes('video') ? 'video' : 'image') as AssetType, 
@@ -120,30 +139,20 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
             name: m.filename,
             parentId: null
         }));
-        
         setLibraryData(formattedMedia);
     } catch (e) { console.error("Library fetch failed", e); }
   };
 
-  // Re-fetch when library opens
-  useEffect(() => {
-    if (isLibraryOpen) fetchLibrary();
-  }, [isLibraryOpen]);
+  useEffect(() => { if (isLibraryOpen) fetchLibrary(); }, [isLibraryOpen]);
 
   const uploadSingleFile = async (fileToUpload: File): Promise<string | null> => {
       const formData = new FormData();
       formData.append('file', fileToUpload);
       try {
-          // Use api.upload 
           const data = await api.upload<any>('/media/upload', formData);
-          
           await fetchLibrary(); 
-          
           return data.media?.id || data.id;
-      } catch (e) { 
-          toast.error("UPLOAD_FAILED"); 
-          return null; 
-      }
+      } catch (e) { toast.error("UPLOAD_FAILED"); return null; }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +162,37 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
 
   const handleSelectFromLibrary = (item: LibraryItem) => {
       setLocalFile(null); setSelectedMediaId(item.id); setMediaPreview(item.url || null); toast.success("MEDIA_LINKED");
+  };
+
+  // AI GENERATION LOGIC
+  const handleAiGenerate = async () => {
+    if (!aiContext.trim()) return toast.error("ERR: EMPTY_PROMPT");
+    setIsAiGenerating(true);
+    try {
+      // We use 'any' here to bypass the strict type check
+      const res: any = await api.post('/ai/test-copywriting', {
+        product: aiContext,
+        tone: aiTone,
+      });
+      
+      // Safe access: try res.data.content (standard axios) OR res.content (if interceptor unwraps it)
+      const generatedContent = res.data?.content || res.content;
+
+      if (!generatedContent) {
+        throw new Error("Empty response from AI");
+      }
+      
+      const newText = text ? `${text}\n\n${generatedContent}` : generatedContent;
+      setText(newText);
+      toast.success("AI: COPY_GENERATED");
+      setIsAiOpen(false); 
+      setAiContext("");
+    } catch (e) {
+      console.error(e);
+      toast.error("AI_ERROR: GENERATION_FAILED");
+    } finally {
+      setIsAiGenerating(false);
+    }
   };
 
   // SUBMIT LOGIC
@@ -173,36 +213,28 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
             toast.dismiss();
         }
 
-        // 🟢 STATUS DETERMINATION
         let status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT';
-        
         if (action === 'review') status = 'REVIEW';
-        else if (action === 'execute') status = 'SCHEDULED'; // Even immediate execution is "SCHEDULED" for now
+        else if (action === 'execute') status = 'SCHEDULED'; 
         else if (action === 'queue') status = 'SCHEDULED';
 
         await onSchedule(
             text, 
-            action === 'queue' ? date || new Date() : undefined, // If execute, leave date undefined (immediate) or set to now
+            action === 'queue' ? date || new Date() : undefined,
             finalMediaId ? [finalMediaId] : [], 
             status, 
             targets
         );
         
-        // Reset form
         setText(''); setDate(undefined); setLocalFile(null); setSelectedMediaId(null); setMediaPreview(null);
-    } catch (e) { 
-        toast.error("ERR: SUBMISSION_FAILED"); 
-    } finally { 
-        setIsSubmitting(false); 
-    }
+    } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
   };
 
-  // ... (Keep render helpers) ...
   const currentItems = libraryData.filter(item => item.parentId === currentFolderId);
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-black">
-      <div className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] relative">
+      <div className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] relative overflow-hidden transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
 
         {/* Header */}
@@ -215,7 +247,6 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
                  <div className="absolute -bottom-1 -right-1 bg-white p-[1px] border border-black z-10"><PlatformIcon platform={acc.platform} size={10} /></div>
               </div>
             ))}
-            
             <Popover>
                 <PopoverTrigger asChild>
                     <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black hover:bg-white/50 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-red-500 animate-pulse" : "bg-white")}>
@@ -236,8 +267,46 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
                 </PopoverContent>
             </Popover>
           </div>
-          <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isLibraryOpen ? "bg-black text-white" : "bg-white hover:bg-gray-100")}><LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span></button>
+          
+          <div className="flex gap-2">
+             {/* 🟢 AI BUTTON */}
+             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isAiOpen ? "bg-purple-600 text-white" : "bg-white hover:bg-purple-100")}>
+                <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
+             </button>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isLibraryOpen ? "bg-black text-white" : "bg-white hover:bg-gray-100")}>
+                <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span>
+             </button>
+          </div>
         </div>
+
+        {/* 🟢 AI PANEL (Collapsible) */}
+        <AnimatePresence>
+            {isAiOpen && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black bg-purple-50 p-4">
+                    <div className="flex flex-col sm:flex-row gap-4 mb-3">
+                        <div className="flex-1">
+                            <label className="text-[10px] font-bold uppercase mb-1 block">WHAT_ARE_WE_SELLING?</label>
+                            <input value={aiContext} onChange={(e) => setAiContext(e.target.value)} className="w-full bg-white border-2 border-black p-2 text-xs font-bold focus:outline-none focus:shadow-[2px_2px_0px_0px_#000]" placeholder="E.G. 50% OFF SNEAKERS IN DOUALA..." />
+                        </div>
+                        <div className="w-full sm:w-1/3">
+                            <label className="text-[10px] font-bold uppercase mb-1 block">VIBE_CHECK</label>
+                            <div className="relative">
+                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white border-2 border-black p-2 text-xs font-bold uppercase appearance-none focus:outline-none">
+                                    {AI_TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                </select>
+                                <ChevronDown className="absolute right-2 top-2.5 w-3 h-3 pointer-events-none" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex justify-end">
+                        <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black text-white px-4 py-2 w-full sm:w-auto">
+                            {isAiGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Wand2 className="w-3 h-3 mr-2" />}
+                            GENERATE_COPY
+                        </NeuButton>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
         {/* Toolbar */}
         <div className="px-6 pt-4 pb-2 flex gap-2 justify-end bg-white">
@@ -245,7 +314,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
             <button onClick={() => setText("")} className="text-[10px] font-black uppercase flex items-center gap-1 bg-gray-100 px-2 py-1 border-2 border-black hover:bg-gray-200 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[1px] active:shadow-none"><Eraser size={12} /> WIPE</button>
         </div>
 
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 bg-white">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 bg-transparent p-0 rounded-none leading-relaxed font-mono" />
           
           {mediaPreview && (
@@ -278,7 +347,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
         </div>
       </div>
       
-      {/* 🟢 LIBRARY (Persist Logic Added) */}
+      {/* 🟢 LIBRARY */}
       <AnimatePresence>
         {isLibraryOpen && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden flex flex-col">
@@ -299,7 +368,6 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
                     {currentItems.filter(i => i.type !== 'folder').map((item) => (<div key={item.id} onClick={() => handleSelectFromLibrary(item)} className="relative aspect-square border-2 border-black overflow-hidden cursor-pointer group hover:shadow-[4px_4px_0px_0px_#000] transition-all bg-white"><img src={item.url} className="w-full h-full object-cover transition-all" alt="" /><div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2"><Check size={20} className="text-white drop-shadow-md hover:scale-110 transition-transform" /></div><div className="absolute top-0 right-0 bg-black text-white text-[8px] font-bold px-1 uppercase font-mono">{item.type.toUpperCase().substring(0,3)}</div></div>))}
                   </div>
                 </TabsContent>
-                {/* ... Templates Tab ... */}
                 <TabsContent value="templates" className="mt-0 space-y-3">{savedTemplates.map((t) => (<div key={t.id} onClick={() => { setText(p => p + (p ? '\n\n' : '') + t.content); toast.success('TPL_INJECTED'); }} className="p-4 bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none cursor-pointer group transition-all"><div className="flex justify-between items-start mb-2"><span className="text-[10px] font-black uppercase bg-yellow-300 px-1 border border-black">{t.title}</span><Copy size={14} className="text-black opacity-0 group-hover:opacity-100 transition-opacity" /></div><p className="text-xs font-medium text-gray-800 line-clamp-2 font-mono">{t.content}</p></div>))}</TabsContent>
               </ScrollArea>
             </Tabs>

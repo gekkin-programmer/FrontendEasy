@@ -23,7 +23,7 @@ const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) =>
 
 export default function PublishSection() {
   const { t } = useLanguage();
-  const publishImage = "/assets/postKanban.PNG"; // Ensure this path is correct
+  const publishImage = "/assets/CreateKanban.PNG"; 
 
   return (
     <section className="bg-[#E0E7FF] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative">
