@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnalyticsFilterDto, AnalyticsPeriod, AnalyticsType } from './dto/analytics-query.dto';
+import { PostStatus } from '@prisma/client';
 
 @Injectable()
 export class AnalyticsService {
@@ -16,111 +17,83 @@ export class AnalyticsService {
       case AnalyticsType.ACCOUNTS:
         return this.getAccountsAnalytics(workspaceId, dateRange);
       case AnalyticsType.POSTS:
-        return this.getTopPosts(workspaceId, dateRange, filters.limit || 5);
+        return this.getTopPosts(workspaceId, dateRange, filters.limit || 50);
       default:
         return this.getOverviewAnalytics(workspaceId, dateRange);
     }
   }
 
-  // ➤ 1. DASHBOARD OVERVIEW (Replaces "Orders/Revenue")
+  // =================================================================
+  // STANDARD ANALYTICS
+  // =================================================================
+
   private async getOverviewAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
     const whereCondition = {
       workspaceId,
-      createdAt: {
-        gte: dateRange.startDate,
-        lte: dateRange.endDate,
-      },
-      status: 'PUBLISHED' as const, // Only count real posts
+      createdAt: { gte: dateRange.startDate, lte: dateRange.endDate },
+      status: PostStatus.PUBLISHED,
     };
 
-    const [
-      totalPosts,
-      engagementStats,
-      scheduledPosts,
-      platformDistribution
-    ] = await Promise.all([
-      // 1. Total Posts Published
+    const [totalPosts, engagementStats, scheduledPosts] = await Promise.all([
       this.prisma.post.count({ where: whereCondition }),
-
-      // 2. Total Engagement (Likes + Comments + Shares)
-      // Note: We aggregate from PostSocialAccount because that's where the numbers live
-      this.prisma.postSocialAccount.aggregate({
-        where: { post: whereCondition },
-        _sum: {
-          likes: true,
-          comments: true,
-          shares: true,
-          views: true
-        }
+      this.prisma.post.findMany({
+        where: whereCondition,
+        select: { metrics: true }
       }),
-
-      // 3. Pipeline (Scheduled)
-      this.prisma.post.count({
-        where: {
-          workspaceId,
-          status: 'SCHEDULED'
-        }
-      }),
-
-      // 4. Posts per Platform
-      this.prisma.postSocialAccount.groupBy({
-        by: ['platformPostUrl'], // Trick: We need to group by account, but simplest is grouping by Post ID then mapping
-        where: { post: whereCondition },
-        _count: { id: true }
-      })
+      this.prisma.post.count({ where: { workspaceId, status: PostStatus.SCHEDULED } })
     ]);
 
-    // Calculate Engagement Rate (Total Actions / Total Views)
-    const actions = (engagementStats._sum.likes || 0) + (engagementStats._sum.comments || 0) + (engagementStats._sum.shares || 0);
-    const views = engagementStats._sum.views || 1; // Avoid divide by zero
-    const rate = ((actions / views) * 100).toFixed(2);
+    let likes = 0, comments = 0, shares = 0, views = 0;
+    engagementStats.forEach((p: any) => {
+        if(p.metrics) {
+            likes += p.metrics.likes || 0;
+            comments += p.metrics.comments || 0;
+            shares += p.metrics.shares || 0;
+            views += p.metrics.views || 0;
+        }
+    });
+
+    const actions = likes + comments + shares;
+    const effectiveViews = views || (actions > 0 ? actions * 10 : 1);
+    const rate = ((actions / effectiveViews) * 100).toFixed(2);
 
     return {
       overview: {
         totalPosts,
-        totalLikes: engagementStats._sum.likes || 0,
-        totalReach: engagementStats._sum.views || 0,
+        totalLikes: likes,
+        totalReach: views,
         engagementRate: rate + '%',
         scheduled: scheduledPosts
       },
-      period: {
-        type: 'CUSTOM',
-        start: dateRange.startDate,
-        end: dateRange.endDate
-      }
+      period: { type: 'CUSTOM', start: dateRange.startDate, end: dateRange.endDate }
     };
   }
 
-  // ➤ 2. ACCOUNT PERFORMANCE (Replaces "Drivers/Regions")
   private async getAccountsAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
-    // Group metrics by Social Account
     const accounts = await this.prisma.socialAccount.findMany({
       where: { workspaceId },
       include: {
-        postSocialAccounts: {
-          where: {
-  post: {
-    createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }
-  }
-},
-          select: {
-            likes: true,
-            comments: true,
-            views: true
-          }
+        posts: {
+            where: { createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }, status: PostStatus.PUBLISHED },
+            select: { metrics: true }
         }
       }
     });
 
     return accounts.map(acc => {
-      const likes = acc.postSocialAccounts.reduce((sum, p) => sum + p.likes, 0);
-      const views = acc.postSocialAccounts.reduce((sum, p) => sum + p.views, 0);
+      let likes = 0, views = 0;
+      acc.posts.forEach((p: any) => {
+          if(p.metrics) {
+              likes += p.metrics.likes || 0;
+              views += p.metrics.views || 0;
+          }
+      });
       
       return {
         id: acc.id,
         platform: acc.platform,
         username: acc.username,
-        postsCount: acc.postSocialAccounts.length,
+        postsCount: acc.posts.length,
         totalEngagement: likes,
         totalReach: views,
         efficiency: views > 0 ? (likes / views).toFixed(2) : 0
@@ -128,35 +101,289 @@ export class AnalyticsService {
     });
   }
 
-  // ➤ 3. TOP CONTENT (Replaces "Top Selling Products")
   private async getTopPosts(workspaceId: string, dateRange: { startDate: Date, endDate: Date }, limit: number) {
     const posts = await this.prisma.post.findMany({
       where: {
         workspaceId,
-        status: 'PUBLISHED',
+        status: PostStatus.PUBLISHED,
         createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }
       },
-      include: {
-        socialAccounts: {
-          select: { likes: true, comments: true, shares: true, socialAccount: { select: { platform: true } } }
-        }
-      },
-      take: limit,
-      orderBy: { createdAt: 'desc' } 
+      take: Number(limit),
+      orderBy: { publishedAt: 'desc' },
+      select: {
+          id: true,
+          content: true,
+          publishedAt: true,
+          status: true,
+          metrics: true,
+          mediaUrls: true,
+          platform: true,
+          socialAccounts: { select: { socialAccount: { select: { platform: true } } } }
+      }
     });
 
     return posts.map(p => ({
       id: p.id,
-      content: p.content.substring(0, 50) + '...',
-      platforms: p.socialAccounts.map(sa => sa.socialAccount.platform),
-      stats: {
-        likes: p.socialAccounts.reduce((sum, sa) => sum + sa.likes, 0),
-        comments: p.socialAccounts.reduce((sum, sa) => sum + sa.comments, 0)
-      }
-    })).sort((a, b) => b.stats.likes - a.stats.likes); // JS Sort if DB sort fails
+      content: p.content,
+      mediaUrls: p.mediaUrls,
+      publishedAt: p.publishedAt,
+      status: p.status,
+      platform: p.platform || (p.socialAccounts[0]?.socialAccount.platform) || 'UNKNOWN',
+      metrics: p.metrics
+    }));
   }
 
-  // --- HELPER: DATE RANGES (Stolen from your mate's code because it's good) ---
+  // =================================================================
+  // ➤ STRATEGIC INSIGHTS
+  // =================================================================
+
+  async analyzeBestTimes(workspaceId: string) {
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
+      select: { publishedAt: true, metrics: true }
+    });
+
+    const heatMap = {}; 
+
+    posts.forEach(post => {
+      if (!post.publishedAt || !post.metrics) return;
+      
+      const date = new Date(post.publishedAt);
+      const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const hour = date.getHours(); 
+      const key = `${day}-${hour}`;
+      
+      const m: any = post.metrics;
+      const engagement = (m.likes || 0) + (m.comments || 0) + (m.shares || 0);
+
+      if (!heatMap[key]) heatMap[key] = { count: 0, totalEng: 0 };
+      heatMap[key].count++;
+      heatMap[key].totalEng += engagement;
+    });
+
+    return Object.entries(heatMap)
+        .map(([key, data]: any) => {
+            const [day, hour] = key.split('-');
+            return {
+                day,
+                hour: parseInt(hour),
+                avgEngagement: Math.round(data.totalEng / data.count),
+                sampleSize: data.count
+            };
+        })
+        .sort((a, b) => b.avgEngagement - a.avgEngagement)
+        .slice(0, 10);
+  }
+
+  async analyzeHashtags(workspaceId: string) {
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED },
+      select: { content: true, metrics: true }
+    });
+
+    const tagStats = {};
+
+    posts.forEach(post => {
+        if (!post.content || !post.metrics) return;
+        const tags = post.content.match(/#[a-z0-9_]+/gi); 
+        if (!tags) return;
+
+        const m: any = post.metrics;
+        const engagement = (m.likes || 0) + (m.comments || 0);
+
+        tags.forEach(t => {
+            const tag = t.toLowerCase();
+            if (!tagStats[tag]) tagStats[tag] = { count: 0, totalEng: 0 };
+            tagStats[tag].count++;
+            tagStats[tag].totalEng += engagement;
+        });
+    });
+
+    return Object.entries(tagStats)
+        .map(([tag, data]: any) => ({
+            tag,
+            postsCount: data.count,
+            avgEngagement: Math.round(data.totalEng / data.count)
+        }))
+        .filter(t => t.postsCount > 1)
+        .sort((a, b) => b.avgEngagement - a.avgEngagement)
+        .slice(0, 15);
+  }
+
+  async analyzeContentMix(workspaceId: string) {
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED },
+      select: { mediaUrls: true, metrics: true }
+    });
+
+    const stats = {
+        TEXT: { count: 0, totalEng: 0 },
+        IMAGE: { count: 0, totalEng: 0 },
+        CAROUSEL: { count: 0, totalEng: 0 },
+    };
+
+    posts.forEach(post => {
+        if (!post.metrics) return;
+        const m: any = post.metrics;
+        const engagement = (m.likes || 0) + (m.comments || 0);
+        
+        const mediaCount = Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0;
+        let type = 'TEXT';
+        if (mediaCount === 1) type = 'IMAGE';
+        if (mediaCount > 1) type = 'CAROUSEL';
+
+        stats[type].count++;
+        stats[type].totalEng += engagement;
+    });
+
+    return Object.entries(stats).map(([type, data]) => ({
+        type,
+        count: data.count,
+        avgEngagement: data.count > 0 ? Math.round(data.totalEng / data.count) : 0
+    }));
+  }
+
+  // =================================================================
+  // ➤ ADVANCED: ACCOUNT HEALTH (The "Sticky" Metric)
+  // =================================================================
+  async analyzeAccountHealth(workspaceId: string) {
+    // FIX: Added 'publishedAt: { not: null }' to filtering
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
+      select: { publishedAt: true },
+      orderBy: { publishedAt: 'asc' }
+    });
+
+    if (posts.length < 2) return { healthScore: 0, consistency: 'New 🐣', streak: 0 };
+
+    let totalGapHours = 0;
+    let maxGapHours = 0;
+    const gaps: number[] = [];
+
+    for (let i = 1; i < posts.length; i++) {
+        const prevDate = posts[i-1].publishedAt;
+        const currDate = posts[i].publishedAt;
+
+        if (!prevDate || !currDate) continue;
+
+        const prev = new Date(prevDate).getTime();
+        const curr = new Date(currDate).getTime();
+        const diffHours = (curr - prev) / (1000 * 60 * 60);
+        
+        gaps.push(diffHours);
+        totalGapHours += diffHours;
+        if(diffHours > maxGapHours) maxGapHours = diffHours;
+    }
+
+    const avgGap = totalGapHours / (gaps.length || 1);
+    const variance = gaps.reduce((acc, val) => acc + Math.pow(val - avgGap, 2), 0) / (gaps.length || 1);
+    const stdDev = Math.sqrt(variance);
+
+    let score = 100 - (stdDev / 2); 
+    if (score < 0) score = 0;
+    if (score > 100) score = 100;
+
+    let status = 'Inconsistent 📉';
+    if (score > 80) status = 'Machine 🤖';
+    else if (score > 60) status = 'Regular 📅';
+    else if (score > 40) status = 'Casual ☕';
+
+    return {
+        healthScore: Math.round(score),
+        consistencyStatus: status,
+        avgPostingGap: Math.round(avgGap) + ' hours',
+        totalPosts: posts.length,
+        lastPost: posts[posts.length - 1].publishedAt
+    };
+  }
+
+  // =================================================================
+  // ➤ ADVANCED: PREDICTIVE FORECAST (Linear Regression)
+  // =================================================================
+  async calculateGrowthForecast(workspaceId: string) {
+    // FIX: Added 'publishedAt: { not: null }'
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
+      select: { publishedAt: true, metrics: true },
+      orderBy: { publishedAt: 'asc' },
+      take: 50
+    });
+
+    if (posts.length < 5) return { trend: 'Not enough data', nextMonthEstimate: 0 };
+
+    const dataPoints = posts.map((p, i) => {
+        const m: any = p.metrics;
+        return {
+            x: i,
+            y: (m.likes || 0) + (m.comments || 0)
+        };
+    });
+
+    const n = dataPoints.length;
+    const sumX = dataPoints.reduce((acc, p) => acc + p.x, 0);
+    const sumY = dataPoints.reduce((acc, p) => acc + p.y, 0);
+    const sumXY = dataPoints.reduce((acc, p) => acc + (p.x * p.y), 0);
+    const sumXX = dataPoints.reduce((acc, p) => acc + (p.x * p.x), 0);
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    const nextPostIndex = n + 10;
+    const predictedEngagement = (slope * nextPostIndex) + intercept;
+    
+    const trendDirection = slope > 0 ? 'Growing 🚀' : slope < 0 ? 'Declining 📉' : 'Stagnant ➡️';
+
+    return {
+        trend: trendDirection,
+        currentAvgEngagement: Math.round(sumY / n),
+        forecastNextMonth: Math.round(predictedEngagement > 0 ? predictedEngagement : 0),
+        growthVelocity: slope.toFixed(2) + ' engagements per post'
+    };
+  }
+
+  // =================================================================
+  // ➤ ADVANCED: SMART COPY (NLP)
+  // =================================================================
+  async analyzeSmartCopy(workspaceId: string) {
+    const posts = await this.prisma.post.findMany({
+      where: { workspaceId, status: PostStatus.PUBLISHED },
+      select: { content: true, metrics: true }
+    });
+
+    if (posts.length === 0) return [];
+
+    const totalEng = posts.reduce((acc, p) => {
+        const m: any = p.metrics;
+        return acc + (m.likes || 0) + (m.comments || 0);
+    }, 0);
+    const avgEng = totalEng / posts.length;
+
+    const winners = posts.filter(p => {
+        const m: any = p.metrics;
+        return ((m.likes || 0) + (m.comments || 0)) > avgEng;
+    });
+
+    const stopWords = ['the', 'and', 'is', 'in', 'to', 'for', 'of', 'with', 'a', 'le', 'la', 'les', 'et', 'de', 'en', 'un', 'une', 'je', 'tu', 'il', 'nous', 'vous'];
+    const wordScores = {};
+
+    winners.forEach(p => {
+        if (!p.content) return;
+        const words = p.content.toLowerCase().replace(/[^\w\s]/gi, '').split(/\s+/);
+        
+        words.forEach(w => {
+            if (w.length > 3 && !stopWords.includes(w)) {
+                wordScores[w] = (wordScores[w] || 0) + 1;
+            }
+        });
+    });
+
+    return Object.entries(wordScores)
+        .map(([word, score]) => ({ word, impactScore: score }))
+        .sort((a: any, b: any) => b.impactScore - a.impactScore)
+        .slice(0, 10);
+  }
+
+  // --- HELPER ---
   private getDateRange(period: AnalyticsPeriod, customStartDate?: string, customEndDate?: string) {
     const now = new Date();
     let startDate: Date;
@@ -181,7 +408,7 @@ export class AnalyticsService {
         endDate = new Date(customEndDate);
         break;
       default:
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); 
     }
     return { startDate, endDate };
   }

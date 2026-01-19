@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq'; // <--- IMPORT THIS
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -16,11 +17,30 @@ import { SocialAccountsModule } from './modules/social-accounts/social-accounts.
 import { PostsModule } from './modules/posts/posts.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
-
+import { EngagementModule } from './modules/engagement/engagement.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
+    // BLOCK FOR REDIS/BULLMQ ---
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          password: configService.get('REDIS_PASSWORD'),
+          // This handles the TLS connection for Upstash
+          tls: configService.get('REDIS_TLS') === 'true' 
+            ? { rejectUnauthorized: false } 
+            : undefined,
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    // ---------------------------------------
+
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -34,7 +54,8 @@ import { ContentCalendarModule } from './modules/content-calendar/content-calend
     SocialAccountsModule,
     PostsModule,
     AnalyticsModule,
-    ContentCalendarModule
+    ContentCalendarModule,
+    EngagementModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,6 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================================================
@@ -504,7 +505,7 @@ model Post {
   // Relation to Smart Media Library
   media       PostMedia[] 
   
-  // Legacy/Simple media handling (optional, keep for flexibility)
+  // Legacy/Simple media handling
   mediaUrls   Json? 
   mediaType   MediaType?
   
@@ -517,6 +518,13 @@ model Post {
   publishedAt  DateTime?
   expiresAt    DateTime?
 
+  // --- SYNC ENGINE FIELDS (NEW) ---
+  externalId   String?   // The ID from the platform (e.g., "123456789_987654321")
+  metaData     Json?     // Raw JSON from provider (for AI analysis)
+  metrics      Json?     // Snapshot: { likes: 10, comments: 2 } - simpler for offline lists
+  platform     SocialPlatform? // Useful to know platform without joining
+  // --------------------------------
+
   // Relations
   socialAccounts PostSocialAccount[]
   campaignId     String?
@@ -524,19 +532,15 @@ model Post {
   tags           PostTag[]
   labels         PostLabel[]
   
-  // 🤝 Collaboration & Approval
   createdById    String
   createdBy      User           @relation(fields: [createdById], references: [id])
   approvalStatus ApprovalStatus @default(NONE)
   approvedBy     String?
   approvedAt     DateTime?
   
-  // Relation to External Reviews (Client Validation)
   externalReviews ExternalReview[]
+  comments        PostComment[]
   
-  comments PostComment[]
-  
-  // Platform specific
   platformData Json?
   errorMessage String?
   retryCount   Int     @default(0)
@@ -544,12 +548,14 @@ model Post {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   
-  // Helper field for quick access
   socialAccountId String? 
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
   @@map("posts")
-  @@index([status, scheduledFor]) // Critical for Scheduler Performance
+  @@index([status, scheduledFor])
+  
+  // REQUIRED FOR UPSERT: Ensures we don't import the same FB post twice for this account
+  @@unique([socialAccountId, externalId]) 
 }
 
 // Join table for Post <-> MediaLibrary
@@ -589,21 +595,38 @@ model PostSocialAccount {
 }
 
 model PostComment {
-  id     String @id @default(cuid())
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // ➤ INTERNAL USER (Optional)
+  // Used when a team member comments on a draft
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  content String
-  parentId String?
-  parent   PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  PostComment[] @relation("CommentReplies")
+  // ➤ EXTERNAL USER (New)
+  // Used when a Facebook user comments
+  externalId  String?  @unique // Facebook Comment ID
+  authorName  String?  // "John Doe"
+  authorId    String?  // Facebook User ID
+  authorAvatar String? // URL to avatar
+  platform    SocialPlatform?
 
-  sentiment CommentSentiment?
+  content     String   @db.Text
+  
+  // Hierarchy
+  parentId    String?
+  parent      PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     PostComment[] @relation("CommentReplies")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Meta
+  isReply     Boolean @default(false)
+  sentiment   CommentSentiment?
+  status      String  @default("unread") // unread, read, replied, archived
+  publishedAt DateTime @default(now())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("post_comments")
 }

@@ -74,7 +74,7 @@ const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgCl
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-200/80 rotate-2 border-l border-r border-white/50"></div>
 
       <div className="relative mb-4">
-        <img src={imgSrc} alt={name} className="w-24 h-24 border-4 border-black object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+        <img src={imgSrc} alt={name} className="w-24 h-24 border-4 border-black object-cover  group-hover:grayscale-0 transition-all duration-500" />
         <div className={`absolute -bottom-3 -right-3 h-10 w-10 border-4 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000] ${iconBgClass}`}>
           {platformIcon}
         </div>
