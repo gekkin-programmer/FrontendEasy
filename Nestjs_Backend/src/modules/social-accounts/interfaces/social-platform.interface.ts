@@ -9,6 +9,14 @@ export interface NormalizedSocialPost {
     shares: number;
     views?: number;
   };
+  // ➤ NEW: Optional Comments Array
+  comments?: {
+    externalId: string;
+    content: string;
+    authorName: string;
+    authorId?: string;
+    publishedAt: Date;
+  }[];
   metadata: Record<string, any>; // Raw JSON for AI analysis
 }
 
@@ -26,4 +34,13 @@ export interface ISocialPlatform {
    * Refreshes the token if expired
    */
   refreshAccessToken(refreshToken: string): Promise<string>;
+
+  /**
+   * ➤ NEW: Reply to a specific comment (Optional implementation)
+   */
+  replyToComment?(
+    accessToken: string,
+    commentId: string,
+    message: string
+  ): Promise<string>;
 }
