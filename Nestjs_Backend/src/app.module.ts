@@ -17,6 +17,7 @@ import { SocialAccountsModule } from './modules/social-accounts/social-accounts.
 import { PostsModule } from './modules/posts/posts.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
+import { EngagementModule } from './modules/engagement/engagement.module';
 
 @Module({
   imports: [
@@ -53,7 +54,8 @@ import { ContentCalendarModule } from './modules/content-calendar/content-calend
     SocialAccountsModule,
     PostsModule,
     AnalyticsModule,
-    ContentCalendarModule
+    ContentCalendarModule,
+    EngagementModule
   ],
   controllers: [AppController],
   providers: [AppService],
