@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-
+import { useLanguage } from "../context/LanguageContext";
 const SocialProof = () => {
   const logos = [
     "/logos/newDelices.png",
@@ -12,6 +12,9 @@ const SocialProof = () => {
     "/logos/Denilimport.jpeg",
     "/logos/BookHub.jpeg",
     "/logos/dibato.PNG",
+    "/logos/YXNGERAKODE.jpeg",
+    "/logos/PBD.jpg",
+    "logos/lemessager.PNG"
   ];
 
   // We define the track content here to reuse it easily without scope issues
@@ -36,12 +39,14 @@ const SocialProof = () => {
     </div>
   );
 
+  const { t } = useLanguage();
+
   return (
     <section className="relative py-16 bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5 overflow-hidden select-none">
         
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center dark:opacity-0 justify-center pointer-events-none opacity-5 overflow-hidden">
-            <h1 className="text-[20vw] font-black uppercase text-black whitespace-nowrap leading-none">
+            <h1 className="text-[20vw] font-black uppercase text-black dark:text-white whitespace-nowrap leading-none">
                 EASY POST
             </h1>
         </div>
@@ -52,9 +57,9 @@ const SocialProof = () => {
                 {/* Header Section */}
                 <div className="md:w-1/4 text-center md:text-left z-20 bg-white md:bg-transparent dark:bg-white/5 p-2">
                     <h3 className="text-3xl font-black text-black dark:text-gray-200 uppercase leading-none">
-                        TRUSTED<br/>
-                        BY LOCAL<br/>
-                        <span className="text-[#3C48F6]">BRANDS.</span>
+                        {t("LES", "TRUSTED")} <span className="text-[#3C48F6]">{t("PME'S","BY")}</span><br/>
+                        {t("Nous font ", "LOCAL BRANDS")}<br/>
+                        {t("Confiance","")}<br/>
                     </h3>
                 </div>
 

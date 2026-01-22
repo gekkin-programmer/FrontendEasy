@@ -16,16 +16,15 @@ const icons = [
   { Icon: FaPinterestP, pos: "bottom-[40%] left-[12%]", color: "#E60023", delay: 1.2, rot: 4 },
   { Icon: FaSlack, pos: "top-[25%] left-[15%]", color: "#4A154B", delay: 1.4, rot: -15 },
   { Icon: SiTwitch, pos: "bottom-[10%] left-[20%]", color: "#9146FF", delay: 1.6, rot: 6 },
+  { Icon: FaMastodon, pos: "top-[35%] right-[25%]", color: "#6364FF", delay: 1.8, rot: -9 },
 
   // Right Side
   { Icon: FaTwitter, pos: "top-[8%] right-[8%]", color: "#1DA1F2", delay: 0.2, rot: 10 },
   { Icon: FaLinkedinIn, pos: "top-[45%] right-[2%]", color: "#0A66C2", delay: 0.4, rot: -6 },
-  { Icon: FaFacebookF, pos: "bottom-[30%] right-[10%]", color: "#1877F2", delay: 0.8, rot: 8 },
+  { Icon: FaFacebookF, pos: "bottom-[10%] right-[10%]", color: "#1877F2", delay: 0.8, rot: 8 },
   { Icon: SiThreads, pos: "top-[20%] right-[15%]", color: "#000000", delay: 1.1, rot: -12 },
-  { Icon: FaDribbble, pos: "bottom-[15%] right-[5%]", color: "#EA4C89", delay: 1.3, rot: 5 },
   { Icon: FaGithub, pos: "top-[60%] right-[12%]", color: "#181717", delay: 1.5, rot: -3 },
   { Icon: SiMedium, pos: "bottom-[50%] right-[18%]", color: "#000000", delay: 1.7, rot: 9 },
-  { Icon: FaMastodon, pos: "top-[35%] right-[25%]", color: "#6364FF", delay: 1.8, rot: -9 },
 ];
 
 // --- SUB-COMPONENT: WABI-SABI STICKER ---
@@ -124,8 +123,8 @@ const Hero: React.FC = () => {
                 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-medium leading-relaxed"
             >
                 {t(
-                    "Stop juggling apps. Plan, schedule, and automate your content across Facebook, TikTok, and LinkedIn in one place.",
-                    "Arrêtez de jongler. Planifiez, programmez et automatisez votre contenu sur Facebook, TikTok et LinkedIn au même endroit."
+                    "Stop juggling apps. Plan, schedule, and automate your content across Facebook, TikTok, LinkedIn and more in one place.",
+                    "Arrêtez de jongler. Planifiez, programmez et automatisez votre contenu sur Facebook, TikTok , LinkedIn et autres au même endroit."
                 )}
             </motion.p>
             
@@ -137,7 +136,9 @@ const Hero: React.FC = () => {
                 className="absolute -right-8 -bottom-8 md:-right-24 md:-bottom-4 hidden sm:block"
             >
                 <div className="font-handwriting text-sm text-gray-500 -rotate-6">
-                    ( It's actually easy )
+                    {t("It's actually easy.",
+                        "Aussi simple que ca."
+                    )}
                 </div>
                 <svg width="40" height="20" viewBox="0 0 40 20" className="text-gray-400 rotate-180">
                     <path d="M35 15C20 15 10 5 5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>

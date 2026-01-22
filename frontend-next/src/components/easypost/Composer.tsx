@@ -9,7 +9,7 @@ import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
   Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
   ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Save, Eraser, 
-  FileCheck, Loader2, Sparkles, Zap
+  FileCheck, Loader2, Sparkles, Zap, AlertTriangle
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -37,11 +37,11 @@ interface ComposerProps {
 const CATEGORIES = ['General', 'Technology', 'Marketing', 'Personal', 'News', 'Meme', 'Educational'];
 
 const AI_TONES = [
-  { id: 'PROFESSIONAL', label: 'PROFESSIONAL 👔' },
-  { id: 'CASUAL', label: 'CASUAL 😎' },
-  { id: 'CAMFRANGLAIS', label: 'CAMFRANGLAIS 🇨🇲' },
-  { id: 'NOUCHI', label: 'NOUCHI 🇨🇮' },
-  { id: 'URGENT', label: 'URGENT 🚨' },
+  { id: 'PROFESSIONAL', label: 'PROFESSIONAL ' },
+  { id: 'CASUAL', label: 'CASUAL ' },
+  { id: 'CAMFRANGLAIS', label: 'CAMFRANGLAIS ' },
+  { id: 'NOUCHI', label: 'NOUCHI ' },
+  { id: 'URGENT', label: 'URGENT ' },
 ];
 
 const AI_FRAMEWORKS = [
@@ -98,7 +98,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
 
   // UI State
   const [isLibraryOpen, setIsLibraryOpen] = useState(false); 
-  const [isAiOpen, setIsAiOpen] = useState(false); // 🟢 AI Toggle
+  const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,15 +124,17 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
   // Auto-select accounts
   useEffect(() => {
     if (accounts.length > 0 && selectedAccountIds.length === 0) {
-      setSelectedAccountIds(accounts.map(a => a.id));
+      setSelectedAccountIds(accounts.filter(a => a.isActive !== false).map(a => a.id));
     }
   }, [accounts]);
 
   // FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
     try {
-        const mediaList = await api.get<any[]>('/media');
-        const formattedMedia = mediaList.map((m: any) => ({
+        const res: any = await api.get('/media');
+        const list = Array.isArray(res) ? res : (res.data || []);
+        
+        const formattedMedia = list.map((m: any) => ({
             id: m.id,
             type: (m.mimeType?.includes('video') ? 'video' : 'image') as AssetType, 
             url: m.url,
@@ -164,34 +166,50 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
       setLocalFile(null); setSelectedMediaId(item.id); setMediaPreview(item.url || null); toast.success("MEDIA_LINKED");
   };
 
-  // AI GENERATION LOGIC
+  // 🟢 AI GENERATION LOGIC (WITH TYPEWRITER EFFECT)
   const handleAiGenerate = async () => {
     if (!aiContext.trim()) return toast.error("ERR: EMPTY_PROMPT");
     setIsAiGenerating(true);
+    
     try {
-      // We use 'any' here to bypass the strict type check
       const res: any = await api.post('/ai/test-copywriting', {
         product: aiContext,
         tone: aiTone,
       });
       
-      // Safe access: try res.data.content (standard axios) OR res.content (if interceptor unwraps it)
       const generatedContent = res.data?.content || res.content;
+      if (!generatedContent) throw new Error("Empty response from AI");
 
-      if (!generatedContent) {
-        throw new Error("Empty response from AI");
-      }
+      // Prepare text for typewriter
+      const prefix = text ? "\n\n" : "";
+      const textToType = prefix + generatedContent;
       
-      const newText = text ? `${text}\n\n${generatedContent}` : generatedContent;
-      setText(newText);
-      toast.success("AI: COPY_GENERATED");
-      setIsAiOpen(false); 
-      setAiContext("");
+      let charIndex = 0;
+      const speed = 15; // ms per char
+
+      const intervalId = setInterval(() => {
+        setText((prev) => {
+            // Append the next char from textToType based on index
+            // We use charIndex closure variable
+            return prev + textToType.charAt(charIndex);
+        });
+        
+        charIndex++;
+
+        if (charIndex === textToType.length) {
+            clearInterval(intervalId);
+            // Done typing
+            setIsAiGenerating(false);
+            setIsAiOpen(false); 
+            setAiContext("");
+            toast.success("AI: COPY_GENERATED");
+        }
+      }, speed);
+
     } catch (e) {
       console.error(e);
       toast.error("AI_ERROR: GENERATION_FAILED");
-    } finally {
-      setIsAiGenerating(false);
+      setIsAiGenerating(false); // Only turn off loading here on error
     }
   };
 
@@ -237,39 +255,48 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
       <div className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] relative overflow-hidden transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="px-4 py-3 flex items-center justify-between bg-yellow-400 border-b-2 border-black">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black text-white px-2 py-1">TARGETS:</span>
-            {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => (
-              <div key={acc.id} className="relative w-8 h-8 border-2 border-black bg-white flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
-                 {acc.avatar ? <img src={acc.avatar} className="w-full h-full object-cover" /> : <span className="text-xs font-black">{acc.username?.[0]?.toUpperCase()}</span>}
-                 <div className="absolute -bottom-1 -right-1 bg-white p-[1px] border border-black z-10"><PlatformIcon platform={acc.platform} size={10} /></div>
-              </div>
-            ))}
+
+            {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
+                const isExpired = acc.isActive === false;
+                return (
+                  <div key={acc.id} className="relative w-8 h-8 border-2 border-black bg-white flex items-center justify-center shadow-[2px_2px_0px_0px_#000]" title={isExpired ? 'Connection expired' : acc.username}>
+                    {acc.avatar ? <img src={acc.avatar} className="w-full h-full object-cover" /> : <span className="text-xs font-black">{acc.username?.[0]?.toUpperCase()}</span>}
+                    <div className="absolute -bottom-1 -right-1 bg-white p-[1px] border border-black z-10"><PlatformIcon platform={acc.platform} size={10} /></div>
+                    {isExpired && <div className="absolute inset-0 bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+                  </div>
+                );
+            })}
+
             <Popover>
-                <PopoverTrigger asChild>
-                    <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black hover:bg-white/50 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-red-500 animate-pulse" : "bg-white")}>
-                         <Plus size={14} strokeWidth={3} className={selectedAccountIds.length === 0 ? "text-white" : "text-black"} />
-                    </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-none" align="start">
-                    <div className="bg-black text-white p-2 text-[10px] font-mono uppercase">AVAILABLE NODES</div>
-                    <div className="max-h-60 overflow-y-auto">
-                        {accounts.map(acc => (
-                            <div key={acc.id} onClick={() => { setSelectedAccountIds(prev => prev.includes(acc.id) ? prev.filter(id => id !== acc.id) : [...prev, acc.id]) }} className="flex items-center gap-3 p-3 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-0">
-                                <div className="w-4 h-4 border-2 border-black flex items-center justify-center">{selectedAccountIds.includes(acc.id) && <div className="w-2 h-2 bg-black" />}</div>
-                                <div className="flex-1"><div className="text-xs font-bold uppercase">{acc.username}</div><div className="text-[8px] font-mono text-gray-500">{acc.platform}</div></div>
-                                <PlatformIcon platform={acc.platform} size={14} />
-                            </div>
-                        ))}
-                    </div>
-                </PopoverContent>
+              <PopoverTrigger asChild>
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black hover:bg-white/50 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-red-500 animate-pulse" : "bg-white")}>
+                  <Plus size={14} strokeWidth={3} className={selectedAccountIds.length === 0 ? "text-white" : "text-black"} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-none" align="start">
+                <div className="bg-black text-white p-2 text-[10px] font-mono uppercase">AVAILABLE NODES</div>
+                <div className="max-h-60 overflow-y-auto">
+                  {accounts.map((acc) => {
+                    const isExpired = acc.isActive === false;
+                    const isSelected = selectedAccountIds.includes(acc.id);
+                    return (
+                      <div key={acc.id} onClick={() => { if (isExpired) { toast.error(`Please reconnect ${acc.username}`); return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 last:border-0 transition-colors", isExpired ? "bg-red-50 opacity-70 cursor-not-allowed" : "hover:bg-yellow-50 cursor-pointer")}>
+                        <div className={cn("w-4 h-4 border-2 flex items-center justify-center", isExpired ? "border-red-500" : "border-black")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 bg-black" />)}</div>
+                        <div className="flex-1"><div className={cn("text-xs font-bold uppercase", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[8px] font-mono text-gray-500">{acc.platform} {isExpired && "(EXPIRED)"}</div></div>
+                        <PlatformIcon platform={acc.platform} size={14} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
             </Popover>
           </div>
-          
+
           <div className="flex gap-2">
-             {/* 🟢 AI BUTTON */}
              <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isAiOpen ? "bg-purple-600 text-white" : "bg-white hover:bg-purple-100")}>
                 <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
              </button>
@@ -279,7 +306,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
           </div>
         </div>
 
-        {/* 🟢 AI PANEL (Collapsible) */}
+        {/* AI PANEL */}
         <AnimatePresence>
             {isAiOpen && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black bg-purple-50 p-4">
@@ -301,19 +328,14 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
                     <div className="flex justify-end">
                         <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black text-white px-4 py-2 w-full sm:w-auto">
                             {isAiGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Wand2 className="w-3 h-3 mr-2" />}
-                            GENERATE_COPY
+                            {isAiGenerating ? "WRITING..." : "GENERATE_COPY"}
                         </NeuButton>
                     </div>
                 </motion.div>
             )}
         </AnimatePresence>
 
-        {/* Toolbar */}
-        <div className="px-6 pt-4 pb-2 flex gap-2 justify-end bg-white">
-            <button onClick={() => { if(!text) return toast.error("ERR: NO_TEXT"); setShowTemplateModal(true); }} className="text-[10px] font-black uppercase flex items-center gap-1 bg-green-100 px-2 py-1 border-2 border-black hover:bg-green-200 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[1px] active:shadow-none"><Save size={12} /> SAVE_TPL</button>
-            <button onClick={() => setText("")} className="text-[10px] font-black uppercase flex items-center gap-1 bg-gray-100 px-2 py-1 border-2 border-black hover:bg-gray-200 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[1px] active:shadow-none"><Eraser size={12} /> WIPE</button>
-        </div>
-
+        {/* COMPOSER BODY */}
         <div className="px-6 pb-6 bg-white">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 bg-transparent p-0 rounded-none leading-relaxed font-mono" />
           
@@ -347,10 +369,10 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
         </div>
       </div>
       
-      {/* 🟢 LIBRARY */}
+      {/* 🟢 LIBRARY & MODALS... (Kept as is) */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden flex flex-col">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden flex flex-col">
             <div className="px-4 py-2 border-b-2 border-black bg-black text-white flex justify-between items-center"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white hover:text-black rounded-none p-1 transition-colors border border-transparent hover:border-white"><X size={14} /></button></div>
             <Tabs defaultValue="media" className="flex-1 flex flex-col min-h-0 bg-yellow-50/50">
               <div className="px-4 pt-4 pb-0"><TabsList className="w-full grid grid-cols-2 h-10 bg-transparent gap-2 p-0"><TabsTrigger value="media" className="text-[10px] font-black uppercase border-2 border-black bg-white data-[state=active]:bg-[#3C48F6] data-[state=active]:text-white shadow-[2px_2px_0px_0px_#000] data-[state=active]:translate-x-[1px] data-[state=active]:translate-y-[1px] data-[state=active]:shadow-none transition-all rounded-none">SYSTEM_FILES</TabsTrigger><TabsTrigger value="templates" className="text-[10px] font-black uppercase border-2 border-black bg-white data-[state=active]:bg-[#3C48F6] data-[state=active]:text-white shadow-[2px_2px_0px_0px_#000] data-[state=active]:translate-x-[1px] data-[state=active]:translate-y-[1px] data-[state=active]:shadow-none transition-all rounded-none">SAVED_TPLS</TabsTrigger></TabsList></div>
@@ -375,8 +397,15 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
         )}
       </AnimatePresence>
 
-      <NeuModal title="MKDIR: NEW_FOLDER" isOpen={showFolderModal} onClose={() => setShowFolderModal(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block">DIR_NAME</label><input value={inputFolderName} onChange={(e) => setInputFolderName(e.target.value)} className="w-full border-2 border-black p-2 font-bold uppercase focus:outline-none focus:bg-yellow-50" placeholder="E.G. Q1_CAMPAIGN" autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setShowFolderModal(false)} variant="ghost" className="border-2 border-black">CANCEL</NeuButton><NeuButton onClick={() => { setLibraryData(prev => [...prev, { id: Math.random().toString(), type: 'folder', name: inputFolderName, parentId: currentFolderId }]); setInputFolderName(""); setShowFolderModal(false); }} variant="primary" disabled={!inputFolderName.trim()}>EXECUTE</NeuButton></div></div></NeuModal>
-      <NeuModal title="WRITE_TEMPLATE" isOpen={showTemplateModal} onClose={() => setShowTemplateModal(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block">TPL_KEY</label><input value={inputTemplateName} onChange={(e) => setInputTemplateName(e.target.value)} className="w-full border-2 border-black p-2 font-bold uppercase focus:outline-none focus:bg-yellow-50" placeholder="E.G. SALES_CLOSER" autoFocus /></div><div className="bg-gray-100 p-2 border-2 border-black text-xs font-mono text-gray-600 line-clamp-3">{text || "(BUFFER_EMPTY)"}</div><div className="flex justify-end gap-2"><NeuButton onClick={() => setShowTemplateModal(false)} variant="ghost" className="border-2 border-black">CANCEL</NeuButton><NeuButton onClick={() => { setSavedTemplates(prev => [...prev, { id: Date.now(), title: inputTemplateName, content: text }]); setInputTemplateName(""); setShowTemplateModal(false); }} variant="primary" disabled={!inputTemplateName.trim()}>COMMIT</NeuButton></div></div></NeuModal>
+      <NeuModal isOpen={showFolderModal} onClose={() => setShowFolderModal(false)} title="NEW_FOLDER">
+          <input value={inputFolderName} onChange={e => setInputFolderName(e.target.value)} className="w-full border-2 border-black p-2 font-bold mb-4" placeholder="NAME" autoFocus />
+          <NeuButton onClick={() => { setLibraryData(p => [...p, { id: Date.now().toString(), type: 'folder', name: inputFolderName, parentId: currentFolderId }]); setInputFolderName(""); setShowFolderModal(false); }} className="w-full bg-black text-white py-2">CREATE</NeuButton>
+      </NeuModal>
+      <NeuModal isOpen={showTemplateModal} onClose={() => setShowTemplateModal(false)} title="NEW_TEMPLATE">
+          <input value={inputTemplateName} onChange={e => setInputTemplateName(e.target.value)} className="w-full border-2 border-black p-2 font-bold mb-4" placeholder="TEMPLATE_NAME" autoFocus />
+          <div className="bg-gray-100 p-2 text-xs font-mono mb-4 border border-black max-h-20 overflow-y-auto">{text || "NO CONTENT TO SAVE"}</div>
+          <NeuButton onClick={() => { setSavedTemplates(p => [...p, { id: Date.now(), title: inputTemplateName, content: text }]); setInputTemplateName(""); setShowTemplateModal(false); }} className="w-full bg-black text-white py-2" disabled={!text}>SAVE</NeuButton>
+      </NeuModal>
     </div>
   );
 }

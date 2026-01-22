@@ -112,12 +112,12 @@ export default function CreateSection() {
         
         {/* Left – Hero Content */}
         <div className="space-y-8 pt-10">
-          <BrutalBadge color="bg-[#3C48F6]">CREATE</BrutalBadge>
+          <BrutalBadge color="bg-[#3C48F6]">{t("CREATE","CREER")}</BrutalBadge>
           
           <h1 className="text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.9] tracking-tighter uppercase">
-            TURN <span className="text-white bg-black dark:bg-white/5 px-2">IDEAS</span><br/>
-            INTO <span className="text-[#3C48F6]">VIRAL</span><br/>
-            CONTENT.
+            {t("TURN","TRANSFORMER")}<span className="text-white bg-black dark:bg-white/5 px-2">{t("IDEAS","VOS IDEES")}</span><br/>
+            {t("INTO","EN")} <span className="text-[#3C48F6]">{t("VIRAL","CONTENU")}</span><br/>
+            {t("CONTENT.","VIRAUX.")}
           </h1>
 
           <p className="text-xl font-bold text-black dark:text-gray-300 border-l-8 border-[#3C48F6] pl-6 leading-snug">
@@ -171,7 +171,7 @@ export default function CreateSection() {
              </div>
 
              <button className="w-full bg-[#3C48F6] text-white font-black py-3 border-4 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
-                <PenTool size={18} /> GENERATE MAGIC
+                <PenTool size={18} /> {t("GENERATE MAGIC", "GENERER VOS TEXTES")}
              </button>
           </BrutalCard>
 
