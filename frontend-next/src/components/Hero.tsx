@@ -3,12 +3,24 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
-import { FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter, FaFacebookF, FaPinterestP, FaSlack, FaDribbble, FaGithub, FaMastodon } from "react-icons/fa6";
+import { 
+  FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter, 
+  FaFacebookF, FaPinterestP, FaSlack, FaGithub, FaMastodon 
+} from "react-icons/fa6";
 import { SiTiktok, SiThreads, SiMedium, SiTwitch } from "react-icons/si";
 import Link from 'next/link';
 
+// --- TYPES ---
+interface IconConfig {
+  Icon: React.ElementType;
+  pos: string;
+  color: string;
+  delay: number;
+  rot: number;
+}
+
 // --- ICON CONFIGURATION ---
-const icons = [
+const icons: IconConfig[] = [
   // Left Side
   { Icon: FaYoutube, pos: "top-[12%] left-[5%]", color: "#FF0000", delay: 0, rot: -5 },
   { Icon: FaInstagram, pos: "bottom-[20%] left-[3%]", color: "#E1306C", delay: 0.6, rot: 12 },
@@ -28,9 +40,9 @@ const icons = [
 ];
 
 // --- SUB-COMPONENT: WABI-SABI STICKER ---
-const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: any) => (
+const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
   <motion.div
-    className={`absolute ${pos} hidden md:flex flex-col items-center justify-center z-10`}
+    className={`absolute ${pos} hidden md:flex flex-col items-center justify-center z-10 pointer-events-auto`}
     initial={{ opacity: 0, scale: 0 }}
     animate={{ 
         opacity: 1, 
@@ -42,17 +54,17 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: any) => (
         scale: { type: "spring", stiffness: 200, delay },
         y: { duration: 5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
     }}
-    style={{ rotate: rot }} // Initial random rotation
-    whileHover={{ scale: 1.1, rotate: 0, zIndex: 50, cursor: "grab" }}
+    style={{ rotate: rot }}
+    whileHover={{ scale: 1.1, rotate: 0, zIndex: 50 }}
+    aria-hidden="true" // Accessibility: Hide decorative icons
   >
     {/* The Tape Effect */}
     <div className="w-8 h-3 bg-yellow-100/80 absolute -top-1.5 z-20 rotate-[-5deg] backdrop-blur-sm border border-white/20 shadow-sm" />
     
-    {/* The Sticker Card (Organic Border Radius) */}
+    {/* The Sticker Card */}
     <div 
         className="bg-white dark:bg-white p-3 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
         style={{
-            // This creates the "Hand Cut" paper look
             borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" 
         }}
     >
@@ -61,15 +73,25 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: any) => (
   </motion.div>
 );
 
-// --- HAND DRAWN SVGs ---
+// --- DECORATIVE SVGS ---
 const ScribbleArrow = () => (
-    <svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute -right-16 top-2 text-black dark:text-white hidden sm:block rotate-12">
+    <svg 
+      width="60" height="40" viewBox="0 0 60 40" fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      className="absolute -right-16 top-2 text-black dark:text-white hidden sm:block rotate-12 pointer-events-none"
+      aria-hidden="true"
+    >
         <path d="M5 35C15 35 25 15 55 5M55 5L40 10M55 5L45 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );
 
 const ScribbleUnderline = () => (
-    <svg className="absolute w-[110%] h-[40%] -bottom-3 -left-2 -z-10" viewBox="0 0 200 20" preserveAspectRatio="none">
+    <svg 
+      className="absolute w-[110%] h-[40%] -bottom-2 -left-2 -z-10 pointer-events-none" 
+      viewBox="0 0 200 20" 
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
         <path d="M5 15 Q 100 25 195 10" stroke="#3D49F9" strokeWidth="6" fill="none" strokeLinecap="round" style={{ opacity: 0.8 }} />
     </svg>
 );
@@ -78,24 +100,26 @@ const Hero: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-[#0a0a0a] pt-24 pb-20 border-b-4 border-black dark:border-white/10 font-sans">
+    <section 
+      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-[#0a0a0a] pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-white/10 font-sans"
+      aria-label="Introduction"
+    >
       
-      {/* 1. TEXTURE: Paper Grain (Essential for Wabi Sabi) */}
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
-           style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/noise-lines.png")` }} 
-      />
+      {/* 1. TEXTURE: Noise (Local CSS/Base64 to improve LCP speed vs external URL) */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply dark:mix-blend-overlay bg-[url('/assets/noise.png')] bg-repeat" />
 
-      {/* 2. BACKGROUND GRID (Softer) */}
+      {/* 2. BACKGROUND GRID */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none opacity-30" 
         style={{
             backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-            backgroundSize: "60px 60px", // Bigger grid = more breathability
+            backgroundSize: "40px 40px", // Smaller grid on mobile looks better
             maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)"
         }}
+        aria-hidden="true"
       />
 
-      {/* 3. FLOATING WABI-SABI ICONS */}
+      {/* 3. ICONS (Desktop Only) */}
       {icons.map((item, idx) => (
           <WabiSabiIcon key={idx} {...item} />
       ))}
@@ -103,24 +127,24 @@ const Hero: React.FC = () => {
       {/* 4. MAIN CONTENT */}
       <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl">
         
-        {/* Headline */}
+        {/* Headline - Typography Scaled for Mobile */}
         <motion.h1 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-6xl md:text-8xl font-black text-black dark:text-gray-100 leading-[0.9] tracking-tighter mb-8 relative z-20"
+            className="text-4xl sm:text-6xl md:text-8xl font-black text-black dark:text-gray-100 leading-[0.95] tracking-tighter mb-6 md:mb-8 relative z-20"
         >
             {t("YOUR SOCIAL MEDIA", "VOTRE ESPACE")}
             <br />
             <span className="relative inline-block text-[#3C48F6]">
                 <ScribbleUnderline />
-                {t("WORKSPACE.", "SOCIAL COMMENCE ICI.")}
+                {t("WORKSPACE.", "SOCIAL.")}
             </span>
         </motion.h1>
 
-        {/* Subheadline with "Handwritten" Note style */}
-        <div className="relative inline-block max-w-2xl mx-auto mb-12">
+        {/* Subheadline */}
+        <div className="relative inline-block max-w-2xl mx-auto mb-8 md:mb-12">
             <motion.p 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-                className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-medium leading-relaxed"
+                className="text-lg md:text-2xl text-gray-700 dark:text-gray-300 font-medium leading-relaxed px-2"
             >
                 {t(
                     "Stop juggling apps. Plan, schedule, and automate your content across Facebook, TikTok, LinkedIn and more in one place.",
@@ -128,17 +152,16 @@ const Hero: React.FC = () => {
                 )}
             </motion.p>
             
-            {/* Human Touch Annotation */}
+            {/* Annotation (Hidden on Mobile to save space) */}
             <motion.div 
                 initial={{ opacity: 0, rotate: -10 }} 
                 animate={{ opacity: 1, rotate: -5 }} 
                 transition={{ delay: 1 }}
-                className="absolute -right-8 -bottom-8 md:-right-24 md:-bottom-4 hidden sm:block"
+                className="absolute -right-24 -bottom-4 hidden lg:block pointer-events-none"
+                aria-hidden="true"
             >
                 <div className="font-handwriting text-sm text-gray-500 -rotate-6">
-                    {t("It's actually easy.",
-                        "Aussi simple que ca."
-                    )}
+                    {t("It's actually easy.", "Aussi simple que ça.")}
                 </div>
                 <svg width="40" height="20" viewBox="0 0 40 20" className="text-gray-400 rotate-180">
                     <path d="M35 15C20 15 10 5 5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
@@ -146,31 +169,24 @@ const Hero: React.FC = () => {
             </motion.div>
         </div>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - Vertical stack on mobile, horizontal on desktop */}
         <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-20"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
-            <div className="relative group">
-                <Link href="/signup" className="relative z-10 px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
+            <div className="relative group w-full sm:w-auto">
+                <Link href="/signup" className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                {/* Imperfect background blob for button */}
-                <div className="absolute inset-0 bg-[#3C48F6] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* Button decoration */}
+                <div className="absolute inset-0 bg-[#3C48F6] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                 
                 <ScribbleArrow />
             </div>
 
-            <Link href="/pricing" className="px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border-2 border-black dark:border-white/20 hover:bg-black/5 transition-colors rounded-sm flex items-center gap-2">
+            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border-2 border-black dark:border-white/20 hover:bg-black/5 transition-colors rounded-sm flex items-center gap-2">
                 {t("View Pricing", "Voir les Tarifs")}
             </Link>
-        </motion.div>
-
-        {/* Social Proof (Wabi Sabi Style) */}
-        <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-            className="mt-16 flex items-center justify-center gap-2 text-sm font-medium text-gray-500"
-        >
         </motion.div>
 
       </div>
