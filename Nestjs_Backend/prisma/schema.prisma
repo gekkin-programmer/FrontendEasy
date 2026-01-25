@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -489,6 +489,21 @@ model MediaLibrary {
 
   @@map("media_library")
 }
+
+// ============================================================================
+// LangChain RAG Documents (NEW)
+// ============================================================================
+model Document {
+  id        String    @id @default(cuid())
+  content   String    @db.Text
+  vector    Unsupported("vector(384)")? // Matches Hugging Face all-MiniLM-L6-v2 output dimension
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([id]) // Index the ID for quick lookups
+  @@map("easy_post_documents")
+}
+
 
 // ============================================================================
 // CONTENT & PUBLISHING
