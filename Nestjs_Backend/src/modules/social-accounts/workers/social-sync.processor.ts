@@ -6,8 +6,8 @@ import { FacebookService } from '../platforms/facebook.service';
 import { SocialPlatform } from '../../../common/enums/social-platform.enum';
 import { PostStatus } from '../../../common/enums/post-status.enum';
 import { NormalizedSocialPost } from '../interfaces/social-platform.interface';
-import { SocialTokenExpiredException } from '../../../common/exceptions/token-expired.exception'; // Ensure imported
-import { EmailService } from '../../../common/providers/email/email.service'; // Ensure imported
+import { SocialTokenExpiredException } from '../../../common/exceptions/token-expired.exception';
+import { EmailService } from '../../../common/providers/email/email.service';
 
 interface SyncJobData {
   socialAccountId: string;
@@ -23,7 +23,7 @@ export class SocialSyncProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly facebookService: FacebookService,
-    private readonly emailService: EmailService, // Added dependency
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -53,38 +53,65 @@ export class SocialSyncProcessor extends WorkerHost {
           return;
       }
 
-      this.logger.log(`Fetched ${posts.length} posts. Upserting to Database...`);
+      this.logger.log(`Fetched ${posts.length} posts. Syncing with Database...`);
 
-      // 3. Batch Persist
-      await this.prisma.$transaction(
-        posts.map((post) =>
-          this.prisma.post.upsert({
-            where: {
-              socialAccountId_externalId: {
-                socialAccountId: socialAccountId,
-                externalId: post.externalId
-              }
-            },
-            update: {
-              metrics: post.engagement,
-              metaData: post.metadata
-            },
-            create: {
-              content: post.content,
-              mediaUrls: post.mediaUrls,
-              socialAccountId: socialAccountId,
+      // ➤ LOGIC CHANGE: We cannot use Post.upsert because 'externalId' is now in a different table.
+      // We iterate and check PostSocialAccount instead.
+      
+      for (const post of posts) {
+        // 1. Check if this specific Facebook post is already linked in our DB
+        const existingLink = await this.prisma.postSocialAccount.findFirst({
+          where: {
+            socialAccountId: socialAccountId,
+            platformPostId: post.externalId, 
+          }
+        });
+
+        if (existingLink) {
+          // A. UPDATE: Post exists, just update metrics on the relation
+          await this.prisma.postSocialAccount.update({
+            where: { id: existingLink.id },
+            data: {
+              likes: post.engagement.likes,
+              comments: post.engagement.comments,
+              shares: post.engagement.shares,
+              views: post.engagement.views,
+              // Update URL if changed
+              platformPostUrl: post.permalink 
+            }
+          });
+        } else {
+          // B. CREATE: New Post + New Relation
+          await this.prisma.post.create({
+            data: {
               workspaceId: account.workspaceId,
               createdById: account.createdById,
+              content: post.content || '', // Handle empty content (image only posts)
+              mediaUrls: post.mediaUrls,   // Legacy support or migrate to MediaLibrary later
               status: PostStatus.PUBLISHED,
-              publishedAt: post.publishedAt,
-              externalId: post.externalId,
-              platform: platform,
-              metaData: post.metadata,
-              metrics: post.engagement
-            },
-          }),
-        ),
-      );
+              publishedAt: new Date(post.publishedAt),
+              
+              // Optional: link directly to account for simplified queries
+              socialAccountId: socialAccountId, 
+
+              // Create the relation to store Platform ID and Metrics
+              socialAccounts: {
+                create: {
+                  socialAccountId: socialAccountId,
+                  platformPostId: post.externalId,
+                  platformPostUrl: post.permalink,
+                  status: PostStatus.PUBLISHED,
+                  publishedAt: new Date(post.publishedAt),
+                  likes: post.engagement.likes,
+                  comments: post.engagement.comments,
+                  shares: post.engagement.shares,
+                  views: post.engagement.views,
+                }
+              }
+            }
+          });
+        }
+      }
 
       await this.prisma.socialAccount.update({
         where: { id: socialAccountId },
@@ -100,10 +127,9 @@ export class SocialSyncProcessor extends WorkerHost {
         
         await this.prisma.socialAccount.update({
             where: { id: socialAccountId },
-            data: { isActive: false } // Mark inactive
+            data: { isActive: false } 
         });
 
-        // Fetch user email
         const account = await this.prisma.socialAccount.findUnique({
             where: { id: socialAccountId },
             include: { createdBy: true }
@@ -116,11 +142,11 @@ export class SocialSyncProcessor extends WorkerHost {
                 platform
             );
         }
-        return; // Don't throw error, so queue doesn't retry
+        return; 
       }
 
       this.logger.error(`[Job ${job.id}] Sync failed: ${error.message}`);
-      throw error; // Retry other errors
+      throw error; 
     }
   }
 }

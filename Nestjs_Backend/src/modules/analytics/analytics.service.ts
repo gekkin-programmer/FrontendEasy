@@ -24,10 +24,10 @@ export class AnalyticsService {
   }
 
   // =================================================================
-  // STANDARD ANALYTICS
+  // STANDARD ANALYTICS (Overview, Accounts, Posts)
   // =================================================================
 
-  private async getOverviewAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
+  public async getOverviewAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
     const whereCondition = {
       workspaceId,
       createdAt: { gte: dateRange.startDate, lte: dateRange.endDate },
@@ -36,21 +36,28 @@ export class AnalyticsService {
 
     const [totalPosts, engagementStats, scheduledPosts] = await Promise.all([
       this.prisma.post.count({ where: whereCondition }),
+      // ➤ FIX: Include socialAccounts to get metrics
       this.prisma.post.findMany({
         where: whereCondition,
-        select: { metrics: true }
+        include: { 
+          socialAccounts: {
+            select: { likes: true, comments: true, shares: true, views: true }
+          }
+        }
       }),
       this.prisma.post.count({ where: { workspaceId, status: PostStatus.SCHEDULED } })
     ]);
 
     let likes = 0, comments = 0, shares = 0, views = 0;
-    engagementStats.forEach((p: any) => {
-        if(p.metrics) {
-            likes += p.metrics.likes || 0;
-            comments += p.metrics.comments || 0;
-            shares += p.metrics.shares || 0;
-            views += p.metrics.views || 0;
-        }
+
+    // ➤ FIX: Loop through connected social accounts to sum metrics
+    engagementStats.forEach((post) => {
+        post.socialAccounts.forEach(sa => {
+            likes += sa.likes || 0;
+            comments += sa.comments || 0;
+            shares += sa.shares || 0;
+            views += sa.views || 0;
+        });
     });
 
     const actions = likes + comments + shares;
@@ -69,31 +76,35 @@ export class AnalyticsService {
     };
   }
 
-  private async getAccountsAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
+  public async getAccountsAnalytics(workspaceId: string, dateRange: { startDate: Date, endDate: Date }) {
+    // ➤ FIX: We query SocialAccount and look at PostSocialAccount (postSocialAccounts) relation
     const accounts = await this.prisma.socialAccount.findMany({
       where: { workspaceId },
       include: {
-        posts: {
-            where: { createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }, status: PostStatus.PUBLISHED },
-            select: { metrics: true }
+        postSocialAccounts: {
+            where: { 
+                publishedAt: { gte: dateRange.startDate, lte: dateRange.endDate }, 
+                status: PostStatus.PUBLISHED 
+            },
+            select: { likes: true, views: true }
         }
       }
     });
 
     return accounts.map(acc => {
       let likes = 0, views = 0;
-      acc.posts.forEach((p: any) => {
-          if(p.metrics) {
-              likes += p.metrics.likes || 0;
-              views += p.metrics.views || 0;
-          }
+      
+      // Sum metrics from the join table
+      acc.postSocialAccounts.forEach(p => {
+          likes += p.likes || 0;
+          views += p.views || 0;
       });
       
       return {
         id: acc.id,
         platform: acc.platform,
         username: acc.username,
-        postsCount: acc.posts.length,
+        postsCount: acc.postSocialAccounts.length,
         totalEngagement: likes,
         totalReach: views,
         efficiency: views > 0 ? (likes / views).toFixed(2) : 0
@@ -101,7 +112,7 @@ export class AnalyticsService {
     });
   }
 
-  private async getTopPosts(workspaceId: string, dateRange: { startDate: Date, endDate: Date }, limit: number) {
+  public async getTopPosts(workspaceId: string, dateRange: { startDate: Date, endDate: Date }, limit: number) {
     const posts = await this.prisma.post.findMany({
       where: {
         workspaceId,
@@ -115,46 +126,74 @@ export class AnalyticsService {
           content: true,
           publishedAt: true,
           status: true,
-          metrics: true,
           mediaUrls: true,
-          platform: true,
-          socialAccounts: { select: { socialAccount: { select: { platform: true } } } }
+          // ➤ FIX: Fetch relation instead of 'metrics' JSON
+          socialAccounts: { 
+            select: { 
+                socialAccount: { select: { platform: true } },
+                likes: true, comments: true, shares: true, views: true
+            } 
+          }
       }
     });
 
-    return posts.map(p => ({
-      id: p.id,
-      content: p.content,
-      mediaUrls: p.mediaUrls,
-      publishedAt: p.publishedAt,
-      status: p.status,
-      platform: p.platform || (p.socialAccounts[0]?.socialAccount.platform) || 'UNKNOWN',
-      metrics: p.metrics
-    }));
+    return posts.map(p => {
+        // Aggregate metrics from all platforms this post was sent to
+        let totalLikes = 0;
+        let totalComments = 0;
+        let totalShares = 0;
+        
+        p.socialAccounts.forEach(sa => {
+            totalLikes += sa.likes;
+            totalComments += sa.comments;
+            totalShares += sa.shares;
+        });
+
+        return {
+            id: p.id,
+            content: p.content,
+            mediaUrls: p.mediaUrls,
+            publishedAt: p.publishedAt,
+            status: p.status,
+            // Just take the first platform as the label, or "MULTI"
+            platform: p.socialAccounts.length > 1 ? 'MULTI' : (p.socialAccounts[0]?.socialAccount.platform || 'UNKNOWN'),
+            metrics: {
+                likes: totalLikes,
+                comments: totalComments,
+                shares: totalShares
+            }
+        };
+    });
   }
 
   // =================================================================
   // ➤ STRATEGIC INSIGHTS
   // =================================================================
 
-  async analyzeBestTimes(workspaceId: string) {
+  public async analyzeBestTimes(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
-      select: { publishedAt: true, metrics: true }
+      select: { 
+          publishedAt: true, 
+          socialAccounts: { select: { likes: true, comments: true, shares: true } } 
+      }
     });
 
     const heatMap = {}; 
 
     posts.forEach(post => {
-      if (!post.publishedAt || !post.metrics) return;
+      if (!post.publishedAt) return;
       
       const date = new Date(post.publishedAt);
       const day = date.toLocaleDateString('en-US', { weekday: 'long' });
       const hour = date.getHours(); 
       const key = `${day}-${hour}`;
       
-      const m: any = post.metrics;
-      const engagement = (m.likes || 0) + (m.comments || 0) + (m.shares || 0);
+      // Sum engagement
+      let engagement = 0;
+      post.socialAccounts.forEach(sa => {
+          engagement += (sa.likes || 0) + (sa.comments || 0) + (sa.shares || 0);
+      });
 
       if (!heatMap[key]) heatMap[key] = { count: 0, totalEng: 0 };
       heatMap[key].count++;
@@ -175,21 +214,26 @@ export class AnalyticsService {
         .slice(0, 10);
   }
 
-  async analyzeHashtags(workspaceId: string) {
+  public async analyzeHashtags(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED },
-      select: { content: true, metrics: true }
+      select: { 
+          content: true, 
+          socialAccounts: { select: { likes: true, comments: true } }
+      }
     });
 
     const tagStats = {};
 
     posts.forEach(post => {
-        if (!post.content || !post.metrics) return;
+        if (!post.content) return;
         const tags = post.content.match(/#[a-z0-9_]+/gi); 
         if (!tags) return;
 
-        const m: any = post.metrics;
-        const engagement = (m.likes || 0) + (m.comments || 0);
+        let engagement = 0;
+        post.socialAccounts.forEach(sa => {
+            engagement += (sa.likes || 0) + (sa.comments || 0);
+        });
 
         tags.forEach(t => {
             const tag = t.toLowerCase();
@@ -210,10 +254,13 @@ export class AnalyticsService {
         .slice(0, 15);
   }
 
-  async analyzeContentMix(workspaceId: string) {
+  public async analyzeContentMix(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED },
-      select: { mediaUrls: true, metrics: true }
+      select: { 
+          mediaUrls: true, 
+          socialAccounts: { select: { likes: true, comments: true } }
+      }
     });
 
     const stats = {
@@ -223,17 +270,20 @@ export class AnalyticsService {
     };
 
     posts.forEach(post => {
-        if (!post.metrics) return;
-        const m: any = post.metrics;
-        const engagement = (m.likes || 0) + (m.comments || 0);
+        let engagement = 0;
+        post.socialAccounts.forEach(sa => {
+            engagement += (sa.likes || 0) + (sa.comments || 0);
+        });
         
-        const mediaCount = Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0;
+        const mediaCount = Array.isArray(post.mediaUrls) ? (post.mediaUrls as any[]).length : 0;
         let type = 'TEXT';
         if (mediaCount === 1) type = 'IMAGE';
         if (mediaCount > 1) type = 'CAROUSEL';
 
-        stats[type].count++;
-        stats[type].totalEng += engagement;
+        if(stats[type]) {
+            stats[type].count++;
+            stats[type].totalEng += engagement;
+        }
     });
 
     return Object.entries(stats).map(([type, data]) => ({
@@ -244,10 +294,9 @@ export class AnalyticsService {
   }
 
   // =================================================================
-  // ➤ ADVANCED: ACCOUNT HEALTH (The "Sticky" Metric)
+  // ➤ ADVANCED: ACCOUNT HEALTH
   // =================================================================
-  async analyzeAccountHealth(workspaceId: string) {
-    // FIX: Added 'publishedAt: { not: null }' to filtering
+  public async analyzeAccountHealth(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
       select: { publishedAt: true },
@@ -298,13 +347,15 @@ export class AnalyticsService {
   }
 
   // =================================================================
-  // ➤ ADVANCED: PREDICTIVE FORECAST (Linear Regression)
+  // ➤ ADVANCED: PREDICTIVE FORECAST
   // =================================================================
-  async calculateGrowthForecast(workspaceId: string) {
-    // FIX: Added 'publishedAt: { not: null }'
+  public async calculateGrowthForecast(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
-      select: { publishedAt: true, metrics: true },
+      select: { 
+          publishedAt: true, 
+          socialAccounts: { select: { likes: true, comments: true } }
+      },
       orderBy: { publishedAt: 'asc' },
       take: 50
     });
@@ -312,11 +363,12 @@ export class AnalyticsService {
     if (posts.length < 5) return { trend: 'Not enough data', nextMonthEstimate: 0 };
 
     const dataPoints = posts.map((p, i) => {
-        const m: any = p.metrics;
-        return {
-            x: i,
-            y: (m.likes || 0) + (m.comments || 0)
-        };
+        let engagement = 0;
+        p.socialAccounts.forEach(sa => {
+            engagement += (sa.likes || 0) + (sa.comments || 0);
+        });
+
+        return { x: i, y: engagement };
     });
 
     const n = dataPoints.length;
@@ -325,7 +377,10 @@ export class AnalyticsService {
     const sumXY = dataPoints.reduce((acc, p) => acc + (p.x * p.y), 0);
     const sumXX = dataPoints.reduce((acc, p) => acc + (p.x * p.x), 0);
 
-    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const denominator = (n * sumXX - sumX * sumX);
+    if (denominator === 0) return { trend: 'Flat', nextMonthEstimate: 0 };
+
+    const slope = (n * sumXY - sumX * sumY) / denominator;
     const intercept = (sumY - slope * sumX) / n;
 
     const nextPostIndex = n + 10;
@@ -342,25 +397,31 @@ export class AnalyticsService {
   }
 
   // =================================================================
-  // ➤ ADVANCED: SMART COPY (NLP)
+  // ➤ ADVANCED: SMART COPY
   // =================================================================
-  async analyzeSmartCopy(workspaceId: string) {
+  public async analyzeSmartCopy(workspaceId: string) {
     const posts = await this.prisma.post.findMany({
       where: { workspaceId, status: PostStatus.PUBLISHED },
-      select: { content: true, metrics: true }
+      select: { 
+          content: true, 
+          socialAccounts: { select: { likes: true, comments: true } }
+      }
     });
 
     if (posts.length === 0) return [];
 
     const totalEng = posts.reduce((acc, p) => {
-        const m: any = p.metrics;
-        return acc + (m.likes || 0) + (m.comments || 0);
+        let eng = 0;
+        p.socialAccounts.forEach(sa => eng += (sa.likes || 0) + (sa.comments || 0));
+        return acc + eng;
     }, 0);
+    
     const avgEng = totalEng / posts.length;
 
     const winners = posts.filter(p => {
-        const m: any = p.metrics;
-        return ((m.likes || 0) + (m.comments || 0)) > avgEng;
+        let eng = 0;
+        p.socialAccounts.forEach(sa => eng += (sa.likes || 0) + (sa.comments || 0));
+        return eng > avgEng;
     });
 
     const stopWords = ['the', 'and', 'is', 'in', 'to', 'for', 'of', 'with', 'a', 'le', 'la', 'les', 'et', 'de', 'en', 'un', 'une', 'je', 'tu', 'il', 'nous', 'vous'];

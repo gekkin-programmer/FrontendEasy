@@ -12,25 +12,18 @@ import AnalyzeSection from '../components/AnalyzeSection';
 import ConnectSection from '../components/ConnectSection';
 import GrowSection from '../components/GrowSection';
 import SupportSection from '../components/SupportSection';
-import Footer from '../components/Footer';
 import EasyAI from '../components/easypost/EasyAI';
-
-// Icons for the Social Proof section
-import { FaGoogle, FaMicrosoft, FaSpotify, FaAmazon, FaApple } from "react-icons/fa";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-white dark:bg-black/90">
-      
+    
+    <>
       <Hero />
       <SocialProof />
       
-
-
       <StatsSection />
       <PublishSection />
       <CreateSection />
-      
       
       <CollaborateSection />
       <AnalyzeSection />
@@ -38,8 +31,9 @@ export default function Home() {
       <ConnectSection />
       <GrowSection />
       <SupportSection />
-      <Footer />
+      
+      {/* Floating Widget */}
       <EasyAI />
-    </main>
+    </>
   );
 }

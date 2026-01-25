@@ -152,7 +152,7 @@ export default function CreateSection() {
           <BrutalCard className="w-full max-w-md mx-auto bg-white p-6 rotate-1 hover:rotate-0 transition-transform">
              <div className="flex items-center justify-between mb-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
-                    <div className="bg-black p-1"><Sparkles className="text-yellow-400 w-5 h-5" /></div>
+                    <div className="p-1"><Sparkles className="text-black-400 w-5 h-5" /></div>
                     <h3 className="font-black text-xl text-black uppercase">Easy AI</h3>
                 </div>
                 <div className="flex gap-1">
