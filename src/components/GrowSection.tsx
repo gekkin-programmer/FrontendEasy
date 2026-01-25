@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { FaCheck, FaInstagram, FaLinkedinIn, FaPaintBrush, FaStore } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { useLanguage } from '../context/LanguageContext'; 
@@ -41,10 +42,10 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
   <button
     onClick={onClick}
     className={`
-      relative px-6 py-3 font-black text-sm uppercase tracking-widest border-t-4 border-l-4 border-r-4 border-black transition-all -mb-1 z-10
+      relative px-3 md:px-6 py-2 md:py-3 font-black text-[10px] md:text-sm uppercase tracking-wider border-t-4 border-l-4 border-r-4 border-black transition-all -mb-1 z-10 whitespace-nowrap flex-shrink-0
       ${isActive 
-        ? 'bg-yellow-300 text-black h-14 translate-y-0' 
-        : 'bg-gray-200 text-gray-500 h-12 translate-y-2 hover:bg-gray-100'
+        ? 'bg-yellow-300 text-black h-10 md:h-14 translate-y-0' 
+        : 'bg-gray-200 text-gray-500 h-8 md:h-12 translate-y-2 hover:bg-gray-100'
       }
     `}
   >
@@ -53,36 +54,45 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
 );
 
 const ChecklistItem = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start gap-4 p-2 hover:bg-yellow-100 transition-colors border-2 border-transparent hover:border-black cursor-default">
+  <li className="flex items-start gap-3 md:gap-4 p-2 hover:bg-yellow-100 transition-colors border-2 border-transparent hover:border-black cursor-default">
     <div className="bg-black text-white p-1 border-2 border-black flex-shrink-0 shadow-[2px_2px_0px_0px_#000]">
-      <FaCheck className="h-3 w-3" />
+      <FaCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
     </div>
-    <span className="text-black font-bold text-lg leading-tight">{children}</span>
+    <span className="text-black font-bold text-sm md:text-lg leading-tight">{children}</span>
   </li>
 );
 
 const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgClass }: CreatorData) => {
   return (
     <motion.div 
+      layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="bg-white border-4 border-black p-4 flex flex-col items-center text-center shadow-[8px_8px_0px_0px_#000] relative group hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_#000] transition-all duration-300"
+      className="bg-white border-4 border-black p-3 md:p-4 flex flex-col items-center text-center shadow-[6px_6px_0px_0px_#000] md:shadow-[8px_8px_0px_0px_#000] relative group hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-300"
     >
       {/* Tape Effect */}
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-yellow-200/80 rotate-2 border-l border-r border-white/50"></div>
+      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-4 md:h-6 bg-yellow-200/80 rotate-2 border-l border-r border-white/50"></div>
 
-      <div className="relative mb-4">
-        <img src={imgSrc} alt={name} className="w-24 h-24 border-4 border-black object-cover  group-hover:grayscale-0 transition-all duration-500" />
-        <div className={`absolute -bottom-3 -right-3 h-10 w-10 border-4 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000] ${iconBgClass}`}>
+      <div className="relative mb-3 md:mb-4 w-20 h-20 md:w-24 md:h-24 mt-2">
+        <div className="w-full h-full border-4 border-black overflow-hidden relative">
+            <Image 
+                src={imgSrc} 
+                alt={name} 
+                fill
+                className="object-cover group-hover:grayscale-0 transition-all duration-500"
+                sizes="(max-width: 768px) 100px, 150px"
+            />
+        </div>
+        <div className={`absolute -bottom-2 -right-2 md:-bottom-3 md:-right-3 h-8 w-8 md:h-10 md:w-10 border-4 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000] ${iconBgClass}`}>
           {platformIcon}
         </div>
       </div>
-      <p className="font-black text-black text-xl uppercase tracking-tight mt-2">{name}</p>
+      <p className="font-black text-black text-base md:text-xl uppercase tracking-tight mt-1 truncate w-full">{name}</p>
       
-      <div className="mt-3 w-full bg-black text-white py-1 px-2 font-mono text-xs flex justify-between">
-        <span>{platform}</span>
+      <div className="mt-2 md:mt-3 w-full bg-black text-white py-1 px-2 font-mono text-[10px] md:text-xs flex justify-between">
+        <span className="truncate max-w-[60%]">{platform}</span>
         <span className="text-yellow-300">{followers}</span>
       </div>
     </motion.div>
@@ -108,7 +118,10 @@ const GrowSection = () => {
   const currentData = tabContent[activeTab] || [];
 
   return (
-    <section className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-24 px-4 font-sans overflow-hidden pattern-grid">
+    <section 
+      className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
+      aria-label="Growth Success Stories"
+    >
       <style jsx>{`
         .pattern-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);
@@ -116,25 +129,25 @@ const GrowSection = () => {
         }
       `}</style>
 
-      <div className="container mx-auto max-w-7xl">
+      <div className="container mx-auto max-w-7xl relative z-10 px-0 md:px-4">
         
-        <div className="grid lg:grid-cols-12 gap-12 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-start">
           
           {/* Left content (4 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-8 text-left bg-white border-4 border-black p-8 shadow-[12px_12px_0px_0px_#000]">
-            <h2 className="text-5xl md:text-7xl font-black text-black leading-[0.85] tracking-tighter uppercase">
+          <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 text-left bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-black leading-[0.9] tracking-tighter uppercase">
               {t("ZERO TO", "DE ZERO A")}<br/>
               <span className="text-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black">ONE MILLION.</span>
             </h2>
             
-            <p className="text-xl font-bold text-gray-800 leading-snug">
+            <p className="text-base md:text-xl font-bold text-gray-800 leading-snug">
               {t(
-                "Whether you're just getting started or scaling to new heights, Wiggle gets your content in front of more people.",
-                "Que vous commenciez ou que vous passiez à la vitesse supérieure, Wiggle propulse votre contenu."
+                "Whether you're just getting started or scaling to new heights, EasyPost gets your content in front of more people.",
+                "Que vous commenciez ou que vous passiez à la vitesse supérieure, EasyPost propulse votre contenu."
               )}
             </p>
             
-            <ul className="space-y-2 mt-4">
+            <ul className="space-y-2 mt-2 md:mt-4">
               <ChecklistItem>{t("Save ideas instantly", "Sauvegardez instantanément")}</ChecklistItem>
               <ChecklistItem>{t("Learn what works best", "Apprenez ce qui marche")}</ChecklistItem>
               <ChecklistItem>{t("Create once, post everywhere", "Créez une fois, publiez partout")}</ChecklistItem>
@@ -142,37 +155,42 @@ const GrowSection = () => {
           </div>
 
           {/* Right cards (8 cols) */}
-          <div className="lg:col-span-7">
-            {/* Folder Tabs */}
-            <div className="flex items-end pl-4 border-b-4 border-black">
-                {tabs.map((tab) => (
-                    <FolderTab 
-                    key={tab.key} 
-                    isActive={tab.label === activeTab} 
-                    onClick={() => setActiveTab(tab.label)}
-                    >
-                    {t(tab.key, tab.label)}
-                    </FolderTab>
-                ))}
+          <div className="lg:col-span-7 w-full overflow-hidden">
+            {/* Folder Tabs (Horizontal Scroll for Mobile) */}
+            <div className="flex items-end pl-2 md:pl-4 border-b-4 border-black overflow-x-auto scrollbar-hide w-full pb-[2px]">
+                <div className="flex space-x-1 md:space-x-0 min-w-max">
+                    {tabs.map((tab) => (
+                        <FolderTab 
+                            key={tab.key} 
+                            isActive={tab.label === activeTab} 
+                            onClick={() => setActiveTab(tab.label)}
+                        >
+                            {t(tab.key, tab.label)}
+                        </FolderTab>
+                    ))}
+                </div>
             </div>
 
             {/* The Folder Content */}
-            <div className="bg-yellow-300 border-4 border-t-0 border-black dark:border-white/5 p-8 min-h-[400px] shadow-[12px_12px_0px_0px_#000]">
-                <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
-                    <h3 className="font-black text-2xl text-black uppercase">COMMUNITY_SHOWCASE.EXE</h3>
-                    <div className="flex gap-2">
-                        <div className="w-4 h-4 bg-white border-2 border-black rounded-full"></div>
-                        <div className="w-4 h-4 bg-black border-2 border-black rounded-full"></div>
+            <div className="bg-yellow-300 border-4 border-t-0 border-black dark:border-white/5 p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
+                <div className="flex justify-between items-center mb-4 md:mb-8 border-b-2 border-black pb-4">
+                    <h3 className="font-black text-lg md:text-2xl text-black uppercase truncate">COMMUNITY.EXE</h3>
+                    <div className="flex gap-2 flex-shrink-0">
+                        <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-white border-2 border-black rounded-full"></div>
+                        <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-black border-2 border-black rounded-full"></div>
                     </div>
                 </div>
                 
-                <div className="grid md:grid-cols-3 gap-6">
-                    <AnimatePresence mode='wait'>
+                <motion.div 
+                    layout 
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+                >
+                    <AnimatePresence mode='popLayout'>
                         {currentData.map((creator) => (
                             <CreatorCard key={creator.name} {...creator} />
                         ))}
                     </AnimatePresence>
-                </div>
+                </motion.div>
             </div>
           </div>
 

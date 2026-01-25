@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaGoogle, FaGithub } from 'react-icons/fa6';
+import Image from 'next/image';
+import { FaGithub } from 'react-icons/fa6';
 import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
 
@@ -26,7 +27,6 @@ export default function LoginPage() {
 
   // 2. EMAIL LOGIN
   const handleSubmit = async () => {
-    // Note: No e.preventDefault() needed because we are not using 'submit' type
     setIsLoading(true);
     setError('');
 
@@ -61,24 +61,41 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 lg:grid lg:grid-cols-2 relative">
       
-      {/* LEFT SIDE: Visual (Unchanged) */}
+      {/* LEFT SIDE: Visual (Desktop Only) */}
       <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
         <div className="relative z-10">
-          <Link href="/">
-            <img src="/assets/WiggleLogo.png" alt="Brand Logo" className="w-12 h-12 object-contain mb-8 cursor-pointer opacity-90 hover:opacity-100 transition-opacity" />
+          <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
+            <Image 
+              src="/assets/WiggleLogo.png" 
+              alt="EasyPost Logo" 
+              width={48} 
+              height={48} 
+              className="object-contain"
+              priority
+            />
           </Link>
           <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">Manage your social empire from one command center.</h1>
           <p className="text-gray-400 text-lg">Join 12,000+ creators and teams.</p>
         </div>
+        
+        {/* Background Blur */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#3C48F6]/20 rounded-full blur-[120px] pointer-events-none" />
+        
+        {/* Testimonial Card */}
         <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
           <div className="flex gap-1 mb-3">
             {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
           </div>
           <p className="text-gray-200 mb-6 leading-relaxed">"The workspace feature changed how we handle multiple clients. It's simply the best tool out there."</p>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
-                <img src="/assets/3.jpg" alt="User Profile" className="w-full h-full object-cover" />
+            <div className="relative w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
+                <Image 
+                  src="/assets/3.jpg" 
+                  alt="User Profile" 
+                  fill 
+                  className="object-cover"
+                  sizes="48px"
+                />
             </div>
             <div>
               <p className="font-bold text-sm">Alex Rivera</p>
@@ -92,9 +109,19 @@ export default function LoginPage() {
       <div className="flex flex-col justify-center px-6 py-12 lg:px-20 xl:px-24 bg-white h-screen overflow-y-auto">
         <div className="mx-auto w-full max-w-[480px]">
           
+          {/* Mobile Logo Link */}
           <div className="mb-10 lg:hidden">
              <Link href="/" className="inline-block">
-               <span className="text-2xl font-bold text-[#3C48F6]">EasyPost</span>
+               <div className="relative w-10 h-10">
+                 <Image 
+                   src="/assets/WiggleLogo.png" 
+                   alt="EasyPost Logo" 
+                   fill
+                   className="object-contain"
+                   priority
+                 />
+                 asyPost
+               </div>
              </Link>
           </div>
 
@@ -103,6 +130,7 @@ export default function LoginPage() {
             <p className="mt-2 text-base text-gray-600">Please enter your details to sign in.</p>
           </div>
 
+          {/* Social Buttons */}
           <div className="flex gap-4 mb-8">
             <button type="button" onClick={handleGoogleLogin} className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm">
               <FcGoogle className="text-xl" /> Google
@@ -119,7 +147,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* FORM (No onSubmit, Button handles click) */}
+          {/* Email Form */}
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Email address</label>
@@ -149,13 +177,13 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 text-red-600 text-sm font-medium border border-red-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-                 ⚠️ {error}
+              <div className="p-4 rounded-xl bg-red-50 text-[#3C48F6] text-sm font-medium border border-red-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                  {error}
               </div>
             )}
 
             <button 
-              type="button" // 👈 NUCLEAR OPTION: Prevents any form reload
+              type="button" 
               onClick={handleSubmit}
               disabled={isLoading}
               className="w-full bg-[#3C48F6] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"

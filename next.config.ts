@@ -2,14 +2,19 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // 1. Add '90' to the list of allowed qualities to fix the error
-    qualities: [25, 50, 75, 90], 
-
-    // 2. Ensure you allow external images (Clerk, Unsplash) which you use in the app
+    // ➤ 1. Allow SVGs
+    dangerouslyAllowSVG: true,
+    // ➤ 2. Set Security Policy for SVGs (Recommended)
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    
     remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "img.clerk.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "i.pravatar.cc" },
+      { protocol: "https", hostname: "api.dicebear.com" }, 
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "platform-lookaside.fbsbx.com" },
     ],
+    formats: ["image/avif", "image/webp"],
   },
 };
 
