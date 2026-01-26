@@ -5,13 +5,15 @@ import {
   Body,
   UseGuards,
   Req,
+  Res,
   HttpCode,
   HttpStatus,
-  Redirect,
   BadRequestException,
-  Query,
+  Ip,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+// ➤ FIX: Add 'type' keyword here for Express interfaces
+import type { Response, Request } from 'express'; 
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 
 // Services & Guards
@@ -19,12 +21,11 @@ import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-// DTOs
+// DTOs (Keep these as regular imports because they are Classes)
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SendOtpDto, VerifyOtpDto } from './dto/otp.dto'; 
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -33,6 +34,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private configService: ConfigService,
   ) {}
+
+  // Helper to set Secure Cookie
+  private setRefreshCookie(res: Response, token: string) {
+    res.cookie('refreshToken', token, {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    });
+  }
 
   // ==========================================
   // 1. GOOGLE AUTH
@@ -47,31 +59,25 @@ export class AuthController {
 
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
-  @Redirect()
-  @ApiOperation({ summary: 'Step 2: Google Callback (Handle Redirect)' })
-  async googleAuthCallback(@Req() req) {
+  @ApiOperation({ summary: 'Step 2: Google Callback' })
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     try {
-      const googleProfile = req.user;
+      // 1. Validate & Start Session
+      // @ts-ignore - req.user is added by Passport
+      const { accessToken, refreshToken } = await this.authService.validateGoogleUser(req.user);
       
-      // 1. Validate & Create/Update User in DB
-      const dbUser = await this.authService.validateGoogleUser(googleProfile);
-      
-      // 2. Generate Tokens
-      const tokens = await this.authService.generateTokens(dbUser);
-      
+      // 2. Set Refresh Token in Cookie (Secure!)
+      this.setRefreshCookie(res, refreshToken);
+
       // 3. Build Redirect URL for Frontend
       const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-      const redirectUrl = new URL(`${frontendUrl}/auth/callback`);
       
-      // Pass tokens in URL (Frontend will strip them and save to localStorage)
-      redirectUrl.searchParams.set('accessToken', tokens.accessToken);
-      redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
+      res.redirect(`${frontendUrl}/auth/callback?accessToken=${accessToken}`);
       
-      return { url: redirectUrl.toString() };
     } catch (error) {
       console.error('Google Auth Error:', error);
       const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-      return { url: `${frontendUrl}/login?error=auth_failed` };
+      res.redirect(`${frontendUrl}/login?error=auth_failed`);
     }
   }
 
@@ -81,17 +87,33 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register with Email & Password' })
-  @ApiResponse({ status: 201, type: AuthResponseDto })
-  async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.authService.register(dto);
+    this.setRefreshCookie(res, tokens.refreshToken);
+    return { 
+        accessToken: tokens.accessToken, 
+        user: tokens.user 
+    };
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with Email & Password' })
-  @ApiResponse({ status: 200, type: AuthResponseDto })
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(
+    @Body() dto: LoginDto, 
+    @Res({ passthrough: true }) res: Response,
+    @Ip() ip: string,
+    @Req() req: Request
+  ) {
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const tokens = await this.authService.login(dto, ip, userAgent);
+    
+    this.setRefreshCookie(res, tokens.refreshToken);
+    
+    return { 
+        accessToken: tokens.accessToken, 
+        user: tokens.user 
+    };
   }
 
   // ==========================================
@@ -100,44 +122,63 @@ export class AuthController {
 
   @Post('phone/send-otp')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Step 1: Send OTP to phone' })
   async sendOtp(@Body() dto: SendOtpDto) {
     return this.authService.sendOtp(dto.phone);
   }
 
-  @Post('phone/verify')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Step 2: Verify OTP and Login' })
-  @ApiResponse({ status: 200, type: AuthResponseDto })
-  async verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyOtp(dto.phone, dto.code);
-  }
-
   // ==========================================
-  // 4. TOKEN MANAGEMENT
+  // 4. TOKEN MANAGEMENT (Secure)
   // ==========================================
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get new Access Token using Refresh Token' })
-  @ApiResponse({ status: 200, type: AuthResponseDto })
-  async refreshToken(@Body() dto: RefreshTokenDto) {
-    return this.authService.refreshToken(dto.refreshToken);
+  @ApiOperation({ summary: 'Get new Access Token using Cookie' })
+  async refreshToken(
+    @Req() req: Request, 
+    @Res({ passthrough: true }) res: Response,
+    @Ip() ip: string
+  ) {
+    // 1. Get from Cookie
+    const oldRefreshToken = req.cookies['refreshToken'];
+    if (!oldRefreshToken) throw new BadRequestException('No refresh token provided');
+
+    const userAgent = req.headers['user-agent'] || 'unknown';
+
+    // 2. Service handles rotation
+    const tokens = await this.authService.refreshToken(oldRefreshToken, ip, userAgent);
+
+    // 3. Set NEW Cookie (Rotation)
+    this.setRefreshCookie(res, tokens.refreshToken);
+
+    return { accessToken: tokens.accessToken };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Logout (Kill Session)' })
-  async logout(@Req() req, @Body() dto: RefreshTokenDto) {
-    return this.authService.logout(req.user['sub'], dto.refreshToken);
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+    if (refreshToken) {
+        await this.authService.logout(refreshToken);
+    }
+    
+    // Clear Cookie
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: this.configService.get('NODE_ENV') === 'production',
+        sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+        path: '/'
+    });
+
+    return { message: 'Logged out successfully' };
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current logged-in user details' })
-  async getProfile(@Req() req) {
-    return this.authService.validateUserById(req.user['sub']);
+  async getProfile(@Req() req: Request) {
+    // @ts-ignore
+    return req.user; 
   }
 
   @Post('email/send-otp')

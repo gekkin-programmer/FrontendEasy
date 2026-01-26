@@ -211,25 +211,38 @@ model User {
   id        String  @id @default(cuid())
   email     String? @unique
   phone     String? @unique
-  password  String?
+  password  String? // Hash of password
   firstName String?
   lastName  String?
   avatar    String?
 
-  provider      String?
-  providerId    String?
-  emailVerified Boolean @default(false)
+  // Auth providers
+  provider      String? 
+  providerId    String? 
+  
+  // ➤ NEW: Email Verification
+  isEmailVerified           Boolean   @default(false)
+  emailVerificationToken    String?   @unique
+  emailVerificationTokenExp DateTime?
+
+  // ➤ NEW: Password Reset
+  passwordResetToken        String?   @unique
+  passwordResetTokenExp     DateTime?
+
+  // Legacy Phone Verification (Keep if you still use phone login)
   phoneVerified Boolean @default(false)
+  otp           String?
+  otpExpires    DateTime?
 
-  otp        String?
-  otpExpires DateTime?
-
+  // Account type
   accountType AccountType @default(PERSONAL)
 
+  // Subscription
   subscription Subscription?
   planType     PlanType      @default(FREE)
   planLimits   Json?
 
+  // Relations
   ownedWorkspaces       Workspace[]       @relation("WorkspaceOwner")
   workspaceMembers      WorkspaceMember[]
   createdSocialAccounts SocialAccount[]   @relation("AccountCreator")
@@ -239,7 +252,10 @@ model User {
   createdTasks          Task[]            @relation("TaskCreator")
   notifications         Notification[]
   activities            ActivityLog[]
+  
+  // ➤ SECURITY SESSIONS (Only define this ONCE)
   sessions              Session[]
+  
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
 
@@ -255,7 +271,10 @@ model User {
 model Session {
   id           String   @id @default(cuid())
   userId       String
-  refreshToken String   @unique
+  
+  // ➤ UPDATED: Store the HASH of the refresh token here
+  refreshToken String   @unique 
+  
   userAgent    String?
   ipAddress    String?
   expiresAt    DateTime
@@ -264,8 +283,8 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([refreshToken])
-  @@index([expiresAt])
+  @@index([refreshToken]) // Index for faster lookups
+  @@index([expiresAt])    // Index for cleaning up expired sessions
   @@map("sessions")
 }
 

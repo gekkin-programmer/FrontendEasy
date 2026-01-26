@@ -2,18 +2,19 @@ import {
   Injectable, 
   BadRequestException, 
   UnauthorizedException, 
-  InternalServerErrorException 
+  InternalServerErrorException,
+  ForbiddenException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../common/providers/email/email.service';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto'; 
+import { User, Session } from '@prisma/client'; 
 
-// DTOs
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +41,7 @@ export class AuthService {
             provider: 'google',
             providerId: googleId,
             avatar: user.avatar || picture,
-            emailVerified: true,
+            emailVerified: true, // ➤ FIX: Changed back to emailVerified
           },
         });
       } else {
@@ -52,13 +53,13 @@ export class AuthService {
             avatar: picture,
             provider: 'google',
             providerId: googleId,
-            emailVerified: true,
+            emailVerified: true, // ➤ FIX: Changed back to emailVerified
             accountType: 'PERSONAL',
           },
         });
         await this.createDefaultWorkspace(user);
       }
-      return user;
+      return this.startSession(user);
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Error validating Google user');
@@ -66,21 +67,17 @@ export class AuthService {
   }
 
   // ==========================================
-  // 2. EMAIL REGISTER (WITH OTP CHECK)
+  // 2. EMAIL REGISTER
   // ==========================================
   async register(dto: RegisterDto) {
-    //  Verify the OTP Code first!
-    // We look for the OTP record associated with this email
     const otpRecord = await this.prisma.otpVerification.findUnique({
       where: { email: dto.email }
     });
 
-    // Check if record exists, matches code, and hasn't expired
     if (!otpRecord || otpRecord.code !== dto.code || new Date() > otpRecord.expiresAt) {
       throw new UnauthorizedException('Invalid or expired verification code');
     }
 
-    //  Check if user already exists
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -89,7 +86,6 @@ export class AuthService {
       throw new BadRequestException('Email already in use');
     }
 
-    // 3. Create User
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const user = await this.prisma.user.create({
@@ -99,25 +95,21 @@ export class AuthService {
         firstName: dto.firstName,
         lastName: dto.lastName,
         provider: 'email',
-        emailVerified: true, 
+        emailVerified: true, // ➤ FIX: Changed back to emailVerified
         accountType: 'PERSONAL',
       },
     });
 
-    // 4. Cleanup: Delete the used OTP so it can't be reused
     await this.prisma.otpVerification.delete({ where: { email: dto.email } });
-
-    // 5. Create Workspace
     await this.createDefaultWorkspace(user);
 
-    // 6. Login
-    return this.generateTokens(user);
+    return this.startSession(user);
   }
 
   // ==========================================
   // 3. LOGIN
   // ==========================================
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, ipAddress: string, userAgent: string) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -131,38 +123,99 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user);
+    return this.startSession(user, ipAddress, userAgent);
   }
 
   // ==========================================
-  // 4. SEND EMAIL OTP
+  // 4. SESSION MANAGEMENT
   // ==========================================
+  
+  private async startSession(user: User, ipAddress?: string, userAgent?: string) {
+    const tokens = await this.generateTokens(user);
+    const rtHash = await bcrypt.hash(tokens.refreshToken, 10);
+
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        refreshToken: rtHash,
+        ipAddress: ipAddress || 'unknown',
+        userAgent: userAgent || 'unknown',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      }
+    });
+
+    return tokens;
+  }
+
+  async refreshToken(oldRefreshToken: string, ipAddress: string, userAgent: string) {
+    let payload;
+    try {
+      const secret = this.configService.get<string>('JWT_REFRESH_SECRET');
+      payload = await this.jwtService.verifyAsync(oldRefreshToken, { secret });
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token signature');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const sessions = await this.prisma.session.findMany({ where: { userId: user.id } });
+    
+    // Explicitly typed to allow null assignment initially
+    let sessionToUpdate: Session | null = null;
+
+    for (const session of sessions) {
+      const isMatch = await bcrypt.compare(oldRefreshToken, session.refreshToken);
+      if (isMatch) {
+        sessionToUpdate = session;
+        break;
+      }
+    }
+
+    if (!sessionToUpdate) {
+      throw new ForbiddenException('Access Denied - Session not found');
+    }
+
+    await this.prisma.session.delete({ where: { id: sessionToUpdate.id } });
+
+    return this.startSession(user, ipAddress, userAgent);
+  }
+
+  async logout(refreshToken: string) {
+     const decoded = this.jwtService.decode(refreshToken) as any;
+     if(!decoded || !decoded.sub) return;
+
+     const sessions = await this.prisma.session.findMany({ where: { userId: decoded.sub } });
+     
+     for (const session of sessions) {
+        if (await bcrypt.compare(refreshToken, session.refreshToken)) {
+           await this.prisma.session.delete({ where: { id: session.id } });
+           break;
+        }
+     }
+     return { message: 'Logged out successfully' };
+  }
+
+  // ==========================================
+  // 5. OTP / HELPERS
+  // ==========================================
+  
   async sendEmailOtp(email: string) {
-    // Check if user already exists (optional, depends if you allow re-registering)
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new BadRequestException('Email already in use. Please login.');
+    const otp = crypto.randomInt(100000, 999999).toString(); 
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-    // Upsert (Create or Update) OTP
     await this.prisma.otpVerification.upsert({
       where: { email },
       update: { code: otp, expiresAt },
       create: { email, code: otp, expiresAt },
     });
 
-    // Send via Email Service
     await this.emailService.sendOtp(email, otp); 
-
     return { message: 'OTP sent to email' };
   }
 
-  // ==========================================
-  // 5. PHONE OTP
-  // ==========================================
   async sendOtp(phone: string) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
 
     await this.prisma.otpVerification.upsert({
@@ -203,33 +256,27 @@ export class AuthService {
     }
 
     await this.prisma.otpVerification.delete({ where: { phone } });
-    return this.generateTokens(user);
+    return this.startSession(user);
   }
 
-  // ==========================================
-  // 6. TOKEN & HELPERS
-  // ==========================================
-  async generateTokens(user: any, workspaceId?: string): Promise<AuthResponseDto> {
+  async generateTokens(user: any) {
     const payload = {
       sub: user.id,
       email: user.email,
       accountType: user.accountType,
-      workspaceId, 
     };
 
     const secret = this.configService.get<string>('JWT_SECRET');
-    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || secret + '-refresh';
+    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { secret: secret, expiresIn: '4h' }),
+      this.jwtService.signAsync(payload, { secret: secret, expiresIn: '15m' }), 
       this.jwtService.signAsync(payload, { secret: refreshSecret, expiresIn: '7d' }),
     ]);
 
     return {
       accessToken,
-      refreshToken,
-      expiresIn: 14400, 
-      tokenType: 'Bearer',
+      refreshToken, 
       user: {
         id: user.id,
         email: user.email,
@@ -237,50 +284,14 @@ export class AuthService {
         lastName: user.lastName,
         avatar: user.avatar,
         accountType: user.accountType,
-        emailVerified: user.emailVerified,
       },
     };
   }
 
-  async refreshToken(refreshToken: string) {
-    try {
-      const secret = this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET') + '-refresh';
-      const payload = await this.jwtService.verifyAsync(refreshToken, { secret });
-
-      // In stateless JWT, we usually just verify signature. 
-      // If you are tracking sessions in DB, validate here.
-      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-      if (!user) throw new UnauthorizedException();
-
-      return this.generateTokens(user);
-    } catch (error) {
-      throw new BadRequestException('Invalid refresh token');
-    }
-  }
-
-  async logout(userId: string, refreshToken?: string) {
-    // If using DB sessions table, delete here.
-    return { message: 'Logged out successfully' };
-  }
-
-  async validateUserById(userId: string) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true, email: true, firstName: true, lastName: true, avatar: true,
-        accountType: true, emailVerified: true, phoneVerified: true, status: true,
-        ownedWorkspaces: { select: { id: true, name: true, slug: true } }
-      },
-    });
-  }
-
   async createDefaultWorkspace(user: any) {
-    if (!user || !user.id) {
-      throw new InternalServerErrorException('Cannot create workspace: User ID missing');
-    }
+    if (!user || !user.id) return;
     const baseName = user.firstName || 'My';
-    const cleanName = baseName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const slug = `${cleanName}-workspace-${Math.random().toString(36).substring(2, 6)}`;
+    const slug = `${baseName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${crypto.randomBytes(4).toString('hex')}`;
 
     const workspace = await this.prisma.workspace.create({
       data: {
@@ -299,5 +310,16 @@ export class AuthService {
       },
     });
     return workspace;
+  }
+  
+  async validateUserById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true, email: true, firstName: true, lastName: true, avatar: true,
+        accountType: true, emailVerified: true, phoneVerified: true, status: true,
+        ownedWorkspaces: { select: { id: true, name: true, slug: true } }
+      },
+    });
   }
 }
