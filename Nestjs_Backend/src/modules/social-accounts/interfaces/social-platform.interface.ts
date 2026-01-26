@@ -3,6 +3,7 @@ export interface NormalizedSocialPost {
   content: string;
   mediaUrls: string[];
   publishedAt: Date;
+  permalink?: string; 
   engagement: {
     likes: number;
     comments: number;

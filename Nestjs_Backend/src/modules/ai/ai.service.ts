@@ -1,31 +1,44 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, RequestTimeoutException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import * as fs from 'fs';
+import { PrismaService } from 'src/prisma/prisma.service'; // Inject Prisma
+import { v4 as uuidv4 } from 'uuid'; // Make sure to pnpm add uuid
 
+// Define DTOs/Enums locally or import them if you moved them to separate files
 export enum MarketingFramework {
   AIDA = 'AIDA',
-  PAS = 'PAS',   
-  STORY = 'STORY', 
-  DIRECT = 'DIRECT' 
+  PAS = 'PAS',
+  STORY = 'STORY',
+  DIRECT = 'DIRECT'
 }
 
 export enum AiTone {
   PROFESSIONAL = 'PROFESSIONAL',
   CASUAL = 'CASUAL',
-  CAMFRANGLAIS = 'CAMFRANGLAIS', 
-  NOUCHI = 'NOUCHI',             
+  CAMFRANGLAIS = 'CAMFRANGLAIS',
+  NOUCHI = 'NOUCHI',
   URGENT = 'URGENT'
 }
 
 @Injectable()
 export class AiService {
-  private groq: OpenAI | null = null;     
+  private groq: OpenAI | null = null;
   private readonly logger = new Logger(AiService.name);
 
-  constructor(private configService: ConfigService) {
+  // Approximate pricing for Llama-3-70b (adjust based on Groq's current pricing)
+  // Groq often offers free beta tiers, but for future-proofing:
+  private readonly PRICING = {
+    input: 0.00059, // per 1k tokens
+    output: 0.00079 // per 1k tokens
+  };
+
+  constructor(
+    private configService: ConfigService,
+    private prisma: PrismaService // Injected for logging
+  ) {
     const groqKey = this.configService.get<string>('GROQ_API_KEY') || '';
-    
+
     if (groqKey) {
       this.groq = new OpenAI({
         baseURL: 'https://api.groq.com/openai/v1',
@@ -52,15 +65,15 @@ export class AiService {
       });
       return response.text;
     } catch (error) {
-      this.logger.error('Groq Whisper Error', error);
-      throw new InternalServerErrorException('Voice transcription failed');
+      this.handleAiError(error, 'system', 'transcription');
+      return ""; // Unreachable due to throw, but satisfies Typescript
     }
   }
 
   // ======================================================
   // 🧠 THE STRATEGIST (Llama-3-70b via Groq)
   // ======================================================
-  async parseUserIntent(transcribedText: string): Promise<any> {
+  async parseUserIntent(transcribedText: string, userId: string, workspaceId: string): Promise<any> {
     if (!this.groq) return this.mockIntent();
 
     const systemPrompt = `
@@ -87,7 +100,7 @@ export class AiService {
 
     try {
       const response = await this.groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile', 
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: transcribedText },
@@ -95,10 +108,19 @@ export class AiService {
         response_format: { type: 'json_object' },
       });
 
+      // Log Usage
+      await this.logTokenUsage(
+        userId, 
+        workspaceId, 
+        'intent-parsing', 
+        'llama-3.3-70b-versatile', 
+        response.usage
+      );
+
       const content = response.choices[0].message.content || '{}';
       return JSON.parse(content);
     } catch (error) {
-      this.logger.error('Groq Intent Error', error);
+      this.handleAiError(error, userId, 'intent-parsing');
       return this.mockIntent();
     }
   }
@@ -106,31 +128,13 @@ export class AiService {
   // ======================================================
   // 🤝 THE SUPPORT AGENT (Customer Service)
   // ======================================================
-  async chatWithSupport(userMessage: string): Promise<string> {
-    if (!this.groq) return "Support AI is offline. Contact support@easypost.cm";
+  async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
+    if (!this.groq) return { messageId: 'mock-id', response: "Support AI is offline. Contact support@easypost.cm" };
 
+    const messageId = uuidv4(); // Unique ID for feedback
     const systemPrompt = `
       ROLE: You are "Steve", the Senior Customer Success Manager at EasyPost Africa.
-      
-      MISSION: Solve user problems instantly with brevity and clarity.
-      
-      KNOWLEDGE BASE:
-      - **Product:** Social Media Scheduler & Automation for African SMBs.
-      - **Integrations:** Facebook, LinkedIn, TikTok, Instagram, YouTube, X (Twitter).
-      - **Payments:** Orange Money, MTN MoMo, Stripe.
-      - **AI Features:** Voice-to-Post, Camfranglais/Nouchi content generation.
-      - **Pricing:** 
-        * Free: 1 Workspace, 2 Accounts.
-        * Pro ($29): 10 Accounts, Unlimited AI.
-        * Agency ($149): White-label reports.
-      
-      BEHAVIOR GUIDELINES:
-      1. **BILINGUAL:** Reply in the exact language the user used (English/French).
-      2. **CONCISE:** Max 3 sentences. Get to the point.
-      3. **ACTION-ORIENTED:** Don't just explain; tell them where to click. (e.g. "Go to Settings > Connections").
-      4. **HONEST:** If you don't know, say "I'll connect you with a human agent."
-      
-      TONE: Helpful, Professional, African Tech Savvy.
+      ... (rest of your prompt) ...
     `;
 
     try {
@@ -140,13 +144,25 @@ export class AiService {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        temperature: 0.3, 
+        temperature: 0.3,
       });
 
-      return response.choices[0].message.content || "I didn't catch that.";
+      // Log Usage
+      await this.logTokenUsage(
+        userId, 
+        workspaceId, 
+        'support-chat', 
+        'llama-3.3-70b-versatile', 
+        response.usage
+      );
+
+      return {
+        messageId: messageId,
+        response: response.choices[0].message.content || "I didn't catch that."
+      };
     } catch (error) {
-      this.logger.error('Support Chat Error', error);
-      throw new InternalServerErrorException('Support AI failed');
+      this.handleAiError(error, userId, 'support-chat');
+      throw new InternalServerErrorException('Support AI failed'); // Unreachable
     }
   }
 
@@ -157,49 +173,123 @@ export class AiService {
     productName: string,
     visualDescription: string,
     tone: AiTone,
+    userId: string,
+    workspaceId: string,
     framework: MarketingFramework = MarketingFramework.AIDA
-  ): Promise<string> {
-    if (!this.groq) return `Mock Caption for ${productName}`;
+  ): Promise<{ messageId: string, content: string }> {
+    if (!this.groq) return { messageId: 'mock-id', content: `Mock Caption for ${productName}` };
 
+    const messageId = uuidv4();
     const systemPrompt = `
-      ROLE: You are an Elite Digital Marketing Strategist with deep expertise in the African Consumer Market (Lagos, Nairobi, Douala, Abidjan).
-      
-      OBJECTIVE: Write a high-converting social media caption that stops the scroll.
-      
-      STRATEGY FRAMEWORK: ${framework}
-      - AIDA: Attention -> Interest -> Desire -> Action.
-      - PAS: Pain -> Agitation -> Solution.
-      
-      INPUT CONTEXT:
-      - Product: "${productName}"
-      - Visuals: "${visualDescription}"
-      
-      TONE INSTRUCTIONS (${tone}):
-      - CAMFRANGLAIS: Use authentic Cameroon urban slang (e.g. "Le ndem", "Gars", "Wanda").
-      - NOUCHI: Use authentic Ivorian slang (e.g. "Enjailler", "Moula").
-      - PROFESSIONAL: Corporate, clean, trustworthy.
-      
-      FORMAT:
-      - Hook (First line must be punchy).
-      - Body (Value proposition).
-      - CTA (Clear instruction).
-      - Hashtags (3-5 relevant tags, mixed global/local).
+      ROLE: You are an Elite Digital Marketing Strategist...
+      ... (rest of your prompt) ...
+      TONE: ${tone}
+      FRAMEWORK: ${framework}
     `;
 
     try {
       const response = await this.groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile', 
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Write a caption for: ${productName}` },
+          { role: 'user', content: `Write a caption for: ${productName}. Visuals: ${visualDescription}` },
         ],
       });
 
-      return response.choices[0].message.content || ''; 
+      // Log Usage
+      await this.logTokenUsage(
+        userId, 
+        workspaceId, 
+        'copywriting', 
+        'llama-3.3-70b-versatile', 
+        response.usage
+      );
+
+      return {
+        messageId: messageId,
+        content: response.choices[0].message.content || ''
+      };
     } catch (error) {
-      this.logger.error('Groq Copywriting Error', error);
+      this.handleAiError(error, userId, 'copywriting');
       throw new InternalServerErrorException('AI Copywriting failed');
     }
+  }
+
+  // ======================================================
+  // 🕵️ INTERNAL HELPERS (Logging & Errors)
+  // ======================================================
+
+  /**
+   * Logs token usage and estimated cost to the database.
+   */
+  private async logTokenUsage(userId: string, workspaceId: string, action: string, model: string, usage: any) {
+    if (!usage) return;
+
+    try {
+      const { prompt_tokens, completion_tokens, total_tokens } = usage;
+      
+      // Calculate Cost
+      const cost = 
+        (prompt_tokens / 1000 * this.PRICING.input) + 
+        (completion_tokens / 1000 * this.PRICING.output);
+
+      await this.prisma.aiUsageLog.create({
+        data: {
+          userId,
+          workspaceId,
+          action,
+          model,
+          inputTokens: prompt_tokens,
+          outputTokens: completion_tokens,
+          totalTokens: total_tokens,
+          cost: cost,
+        }
+      });
+      
+      this.logger.log(`Logged AI usage: ${total_tokens} tokens ($${cost.toFixed(6)})`);
+    } catch (e) {
+      this.logger.error('Failed to log token usage', e);
+      // Swallow error so we don't fail the request just because logging failed
+    }
+  }
+
+  /**
+   * Centralized robust error handling for AI calls.
+   */
+  private handleAiError(error: any, userId: string, context: string) {
+    this.logger.error(`AI Error [${context}] for user ${userId}: ${error.message}`, error.stack);
+
+    // Timeout Handling
+    if (error.code === 'ETIMEDOUT' || error.type === 'request_timeout') {
+      throw new RequestTimeoutException('The AI service timed out. Please try again.');
+    }
+
+    // Rate Limiting
+    if (error.status === 429) {
+      throw new InternalServerErrorException('AI system is currently busy. Please try again in a moment.');
+    }
+
+    // Context Length
+    if (error.code === 'context_length_exceeded') {
+       throw new InternalServerErrorException('The input is too long for the AI to process.');
+    }
+
+    // Generic Fallback
+    throw new InternalServerErrorException('An unexpected error occurred with the AI service.');
+  }
+
+  /**
+   * Submits user feedback for a specific AI response.
+   */
+  async submitFeedback(userId: string, dto: { messageId: string, rating: number, comment?: string }) {
+    return this.prisma.aiFeedback.create({
+      data: {
+        userId,
+        aiMessageId: dto.messageId,
+        rating: dto.rating,
+        feedbackText: dto.comment
+      }
+    });
   }
 
   private mockIntent() {

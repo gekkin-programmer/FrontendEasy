@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -67,7 +67,7 @@ enum SocialPlatform {
   YOUTUBE
   PINTEREST
   THREADS
-  WHATSAPP // Added for Cameroon context
+  WHATSAPP
 }
 
 enum PostStatus {
@@ -77,7 +77,7 @@ enum PostStatus {
   PUBLISHED
   FAILED
   CANCELLED
-  PENDING_APPROVAL // Added for Client Validation
+  PENDING_APPROVAL
 }
 
 enum MediaType {
@@ -86,7 +86,7 @@ enum MediaType {
   GIF
   CAROUSEL
   STORY
-  AUDIO // Added for Voice Notes/Commands
+  AUDIO
 }
 
 enum ApprovalStatus {
@@ -147,8 +147,8 @@ enum NotificationType {
   MEMBER_JOINED
   ACCOUNT_CONNECTED
   REPORT_READY
-  LEAD_CAPTURED // Added for CRM
-  PAYMENT_RECEIVED // Added for MoMo
+  LEAD_CAPTURED
+  PAYMENT_RECEIVED
 }
 
 enum PlanType {
@@ -173,7 +173,6 @@ enum CommentSentiment {
   QUESTION
 }
 
-// New Enums for Local Features
 enum PaymentProvider {
   ORANGE_MONEY
   MTN_MOMO
@@ -192,10 +191,11 @@ enum LeadStatus {
 enum AiTone {
   PROFESSIONAL
   CASUAL
-  NOUCHI // Local Slang (Ivory Coast)
-  CAMFRANGLAIS // Local Slang (Cameroon)
-  PIDGIN // Local Slang (Nigeria/Cameroon)
+  NOUCHI
+  CAMFRANGLAIS
+  PIDGIN
 }
+
 enum ChatMessageType {
   TEXT
   AUDIO
@@ -211,28 +211,36 @@ model User {
   id        String  @id @default(cuid())
   email     String? @unique
   phone     String? @unique
-  password  String?
+  password  String? // Hash of password
   firstName String?
   lastName  String?
   avatar    String?
 
   // Auth providers
-  provider      String? // 'google', 'phone', 'email'
-  providerId    String? // ID from provider (Google ID)
-  emailVerified Boolean @default(false)
+  provider      String? 
+  providerId    String? 
+  
+  // ➤ NEW: Email Verification
+  emailVerified           Boolean   @default(false)
+  emailVerificationToken    String?   @unique
+  emailVerificationTokenExp DateTime?
+
+  // ➤ NEW: Password Reset
+  passwordResetToken        String?   @unique
+  passwordResetTokenExp     DateTime?
+
+  // Legacy Phone Verification (Keep if you still use phone login)
   phoneVerified Boolean @default(false)
+  otp           String?
+  otpExpires    DateTime?
 
-  // OTP for phone verification
-  otp        String?
-  otpExpires DateTime?
-
-  // Account type determines capabilities
+  // Account type
   accountType AccountType @default(PERSONAL)
 
-  // Subscription & Billing
+  // Subscription
   subscription Subscription?
   planType     PlanType      @default(FREE)
-  planLimits   Json? // Store plan-specific limits
+  planLimits   Json?
 
   // Relations
   ownedWorkspaces       Workspace[]       @relation("WorkspaceOwner")
@@ -244,15 +252,16 @@ model User {
   createdTasks          Task[]            @relation("TaskCreator")
   notifications         Notification[]
   activities            ActivityLog[]
+  
+  // ➤ SECURITY SESSIONS (Only define this ONCE)
   sessions              Session[]
+  
   chatMessages          ChatMessage[]
-  mediaUploads          MediaLibrary[]    @relation("MediaUploader") // Relation to Media Library
+  mediaUploads          MediaLibrary[]    @relation("MediaUploader")
 
-  // Security
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
 
-  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -262,7 +271,10 @@ model User {
 model Session {
   id           String   @id @default(cuid())
   userId       String
-  refreshToken String   @unique
+  
+  // ➤ UPDATED: Store the HASH of the refresh token here
+  refreshToken String   @unique 
+  
   userAgent    String?
   ipAddress    String?
   expiresAt    DateTime
@@ -271,15 +283,15 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([refreshToken])
-  @@index([expiresAt])
+  @@index([refreshToken]) // Index for faster lookups
+  @@index([expiresAt])    // Index for cleaning up expired sessions
   @@map("sessions")
 }
 
 model OtpVerification {
   id        String   @id @default(cuid())
-  phone     String?   @unique
-  email     String?   @unique
+  phone     String?  @unique
+  email     String?  @unique
   code      String
   expiresAt DateTime
   attempts  Int      @default(0)
@@ -300,16 +312,13 @@ model Workspace {
   logo        String?
   website     String?
 
-  // Owner & Type
   ownerId       String
   owner         User          @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   workspaceType WorkspaceType @default(ORGANIZATION)
 
-  // Settings & Preferences
-  settings    Json? // Branding, Timezone
-  defaultTone AiTone? @default(PROFESSIONAL) // AI Persona setting
+  settings    Json?
+  defaultTone AiTone? @default(PROFESSIONAL)
 
-  // Relations
   members          WorkspaceMember[]
   teams            Team[]
   socialAccounts   SocialAccount[]
@@ -321,14 +330,17 @@ model Workspace {
   streams          Stream[]
   reports          Report[]
   channels         ChatChannel[]
-  
-  // New Relations for MVO
-  mediaLibrary     MediaLibrary[]
-  paymentLinks     PaymentLink[]
-  leads            Lead[]
-  automationRules  AutomationRule[]
 
-  // Limits tracking
+  mediaLibrary    MediaLibrary[]
+  paymentLinks    PaymentLink[]
+  leads           Lead[]
+  automationRules AutomationRule[]
+
+  // RAG / AI Documents
+  documents Document[]
+
+  // Note: Rely on aggregate queries (_) rather than these counters for strict accuracy, 
+  // or use DB triggers to update them.
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
   currentPostCount          Int @default(0)
@@ -414,7 +426,6 @@ model SocialAccount {
   refreshToken   String?
   tokenExpiresAt DateTime?
 
-  // Metrics
   followersCount Int?
   followingCount Int?
   postsCount     Int?
@@ -428,14 +439,14 @@ model SocialAccount {
   createdById String
   createdBy   User   @relation("AccountCreator", fields: [createdById], references: [id])
 
-  teams     TeamSocialAccount[]
-  posts     Post[]
-  streams   Stream[]
-  analytics Analytics[]
+  teams              TeamSocialAccount[]
+  posts              Post[]
+  streams            Stream[]
+  analytics          Analytics[]
   postSocialAccounts PostSocialAccount[]
 
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, platform, platformUserId])
   @@map("social_accounts")
@@ -455,43 +466,85 @@ model TeamSocialAccount {
 }
 
 // ============================================================================
-// 🧠 MEDIA LIBRARY (THE BRAIN & EYES)
+// MEDIA LIBRARY
 // ============================================================================
-// This is the core of the "Voice Command" feature.
-// AI will scan images uploaded here to populate 'aiDescription' and 'aiTags'.
-// When a user says "Post the red shoes", we search this table.
 
 model MediaLibrary {
   id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  uploaderId  String
-  uploader    User      @relation("MediaUploader", fields: [uploaderId], references: [id])
 
-  url         String    // Cloudinary/S3 URL
-  filename    String
-  mimeType    String
-  size        Int
-  
-  // AI Vision Data
-  aiDescription String?  @db.Text // "Red Nike running shoes on a wooden table"
-  aiTags        String[] // ["shoes", "red", "nike", "promo"]
-  
-  // Categorization
-  folder      String?    @default("root")
-  isFavorite  Boolean    @default(false)
+  uploaderId String
+  uploader   User   @relation("MediaUploader", fields: [uploaderId], references: [id])
 
-  posts       PostMedia[] // Many-to-Many relation with Posts
+  url      String
+  filename String
+  mimeType String
+  size     Int
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  aiDescription String?  @db.Text
+  aiTags        String[]
+
+  folder     String? @default("root")
+  isFavorite Boolean @default(false)
+
+  posts PostMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("media_library")
 }
 
 // ============================================================================
-// CONTENT & PUBLISHING
+// AI & RAG (SECURED)
+// ============================================================================
+
+model Document {
+  id          String    @id @default(cuid())
+  workspaceId String // Added for Tenant Isolation
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  content  String                      @db.Text
+  vector   Unsupported("vector(384)")?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([id])
+  @@index([workspaceId]) // Scopes search to workspace
+  @@map("easy_post_documents")
+}
+
+model AiUsageLog {
+  id           String   @id @default(uuid())
+  workspaceId  String
+  userId       String
+  action       String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  totalTokens  Int
+  cost         Float?
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("ai_usage_logs")
+}
+
+model AiFeedback {
+  id           String   @id @default(uuid())
+  aiMessageId  String
+  userId       String
+  rating       Int
+  feedbackText String?
+  createdAt    DateTime @default(now())
+
+  @@map("ai_feedbacks")
+}
+
+// ============================================================================
+// CONTENT & PUBLISHING (NORMALIZED)
 // ============================================================================
 
 model Post {
@@ -500,15 +553,15 @@ model Post {
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   // Content
-  content     String    @db.Text
-  
-  // Relation to Smart Media Library
-  media       PostMedia[] 
-  
-  // Legacy/Simple media handling
-  mediaUrls   Json? 
-  mediaType   MediaType?
-  
+  content String @db.Text
+
+  // Media
+  media PostMedia[]
+
+  // Simple/Legacy media handling
+  mediaUrls Json?
+  mediaType MediaType?
+
   linkUrl     String?
   linkPreview Json?
 
@@ -518,54 +571,43 @@ model Post {
   publishedAt  DateTime?
   expiresAt    DateTime?
 
-  // --- SYNC ENGINE FIELDS (NEW) ---
-  externalId   String?   // The ID from the platform (e.g., "123456789_987654321")
-  metaData     Json?     // Raw JSON from provider (for AI analysis)
-  metrics      Json?     // Snapshot: { likes: 10, comments: 2 } - simpler for offline lists
-  platform     SocialPlatform? // Useful to know platform without joining
-  // --------------------------------
-
   // Relations
   socialAccounts PostSocialAccount[]
   campaignId     String?
-  campaign       Campaign?   @relation(fields: [campaignId], references: [id])
+  campaign       Campaign?           @relation(fields: [campaignId], references: [id])
   tags           PostTag[]
   labels         PostLabel[]
-  
+
   createdById    String
   createdBy      User           @relation(fields: [createdById], references: [id])
   approvalStatus ApprovalStatus @default(NONE)
   approvedBy     String?
   approvedAt     DateTime?
-  
+
   externalReviews ExternalReview[]
   comments        PostComment[]
-  
-  platformData Json?
+
   errorMessage String?
   retryCount   Int     @default(0)
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  
-  socialAccountId String? 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Optional single-account override
+  socialAccountId String?
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
-  @@map("posts")
   @@index([status, scheduledFor])
-  
-  // REQUIRED FOR UPSERT: Ensures we don't import the same FB post twice for this account
-  @@unique([socialAccountId, externalId]) 
+  @@map("posts")
 }
 
-// Join table for Post <-> MediaLibrary
 model PostMedia {
   postId  String
   post    Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
   mediaId String
   media   MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  
-  order   Int          @default(0) // Order of images in carousel
+
+  order Int @default(0)
 
   @@id([postId, mediaId])
   @@map("post_media")
@@ -595,58 +637,47 @@ model PostSocialAccount {
 }
 
 model PostComment {
-  id          String   @id @default(cuid())
-  postId      String
-  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  // ➤ INTERNAL USER (Optional)
-  // Used when a team member comments on a draft
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  // ➤ EXTERNAL USER (New)
-  // Used when a Facebook user comments
-  externalId  String?  @unique // Facebook Comment ID
-  authorName  String?  // "John Doe"
-  authorId    String?  // Facebook User ID
-  authorAvatar String? // URL to avatar
-  platform    SocialPlatform?
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  content     String   @db.Text
-  
-  // Hierarchy
-  parentId    String?
-  parent      PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies     PostComment[] @relation("CommentReplies")
+  externalId   String?         @unique
+  authorName   String?
+  authorId     String?
+  authorAvatar String?
+  platform     SocialPlatform?
 
-  // Meta
-  isReply     Boolean @default(false)
+  content String @db.Text
+
+  parentId String?
+  parent   PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  PostComment[] @relation("CommentReplies")
+
+  isReply     Boolean           @default(false)
   sentiment   CommentSentiment?
-  status      String  @default("unread") // unread, read, replied, archived
-  publishedAt DateTime @default(now())
+  status      String            @default("unread")
+  publishedAt DateTime          @default(now())
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("post_comments")
 }
 
-// ============================================================================
-// 🤝 CLIENT VALIDATION (External Reviews)
-// ============================================================================
-// Allows sending a WhatsApp link to a client to approve a post without logging in.
-
 model ExternalReview {
-  id        String   @id @default(cuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  token     String   @unique // Secure magic link token
-  reviewerName String? // "Client Michel"
-  
-  status    ApprovalStatus @default(PENDING)
-  feedback  String?  @db.Text // "Change the blue to red"
-  
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  token        String  @unique
+  reviewerName String?
+
+  status   ApprovalStatus @default(PENDING)
+  feedback String?        @db.Text
+
   expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -655,83 +686,70 @@ model ExternalReview {
 }
 
 // ============================================================================
-// 💰 PAYMENTS (MOBILE MONEY / CAMEROON)
+// PAYMENTS, CRM & AUTOMATION
 // ============================================================================
-// Generate links to receive money via Orange/MTN.
 
 model PaymentLink {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  name        String   // "Chaussures Promo"
-  amount      Float
-  currency    String   @default("XAF")
-  provider    PaymentProvider @default(ORANGE_MONEY)
-  
-  description String?
-  
-  urlSlug     String   @unique // e.g., "ez.cm/pay/xyz"
-  active      Boolean  @default(true)
-  
-  // Analytics
-  clickCount  Int      @default(0)
-  salesCount  Int      @default(0)
-  revenue     Float    @default(0)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  name     String
+  amount   Float
+  currency String          @default("XAF")
+  provider PaymentProvider @default(ORANGE_MONEY)
+
+  description String?
+
+  urlSlug String  @unique
+  active  Boolean @default(true)
+
+  clickCount Int   @default(0)
+  salesCount Int   @default(0)
+  revenue    Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("payment_links")
 }
 
-// ============================================================================
-// 🕵️ CRM & LEADS (COMMENT-TO-CASH)
-// ============================================================================
-// Captures phone numbers from comments automatically.
-
 model Lead {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  name        String?
-  phone       String?  // The captured "699..." number
-  source      String?  // "Comment on Post #123"
-  platform    SocialPlatform?
-  
-  status      LeadStatus @default(NEW)
-  notes       String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  name     String?
+  phone    String?
+  source   String?
+  platform SocialPlatform?
 
-  @@unique([workspaceId, phone]) // Prevent duplicates in same workspace
+  status LeadStatus @default(NEW)
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, phone])
   @@map("leads")
 }
 
-// ============================================================================
-// 🤖 AUTOMATION (AUTO-REPLY BOT)
-// ============================================================================
-// Rules for replying to "Prix?" comments and sending DMs.
-
 model AutomationRule {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  name        String   // "Price Inquiry Bot"
-  keywords    String[] // ["prix", "combien", "how much"]
-  
-  // Actions
-  replyType   String   // "PUBLIC_AND_PRIVATE"
-  publicReply String?  // "Check your inbox ✅"
-  privateMessage String? // "Here is the payment link..."
-  
-  isActive    Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  name     String
+  keywords String[]
+
+  replyType      String
+  publicReply    String?
+  privateMessage String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("automation_rules")
 }
@@ -785,8 +803,8 @@ model Stream {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  name String
-  type StreamType
+  name            String
+  type            StreamType
   socialAccountId String?
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
@@ -807,18 +825,18 @@ model Analytics {
   socialAccountId String
   socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
 
-  date DateTime
-  followers      Int
-  following      Int
-  posts          Int
-  likes          Int
-  comments       Int
-  shares         Int
-  views          Int
-  clicks         Int
-  engagementRate Float
-  reach          Int?
-  impressions    Int?
+  date            DateTime
+  followers       Int
+  following       Int
+  posts           Int
+  likes           Int
+  comments        Int
+  shares          Int
+  views           Int
+  clicks          Int
+  engagementRate  Float
+  reach           Int?
+  impressions     Int?
   platformMetrics Json?
 
   createdAt DateTime @default(now())
@@ -985,42 +1003,46 @@ model Subscription {
 
   @@map("subscriptions")
 }
+
 model ChatChannel {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  name        String   // e.g. "general", "announcements"
+
+  name        String
   description String?
-  
-  messages    ChatMessage[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([workspaceId, name]) // Cannot have two #general channels in same workspace
-  @@map("chat_channels")
-}
-
-model ChatMessage {
-  id        String   @id @default(cuid())
-  channelId String
-  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  
-  senderId  String
-  sender    User     @relation(fields: [senderId], references: [id])
-  
-  content   String   @db.Text
-  type      ChatMessageType @default(TEXT)
-  attachmentUrl String?
-  
-  // Future proofing: Reply to threads or attaching files
-  parentId  String?  // For threading
-  attachments Json?  // File URLs
+  messages ChatMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([channelId, createdAt]) // Optimize loading history
+  @@unique([workspaceId, name])
+  @@map("chat_channels")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  channelId String
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  content       String          @db.Text
+  type          ChatMessageType @default(TEXT)
+  attachmentUrl String?
+
+  // Threading logic
+  parentId String?
+  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id])
+  replies  ChatMessage[] @relation("ChatThread")
+
+  attachments Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, createdAt])
   @@map("chat_messages")
 }
