@@ -8,15 +8,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
   Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
-  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Save, Eraser, 
-  FileCheck, Loader2, Sparkles, Zap, AlertTriangle
+  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
+  Sparkles, AlertTriangle
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { api } from '@/src/lib/api'; 
+import api from '@/lib/api';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -28,7 +28,7 @@ interface ComposerProps {
   onSchedule: (
     content: string,
     date?: Date,
-    mediaIds?: string[],
+    mediaIds?: string[], // ➤ UPDATED: We pass IDs now
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
     selectedAccountIds?: string[]
   ) => Promise<void>;
@@ -44,14 +44,7 @@ const AI_TONES = [
   { id: 'URGENT', label: 'URGENT ' },
 ];
 
-const AI_FRAMEWORKS = [
-  { id: 'AIDA', label: 'AIDA (ATTENTION)' },
-  { id: 'PAS', label: 'PAS (PAIN-SOLVE)' },
-  { id: 'STORY', label: 'STORYTELLING 📖' },
-  { id: 'DIRECT', label: 'DIRECT SALES 💰' },
-];
-
-// --- NEU COMPONENTS (Reused) ---
+// --- NEU COMPONENTS ---
 const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
   const baseStyles = "relative font-black text-xs uppercase tracking-wide transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
   const variants = {
@@ -106,7 +99,6 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
   // AI Params
   const [aiContext, setAiContext] = useState("");
   const [aiTone, setAiTone] = useState(AI_TONES[0].id);
-  const [aiFramework, setAiFramework] = useState(AI_FRAMEWORKS[0].id);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   // Modals / Data
@@ -128,11 +120,12 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
     }
   }, [accounts]);
 
-  // FETCH MEDIA LIBRARY 
+  // ➤ LOGIC: FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
     try {
-        const res: any = await api.get('/media');
-        const list = Array.isArray(res) ? res : (res.data || []);
+        const res = await api.get('/media');
+        // Handle array response from backend
+        const list = Array.isArray(res.data) ? res.data : [];
         
         const formattedMedia = list.map((m: any) => ({
             id: m.id,
@@ -147,14 +140,23 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
 
   useEffect(() => { if (isLibraryOpen) fetchLibrary(); }, [isLibraryOpen]);
 
+  // ➤ LOGIC: UPLOAD MEDIA (Phase 5 Backend)
   const uploadSingleFile = async (fileToUpload: File): Promise<string | null> => {
       const formData = new FormData();
       formData.append('file', fileToUpload);
       try {
-          const data = await api.upload<any>('/media/upload', formData);
+          // Use api.post with headers
+          const res = await api.post('/media/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          
           await fetchLibrary(); 
-          return data.media?.id || data.id;
-      } catch (e) { toast.error("UPLOAD_FAILED"); return null; }
+          // Backend returns the created MediaLibrary object
+          return res.data.id; 
+      } catch (e) { 
+          toast.error("UPLOAD_FAILED"); 
+          return null; 
+      }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,21 +168,21 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
       setLocalFile(null); setSelectedMediaId(item.id); setMediaPreview(item.url || null); toast.success("MEDIA_LINKED");
   };
 
-  // 🟢 AI GENERATION LOGIC (WITH TYPEWRITER EFFECT)
+  // ➤ LOGIC: AI GENERATION
   const handleAiGenerate = async () => {
     if (!aiContext.trim()) return toast.error("ERR: EMPTY_PROMPT");
     setIsAiGenerating(true);
     
     try {
-      const res: any = await api.post('/ai/test-copywriting', {
+      const res = await api.post('/ai/test-copywriting', {
         product: aiContext,
         tone: aiTone,
       });
       
-      const generatedContent = res.data?.content || res.content;
+      const generatedContent = res.data.content;
       if (!generatedContent) throw new Error("Empty response from AI");
 
-      // Prepare text for typewriter
+      // Typewriter Effect
       const prefix = text ? "\n\n" : "";
       const textToType = prefix + generatedContent;
       
@@ -188,17 +190,10 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
       const speed = 15; // ms per char
 
       const intervalId = setInterval(() => {
-        setText((prev) => {
-            // Append the next char from textToType based on index
-            // We use charIndex closure variable
-            return prev + textToType.charAt(charIndex);
-        });
-        
+        setText((prev) => prev + textToType.charAt(charIndex));
         charIndex++;
-
         if (charIndex === textToType.length) {
             clearInterval(intervalId);
-            // Done typing
             setIsAiGenerating(false);
             setIsAiOpen(false); 
             setAiContext("");
@@ -209,11 +204,11 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
     } catch (e) {
       console.error(e);
       toast.error("AI_ERROR: GENERATION_FAILED");
-      setIsAiGenerating(false); // Only turn off loading here on error
+      setIsAiGenerating(false);
     }
   };
 
-  // SUBMIT LOGIC
+  // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     if (!text && !localFile && !selectedMediaId) return toast.error('ERR: CONTENT_EMPTY');
     
@@ -223,6 +218,8 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
     setIsSubmitting(true);
     try {
         let finalMediaId = selectedMediaId;
+        
+        // If user selected a local file, upload it first to get an ID
         if (localFile && !finalMediaId) {
             toast.loading("SYSTEM: UPLOADING_MEDIA...");
             const uploadedId = await uploadSingleFile(localFile);
@@ -355,7 +352,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-white hover:bg-gray-50 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none whitespace-nowrap"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-yellow-200 transition flex items-center justify-between border-b border-gray-200 last:border-0 font-bold uppercase', category === cat && 'bg-yellow-400')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
             <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-              <Popover><PopoverTrigger asChild><NeuButton className="bg-white text-black px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white p-3" /><div className="p-3 border-t-2 border-black bg-yellow-50 flex items-center gap-2"><Clock size={16} className="text-black" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black border-b-2 border-black/20 focus:border-black" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(new Date(newDate)); }} /></div></PopoverContent></Popover>
+              <Popover><PopoverTrigger asChild><NeuButton className="bg-white text-black px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white p-3" /><div className="p-3 border-t-2 border-black bg-yellow-50 flex items-center gap-2"><Clock size={16} className="text-black" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black border-b-2 border-black/20 focus:border-black" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 text-purple-900 font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
@@ -369,7 +366,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
         </div>
       </div>
       
-      {/* 🟢 LIBRARY & MODALS... (Kept as is) */}
+      {/* 🟢 LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden flex flex-col">
