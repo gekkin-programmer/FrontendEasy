@@ -221,7 +221,7 @@ model User {
   providerId    String? 
   
   // ➤ NEW: Email Verification
-  isEmailVerified           Boolean   @default(false)
+  emailVerified           Boolean   @default(false)
   emailVerificationToken    String?   @unique
   emailVerificationTokenExp DateTime?
 
