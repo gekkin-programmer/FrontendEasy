@@ -15,7 +15,7 @@ export class SocialAccountsService {
   ) {}
 
   // =================================================================
-  // ➤ CALLBACK HANDLERS (Called by Controller)
+  // ➤ CALLBACK HANDLERS (Assuming Flattened Strategy Payload)
   // =================================================================
 
   async handleFacebookCallback(data: any) {
@@ -23,9 +23,9 @@ export class SocialAccountsService {
       userId: data.userId,
       workspaceId: data.workspaceId,
       platform: 'FACEBOOK',
-      platformUserId: data.profile.id,
-      name: data.profile.displayName || data.profile.username || 'Facebook User',
-      avatar: data.profile.photos?.[0]?.value,
+      platformUserId: data.platformUserId, // Flattened
+      name: data.name,
+      avatar: data.avatar,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken
     });
@@ -36,9 +36,9 @@ export class SocialAccountsService {
       userId: data.userId,
       workspaceId: data.workspaceId,
       platform: 'LINKEDIN',
-      platformUserId: data.profile.id,
-      name: data.profile.displayName,
-      avatar: data.profile.photos?.[0]?.value,
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken
     });
@@ -49,9 +49,9 @@ export class SocialAccountsService {
       userId: data.userId,
       workspaceId: data.workspaceId,
       platform: 'TWITTER',
-      platformUserId: data.profile.id,
-      name: data.profile.username || data.profile.displayName,
-      avatar: data.profile.photos?.[0]?.value,
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken 
     });
@@ -62,18 +62,18 @@ export class SocialAccountsService {
       userId: data.userId,
       workspaceId: data.workspaceId,
       platform: 'YOUTUBE',
-      platformUserId: data.profile.id,
-      name: data.profile.displayName,
-      avatar: data.profile.photos?.[0]?.value,
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken
     });
   }
 
-  // ➤ NEW: WHATSAPP HANDLER
+  // ➤ WHATSAPP HANDLER (Has specific logic)
   async handleWhatsappCallback(data: any) {
-    // 1. Get WhatsApp Business Accounts linked to this user
     try {
+      // Data here comes from Strategy, likely containing User Token
       const res = await axios.get(
         `https://graph.facebook.com/v19.0/me?fields=id,name,accounts,whatsapp_business_accounts&access_token=${data.accessToken}`
       );
@@ -81,15 +81,11 @@ export class SocialAccountsService {
       const wabas = res.data.whatsapp_business_accounts?.data || [];
       
       if (wabas.length === 0) {
-          // If no WABA found, we can't really link "WhatsApp".
-          // You might choose to throw error or link FB user anyway.
           this.logger.warn(`No WhatsApp Business Accounts found for user ${data.userId}`);
-          throw new NotFoundException("No WhatsApp Business Accounts found. Please create one in Meta Business Suite.");
+          throw new NotFoundException("No WhatsApp Business Accounts found.");
       }
 
-      // For MVP: Link the first WABA found.
-      // In Production: Return list to frontend for selection (like Pages).
-      const waba = wabas[0];
+      const waba = wabas[0]; // Select first for MVP
 
       return this.upsertAccount({
         userId: data.userId,
@@ -97,7 +93,8 @@ export class SocialAccountsService {
         platform: 'WHATSAPP',
         platformUserId: waba.id,
         name: waba.name || 'WhatsApp Business',
-        accessToken: data.accessToken, // Using User Token (Long-lived recommended)
+        avatar: data.avatar, // Fallback to User avatar
+        accessToken: data.accessToken,
         refreshToken: data.refreshToken
       });
 

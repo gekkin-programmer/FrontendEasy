@@ -2,38 +2,60 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-linkedin-oauth2';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
-export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedin-connect') {
-  constructor(configService: ConfigService) {
+export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedin') { // Standard name 'linkedin' is better
+  constructor(
+    configService: ConfigService,
+    private authService: AuthService,
+  ) {
     super({
       clientID: configService.get<string>('LINKEDIN_CLIENT_ID') || 'placeholder',
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
-      callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL'),
+      // Construct callback URL dynamically like we did for Facebook
+      callbackURL: `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/linkedin/callback`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
-      state: false, 
-      
-      
-      skipUserProfile: true, 
-    } as any);
+      state: true, // ➤ CRITICAL: Must be true to use state for security & metadata
+      passReqToCallback: true, // ➤ CRITICAL: To read req.query.state
+    }as any);
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
-    // Since we skipped profile, we construct a dummy one or fetch manually if needed.
-    // For MVP posting, we only need the TOKEN.
-    
-    // Note: To get the name/avatar, you would need a manual axios call to /v2/userinfo here.
-    // But let's keep it simple to unblock you.
-    
-    const payload = {
-      platform: 'LINKEDIN',
-      platformUserId: 'linkedin_user', 
-      name: 'LinkedIn User',
-      accessToken,
-      refreshToken,
-      email: null,
-      avatar: null,
-    };
-    done(null, payload);
+  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+    try {
+      // 1. Decode State
+      let state = {};
+      if (req.query.state) {
+          try {
+            state = JSON.parse(req.query.state as string);
+          } catch(e) {}
+      }
+      const { workspaceId, token, userId: stateUserId } = state as any;
+
+      // 2. Resolve User ID
+      let userId = stateUserId;
+      if (!userId && token) {
+         const user = await this.authService.validateUserByToken(token);
+         userId = user?.id;
+      }
+
+      if (!userId) {
+          return done(new Error("User session lost during LinkedIn OAuth"), false);
+      }
+
+      const payload = {
+        platform: 'LINKEDIN',
+        platformUserId: profile.id, 
+        name: profile.displayName || 'LinkedIn User',
+        avatar: profile.photos?.[0]?.value,
+        accessToken,
+        refreshToken,
+        workspaceId,
+        userId
+      };
+      done(null, payload);
+    } catch (error) {
+      done(error, false);
+    }
   }
 }
