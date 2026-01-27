@@ -74,13 +74,11 @@ export default function RootLayout({
             <Toaster position="top-center" richColors closeButton /> 
             
             {/* Layout */}
-            <Navbar />
             
-            <main className="min-h-screen pt-16 md:pt-20"> 
+            <main className="min-h-screen pt-16 md:pt-1"> 
               {children}
             </main>
 
-            <Footer />
           </LanguageProvider>
         </QueryProvider>
 

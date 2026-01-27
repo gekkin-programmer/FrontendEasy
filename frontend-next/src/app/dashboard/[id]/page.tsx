@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
+import { cn } from '@/lib/utils';
 
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
@@ -14,7 +15,7 @@ import {
   ExternalLink, Trash2, ArrowRight, Loader2
 } from 'lucide-react'; 
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok } from 'react-icons/fa';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa';
 
 import Composer from '@/src/components/easypost/Composer';
 import PostFeed from '@/src/components/easypost/PostFeed';
@@ -354,11 +355,89 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
 
 // ... QuickConnectSidebar ...
 const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
-    const platforms = [{ id: 'facebook', Icon: FaFacebookF }, { id: 'instagram', Icon: FaInstagram }, { id: 'twitter', Icon: FaTwitter }, { id: 'linkedin', Icon: FaLinkedinIn }, { id: 'tiktok', Icon: FaTiktok }];
+    
+    const platforms = [
+        { id: 'facebook', Icon: FaFacebookF, color: 'text-[#1877F2]' },
+        { id: 'instagram', Icon: FaInstagram, color: 'text-[#E4405F]' },
+        { id: 'twitter', Icon: FaTwitter, color: 'text-black' },
+        { id: 'linkedin', Icon: FaLinkedinIn, color: 'text-[#0A66C2]' },
+        { id: 'tiktok', Icon: FaTiktok, color: 'text-black' },
+        { id: 'youtube', Icon: FaYoutube, color: 'text-[#FF0000]' },
+        { id: 'pinterest', Icon: FaPinterestP, color: 'text-[#BD081C]' },
+        { id: 'whatsapp', Icon: FaWhatsapp, color: 'text-[#25D366]' },
+        { id: 'reddit', Icon: FaRedditAlien, color: 'text-[#FF4500]' },
+    ];
+
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
-    const handleConnect = (platform: string) => { const token = localStorage.getItem('accessToken'); window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; };
-    const disconnectMutation = useMutation({ mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), onSuccess: () => { toast.success("NODE_DISCONNECTED"); refreshData(); }, onError: () => toast.error("ERR_DISCONNECT_FAIL") });
-    return (<div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000]"><div className="w-8 h-8 flex items-center justify-center border-2 border-black bg-yellow-400 mb-2"><LinkIcon size={16} className="text-black" /></div>{platforms.map((p) => { const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); return (<div key={p.id} className="relative group">{connected ? (<><button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-100 text-black opacity-50 cursor-default"><p.Icon size={18} /></button><button onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"><Trash2 size={16} /></button><div className="absolute -top-1 -right-1 pointer-events-none z-20"><div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white"><Check size={10} strokeWidth={4} /></div></div></>) : (<button onClick={() => handleConnect(p.id)} className="w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"><p.Icon size={18} /></button>)}</div>); })}<div className="h-0.5 w-8 bg-black my-2"></div><button className="text-gray-400 hover:text-black transition-colors"><ExternalLink size={16} /></button></div>);
+
+    const handleConnect = (platform: string) => { 
+        const token = localStorage.getItem('accessToken'); 
+        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; 
+    };
+
+    const disconnectMutation = useMutation({ 
+        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), 
+        onSuccess: () => { 
+            toast.success("NODE_DISCONNECTED"); 
+            refreshData(); 
+        }, 
+        onError: () => toast.error("ERR_DISCONNECT_FAIL") 
+    });
+
+    return (
+        <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] h-full overflow-y-auto scrollbar-hide">
+            {/* Header Icon */}
+            <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center border-2 border-black bg-[#3C48F5] mb-2">
+                <LinkIcon size={16} className="text-white" />
+            </div>
+
+            {/* Platform List */}
+            {platforms.map((p) => { 
+                const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); 
+                
+                return (
+                    <div key={p.id} className="relative group flex-shrink-0">
+                        {connected ? (
+                            <>
+                                {/* Connected State (Greyscale but solid opacity) */}
+                                <button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-50 opacity-100 cursor-default">
+                                    <p.Icon size={18} className="text-gray-400" />
+                                </button>
+                                
+                                {/* Hover to Delete (Red Overlay) */}
+                                <button 
+                                    onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} 
+                                    className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+                                    title="Disconnect"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                                
+                                {/* Green Check Badge */}
+                                <div className="absolute -top-1 -right-1 pointer-events-none z-20">
+                                    <div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white">
+                                        <Check size={10} strokeWidth={4} />
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            /* Connect State (True Colors) */
+                            <button 
+                                onClick={() => handleConnect(p.id)} 
+                                className="group w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                title={`Connect ${p.id}`}
+                            >
+                                <p.Icon 
+                                    size={18} 
+                                    className={cn(p.color, "transition-colors group-hover:text-white")} 
+                                />
+                            </button>
+                        )}
+                    </div>
+                ); 
+            })}
+        </div>
+    );
 };
 
 // ... SidebarItem & EngagementWithTabs (Same as before) ...
