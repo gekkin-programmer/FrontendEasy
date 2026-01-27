@@ -34,15 +34,18 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
   // ➤ Updated validate signature to include 'req'
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
-      // 1. Decode State to get Metadata (Passed from Guard)
-      // The state might be undefined if CSRF failed, handle gracefully
+      console.log("🔹 Facebook OAuth Validate Triggered");
+      console.log("🔹 Req Query:", req.query);
       let state = {};
       if (req.query.state) {
           try {
             state = JSON.parse(req.query.state as string);
+            console.log("🔹 Parsed State:", state);
           } catch(e) {
-            console.warn("Could not parse OAuth state", req.query.state);
+            console.warn("⚠️ Could not parse OAuth state:", req.query.state);
           }
+      } else {
+          console.error("❌ No state found in query params!");
       }
       
       const { workspaceId, token, userId: stateUserId } = state as any;
@@ -55,7 +58,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       }
 
       if (!userId) {
-          // If we can't find the user, we can't link the account.
+          console.error("❌ UserId resolution failed. Token valid?", !!token);
           return done(new Error("User session lost during OAuth"), false);
       }
 
