@@ -67,7 +67,7 @@ export class SocialAccountsController {
     // Redirects to Facebook (Instagram Business uses FB Login)
   }
 
-  @Get('facebook/callback')
+  @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: Response) {
     await this.socialAccountsService.handleFacebookCallback(req.user);
@@ -135,7 +135,7 @@ export class SocialAccountsController {
     // Redirects to Facebook Login with 'whatsapp_business_management' scope
   }
 
-  @Get('whatsapp/callback')
+  @Get('callback/whatsapp')
   @UseGuards(WhatsappConnectGuard)
   async whatsappCallback(@Req() req, @Res() res: Response) {
     await this.socialAccountsService.handleWhatsappCallback(req.user);
