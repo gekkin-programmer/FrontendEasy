@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bullmq'; // <--- NEW: For Queue
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { AuthModule } from '../auth/auth.module'; 
 
 // Controllers & Services
 import { SocialAccountsController } from './social-accounts.controller';
@@ -23,7 +24,8 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
   imports: [
     PrismaModule,
     ConfigModule,
-    HttpModule, 
+    HttpModule,
+    AuthModule, 
     
     // <--- Required for Background Jobs
     BullModule.registerQueue({

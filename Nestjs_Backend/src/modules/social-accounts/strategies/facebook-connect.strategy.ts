@@ -4,7 +4,7 @@ import { Strategy } from 'passport-facebook';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'facebook-connect') {
+export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor(configService: ConfigService) {
         super({
       clientID: configService.get<string>('FACEBOOK_APP_ID') || 'fb_id_placeholder', // Fallback
