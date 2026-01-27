@@ -1,6 +1,7 @@
 import React from 'react';
 
 // Components
+import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import SocialProof from '../components/SocialProof';
 import StatsSection from '../components/StatsSection';
@@ -13,11 +14,13 @@ import ConnectSection from '../components/ConnectSection';
 import GrowSection from '../components/GrowSection';
 import SupportSection from '../components/SupportSection';
 import EasyAI from '../components/easypost/EasyAI';
+import Footer from '../components/Footer';
 
 export default function Home() {
   return (
     
     <>
+      <Navbar />
       <Hero />
       <SocialProof />
       
@@ -31,6 +34,7 @@ export default function Home() {
       <ConnectSection />
       <GrowSection />
       <SupportSection />
+      <Footer />
       
       {/* Floating Widget */}
       <EasyAI />
