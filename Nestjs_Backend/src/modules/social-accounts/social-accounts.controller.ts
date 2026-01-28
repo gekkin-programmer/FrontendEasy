@@ -31,8 +31,8 @@ export class SocialAccountsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'List connected accounts' })
-  findAll(@Req() req) {
-    return this.socialAccountsService.findAll(req.user.sub || req.user.id);
+  findAll(@Req() req, @Query('workspaceId') workspaceId: string) {
+    return this.socialAccountsService.findAll(req.user.sub || req.user.id, workspaceId);
   }
 
   @Delete(':id')

@@ -7,7 +7,7 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;
 
-    console.log("🔹 Guard: Setting State", { workspaceId, hasToken: !!token }); 
+    console.log("🔹 Guard: Setting State", { workspaceId, hasToken: !!token }); // Debug log
 
     return {
       // Pass metadata safely through OAuth flow

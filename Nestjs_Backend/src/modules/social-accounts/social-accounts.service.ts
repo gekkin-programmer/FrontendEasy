@@ -170,7 +170,7 @@ export class SocialAccountsService {
   // ➤ LIST & MANAGE
   // =================================================================
 
-  async findAll(userId: string) {
+ async findAll(userId: string, workspaceId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { ownedWorkspaces: true }
@@ -179,8 +179,19 @@ export class SocialAccountsService {
     if (!user) { throw new NotFoundException('User not found'); }
     if (!user.ownedWorkspaces.length) return [];
 
+    // ➤ LOGIC FIX: Prefer the requested workspaceId, fallback to [0] only if missing
+    const targetWorkspaceId = workspaceId || user.ownedWorkspaces[0].id;
+
+    // Security check: Ensure user actually owns/belongs to this workspace
+    // (Simplified check for now, ideally check membership)
+    const hasAccess = user.ownedWorkspaces.some(w => w.id === targetWorkspaceId);
+    if (workspaceId && !hasAccess) {
+        // Silent fail or empty array to prevent leaks
+        return [];
+    }
+
     return this.prisma.socialAccount.findMany({
-      where: { workspaceId: user.ownedWorkspaces[0].id }
+      where: { workspaceId: targetWorkspaceId }
     });
   }
 
