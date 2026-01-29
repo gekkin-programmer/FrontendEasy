@@ -15,6 +15,8 @@ import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { MembersModule } from './modules/workspaces/members/members.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { SentryModule } from '@sentry/nestjs/setup';
+import { LoggerModule } from './modules/logger/logger.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
 import { EngagementModule } from './modules/engagement/engagement.module';
@@ -22,6 +24,8 @@ import { EngagementModule } from './modules/engagement/engagement.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule,
+    SentryModule.forRoot(),
 
     // BLOCK FOR REDIS/BULLMQ ---
     BullModule.forRootAsync({

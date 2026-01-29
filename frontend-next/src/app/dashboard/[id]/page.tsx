@@ -9,14 +9,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import { cn } from '@/lib/utils';
 
+// ICONS
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
-  ExternalLink, Trash2, ArrowRight, Loader2
+  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon
 } from 'lucide-react'; 
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa6';
 
+// COMPONENTS
 import Composer from '@/src/components/easypost/Composer';
 import PostFeed from '@/src/components/easypost/PostFeed';
 import Analytics from '@/src/components/easypost/Analytics';
@@ -78,40 +79,31 @@ function DashboardContent() {
     const [searchTerm, setSearchTerm] = useState("");
 
     // --- QUERIES ---
-    
-    // 1. My Workspaces List
-    const { data: myWorkspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get<any[]>('/workspaces') });
+    const { data: myWorkspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get('/workspaces').then((res: any) => res.data) });
 
-    // 2. Current Workspace Details
     const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
         queryKey: ['workspace', workspaceId],
-        queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
+        queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res.data),
         enabled: !!workspaceId,
     });
 
-    // 🟢 3. FETCH ACCOUNTS DIRECTLY (Fixes Sync Issue)
-    // This uses the exact same endpoint as your Settings page, ensuring consistency
-    const { data: accounts = [] } = useQuery({
+    const { data: accounts = [], refetch: refetchAccounts } = useQuery({
         queryKey: ['social-accounts', workspaceId],
-        queryFn: () => api.get<any[]>('/social-accounts'),
+        queryFn: () => api.get('/social-accounts').then((res: any) => res.data),
         enabled: !!workspaceId,
     });
 
-    // 4. Posts
     const { data: posts = [] } = useQuery({
         queryKey: ['posts', workspaceId],
-        queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`),
+        queryFn: () => api.get(`/social-accounts?workspaceId=${workspaceId}`).then((res: any) => res.data),
         enabled: !!workspaceId,
         refetchInterval: 15000, 
     });
 
     // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
-        console.log("⚡ UPDATING UI CACHE:", newAccount);
-        // Update the 'social-accounts' query directly
         queryClient.setQueryData(['social-accounts', workspaceId], (oldData: any[]) => {
             if (!oldData) return [newAccount];
-            // Prevent duplicates
             const exists = oldData.some(a => a.id === newAccount.id);
             return exists ? oldData : [...oldData, newAccount];
         });
@@ -121,37 +113,44 @@ function DashboardContent() {
     useEffect(() => {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
+        const success = searchParams.get('success'); // General success flag
         const token = searchParams.get('exchange_token');
 
+        // 1. Facebook Page Selection Mode
         if (selectionMode === 'facebook') {
             if (token) setTempExchangeToken(token);
             setIsFbPageSelectorOpen(true);
         }
 
-        if (connected === 'true') {
+        // 2. Generic Success (e.g. from WhatsApp/LinkedIn/Google)
+        if (connected === 'true' || success === 'true') {
             toast.success("CONNECTION_ESTABLISHED");
+            
+            // Clean URL
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
             url.searchParams.delete('social_selection');
             url.searchParams.delete('exchange_token');
             url.searchParams.delete('platform');
+            url.searchParams.delete('success');
             window.history.replaceState(null, '', url.pathname);
             
             // Force refresh accounts
+            refetchAccounts();
             queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
         }
-    }, [searchParams, queryClient, workspaceId]);
+    }, [searchParams, queryClient, workspaceId, refetchAccounts]);
 
 
     // --- MUTATIONS ---
     const createWorkspaceMutation = useMutation({
         mutationFn: (name: string) => api.post<any>('/workspaces', { name }),
-        onSuccess: (data) => {
+        onSuccess: (res) => {
             toast.success("WORKSPACE_INITIALIZED");
             setIsCreateModalOpen(false);
             setNewWorkspaceName("");
             queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-            router.push(`/dashboard/${data.id}`);
+            router.push(`/dashboard/${res.data.id}`);
         },
         onError: () => toast.error("INIT_FAILED")
     });
@@ -220,11 +219,11 @@ function DashboardContent() {
     alt="EasyPost Logo" 
     width={40} 
     height={40} 
-    className="object-contain p-1" // 'p-1' adds a tiny breathing room inside the box
+    className="object-contain p-1" 
   />
 </div><span className="font-black text-2xl tracking-tighter italic">ASYPOST.</span></div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black rounded-none overflow-hidden bg-gray-100"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px]">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black" /></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map(ws => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 border-2 border-transparent hover:border-black transition-all"><div className="w-5 h-5 border border-black overflow-hidden bg-gray-50"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 border-2 border-transparent hover:border-black transition-all"><div className="w-5 h-5 border border-black overflow-hidden bg-gray-50"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                     <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black text-white p-2.5 border-2 border-black"><Search size={18} /></div></div><VoiceAiButton onCommand={handleVoiceCommand} /><button className="relative p-2.5 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all"><Bell size={20} /></button></div>
@@ -232,12 +231,15 @@ function DashboardContent() {
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        {/* 🟢 SIDEBAR: Now uses 'accounts' from the dedicated query */}
+                        {/* 🟢 SIDEBAR: Re-renders when 'accounts' changes */}
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 
                                 accounts={accounts} 
                                 workspaceId={workspaceId} 
-                                refreshData={() => queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] })} 
+                                refreshData={() => {
+                                    refetchAccounts();
+                                    queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+                                }} 
                             />
                         </div>
 
@@ -248,7 +250,6 @@ function DashboardContent() {
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white">
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>Create New Content</h2>
-                                                {/* 🟢 COMPOSER: Also uses the 'accounts' from dedicated query */}
                                                 <Composer onSchedule={handleAddPost} accounts={accounts} />
                                             </NeuCard>
                                             <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} /></div>
@@ -293,8 +294,7 @@ function DashboardContent() {
     );
 }
 
-// --- SUB COMPONENTS (Reused) ---
-// ... FacebookPageSelector (Same as previous step) ...
+// --- SUB COMPONENTS ---
 const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: any) => {
     const [pages, setPages] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -306,8 +306,8 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
             if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;
             
             api.get<any>(endpoint)
-                .then(data => {
-                    const list = Array.isArray(data) ? data : (data.data || []);
+                .then(res => {
+                    const list = Array.isArray(res.data) ? res.data : [];
                     setPages(list);
                 })
                 .catch(() => toast.error("FB_FETCH_FAILED"))
@@ -319,11 +319,11 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
         mutationFn: (page: any) => api.post<any>('/social-accounts/facebook/pages/select', {
             pageId: page.id, pageName: page.name, pageAccessToken: page.access_token, exchangeToken
         }),
-        onSuccess: (data, variables) => {
+        onSuccess: (res, variables) => {
             toast.success(`CONNECTED: ${variables.name}`);
             if (onAccountConnected) {
                 const optimisticAccount = {
-                    id: data.id || `temp-${Date.now()}`,
+                    id: res.data?.id || `temp-${Date.now()}`,
                     username: variables.name, 
                     platform: 'FACEBOOK',
                     avatar: `https://graph.facebook.com/${variables.id}/picture` 
@@ -353,7 +353,6 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
     );
 };
 
-// ... QuickConnectSidebar ...
 const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
     
     const platforms = [
@@ -386,12 +385,10 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
 
     return (
         <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] h-full overflow-y-auto scrollbar-hide">
-            {/* Header Icon */}
             <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center border-2 border-black bg-[#3C48F5] mb-2">
                 <LinkIcon size={16} className="text-white" />
             </div>
 
-            {/* Platform List */}
             {platforms.map((p) => { 
                 const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); 
                 
@@ -399,12 +396,9 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
                     <div key={p.id} className="relative group flex-shrink-0">
                         {connected ? (
                             <>
-                                {/* Connected State (Greyscale but solid opacity) */}
                                 <button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-50 opacity-100 cursor-default">
                                     <p.Icon size={18} className="text-gray-400" />
                                 </button>
-                                
-                                {/* Hover to Delete (Red Overlay) */}
                                 <button 
                                     onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} 
                                     className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
@@ -412,8 +406,6 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
                                 >
                                     <Trash2 size={16} />
                                 </button>
-                                
-                                {/* Green Check Badge */}
                                 <div className="absolute -top-1 -right-1 pointer-events-none z-20">
                                     <div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white">
                                         <Check size={10} strokeWidth={4} />
@@ -421,7 +413,6 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
                                 </div>
                             </>
                         ) : (
-                            /* Connect State (True Colors) */
                             <button 
                                 onClick={() => handleConnect(p.id)} 
                                 className="group w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
@@ -436,6 +427,8 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
                     </div>
                 ); 
             })}
+            <div className="h-0.5 w-8 bg-black my-2 flex-shrink-0"></div>
+            <button className="text-gray-400 hover:text-black transition-colors flex-shrink-0"><ExternalLink size={16} /></button>
         </div>
     );
 };

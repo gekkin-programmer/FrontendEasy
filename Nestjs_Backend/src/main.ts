@@ -1,4 +1,5 @@
 // src/main.ts
+import './instrument';
 
 // Force UTC timezone for consistent date handling across environments
 process.env.TZ = 'UTC';
@@ -10,9 +11,13 @@ import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet'; // Added for security headers
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Use Pino Logger
+  app.useLogger(app.get(Logger));
 
   // ── Security & parsing ────────────────────────────────────────────────
   app.use(helmet()); // Security headers (XSS, clickjacking, etc.)
