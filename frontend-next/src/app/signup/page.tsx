@@ -97,7 +97,6 @@ const SignupPage = () => {
       if (!res.ok) throw new Error(data.message || 'Verification failed');
       
       localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.message);
@@ -112,12 +111,6 @@ const SignupPage = () => {
       {/* LEFT COLUMN: FORM */}
         <div className="relative hidden lg:flex flex-col h-screen w-full bg-[#FFFFFF] overflow-hidden sticky top-0">
         <div className="mx-auto w-full max-w-[480px]">
-          
-          <div className="mb-10">
-             <Link href="/" className="inline-block">
-               <img className="h-10 w-auto object-contain" src="/assets/WiggleLogo.png" alt="Logo" />
-             </Link>
-          </div>
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -161,11 +154,11 @@ const SignupPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">First Name</label>
-                    <input type="text" required onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3 px-4 outline-none transition-all" placeholder="Jane" />
+                    <input type="text" required onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3 px-4 outline-none transition-all" placeholder="First" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
-                    <input type="text" required onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3 px-4 outline-none transition-all" placeholder="Doe" />
+                    <input type="text" required onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3 px-4 outline-none transition-all" placeholder="Last" />
                   </div>
                 </div>
                 <div>

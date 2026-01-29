@@ -14,8 +14,163 @@ export class SocialAccountsService {
     @InjectQueue('social-sync') private syncQueue: Queue,
   ) {}
 
-  // ➤ LIST ACCOUNTS
-  async findAll(userId: string) {
+  // =================================================================
+  // ➤ CALLBACK HANDLERS (Assuming Flattened Strategy Payload)
+  // =================================================================
+
+  async handleFacebookCallback(data: any) {
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'FACEBOOK',
+      platformUserId: data.platformUserId, // Flattened
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken
+    });
+  }
+
+  async handleLinkedinCallback(data: any) {
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'LINKEDIN',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken
+    });
+  }
+
+  async handleTwitterCallback(data: any) {
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'TWITTER',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken 
+    });
+  }
+
+  async handleYoutubeCallback(data: any) {
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'YOUTUBE',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken
+    });
+  }
+
+  // ➤ WHATSAPP HANDLER (Has specific logic)
+  async handleWhatsappCallback(data: any) {
+    try {
+      // Data here comes from Strategy, likely containing User Token
+      const res = await axios.get(
+        `https://graph.facebook.com/v19.0/me?fields=id,name,accounts,whatsapp_business_accounts&access_token=${data.accessToken}`
+      );
+      
+      const wabas = res.data.whatsapp_business_accounts?.data || [];
+      
+      if (wabas.length === 0) {
+          this.logger.warn(`No WhatsApp Business Accounts found for user ${data.userId}`);
+          throw new NotFoundException("No WhatsApp Business Accounts found.");
+      }
+
+      const waba = wabas[0]; // Select first for MVP
+
+      return this.upsertAccount({
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+        platform: 'WHATSAPP',
+        platformUserId: waba.id,
+        name: waba.name || 'WhatsApp Business',
+        avatar: data.avatar, // Fallback to User avatar
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken
+      });
+
+    } catch (e) {
+      this.logger.error("WhatsApp Link Failed", e.response?.data || e);
+      throw new UnauthorizedException("Failed to link WhatsApp Account");
+    }
+  }
+
+  // =================================================================
+  // ➤ INTERNAL HELPER: UPSERT ACCOUNT
+  // =================================================================
+  private async upsertAccount(params: {
+    userId: string;
+    workspaceId?: string;
+    platform: SocialPlatform;
+    platformUserId: string;
+    name: string;
+    avatar?: string;
+    accessToken: string;
+    refreshToken?: string;
+  }) {
+    // 1. Resolve Workspace
+    let workspaceId = params.workspaceId;
+    if (!workspaceId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: params.userId },
+        include: { ownedWorkspaces: true }
+      });
+      if (!user || user.ownedWorkspaces.length === 0) {
+        throw new NotFoundException('No workspace found for user');
+      }
+      workspaceId = user.ownedWorkspaces[0].id;
+    }
+
+    // 2. Upsert to DB
+    const account = await this.prisma.socialAccount.upsert({
+      where: {
+        workspaceId_platform_platformUserId: {
+          workspaceId,
+          platform: params.platform,
+          platformUserId: params.platformUserId
+        }
+      },
+      update: {
+        accessToken: params.accessToken,
+        refreshToken: params.refreshToken || undefined, 
+        username: params.name,
+        avatar: params.avatar,
+        isActive: true,
+        updatedAt: new Date()
+      },
+      create: {
+        workspaceId,
+        createdById: params.userId,
+        platform: params.platform,
+        platformUserId: params.platformUserId,
+        username: params.name,
+        avatar: params.avatar,
+        accessToken: params.accessToken,
+        refreshToken: params.refreshToken,
+        displayName: params.name,
+        isActive: true
+      }
+    });
+
+    // 3. Queue Sync
+    await this.queueSyncJob(account);
+    return account;
+  }
+
+  // =================================================================
+  // ➤ LIST & MANAGE
+  // =================================================================
+
+ async findAll(userId: string, workspaceId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { ownedWorkspaces: true }
@@ -24,12 +179,22 @@ export class SocialAccountsService {
     if (!user) { throw new NotFoundException('User not found'); }
     if (!user.ownedWorkspaces.length) return [];
 
+    // ➤ LOGIC FIX: Prefer the requested workspaceId, fallback to [0] only if missing
+    const targetWorkspaceId = workspaceId || user.ownedWorkspaces[0].id;
+
+    // Security check: Ensure user actually owns/belongs to this workspace
+    // (Simplified check for now, ideally check membership)
+    const hasAccess = user.ownedWorkspaces.some(w => w.id === targetWorkspaceId);
+    if (workspaceId && !hasAccess) {
+        // Silent fail or empty array to prevent leaks
+        return [];
+    }
+
     return this.prisma.socialAccount.findMany({
-      where: { workspaceId: user.ownedWorkspaces[0].id }
+      where: { workspaceId: targetWorkspaceId }
     });
   }
 
-  // ➤ DISCONNECT ACCOUNT
   async disconnect(accountId: string, userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -48,76 +213,21 @@ export class SocialAccountsService {
     return this.prisma.socialAccount.delete({ where: { id: accountId } });
   }
 
-  // ➤ NEW: TRIGGER MANUAL SYNC (Called by Controller)
   async triggerManualSync(accountId: string, userId: string) {
-    // Verify ownership
     const account = await this.prisma.socialAccount.findUnique({
       where: { id: accountId }
     });
 
     if (!account) throw new NotFoundException('Account not found');
     
-    // Add to queue
     await this.queueSyncJob(account);
     return { status: 'Sync started', accountId };
   }
 
   // =================================================================
-  // STANDARD OAUTH LINKING
+  // ➤ FACEBOOK SPECIFIC (Pages Logic)
   // =================================================================
-  async linkAccount(userId: string, data: any) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { ownedWorkspaces: true }
-    });
-
-    if (!user || user.ownedWorkspaces.length === 0) {
-      throw new NotFoundException('User has no workspace to link account to');
-    }
-    const workspaceId = user.ownedWorkspaces[0].id;
-    const platformEnum = data.platform.toUpperCase() as SocialPlatform;
-
-    if (platformEnum === 'FACEBOOK') {
-       return { status: 'selection_required', accessToken: data.accessToken };
-    }
-
-    const account = await this.prisma.socialAccount.upsert({
-      where: {
-        workspaceId_platform_platformUserId: {
-          workspaceId,
-          platform: platformEnum,
-          platformUserId: data.platformUserId
-        }
-      },
-      update: {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken || undefined,
-        username: data.name,
-        avatar: data.avatar,
-        isActive: true,
-        updatedAt: new Date()
-      },
-      create: {
-        workspaceId,
-        createdById: userId,
-        platform: platformEnum,
-        platformUserId: data.platformUserId,
-        username: data.name,
-        avatar: data.avatar,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        displayName: data.name,
-        isActive: true
-      }
-    });
-
-    await this.queueSyncJob(account);
-    return account;
-  }
-
-  // =================================================================
-  // FACEBOOK PAGE LOGIC
-  // =================================================================
+  
   async getFacebookPages(userAccessToken: string) {
     try {
       const res = await axios.get(`https://graph.facebook.com/me/accounts?access_token=${userAccessToken}`);
@@ -129,57 +239,19 @@ export class SocialAccountsService {
   }
 
   async linkPageAccount(userId: string, pageData: { pageId: string, pageName: string, pageAccessToken: string }) {
-    const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: { ownedWorkspaces: true }
+    return this.upsertAccount({
+      userId,
+      platform: 'FACEBOOK',
+      platformUserId: pageData.pageId,
+      name: pageData.pageName,
+      accessToken: pageData.pageAccessToken,
+      avatar: `https://graph.facebook.com/${pageData.pageId}/picture?type=normal&access_token=${pageData.pageAccessToken}`
     });
-  
-    if (!user || user.ownedWorkspaces.length === 0) {
-        throw new NotFoundException('User has no workspace');
-    }
-    const workspaceId = user.ownedWorkspaces[0].id;
-
-    let avatarUrl = '';
-    try {
-        const picRes = await axios.get(`https://graph.facebook.com/${pageData.pageId}/picture?type=normal&redirect=false&access_token=${pageData.pageAccessToken}`);
-        avatarUrl = picRes.data.data.url;
-    } catch (e) { this.logger.warn("Could not fetch page avatar"); }
-
-    const account = await this.prisma.socialAccount.upsert({
-        where: {
-          workspaceId_platform_platformUserId: {
-            workspaceId,
-            platform: 'FACEBOOK',
-            platformUserId: pageData.pageId
-          }
-        },
-        update: {
-          accessToken: pageData.pageAccessToken, 
-          username: pageData.pageName,
-          avatar: avatarUrl,
-          isActive: true,
-          updatedAt: new Date()
-        },
-        create: {
-          workspaceId,
-          createdById: userId,
-          platform: 'FACEBOOK',
-          platformUserId: pageData.pageId,
-          username: pageData.pageName,
-          avatar: avatarUrl,
-          accessToken: pageData.pageAccessToken,
-          displayName: pageData.pageName,
-          isActive: true
-        }
-    });
-
-    await this.queueSyncJob(account);
-    return account;
   }
 
-  /**
-   * Helper to push job to Redis Queue (Internal)
-   */
+  // =================================================================
+  // ➤ QUEUE HELPER
+  // =================================================================
   private async queueSyncJob(account: any) {
     try {
       await this.syncQueue.add(

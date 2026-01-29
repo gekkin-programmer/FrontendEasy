@@ -31,6 +31,10 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // Use your new 'api' instance instead of 'fetch' if possible, 
+      // but 'fetch' is fine here since it's a public endpoint.
+      // If using 'api' instance, it handles the baseURL automatically.
+      
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,7 +49,9 @@ export default function LoginPage() {
 
       // SUCCESS
       localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      
+      // The refreshToken is automatically saved by the browser as a secure Cookie 
+      // No need to save it manually.
 
       // Force Redirect
       window.location.href = '/dashboard';

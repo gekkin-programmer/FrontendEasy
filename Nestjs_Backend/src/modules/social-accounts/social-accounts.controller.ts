@@ -1,25 +1,19 @@
 import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  UseGuards, 
-  Req, 
-  Res, 
-  Param, 
-  Delete, 
-  UnauthorizedException, 
-  Query 
+  Controller, Get, Post, Body, UseGuards, Req, Res, Param, Delete, 
+  UnauthorizedException, Query, NotImplementedException 
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SocialAccountsService } from './social-accounts.service';
+import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from '@nestjs/passport';
+import type { Response } from 'express';
+
+// Guards
 import { FacebookConnectGuard } from './guards/facebook-connect.guard';
 import { LinkedInConnectGuard } from './guards/linkedin-connect.guard';
-import { TikTokConnectGuard } from './guards/tiktok-connect.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { Response } from 'express';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtService } from '@nestjs/jwt';
+import { TwitterConnectGuard } from './guards/twitter-connect.guard';
+import { YoutubeConnectGuard } from './guards/youtube-connect.guard';
+import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard'; // ➤ NEW IMPORT
 
 @ApiTags('Social Accounts')
 @Controller('social-accounts')
@@ -35,185 +29,148 @@ export class SocialAccountsController {
 
   @Get()
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'List connected accounts' })
-  findAll(@Req() req) {
-    return this.socialAccountsService.findAll(req.user.sub);
+  findAll(@Req() req, @Query('workspaceId') workspaceId: string) {
+    return this.socialAccountsService.findAll(req.user.sub || req.user.id, workspaceId);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Disconnect an account' })
   remove(@Param('id') id: string, @Req() req) {
-    return this.socialAccountsService.disconnect(id, req.user.sub);
+    return this.socialAccountsService.disconnect(id, req.user.sub || req.user.id);
   }
 
-  // ➤ NEW: MANUAL SYNC TRIGGER
   @Post(':id/sync')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Trigger historical sync manually' })
   syncAccount(@Param('id') id: string, @Req() req) {
-    return this.socialAccountsService.triggerManualSync(id, req.user.sub);
+    return this.socialAccountsService.triggerManualSync(id, req.user.sub || req.user.id);
   }
 
   // =================================================================
-  // 2. FACEBOOK FLOW
+  // 2. META (Facebook & Instagram)
   // =================================================================
 
   @Get('connect/facebook')
-  @ApiOperation({ summary: 'Initiate Facebook OAuth (Browser Redirect)' })
-  async connectFacebook(@Query('token') token: string, @Res() res: Response) {
-    if (!token) throw new UnauthorizedException('No auth token provided');
-
-    try {
-        const payload = this.jwtService.verify(token);
-        const userId = payload.sub;
-
-        res.cookie('auth_state', userId, { 
-            httpOnly: true, 
-            signed: true, 
-            maxAge: 300000,
-            sameSite: 'none', 
-            secure: true      
-        });
-        
-        res.redirect('/api/social-accounts/auth/facebook');
-    } catch (e) {
-        throw new UnauthorizedException('Invalid or Expired Token');
-    }
+  @UseGuards(FacebookConnectGuard)
+  async connectFacebook(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to Facebook
   }
 
-  @Get('auth/facebook')
+  @Get('connect/instagram')
   @UseGuards(FacebookConnectGuard)
-  facebookTrigger() {}
+  async connectInstagram(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to Facebook (Instagram Business uses FB Login)
+  }
 
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
-  async facebookCallback(@Req() req, @Res() res: any) {
-    const { accessToken } = req.user; 
-    res.cookie('fb_pending_token', accessToken, { 
-        httpOnly: true, 
-        signed: true, 
-        maxAge: 300000, // 5 mins
-        sameSite: 'none', 
-        secure: true 
-    });
-
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    return res.redirect(`${frontendUrl}/dashboard?social_selection=facebook&exchange_token=${accessToken}`);
-  }
-
-  @Get('facebook/pages')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'List Facebook Pages to select' })
-  async listFacebookPages(
-    @Req() req, 
-    @Query('exchange_token') queryToken: string 
-  ) {
-    const fbToken = queryToken || req.signedCookies['fb_pending_token'];
-
-    if (!fbToken) {
-        console.error(" FB Pages Error: No token found in Query or Cookie");
-        throw new UnauthorizedException('Facebook session missing. Please reconnect.');
-    }
-
-    return this.socialAccountsService.getFacebookPages(fbToken);
-  }
-
-  @Post('facebook/pages/select')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Connect a specific Facebook Page' })
-  async selectFacebookPage(@Req() req, @Body() body: { pageId: string, pageName: string, pageAccessToken: string }) {
-    req.res.clearCookie('fb_pending_token', { sameSite: 'none', secure: true });
-    return this.socialAccountsService.linkPageAccount(req.user.sub, body);
+  async facebookCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleFacebookCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
   }
 
   // =================================================================
-  // 3. OTHER OAUTH FLOWS (LinkedIn, TikTok, YouTube)
+  // 3. LINKEDIN
   // =================================================================
-  // (Kept exactly as you had them)
 
   @Get('connect/linkedin')
-  async connectLinkedIn(@Query('token') token: string, @Res() res: Response) {
-    if (!token) throw new UnauthorizedException('No auth token provided');
-    try {
-        const payload = this.jwtService.verify(token);
-        const userId = payload.sub;
-        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-        res.redirect('/api/social-accounts/auth/linkedin');
-    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
-  }
-
-  @Get('auth/linkedin')
   @UseGuards(LinkedInConnectGuard)
-  linkedinTrigger() {}
+  async connectLinkedin(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to LinkedIn
+  }
 
-  @Get('callback/linkedin')
+  @Get('linkedin/callback')
   @UseGuards(LinkedInConnectGuard)
-  async linkedinCallback(@Req() req, @Res() res: any) {
-    await this.handleCallback(req, res, 'linkedin');
+  async linkedinCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleLinkedinCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
   }
 
-  @Get('connect/tiktok')
-  async connectTikTok(@Query('token') token: string, @Res() res: Response) {
-    if (!token) throw new UnauthorizedException('No auth token provided');
-    try {
-        const payload = this.jwtService.verify(token);
-        const userId = payload.sub;
-        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-        res.redirect('/api/social-accounts/auth/tiktok');
-    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
+  // =================================================================
+  // 4. TWITTER (X)
+  // =================================================================
+
+  @Get('connect/twitter')
+  @UseGuards(TwitterConnectGuard)
+  async connectTwitter(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to Twitter
   }
 
-  @Get('auth/tiktok')
-  @UseGuards(TikTokConnectGuard)
-  tiktokTrigger() {}
-
-  @Get('callback/tiktok')
-  @UseGuards(TikTokConnectGuard)
-  async tiktokCallback(@Req() req, @Res() res: any) {
-    await this.handleCallback(req, res, 'tiktok');
+  @Get('twitter/callback')
+  @UseGuards(TwitterConnectGuard)
+  async twitterCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleTwitterCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
   }
+
+  // =================================================================
+  // 5. YOUTUBE (Google)
+  // =================================================================
 
   @Get('connect/youtube')
-  async connectYoutube(@Query('token') token: string, @Res() res: Response) {
-    if (!token) throw new UnauthorizedException('No auth token provided');
-    try {
-        const payload = this.jwtService.verify(token);
-        const userId = payload.sub;
-        res.cookie('auth_state', userId, { httpOnly: true, signed: true, maxAge: 300000, sameSite: 'none', secure: true });
-        res.redirect('/api/social-accounts/auth/youtube');
-    } catch (e) { throw new UnauthorizedException('Invalid Token'); }
+  @UseGuards(YoutubeConnectGuard)
+  async connectYoutube(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to Google
   }
 
-  @Get('auth/youtube')
-  @UseGuards(AuthGuard('youtube-connect'))
-  youtubeTrigger() {}
-
-  @Get('callback/youtube')
-  @UseGuards(AuthGuard('youtube-connect'))
-  async youtubeCallback(@Req() req, @Res() res: any) {
-    await this.handleCallback(req, res, 'youtube');
+  @Get('youtube/callback')
+  @UseGuards(YoutubeConnectGuard)
+  async youtubeCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleYoutubeCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
   }
 
-  private async handleCallback(req: any, res: any, platform: string) {
-    const profile = req.user;
-    const userId = req.signedCookies['auth_state'];
+  // =================================================================
+  // 6. WHATSAPP (Meta Business)
+  // =================================================================
 
-    if (!userId) {
-       console.error(`❌ Missing Auth Cookie for ${platform}`);
-       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-       return res.redirect(`${frontendUrl}/dashboard?error=session_expired`);
-    }
+  @Get('connect/whatsapp')
+  @UseGuards(WhatsappConnectGuard)
+  async connectWhatsapp(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to Facebook Login with 'whatsapp_business_management' scope
+  }
 
-    await this.socialAccountsService.linkAccount(userId, profile);
-    res.clearCookie('auth_state', { sameSite: 'none', secure: true });
+  @Get('callback/whatsapp')
+  @UseGuards(WhatsappConnectGuard)
+  async whatsappCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleWhatsappCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    return res.redirect(`${frontendUrl}/dashboard?social_connected=true&platform=${platform}`);
+  // =================================================================
+  // 7. PLACEHOLDERS (Prevent 404s for buttons)
+  // =================================================================
+
+  @Get('connect/tiktok')
+  connectTikTok(@Res() res: Response) { this.comingSoon(res, 'TikTok'); }
+
+  @Get('connect/pinterest')
+  connectPinterest(@Res() res: Response) { this.comingSoon(res, 'Pinterest'); }
+
+  @Get('connect/reddit')
+  connectReddit(@Res() res: Response) { this.comingSoon(res, 'Reddit'); }
+
+  // --- HELPERS ---
+
+  private redirectHome(res: Response, workspaceId: string) {
+    const frontend = process.env.FRONTEND_URL || 'http://localhost:3001';
+    // Redirect to the specific workspace dashboard to refresh data
+    res.redirect(`${frontend}/dashboard/${workspaceId}?success=true`);
+  }
+
+  private comingSoon(res: Response, platform: string) {
+    res.send(`
+      <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+        <h1 style="font-size: 40px;">🚧 Coming Soon</h1>
+        <p>The <strong>${platform}</strong> integration is currently being built.</p>
+        <p>Check back later!</p>
+        <button onclick="window.history.back()" style="padding: 10px 20px; cursor: pointer;">Go Back</button>
+      </div>
+    `);
   }
 }
