@@ -79,23 +79,26 @@ function DashboardContent() {
     const [searchTerm, setSearchTerm] = useState("");
 
     // --- QUERIES ---
-    const { data: myWorkspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: () => api.get('/workspaces').then((res: any) => res.data) });
+    const { data: myWorkspaces = [] } = useQuery({ 
+        queryKey: ['workspaces'], 
+        queryFn: () => api.get<any[]>('/workspaces').then(res => Array.isArray(res) ? res : (res as any)?.data || []) 
+    });
 
     const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
         queryKey: ['workspace', workspaceId],
-        queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res.data),
+        queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
         enabled: !!workspaceId,
     });
 
     const { data: accounts = [], refetch: refetchAccounts } = useQuery({
         queryKey: ['social-accounts', workspaceId],
-        queryFn: () => api.get('/social-accounts').then((res: any) => res.data),
+        queryFn: () => api.get<any[]>('/social-accounts').then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
     });
 
     const { data: posts = [] } = useQuery({
         queryKey: ['posts', workspaceId],
-        queryFn: () => api.get(`/social-accounts?workspaceId=${workspaceId}`).then((res: any) => res.data),
+        queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
         refetchInterval: 15000, 
     });

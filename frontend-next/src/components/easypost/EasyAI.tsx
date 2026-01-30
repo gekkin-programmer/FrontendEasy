@@ -8,7 +8,7 @@ import {
   Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import api from '@/lib/api';
+import { api } from '@/src/lib/api';
 
 interface Message {
   role: 'user' | 'ai';
@@ -67,7 +67,8 @@ export default function EasyAI() {
       const res = await api.post<AiChatResponse>('/ai/chat', { message: text });
       
       // ➤ FIX: Match backend response structure ({ messageId, response })
-      const aiResponse = res.data.response || "I didn't catch that.";
+      // @ts-ignore
+      const aiResponse = res.response || res.data?.response || "I didn't catch that.";
       
       setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
     } catch (error) {

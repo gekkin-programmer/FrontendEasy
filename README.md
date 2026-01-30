@@ -5,7 +5,7 @@
 
 EasyPostV2 is a professional SaaS platform designed for social media content management, team collaboration, and automated publishing. Built with a modern tech stack focusing on performance, scalability, and developer experience.
 
-## 🌐 Production Environment
+##  Production Environment
 
 | Service | URL | Platform |
 |---------|-----|----------|
@@ -16,7 +16,7 @@ EasyPostV2 is a professional SaaS platform designed for social media content man
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```mermaid
 graph TD
@@ -34,7 +34,7 @@ graph TD
     API <-->|Oauth/Posting| Social
 ```
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Backend (`/Nestjs_Backend`)
 - **Framework**: [NestJS](https://nestjs.com/) (v11)
@@ -54,7 +54,7 @@ graph TD
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js 20+
@@ -91,14 +91,14 @@ The application will be running at `http://localhost:3001`.
 
 ---
 
-## 🧪 Testing & CI/CD
+##  Testing & CI/CD
 
 - **Unit Tests**: `pnpm run test` (Backend)
 - **E2E Tests**: `pnpm run test:e2e` (Backend)
 - **Linting**: `pnpm run lint`
 - **CI**: Automated workflows via GitHub Actions run on every push to `main`.
 
-## 📂 Project Structure
+##  Project Structure
 
 - `Nestjs_Backend/`: Primary API (NestJS)
 - `frontend-next/`: Primary Web App (Next.js)
@@ -108,6 +108,6 @@ The application will be running at `http://localhost:3001`.
 
 ---
 
-## 📝 License
+##  License
 
 © 2026 EasyPost. All rights reserved.

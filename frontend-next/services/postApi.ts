@@ -1,4 +1,4 @@
-import apiClient from '@/src/api';
+import { api } from '@/src/lib/api';
 import { Post } from '@/src/components/easypost/types' // Assuming types are here
 
 export const createPost = async (postData: any, file?: File | null) => {
@@ -24,8 +24,7 @@ export const createPost = async (postData: any, file?: File | null) => {
     formData.append('file', file); 
   }
 
-  // 4. Send to FastAPI
-  // Axios automatically sets 'Content-Type': 'multipart/form-data' when it sees FormData
-  const response = await apiClient.post('/posts', formData);
-  return response.data;
+  // 4. Send to Backend
+  const response = await api.post<any>('/posts', formData);
+  return response;
 };

@@ -8,27 +8,34 @@ interface FetchOptions extends RequestInit {
 }
 
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint, { method: 'GET' }),
+  get: <T>(endpoint: string, options?: FetchOptions) => 
+    request<T>(endpoint, { ...options, method: 'GET' }),
 
-  post: <T>(endpoint: string, body: any) => request<T>(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }),
+  post: <T>(endpoint: string, body: any, options?: FetchOptions) => 
+    request<T>(endpoint, { 
+      ...options,
+      method: 'POST',
+      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
 
-  // Specifically for Cloudinary/Form uploads
-  upload: <T>(endpoint: string, formData: FormData) => request<T>(endpoint, {
-    method: 'POST',
-    body: formData, // Browser automatically sets Content-Type with boundary
-  }),
+  upload: <T>(endpoint: string, formData: FormData, options?: FetchOptions) => 
+    request<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: formData, 
+    }),
 
-  patch: <T>(endpoint: string, body: any) => request<T>(endpoint, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }),
+  patch: <T>(endpoint: string, body: any, options?: FetchOptions) => 
+    request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
 
-  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
+  delete: <T>(endpoint: string, options?: FetchOptions) => 
+    request<T>(endpoint, { ...options, method: 'DELETE' }),
 };
 
 async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
@@ -44,7 +51,7 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
   }
 
   try {
-    const response = await fetch(url, { ...options, headers });
+    const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
     // 3. Handle 401 Unauthorized (Session Expired)
     if (response.status === 401) {

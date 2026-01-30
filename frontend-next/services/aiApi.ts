@@ -1,4 +1,4 @@
-import  api  from '@/lib/api';
+import { api } from '@/src/lib/api';
 
 export interface AiResponse {
   messageId: string;
@@ -19,25 +19,23 @@ export const aiApi = {
     formData.append('file', audioBlob, 'command.webm');
     
     // Adjust endpoint based on your backend route for voice intent
-    const response = await api.post('/ai/command', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+    const response = await api.post<any>('/ai/command', formData);
+    return response;
   },
 
   // 2. Support Chat
   chatWithSupport: async (message: string): Promise<AiResponse> => {
-    const response = await api.post('/ai/chat', { message });
-    return response.data;
+    const response = await api.post<AiResponse>('/ai/chat', { message });
+    return response;
   },
 
   // 3. Marketing Copy
   generateCopy: async (product: string, tone: string) => {
-    const response = await api.post('/ai/test-copywriting', { 
+    const response = await api.post<any>('/ai/test-copywriting', { 
       product, 
       tone 
     });
-    return response.data; // Expecting { messageId, content }
+    return response; // Expecting { messageId, content }
   },
 
   // 4. Feedback Loop (Phase 5 Requirement)

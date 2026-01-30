@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Mic, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import api from '@/lib/api';
+import { api } from '@/src/lib/api';
 
 interface VoiceAiButtonProps {
   onCommand: (transcription: string, intent: any) => void;
@@ -82,11 +82,10 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
 
     try {
       // ➤ FIX: Use api.post and set headers
-      const { data } = await api.post('/assistant/voice-command', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const res = await api.post<any>('/assistant/voice-command', formData);
+      
+      // Handle potential data nesting
+      const data = res.data || res;
       
       // ➤ FIX: Match backend response structure
       // Backend returns: { message, transcription, createdPost: { ..., intent: ... } }

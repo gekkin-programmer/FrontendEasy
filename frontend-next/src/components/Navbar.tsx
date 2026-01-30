@@ -110,12 +110,10 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) await api.post('/auth/logout', { refreshToken });
+      await api.post('/auth/logout', {});
     } catch (e) { console.error(e); } 
     finally {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       setIsAuthenticated(false);
       setUser(null);
       setIsProfileOpen(false);

@@ -16,6 +16,9 @@ import { Logger } from 'nestjs-pino';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+  // Trust proxy for Render/Vercel (corrects req.protocol)
+  (app.getHttpAdapter().getInstance() as any).set('trust proxy', 1);
+
   // Use Pino Logger
   app.useLogger(app.get(Logger));
 

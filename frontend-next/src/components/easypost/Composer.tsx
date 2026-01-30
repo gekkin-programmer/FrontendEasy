@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import api from '@/lib/api';
+import { api } from '@/src/lib/api';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -123,9 +123,9 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
   // ➤ LOGIC: FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
     try {
-        const res = await api.get('/media');
-        // Handle array response from backend
-        const list = Array.isArray(res.data) ? res.data : [];
+        const res = await api.get<any>('/media');
+        // Handle both { data: [...] } and direct [...] array responses
+        const list = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
         
         const formattedMedia = list.map((m: any) => ({
             id: m.id,
@@ -146,13 +146,11 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
       formData.append('file', fileToUpload);
       try {
           // Use api.post with headers
-          const res = await api.post('/media/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          const res = await api.post<any>('/media/upload', formData);
           
           await fetchLibrary(); 
           // Backend returns the created MediaLibrary object
-          return res.data.id; 
+          return res.id || res.data?.id; 
       } catch (e) { 
           toast.error("UPLOAD_FAILED"); 
           return null; 
@@ -174,12 +172,12 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
     setIsAiGenerating(true);
     
     try {
-      const res = await api.post('/ai/test-copywriting', {
+      const res = await api.post<any>('/ai/test-copywriting', {
         product: aiContext,
         tone: aiTone,
       });
       
-      const generatedContent = res.data.content;
+      const generatedContent = res.content || res.data?.content;
       if (!generatedContent) throw new Error("Empty response from AI");
 
       // Typewriter Effect
