@@ -8,7 +8,7 @@ import {
   Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'ai';

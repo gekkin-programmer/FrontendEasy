@@ -95,7 +95,7 @@ function DashboardContent() {
 
     const { data: posts = [] } = useQuery({
         queryKey: ['posts', workspaceId],
-        queryFn: () => api.get(`/social-accounts?workspaceId=${workspaceId}`).then((res: any) => res.data),
+        queryFn: () => api.get(`/posts?workspaceId=${workspaceId}`).then((res: any) => res.data),
         enabled: !!workspaceId,
         refetchInterval: 15000, 
     });
