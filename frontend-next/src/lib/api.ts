@@ -44,7 +44,7 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
   }
 
   try {
-    const response = await fetch(url, { ...options, headers });
+    const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
     // 3. Handle 401 Unauthorized (Session Expired)
     if (response.status === 401) {
