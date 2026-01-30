@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/src/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
 import { Loader2 } from "lucide-react";
@@ -19,19 +20,7 @@ export default function DashboardRootPage() {
       }
 
       try {
-        const res = await fetch(`${API_URL}/workspaces`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.status === 401) {
-          localStorage.clear();
-          router.push('/login');
-          return;
-        }
-
-        if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
-
-        const workspaces = await res.json();
+        const workspaces = await api.get<any[]>('/workspaces');
 
         if (Array.isArray(workspaces) && workspaces.length > 0) {
           const firstId = workspaces[0].id;
