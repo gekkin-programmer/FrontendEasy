@@ -54,7 +54,7 @@ export default function LoginPage() {
       // No need to save it manually.
 
       // Force Redirect
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
 
     } catch (err: any) {
       console.error(err);
