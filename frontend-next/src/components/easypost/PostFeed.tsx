@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical } from 'lucide-react';
+import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ interface Post {
   scheduledFor?: string;
   socialAccountIds?: string[];
   mediaUrls?: string[];
+  errorMessage?: string;
 }
 
 interface Account {
