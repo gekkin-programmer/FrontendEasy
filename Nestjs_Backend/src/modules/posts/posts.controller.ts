@@ -3,21 +3,15 @@ import {
   UseGuards, Req, Query, UnauthorizedException 
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { PublisherService } from './publishing/publisher.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PrismaService } from '../../prisma/prisma.service'; 
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { SubscriptionGuard } from '../../common/guards/subscription.guard';
-import { PostStatus } from '@prisma/client';
 
-@ApiTags('Posts & Publishing')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// ...
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
+    private readonly publisherService: PublisherService,
     private readonly prisma: PrismaService
   ) {}
 
@@ -56,6 +50,14 @@ export class PostsController {
     return this.postsService.findAll(workspaceId, { status, search });
   }
 
+  @Get('calendar')
+  @ApiOperation({ summary: 'Get posts for calendar (date range)' })
+  @ApiQuery({ name: 'start', type: String, required: true })
+  @ApiQuery({ name: 'end', type: String, required: true })
+  async getCalendar(@Query('workspaceId') workspaceId: string, @Query('start') start: string, @Query('end') end: string) {
+    return this.postsService.findInDateRange(workspaceId, new Date(start), new Date(end));
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get post details' })
   async findOne(@Param('id') id: string, @Req() req) {
@@ -80,5 +82,22 @@ export class PostsController {
   @ApiOperation({ summary: 'Manager Approval' })
   approve(@Param('id') id: string, @Req() req) {
     return this.postsService.approve(id, req.user.sub);
+  }
+
+  @Post(':id/cancel-schedule')
+  @ApiOperation({ summary: 'Cancel a scheduled post and return to draft' })
+  async cancelSchedule(@Param('id') id: string, @Req() req) {
+    const workspaceId = await this.getWorkspaceId(req.user.sub);
+    // Ensure post belongs to workspace
+    await this.postsService.findOne(id, workspaceId);
+    return this.postsService.cancelSchedule(id);
+  }
+
+  @Post(':id/publish')
+  @ApiOperation({ summary: 'Publish post immediately' })
+  async publish(@Param('id') id: string, @Req() req) {
+    const workspaceId = await this.getWorkspaceId(req.user.sub);
+    await this.postsService.findOne(id, workspaceId);
+    return this.publisherService.publishPost(id);
   }
 }

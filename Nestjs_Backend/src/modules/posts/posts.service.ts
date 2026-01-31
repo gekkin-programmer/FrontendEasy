@@ -76,6 +76,24 @@ export class PostsService {
     });
   }
 
+  // ➤ CALENDAR: FIND BY RANGE
+  async findInDateRange(workspaceId: string, start: Date, end: Date) {
+    return this.prisma.post.findMany({
+      where: {
+        workspaceId,
+        scheduledFor: {
+          gte: start,
+          lte: end
+        }
+      },
+      include: {
+        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+        media: { include: { media: true } }
+      },
+      orderBy: { scheduledFor: 'asc' }
+    });
+  }
+
   // ➤ GET ONE (Robust)
   async findOne(id: string, workspaceId?: string) {
     const post = await this.prisma.post.findFirst({
@@ -135,6 +153,17 @@ export class PostsService {
         approvedBy: approverId,
         approvedAt: new Date(),
         status: PostStatus.SCHEDULED 
+      }
+    });
+  }
+
+  // ➤ CANCEL SCHEDULE
+  async cancelSchedule(id: string) {
+    return this.prisma.post.update({
+      where: { id },
+      data: {
+        status: PostStatus.DRAFT,
+        scheduledFor: null
       }
     });
   }

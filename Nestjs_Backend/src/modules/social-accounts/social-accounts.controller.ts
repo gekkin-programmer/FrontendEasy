@@ -51,6 +51,14 @@ export class SocialAccountsController {
     return this.socialAccountsService.triggerManualSync(id, req.user.sub || req.user.id);
   }
 
+  @Patch(':id/expire')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'FOR TESTING: Manually expire a token' })
+  expireAccount(@Param('id') id: string) {
+    return this.socialAccountsService.expireToken(id);
+  }
+
   // =================================================================
   // 2. META (Facebook & Instagram)
   // =================================================================

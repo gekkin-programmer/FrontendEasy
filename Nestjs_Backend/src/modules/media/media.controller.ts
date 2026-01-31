@@ -1,6 +1,6 @@
 import { 
   Controller, Post, Get, UseInterceptors, UploadedFile, UseGuards, Req, 
-  ParseFilePipe, MaxFileSizeValidator, UnauthorizedException 
+  ParseFilePipe, MaxFileSizeValidator, UnauthorizedException, Param, Delete, Query 
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
@@ -18,7 +18,7 @@ export class MediaController {
   @Get()
   @ApiOperation({ summary: 'List all media files for user workspace' })
   async findAll(@Req() req) {
-    const userId = req.user?.sub || req.user?.userId;
+    const userId = req.user?.sub || req.user?.id;
     if (!userId) throw new UnauthorizedException('User ID invalid');
     return this.mediaService.findAll(userId);
   }
@@ -46,13 +46,25 @@ export class MediaController {
     )
     file: any,
   ) {
-    console.log(' Request User:', req.user);
-    const userId = req.user?.sub || req.user?.userId;
+    const userId = req.user?.sub || req.user?.id;
 
     if (!userId) {
       throw new UnauthorizedException('User ID not found in token');
     }
 
     return this.mediaService.processUpload(file, userId);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a media file' })
+  async remove(@Param('id') id: string, @Req() req) {
+    const userId = req.user?.sub || req.user?.id;
+    return this.mediaService.remove(id, userId);
+  }
+
+  @Get('usage')
+  @ApiOperation({ summary: 'Get current storage usage' })
+  async getUsage(@Query('workspaceId') workspaceId: string) {
+    return this.mediaService.getStorageUsage(workspaceId);
   }
 }

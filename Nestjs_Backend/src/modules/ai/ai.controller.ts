@@ -30,6 +30,7 @@ export class AiController {
       dto.tone,
       user.id,        // <--- Pass ID
       workspaceId,    // <--- Pass Workspace ID
+      dto.length,     // <--- Pass length
       MarketingFramework.AIDA
     );
     

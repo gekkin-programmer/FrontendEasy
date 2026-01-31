@@ -14,7 +14,7 @@ const ICONS: Record<string, any> = {
   FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram, LINKEDIN: FaLinkedinIn, TIKTOK: FaTiktok
 };
 
-export default function CalendarView({ workspaceId }: { workspaceId: string }) {
+export default function CalendarView({ workspaceId, onPostClick }: { workspaceId: string, onPostClick?: (post: any) => void }) {
   // Defaults to today. If your posts are in 2026, ensure this matches!
   const [currentDate, setCurrentDate] = useState(new Date()); 
 
@@ -83,7 +83,9 @@ export default function CalendarView({ workspaceId }: { workspaceId: string }) {
                     const Icon = ICONS[platform] || ICONS.FACEBOOK;
                     
                     return (
-                      <div key={post.id} className="group relative flex items-center gap-1 p-1 bg-yellow-100 border border-black text-[10px] font-bold cursor-pointer hover:bg-yellow-300 transition-colors truncate">
+                      <div key={post.id} 
+                        onClick={(e) => { e.stopPropagation(); onPostClick?.(post); }}
+                        className="group relative flex items-center gap-1 p-1 bg-yellow-100 border border-black text-[10px] font-bold cursor-pointer hover:bg-yellow-300 transition-colors truncate">
                         <Icon size={10} />
                         <span className="truncate">{post.content}</span>
                         

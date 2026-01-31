@@ -279,7 +279,13 @@ function DashboardContent() {
             <h2 className="text-xl font-black uppercase">Content Timeline</h2>
             <NeuButton onClick={() => setActiveTab('queue')}>+ Quick Post</NeuButton>
         </div>
-        <CalendarView workspaceId={workspaceId} />
+        <CalendarView 
+            workspaceId={workspaceId} 
+            onPostClick={(post) => {
+                setEditingPost(post);
+                setActiveTab('queue');
+            }}
+        />
     </div>
 )}
                                     {activeTab === 'analytics' && <NeuCard><Analytics /></NeuCard>}
