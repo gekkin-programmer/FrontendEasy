@@ -121,7 +121,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               
               {isConnected ? (
                 <div className="space-y-1 mb-6">
-                  <p className="font-mono text-xs bg-yellow-300 inline-block px-1 border border-black truncate max-w-full">
+                  <p className="font-mono text-xs bg-blue-100 text-blue-800 inline-block px-1 border border-black truncate max-w-full">
                     @{connectedAccount.username}
                   </p>
                   <p className="text-[9px] font-mono text-gray-400 uppercase">

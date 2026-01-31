@@ -28,14 +28,12 @@ const config: Config = {
   				foreground: 'hsl(var(--popover-foreground))'
   			},
   			primary: {
-          // --- YOUR CUSTOM BLUE ---
-          // We map DEFAULT to your hex, and foreground to white so text is readable
-  				DEFAULT: '#3C48F6', 
+  				DEFAULT: '#3C48F5', 
   				foreground: '#FFFFFF'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
+  				DEFAULT: '#000000',
+  				foreground: '#FFFFFF'
   			},
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',

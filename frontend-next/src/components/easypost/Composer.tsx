@@ -50,8 +50,8 @@ const AI_TONES = [
 const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
   const baseStyles = "relative font-black text-xs uppercase tracking-wide transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
   const variants = {
-    default: "bg-white text-black hover:bg-yellow-300 shadow-[4px_4px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
-    primary: `bg-[#3C48F6] text-white hover:bg-blue-700 shadow-[4px_4px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`,
+    default: "bg-white text-black hover:bg-blue-50 shadow-[4px_4px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+    primary: `bg-[#3C48F5] text-white hover:bg-blue-700 shadow-[4px_4px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`,
     ghost: "bg-transparent border-transparent hover:bg-gray-100 shadow-none hover:shadow-none translate-0"
   };
   return <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.default, className)} {...props}>{children}</button>;
@@ -62,7 +62,7 @@ const NeuModal = ({ title, isOpen, onClose, children }: { title: string, isOpen:
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-sm overflow-hidden">
-                <div className="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
+                <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
                 <div className="p-6">{children}</div>
             </motion.div>
         </div>
@@ -70,12 +70,12 @@ const NeuModal = ({ title, isOpen, onClose, children }: { title: string, isOpen:
 };
 
 const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) => (
-  <div onClick={onClick} className="group cursor-pointer flex flex-col items-center gap-2 p-2 hover:bg-yellow-50 transition-colors">
-    <div className="relative w-16 h-12"><div className="absolute top-0 left-0 w-6 h-3 bg-gray-800 border-2 border-black rounded-t-sm z-0"></div><div className="absolute bottom-0 w-full h-10 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-10 group-hover:bg-yellow-300 transition-colors flex items-center justify-center"><div className="w-8 h-0.5 bg-black/10"></div></div></div>
+  <div onClick={onClick} className="group cursor-pointer flex flex-col items-center gap-2 p-2 hover:bg-blue-50 transition-colors">
+    <div className="relative w-16 h-12"><div className="absolute top-0 left-0 w-6 h-3 bg-gray-800 border-2 border-black rounded-t-sm z-0"></div><div className="absolute bottom-0 w-full h-10 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-10 group-hover:bg-blue-400 transition-colors flex items-center justify-center"><div className="w-8 h-0.5 bg-black/10"></div></div></div>
     <span className="text-[10px] font-bold uppercase text-center bg-white px-1 border border-black max-w-full truncate w-full font-mono">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black bg-white hover:bg-yellow-200 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all text-black"><Icon size={18} strokeWidth={2.5} /></button>);
+const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black bg-white hover:bg-blue-100 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all text-black"><Icon size={18} strokeWidth={2.5} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black fill-black" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 

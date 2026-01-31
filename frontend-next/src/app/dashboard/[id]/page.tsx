@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
-  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon
+  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home
 } from 'lucide-react'; 
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa6';
 
@@ -31,9 +31,9 @@ import CalendarView from '@/src/components/easypost/CalendarView';
 type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 // --- HELPERS ---
-const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (<button onClick={onClick} disabled={disabled} className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${active ? 'bg-[#3C48F6] text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white text-black hover:bg-yellow-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'} ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}>{children}</button>);
+const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (<button onClick={onClick} disabled={disabled} className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${active ? 'bg-[#3C48F5] text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white text-black hover:bg-blue-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'} ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}>{children}</button>);
 const NeuCard = ({ children, className = "" }: any) => (<div className={`bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 ${className}`}>{children}</div>);
-const NeuInput = (props: any) => (<input {...props} className="bg-white border-2 border-black p-2 font-bold text-sm placeholder:text-gray-400 focus:outline-none focus:bg-yellow-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all w-full font-mono" />);
+const NeuInput = (props: any) => (<input {...props} className="bg-white border-2 border-black p-2 font-bold text-sm placeholder:text-gray-400 focus:outline-none focus:bg-blue-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all w-full font-mono" />);
 const NeuModal = ({ title, isOpen, onClose, children }: any) => {
     if (!isOpen) return null;
     return (
@@ -42,7 +42,7 @@ const NeuModal = ({ title, isOpen, onClose, children }: any) => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                     <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 10 }} className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-md overflow-hidden z-10">
-                        <div className="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
+                        <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
                         <div className="p-6">{children}</div>
                     </motion.div>
                 </div>
@@ -223,7 +223,7 @@ function DashboardContent() {
             {/* Mobile Sidebar */}
             <AnimatePresence>
                 {isSidebarOpen && (
-                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white border-r-4 border-black flex flex-col z-50 shadow-[10px_0px_0px_0px_rgba(0,0,0,0.2)]"><div className="p-6 border-b-2 border-black flex justify-between items-center bg-yellow-400"><span className="font-black text-xl uppercase">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="border-2 border-black bg-white hover:bg-red-500 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-3">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
+                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white border-r-4 border-black flex flex-col z-50 shadow-[10px_0px_0px_0px_rgba(0,0,0,0.2)]"><div className="p-6 border-b-2 border-black flex justify-between items-center bg-[#3C48F5] text-white"><span className="font-black text-xl uppercase">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="border-2 border-black bg-white text-black hover:bg-red-500 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-3">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
                 )}
             </AnimatePresence>
 
@@ -231,15 +231,27 @@ function DashboardContent() {
             <main className="relative z-10 flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 backdrop-blur-sm border-b-4 border-black items-center justify-between px-8 shadow-sm">
                     <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-2"><div className="w-10 h-10 border-2 border-black bg-white overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
-  <Image 
-    src="/applogo.png" 
-    alt="EasyPost Logo" 
-    width={40} 
-    height={40} 
-    className="object-contain p-1" 
-  />
-</div><span className="font-black text-2xl tracking-tighter italic">ASYPOST.</span></div>
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => router.push('/')}
+                                className="p-2 bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:bg-blue-50 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                title="Back to Home"
+                            >
+                                <Home size={20} strokeWidth={3} />
+                            </button>
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 border-2 border-black bg-white overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+                                    <Image 
+                                        src="/applogo.png" 
+                                        alt="EasyPost Logo" 
+                                        width={40} 
+                                        height={40} 
+                                        className="object-contain p-1" 
+                                    />
+                                </div>
+                                <span className="font-black text-2xl tracking-tighter italic">ASYPOST.</span>
+                            </div>
+                        </div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black rounded-none overflow-hidden bg-gray-100"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px]">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black" /></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 border-2 border-transparent hover:border-black transition-all"><div className="w-5 h-5 border border-black overflow-hidden bg-gray-50"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
@@ -267,7 +279,7 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white">
-                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
+                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
                                                 <Composer onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
                                             <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} onEdit={setEditingPost} /></div>
@@ -295,7 +307,7 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-yellow-400 border-2 border-black shadow-[4px_4px_0px_0px_#000]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black transition-all duration-200 group ${activeTab === item.id ? 'bg-black text-white shadow-[4px_4px_0px_0px_#000] translate-x-[-2px] translate-y-[-2px]' : 'bg-white text-black hover:bg-gray-100 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white border-2 border-black border-dashed"><p className="text-xs font-mono text-gray-500 mb-2">SUBSCRIPTION</p><div className="flex justify-between items-end"><span className="text-xl font-black">PRO</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-blue-600">MANAGE</button></div></div></div>
+                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-[#3C48F5] text-white border-2 border-black shadow-[4px_4px_0px_0px_#000]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black transition-all duration-200 group ${activeTab === item.id ? 'bg-black text-white shadow-[4px_4px_0px_0px_#000] translate-x-[-2px] translate-y-[-2px]' : 'bg-white text-black hover:bg-gray-100 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white border-2 border-black border-dashed"><p className="text-xs font-mono text-gray-500 mb-2">SUBSCRIPTION</p><div className="flex justify-between items-end"><span className="text-xl font-black">PRO</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-blue-600">MANAGE</button></div></div></div>
                     </div>
                 </div>
             </main>
@@ -458,5 +470,5 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
 };
 
 // ... SidebarItem & EngagementWithTabs (Same as before) ...
-const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black transition-all ${active ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000]' : 'bg-white text-black hover:bg-yellow-100 hover:translate-x-1'}`}><Icon size={18} strokeWidth={2.5} /> {label}</button>);
-const EngagementWithTabs = () => { const [subTab, setSubTab] = useState<'inbox' | 'analytics'>('inbox'); return (<div><div className="flex items-center gap-4 mb-6 border-b-2 border-black pb-4"><button onClick={() => setSubTab('inbox')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'inbox' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><MessageCircle size={16} /> Inbox</button><button onClick={() => setSubTab('analytics')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'analytics' ? 'bg-yellow-400 shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><BarChart2 size={16} /> Performance</button></div>{subTab === 'inbox' && <Engagement />}{subTab === 'analytics' && <EngagementAnalytics />}</div>); };
+const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black transition-all ${active ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000]' : 'bg-white text-black hover:bg-blue-50 hover:translate-x-1'}`}><Icon size={18} strokeWidth={2.5} /> {label}</button>);
+const EngagementWithTabs = () => { const [subTab, setSubTab] = useState<'inbox' | 'analytics'>('inbox'); return (<div><div className="flex items-center gap-4 mb-6 border-b-2 border-black pb-4"><button onClick={() => setSubTab('inbox')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'inbox' ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><MessageCircle size={16} /> Inbox</button><button onClick={() => setSubTab('analytics')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'analytics' ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><BarChart2 size={16} /> Performance</button></div>{subTab === 'inbox' && <Engagement />}{subTab === 'analytics' && <EngagementAnalytics />}</div>); };
