@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 export default function MediaGallery() {
   const queryClient = useQueryClient();
@@ -144,9 +145,6 @@ export default function MediaGallery() {
                         </div>
                     </div>
 
-import { format } from 'date-fns'; // ➤ Ensure format is imported
-
-// ... inside the map ...
                     {/* Metadata Badge */}
                     <div className="absolute top-0 left-0 flex flex-col items-start">
                         <span className="bg-yellow-400 text-black text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black">

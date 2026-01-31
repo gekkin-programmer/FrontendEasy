@@ -9,7 +9,7 @@ import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
   Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
   ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
-  Sparkles, AlertTriangle
+  Sparkles, AlertTriangle, MessageCircle, RefreshCw
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

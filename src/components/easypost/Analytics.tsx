@@ -410,6 +410,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                     </div>
                 )}
             </div>
+            </div>
         </motion.div>
     );
 }

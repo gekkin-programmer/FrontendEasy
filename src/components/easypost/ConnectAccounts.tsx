@@ -7,7 +7,8 @@ import { api } from '@/src/lib/api';
 import { 
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube 
 } from 'react-icons/fa';
-import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; // ➤ Added RefreshCw, AlertTriangle
+import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; 
+import { format } from 'date-fns';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
@@ -118,9 +119,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                   {platform.label}
               </h3>
               
-import { format } from 'date-fns'; // ➤ Import format
-
-// ... (inside the map)
               {isConnected ? (
                 <div className="space-y-1 mb-6">
                   <p className="font-mono text-xs bg-yellow-300 inline-block px-1 border border-black truncate max-w-full">
