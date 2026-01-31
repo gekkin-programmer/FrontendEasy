@@ -115,8 +115,16 @@ export class WorkspacesService {
       where: { workspaceId_userId: { workspaceId, userId } },
     });
 
-    if (!member || (member.role !== 'OWNER' && member.role !== 'ADMIN')) {
+    if (member.role !== 'OWNER' && member.role !== 'ADMIN') {
       throw new ForbiddenException('You must be an Admin or Owner to do this');
     }
+  }
+
+  // ➤ FOR TESTING ONLY: Manually set post count
+  async setPostCount(workspaceId: string, count: number) {
+    return this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { currentPostCount: count }
+    });
   }
 }

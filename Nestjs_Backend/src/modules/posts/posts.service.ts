@@ -51,14 +51,15 @@ export class PostsService {
 
   // ➤ LIST POSTS (Updated for Analytics Filters)
   async findAll(workspaceId: string, query: any = {}) {
-    const { status, limit = 50 } = query;
+    const { status, limit = 50, search } = query;
 
     return this.prisma.post.findMany({
       where: { 
         workspaceId,
         // If status is provided, filter by it. 
-        // For Analytics, we usually want "PUBLISHED"
-        ...(status ? { status: status as PostStatus } : {})
+        ...(status ? { status: status as PostStatus } : {}),
+        // Search by content (case insensitive)
+        ...(search ? { content: { contains: search, mode: 'insensitive' } } : {})
       },
       include: { 
         socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },

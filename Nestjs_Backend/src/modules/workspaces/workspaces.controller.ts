@@ -51,4 +51,10 @@ export class WorkspacesController {
   remove(@Param('id') id: string, @Req() req) {
     return this.workspacesService.remove(id, req.user.sub);
   }
+
+  @Patch(':id/set-post-count')
+  @ApiOperation({ summary: 'FOR TESTING: Set workspace post count' })
+  setPostCount(@Param('id') id: string, @Body('count') count: number) {
+    return this.workspacesService.setPostCount(id, count);
+  }
 }

@@ -98,8 +98,8 @@ function DashboardContent() {
     });
 
     const { data: posts = [] } = useQuery({
-        queryKey: ['posts', workspaceId],
-        queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+        queryKey: ['posts', workspaceId, searchTerm],
+        queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
         refetchInterval: 15000, 
     });
@@ -203,7 +203,7 @@ function DashboardContent() {
     };
 
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
-    const filteredPosts = posts.filter((p:any) => JSON.stringify(p).toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredPosts = posts;
 
     if (currentWsLoading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
     

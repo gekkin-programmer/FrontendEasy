@@ -45,14 +45,15 @@ export class PostsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List posts (Filter by Status)' })
+  @ApiOperation({ summary: 'List posts (Filter by Status & Search)' })
   @ApiQuery({ name: 'status', enum: PostStatus, required: false })
-  async findAll(@Req() req, @Query('status') status?: PostStatus) {
+  @ApiQuery({ name: 'search', type: String, required: false })
+  async findAll(@Req() req, @Query('status') status?: PostStatus, @Query('search') search?: string) {
     const userId = req.user.sub;
     // 👇 FIX: Manually get ID
     const workspaceId = await this.getWorkspaceId(userId);
 
-    return this.postsService.findAll(workspaceId, status);
+    return this.postsService.findAll(workspaceId, { status, search });
   }
 
   @Get(':id')
