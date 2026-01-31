@@ -8,13 +8,13 @@ import { User } from '@prisma/client'; // Or your specific User interface
 
 @ApiTags('AI Engine')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard) // Apply Guard globally for the controller (Safety First)
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   // ➤ 1. Marketing Copy Generation
   @Post('test-copywriting')
+  @UseGuards(JwtAuthGuard) // Keep this protected
   @ApiOperation({ summary: 'Generate marketing copy' })
   async testCopywriting(
     @Body() dto: TestAiDto,
@@ -46,10 +46,10 @@ export class AiController {
   @ApiBody({ schema: { type: 'object', properties: { message: { type: 'string' } } } })
   async chat(
     @Body() body: { message: string },
-    @CurrentUser() user: any
+    @CurrentUser() user?: any
   ) {
-    const userId = user.sub || user.id;
-    const workspaceId = user.workspaceId || user.ownedWorkspaces?.[0]?.id || 'default-ws';
+    const userId = user?.sub || user?.id || 'visitor';
+    const workspaceId = user?.workspaceId || user?.ownedWorkspaces?.[0]?.id || 'guest-workspace';
 
     const result = await this.aiService.chatWithSupport(
       body.message,
@@ -57,11 +57,10 @@ export class AiController {
       workspaceId
     );
     
-    // Returns { messageId: "...", response: "..." }
     return result;
   }
 
-  // ➤ 3. Feedback Endpoint (CRITICAL FOR PHASE 5)
+  // ➤ 3. Feedback Endpoint
   @Post('feedback')
   @ApiOperation({ summary: 'Rate an AI response' })
   @ApiBody({ 
@@ -76,9 +75,9 @@ export class AiController {
   })
   async feedback(
     @Body() body: { messageId: string, rating: number, comment?: string },
-    @CurrentUser() user: any
+    @CurrentUser() user?: any
   ) {
-    const userId = user.sub || user.id;
+    const userId = user?.sub || user?.id || 'visitor';
     await this.aiService.submitFeedback(userId, body);
     return { success: true };
   }
