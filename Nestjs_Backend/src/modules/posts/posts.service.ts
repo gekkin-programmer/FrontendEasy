@@ -17,7 +17,7 @@ export class PostsService {
     let status = dto.status || PostStatus.DRAFT;
     if (dto.scheduledFor) status = PostStatus.SCHEDULED;
 
-    return this.prisma.post.create({
+    const post = await this.prisma.post.create({
       data: {
         content: dto.content,
         status,
@@ -39,6 +39,14 @@ export class PostsService {
       },
       include: { media: true, socialAccounts: true }
     });
+
+    // Increment Workspace Post Count
+    await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { currentPostCount: { increment: 1 } }
+    });
+
+    return post;
   }
 
   // ➤ LIST POSTS (Updated for Analytics Filters)
@@ -90,6 +98,10 @@ export class PostsService {
   async update(id: string, dto: UpdatePostDto, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
+
+    if (post.status === PostStatus.PUBLISHED) {
+      throw new ForbiddenException('Cannot edit a published post');
+    }
     
     return this.prisma.post.update({
       where: { id },
@@ -105,6 +117,10 @@ export class PostsService {
   async remove(id: string, workspaceId: string) {
     const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
     if (!post) throw new NotFoundException('Post not found');
+
+    if (post.status === PostStatus.PUBLISHED) {
+      throw new ForbiddenException('Cannot delete a published post');
+    }
 
     return this.prisma.post.delete({ where: { id } });
   }

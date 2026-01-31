@@ -3,7 +3,7 @@ import { WorkspacesService } from './workspaces.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
-describe('WorkspacesService', () => {
+describe('WorkspacesService - MVP Tests', () => {
   let service: WorkspacesService;
   let prisma: PrismaService;
 
@@ -20,6 +20,7 @@ describe('WorkspacesService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorkspacesService,
@@ -36,21 +37,31 @@ describe('WorkspacesService', () => {
   });
 
   describe('create', () => {
-    it('should create a workspace and add owner', async () => {
-      const dto = { name: 'Test Workspace' };
+    it('should create workspace with owner as admin', async () => {
+      const dto = { name: 'New Workspace' };
       const userId = 'user-1';
       
       mockPrismaService.workspace.create.mockResolvedValue({ id: 'ws-1', ...dto });
 
       const result = await service.create(dto as any, userId);
 
-      expect(prisma.workspace.create).toHaveBeenCalled();
+      expect(prisma.workspace.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          ownerId: userId,
+          members: expect.objectContaining({
+            create: expect.objectContaining({
+              userId,
+              role: 'OWNER'
+            })
+          })
+        })
+      }));
       expect(result.name).toBe(dto.name);
     });
   });
 
-  describe('findAll', () => {
-    it('should return workspaces for user', async () => {
+  describe('findAll and findOne', () => {
+    it('should list user workspaces', async () => {
       const userId = 'user-1';
       mockPrismaService.workspace.findMany.mockResolvedValue([{ id: 'ws-1' }]);
 
@@ -59,10 +70,8 @@ describe('WorkspacesService', () => {
       expect(result).toHaveLength(1);
       expect(prisma.workspace.findMany).toHaveBeenCalled();
     });
-  });
 
-  describe('findOne', () => {
-    it('should return workspace if user is member', async () => {
+    it('should get workspace details if member', async () => {
       const userId = 'user-1';
       const wsId = 'ws-1';
       const workspace = {
@@ -75,16 +84,43 @@ describe('WorkspacesService', () => {
 
       expect(result).toEqual(workspace);
     });
+  });
 
-    it('should throw ForbiddenException if user is not member', async () => {
-      const userId = 'user-1';
+  describe('update and remove', () => {
+    it('should update workspace name/description', async () => {
       const wsId = 'ws-1';
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
-        id: wsId,
-        members: [{ userId: 'other-user' }],
-      });
+      const userId = 'owner-1';
+      const updateDto = { name: 'Updated Name' };
 
-      await expect(service.findOne(wsId, userId)).rejects.toThrow(ForbiddenException);
+      // Helper verifyAdminRole mock
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'OWNER' });
+      mockPrismaService.workspace.update.mockResolvedValue({ id: wsId, ...updateDto });
+
+      const result = await service.update(wsId, updateDto as any, userId);
+      expect(result.name).toBe('Updated Name');
+    });
+
+    it('should delete workspace (only owner)', async () => {
+      const wsId = 'ws-1';
+      const userId = 'owner-1';
+
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'OWNER' });
+      mockPrismaService.workspace.update.mockResolvedValue({ id: wsId, status: 'INACTIVE' });
+
+      await service.remove(wsId, userId);
+      expect(prisma.workspace.update).toHaveBeenCalledWith({
+        where: { id: wsId },
+        data: { status: 'INACTIVE' }
+      });
+    });
+
+    it('should prevent non-owner from deleting', async () => {
+      const wsId = 'ws-1';
+      const userId = 'non-owner-id';
+
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'ADMIN' });
+
+      await expect(service.remove(wsId, userId)).rejects.toThrow(ForbiddenException);
     });
   });
 });

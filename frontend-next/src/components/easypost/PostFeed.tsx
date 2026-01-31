@@ -46,6 +46,7 @@ interface Account {
 interface PostFeedProps {
   posts: Post[];
   accounts: Account[];
+  onEdit?: (post: Post) => void;
 }
 
 // Helper
@@ -59,7 +60,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
   }
 };
 
-export default function PostFeed({ posts, accounts }: PostFeedProps) {
+export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
   const drafts = posts.filter(p => p.status === 'DRAFT');
@@ -137,6 +138,7 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
                 post={post} 
                 accounts={accounts}
                 onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
                 draggable={true}
                 onDragStart={(e) => handleDragStart(e, post.id)}
               />
@@ -174,6 +176,7 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
                 post={post}
                 accounts={accounts}
                 onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
                 isQueued
               />
             ))}
@@ -196,12 +199,13 @@ interface PostCardProps {
   post: Post;
   accounts: Account[];
   onDelete: () => void;
+  onEdit?: () => void;
   isQueued?: boolean;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
 }
 
-const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }: PostCardProps) => {
+const PostCard = ({ post, accounts, onDelete, onEdit, isQueued, draggable, onDragStart }: PostCardProps) => {
   const accountId = post.socialAccountIds?.[0];
   const account = accounts.find(a => a.id === accountId);
 
@@ -275,9 +279,23 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
            </span>
         </div>
         
-        <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
-          <Trash2 size={14} />
-        </NeuButton>
+        <div className="flex gap-1">
+          <NeuButton 
+            disabled={post.status === 'PUBLISHED'}
+            onClick={(e: any) => { 
+              e.stopPropagation(); 
+              if (post.status === 'PUBLISHED') return toast.error("CANNOT_EDIT_PUBLISHED");
+              onEdit?.(); 
+            }}
+            title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
+          >
+            <Edit2 size={14} className={post.status === 'PUBLISHED' ? 'opacity-30' : ''} />
+          </NeuButton>
+
+          <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
+            <Trash2 size={14} />
+          </NeuButton>
+        </div>
       </div>
     </motion.div>
   );

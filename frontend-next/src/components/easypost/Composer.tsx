@@ -25,12 +25,14 @@ interface TemplateItem { id: number; title: string; content: string; }
 
 interface ComposerProps {
   accounts: any[]; 
+  postToEdit?: any; // New prop
   onSchedule: (
     content: string,
     date?: Date,
     mediaIds?: string[], // ➤ UPDATED: We pass IDs now
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
-    selectedAccountIds?: string[]
+    selectedAccountIds?: string[],
+    postId?: string // New arg for update
   ) => Promise<void>;
 }
 
@@ -77,10 +79,23 @@ const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black fill-black" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 
-export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
+export default function Composer({ onSchedule, accounts = [], postToEdit }: ComposerProps) {
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  
+  // Populate from postToEdit
+  useEffect(() => {
+    if (postToEdit) {
+      setText(postToEdit.content || '');
+      setDate(postToEdit.scheduledFor ? new Date(postToEdit.scheduledFor) : undefined);
+      if (postToEdit.mediaUrls?.[0]) setMediaPreview(postToEdit.mediaUrls[0]);
+      if (postToEdit.socialAccountIds) setSelectedAccountIds(postToEdit.socialAccountIds);
+    } else {
+      // Reset if null (e.g. cancelled edit)
+      setText(''); setDate(undefined); setMediaPreview(null);
+    }
+  }, [postToEdit]);
   const [category, setCategory] = useState('General');
   
   // Media State
@@ -236,7 +251,8 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
             action === 'queue' ? date || new Date() : undefined,
             finalMediaId ? [finalMediaId] : [], 
             status, 
-            targets
+            targets,
+            postToEdit?.id // Pass ID if editing
         );
         
         setText(''); setDate(undefined); setLocalFile(null); setSelectedMediaId(null); setMediaPreview(null);
@@ -355,7 +371,7 @@ export default function Composer({ onSchedule, accounts = [] }: ComposerProps) {
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 text-purple-900 font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
-                      {date ? 'SCHEDULE' : 'EXECUTE'}
+                      {postToEdit ? 'UPDATE' : (date ? 'SCHEDULE' : 'EXECUTE')}
                   </NeuButton>
               </div>
             </div>

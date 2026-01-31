@@ -71,6 +71,7 @@ function DashboardContent() {
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingPost, setEditingPost] = useState<any>(null);
     
     // OAUTH STATES
     const [isFbPageSelectorOpen, setIsFbPageSelectorOpen] = useState(false);
@@ -158,12 +159,18 @@ function DashboardContent() {
         onError: () => toast.error("INIT_FAILED")
     });
 
-    const createPostMutation = useMutation({
-        mutationFn: (payload: any) => api.post('/posts', payload),
+    const upsertPostMutation = useMutation({
+        mutationFn: (payload: any) => {
+            if (payload.id) {
+                return api.patch(`/posts/${payload.id}`, payload);
+            }
+            return api.post('/posts', payload);
+        },
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
             queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
             queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
+            setEditingPost(null); // Clear edit state
         },
         onError: () => toast.error("TRANSACTION_FAILED")
     });
@@ -173,10 +180,18 @@ function DashboardContent() {
         createWorkspaceMutation.mutate(newWorkspaceName);
     };
 
-    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[]) => {
+    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string) => {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
         if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
-        createPostMutation.mutate({ workspaceId, content, scheduledFor: date ? date.toISOString() : undefined, status, socialAccountIds: targets, mediaIds: mediaIds || [] });
+        upsertPostMutation.mutate({ 
+            id: postId, // Pass ID for update
+            workspaceId, 
+            content, 
+            scheduledFor: date ? date.toISOString() : undefined, 
+            status, 
+            socialAccountIds: targets, 
+            mediaIds: mediaIds || [] 
+        });
     };
 
     const handleVoiceCommand = (transcription: string) => {
@@ -252,10 +267,10 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white">
-                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>Create New Content</h2>
-                                                <Composer onSchedule={handleAddPost} accounts={accounts} />
+                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-yellow-400 border-2 border-black"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
+                                                <Composer onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} /></div>
+                                            <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} onEdit={setEditingPost} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (

@@ -8,6 +8,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PrismaService } from '../../prisma/prisma.service'; 
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SubscriptionGuard } from '../../common/guards/subscription.guard';
 import { PostStatus } from '@prisma/client';
 
 @ApiTags('Posts & Publishing')
@@ -33,6 +34,7 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiOperation({ summary: 'Create a new post' })
   async create(@Body() dto: CreatePostDto, @Req() req) {
     const userId = req.user.sub;
