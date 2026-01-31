@@ -24,11 +24,13 @@ export class AiController {
     // If workspaceId isn't on user, you might need a @CurrentWorkspace() decorator
     const workspaceId = user.workspaceId || user.ownedWorkspaces?.[0]?.id || 'default-ws';
 
+    const userId = user.sub || user.id;
+
     const result = await this.aiService.generateMarketingCopy(
       dto.product,
       "A generic test image description", // In real app, pass this from DTO
       dto.tone,
-      user.id,        // <--- Pass ID
+      userId,        // <--- Pass ID
       workspaceId,    // <--- Pass Workspace ID
       dto.length,     // <--- Pass length
       MarketingFramework.AIDA
@@ -46,12 +48,13 @@ export class AiController {
     @Body() body: { message: string },
     @CurrentUser() user: any
   ) {
-    const workspaceId = user.workspaceId || 'default-ws';
+    const userId = user.sub || user.id;
+    const workspaceId = user.workspaceId || user.ownedWorkspaces?.[0]?.id || 'default-ws';
 
     const result = await this.aiService.chatWithSupport(
       body.message,
-      user.id,      // <--- Pass ID
-      workspaceId   // <--- Pass Workspace ID
+      userId,
+      workspaceId
     );
     
     // Returns { messageId: "...", response: "..." }
@@ -75,7 +78,8 @@ export class AiController {
     @Body() body: { messageId: string, rating: number, comment?: string },
     @CurrentUser() user: any
   ) {
-    await this.aiService.submitFeedback(user.id, body);
+    const userId = user.sub || user.id;
+    await this.aiService.submitFeedback(userId, body);
     return { success: true };
   }
 }

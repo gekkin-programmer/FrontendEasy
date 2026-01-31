@@ -60,29 +60,36 @@ export class AiService {
    * Checks if the user has reached their AI usage limits.
    */
   private async checkUsageLimits(userId: string, workspaceId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { planType: true }
-    });
-
-    if (!user) throw new ForbiddenException('User not found');
-
-    if (user.planType === PlanType.FREE) {
-      // Count requests in the current month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const count = await this.prisma.aiUsageLog.count({
-        where: {
-          userId,
-          createdAt: { gte: startOfMonth }
-        }
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { planType: true }
       });
 
-      if (count >= 10) {
-        throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+      if (!user) {
+        this.logger.warn(`checkUsageLimits: User ${userId} not found.`);
+        return;
       }
+
+      if (user.planType === PlanType.FREE) {
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const count = await this.prisma.aiUsageLog.count({
+          where: {
+            userId,
+            createdAt: { gte: startOfMonth }
+          }
+        });
+
+        if (count >= 10) {
+          throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+        }
+      }
+    } catch (e) {
+      if (e instanceof ForbiddenException) throw e;
+      this.logger.error('Error checking AI usage limits', e);
     }
   }
 
@@ -167,8 +174,13 @@ export class AiService {
   // 🤝 THE SUPPORT AGENT (Customer Service)
   // ======================================================
   async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
-    await this.checkUsageLimits(userId, workspaceId);
-    if (!this.groq) return { messageId: 'mock-id', response: "Support AI is offline. Contact support@easypost.cm" };
+    try {
+      await this.checkUsageLimits(userId, workspaceId);
+    } catch (e) {
+      if (e instanceof ForbiddenException) return { messageId: 'limit-reached', response: e.message };
+    }
+
+    if (!this.groq) return { messageId: 'mock-id', response: "Steve AI is offline. Ensure GROQ_API_KEY is configured." };
 
     const messageId = uuidv4(); // Unique ID for feedback
     const systemPrompt = `
