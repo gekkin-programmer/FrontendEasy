@@ -147,7 +147,7 @@ export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
           
           {drafts.length === 0 && (
             <div className="text-center p-8 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
-              No_Drafts_Yet
+              {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
             </div>
           )}
         </div>
@@ -184,7 +184,7 @@ export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
           
           {queued.length === 0 && (
              <div className="text-center p-12 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
-               DRAG_DRAFT_HERE_TO_SCHEDULE
+               {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
              </div>
           )}
         </div>
