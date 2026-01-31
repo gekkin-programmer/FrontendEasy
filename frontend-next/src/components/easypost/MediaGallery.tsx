@@ -89,7 +89,7 @@ export default function MediaGallery() {
                 animate={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }}
                 className={cn(
                     "h-full transition-colors",
-                    (usage / (100 * 1024 * 1024)) > 0.9 ? "bg-red-500" : "bg-yellow-400"
+                    (usage / (100 * 1024 * 1024)) > 0.9 ? "bg-red-500" : "bg-[#3C48F5]"
                 )}
               />
           </div>
@@ -98,7 +98,7 @@ export default function MediaGallery() {
       {/* Upload Area */}
       <div 
         onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-black bg-white p-8 flex flex-col items-center justify-center text-black hover:bg-yellow-50 transition-all cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_#000]"
+        className="border-2 border-dashed border-black bg-white p-8 flex flex-col items-center justify-center text-black hover:bg-blue-50 transition-all cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_#000]"
       >
          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
          <div className="bg-black text-white p-4 mb-4 border-2 border-black group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_#000]">
@@ -133,7 +133,7 @@ export default function MediaGallery() {
                     {/* Actions Overlay (Hover) */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                         <div className="flex gap-3 items-center">
-                            <button className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-black py-2 text-xs font-black uppercase text-black hover:bg-yellow-400 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none">
+                            <button className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-black py-2 text-xs font-black uppercase text-black hover:bg-blue-400 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none">
                                 <FiImage size={14} /> Preview
                             </button>
                             <button 
@@ -147,7 +147,7 @@ export default function MediaGallery() {
 
                     {/* Metadata Badge */}
                     <div className="absolute top-0 left-0 flex flex-col items-start">
-                        <span className="bg-yellow-400 text-black text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black">
+                        <span className="bg-[#3C48F5] text-white text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black">
                             {formatSize(asset.size)}
                         </span>
                         <span className="bg-black text-white text-[8px] font-bold uppercase px-2 py-0.5 border-r-2 border-b-2 border-black">

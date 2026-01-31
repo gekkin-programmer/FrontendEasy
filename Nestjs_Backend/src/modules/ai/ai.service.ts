@@ -60,29 +60,36 @@ export class AiService {
    * Checks if the user has reached their AI usage limits.
    */
   private async checkUsageLimits(userId: string, workspaceId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { planType: true }
-    });
-
-    if (!user) throw new ForbiddenException('User not found');
-
-    if (user.planType === PlanType.FREE) {
-      // Count requests in the current month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const count = await this.prisma.aiUsageLog.count({
-        where: {
-          userId,
-          createdAt: { gte: startOfMonth }
-        }
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { planType: true }
       });
 
-      if (count >= 10) {
-        throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+      if (!user) {
+        this.logger.warn(`checkUsageLimits: User ${userId} not found.`);
+        return;
       }
+
+      if (user.planType === PlanType.FREE) {
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const count = await this.prisma.aiUsageLog.count({
+          where: {
+            userId,
+            createdAt: { gte: startOfMonth }
+          }
+        });
+
+        if (count >= 10) {
+          throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+        }
+      }
+    } catch (e) {
+      if (e instanceof ForbiddenException) throw e;
+      this.logger.error('Error checking AI usage limits', e);
     }
   }
 
@@ -167,13 +174,35 @@ export class AiService {
   // 🤝 THE SUPPORT AGENT (Customer Service)
   // ======================================================
   async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
-    await this.checkUsageLimits(userId, workspaceId);
-    if (!this.groq) return { messageId: 'mock-id', response: "Support AI is offline. Contact support@easypost.cm" };
+    try {
+      await this.checkUsageLimits(userId, workspaceId);
+    } catch (e) {
+      if (e instanceof ForbiddenException) return { messageId: 'limit-reached', response: e.message };
+    }
+
+    if (!this.groq) return { messageId: 'mock-id', response: "Steve AI is offline. Ensure GROQ_API_KEY is configured." };
 
     const messageId = uuidv4(); // Unique ID for feedback
     const systemPrompt = `
       ROLE: You are "Steve", the Senior Customer Success Manager at EasyPost Africa.
-      ... (rest of your prompt) ...
+      
+      IDENTITY: 
+      - EasyPost is a premium Social Media Management & Productivity platform designed for creators, agencies, and businesses in Africa. 
+      - We are NOT a shipping or logistics company. If users ask about packages, politely explain we are a Digital Marketing Engine.
+      
+      CORE FEATURES KNOWLEDGE:
+      1. COMPOSER: Where users write posts. Features "AI Magic" for captions and a Media Library for assets.
+      2. NETWORK NODES: Users connect accounts from Facebook, Instagram, Twitter/X, LinkedIn, TikTok, and WhatsApp.
+      3. CALENDAR: A visual timeline to plan and reschedule content.
+      4. ANALYTICS: Real-time tracking of Likes, Comments, and Reach. Provides "Niche Intel" like Best Time to Post and Growth Forecasts.
+      5. WORKSPACES: Multi-tenant areas for teams. Roles: OWNER, ADMIN, MEMBER, VIEWER.
+      
+      TONE & STYLE:
+      - Professional, encouraging, and tech-savvy.
+      - Use a modern "African Neubrutalist" vibe in your helpfulness: bold, direct, and high-energy.
+      - You can respond in English or French (Nouchi/Camfranglais only if requested).
+      
+      GOAL: Help users navigate the dashboard, improve their social strategy, and solve issues with the app.
     `;
 
     try {
@@ -222,11 +251,15 @@ export class AiService {
 
     const messageId = uuidv4();
     const systemPrompt = `
-      ROLE: You are an Elite Digital Marketing Strategist...
-      ... (rest of your prompt) ...
-      TONE: ${tone}
-      LENGTH: ${length}
-      FRAMEWORK: ${framework}
+      ROLE: You are an Elite Digital Marketing Strategist and Expert Copywriter.
+      TASK: Generate high-converting social media captions for the African market.
+      
+      GUIDELINES:
+      - TONE: ${tone} (Apply this strictly).
+      - LENGTH: ${length} (SHORT: <50 words, MEDIUM: 50-150, LONG: 150+).
+      - FRAMEWORK: ${framework} (Use AIDA: Attention-Interest-Desire-Action, PAS: Problem-Agitation-Solution, etc.).
+      - ALWAYS include relevant emojis and 3-5 trending hashtags.
+      - If tone is CAMFRANGLAIS or NOUCHI, use authentic local slang appropriately.
     `;
 
     try {

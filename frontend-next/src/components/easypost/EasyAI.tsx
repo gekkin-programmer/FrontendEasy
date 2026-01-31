@@ -23,6 +23,26 @@ interface AiChatResponse {
   response: string;
 }
 
+// --- SUB-COMPONENTS ---
+const Typewriter = ({ text, speed = 20, onComplete }: { text: string, speed?: number, onComplete?: () => void }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [index, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (index < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText((prev) => prev + text.charAt(index));
+        setIdx(index + 1);
+      }, speed);
+      return () => clearTimeout(timeout);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [index, text, speed, onComplete]);
+
+  return <span>{displayedText}</span>;
+};
+
 export default function EasyAI() {
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
@@ -46,12 +66,9 @@ export default function EasyAI() {
         rating: rating,
       });
       
-      const newMessages = [...messages];
-      newMessages[msgIdx].feedbackGiven = true;
-      setMessages(newMessages);
-      toast.success(rating === 1 ? "GLAD_YOU_LIKED_IT" : "FEEDBACK_RECORDED");
+      setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, feedbackGiven: true } : m));
     } catch (e) {
-      toast.error("FEEDBACK_FAILED");
+      // Silent fail for UX
     }
   };
 
@@ -115,12 +132,12 @@ export default function EasyAI() {
                 whileHover={{ scale: 1.1, rotate: -3 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-full group transition-all hover:bg-yellow-300"
+                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] rounded-full group transition-all hover:bg-blue-50"
                 aria-label="Open AI Chat"
             >
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                     <Image 
-                        src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} 
+                        src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F5`} 
                         alt="AI Avatar" 
                         fill
                         className="rounded-full border-2 border-black bg-white object-cover"
@@ -161,11 +178,11 @@ export default function EasyAI() {
                 )}
             >
                 {/* HEADER */}
-                <div className="flex items-center justify-between p-4 border-b-4 border-black bg-[#3C48F6]">
+                <div className="flex items-center justify-between p-4 border-b-4 border-black bg-[#3C48F5]">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10">
                             <Image 
-                                src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} 
+                                src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F5`} 
                                 alt="Bot"
                                 fill
                                 className="rounded-full border-2 border-black bg-white object-cover"
@@ -196,7 +213,7 @@ export default function EasyAI() {
                     {/* Empty State */}
                     {messages.length === 0 && (
                         <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-100">
-                            <div className="w-20 h-20 bg-yellow-300 border-4 border-black rounded-full flex items-center justify-center text-black shadow-[4px_4px_0px_0px_#000]">
+                            <div className="w-20 h-20 bg-[#3C48F5] border-4 border-black rounded-full flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#000]">
                                 {isDashboard ? <Sparkles size={32} /> : <MessageCircle size={32} />}
                             </div>
                             <div>
@@ -233,10 +250,14 @@ export default function EasyAI() {
                             <div className={cn(
                                 "max-w-[85%] p-3 sm:p-4 text-sm font-bold border-2 border-black shadow-[4px_4px_0px_0px_#000]",
                                 msg.role === 'user' 
-                                    ? "bg-[#3C48F6] text-white rounded-2xl rounded-br-none" 
+                                    ? "bg-[#3C48F5] text-white rounded-2xl rounded-br-none" 
                                     : "bg-white text-black rounded-2xl rounded-bl-none"
                             )}>
-                                {msg.content}
+                                {msg.role === 'ai' ? (
+                                    <Typewriter text={msg.content} />
+                                ) : (
+                                    msg.content
+                                )}
 
                                 {msg.role === 'ai' && msg.messageId && !msg.feedbackGiven && (
                                     <div className="mt-3 pt-2 border-t border-black/10 flex gap-2 justify-end">
@@ -284,7 +305,7 @@ export default function EasyAI() {
                         <button 
                             onClick={() => handleSend()}
                             disabled={!query.trim() || isTyping}
-                            className="absolute right-2 p-2 bg-[#3C48F6] text-white rounded-lg border-2 border-black hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-[#3C48F6] transition-all shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                            className="absolute right-2 p-2 bg-[#3C48F5] text-white rounded-lg border-2 border-black hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-[#3C48F5] transition-all shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                         >
                             {isTyping ? <Loader2 className="animate-spin" size={20} /> : <ArrowUp size={20} strokeWidth={3} />}
                         </button>
