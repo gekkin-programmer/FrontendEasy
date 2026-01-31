@@ -5,8 +5,16 @@ import {
 import { PostsService } from './posts.service';
 import { PublisherService } from './publishing/publisher.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { PrismaService } from '../../prisma/prisma.service'; 
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SubscriptionGuard } from '../../common/guards/subscription.guard';
+import { PostStatus } from '@prisma/client';
 
-// ...
+@ApiTags('Posts & Publishing')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostsController {
   constructor(

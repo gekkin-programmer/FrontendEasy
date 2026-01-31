@@ -1,6 +1,6 @@
 import { 
   Controller, Get, Post, Body, UseGuards, Req, Res, Param, Delete, 
-  UnauthorizedException, Query, NotImplementedException 
+  UnauthorizedException, Query, NotImplementedException, Patch
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SocialAccountsService } from './social-accounts.service';

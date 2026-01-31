@@ -115,7 +115,7 @@ export class WorkspacesService {
       where: { workspaceId_userId: { workspaceId, userId } },
     });
 
-    if (member.role !== 'OWNER' && member.role !== 'ADMIN') {
+    if (!member || (member.role !== 'OWNER' && member.role !== 'ADMIN')) {
       throw new ForbiddenException('You must be an Admin or Owner to do this');
     }
   }
