@@ -49,7 +49,6 @@ export default function EasyAI() {
       const newMessages = [...messages];
       newMessages[msgIdx].feedbackGiven = true;
       setMessages(newMessages);
-      toast.success(rating === 1 ? "GLAD_YOU_LIKED_IT" : "FEEDBACK_RECORDED");
     } catch (e) {
       toast.error("FEEDBACK_FAILED");
     }
