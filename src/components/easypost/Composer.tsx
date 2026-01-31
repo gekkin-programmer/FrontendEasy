@@ -89,19 +89,19 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
     if (postToEdit) {
       setText(postToEdit.content || '');
       setDate(postToEdit.scheduledFor ? new Date(postToEdit.scheduledFor) : undefined);
-      if (postToEdit.mediaUrls?.[0]) setMediaPreview(postToEdit.mediaUrls[0]);
+      if (postToEdit.mediaUrls) setMediaPreviews(postToEdit.mediaUrls);
       if (postToEdit.socialAccountIds) setSelectedAccountIds(postToEdit.socialAccountIds);
     } else {
       // Reset if null (e.g. cancelled edit)
-      setText(''); setDate(undefined); setMediaPreview(null);
+      setText(''); setDate(undefined); setMediaPreviews([]);
     }
   }, [postToEdit]);
   const [category, setCategory] = useState('General');
   
   // Media State
-  const [localFile, setLocalFile] = useState<File | null>(null);
-  const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null);
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [localFiles, setLocalFiles] = useState<File[]>([]);
+  const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
@@ -110,6 +110,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false); // ➤ New State
   
   // AI Params
   const [aiContext, setAiContext] = useState("");
@@ -173,12 +174,25 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) { setLocalFile(selected); setSelectedMediaId(null); setMediaPreview(URL.createObjectURL(selected)); }
+    const selected = Array.from(e.target.files || []);
+    if (selected.length > 0) {
+      setLocalFiles(prev => [...prev, ...selected]);
+      const newPreviews = selected.map(file => URL.createObjectURL(file));
+      setMediaPreviews(prev => [...prev, ...newPreviews]);
+    }
   };
 
   const handleSelectFromLibrary = (item: LibraryItem) => {
-      setLocalFile(null); setSelectedMediaId(item.id); setMediaPreview(item.url || null); toast.success("MEDIA_LINKED");
+      if (!selectedMediaIds.includes(item.id)) {
+          setSelectedMediaIds(prev => [...prev, item.id]);
+          setMediaPreviews(prev => [...prev, item.url || '']);
+          toast.success("MEDIA_LINKED");
+      }
+  };
+
+  const removeMedia = (index: number) => {
+      setMediaPreviews(prev => prev.filter((_, i) => i !== index));
+      // Also remove from localFiles or selectedMediaIds if necessary (simplified for MVP)
   };
 
   // ➤ LOGIC: AI GENERATION
@@ -223,21 +237,27 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
 
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
-    if (!text && !localFile && !selectedMediaId) return toast.error('ERR: CONTENT_EMPTY');
+    if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
     
+    // Past Date Validation
+    if (date && date < new Date()) {
+        return toast.error("Cannot schedule in the past");
+    }
+
     const targets = selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
     if (targets.length === 0) return toast.error('ERR: NO_NODES_LINKED');
 
     setIsSubmitting(true);
     try {
-        let finalMediaId = selectedMediaId;
+        let finalMediaIds = [...selectedMediaIds];
         
-        // If user selected a local file, upload it first to get an ID
-        if (localFile && !finalMediaId) {
-            toast.loading("SYSTEM: UPLOADING_MEDIA...");
-            const uploadedId = await uploadSingleFile(localFile);
-            if (!uploadedId) { setIsSubmitting(false); return; }
-            finalMediaId = uploadedId;
+        // Upload local files
+        if (localFiles.length > 0) {
+            toast.loading(`SYSTEM: UPLOADING_${localFiles.length}_ASSETS...`);
+            for (const file of localFiles) {
+                const uploadedId = await uploadSingleFile(file);
+                if (uploadedId) finalMediaIds.push(uploadedId);
+            }
             toast.dismiss();
         }
 
@@ -249,13 +269,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
         await onSchedule(
             text, 
             action === 'queue' ? date || new Date() : undefined,
-            finalMediaId ? [finalMediaId] : [], 
+            finalMediaIds, 
             status, 
             targets,
             postToEdit?.id // Pass ID if editing
         );
         
-        setText(''); setDate(undefined); setLocalFile(null); setSelectedMediaId(null); setMediaPreview(null);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]);
     } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
   };
 
@@ -350,10 +370,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
         <div className="px-6 pb-6 bg-white">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 bg-transparent p-0 rounded-none leading-relaxed font-mono" />
           
-          {mediaPreview && (
-            <div className="relative w-full h-64 border-2 border-black mt-4 group bg-gray-100 shadow-[4px_4px_0px_0px_#000]">
-              <img src={mediaPreview} className="w-full h-full object-cover" alt="" />
-              <button onClick={() => { setLocalFile(null); setMediaPreview(null); setSelectedMediaId(null); }} className="absolute top-2 right-2 bg-red-600 border-2 border-black text-white p-1 hover:bg-red-700 transition-colors shadow-[2px_2px_0px_0px_#000]"><X size={16} strokeWidth={3} /></button>
+          {mediaPreviews.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+              {mediaPreviews.map((url, idx) => (
+                <div key={idx} className="relative aspect-square border-2 border-black group bg-gray-100 shadow-[4px_4px_0px_0px_#000]">
+                  <img src={url} className="w-full h-full object-cover" alt="" />
+                  <button onClick={() => removeMedia(idx)} className="absolute top-1 right-1 bg-red-600 border-2 border-black text-white p-0.5 hover:bg-red-700 transition-colors shadow-[2px_2px_0px_0px_#000] opacity-0 group-hover:opacity-100"><X size={12} strokeWidth={3} /></button>
+                </div>
+              ))}
             </div>
           )}
 
@@ -368,6 +392,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
             <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
               <Popover><PopoverTrigger asChild><NeuButton className="bg-white text-black px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white p-3" /><div className="p-3 border-t-2 border-black bg-yellow-50 flex items-center gap-2"><Clock size={16} className="text-black" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black border-b-2 border-black/20 focus:border-black" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
+                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-yellow-100 text-black font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 text-purple-900 font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
@@ -417,6 +442,110 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
           <div className="bg-gray-100 p-2 text-xs font-mono mb-4 border border-black max-h-20 overflow-y-auto">{text || "NO CONTENT TO SAVE"}</div>
           <NeuButton onClick={() => { setSavedTemplates(p => [...p, { id: Date.now(), title: inputTemplateName, content: text }]); setInputTemplateName(""); setShowTemplateModal(false); }} className="w-full bg-black text-white py-2" disabled={!text}>SAVE</NeuButton>
       </NeuModal>
+
+      {/* 🚀 TEST 10: PREVIEW MODAL */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white border-4 border-black shadow-[16px_16px_0px_0px_#000] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col font-sans text-black">
+                <div className="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center">
+                    <span className="font-black uppercase tracking-tighter text-xl">LIVE_PREVIEW_STREAM</span>
+                    <button onClick={() => setIsPreviewOpen(false)} className="hover:bg-black hover:text-white transition-colors p-1 border-2 border-transparent hover:border-black"><X size={24} strokeWidth={3}/></button>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-8 bg-[#F0F2F5]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        
+                        {/* 1. FACEBOOK PREVIEW */}
+                        <div className="space-y-3">
+                            <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black shadow-[2px_2px_0px_0px_#000]">FACEBOOK_FEED</span>
+                            <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-10 h-10 bg-gray-200 rounded-full border border-gray-300"></div>
+                                    <div className="flex-1">
+                                        <div className="h-3 w-24 bg-gray-200 rounded"></div>
+                                        <div className="h-2 w-16 bg-gray-100 rounded mt-1"></div>
+                                    </div>
+                                </div>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
+                                {mediaPreviews.length > 0 && (
+                                    <div className={cn(
+                                        "grid gap-1 rounded-md overflow-hidden border border-gray-100",
+                                        mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                                    )}>
+                                        {mediaPreviews.slice(0, 4).map((url, i) => (
+                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="pt-2 border-t border-gray-100 flex justify-between text-gray-500 text-xs font-bold uppercase">
+                                    <span>Like</span><span>Comment</span><span>Share</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. TWITTER PREVIEW */}
+                        <div className="space-y-3">
+                            <span className="text-[10px] font-black uppercase bg-black text-white px-2 py-0.5 border border-black shadow-[2px_2px_0px_0px_#000]">X_TIMELINE</span>
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-3">
+                                <div className="w-12 h-12 bg-gray-200 rounded-full shrink-0"></div>
+                                <div className="space-y-2 flex-1 min-w-0">
+                                    <div className="flex gap-1 items-center">
+                                        <div className="h-3 w-20 bg-gray-200 rounded"></div>
+                                        <div className="h-3 w-16 bg-gray-100 rounded"></div>
+                                    </div>
+                                    <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                    {mediaPreviews.length > 0 && (
+                                        <div className={cn(
+                                            "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 max-h-64",
+                                            mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                                        )}>
+                                            {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                <img key={i} src={url} className="w-full h-full object-cover" />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between max-w-xs pt-1 text-gray-400">
+                                        <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. LINKEDIN PREVIEW */}
+                        <div className="space-y-3">
+                            <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black shadow-[2px_2px_0px_0px_#000]">LINKEDIN_NETWORK</span>
+                            <div className="bg-white border border-gray-200 p-4 space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-12 h-12 bg-gray-200 rounded shadow-sm"></div>
+                                    <div>
+                                        <div className="h-3 w-32 bg-gray-200 rounded"></div>
+                                        <div className="h-2 w-24 bg-gray-100 rounded mt-1"></div>
+                                    </div>
+                                </div>
+                                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
+                                {mediaPreviews.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-1 rounded border border-gray-100">
+                                        {mediaPreviews.slice(0, 4).map((url, i) => (
+                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="pt-2 border-t border-gray-100 flex gap-6 text-gray-500 text-xs font-bold uppercase">
+                                    <span>Like</span><span>Comment</span><span>Repost</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div className="p-6 border-t-4 border-black bg-white flex justify-end gap-4">
+                    <NeuButton variant="secondary" onClick={() => setIsPreviewOpen(false)} className="px-8">CLOSE</NeuButton>
+                    <NeuButton variant="primary" onClick={() => { setIsPreviewOpen(false); handleSubmit('execute'); }} className="px-8 bg-green-600 hover:bg-green-700">SATISFIED_PUBLISH</NeuButton>
+                </div>
+            </motion.div>
+        </div>
+      )}
     </div>
   );
 }

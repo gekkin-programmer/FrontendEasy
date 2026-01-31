@@ -6,13 +6,14 @@ import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api'; // Use our robust client for Profile/Workspace too
 import ConnectAccounts from './ConnectAccounts'; // 🟢 The new component we built
 
-import { 
+import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
-  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader
+  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase // ➤ Added FiDatabase
 } from 'react-icons/fi';
+import MediaGallery from './MediaGallery'; // ➤ Import MediaGallery for Storage tab
 
 // --- CONFIG ---
-type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing';
+type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage'; // ➤ Added storage
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
@@ -64,6 +65,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
     { id: 'profile', label: 'Profile', icon: <FiUser size={16} /> },
     { id: 'workspace', label: 'Workspace', icon: <FiBriefcase size={16} /> },
     { id: 'account', label: 'Connections', icon: <FiShield size={16} /> },
+    { id: 'storage', label: 'Storage', icon: <FiDatabase size={16} /> }, // ➤ New Tab
     { id: 'notifications', label: 'Notifications', icon: <FiBell size={16} /> },
     { id: 'team', label: 'Members', icon: <FiUsers size={16} /> },
     { id: 'billing', label: 'Billing', icon: <FiCreditCard size={16} /> },
@@ -106,7 +108,13 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
                     <ConnectAccounts workspaceId={workspaceId} />
                 </div>
             )}
-            
+
+            {/* 🟢 STORAGE TAB */}
+            {activeTab === 'storage' && (
+                <div className="animate-in fade-in duration-300">
+                    <MediaGallery />
+                </div>
+            )}            
             {/* Placeholders */}
             {activeTab === 'notifications' && <NeuCard title="Notifications"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
             {activeTab === 'team' && <NeuCard title="Team Management"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}

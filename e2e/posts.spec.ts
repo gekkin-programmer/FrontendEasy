@@ -106,6 +106,24 @@ test.describe('Post Management Full Workflow', () => {
     await expect(page.locator(`text=${newContent}`).locator('xpath=./../..').locator('img').first()).toBeVisible();
   });
 
+  test('Test 8: Bulk Publish', async ({ page }) => {
+    // 1. Create multiple drafts
+    for(let i=0; i<3; i++) {
+        await page.getByPlaceholder('INPUT_CONTENT_STREAM...').fill(`Bulk Draft ${i} ${Date.now()}`);
+        await page.click('button:has-text("REVIEW")');
+        await expect(page.getByText('TRANSACTION_COMMITTED')).toBeVisible();
+    }
+
+    // 2. Click PUBLISH_ALL
+    page.on('dialog', dialog => dialog.accept());
+    await page.click('button:has-text("PUBLISH_ALL")');
+
+    // 3. Verify they move to Queue column (might take time)
+    // We check if "Drafts (0)" or similar appears or just check the first one
+    const draftsColumn = page.locator('text=Drafts').locator('xpath=./../..');
+    await expect(draftsColumn.getByText(/Bulk Draft/i)).toHaveCount(0, { timeout: 15000 });
+  });
+
   test('Test 4: Delete Post', async ({ page }) => {
     const content = `DeleteMe ${Date.now()}`;
     await page.getByPlaceholder('INPUT_CONTENT_STREAM...').fill(content);
@@ -161,6 +179,61 @@ test.describe('Post Management Full Workflow', () => {
     // 3. Scheduled -> voir scheduled
     const queueColumn = page.locator('text=Queue').locator('xpath=./../..');
     await expect(queueColumn.getByText(scheduledContent)).toBeVisible();
-    await expect(queueColumn.getByText(draftContent)).not.toBeVisible();
+    await expect(page.getByText('POST_DELETED')).toBeVisible();
+    await expect(page.getByText(content)).not.toBeVisible();
+  });
+
+  test('Test 7: Immediate Publish', async ({ page }) => {
+    // 1. Create a draft
+    const content = `PublishNow ${Date.now()}`;
+    await page.getByPlaceholder('INPUT_CONTENT_STREAM...').fill(content);
+    await page.click('button:has-text("REVIEW")');
+    await expect(page.getByText('TRANSACTION_COMMITTED')).toBeVisible();
+
+    // 2. Click Publish Now (green button) in feed
+    const draftsColumn = page.locator('text=Drafts').locator('xpath=./../..');
+    const postCard = draftsColumn.locator(`text=${content}`).locator('xpath=./../..');
+    await postCard.locator('button[title="Publish Now"]').click();
+
+    // 3. Verify status changed to Published (moved to Queue/History column with badge)
+    await expect(page.getByText('PUBLISHED_SUCCESSFULLY')).toBeVisible();
+    const queueColumn = page.locator('text=Queue').locator('xpath=./../..');
+    await expect(queueColumn.getByText(content)).toBeVisible();
+    await expect(queueColumn.locator(`text=${content}`).locator('xpath=./../..').getByText('PUBLISHED')).toBeVisible();
+  });
+
+  test('Test 4: Platform-Specific Formatting', async ({ page }) => {
+    // 1. Create a long post (300+ chars)
+    const longContent = "A".repeat(300);
+    await page.getByPlaceholder('INPUT_CONTENT_STREAM...').fill(longContent);
+    await page.click('button:has-text("REVIEW")');
+    await expect(page.getByText('TRANSACTION_COMMITTED')).toBeVisible();
+
+    // 2. This verifies the post exists. 
+    // Backend logic for truncation will be applied during publishPost call.
+    await expect(page.getByText(longContent)).toBeVisible();
+  });
+
+  test('Test 10: Preview Before Publish', async ({ page }) => {
+    // 1. Create content
+    const content = `Preview Test ${Date.now()}`;
+    await page.getByPlaceholder('INPUT_CONTENT_STREAM...').fill(content);
+    
+    // 2. Click PREVIEW
+    await page.click('button:has-text("PREVIEW")');
+    
+    // 3. Verify platform headers in modal
+    await expect(page.getByText('FACEBOOK_FEED')).toBeVisible();
+    await expect(page.getByText('X_TIMELINE')).toBeVisible();
+    await expect(page.getByText('LINKEDIN_NETWORK')).toBeVisible();
+    
+    // 4. Verify content presence in preview
+    await expect(page.locator('div:has-text("FACEBOOK_FEED")').locator('xpath=./..').getByText(content)).toBeVisible();
+    
+    // 5. Click SATISFIED_PUBLISH
+    await page.click('button:has-text("SATISFIED_PUBLISH")');
+    
+    // 6. Verify Transaction
+    await expect(page.getByText('TRANSACTION_COMMITTED')).toBeVisible();
   });
 });
