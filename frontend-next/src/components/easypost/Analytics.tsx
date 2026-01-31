@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Charting
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell, PieChart, Pie, Legend
+  BarChart, Bar, Cell, PieChart, Pie, Legend, AreaChart, Area
 } from 'recharts';
 
 // Icons
@@ -144,7 +144,19 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryFn: async () => (await api.get(`/analytics/insights/hashtags?workspaceId=${workspaceId}`) as any).data
     });
 
-    const isLoading = healthQuery.isLoading || forecastQuery.isLoading;
+    // 6. Activity Timeline
+    const timelineQuery = useQuery({
+        queryKey: ['insights-timeline', workspaceId],
+        queryFn: async () => (await api.get(`/analytics/insights/timeline?workspaceId=${workspaceId}`) as any).data
+    });
+
+    // 7. Platform Comparison (reuse accounts analytics)
+    const platformQuery = useQuery({
+        queryKey: ['analytics-accounts', workspaceId],
+        queryFn: async () => (await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS`) as any).data
+    });
+
+    const isLoading = healthQuery.isLoading || forecastQuery.isLoading || timelineQuery.isLoading;
 
     if(isLoading) return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin w-12 h-12" /></div>;
 
@@ -204,6 +216,41 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     </div>
                     <p className="text-center text-[10px] font-bold uppercase mt-2">Avg. Engagement per Type</p>
                 </NeuCard>
+            </div>
+
+            {/* 🟢 ACTIVITY & PLATFORM CHARTS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                
+                <NeuCard title="Activity_Timeline" icon={Activity} className="md:col-span-1">
+                    <div className="h-[200px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={timelineQuery.data || []}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                <XAxis dataKey="date" hide />
+                                <YAxis tick={{fontSize: 10, fontWeight: 'bold'}} />
+                                <Tooltip contentStyle={{ borderRadius: '0px', border: '2px solid #000' }} />
+                                <Area type="monotone" dataKey="count" stroke="#3C48F6" fill="#3C48F6" fillOpacity={0.1} strokeWidth={3} />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p className="text-[10px] font-bold uppercase mt-2 text-center">Post Frequency (Last 30 Days)</p>
+                </NeuCard>
+
+                <NeuCard title="Platform_Battle" icon={Zap} className="md:col-span-1">
+                    <div className="h-[200px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={platformQuery.data || []}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                <XAxis dataKey="platform" tick={{fontSize: 10, fontWeight: 'bold'}} />
+                                <YAxis tick={{fontSize: 10, fontWeight: 'bold'}} />
+                                <Tooltip contentStyle={{ borderRadius: '0px', border: '2px solid #000' }} />
+                                <Bar dataKey="totalEngagement" name="Engagements" fill="#facc15" stroke="#000" strokeWidth={2} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p className="text-[10px] font-bold uppercase mt-2 text-center">Total Engagement per Node</p>
+                </NeuCard>
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -266,6 +313,17 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
 function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     const queryClient = useQueryClient();
+    
+    // 🟢 1. FETCH OVERVIEW STATS
+    const { data: overview = { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 } } = useQuery({
+        queryKey: ['analytics-overview', workspaceId],
+        queryFn: async () => {
+            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
+            // Assuming backend response format based on service
+            return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
+        }
+    });
+
     const { data: posts = [], isLoading, refetch } = useQuery({
         queryKey: ['analytics-posts', workspaceId],
         queryFn: async () => {
@@ -292,8 +350,30 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     if(isLoading) return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin w-12 h-12" /></div>;
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col md:flex-row gap-8 h-full pb-20">
-            {/* Left Panel */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-8">
+            
+            {/* 🟢 OVERVIEW CARDS */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
+                <div className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] font-black uppercase text-gray-500 mb-1">Total_Posts</span>
+                    <span className="text-4xl font-black tabular-nums">{overview.totalPosts || 0}</span>
+                </div>
+                <div className="bg-green-100 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] font-black uppercase text-green-700 mb-1">Published</span>
+                    <span className="text-4xl font-black tabular-nums">{overview.totalPosts || 0}</span>
+                </div>
+                <div className="bg-blue-100 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] font-black uppercase text-blue-700 mb-1">Scheduled</span>
+                    <span className="text-4xl font-black tabular-nums">{overview.scheduled || 0}</span>
+                </div>
+                <div className="bg-yellow-100 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] font-black uppercase text-yellow-700 mb-1">Drafts</span>
+                    <span className="text-4xl font-black tabular-nums">{overview.drafts || 0}</span>
+                </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 h-full pb-20 overflow-hidden">
+                {/* Left Panel */}
             <div className="w-full md:w-[380px] flex flex-col bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] flex-shrink-0 h-full">
                 <div className="p-4 border-b-2 border-black bg-yellow-400">
                     <div className="flex items-center justify-between mb-4">

@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e:server": "next dev -p 3001"
+    "test:e2e:server": "next dev -p 3001",
+    "verify": "pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
