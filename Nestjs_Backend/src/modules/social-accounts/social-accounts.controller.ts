@@ -1,6 +1,6 @@
 import { 
   Controller, Get, Post, Body, UseGuards, Req, Res, Param, Delete, 
-  UnauthorizedException, Query, NotImplementedException 
+  UnauthorizedException, Query, NotImplementedException, Patch
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SocialAccountsService } from './social-accounts.service';
@@ -49,6 +49,14 @@ export class SocialAccountsController {
   @ApiOperation({ summary: 'Trigger historical sync manually' })
   syncAccount(@Param('id') id: string, @Req() req) {
     return this.socialAccountsService.triggerManualSync(id, req.user.sub || req.user.id);
+  }
+
+  @Patch(':id/expire')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'FOR TESTING: Manually expire a token' })
+  expireAccount(@Param('id') id: string) {
+    return this.socialAccountsService.expireToken(id);
   }
 
   // =================================================================

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
-import { AiTone } from '../ai.service'; 
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { AiTone, AiLength } from '../ai.service'; 
 
 export class TestAiDto {
   @ApiProperty({ example: 'EasyPost App', description: 'What are you selling?' })
@@ -10,4 +10,9 @@ export class TestAiDto {
   @ApiProperty({ enum: AiTone, example: 'CAMFRANGLAIS' })
   @IsEnum(AiTone)
   tone: AiTone;
+
+  @ApiProperty({ enum: AiLength, example: 'MEDIUM', required: false })
+  @IsEnum(AiLength)
+  @IsOptional()
+  length?: AiLength;
 }

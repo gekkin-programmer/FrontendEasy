@@ -145,4 +145,12 @@ export class UsersService {
       inactiveUsers: totalUsers - activeUsers,
     };
   }
+
+  async upgradeToPro(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { planType: 'PROFESSIONAL' },
+      select: { id: true, email: true, planType: true },
+    });
+  }
 }

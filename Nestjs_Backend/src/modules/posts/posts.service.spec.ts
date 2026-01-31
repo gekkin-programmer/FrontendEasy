@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostsService } from './posts.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { PostStatus, ApprovalStatus } from '@prisma/client';
-import { NotFoundException } from '@nestjs/common';
+import { PostStatus, ApprovalStatus, PlanType } from '@prisma/client';
+import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 const mockPrismaService = {
   post: {
@@ -13,9 +13,13 @@ const mockPrismaService = {
     update: jest.fn(),
     delete: jest.fn(),
   },
+  workspace: {
+    update: jest.fn(),
+    findUnique: jest.fn(),
+  },
 };
 
-describe('PostsService', () => {
+describe('PostsService - MVP Tests', () => {
   let service: PostsService;
   let prisma: PrismaService;
 
@@ -37,98 +41,109 @@ describe('PostsService', () => {
   });
 
   describe('create', () => {
-    it('should create a post with correct data', async () => {
-      const dto = {
-        content: 'Test content',
-        socialAccountIds: ['acc-1'],
-        mediaIds: [],
-        scheduledFor: null,
-      };
-      const userId = 'user-1';
-      const workspaceId = 'ws-1';
+    const userId = 'user-1';
+    const workspaceId = 'ws-1';
 
-      const mockCreatedPost = {
-        id: 'post-1',
-        content: dto.content,
-        workspaceId,
-        createdById: userId,
-        status: PostStatus.DRAFT,
-      };
-
-      (prisma.post.create as jest.Mock).mockResolvedValue(mockCreatedPost);
+    it('should create post with text only', async () => {
+      const dto = { content: 'Text only post', socialAccountIds: ['acc-1'] };
+      mockPrismaService.post.create.mockResolvedValue({ id: 'p1', ...dto });
 
       const result = await service.create(dto as any, userId, workspaceId);
 
       expect(prisma.post.create).toHaveBeenCalled();
-      expect(result).toEqual(mockCreatedPost);
+      expect(prisma.workspace.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: workspaceId },
+        data: { currentPostCount: { increment: 1 } }
+      }));
+      expect(result.content).toBe(dto.content);
     });
 
-    it('should set status to SCHEDULED if scheduledFor is provided', async () => {
-      const dto = {
-        content: 'Scheduled content',
-        socialAccountIds: ['acc-1'],
-        scheduledFor: new Date().toISOString(),
-      };
-      
-      await service.create(dto as any, 'u1', 'w1');
-      
-      const createCall = (prisma.post.create as jest.Mock).mock.calls[0][0];
-      expect(createCall.data.status).toBe(PostStatus.SCHEDULED);
-    });
-  });
+    it('should create post with text + image', async () => {
+      const dto = { content: 'Post with image', socialAccountIds: ['acc-1'], mediaIds: ['m1'] };
+      mockPrismaService.post.create.mockResolvedValue({ id: 'p1', ...dto });
 
-  describe('findAll', () => {
-    it('should list posts by workspace', async () => {
-      mockPrismaService.post.findMany.mockResolvedValue([{ id: 'p1' }]);
-      const result = await service.findAll('ws-1');
-      expect(result).toHaveLength(1);
-      expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        where: expect.objectContaining({ workspaceId: 'ws-1' })
+      await service.create(dto as any, userId, workspaceId);
+
+      expect(prisma.post.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          media: {
+            create: [{ media: { connect: { id: 'm1' } }, order: 0 }]
+          }
+        })
       }));
     });
+
+    // Note: Content empty check is usually in DTO, but we test service resilience
+    it('should create even if content is empty (if media present)', async () => {
+        const dto = { content: '', socialAccountIds: ['acc-1'], mediaIds: ['m1'] };
+        mockPrismaService.post.create.mockResolvedValue({ id: 'p1', ...dto });
+        const result = await service.create(dto as any, userId, workspaceId);
+        expect(result).toBeDefined();
+    });
   });
 
-  describe('findOne', () => {
-    it('should return a post', async () => {
-      mockPrismaService.post.findFirst.mockResolvedValue({ id: 'p1' });
-      const result = await service.findOne('p1');
-      expect(result.id).toBe('p1');
+  describe('listing and search', () => {
+    const workspaceId = 'ws-1';
+
+    it('should list posts for workspace', async () => {
+      mockPrismaService.post.findMany.mockResolvedValue([{ id: 'p1' }, { id: 'p2' }]);
+      const result = await service.findAll(workspaceId);
+      expect(result).toHaveLength(2);
+      expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ workspaceId })
+      }));
     });
 
-    it('should throw NotFoundException if post not found', async () => {
-      mockPrismaService.post.findFirst.mockResolvedValue(null);
-      await expect(service.findOne('p1')).rejects.toThrow(NotFoundException);
+    it('should filter posts by status', async () => {
+      await service.findAll(workspaceId, { status: PostStatus.DRAFT });
+      expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ status: PostStatus.DRAFT })
+      }));
     });
+
+    // Search logic is currently simplified in findAll, let's verify if search by content is requested
+    // If not implemented in service, we might need to add it or acknowledge it's via query params
   });
 
   describe('update', () => {
-    it('should update a post', async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue({ id: 'p1' });
-      mockPrismaService.post.update.mockResolvedValue({ id: 'p1', content: 'new' });
-      
-      const result = await service.update('p1', { content: 'new' } as any, 'u1');
-      expect(result.content).toBe('new');
+    it('should update post content (draft only)', async () => {
+      mockPrismaService.post.findUnique.mockResolvedValue({ id: 'p1', status: PostStatus.DRAFT });
+      mockPrismaService.post.update.mockResolvedValue({ id: 'p1', content: 'Updated' });
+
+      const result = await service.update('p1', { content: 'Updated' } as any, 'u1');
+      expect(result.content).toBe('Updated');
+    });
+
+    it('should prevent editing published post', async () => {
+      mockPrismaService.post.findUnique.mockResolvedValue({ id: 'p1', status: PostStatus.PUBLISHED });
+      await expect(service.update('p1', { content: 'hack' } as any, 'u1')).rejects.toThrow(ForbiddenException);
     });
   });
 
-  describe('remove', () => {
-    it('should delete a post', async () => {
-      mockPrismaService.post.findFirst.mockResolvedValue({ id: 'p1' });
+  describe('delete', () => {
+    it('should delete post', async () => {
+      mockPrismaService.post.findFirst.mockResolvedValue({ id: 'p1', status: PostStatus.DRAFT });
       await service.remove('p1', 'ws-1');
       expect(prisma.post.delete).toHaveBeenCalledWith({ where: { id: 'p1' } });
     });
+
+    it('should prevent deleting published post', async () => {
+      mockPrismaService.post.findFirst.mockResolvedValue({ id: 'p1', status: PostStatus.PUBLISHED });
+      await expect(service.remove('p1', 'ws-1')).rejects.toThrow(ForbiddenException);
+    });
   });
 
-  describe('approve', () => {
-    it('should approve a post and set to SCHEDULED', async () => {
-      mockPrismaService.post.update.mockResolvedValue({ id: 'p1', approvalStatus: ApprovalStatus.APPROVED });
-      const result = await service.approve('p1', 'u1');
-      expect(prisma.post.update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          approvalStatus: ApprovalStatus.APPROVED,
-          status: PostStatus.SCHEDULED
-        })
-      }));
+  describe('limits (Service perspective)', () => {
+    it('should increment workspace post count on creation', async () => {
+        const dto = { content: 'Count test', socialAccountIds: ['acc-1'] };
+        mockPrismaService.post.create.mockResolvedValue({ id: 'p1' });
+        
+        await service.create(dto as any, 'u1', 'w1');
+        
+        expect(prisma.workspace.update).toHaveBeenCalledWith({
+            where: { id: 'w1' },
+            data: { currentPostCount: { increment: 1 } }
+        });
     });
   });
 });

@@ -34,7 +34,7 @@ export class AnalyticsService {
       status: PostStatus.PUBLISHED,
     };
 
-    const [totalPosts, engagementStats, scheduledPosts] = await Promise.all([
+    const [totalPosts, engagementStats, scheduledPosts, draftsCount] = await Promise.all([
       this.prisma.post.count({ where: whereCondition }),
       // ➤ FIX: Include socialAccounts to get metrics
       this.prisma.post.findMany({
@@ -45,7 +45,8 @@ export class AnalyticsService {
           }
         }
       }),
-      this.prisma.post.count({ where: { workspaceId, status: PostStatus.SCHEDULED } })
+      this.prisma.post.count({ where: { workspaceId, status: PostStatus.SCHEDULED } }),
+      this.prisma.post.count({ where: { workspaceId, status: PostStatus.DRAFT } })
     ]);
 
     let likes = 0, comments = 0, shares = 0, views = 0;
@@ -70,7 +71,8 @@ export class AnalyticsService {
         totalLikes: likes,
         totalReach: views,
         engagementRate: rate + '%',
-        scheduled: scheduledPosts
+        scheduled: scheduledPosts,
+        drafts: draftsCount
       },
       period: { type: 'CUSTOM', start: dateRange.startDate, end: dateRange.endDate }
     };
@@ -442,6 +444,40 @@ export class AnalyticsService {
         .map(([word, score]) => ({ word, impactScore: score }))
         .sort((a: any, b: any) => b.impactScore - a.impactScore)
         .slice(0, 10);
+  }
+
+  public async getActivityTimeline(workspaceId: string, days: number = 30) {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const posts = await this.prisma.post.findMany({
+      where: {
+        workspaceId,
+        status: PostStatus.PUBLISHED,
+        publishedAt: { gte: startDate }
+      },
+      select: { publishedAt: true }
+    });
+
+    const timeline = {};
+    // Initialize last 30 days with 0
+    for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        timeline[key] = 0;
+    }
+
+    posts.forEach(p => {
+        if (p.publishedAt) {
+            const key = p.publishedAt.toISOString().split('T')[0];
+            if (timeline[key] !== undefined) timeline[key]++;
+        }
+    });
+
+    return Object.entries(timeline)
+        .map(([date, count]) => ({ date, count }))
+        .sort((a, b) => a.date.localeCompare(b.date));
   }
 
   // --- HELPER ---

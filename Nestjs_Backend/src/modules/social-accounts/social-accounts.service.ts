@@ -5,6 +5,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
 
+import { Cron, CronExpression } from '@nestjs/schedule'; // ➤ Import Cron
+
 @Injectable()
 export class SocialAccountsService {
   private readonly logger = new Logger(SocialAccountsService.name);
@@ -13,6 +15,46 @@ export class SocialAccountsService {
     private prisma: PrismaService,
     @InjectQueue('social-sync') private syncQueue: Queue,
   ) {}
+
+  // ➤ TOKEN REFRESH TASK (Test 6)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async refreshTokenTask() {
+    this.logger.log('🔄 Checking for tokens needing refresh...');
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+    const accountsToRefresh = await this.prisma.socialAccount.findMany({
+      where: {
+        isActive: true,
+        refreshToken: { not: null },
+        tokenExpiresAt: { lte: sevenDaysFromNow }
+      }
+    });
+
+    for (const account of accountsToRefresh) {
+      try {
+        this.logger.log(`Refreshing ${account.platform} token for @${account.username}`);
+        // Platform specific refresh logic (Simplified for MVP)
+        // ... call OAuth provider refresh endpoint ...
+        
+        // Mock update for now
+        await this.prisma.socialAccount.update({
+          where: { id: account.id },
+          data: { updatedAt: new Date() } // Simulate token update
+        });
+      } catch (e) {
+        this.logger.error(`Refresh failed for ${account.platform}`, e.message);
+      }
+    }
+  }
+
+  // ➤ FOR TESTING: Expire token
+  async expireToken(id: string) {
+    return this.prisma.socialAccount.update({
+      where: { id },
+      data: { isActive: false, tokenExpiresAt: new Date(Date.now() - 1000) }
+    });
+  }
 
   // =================================================================
   // ➤ CALLBACK HANDLERS (Assuming Flattened Strategy Payload)

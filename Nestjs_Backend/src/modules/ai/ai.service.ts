@@ -1,9 +1,10 @@
-import { Injectable, Logger, InternalServerErrorException, RequestTimeoutException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, RequestTimeoutException, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import * as fs from 'fs';
-import { PrismaService } from 'src/prisma/prisma.service'; // Inject Prisma
+import { PrismaService } from '../../prisma/prisma.service'; // Inject Prisma
 import { v4 as uuidv4 } from 'uuid'; // Make sure to pnpm add uuid
+import { PlanType } from '@prisma/client';
 
 // Define DTOs/Enums locally or import them if you moved them to separate files
 export enum MarketingFramework {
@@ -19,6 +20,12 @@ export enum AiTone {
   CAMFRANGLAIS = 'CAMFRANGLAIS',
   NOUCHI = 'NOUCHI',
   URGENT = 'URGENT'
+}
+
+export enum AiLength {
+  SHORT = 'SHORT',
+  MEDIUM = 'MEDIUM',
+  LONG = 'LONG'
 }
 
 @Injectable()
@@ -49,6 +56,36 @@ export class AiService {
     }
   }
 
+  /**
+   * Checks if the user has reached their AI usage limits.
+   */
+  private async checkUsageLimits(userId: string, workspaceId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { planType: true }
+    });
+
+    if (!user) throw new ForbiddenException('User not found');
+
+    if (user.planType === PlanType.FREE) {
+      // Count requests in the current month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const count = await this.prisma.aiUsageLog.count({
+        where: {
+          userId,
+          createdAt: { gte: startOfMonth }
+        }
+      });
+
+      if (count >= 10) {
+        throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+      }
+    }
+  }
+
   // ======================================================
   // 👂 THE EARS (Whisper-Large-V3)
   // ======================================================
@@ -74,6 +111,7 @@ export class AiService {
   // 🧠 THE STRATEGIST (Llama-3-70b via Groq)
   // ======================================================
   async parseUserIntent(transcribedText: string, userId: string, workspaceId: string): Promise<any> {
+    await this.checkUsageLimits(userId, workspaceId);
     if (!this.groq) return this.mockIntent();
 
     const systemPrompt = `
@@ -129,6 +167,7 @@ export class AiService {
   // 🤝 THE SUPPORT AGENT (Customer Service)
   // ======================================================
   async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
+    await this.checkUsageLimits(userId, workspaceId);
     if (!this.groq) return { messageId: 'mock-id', response: "Support AI is offline. Contact support@easypost.cm" };
 
     const messageId = uuidv4(); // Unique ID for feedback
@@ -175,8 +214,10 @@ export class AiService {
     tone: AiTone,
     userId: string,
     workspaceId: string,
+    length: AiLength = AiLength.MEDIUM,
     framework: MarketingFramework = MarketingFramework.AIDA
   ): Promise<{ messageId: string, content: string }> {
+    await this.checkUsageLimits(userId, workspaceId);
     if (!this.groq) return { messageId: 'mock-id', content: `Mock Caption for ${productName}` };
 
     const messageId = uuidv4();
@@ -184,6 +225,7 @@ export class AiService {
       ROLE: You are an Elite Digital Marketing Strategist...
       ... (rest of your prompt) ...
       TONE: ${tone}
+      LENGTH: ${length}
       FRAMEWORK: ${framework}
     `;
 

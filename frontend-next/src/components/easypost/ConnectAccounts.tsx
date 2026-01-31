@@ -7,7 +7,8 @@ import { api } from '@/src/lib/api';
 import { 
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube 
 } from 'react-icons/fa';
-import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; // ➤ Added RefreshCw, AlertTriangle
+import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; 
+import { format } from 'date-fns';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
@@ -119,9 +120,14 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               </h3>
               
               {isConnected ? (
-                <p className="font-mono text-xs bg-yellow-300 inline-block px-1 border border-black mb-6 truncate max-w-full">
-                  @{connectedAccount.username}
-                </p>
+                <div className="space-y-1 mb-6">
+                  <p className="font-mono text-xs bg-yellow-300 inline-block px-1 border border-black truncate max-w-full">
+                    @{connectedAccount.username}
+                  </p>
+                  <p className="text-[9px] font-mono text-gray-400 uppercase">
+                    LINKED: {format(new Date(connectedAccount.createdAt), 'MMM d, yyyy')}
+                  </p>
+                </div>
               ) : (
                 <p className="font-mono text-xs text-gray-400 mb-6">
                   NO_SIGNAL
@@ -143,12 +149,30 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
                 {/* DISCONNECT / CONNECT BUTTON */}
                 {isConnected ? (
-                  <button 
-                    onClick={() => { if(confirm("ABORT CONNECTION?")) disconnectMutation.mutate(connectedAccount.id) }}
-                    className="w-full flex items-center justify-center gap-2 py-3 border-2 border-black font-black text-xs uppercase hover:bg-red-500 hover:text-white transition-colors"
-                  >
-                    <Trash2 size={14} /> {isExpired ? 'REMOVE NODE' : 'Disconnect'}
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    {process.env.NEXT_PUBLIC_ENV !== 'production' && (
+                        <button 
+                            onClick={async () => {
+                                const token = localStorage.getItem('accessToken');
+                                await fetch(`${API_URL}/social-accounts/${connectedAccount.id}/expire`, {
+                                    method: 'PATCH',
+                                    headers: { Authorization: `Bearer ${token}` }
+                                });
+                                queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+                                toast.warning("TOKEN_EXPIRED_BY_TESTER");
+                            }}
+                            className="w-full py-1 text-[8px] font-bold border border-dashed border-red-300 text-red-400 hover:bg-red-50 uppercase"
+                        >
+                            Force Expire (Debug)
+                        </button>
+                    )}
+                    <button 
+                        onClick={() => { if(confirm("ABORT CONNECTION?")) disconnectMutation.mutate(connectedAccount.id) }}
+                        className="w-full flex items-center justify-center gap-2 py-3 border-2 border-black font-black text-xs uppercase hover:bg-red-500 hover:text-white transition-colors"
+                    >
+                        <Trash2 size={14} /> {isExpired ? 'REMOVE NODE' : 'Disconnect'}
+                    </button>
+                  </div>
                 ) : (
                   <button 
                     onClick={() => handleConnect(platform.id)}

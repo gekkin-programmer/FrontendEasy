@@ -17,7 +17,7 @@ export class PostsService {
     let status = dto.status || PostStatus.DRAFT;
     if (dto.scheduledFor) status = PostStatus.SCHEDULED;
 
-    return this.prisma.post.create({
+    const post = await this.prisma.post.create({
       data: {
         content: dto.content,
         status,
@@ -39,18 +39,27 @@ export class PostsService {
       },
       include: { media: true, socialAccounts: true }
     });
+
+    // Increment Workspace Post Count
+    await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { currentPostCount: { increment: 1 } }
+    });
+
+    return post;
   }
 
   // ➤ LIST POSTS (Updated for Analytics Filters)
   async findAll(workspaceId: string, query: any = {}) {
-    const { status, limit = 50 } = query;
+    const { status, limit = 50, search } = query;
 
     return this.prisma.post.findMany({
       where: { 
         workspaceId,
         // If status is provided, filter by it. 
-        // For Analytics, we usually want "PUBLISHED"
-        ...(status ? { status: status as PostStatus } : {})
+        ...(status ? { status: status as PostStatus } : {}),
+        // Search by content (case insensitive)
+        ...(search ? { content: { contains: search, mode: 'insensitive' } } : {})
       },
       include: { 
         socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
@@ -64,6 +73,24 @@ export class PostsService {
         createdAt: status !== 'PUBLISHED' ? 'desc' : undefined
       },
       take: Number(limit)
+    });
+  }
+
+  // ➤ CALENDAR: FIND BY RANGE
+  async findInDateRange(workspaceId: string, start: Date, end: Date) {
+    return this.prisma.post.findMany({
+      where: {
+        workspaceId,
+        scheduledFor: {
+          gte: start,
+          lte: end
+        }
+      },
+      include: {
+        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+        media: { include: { media: true } }
+      },
+      orderBy: { scheduledFor: 'asc' }
     });
   }
 
@@ -90,6 +117,10 @@ export class PostsService {
   async update(id: string, dto: UpdatePostDto, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
+
+    if (post.status === PostStatus.PUBLISHED) {
+      throw new ForbiddenException('Cannot edit a published post');
+    }
     
     return this.prisma.post.update({
       where: { id },
@@ -106,6 +137,10 @@ export class PostsService {
     const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
     if (!post) throw new NotFoundException('Post not found');
 
+    if (post.status === PostStatus.PUBLISHED) {
+      throw new ForbiddenException('Cannot delete a published post');
+    }
+
     return this.prisma.post.delete({ where: { id } });
   }
 
@@ -118,6 +153,17 @@ export class PostsService {
         approvedBy: approverId,
         approvedAt: new Date(),
         status: PostStatus.SCHEDULED 
+      }
+    });
+  }
+
+  // ➤ CANCEL SCHEDULE
+  async cancelSchedule(id: string) {
+    return this.prisma.post.update({
+      where: { id },
+      data: {
+        status: PostStatus.DRAFT,
+        scheduledFor: null
       }
     });
   }

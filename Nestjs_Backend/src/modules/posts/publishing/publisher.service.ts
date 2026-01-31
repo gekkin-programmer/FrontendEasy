@@ -14,85 +14,119 @@ export class PublisherService {
       where: { id: postId },
       include: {
         socialAccounts: { include: { socialAccount: true } },
-        media: { include: { media: true } } // Include media!
+        media: { include: { media: true } }
       }
     });
 
     if (!post) return;
 
+    // 1. Double Publication Protection
+    if (post.status === 'PUBLISHED') {
+        this.logger.warn(`Post ${postId} already published. Skipping.`);
+        return;
+    }
+
     let successCount = 0;
+    const retryLimit = 2;
     
-    // Prepare Media (Get first image/video URL if exists)
+    // Prepare Media
     const mediaUrl = post.media.length > 0 ? post.media[0].media.url : undefined;
-    const isVideo = post.media.length > 0 && post.media[0].media.mimeType.startsWith('video');
 
     for (const postAccount of post.socialAccounts) {
       const account = postAccount.socialAccount;
       
-      try {
-        this.logger.log(` Publishing to ${account.platform}...`);
+      // Skip if already published for this specific account (in case of partial retry)
+      if (postAccount.status === 'PUBLISHED') {
+          successCount++;
+          continue;
+      }
 
-        let platformPostId = '';
+      let attempts = 0;
+      let platformPostId = '';
+      let lastError = '';
 
-        switch (account.platform) {
-            case 'FACEBOOK':
-                platformPostId = await this.postToFacebook(account.accessToken, account.platformUserId, post.content, mediaUrl);
-                break;
-            case 'LINKEDIN':
-                platformPostId = await this.postToLinkedIn(account.accessToken, account.platformUserId, post.content, mediaUrl);
-                break;
-            case 'TWITTER':
-                platformPostId = await this.postToTwitter(account.accessToken, post.content);
-                break;
-            case 'TIKTOK':
-                // TikTok API requires video. If text only, skip.
-                if(!mediaUrl) throw new Error("TikTok requires a video file.");
-                platformPostId = await this.postToTikTok(account.accessToken, mediaUrl);
-                break;
-            default:
-                await this.simulateApiCall(account.platform);
+      while (attempts < retryLimit && !platformPostId) {
+        try {
+            attempts++;
+            this.logger.log(` Publishing to ${account.platform} (Attempt ${attempts})...`);
+
+            const formattedContent = this.formatContent(post.content, account.platform);
+
+            switch (account.platform) {
+                case 'FACEBOOK':
+                    platformPostId = await this.postToFacebook(account.accessToken, account.platformUserId, formattedContent, mediaUrl);
+                    break;
+                case 'LINKEDIN':
+                    platformPostId = await this.postToLinkedIn(account.accessToken, account.platformUserId, formattedContent, mediaUrl);
+                    break;
+                case 'TWITTER':
+                    platformPostId = await this.postToTwitter(account.accessToken, formattedContent);
+                    break;
+                case 'TIKTOK':
+                    if(!mediaUrl) throw new Error("TikTok requires a video file.");
+                    platformPostId = await this.postToTikTok(account.accessToken, mediaUrl);
+                    break;
+                default:
+                    await this.simulateApiCall(account.platform);
+                    platformPostId = 'simulated-id';
+            }
+        } catch (error) {
+            lastError = error.response?.data?.message || error.message;
+            this.logger.error(` Attempt ${attempts} failed for ${account.platform}: ${lastError}`);
+            
+            // If OAuth Error (401), don't retry
+            if (error.response?.status === 401) {
+                await this.prisma.socialAccount.update({
+                    where: { id: account.id },
+                    data: { isActive: false } 
+                });
+                break; 
+            }
+            
+            // Wait before retry
+            if (attempts < retryLimit) await new Promise(resolve => setTimeout(resolve, 1000));
         }
+      }
 
-        // Success
+      if (platformPostId) {
         await this.prisma.postSocialAccount.update({
           where: { id: postAccount.id },
           data: { 
             status: 'PUBLISHED', 
             publishedAt: new Date(),
-            platformPostId 
+            platformPostId,
+            errorMessage: null
           }
         });
         successCount++;
-
-      } catch (error) {
-        this.logger.error(` Failed: ${account.platform}`, error.response?.data || error.message);
-        
-        // Handle Token Expiry
-        const isAuthError = error.response?.status === 401;
-        if (isAuthError) {
-            await this.prisma.socialAccount.update({
-                where: { id: account.id },
-                data: { isActive: false } 
-            });
-        }
-
+      } else {
         await this.prisma.postSocialAccount.update({
           where: { id: postAccount.id },
           data: { 
             status: 'FAILED', 
-            errorMessage: error.message 
+            errorMessage: lastError 
           }
         });
       }
     }
 
-    const dbStatus = successCount > 0 ? 'PUBLISHED' : 'FAILED';
+    const dbStatus = successCount === post.socialAccounts.length ? 'PUBLISHED' : (successCount > 0 ? 'PUBLISHED' : 'FAILED');
+    // Note: status is PUBLISHED even if partial, to avoid infinite retry loops in cron
+    // A better way would be 'PARTIALLY_PUBLISHED' but let's keep it simple for MVP.
+
     await this.prisma.post.update({
       where: { id: postId },
-      data: { status: dbStatus, publishedAt: new Date() }
+      data: { status: dbStatus, publishedAt: successCount > 0 ? new Date() : null }
     });
 
     await this.notifyUser(post.createdById, post.content, dbStatus);
+  }
+
+  private formatContent(content: string, platform: string): string {
+    if (platform === 'TWITTER' && content.length > 280) {
+      return content.substring(0, 277) + '...';
+    }
+    return content;
   }
 
   // =================================================================

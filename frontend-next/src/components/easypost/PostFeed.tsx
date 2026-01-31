@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical } from 'lucide-react';
+import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ interface Post {
   scheduledFor?: string;
   socialAccountIds?: string[];
   mediaUrls?: string[];
+  errorMessage?: string;
 }
 
 interface Account {
@@ -46,6 +47,7 @@ interface Account {
 interface PostFeedProps {
   posts: Post[];
   accounts: Account[];
+  onEdit?: (post: Post) => void;
 }
 
 // Helper
@@ -59,7 +61,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
   }
 };
 
-export default function PostFeed({ posts, accounts }: PostFeedProps) {
+export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
   const drafts = posts.filter(p => p.status === 'DRAFT');
@@ -77,6 +79,37 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
         window.location.reload(); 
     } catch (e) {
         toast.error("FAILED_TO_DELETE");
+    }
+  };
+
+  const cancelSchedule = async (postId: string) => {
+    const token = localStorage.getItem('accessToken');
+    try {
+        await fetch(`${API_URL}/posts/${postId}/cancel-schedule`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("SCHEDULE_CANCELLED");
+        window.location.reload();
+    } catch (e) {
+        toast.error("CANCEL_FAILED");
+    }
+  };
+
+  const publishPost = async (postId: string) => {
+    const token = localStorage.getItem('accessToken');
+    try {
+        toast.loading("PUBLISHING...");
+        await fetch(`${API_URL}/posts/${postId}/publish`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.dismiss();
+        toast.success("PUBLISHED_SUCCESSFULLY");
+        window.location.reload();
+    } catch (e) {
+        toast.dismiss();
+        toast.error("PUBLISH_FAILED");
     }
   };
 
@@ -123,10 +156,22 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
       
       {/* --- LEFT COLUMN: DRAFTS --- */}
       <div className="flex flex-col gap-4">
-        <div className="bg-yellow-400 p-2 border-2 border-black inline-block w-full">
+        <div className="bg-yellow-400 p-2 border-2 border-black flex items-center justify-between w-full">
             <h3 className="font-black text-sm uppercase flex items-center gap-2">
               <FileText className="w-4 h-4" /> Drafts ({drafts.length})
             </h3>
+            {drafts.length > 0 && (
+                <button 
+                    onClick={async () => {
+                        if(confirm(`Publish all ${drafts.length} drafts?`)) {
+                            for(const d of drafts) await publishPost(d.id);
+                        }
+                    }}
+                    className="bg-black text-white text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-all"
+                >
+                    PUBLISH_ALL
+                </button>
+            )}
         </div>
         
         <div className="space-y-4 min-h-[200px]">
@@ -137,6 +182,9 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
                 post={post} 
                 accounts={accounts}
                 onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
+                onPublishNow={() => publishPost(post.id)}
+                onRetry={() => publishPost(post.id)}
                 draggable={true}
                 onDragStart={(e) => handleDragStart(e, post.id)}
               />
@@ -145,7 +193,7 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           
           {drafts.length === 0 && (
             <div className="text-center p-8 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
-              No_Drafts_Yet
+              {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
             </div>
           )}
         </div>
@@ -174,6 +222,10 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
                 post={post}
                 accounts={accounts}
                 onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
+                onCancelSchedule={() => cancelSchedule(post.id)}
+                onPublishNow={() => publishPost(post.id)}
+                onRetry={() => publishPost(post.id)}
                 isQueued
               />
             ))}
@@ -181,7 +233,7 @@ export default function PostFeed({ posts, accounts }: PostFeedProps) {
           
           {queued.length === 0 && (
              <div className="text-center p-12 border-2 border-dashed border-black bg-white text-sm font-bold uppercase text-gray-400">
-               DRAG_DRAFT_HERE_TO_SCHEDULE
+               {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
              </div>
           )}
         </div>
@@ -196,12 +248,16 @@ interface PostCardProps {
   post: Post;
   accounts: Account[];
   onDelete: () => void;
+  onEdit?: () => void;
+  onCancelSchedule?: () => void;
+  onPublishNow?: () => void;
+  onRetry?: () => void; // New prop
   isQueued?: boolean;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
 }
 
-const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }: PostCardProps) => {
+const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, isQueued, draggable, onDragStart }: PostCardProps) => {
   const accountId = post.socialAccountIds?.[0];
   const account = accounts.find(a => a.id === accountId);
 
@@ -255,14 +311,26 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
       {/* Content Body */}
       <div className={cn("flex gap-3", draggable && "pl-4")}>
         {post.mediaUrls && post.mediaUrls.length > 0 && (
-           <div className="w-16 h-16 bg-gray-100 border-2 border-black overflow-hidden flex-shrink-0 relative shadow-[2px_2px_0px_0px_#000]">
-             <img src={post.mediaUrls[0]} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+           <div className={cn(
+             "grid gap-1 shrink-0 relative shadow-[2px_2px_0px_0px_#000]",
+             post.mediaUrls.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
+           )}>
+             {post.mediaUrls.slice(0, 4).map((url, i) => (
+               <img key={i} src={url} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black" />
+             ))}
            </div>
         )}
         <p className="text-sm font-medium text-black line-clamp-2 flex-1 leading-relaxed border-l-2 border-gray-200 pl-3">
           {post.content}
         </p>
       </div>
+
+      {post.status === 'FAILED' && post.errorMessage && (
+        <div className="mt-3 p-2 bg-red-50 border border-red-200 text-[10px] font-bold text-red-600 uppercase font-mono">
+          <AlertTriangle size={10} className="inline mr-1" />
+          {post.errorMessage}
+        </div>
+      )}
 
       {/* Footer */}
       <div className={cn("mt-4 pt-3 border-t-2 border-black flex justify-between items-center", draggable && "pl-4")}>
@@ -275,9 +343,53 @@ const PostCard = ({ post, accounts, onDelete, isQueued, draggable, onDragStart }
            </span>
         </div>
         
-        <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
-          <Trash2 size={14} />
-        </NeuButton>
+        <div className="flex gap-1">
+          {post.status === 'FAILED' && (
+            <NeuButton 
+              onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
+              title="Retry Publication"
+              className="bg-red-100 hover:bg-red-300 text-red-700"
+            >
+              <RefreshCw size={14} />
+            </NeuButton>
+          )}
+
+          {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
+            <NeuButton 
+              onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
+              title="Publish Now"
+              className="bg-green-100 hover:bg-green-300"
+            >
+              <Send size={14} className="text-green-700" />
+            </NeuButton>
+          )}
+
+          {isQueued && post.status === 'SCHEDULED' && (
+            <NeuButton 
+              onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
+              title="Cancel Schedule"
+              className="bg-yellow-100 hover:bg-yellow-300"
+            >
+              <Clock size={14} className="text-yellow-700" />
+            </NeuButton>
+          )}
+
+          <NeuButton 
+            disabled={post.status === 'PUBLISHED'}
+            onClick={(e: any) => { 
+              e.stopPropagation(); 
+              if (post.status === 'PUBLISHED') return toast.error("CANNOT_EDIT_PUBLISHED");
+              onEdit?.(); 
+            }}
+            title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
+          >
+            <Edit2 size={14} className={post.status === 'PUBLISHED' ? 'opacity-30' : ''} />
+          </NeuButton>
+
+          <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
+            <Trash2 size={14} />
+          </NeuButton>
+        </div>
       </div>
     </motion.div>
   );

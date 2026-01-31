@@ -5,14 +5,17 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2
+  Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { api } from '@/src/lib/api';
+import { toast } from 'sonner';
 
 interface Message {
   role: 'user' | 'ai';
   content: string;
+  messageId?: string;
+  feedbackGiven?: boolean;
 }
 
 interface AiChatResponse {
@@ -32,6 +35,25 @@ export default function EasyAI() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFeedback = async (msgIdx: number, rating: number) => {
+    const msg = messages[msgIdx];
+    if (!msg.messageId) return;
+
+    try {
+      await api.post('/ai/feedback', {
+        messageId: msg.messageId,
+        rating: rating,
+      });
+      
+      const newMessages = [...messages];
+      newMessages[msgIdx].feedbackGiven = true;
+      setMessages(newMessages);
+      toast.success(rating === 1 ? "GLAD_YOU_LIKED_IT" : "FEEDBACK_RECORDED");
+    } catch (e) {
+      toast.error("FEEDBACK_FAILED");
+    }
+  };
 
   // 1. Load User Avatar
   useEffect(() => {
@@ -69,11 +91,13 @@ export default function EasyAI() {
       // ➤ FIX: Match backend response structure ({ messageId, response })
       // @ts-ignore
       const aiResponse = res.response || res.data?.response || "I didn't catch that.";
+      // @ts-ignore
+      const messageId = res.messageId || res.data?.messageId;
       
-      setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
+      setMessages(prev => [...prev, { role: 'ai', content: aiResponse, messageId }]);
     } catch (error) {
       console.error("AI Chat Error:", error);
-      setMessages(prev => [...prev, { role: 'ai', content: "Connection error. Is the backend running?" }]);
+      setMessages(prev => [...prev, { role: 'ai', content: "AI_TEMPORARILY_UNAVAILABLE. Please check connection or try again later." }]);
     } finally {
       setIsTyping(false);
     }
@@ -213,6 +237,13 @@ export default function EasyAI() {
                                     : "bg-white text-black rounded-2xl rounded-bl-none"
                             )}>
                                 {msg.content}
+
+                                {msg.role === 'ai' && msg.messageId && !msg.feedbackGiven && (
+                                    <div className="mt-3 pt-2 border-t border-black/10 flex gap-2 justify-end">
+                                        <button onClick={() => handleFeedback(idx, 1)} className="p-1 hover:bg-green-100 transition-colors rounded text-gray-400 hover:text-green-600"><ThumbsUp size={12} /></button>
+                                        <button onClick={() => handleFeedback(idx, -1)} className="p-1 hover:bg-red-100 transition-colors rounded text-gray-400 hover:text-red-600"><ThumbsDown size={12} /></button>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     ))}

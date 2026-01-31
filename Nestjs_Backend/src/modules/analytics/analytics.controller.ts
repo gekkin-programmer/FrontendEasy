@@ -70,4 +70,11 @@ export class AnalyticsController {
     if (!workspaceId) throw new BadRequestException('Workspace ID is required');
     return this.analyticsService.analyzeSmartCopy(workspaceId);
   }
+
+  @Get('insights/timeline')
+  @ApiOperation({ summary: 'Get daily publication activity for the last 30 days' })
+  getActivityTimeline(@Query('workspaceId') workspaceId: string) {
+    if (!workspaceId) throw new BadRequestException('Workspace ID is required');
+    return this.analyticsService.getActivityTimeline(workspaceId);
+  }
 }

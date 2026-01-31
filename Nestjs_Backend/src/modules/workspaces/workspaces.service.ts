@@ -119,4 +119,12 @@ export class WorkspacesService {
       throw new ForbiddenException('You must be an Admin or Owner to do this');
     }
   }
+
+  // ➤ FOR TESTING ONLY: Manually set post count
+  async setPostCount(workspaceId: string, count: number) {
+    return this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { currentPostCount: count }
+    });
+  }
 }
