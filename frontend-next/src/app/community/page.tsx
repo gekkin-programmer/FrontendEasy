@@ -1,133 +1,384 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { MessageCircle, Book, Github, Twitter, Heart, Users } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { 
+  MessageCircle, Github, Twitter, Heart, Users, UploadCloud, 
+  Check, X, ThumbsUp, Filter, Search, Loader2, Send
+} from 'lucide-react';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
+import { toast } from 'sonner';
+import { api } from '@/src/lib/api'; // Using your real API client
+
+// --- TYPES ---
+type FeedbackStatus = 'under_review' | 'planned' | 'in_progress' | 'completed';
+type FeedbackCategory = 'feature' | 'bug' | 'performance' | 'other';
+
+interface FeedbackItem {
+  id: string;
+  title: string;
+  description: string;
+  category: FeedbackCategory;
+  status: FeedbackStatus;
+  upvotes: number;
+  hasUpvoted: boolean; // User specific
+  author: string;
+  date: string;
+}
+
+// --- MOCK DATA (Replace with API fetch) ---
+const MOCK_ROADMAP: FeedbackItem[] = [
+  { id: '1', title: 'LinkedIn PDF Carousel Support', description: 'Allow uploading multi-page PDFs directly to LinkedIn.', category: 'feature', status: 'in_progress', upvotes: 124, hasUpvoted: true, author: 'Sarah J.', date: '2d ago' },
+  { id: '2', title: 'Dark Mode Schedule View', description: 'The calendar view is too bright at night.', category: 'feature', status: 'completed', upvotes: 89, hasUpvoted: false, author: 'Mike T.', date: '1w ago' },
+  { id: '3', title: 'Analytics Export Error', description: 'Exporting CSV fails when date range > 90 days.', category: 'bug', status: 'under_review', upvotes: 12, hasUpvoted: false, author: 'Anon', date: '4h ago' },
+];
+
+// --- COMPONENTS ---
+
+const StatusBadge = ({ status }: { status: FeedbackStatus }) => {
+  const styles = {
+    under_review: 'bg-gray-200 text-gray-600 border-gray-400',
+    planned: 'bg-blue-100 text-blue-700 border-blue-300',
+    in_progress: 'bg-yellow-100 text-yellow-700 border-yellow-400',
+    completed: 'bg-green-100 text-green-700 border-green-400',
+  };
+  
+  const labels = {
+    under_review: 'Under Review',
+    planned: 'Planned',
+    in_progress: 'In Progress',
+    completed: 'Shipped 🚀',
+  };
+
+  return (
+    <span className={`px-3 py-1 border-2 text-[10px] font-black uppercase tracking-wider rounded-full ${styles[status]}`}>
+      {labels[status]}
+    </span>
+  );
+};
+
+const CategoryBadge = ({ category }: { category: FeedbackCategory }) => {
+    const icons = { feature: '✨', bug: '🐛', performance: '⚡', other: '💡' };
+    return <span className="text-xs font-bold uppercase border border-black px-2 py-0.5 bg-white shadow-[2px_2px_0px_0px_#000]">{icons[category]} {category}</span>;
+};
 
 export default function CommunityPage() {
+  const [activeTab, setActiveTab] = useState<'roadmap' | 'submit'>('roadmap');
+  const [roadmapData, setRoadmapData] = useState<FeedbackItem[]>(MOCK_ROADMAP);
+  
+  // Form State
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState<FeedbackCategory>('feature');
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- HANDLERS ---
+
+  const handleUpvote = (id: string) => {
+    // Optimistic UI Update
+    setRoadmapData(prev => prev.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          upvotes: item.hasUpvoted ? item.upvotes - 1 : item.upvotes + 1,
+          hasUpvoted: !item.hasUpvoted
+        };
+      }
+      return item;
+    }));
+    
+    // API Call (Fire and forget)
+    // api.post(`/feedback/${id}/upvote`).catch(console.error);
+    toast.success("Vote recorded!");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !description) {
+        toast.error("Please fill in all fields");
+        return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Actual implementation would be:
+        /*
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        if (file) formData.append('screenshot', file);
+        await api.post('/feedback', formData);
+        */
+
+        toast.success("Feedback submitted!", {
+            description: "You'll receive an email confirmation shortly."
+        });
+        
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setFile(null);
+        setActiveTab('roadmap');
+
+    } catch (error) {
+        toast.error("Failed to submit feedback. Try again.");
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#111827] text-gray-900 dark:text-white font-sans selection:bg-[#314BEC] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white font-sans selection:bg-[#3C48F5] selection:text-white">
       <Navbar />
       
-      <main className="pt-32 pb-20 px-4">
-        {/* Hero */}
+      <main className="pt-28 pb-20 px-4 max-w-7xl mx-auto">
         
-        <section className="text-center max-w-4xl mx-auto mb-20">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3"
-          >
-            <Heart className="text-[#314BEC] w-8 h-8 fill-current" />
+        {/* HERO SECTION */}
+        <section className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-block mb-4">
+             <div className="bg-black text-white px-4 py-1 font-black text-sm uppercase tracking-widest -rotate-2 shadow-[4px_4px_0px_0px_#3C48F5]">
+                Community Hub
+             </div>
           </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6"
-          >
-            Join the <span className="text-[#314BEC]">EasyPost</span> Community
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto"
-          >
-            Connect with thousands of creators, marketers, and developers. Share tips, get help, and shape the future of the platform.
-          </motion.p>
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6">
+            Build <span className="text-[#3C48F5] underline decoration-4 underline-offset-4 decoration-black dark:decoration-white">EasyPost</span><br/>With Us.
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-medium">
+            Vote on features, report bugs, and chat with the team. We ship updates every week based on your feedback.
+          </p>
         </section>
 
-        {/* Resources Grid */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <ResourceCard 
-            icon={<MessageCircle className="w-6 h-6 text-indigo-500" />}
-            title="Discord Server"
-            desc="Chat in real-time with the team and other users. Get instant support."
-            link="https://discord.gg"
-            cta="Join Server"
-            delay={0.2}
-          />
-          <ResourceCard 
-            icon={<Twitter className="w-6 h-6 text-blue-400" />}
-            title="Twitter / X"
-            desc="Follow for latest updates, tips, and behind-the-scenes content."
-            link="https://twitter.com"
-            cta="Follow Us"
-            delay={0.3}
-          />
-          <ResourceCard 
-            icon={<Book className="w-6 h-6 text-green-500" />}
-            title="Documentation"
-            desc="Detailed guides, API references, and tutorials to master EasyPost."
-            link="#"
-            cta="Read Docs"
-            delay={0.4}
-          />
-          <ResourceCard 
-            icon={<Github className="w-6 h-6 text-gray-900 dark:text-white" />}
-            title="Open Roadmap"
-            desc="Vote on features, report bugs, and see what we're building next."
-            link="#"
-            cta="View Roadmap"
-            delay={0.5}
-          />
-          <ResourceCard 
-            icon={<Users className="w-6 h-6 text-orange-500" />}
-            title="Creator Fund"
-            desc="We sponsor creators! Apply to get free access and promotion."
-            link="#"
-            cta="Apply Now"
-            delay={0.6}
-          />
+        {/* TABS & CONTROLS */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border-b-4 border-black dark:border-gray-700 pb-6">
+            <div className="flex gap-4">
+                <button 
+                    onClick={() => setActiveTab('roadmap')}
+                    className={`px-6 py-3 font-black uppercase text-sm border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'roadmap' ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                >
+                    Public Roadmap
+                </button>
+                <button 
+                    onClick={() => setActiveTab('submit')}
+                    className={`px-6 py-3 font-black uppercase text-sm border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'submit' ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                >
+                    Submit Idea
+                </button>
+            </div>
+
+            {/* External Links */}
+            <div className="flex gap-3">
+                <SocialBtn icon={<MessageCircle size={20} />} href="#" label="Discord" color="bg-[#5865F2]" />
+                <SocialBtn icon={<Twitter size={20} />} href="#" label="Twitter" color="bg-[#1DA1F2]" />
+                <SocialBtn icon={<Github size={20} />} href="#" label="Github" color="bg-[#333]" />
+            </div>
         </div>
 
-        {/* Contributors Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto mt-24 text-center bg-gray-50 dark:bg-gray-900 rounded-3xl p-12 border border-gray-200 dark:border-gray-800"
-        >
-          <h2 className="text-2xl font-bold mb-4">Contribute to EasyPost</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">
-            Are you a developer? We are open source! Help us build the best social media tool.
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-             {[...Array(8)].map((_, i) => (
-               <div key={i} className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 border-2 border-white dark:border-gray-800" />
-             ))}
-             <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border-2 border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-500">
-               +40
-             </div>
-          </div>
-        </motion.div>
+        {/* CONTENT AREA */}
+        <div className="grid lg:grid-cols-12 gap-12">
+            
+            {/* LEFT COLUMN: Main Content */}
+            <div className="lg:col-span-8">
+                <AnimatePresence mode='wait'>
+                    {activeTab === 'roadmap' ? (
+                        <motion.div 
+                            key="roadmap"
+                            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+                            className="space-y-6"
+                        >
+                            {/* Filters */}
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                                {['All', 'Planned', 'In Progress', 'Shipped'].map(f => (
+                                    <button key={f} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 border border-black text-xs font-bold uppercase whitespace-nowrap hover:bg-white transition-colors">
+                                        {f}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* List */}
+                            {roadmapData.map((item) => (
+                                <div key={item.id} className="group relative bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                                    <div className="flex items-start gap-6">
+                                        {/* Vote Box */}
+                                        <button 
+                                            onClick={() => handleUpvote(item.id)}
+                                            className={`flex flex-col items-center justify-center w-16 h-16 border-2 border-black flex-shrink-0 transition-colors ${item.hasUpvoted ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                                        >
+                                            <div className="text-[10px] font-black uppercase mt-1">Vote</div>
+                                            <div className="text-xl font-black">{item.upvotes}</div>
+                                        </button>
+
+                                        <div className="flex-1">
+                                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                                                <StatusBadge status={item.status} />
+                                                <CategoryBadge category={item.category} />
+                                                <span className="text-xs text-gray-500 font-mono">• {item.date}</span>
+                                            </div>
+                                            <h3 className="text-xl font-black uppercase mb-2">{item.title}</h3>
+                                            <p className="text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            key="submit"
+                            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                            className="bg-white dark:bg-gray-900 border-4 border-black p-8 shadow-[12px_12px_0px_0px_#000]"
+                        >
+                            <h2 className="text-2xl font-black uppercase mb-6 flex items-center gap-3">
+                                <Send className="text-[#3C48F5]" /> Submit Feedback
+                            </h2>
+                            
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-black uppercase mb-2">Title <span className="text-red-500">*</span></label>
+                                    <input 
+                                        value={title} onChange={e => setTitle(e.target.value)}
+                                        className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all"
+                                        placeholder="e.g. Add dark mode to calendar"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-black uppercase mb-2">Category</label>
+                                        <select 
+                                            value={category} onChange={e => setCategory(e.target.value as any)}
+                                            className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5]"
+                                        >
+                                            <option value="feature">✨ Feature Request</option>
+                                            <option value="bug">🐛 Bug Report</option>
+                                            <option value="performance">⚡ Performance</option>
+                                            <option value="other">💡 Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-black uppercase mb-2">Urgency</label>
+                                        <select className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5]">
+                                            <option>Low</option>
+                                            <option>Medium</option>
+                                            <option>High</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-black uppercase mb-2">Description <span className="text-red-500">*</span></label>
+                                    <textarea 
+                                        value={description} onChange={e => setDescription(e.target.value)}
+                                        rows={4}
+                                        className="w-full bg-gray-50 border-2 border-black p-3 font-medium focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all resize-none"
+                                        placeholder="Describe your idea or the bug you found..."
+                                    />
+                                </div>
+
+                                {/* Screenshot Upload */}
+                                <div>
+                                    <label className="block text-sm font-black uppercase mb-2">Screenshot (Optional)</label>
+                                    <div 
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="border-2 border-dashed border-black bg-gray-50 hover:bg-blue-50 cursor-pointer p-8 flex flex-col items-center justify-center transition-colors group"
+                                    >
+                                        <input 
+                                            type="file" ref={fileInputRef} className="hidden" accept="image/*"
+                                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                        />
+                                        {file ? (
+                                            <div className="flex items-center gap-2 text-[#3C48F5] font-bold">
+                                                <Check /> {file.name}
+                                                <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="p-1 hover:bg-red-100 rounded text-red-500"><X size={16}/></button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-[#3C48F5] mb-2 transition-colors" />
+                                                <p className="text-xs font-bold uppercase text-gray-500">Click to upload or drag & drop</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full bg-black text-white font-black uppercase py-4 text-lg border-2 border-transparent hover:bg-[#3C48F5] hover:border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[6px_6px_0px_0px_#000] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? <Loader2 className="animate-spin" /> : <>Submit Feedback <Send size={18} /></>}
+                                </button>
+                                
+                                <p className="text-center text-xs text-gray-500 font-bold mt-2">
+                                    We'll notify you via email when the status changes.
+                                </p>
+                            </form>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* RIGHT COLUMN: Sidebar Stats */}
+            <div className="lg:col-span-4 space-y-8">
+                
+                {/* Contributors */}
+                <div className="bg-[#FFE5E5] border-4 border-black p-6 shadow-[8px_8px_0px_0px_#000]">
+                    <h3 className="font-black text-xl uppercase mb-4 flex items-center gap-2">
+                        <Users className="text-red-500" /> Top Contributors
+                    </h3>
+                    <div className="space-y-4">
+                        {[1,2,3].map(i => (
+                            <div key={i} className="flex items-center gap-3 bg-white border-2 border-black p-2 shadow-[2px_2px_0px_0px_#000]">
+                                <div className="w-10 h-10 bg-gray-200 border-2 border-black overflow-hidden">
+                                    <img src={`https://i.pravatar.cc/150?img=${i+10}`} alt="User" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black uppercase">User_{100+i}</p>
+                                    <p className="text-xs text-gray-500 font-mono font-bold">12 Ideas Shipped</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Status Summary */}
+                <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_#000]">
+                    <h3 className="font-black text-xl uppercase mb-4">Live Status</h3>
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-2">
+                            <span>Planned</span>
+                            <span className="bg-blue-100 text-blue-800 px-2 border border-black">12</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-2">
+                            <span>In Progress</span>
+                            <span className="bg-yellow-100 text-yellow-800 px-2 border border-black">5</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm font-bold">
+                            <span>Shipped (v2.0)</span>
+                            <span className="bg-green-100 text-green-800 px-2 border border-black">48</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
       </main>
       <Footer />
     </div>
   );
 }
 
-function ResourceCard({ icon, title, desc, link, cta, delay }: any) {
-  return (
-    <motion.a 
-      href={link}
-      target="_blank"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="group p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl hover:border-[#314BEC] hover:shadow-lg transition-all"
-    >
-      <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+const SocialBtn = ({ icon, href, label, color }: any) => (
+    <a href={href} className={`w-10 h-10 flex items-center justify-center border-2 border-black text-white shadow-[2px_2px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all ${color}`} title={label}>
         {icon}
-      </div>
-      <h3 className="text-lg font-bold mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">{desc}</p>
-      <span className="text-sm font-bold text-[#314BEC] flex items-center gap-1">
-        {cta} &rarr;
-      </span>
-    </motion.a>
-  )
-}
+    </a>
+);

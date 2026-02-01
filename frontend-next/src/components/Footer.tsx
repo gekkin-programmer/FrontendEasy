@@ -29,6 +29,7 @@ const Footer: React.FC = () => {
       links: [
         { label: t('Blog', 'Blog'), href: '#' },
         { label: t('Community', 'Communauté'), href: '/community' },
+        { label: t('Creator Fund', 'Fonds Créateur'), href: '/creator-fund' },
         { label: t('Help Center', "Centre d'aide"), href: '#' },
         { label: t('Contact', 'Contact'), href: '#' },
       ],

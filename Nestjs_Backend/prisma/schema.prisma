@@ -207,6 +207,41 @@ enum ChatMessageType {
 // USER & AUTH
 // ============================================================================
 
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model CreatorApplication {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Social Handles for verification
+  tiktokHandle    String?
+  instagramHandle String?
+  youtubeHandle   String?
+  twitterHandle   String?
+  linkedinHandle  String?
+  
+  // Stats Snapshot
+  totalFollowers  Int
+  niche           String
+  
+  // Pitch
+  message         String?   @db.Text
+  
+  status    ApplicationStatus @default(PENDING)
+  reviewedBy String?
+  reviewedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("creator_applications")
+}
+
 model User {
   id        String  @id @default(cuid())
   email     String? @unique
@@ -255,6 +290,9 @@ model User {
   
   // ➤ SECURITY SESSIONS (Only define this ONCE)
   sessions              Session[]
+  
+  // ➤ CREATOR FUND
+  creatorApplications   CreatorApplication[]
   
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
