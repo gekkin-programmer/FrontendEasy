@@ -170,11 +170,7 @@ export default function WorkspaceManager() {
 
   // 2. If Fetching Data
   if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center text-[#3C48F6]">
-        <FiLoader className="animate-spin w-8 h-8"/>
-      </div>
-    );
+    return <SpinningLoader fullScreen={true} />;
   }
 
   // --- MAIN RENDER (If Multiple Workspaces / Agency Mode) ---

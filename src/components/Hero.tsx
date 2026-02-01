@@ -59,7 +59,7 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     aria-hidden="true" // Accessibility: Hide decorative icons
   >
     {/* The Tape Effect */}
-    <div className="w-8 h-3 bg-yellow-100/80 absolute -top-1.5 z-20 rotate-[-5deg] backdrop-blur-sm border border-white/20 shadow-sm" />
+    <div className="w-8 h-3 bg-blue-100/80 absolute -top-1.5 z-20 rotate-[-5deg] backdrop-blur-sm border border-white/20 shadow-sm" />
     
     {/* The Sticker Card */}
     <div 

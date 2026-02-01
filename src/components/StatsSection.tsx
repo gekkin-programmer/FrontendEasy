@@ -33,8 +33,8 @@ const StatsCard: React.FC<StatsCardProps> = ({ end, label, suffix = "", duration
   }, [inView, end, duration]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 border-b-4 md:border-b-0 md:border-r-4 border-black dark:border-white/5 last:border-b-0 last:border-r-0 hover:bg-yellow-300 dark:hover:bg-white/5 transition-colors cursor-default group">
-      <div className="text-4xl sm:text-5xl md:text-6xl font-black font-mono text-black dark:text-gray-200 group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
+    <div className="flex flex-col items-center justify-center p-8 border-b-4 md:border-b-0 md:border-r-4 border-black dark:border-white/5 last:border-b-0 last:border-r-0 hover:bg-[#3C48F5] hover:text-white dark:hover:bg-white/5 transition-colors cursor-default group">
+      <div className="text-4xl sm:text-5xl md:text-6xl font-black font-mono text-black dark:text-gray-200 group-hover:text-white group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
         <span ref={ref}>{count.toLocaleString()}</span>{suffix}
       </div>
       <p className="mt-4 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-gray-500 group-hover:text-black dark:group-hover:text-gray-200 text-center">

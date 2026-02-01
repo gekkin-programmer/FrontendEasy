@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import SpinningLoader from '@/src/components/SpinningLoader';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -23,10 +23,5 @@ export default function AuthCallbackPage() {
     }
   }, [router, searchParams]);
 
-  return (
-    <div className="h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900">
-      <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-      <p className="text-gray-500 font-medium">Authenticating...</p>
-    </div>
-  );
+  return <SpinningLoader fullScreen={true} />;
 }

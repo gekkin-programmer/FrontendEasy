@@ -3,7 +3,7 @@
 import { api } from "@/src/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
-import { Loader2 } from "lucide-react";
+import SpinningLoader from "@/src/components/SpinningLoader";
 
 export default function DashboardRootPage() {
   const router = useRouter();
@@ -56,10 +56,5 @@ export default function DashboardRootPage() {
     );
   }
 
-  return (
-    <div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] gap-4">
-      <Loader2 className="h-12 w-12 animate-spin text-black" />
-      <p className="text-sm font-bold uppercase tracking-widest">Routing...</p>
-    </div>
-  );
+  return <SpinningLoader fullScreen={true} />;
 }

@@ -64,13 +64,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning> 
+    <html lang="fr" suppressHydrationWarning className="dark"> 
       <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white`}>
         
         <QueryProvider>
           <LanguageProvider>
             {/* System Components */}
-            <Preloader />
             <Toaster position="top-center" richColors closeButton /> 
             
             {/* Layout */}

@@ -14,6 +14,7 @@ export default function CommunityPage() {
       
       <main className="pt-32 pb-20 px-4">
         {/* Hero */}
+        
         <section className="text-center max-w-4xl mx-auto mb-20">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
