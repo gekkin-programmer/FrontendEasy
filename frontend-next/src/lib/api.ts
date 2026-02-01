@@ -1,5 +1,7 @@
 // src/lib/api.ts
 
+import { getCookie, deleteCookie } from 'cookies-next';
+
 // 1. Ensure the URL doesn't have a trailing slash to avoid double slashes (e.g., //posts)
 const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api').replace(/\/$/, '');
 
@@ -8,34 +10,7 @@ interface FetchOptions extends RequestInit {
 }
 
 export const api = {
-  get: <T>(endpoint: string, options?: FetchOptions) => 
-    request<T>(endpoint, { ...options, method: 'GET' }),
-
-  post: <T>(endpoint: string, body: any, options?: FetchOptions) => 
-    request<T>(endpoint, { 
-      ...options,
-      method: 'POST',
-      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
-      body: body instanceof FormData ? body : JSON.stringify(body),
-    }),
-
-  upload: <T>(endpoint: string, formData: FormData, options?: FetchOptions) => 
-    request<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      body: formData, 
-    }),
-
-  patch: <T>(endpoint: string, body: any, options?: FetchOptions) => 
-    request<T>(endpoint, {
-      ...options,
-      method: 'PATCH',
-      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
-      body: body instanceof FormData ? body : JSON.stringify(body),
-    }),
-
-  delete: <T>(endpoint: string, options?: FetchOptions) => 
-    request<T>(endpoint, { ...options, method: 'DELETE' }),
+  // ... rest of methods
 };
 
 async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
@@ -43,8 +18,8 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${BASE_URL}${cleanEndpoint}`;
 
-  // 2. Token Injection
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  // 2. Token Injection (Using cookies for Middleware compatibility)
+  const token = getCookie('accessToken');
   const headers: Record<string, string> = { ...options.headers };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -57,7 +32,7 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
         console.warn("SESSION_EXPIRED :: Redirecting to login");
-        localStorage.removeItem('accessToken'); // Clear the bad token
+        deleteCookie('accessToken'); // Clear the bad token
         // Optimization: only redirect if we aren't already on the login page
         if (!window.location.pathname.includes('/login')) {
             window.location.href = '/login?reason=expired';
