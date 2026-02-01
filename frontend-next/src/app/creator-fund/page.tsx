@@ -93,7 +93,7 @@ export default function CreatorFundPage() {
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#3C48F5]/20 rounded-full blur-[100px] pointer-events-none" />
            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="inline-block mb-6">
               <span className="bg-[#3C48F5] text-white px-6 py-2 font-black text-sm uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0px_0px_#fff]">
-                 Module_03: Creator_Fund
+                  Creator_Fund
               </span>
            </motion.div>
            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
@@ -141,9 +141,9 @@ export default function CreatorFundPage() {
 
                 {/* 3-COL GRID: BENEFITS */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    <BenefitCard icon={<Zap className="text-yellow-400" />} title="Free Pro Access" desc="Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included." />
-                    <BenefitCard icon={<DollarSign className="text-green-400" />} title="Cash Stipend" desc="Receive up to 50,000 FCFA/month to support your content production and gear." />
-                    <BenefitCard icon={<Megaphone className="text-blue-400" />} title="Global Reach" desc="We feature your profile and content across our social nodes reaching 100k+ users." />
+                    <BenefitCard title="Free Pro Access" desc="Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included." />
+                    <BenefitCard title="Cash Stipend" desc="Receive up to 50,000 FCFA/month to support your content production and gear." />
+                    <BenefitCard title="Global Reach" desc="We feature your profile and content across our social nodes reaching 100k+ users." />
                 </div>
 
                 {/* ELIGIBILITY SECTION */}
@@ -242,17 +242,13 @@ export default function CreatorFundPage() {
 // --- SUB-COMPONENTS ---
 
 interface BenefitCardProps {
-    icon: React.ReactElement;
     title: string;
     desc: string;
 }
 
-function BenefitCard({ icon, title, desc }: BenefitCardProps) {
+function BenefitCard({ title, desc }: BenefitCardProps) {
     return (
         <div className="bg-zinc-900 border-2 border-zinc-800 p-8 hover:border-[#3C48F5] transition-colors group">
-            <div className="w-14 h-14 bg-black border-2 border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {React.cloneElement(icon, { size: 28 } as any)}
-            </div>
             <h3 className="text-2xl font-black uppercase mb-4 tracking-tighter">{title}</h3>
             <p className="text-gray-500 font-bold leading-relaxed">{desc}</p>
         </div>

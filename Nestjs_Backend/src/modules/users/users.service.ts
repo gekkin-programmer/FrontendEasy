@@ -153,4 +153,12 @@ export class UsersService {
       select: { id: true, email: true, planType: true },
     });
   }
+
+  async setPlan(id: string, planType: any) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { planType },
+      select: { id: true, email: true, planType: true },
+    });
+  }
 }

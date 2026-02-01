@@ -225,4 +225,16 @@ This file tracks all changes made to the codebase for maintainability and transp
     - Implemented real feedback submission and upvote functionality.
     - Added loading states and empty library indicators for the roadmap.
 
+- **Admin Dashboard & User Access Control (Full-Stack)**:
+  - **Backend (NestJS)**:
+    - Added `setPlan` method to `UsersService` for manual plan overrides.
+    - Implemented `PATCH /users/:id/plan` endpoint in `UsersController`.
+    - Secured admin endpoints using `RolesGuard` and `@Roles('ADMIN')` decorator.
+  - **Frontend (Next.js)**:
+    - Created an **Admin Control Center** (`/admin/users`) for user management.
+    - Implemented real-time plan updates (FREE, STARTER, PRO, BUSINESS) with immediate feedback.
+    - Added search, filtering, and database synchronization features.
+    - Removed decorative icons from `BenefitCard` in the Creator Fund page for a cleaner look.
+    - Ensured consistent Neubrutalist design on a black background for all admin pages.
+
 

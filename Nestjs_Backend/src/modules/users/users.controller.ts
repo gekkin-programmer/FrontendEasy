@@ -3,6 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/guards/roles.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -15,6 +17,15 @@ export class UsersController {
   @ApiOperation({ summary: 'Upgrade current user to PRO' })
   upgradeToPro(@Req() req) {
     return this.usersService.upgradeToPro(req.user.sub);
+  }
+
+  @Patch(':id/plan')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Set user plan (Admin)' })
+  setPlan(@Param('id') id: string, @Body('planType') planType: string) {
+    return this.usersService.setPlan(id, planType);
   }
 
   @Get()
