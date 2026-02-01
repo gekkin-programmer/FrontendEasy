@@ -17,6 +17,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/src/lib/api';
+import MediaGallery from './MediaGallery';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -75,7 +76,7 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
     <span className="text-[10px] font-bold uppercase text-center bg-white px-1 border border-black max-w-full truncate w-full font-mono">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black bg-white hover:bg-blue-100 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all text-black"><Icon size={18} strokeWidth={2.5} /></button>);
+const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black bg-white hover:bg-blue-50 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all text-black"><Icon size={18} strokeWidth={2.5} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black fill-black" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 
@@ -105,7 +106,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
-  const [isLibraryOpen, setIsLibraryOpen] = useState(false); 
+  const [isLibraryOpen, setIsLibraryOpen] = useState(true); 
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -287,7 +288,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
 
         {/* HEADER */}
-        <div className="px-4 py-3 flex items-center justify-between bg-yellow-400 border-b-2 border-black">
+        <div className="px-4 py-3 flex items-center justify-between bg-[#3C48F5] border-b-2 border-black">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black text-white px-2 py-1">TARGETS:</span>
 
@@ -328,10 +329,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isAiOpen ? "bg-purple-600 text-white" : "bg-white hover:bg-purple-100")}>
+             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all shadow-[2px_2px_0px_0px_#000]", isAiOpen ? "bg-white text-black" : "bg-black text-white hover:bg-gray-800")}>
                 <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
              </button>
-             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all", isLibraryOpen ? "bg-black text-white" : "bg-white hover:bg-gray-100")}>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black transition-all shadow-[2px_2px_0px_0px_#000]", isLibraryOpen ? "bg-white text-black" : "bg-black text-white hover:bg-gray-800")}>
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span>
              </button>
           </div>
@@ -386,13 +387,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_IMG" />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_VID" />
               <div className="h-8 w-0.5 bg-black mx-1" />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F6] text-white" : "bg-white hover:bg-yellow-100")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
-              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-white hover:bg-gray-50 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none whitespace-nowrap"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-yellow-200 transition flex items-center justify-between border-b border-gray-200 last:border-0 font-bold uppercase', category === cat && 'bg-yellow-400')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white hover:bg-blue-50")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-white hover:bg-gray-50 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none whitespace-nowrap"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 transition flex items-center justify-between border-b border-gray-200 last:border-0 font-bold uppercase', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
             <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
               <Popover><PopoverTrigger asChild><NeuButton className="bg-white text-black px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white p-3" /><div className="p-3 border-t-2 border-black bg-yellow-50 flex items-center gap-2"><Clock size={16} className="text-black" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black border-b-2 border-black/20 focus:border-black" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-yellow-100 text-black font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
+                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-blue-50 text-black font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 text-purple-900 font-bold text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
@@ -410,25 +411,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
         {isLibraryOpen && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden flex flex-col">
             <div className="px-4 py-2 border-b-2 border-black bg-black text-white flex justify-between items-center"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white hover:text-black rounded-none p-1 transition-colors border border-transparent hover:border-white"><X size={14} /></button></div>
-            <Tabs defaultValue="media" className="flex-1 flex flex-col min-h-0 bg-yellow-50/50">
-              <div className="px-4 pt-4 pb-0"><TabsList className="w-full grid grid-cols-2 h-10 bg-transparent gap-2 p-0"><TabsTrigger value="media" className="text-[10px] font-black uppercase border-2 border-black bg-white data-[state=active]:bg-[#3C48F6] data-[state=active]:text-white shadow-[2px_2px_0px_0px_#000] data-[state=active]:translate-x-[1px] data-[state=active]:translate-y-[1px] data-[state=active]:shadow-none transition-all rounded-none">SYSTEM_FILES</TabsTrigger><TabsTrigger value="templates" className="text-[10px] font-black uppercase border-2 border-black bg-white data-[state=active]:bg-[#3C48F6] data-[state=active]:text-white shadow-[2px_2px_0px_0px_#000] data-[state=active]:translate-x-[1px] data-[state=active]:translate-y-[1px] data-[state=active]:shadow-none transition-all rounded-none">SAVED_TPLS</TabsTrigger></TabsList></div>
-              <ScrollArea className="flex-1 p-4 h-64 lg:h-80">
-                <TabsContent value="media" className="mt-0 space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                     <input type="file" ref={libraryInputRef} onChange={() => {}} multiple accept="image/*,video/*" className="hidden" />
-                     <button onClick={() => setShowFolderModal(true)} className="px-3 py-1 bg-white border-2 border-black text-[10px] font-bold uppercase hover:bg-yellow-200 shadow-[2px_2px_0px_0px_#000] active:translate-y-[1px] active:shadow-none">+ DIR</button>
-                     <button onClick={() => libraryInputRef.current?.click()} className="px-3 py-1 bg-white border-2 border-black text-[10px] font-bold uppercase hover:bg-green-200 shadow-[2px_2px_0px_0px_#000] active:translate-y-[1px] active:shadow-none">+ INGEST</button>
-                     {currentFolderId && <button onClick={() => setCurrentFolderId(null)} className="ml-auto px-3 py-1 bg-gray-200 border-2 border-black text-[10px] font-bold uppercase hover:bg-gray-300 shadow-[2px_2px_0px_0px_#000] flex items-center gap-1"><CornerLeftUp size={10} /> ROOT</button>}
-                  </div>
-                  {currentItems.length === 0 && <div className="h-32 border-2 border-dashed border-gray-400 flex flex-col items-center justify-center text-gray-400"><p className="font-mono text-xs font-bold">DIRECTORY_EMPTY</p></div>}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    {currentItems.filter(i => i.type === 'folder').map((folder) => (<RetroFolder key={folder.id} name={folder.name || "Untitled"} onClick={() => setCurrentFolderId(folder.id)} />))}
-                    {currentItems.filter(i => i.type !== 'folder').map((item) => (<div key={item.id} onClick={() => handleSelectFromLibrary(item)} className="relative aspect-square border-2 border-black overflow-hidden cursor-pointer group hover:shadow-[4px_4px_0px_0px_#000] transition-all bg-white"><img src={item.url} className="w-full h-full object-cover transition-all" alt="" /><div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2"><Check size={20} className="text-white drop-shadow-md hover:scale-110 transition-transform" /></div><div className="absolute top-0 right-0 bg-black text-white text-[8px] font-bold px-1 uppercase font-mono">{item.type.toUpperCase().substring(0,3)}</div></div>))}
-                  </div>
-                </TabsContent>
-                <TabsContent value="templates" className="mt-0 space-y-3">{savedTemplates.map((t) => (<div key={t.id} onClick={() => { setText(p => p + (p ? '\n\n' : '') + t.content); toast.success('TPL_INJECTED'); }} className="p-4 bg-white border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none cursor-pointer group transition-all"><div className="flex justify-between items-start mb-2"><span className="text-[10px] font-black uppercase bg-yellow-300 px-1 border border-black">{t.title}</span><Copy size={14} className="text-black opacity-0 group-hover:opacity-100 transition-opacity" /></div><p className="text-xs font-medium text-gray-800 line-clamp-2 font-mono">{t.content}</p></div>))}</TabsContent>
-              </ScrollArea>
-            </Tabs>
+            <div className="p-4 bg-blue-50/30">
+                <MediaGallery />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -447,7 +432,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
       {isPreviewOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white border-4 border-black shadow-[16px_16px_0px_0px_#000] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col font-sans text-black">
-                <div className="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center">
+                <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black flex justify-between items-center">
                     <span className="font-black uppercase tracking-tighter text-xl">LIVE_PREVIEW_STREAM</span>
                     <button onClick={() => setIsPreviewOpen(false)} className="hover:bg-black hover:text-white transition-colors p-1 border-2 border-transparent hover:border-black"><X size={24} strokeWidth={3}/></button>
                 </div>
