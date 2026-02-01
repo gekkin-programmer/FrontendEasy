@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaArrowLeft, FaUser, FaBriefcase, FaCamera, FaGlobe, FaBuilding, FaCheck } from 'react-icons/fa6';
-import { Loader2 } from "lucide-react"; 
+import SpinningLoader from '@/src/components/SpinningLoader'; 
 
 // --- 1. DATA CONFIGURATION (Unchanged) ---
 
@@ -112,7 +112,7 @@ export default function OnboardingPage() {
 
   // --- RENDER STEPS ---
 
-  if (isAuthChecking) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-600"/></div>;
+  if (isAuthChecking) return <SpinningLoader fullScreen={true} />;
 
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">

@@ -27,6 +27,7 @@ import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 import Team from '@/src/components/easypost/Team';
 import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
 import CalendarView from '@/src/components/easypost/CalendarView';
+import SpinningLoader from '@/src/components/SpinningLoader';
 
 type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -205,7 +206,7 @@ function DashboardContent() {
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
     const filteredPosts = posts;
 
-    if (currentWsLoading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
+    if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
     const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
 

@@ -132,9 +132,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark" || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    // Default to dark if no theme is saved
+    if (savedTheme === "dark" || !savedTheme) {
         setIsDark(true);
         document.documentElement.classList.add("dark");
+        if (!savedTheme) localStorage.setItem("theme", "dark");
     } else {
         setIsDark(false);
         document.documentElement.classList.remove("dark");

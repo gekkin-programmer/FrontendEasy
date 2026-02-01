@@ -57,15 +57,15 @@ const HardCard = ({ children, className = "", color = "bg-white", rivets = false
   </div>
 );
 
-const HardBadge = ({ children, color = "bg-yellow-400" }: any) => (
-  <span className={`inline-block px-3 py-1 font-bold text-xs uppercase tracking-widest border-2 border-black ${color} text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
+  <span className={`inline-block px-3 py-1 font-bold text-xs uppercase tracking-widest border-2 border-black ${color} text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
     {children}
   </span>
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
   <li className="flex items-start gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default group">
-    <div className="text-black mt-1 flex-shrink-0 bg-yellow-400 p-2 border-2 border-black group-hover:bg-[#3C48F6] group-hover:text-white transition-colors">
+    <div className="text-black mt-1 flex-shrink-0 bg-blue-100 p-2 border-2 border-black group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
         {icon}
     </div>
     <span className="text-black font-bold text-base md:text-lg leading-tight self-center">{children}</span>
@@ -82,7 +82,7 @@ const InsightCard = ({ animationKey }: { animationKey: number }) => (
     transition={{ delay: 2.5, type: "spring" }}
     className="absolute top-4 -right-2 md:-right-10 z-20 w-48 md:w-56"
   >
-    <HardCard color="bg-yellow-300" className="p-4" rivets={true}>
+    <HardCard color="bg-blue-50" className="p-4" rivets={true}>
       <div className="absolute -top-3 -left-3 bg-black text-white px-2 py-1 text-[10px] font-mono font-bold border border-white">
         PRIORITY_HIGH
       </div>
@@ -198,7 +198,7 @@ const MainDashboardVisual = () => {
           {/* Scanner Line */}
           <motion.div 
             key={`scanner-${animationKey}`}
-            className="absolute top-0 bottom-0 w-[2px] bg-yellow-400 z-30 shadow-[0px_0px_8px_rgba(250,204,21,0.8)]"
+            className="absolute top-0 bottom-0 w-[2px] bg-[#3C48F5] z-30 shadow-[0px_0px_8px_rgba(60,72,245,0.8)]"
             initial={{ left: "-5%", opacity: 1 }}
             animate={{ left: "110%", opacity: 0 }}
             transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
@@ -224,7 +224,7 @@ const MainDashboardVisual = () => {
                     }}
                     className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#3C48F6] transition-colors"
                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-yellow-300 border-2 border-black px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-[2px_2px_0px_0px_#000]">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-blue-100 border-2 border-black px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-[2px_2px_0px_0px_#000]">
                         {h}%
                     </div>
                  </motion.div>
@@ -290,7 +290,7 @@ const AnalyzeSection = () => {
             </h2>
           </div>
           
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-yellow-400 pl-6 py-2 bg-gray-50 dark:bg-white/5">
+          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
             {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
           </p>
           

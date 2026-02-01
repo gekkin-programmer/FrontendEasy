@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
+import SpinningLoader from '../SpinningLoader';
 
 // --- CONFIG ---
 const ICONS: Record<string, any> = {
@@ -68,12 +69,7 @@ export default function EngagementAnalytics() {
 
   const handleDownload = () => toast.success("REPORT_GENERATION_QUEUED");
 
-  if (isLoading) return (
-    <div className="flex flex-col items-center justify-center h-64 border-2 border-black bg-white">
-        <FiLoader className="animate-spin w-8 h-8 mb-4" />
-        <p className="font-black font-mono">CALCULATING_METRICS...</p>
-    </div>
-  );
+  if (isLoading) return <SpinningLoader fullScreen={false} />;
 
   const stats = data || { kpi: [], platforms: [], volume: [] };
 
