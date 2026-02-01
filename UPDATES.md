@@ -195,5 +195,9 @@ This file tracks all changes made to the codebase for maintainability and transp
     - Standardized all page transitions and data-fetching states to use the unified **`SpinningLoader`**.
     - Replaced manual `Loader2` or custom spinners in `Dashboard`, `AuthCallback`, `ConnectAccounts`, `Analytics`, `Engagement`, `Team`, `MediaGallery`, and `Workspaces` with the global component.
   - **Visual Consistency**: Corrected secondary accents and backgrounds to match the #3C48F5/Black/White design system.
+  - **Internationalization (i18n)**:
+    - Implemented automatic **Device Language Detection** (defaults to 'fr' for French locales, else 'en').
+    - Persisted language preference to `localStorage`.
+    - Unified language state across Landing Page and Dashboard (Sidebar menu items now translate dynamically).
 
 
