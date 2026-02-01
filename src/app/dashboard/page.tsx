@@ -4,6 +4,7 @@ import { api } from "@/src/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
 import SpinningLoader from "@/src/components/SpinningLoader";
+import { getCookie } from 'cookies-next';
 
 export default function DashboardRootPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function DashboardRootPage() {
 
   useEffect(() => {
     const routeUser = async () => {
-      const token = localStorage.getItem('accessToken');
+      const token = getCookie('accessToken');
       if (!token) {
         router.push('/login');
         return;
