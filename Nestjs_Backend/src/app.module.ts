@@ -22,6 +22,7 @@ import { ContentCalendarModule } from './modules/content-calendar/content-calend
 import { EngagementModule } from './modules/engagement/engagement.module';
 import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
 import { CommunityModule } from './modules/community/community.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -63,7 +64,8 @@ import { CommunityModule } from './modules/community/community.module';
     ContentCalendarModule,
     EngagementModule,
     CreatorFundModule,
-    CommunityModule
+    CommunityModule,
+    AdminModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -21,6 +21,12 @@ enum AccountType {
   AGENCY
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
 enum WorkspaceType {
   PERSONAL
   ORGANIZATION
@@ -203,10 +209,6 @@ enum ChatMessageType {
   FILE
 }
 
-// ============================================================================
-// USER & AUTH
-// ============================================================================
-
 enum ApplicationStatus {
   PENDING
   APPROVED
@@ -227,64 +229,9 @@ enum FeedbackCategory {
   OTHER
 }
 
-model CreatorApplication {
-  id        String            @id @default(uuid())
-  userId    String
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Social Handles for verification
-  tiktokHandle    String?
-  instagramHandle String?
-  youtubeHandle   String?
-  twitterHandle   String?
-  linkedinHandle  String?
-  
-  // Stats Snapshot
-  totalFollowers  Int
-  niche           String
-  
-  // Pitch
-  message         String?   @db.Text
-  
-  status    ApplicationStatus @default(PENDING)
-  reviewedBy String?
-  reviewedAt DateTime?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("creator_applications")
-}
-
-model CommunityFeedback {
-  id          String           @id @default(uuid())
-  title       String
-  description String           @db.Text
-  category    FeedbackCategory @default(FEATURE)
-  status      FeedbackStatus   @default(UNDER_REVIEW)
-  
-  screenshotUrl String?
-  
-  authorId    String
-  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  upvotes     FeedbackUpvote[]
-  
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  @@map("community_feedback")
-}
-
-model FeedbackUpvote {
-  feedbackId String
-  feedback   CommunityFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([feedbackId, userId])
-  @@map("feedback_upvotes")
-}
+// ============================================================================
+// USER & AUTH
+// ============================================================================
 
 model User {
   id        String  @id @default(cuid())
@@ -315,11 +262,13 @@ model User {
 
   // Account type
   accountType AccountType @default(PERSONAL)
+  role        UserRole    @default(USER)
 
   // Subscription
   subscription Subscription?
   planType     PlanType      @default(FREE)
   planLimits   Json?
+  planExpiresAt DateTime?
 
   // Relations
   ownedWorkspaces       Workspace[]       @relation("WorkspaceOwner")
@@ -332,11 +281,15 @@ model User {
   notifications         Notification[]
   activities            ActivityLog[]
   
-  // ➤ SECURITY SESSIONS (Only define this ONCE)
+  // ➤ SECURITY SESSIONS
   sessions              Session[]
   
   // ➤ CREATOR FUND
   creatorApplications   CreatorApplication[]
+  
+  // ➤ ACCESS GRANTS
+  receivedGrants        AccessGrant[]     @relation("UserGrants")
+  issuedGrants          AccessGrant[]     @relation("AdminGrants")
   
   // ➤ COMMUNITY
   communityFeedback     CommunityFeedback[]
@@ -358,7 +311,7 @@ model Session {
   id           String   @id @default(cuid())
   userId       String
   
-  // ➤ UPDATED: Store the HASH of the refresh token here
+  // ➤ Store the HASH of the refresh token here
   refreshToken String   @unique 
   
   userAgent    String?
@@ -369,8 +322,8 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([refreshToken]) // Index for faster lookups
-  @@index([expiresAt])    // Index for cleaning up expired sessions
+  @@index([refreshToken])
+  @@index([expiresAt])
   @@map("sessions")
 }
 
@@ -425,8 +378,7 @@ model Workspace {
   // RAG / AI Documents
   documents Document[]
 
-  // Note: Rely on aggregate queries (_) rather than these counters for strict accuracy, 
-  // or use DB triggers to update them.
+  // Counters
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
   currentPostCount          Int @default(0)
@@ -583,12 +535,12 @@ model MediaLibrary {
 }
 
 // ============================================================================
-// AI & RAG (SECURED)
+// AI & RAG
 // ============================================================================
 
 model Document {
   id          String    @id @default(cuid())
-  workspaceId String // Added for Tenant Isolation
+  workspaceId String 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   content  String                      @db.Text
@@ -598,7 +550,7 @@ model Document {
   createdAt DateTime @default(now())
 
   @@index([id])
-  @@index([workspaceId]) // Scopes search to workspace
+  @@index([workspaceId])
   @@map("easy_post_documents")
 }
 
@@ -630,7 +582,7 @@ model AiFeedback {
 }
 
 // ============================================================================
-// CONTENT & PUBLISHING (NORMALIZED)
+// CONTENT & PUBLISHING
 // ============================================================================
 
 model Post {
@@ -644,7 +596,7 @@ model Post {
   // Media
   media PostMedia[]
 
-  // Simple/Legacy media handling
+  // Legacy media handling
   mediaUrls Json?
   mediaType MediaType?
 
@@ -1131,4 +1083,84 @@ model ChatMessage {
 
   @@index([channelId, createdAt])
   @@map("chat_messages")
+}
+
+model CommunityFeedback {
+  id          String           @id @default(uuid())
+  title       String
+  description String           @db.Text
+  category    FeedbackCategory @default(FEATURE)
+  status      FeedbackStatus   @default(UNDER_REVIEW)
+  
+  screenshotUrl String?
+  
+  authorId    String
+  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  upvotes     FeedbackUpvote[]
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("community_feedback")
+}
+
+model FeedbackUpvote {
+  feedbackId String
+  feedback   CommunityFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, userId])
+  @@map("feedback_upvotes")
+}
+
+model CreatorApplication {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tiktokHandle    String?
+  instagramHandle String?
+  youtubeHandle   String?
+  twitterHandle   String?
+  linkedinHandle  String?
+  
+  totalFollowers  Int
+  niche           String
+  
+  message         String?   @db.Text
+  
+  status    ApplicationStatus @default(PENDING)
+  reviewedBy String?
+  reviewedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("creator_applications")
+}
+
+// ============================================================================
+// ADMIN & ACCESS CONTROL
+// ============================================================================
+
+model AccessGrant {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
+  
+  adminId     String
+  admin       User     @relation("AdminGrants", fields: [adminId], references: [id])
+  
+  planType    PlanType
+  durationDays Int?    // null = unlimited
+  expiresAt   DateTime?
+  reason      String?  @db.Text
+  status      String   @default("ACTIVE") // ACTIVE, REVOKED, EXPIRED
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("access_grants")
 }
