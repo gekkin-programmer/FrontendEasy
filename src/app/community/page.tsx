@@ -13,8 +13,8 @@ import { toast } from 'sonner';
 import { api } from '@/src/lib/api'; // Using your real API client
 
 // --- TYPES ---
-type FeedbackStatus = 'under_review' | 'planned' | 'in_progress' | 'completed';
-type FeedbackCategory = 'feature' | 'bug' | 'performance' | 'other';
+type FeedbackStatus = 'UNDER_REVIEW' | 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
+type FeedbackCategory = 'FEATURE' | 'BUG' | 'PERFORMANCE' | 'OTHER';
 
 interface FeedbackItem {
   id: string;
@@ -23,33 +23,27 @@ interface FeedbackItem {
   category: FeedbackCategory;
   status: FeedbackStatus;
   upvotes: number;
-  hasUpvoted: boolean; // User specific
-  author: string;
+  hasUpvoted: boolean; 
+  author?: { firstName: string; avatar?: string };
   date: string;
+  createdAt: string;
 }
-
-// --- MOCK DATA (Replace with API fetch) ---
-const MOCK_ROADMAP: FeedbackItem[] = [
-  { id: '1', title: 'LinkedIn PDF Carousel Support', description: 'Allow uploading multi-page PDFs directly to LinkedIn.', category: 'feature', status: 'in_progress', upvotes: 124, hasUpvoted: true, author: 'Sarah J.', date: '2d ago' },
-  { id: '2', title: 'Dark Mode Schedule View', description: 'The calendar view is too bright at night.', category: 'feature', status: 'completed', upvotes: 89, hasUpvoted: false, author: 'Mike T.', date: '1w ago' },
-  { id: '3', title: 'Analytics Export Error', description: 'Exporting CSV fails when date range > 90 days.', category: 'bug', status: 'under_review', upvotes: 12, hasUpvoted: false, author: 'Anon', date: '4h ago' },
-];
 
 // --- COMPONENTS ---
 
 const StatusBadge = ({ status }: { status: FeedbackStatus }) => {
-  const styles = {
-    under_review: 'bg-gray-200 text-gray-600 border-gray-400',
-    planned: 'bg-blue-100 text-blue-700 border-blue-300',
-    in_progress: 'bg-yellow-100 text-yellow-700 border-yellow-400',
-    completed: 'bg-green-100 text-green-700 border-green-400',
+  const styles: Record<FeedbackStatus, string> = {
+    UNDER_REVIEW: 'bg-gray-200 text-gray-600 border-gray-400',
+    PLANNED: 'bg-blue-100 text-blue-700 border-blue-300',
+    IN_PROGRESS: 'bg-yellow-100 text-yellow-700 border-yellow-400',
+    COMPLETED: 'bg-green-100 text-green-700 border-green-400',
   };
   
-  const labels = {
-    under_review: 'Under Review',
-    planned: 'Planned',
-    in_progress: 'In Progress',
-    completed: 'Shipped 🚀',
+  const labels: Record<FeedbackStatus, string> = {
+    UNDER_REVIEW: 'Under Review',
+    PLANNED: 'Planned',
+    IN_PROGRESS: 'In Progress',
+    COMPLETED: 'Shipped 🚀',
   };
 
   return (
@@ -60,9 +54,15 @@ const StatusBadge = ({ status }: { status: FeedbackStatus }) => {
 };
 
 const CategoryBadge = ({ category }: { category: FeedbackCategory }) => {
-    const icons = { feature: '✨', bug: '🐛', performance: '⚡', other: '💡' };
+    const icons: Record<FeedbackCategory, string> = { FEATURE: '✨', BUG: '🐛', PERFORMANCE: '⚡', OTHER: '💡' };
     return <span className="text-xs font-bold uppercase border border-black px-2 py-0.5 bg-white shadow-[2px_2px_0px_0px_#000]">{icons[category]} {category}</span>;
 };
+
+const SocialBtn = ({ icon, href, label, color }: any) => (
+    <a href={href} className={`w-10 h-10 flex items-center justify-center border-2 border-black text-white shadow-[2px_2px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all ${color}`} title={label}>
+        {icon}
+    </a>
+);
 
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<'roadmap' | 'submit'>('roadmap');
@@ -72,7 +72,7 @@ export default function CommunityPage() {
   // Form State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<FeedbackCategory>('feature');
+  const [category, setCategory] = useState<FeedbackCategory>('FEATURE');
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,11 +94,19 @@ export default function CommunityPage() {
 
   const handleUpvote = async (id: string) => {
     try {
-        await api.post(`/community/feedback/${id}/upvote`);
-        // Refresh data
-        const res = await api.get<any[]>('/community/roadmap');
-        setRoadmapData(res);
-        toast.success("Vote recorded!");
+        const res = await api.post<any>(`/community/feedback/${id}/upvote`);
+        // Update local state
+        setRoadmapData(prev => prev.map(item => {
+            if (item.id === id) {
+                return {
+                    ...item,
+                    upvotes: res.upvoted ? item.upvotes + 1 : item.upvotes - 1,
+                    hasUpvoted: res.upvoted
+                };
+            }
+            return item;
+        }));
+        toast.success(res.upvoted ? "Vote added!" : "Vote removed");
     } catch (e) {
         toast.error("Login to vote!");
     }
@@ -114,12 +122,11 @@ export default function CommunityPage() {
     setIsSubmitting(true);
 
     try {
-        // Build payload
         const payload = {
             title,
             description,
-            category: category.toUpperCase(),
-            screenshotUrl: "" // TODO: Upload to Cloudinary first
+            category,
+            screenshotUrl: "" 
         };
 
         await api.post('/community/feedback', payload);
@@ -141,6 +148,13 @@ export default function CommunityPage() {
     } finally {
         setIsSubmitting(false);
     }
+  };
+
+  // Helper for date
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return 'just now';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   return (
@@ -231,7 +245,7 @@ export default function CommunityPage() {
                                             <div className="flex flex-wrap items-center gap-3 mb-2">
                                                 <StatusBadge status={item.status} />
                                                 <CategoryBadge category={item.category} />
-                                                <span className="text-xs text-gray-500 font-mono">• {item.date}</span>
+                                                <span className="text-xs text-gray-500 font-mono">• {formatDate(item.createdAt)}</span>
                                             </div>
                                             <h3 className="text-xl font-black uppercase mb-2">{item.title}</h3>
                                             <p className="text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
@@ -269,10 +283,10 @@ export default function CommunityPage() {
                                             value={category} onChange={e => setCategory(e.target.value as any)}
                                             className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5]"
                                         >
-                                            <option value="feature">✨ Feature Request</option>
-                                            <option value="bug">🐛 Bug Report</option>
-                                            <option value="performance">⚡ Performance</option>
-                                            <option value="other">💡 Other</option>
+                                            <option value="FEATURE">✨ Feature Request</option>
+                                            <option value="BUG">🐛 Bug Report</option>
+                                            <option value="PERFORMANCE">⚡ Performance</option>
+                                            <option value="OTHER">💡 Other</option>
                                         </select>
                                     </div>
                                     <div>
