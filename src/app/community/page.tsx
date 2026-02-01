@@ -66,7 +66,8 @@ const CategoryBadge = ({ category }: { category: FeedbackCategory }) => {
 
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<'roadmap' | 'submit'>('roadmap');
-  const [roadmapData, setRoadmapData] = useState<FeedbackItem[]>(MOCK_ROADMAP);
+  const [roadmapData, setRoadmapData] = useState<FeedbackItem[]>([]);
+  const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(true);
   
   // Form State
   const [title, setTitle] = useState('');
@@ -76,24 +77,31 @@ export default function CommunityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- HANDLERS ---
-
-  const handleUpvote = (id: string) => {
-    // Optimistic UI Update
-    setRoadmapData(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          upvotes: item.hasUpvoted ? item.upvotes - 1 : item.upvotes + 1,
-          hasUpvoted: !item.hasUpvoted
-        };
+  // --- FETCH ROADMAP ---
+  useEffect(() => {
+    const fetchRoadmap = async () => {
+      try {
+        const res = await api.get<any[]>('/community/roadmap');
+        setRoadmapData(res);
+      } catch (e) {
+        console.error("Roadmap fetch failed", e);
+      } finally {
+        setIsLoadingRoadmap(false);
       }
-      return item;
-    }));
-    
-    // API Call (Fire and forget)
-    // api.post(`/feedback/${id}/upvote`).catch(console.error);
-    toast.success("Vote recorded!");
+    };
+    fetchRoadmap();
+  }, []);
+
+  const handleUpvote = async (id: string) => {
+    try {
+        await api.post(`/community/feedback/${id}/upvote`);
+        // Refresh data
+        const res = await api.get<any[]>('/community/roadmap');
+        setRoadmapData(res);
+        toast.success("Vote recorded!");
+    } catch (e) {
+        toast.error("Login to vote!");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,31 +114,30 @@ export default function CommunityPage() {
     setIsSubmitting(true);
 
     try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Build payload
+        const payload = {
+            title,
+            description,
+            category: category.toUpperCase(),
+            screenshotUrl: "" // TODO: Upload to Cloudinary first
+        };
 
-        // Actual implementation would be:
-        /*
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('category', category);
-        if (file) formData.append('screenshot', file);
-        await api.post('/feedback', formData);
-        */
+        await api.post('/community/feedback', payload);
 
         toast.success("Feedback submitted!", {
-            description: "You'll receive an email confirmation shortly."
+            description: "We'll review it soon."
         });
         
-        // Reset form
+        // Reset and refresh
         setTitle('');
         setDescription('');
         setFile(null);
+        const res = await api.get<any[]>('/community/roadmap');
+        setRoadmapData(res);
         setActiveTab('roadmap');
 
     } catch (error) {
-        toast.error("Failed to submit feedback. Try again.");
+        toast.error("Login required to submit feedback.");
     } finally {
         setIsSubmitting(false);
     }
@@ -204,7 +211,11 @@ export default function CommunityPage() {
                             </div>
 
                             {/* List */}
-                            {roadmapData.map((item) => (
+                            {isLoadingRoadmap ? (
+                                <div className="py-20 flex justify-center"><Loader2 className="animate-spin w-12 h-12 text-[#3C48F5]" /></div>
+                            ) : roadmapData.length === 0 ? (
+                                <div className="py-20 text-center border-4 border-dashed border-gray-200 font-black uppercase text-gray-400">No suggestions yet. Be the first!</div>
+                            ) : roadmapData.map((item) => (
                                 <div key={item.id} className="group relative bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
                                     <div className="flex items-start gap-6">
                                         {/* Vote Box */}
