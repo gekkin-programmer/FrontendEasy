@@ -13,20 +13,17 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
-
-  // Initialize language from localStorage or Device
-  React.useEffect(() => {
-    const savedLang = localStorage.getItem('app_language') as Language;
-    if (savedLang) {
-      setLanguage(savedLang);
-    } else {
-      // Detect device language
-      const deviceLang = typeof navigator !== 'undefined' && navigator.language.startsWith('fr') ? 'fr' : 'en';
-      setLanguage(deviceLang);
+  // Initialize synchronously if possible to avoid flicker
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('app_language') as Language;
+      if (saved) return saved;
+      const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
       localStorage.setItem('app_language', deviceLang);
+      return deviceLang;
     }
-  }, []);
+    return 'en';
+  });
 
   const toggleLanguage = () => {
     setLanguage((prev) => {
