@@ -21,6 +21,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
 import { EngagementModule } from './modules/engagement/engagement.module';
 import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
+import { CommunityModule } from './modules/community/community.module';
 
 @Module({
   imports: [
@@ -61,7 +62,8 @@ import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
     AnalyticsModule,
     ContentCalendarModule,
     EngagementModule,
-    CreatorFundModule
+    CreatorFundModule,
+    CommunityModule
   ],
   controllers: [AppController],
   providers: [AppService],

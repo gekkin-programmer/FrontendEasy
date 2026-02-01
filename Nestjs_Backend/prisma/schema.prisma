@@ -213,6 +213,20 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum FeedbackStatus {
+  UNDER_REVIEW
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum FeedbackCategory {
+  FEATURE
+  BUG
+  PERFORMANCE
+  OTHER
+}
+
 model CreatorApplication {
   id        String            @id @default(uuid())
   userId    String
@@ -240,6 +254,36 @@ model CreatorApplication {
   updatedAt DateTime @updatedAt
 
   @@map("creator_applications")
+}
+
+model CommunityFeedback {
+  id          String           @id @default(uuid())
+  title       String
+  description String           @db.Text
+  category    FeedbackCategory @default(FEATURE)
+  status      FeedbackStatus   @default(UNDER_REVIEW)
+  
+  screenshotUrl String?
+  
+  authorId    String
+  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  upvotes     FeedbackUpvote[]
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("community_feedback")
+}
+
+model FeedbackUpvote {
+  feedbackId String
+  feedback   CommunityFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, userId])
+  @@map("feedback_upvotes")
 }
 
 model User {
@@ -293,6 +337,10 @@ model User {
   
   // ➤ CREATOR FUND
   creatorApplications   CreatorApplication[]
+  
+  // ➤ COMMUNITY
+  communityFeedback     CommunityFeedback[]
+  feedbackUpvotes       FeedbackUpvote[]
   
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")

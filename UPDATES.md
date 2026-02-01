@@ -213,4 +213,16 @@ This file tracks all changes made to the codebase for maintainability and transp
     - Added program status tracking for applied users.
     - Updated `Footer` with a direct link to the program.
 
+- **Community & Roadmap (Full-Stack)**:
+  - **Database (Prisma)**: Added `CommunityFeedback` and `FeedbackUpvote` models. Implemented unique voting constraints.
+  - **Backend (NestJS)**:
+    - Created `CommunityModule` with Service and Controller.
+    - Added endpoints: `GET /community/roadmap` (Public), `POST /community/feedback` (Protected), `POST /community/feedback/:id/upvote` (Protected), and `PATCH /community/feedback/:id/status` (Admin).
+    - Implemented logic for upvote toggling and author tracking.
+  - **Frontend (Next.js)**:
+    - Fully connected the Community page to the backend API.
+    - Replaced mock data with live roadmap fetching.
+    - Implemented real feedback submission and upvote functionality.
+    - Added loading states and empty library indicators for the roadmap.
+
 
