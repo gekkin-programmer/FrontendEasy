@@ -241,11 +241,17 @@ export default function CreatorFundPage() {
 
 // --- SUB-COMPONENTS ---
 
-function BenefitCard({ icon, title, desc }: any) {
+interface BenefitCardProps {
+    icon: React.ReactElement;
+    title: string;
+    desc: string;
+}
+
+function BenefitCard({ icon, title, desc }: BenefitCardProps) {
     return (
         <div className="bg-zinc-900 border-2 border-zinc-800 p-8 hover:border-[#3C48F5] transition-colors group">
             <div className="w-14 h-14 bg-black border-2 border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {React.cloneElement(icon, { size: 28 })}
+                {React.cloneElement(icon, { size: 28 } as any)}
             </div>
             <h3 className="text-2xl font-black uppercase mb-4 tracking-tighter">{title}</h3>
             <p className="text-gray-500 font-bold leading-relaxed">{desc}</p>
@@ -264,16 +270,28 @@ function EligibilityItem({ text }: { text: string }) {
     )
 }
 
-function CommitmentItem({ icon, text }: any) {
+interface CommitmentItemProps {
+    icon: React.ReactElement;
+    text: string;
+}
+
+function CommitmentItem({ icon, text }: CommitmentItemProps) {
     return (
         <div className="flex items-center gap-4 p-4 bg-zinc-900 border-2 border-zinc-800">
-            <div className="text-[#3C48F5]">{React.cloneElement(icon, { size: 20 })}</div>
+            <div className="text-[#3C48F5]">{React.cloneElement(icon, { size: 20 } as any)}</div>
             <span className="font-bold uppercase text-xs tracking-wider">{text}</span>
         </div>
     )
 }
 
-function SocialInput({ icon, placeholder, value, onChange }: any) {
+interface SocialInputProps {
+    icon: React.ReactNode;
+    placeholder: string;
+    value: string;
+    onChange: (val: string) => void;
+}
+
+function SocialInput({ icon, placeholder, value, onChange }: SocialInputProps) {
     return (
         <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</div>
