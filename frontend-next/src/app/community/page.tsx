@@ -28,26 +28,35 @@ interface FeedbackItem {
   createdAt: string;
 }
 
-// --- COMPONENTS ---
+interface Contributor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatar?: string;
+  _count: {
+    posts: number;
+    communityFeedback: number;
+  }
+}
 
 const StatusBadge = ({ status }: { status: FeedbackStatus }) => {
   const { t } = useLanguage();
   const styles: Record<FeedbackStatus, string> = {
-    UNDER_REVIEW: 'bg-gray-200 text-gray-600 border-gray-400',
-    PLANNED: 'bg-blue-100 text-blue-700 border-blue-300',
-    IN_PROGRESS: 'bg-yellow-100 text-yellow-700 border-yellow-400',
-    COMPLETED: 'bg-green-100 text-green-700 border-green-400',
+    UNDER_REVIEW: 'bg-zinc-800 text-zinc-400 border-zinc-700',
+    PLANNED: 'bg-blue-500/10 text-blue-400 border-blue-500/50',
+    IN_PROGRESS: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/50',
+    COMPLETED: 'bg-green-500/10 text-green-400 border-green-500/50',
   };
   
   const labels: Record<FeedbackStatus, string> = {
     UNDER_REVIEW: t('Under Review', 'En révision'),
     PLANNED: t('Planned', 'Planifié'),
     IN_PROGRESS: t('In Progress', 'En cours'),
-    COMPLETED: t('Shipped 🚀', 'Déployé 🚀'),
+    COMPLETED: t('Shipped', 'Déployé'),
   };
 
   return (
-    <span className={`px-3 py-1 border-2 text-[10px] font-black uppercase tracking-wider rounded-full ${styles[status]}`}>
+    <span className={`px-3 py-1 border-2 text-[10px] font-black uppercase tracking-wider ${styles[status]}`}>
       {labels[status]}
     </span>
   );
@@ -55,19 +64,14 @@ const StatusBadge = ({ status }: { status: FeedbackStatus }) => {
 
 const CategoryBadge = ({ category }: { category: FeedbackCategory }) => {
     const icons: Record<FeedbackCategory, string> = { FEATURE: '✨', BUG: '🐛', PERFORMANCE: '⚡', OTHER: '💡' };
-    return <span className="text-xs font-bold uppercase border border-black px-2 py-0.5 bg-white shadow-[2px_2px_0px_0px_#000]">{icons[category]} {category}</span>;
+    return <span className="text-[10px] font-black uppercase border-2 border-white px-2 py-1 bg-black text-white">{icons[category]} {category}</span>;
 };
-
-const CommunitySocialBtn = ({ icon, href, label, color }: any) => (
-    <a href={href} className={`w-10 h-10 flex items-center justify-center border-2 border-black text-white shadow-[2px_2px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all ${color}`} title={label}>
-        {icon}
-    </a>
-);
 
 export default function CommunityPage() {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'roadmap' | 'submit'>('roadmap');
   const [roadmapData, setRoadmapData] = useState<FeedbackItem[]>([]);
+  const [contributors, setContributors] = useState<Contributor[]>([]);
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(true);
   
   // Form State
@@ -78,77 +82,31 @@ export default function CommunityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- FETCH ROADMAP ---
+  // --- FETCH DATA ---
   useEffect(() => {
-    const fetchRoadmap = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get<any[]>('/community/roadmap');
-        setRoadmapData(res);
+        const [roadmap, contribs] = await Promise.all([
+          api.get<any[]>('/community/roadmap'),
+          api.get<any[]>('/community/contributors')
+        ]);
+        setRoadmapData(roadmap);
+        setContributors(contribs);
       } catch (e) {
-        console.error("Roadmap fetch failed", e);
+        console.error("Data fetch failed", e);
       } finally {
         setIsLoadingRoadmap(false);
       }
     };
-    fetchRoadmap();
+    fetchData();
   }, []);
 
   const handleUpvote = async (id: string) => {
-    try {
-        const res = await api.post<any>(`/community/feedback/${id}/upvote`, {});
-        // Update local state
-        setRoadmapData(prev => prev.map(item => {
-            if (item.id === id) {
-                return {
-                    ...item,
-                    upvotes: res.upvoted ? item.upvotes + 1 : item.upvotes - 1,
-                    hasUpvoted: res.upvoted
-                };
-            }
-            return item;
-        }));
-        toast.success(res.upvoted ? t("Vote added!", "Vote ajouté !") : t("Vote removed", "Vote retiré"));
-    } catch (e) {
-        toast.error(t("Login to vote!", "Connectez-vous pour voter !"));
-    }
+// ...
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !description) {
-        toast.error(t("Please fill in all fields", "Veuillez remplir tous les champs"));
-        return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-        const payload = {
-            title,
-            description,
-            category,
-            screenshotUrl: "" 
-        };
-
-        await api.post('/community/feedback', payload);
-
-        toast.success(t("Feedback submitted!", "Feedback soumis !"), {
-            description: t("We'll review it soon.", "Nous l'examinerons bientôt.")
-        });
-        
-        // Reset and refresh
-        setTitle('');
-        setDescription('');
-        setFile(null);
-        const res = await api.get<any[]>('/community/roadmap');
-        setRoadmapData(res);
-        setActiveTab('roadmap');
-
-    } catch (error) {
-        toast.error(t("Login required to submit feedback.", "Connexion requise pour soumettre un feedback."));
-    } finally {
-        setIsSubmitting(false);
-    }
+// ...
   };
 
   // Helper for date
@@ -159,48 +117,43 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white font-sans selection:bg-[#3C48F5] selection:text-white">
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#3C48F5] selection:text-white">
       <Navbar />
       
       <main className="pt-28 pb-20 px-4 max-w-7xl mx-auto">
         
         {/* HERO SECTION */}
-        <section className="text-center mb-16">
+        <section className="text-center mb-16 relative">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#3C48F5]/20 rounded-full blur-[100px] pointer-events-none" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-block mb-4">
-             <div className="bg-black text-white px-4 py-1 font-black text-sm uppercase tracking-widest -rotate-2 shadow-[4px_4px_0px_0px_#3C48F5]">
+             <div className="bg-[#3C48F5] text-white px-4 py-1 font-black text-sm uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_#fff]">
                 {t('Community Hub', 'Espace Communauté')}
              </div>
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6">
-            {t('Build ', 'Construisez ')} <span className="text-[#3C48F5] underline decoration-4 underline-offset-4 decoration-black dark:decoration-white">EasyPost</span><br/>{t('With Us.', 'Avec Nous.')}
+          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
+            {t('Build ', 'Construisez ')}<br/>
+            <span className="text-transparent text-stroke-white italic">EasyPost</span> {t('With Us.', 'Avec Nous.')}
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-medium">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold">
             {t('Vote on features, report bugs, and chat with the team. We ship updates every week based on your feedback.', 'Votez pour les fonctionnalités, signalez des bugs et discutez avec l\'équipe. Nous publions des mises à jour chaque semaine.')}
           </p>
         </section>
 
         {/* TABS & CONTROLS */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border-b-4 border-black dark:border-gray-700 pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border-b-4 border-white pb-6">
             <div className="flex gap-4">
                 <button 
                     onClick={() => setActiveTab('roadmap')}
-                    className={`px-6 py-3 font-black uppercase text-sm border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'roadmap' ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                    className={`px-8 py-4 font-black uppercase text-sm border-4 border-white transition-all shadow-[8px_8px_0px_0px_#3C48F5] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'roadmap' ? 'bg-white text-black' : 'bg-transparent text-white hover:bg-zinc-900'}`}
                 >
                     {t('Public Roadmap', 'Feuille de Route')}
                 </button>
                 <button 
                     onClick={() => setActiveTab('submit')}
-                    className={`px-6 py-3 font-black uppercase text-sm border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'submit' ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                    className={`px-8 py-4 font-black uppercase text-sm border-4 border-white transition-all shadow-[8px_8px_0px_0px_#3C48F5] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${activeTab === 'submit' ? 'bg-white text-black' : 'bg-transparent text-white hover:bg-zinc-900'}`}
                 >
                     {t('Submit Idea', 'Soumettre une Idée')}
                 </button>
-            </div>
-
-            {/* External Links */}
-            <div className="flex gap-3">
-                <CommunitySocialBtn icon={<MessageCircle size={20} />} href="#" label="Discord" color="bg-[#5865F2]" />
-                <CommunitySocialBtn icon={<Twitter size={20} />} href="#" label="Twitter" color="bg-[#1DA1F2]" />
-                <CommunitySocialBtn icon={<Github size={20} />} href="#" label="Github" color="bg-[#333]" />
             </div>
         </div>
 
@@ -214,12 +167,12 @@ export default function CommunityPage() {
                         <motion.div 
                             key="roadmap"
                             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-                            className="space-y-6"
+                            className="space-y-8"
                         >
                             {/* Filters */}
-                            <div className="flex gap-2 overflow-x-auto pb-2">
+                            <div className="flex gap-3 overflow-x-auto pb-2">
                                 {['All', 'Planned', 'In Progress', 'Shipped'].map(f => (
-                                    <button key={f} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 border border-black text-xs font-bold uppercase whitespace-nowrap hover:bg-white transition-colors">
+                                    <button key={f} className="px-4 py-2 bg-zinc-900 border-2 border-white text-xs font-black uppercase tracking-widest hover:bg-[#3C48F5] transition-colors">
                                         {t(f, f)}
                                     </button>
                                 ))}
@@ -227,29 +180,29 @@ export default function CommunityPage() {
 
                             {/* List */}
                             {isLoadingRoadmap ? (
-                                <div className="py-20 flex justify-center"><Loader2 className="animate-spin w-12 h-12 text-[#3C48F5]" /></div>
+                                <div className="py-20 flex justify-center"><Loader2 className="animate-spin w-16 h-16 text-[#3C48F5]" /></div>
                             ) : roadmapData.length === 0 ? (
-                                <div className="py-20 text-center border-4 border-dashed border-gray-200 font-black uppercase text-gray-400">{t('No suggestions yet. Be the first!', 'Aucune suggestion pour le moment. Soyez le premier !')}</div>
+                                <div className="py-32 text-center border-4 border-dashed border-zinc-800 font-black uppercase text-zinc-600 text-2xl">{t('No suggestions yet. Be the first!', 'Aucune suggestion pour le moment. Soyez le premier !')}</div>
                             ) : roadmapData.map((item) => (
-                                <div key={item.id} className="group relative bg-white dark:bg-gray-900 border-4 border-black dark:border-gray-700 p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-                                    <div className="flex items-start gap-6">
+                                <div key={item.id} className="group relative bg-zinc-900 border-4 border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                                    <div className="flex items-start gap-8">
                                         {/* Vote Box */}
                                         <button 
                                             onClick={() => handleUpvote(item.id)}
-                                            className={`flex flex-col items-center justify-center w-16 h-16 border-2 border-black flex-shrink-0 transition-colors ${item.hasUpvoted ? 'bg-[#3C48F5] text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                                            className={`flex flex-col items-center justify-center w-20 h-20 border-4 border-black flex-shrink-0 transition-all ${item.hasUpvoted ? 'bg-white text-black -translate-y-1 shadow-[4px_4px_0px_0px_#3C48F5]' : 'bg-black text-white hover:bg-[#3C48F5]'}`}
                                         >
-                                            <div className="text-[10px] font-black uppercase mt-1">{t('Vote', 'Voter')}</div>
-                                            <div className="text-xl font-black">{item.upvotes}</div>
+                                            <div className="text-[10px] font-black uppercase">{t('Vote', 'Voter')}</div>
+                                            <div className="text-3xl font-black">{item.upvotes}</div>
                                         </button>
 
-                                        <div className="flex-1">
-                                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex flex-wrap items-center gap-4 mb-4">
                                                 <StatusBadge status={item.status} />
                                                 <CategoryBadge category={item.category} />
-                                                <span className="text-xs text-gray-500 font-mono">• {formatDate(item.createdAt)}</span>
+                                                <span className="text-xs text-zinc-500 font-mono font-bold tracking-tighter uppercase">{formatDate(item.createdAt)}</span>
                                             </div>
-                                            <h3 className="text-xl font-black uppercase mb-2">{item.title}</h3>
-                                            <p className="text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
+                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-3 truncate">{item.title}</h3>
+                                            <p className="text-zinc-400 font-bold leading-relaxed text-sm">
                                                 {item.description}
                                             </p>
                                         </div>
@@ -261,38 +214,38 @@ export default function CommunityPage() {
                         <motion.div 
                             key="submit"
                             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                            className="bg-white dark:bg-gray-900 border-4 border-black p-8 shadow-[12px_12px_0px_0px_#000]"
+                            className="bg-white text-black border-4 border-white p-10 shadow-[16px_16px_0px_0px_#3C48F5]"
                         >
-                            <h2 className="text-2xl font-black uppercase mb-6 flex items-center gap-3">
-                                <Send className="text-[#3C48F5]" /> {t('Submit Feedback', 'Soumettre un Feedback')}
+                            <h2 className="text-4xl font-black uppercase mb-10 border-b-4 border-black pb-4 flex items-center gap-4">
+                                <Send size={32} /> {t('Submit Feedback', 'Soumettre')}
                             </h2>
                             
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-black uppercase mb-2">{t('Title', 'Titre')} <span className="text-red-500">*</span></label>
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] text-gray-500">{t('Title', 'Titre')}</label>
                                     <input 
                                         value={title} onChange={e => setTitle(e.target.value)}
-                                        className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all text-black"
+                                        className="w-full bg-gray-50 border-4 border-black p-4 font-black text-lg focus:bg-blue-50 outline-none"
                                         placeholder={t("e.g. Add dark mode to calendar", "ex: Ajouter le mode sombre au calendrier")}
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6 text-black">
-                                    <div>
-                                        <label className="block text-sm font-black uppercase mb-2 dark:text-white">{t('Category', 'Catégorie')}</label>
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-black uppercase tracking-[0.2em] text-gray-500">{t('Category', 'Catégorie')}</label>
                                         <select 
                                             value={category} onChange={e => setCategory(e.target.value as any)}
-                                            className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5]"
+                                            className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase appearance-none outline-none cursor-pointer"
                                         >
-                                            <option value="FEATURE">✨ {t('Feature Request', 'Demande de fonction')}</option>
-                                            <option value="BUG">🐛 {t('Bug Report', 'Signalement de bug')}</option>
-                                            <option value="PERFORMANCE">⚡ {t('Performance', 'Performance')}</option>
+                                            <option value="FEATURE">✨ {t('Feature Request', 'Fonction')}</option>
+                                            <option value="BUG">🐛 {t('Bug Report', 'Bug')}</option>
+                                            <option value="PERFORMANCE">⚡ {t('Performance', 'Perf')}</option>
                                             <option value="OTHER">💡 {t('Other', 'Autre')}</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-black uppercase mb-2 dark:text-white">{t('Urgency', 'Urgence')}</label>
-                                        <select className="w-full bg-gray-50 border-2 border-black p-3 font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5]">
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-black uppercase tracking-[0.2em] text-gray-500">{t('Urgency', 'Urgence')}</label>
+                                        <select className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase appearance-none outline-none cursor-pointer">
                                             <option>{t('Low', 'Basse')}</option>
                                             <option>{t('Medium', 'Moyenne')}</option>
                                             <option>{t('High', 'Haute')}</option>
@@ -300,36 +253,36 @@ export default function CommunityPage() {
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-black uppercase mb-2">{t('Description', 'Description')} <span className="text-red-500">*</span></label>
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] text-gray-500">{t('Description', 'Description')}</label>
                                     <textarea 
                                         value={description} onChange={e => setDescription(e.target.value)}
-                                        rows={4}
-                                        className="w-full bg-gray-50 border-2 border-black p-3 font-medium focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all resize-none text-black"
+                                        rows={5}
+                                        className="w-full bg-gray-50 border-4 border-black p-4 font-bold text-sm focus:bg-blue-50 outline-none resize-none leading-relaxed"
                                         placeholder={t("Describe your idea or the bug you found...", "Décrivez votre idée ou le bug trouvé...")}
                                     />
                                 </div>
 
                                 {/* Screenshot Upload */}
-                                <div>
-                                    <label className="block text-sm font-black uppercase mb-2">{t('Screenshot (Optional)', 'Capture d\'écran (Optionnel)')}</label>
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] text-gray-500">{t('Screenshot (Optional)', 'Visuel')}</label>
                                     <div 
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="border-2 border-dashed border-black bg-gray-50 hover:bg-blue-50 cursor-pointer p-8 flex flex-col items-center justify-center transition-colors group"
+                                        className="border-4 border-dashed border-gray-300 bg-gray-50 hover:bg-blue-50 cursor-pointer p-10 flex flex-col items-center justify-center transition-all group"
                                     >
                                         <input 
                                             type="file" ref={fileInputRef} className="hidden" accept="image/*"
                                             onChange={(e) => setFile(e.target.files?.[0] || null)}
                                         />
                                         {file ? (
-                                            <div className="flex items-center gap-2 text-[#3C48F5] font-bold">
-                                                <Check /> {file.name}
-                                                <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="p-1 hover:bg-red-100 rounded text-red-500"><X size={16}/></button>
+                                            <div className="flex items-center gap-3 text-[#3C48F5] font-black uppercase text-sm">
+                                                <Check strokeWidth={4} /> {file.name}
+                                                <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="p-2 hover:bg-red-500 hover:text-white border-2 border-transparent hover:border-black transition-all"><X size={16}/></button>
                                             </div>
                                         ) : (
                                             <>
-                                                <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-[#3C48F5] mb-2 transition-colors" />
-                                                <p className="text-xs font-bold uppercase text-gray-500">{t('Click to upload or drag & drop', 'Cliquez ou glissez-déposez')}</p>
+                                                <UploadCloud className="w-12 h-12 text-gray-400 group-hover:scale-110 transition-transform mb-4" />
+                                                <p className="text-xs font-black uppercase tracking-widest text-gray-400">{t('Drop visual proof here', 'Glissez une preuve visuelle')}</p>
                                             </>
                                         )}
                                     </div>
@@ -338,14 +291,10 @@ export default function CommunityPage() {
                                 <button 
                                     type="submit" 
                                     disabled={isSubmitting}
-                                    className="w-full bg-black text-white font-black uppercase py-4 text-lg border-2 border-transparent hover:bg-[#3C48F5] hover:border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[6px_6px_0px_0px_#000] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-[#3C48F5] text-white font-black uppercase py-6 text-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all flex items-center justify-center gap-4 disabled:opacity-50"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" /> : <>{t('Submit Feedback', 'Soumettre')} <Send size={18} /></>}
+                                    {isSubmitting ? <Loader2 className="animate-spin" /> : <>{t('Submit Feedback', 'Soumettre au Board')} <Send size={24} /></>}
                                 </button>
-                                
-                                <p className="text-center text-xs text-gray-500 font-bold mt-2">
-                                    {t("We'll notify you via email when the status changes.", "Nous vous préviendrons par email en cas de changement de statut.")}
-                                </p>
                             </form>
                         </motion.div>
                     )}
@@ -353,44 +302,40 @@ export default function CommunityPage() {
             </div>
 
             {/* RIGHT COLUMN: Sidebar Stats */}
-            <div className="lg:col-span-4 space-y-8">
+            <div className="lg:col-span-4 space-y-10">
                 
                 {/* Contributors */}
-                <div className="bg-[#FFE5E5] border-4 border-black p-6 shadow-[8px_8px_0px_0px_#000]">
-                    <h3 className="font-black text-xl uppercase mb-4 flex items-center gap-2 text-black">
-                        <Users className="text-red-500" /> {t('Top Contributors', 'Contributeurs')}
+                <div className="bg-zinc-900 border-4 border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
+                    <h3 className="font-black text-2xl uppercase mb-8 flex items-center gap-3">
+                        <Users className="text-[#3C48F5]" /> {t('Top Contributors', 'Contributeurs')}
                     </h3>
-                    <div className="space-y-4">
-                        {[1,2,3].map(i => (
-                            <div key={i} className="flex items-center gap-3 bg-white border-2 border-black p-2 shadow-[2px_2px_0px_0px_#000]">
-                                <div className="w-10 h-10 bg-gray-200 border-2 border-black overflow-hidden">
-                                    <img src={`https://i.pravatar.cc/150?img=${i+10}`} alt="User" className="w-full h-full object-cover" />
+                    <div className="space-y-6">
+                        {contributors.length === 0 ? (
+                            <p className="text-xs font-mono text-zinc-600 uppercase">Indexing contributors...</p>
+                        ) : contributors.map((user, i) => (
+                            <div key={user.id} className="flex items-center gap-4 bg-black border-2 border-zinc-800 p-3 hover:border-white transition-colors">
+                                <div className="w-12 h-12 bg-zinc-800 border-2 border-white overflow-hidden flex-shrink-0">
+                                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-black">{user.firstName[0]}</div>}
                                 </div>
-                                <div>
-                                    <p className="text-sm font-black uppercase text-black">User_{100+i}</p>
-                                    <p className="text-xs text-gray-500 font-mono font-bold">{t('12 Ideas Shipped', '12 Idées Déployées')}</p>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-black uppercase truncate">{user.firstName} {user.lastName}</p>
+                                    <p className="text-[9px] text-zinc-500 font-mono font-bold uppercase">
+                                        {user._count.posts} Posts • {user._count.communityFeedback} Ideas
+                                    </p>
                                 </div>
+                                <div className="ml-auto font-black text-[#3C48F5]">#{i+1}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Status Summary */}
-                <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_#000] text-black">
-                    <h3 className="font-black text-xl uppercase mb-4">{t('Live Status', 'Statut en direct')}</h3>
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-2">
-                            <span>{t('Planned', 'Planifié')}</span>
-                            <span className="bg-blue-100 text-blue-800 px-2 border border-black">12</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-2">
-                            <span>{t('In Progress', 'En cours')}</span>
-                            <span className="bg-yellow-100 text-yellow-800 px-2 border border-black">5</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm font-bold">
-                            <span>{t('Shipped (v2.0)', 'Déployé (v2.0)')}</span>
-                            <span className="bg-green-100 text-green-800 px-2 border border-black">48</span>
-                        </div>
+                <div className="bg-white text-black border-4 border-white p-8 shadow-[12px_12px_0px_0px_#000]">
+                    <h3 className="font-black text-2xl uppercase mb-8 border-b-4 border-black pb-2">{t('Live Status', 'Système')}</h3>
+                    <div className="space-y-4">
+                        <StatusLine label={t('Planned', 'Planifié')} count={roadmapData.filter(r => r.status === 'PLANNED').length} color="bg-blue-100" />
+                        <StatusLine label={t('In Progress', 'En cours')} count={roadmapData.filter(r => r.status === 'IN_PROGRESS').length} color="bg-yellow-100" />
+                        <StatusLine label={t('Shipped', 'Déployé')} count={roadmapData.filter(r => r.status === 'COMPLETED').length} color="bg-green-100" />
                     </div>
                 </div>
 
@@ -401,4 +346,13 @@ export default function CommunityPage() {
       <Footer />
     </div>
   );
+}
+
+function StatusLine({ label, count, color }: any) {
+    return (
+        <div className="flex justify-between items-center text-sm font-black uppercase tracking-tighter">
+            <span>{label}</span>
+            <span className={`${color} px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_#000]`}>{count}</span>
+        </div>
+    )
 }

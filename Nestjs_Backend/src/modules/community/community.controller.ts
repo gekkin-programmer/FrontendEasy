@@ -12,9 +12,15 @@ export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
   @Get('roadmap')
-  @ApiOperation({ summary: 'Get public roadmap' })
+  @ApiOperation({ summary: 'Get community roadmap' })
   getRoadmap() {
     return this.communityService.getRoadmap();
+  }
+
+  @Get('contributors')
+  @ApiOperation({ summary: 'Get top contributors' })
+  getTopContributors() {
+    return this.communityService.getTopContributors();
   }
 
   @Post('feedback')

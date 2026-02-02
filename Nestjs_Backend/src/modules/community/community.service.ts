@@ -70,4 +70,26 @@ export class CommunityService {
       data: { status },
     });
   }
+
+  async getTopContributors() {
+    return this.prisma.user.findMany({
+      take: 5,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        _count: {
+          select: {
+            posts: true,
+            communityFeedback: true,
+          },
+        },
+      },
+      orderBy: [
+        { posts: { _count: 'desc' } },
+        { communityFeedback: { _count: 'desc' } },
+      ],
+    });
+  }
 }
