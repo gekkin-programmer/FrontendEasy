@@ -9,11 +9,29 @@ import {
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false);
+  const router = useRouter();
 
-  const plans = [
+  const handlePlanSelection = (plan: any) => {
+    if (plan.name === "Gratuit") {
+      router.push('/dashboard');
+      return;
+    }
+    if (plan.name === "Enterprise") {
+      window.location.href = "mailto:sales@easypost.io";
+      return;
+    }
+
+    const params = new URLSearchParams({
+      plan: plan.name.toUpperCase(),
+      price: plan.price.toString(),
+      cycle: isYearly ? 'YEARLY' : 'MONTHLY'
+    });
+    router.push(`/checkout?${params.toString()}`);
+  };
     {
       name: "Gratuit",
       price: 0,
@@ -140,7 +158,7 @@ export default function PricingPage() {
         {/* PRICING GRID */}
         <div className="grid lg:grid-cols-4 gap-8">
             {plans.map((plan, idx) => (
-                <PricingCard key={idx} plan={plan} />
+                <PricingCard key={idx} plan={plan} onSelect={() => handlePlanSelection(plan)} />
             ))}
         </div>
 
@@ -168,7 +186,7 @@ export default function PricingPage() {
 
 // --- COMPONENTS ---
 
-function PricingCard({ plan }: any) {
+function PricingCard({ plan, onSelect }: any) {
     return (
         <motion.div 
             whileHover={{ y: -10 }}
@@ -205,7 +223,7 @@ function PricingCard({ plan }: any) {
             </div>
 
             <button 
-                onClick={() => toast.info(`L'intégration PawaPay pour le plan ${plan.name} arrive bientôt !`)}
+                onClick={onSelect}
                 className={`w-full py-4 font-black uppercase text-xs border-4 transition-all hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${
                     plan.popular 
                     ? 'bg-white text-black border-black shadow-[4px_4px_0px_0px_#000]' 
