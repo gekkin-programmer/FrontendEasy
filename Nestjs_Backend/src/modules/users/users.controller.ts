@@ -14,9 +14,9 @@ export class UsersController {
   @Post('upgrade-pro')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Upgrade current user to PRO' })
-  upgradeToPro(@Req() req) {
-    return this.usersService.upgradeToPro(req.user.sub);
+  @ApiOperation({ summary: 'Upgrade current user plan' })
+  upgradeToPro(@Req() req, @Body('planType') planType?: string) {
+    return this.usersService.upgradeToPro(req.user.sub, planType);
   }
 
   @Patch(':id/plan')

@@ -146,10 +146,10 @@ export class UsersService {
     };
   }
 
-  async upgradeToPro(id: string) {
+  async upgradeToPro(id: string, planType: string = 'PROFESSIONAL') {
     return this.prisma.user.update({
       where: { id },
-      data: { planType: 'PROFESSIONAL' },
+      data: { planType: planType as any },
       select: { id: true, email: true, planType: true },
     });
   }

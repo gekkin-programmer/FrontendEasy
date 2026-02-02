@@ -77,9 +77,6 @@ export default function OnboardingPage() {
 
     try {
       // 1. Update User Plan in Backend
-      // Since we don't have a generic 'set-plan' for users yet without admin rights,
-      // let's assume we use the upgrade-pro or a new endpoint if needed.
-      // But for onboarding, we should ideally send the planId to the backend.
       await fetch(`${API_URL}/users/upgrade-pro`, {
         method: 'POST',
         headers: { 
@@ -90,12 +87,11 @@ export default function OnboardingPage() {
       });
 
       // 2. Determine Workspace Creation
-      // Agencies/Businesses ALWAYS get a workspace.
-      // Personal users can skip or get a default one.
+      // Agencies/Businesses ALWAYS get a professional workspace.
       const safeCategory = selectedCategory || 'personal';
-      const needsWorkspace = ['business', 'agency', 'enterprise', 'creator'].includes(safeCategory);
+      const isProfessional = ['business', 'agency', 'enterprise', 'creator'].includes(safeCategory);
 
-      if (needsWorkspace) {
+      if (isProfessional) {
         const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
         const res = await fetch(`${API_URL}/workspaces`, {
           method: 'POST',
@@ -107,12 +103,13 @@ export default function OnboardingPage() {
         });
 
         if (!res.ok) throw new Error('Failed to create workspace');
-        const workspace = await res.json();
+        const workspaceData = await res.json();
+        const workspace = workspaceData.data || workspaceData;
         
-        // Success: Redirect to that workspace
-        router.push(`/dashboard/${workspace.id || workspace.data?.id}`); 
+        // Success: Redirect to that professional workspace
+        router.push(`/dashboard/${workspace.id}`); 
       } else {
-        // Individual flow
+        // Individual flow: Redirect to root dashboard which will pick their default workspace
         router.push('/dashboard');
       }
 
