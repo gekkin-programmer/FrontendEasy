@@ -208,6 +208,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
       });
       
       const generatedContent = res.content || res.data?.content;
+      const aiUsageCount = res.aiUsageCount || res.data?.aiUsageCount;
       if (!generatedContent) throw new Error("Empty response from AI");
 
       // Typewriter Effect
@@ -226,6 +227,19 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
             setIsAiOpen(false); 
             setAiContext("");
             toast.success("AI: COPY_GENERATED");
+
+            // 🚀 FREEMIUM HOOK: AI USAGE TOAST
+            if (aiUsageCount >= 8 && aiUsageCount < 10) {
+              setTimeout(() => {
+                toast.info(`🎉 ${10 - aiUsageCount} générations restantes ce mois.`, {
+                  description: "Passez à STARTER pour 100 générations !",
+                  action: {
+                    label: "Upgrade",
+                    onClick: () => window.location.href = '/pricing'
+                  }
+                });
+              }, 1000);
+            }
         }
       }, speed);
 
