@@ -237,10 +237,10 @@ export default function CommunityPage() {
                                             value={category} onChange={e => setCategory(e.target.value as any)}
                                             className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase appearance-none outline-none cursor-pointer"
                                         >
-                                            <option value="FEATURE">✨ {t('Feature Request', 'Fonction')}</option>
-                                            <option value="BUG">🐛 {t('Bug Report', 'Bug')}</option>
-                                            <option value="PERFORMANCE">⚡ {t('Performance', 'Perf')}</option>
-                                            <option value="OTHER">💡 {t('Other', 'Autre')}</option>
+                                            <option value="FEATURE"> {t('Feature Request', 'Fonction')}</option>
+                                            <option value="BUG"> {t('Bug Report', 'Bug')}</option>
+                                            <option value="PERFORMANCE"> {t('Performance', 'Perf')}</option>
+                                            <option value="OTHER"> {t('Other', 'Autre')}</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
@@ -326,16 +326,6 @@ export default function CommunityPage() {
                                 <div className="ml-auto font-black text-[#3C48F5]">#{i+1}</div>
                             </div>
                         ))}
-                    </div>
-                </div>
-
-                {/* Status Summary */}
-                <div className="bg-white text-black border-4 border-white p-8 shadow-[12px_12px_0px_0px_#000]">
-                    <h3 className="font-black text-2xl uppercase mb-8 border-b-4 border-black pb-2">{t('Live Status', 'Système')}</h3>
-                    <div className="space-y-4">
-                        <StatusLine label={t('Planned', 'Planifié')} count={roadmapData.filter(r => r.status === 'PLANNED').length} color="bg-blue-100" />
-                        <StatusLine label={t('In Progress', 'En cours')} count={roadmapData.filter(r => r.status === 'IN_PROGRESS').length} color="bg-yellow-100" />
-                        <StatusLine label={t('Shipped', 'Déployé')} count={roadmapData.filter(r => r.status === 'COMPLETED').length} color="bg-green-100" />
                     </div>
                 </div>
 

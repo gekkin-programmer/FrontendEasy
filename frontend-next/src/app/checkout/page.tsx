@@ -11,6 +11,7 @@ import { api } from '@/src/lib/api';
 import { toast } from 'sonner';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
+import Image from 'next/image';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -39,7 +40,7 @@ function CheckoutContent() {
       // Clean phone number (add 237 if missing)
       const cleanPhone = phone.startsWith('237') ? phone : `237${phone}`;
       
-      const res = await api.post<any>('/payments/initiate', {
+      await api.post<any>('/payments/initiate', {
         planType: plan,
         amount: parseInt(price),
         phone: cleanPhone,
@@ -69,24 +70,24 @@ function CheckoutContent() {
         
         {/* LEFT: PLAN SUMMARY */}
         <div className="space-y-8">
-            <h1 className="text-5xl font-black uppercase tracking-tighter leading-none">
+            <h1 className="text-5xl font-black uppercase tracking-tighter leading-none text-black dark:text-white">
                 Finalisez votre<br/>
                 <span className="text-[#3C48F5]">Abonnement.</span>
             </h1>
             
-            <div className="bg-zinc-900 border-4 border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
-                <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-800 pb-6">
+            <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
+                <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-100 dark:border-zinc-800 pb-6">
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Plan Sélectionné</p>
-                        <h3 className="text-2xl font-black uppercase">{plan}</h3>
+                        <h3 className="text-2xl font-black uppercase text-black dark:text-white">{plan}</h3>
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Cycle</p>
-                        <h3 className="text-sm font-black uppercase">{cycle === 'YEARLY' ? 'Annuel' : 'Mensuel'}</h3>
+                        <h3 className="text-sm font-black uppercase text-black dark:text-white">{cycle === 'YEARLY' ? 'Annuel' : 'Mensuel'}</h3>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center text-3xl font-black">
+                <div className="flex justify-between items-center text-3xl font-black text-black dark:text-white">
                     <span>TOTAL</span>
                     <span className="text-[#3C48F5]">{parseInt(price).toLocaleString()} FCFA</span>
                 </div>
@@ -99,10 +100,10 @@ function CheckoutContent() {
         </div>
 
         {/* RIGHT: FORM */}
-        <div className="bg-white text-black border-4 border-white p-10 shadow-[16px_16px_0px_0px_#000]">
+        <div className="bg-white dark:bg-zinc-900 text-black dark:text-white border-4 border-black dark:border-white p-10 shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff]">
             {step === 'form' && (
                 <form onSubmit={handlePayment} className="space-y-8">
-                    <h2 className="text-2xl font-black uppercase border-b-4 border-black pb-4">Infos de Paiement</h2>
+                    <h2 className="text-2xl font-black uppercase border-b-4 border-black dark:border-white pb-4">Infos de Paiement</h2>
                     
                     <div className="space-y-2">
                         <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Opérateur</label>
@@ -111,12 +112,14 @@ function CheckoutContent() {
                                 active={operator === 'MTN_MOMO_CM'} 
                                 onClick={() => setOperator('MTN_MOMO_CM')}
                                 label="MTN MoMo"
+                                icon="/assets/MTNmoney.png"
                                 color="bg-yellow-400"
                             />
                             <OperatorBtn 
                                 active={operator === 'ORANGE_MONEY_CM'} 
                                 onClick={() => setOperator('ORANGE_MONEY_CM')}
                                 label="Orange Money"
+                                icon="/assets/Orangemoney.png"
                                 color="bg-orange-500"
                             />
                         </div>
@@ -132,7 +135,7 @@ function CheckoutContent() {
                                 placeholder="6XX XXX XXX"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-full pl-16 pr-4 py-4 bg-gray-50 border-4 border-black font-black text-lg focus:bg-blue-50 outline-none"
+                                className="w-full pl-16 pr-4 py-4 bg-gray-50 dark:bg-black border-4 border-black dark:border-white font-black text-lg focus:bg-blue-50 dark:focus:bg-zinc-800 outline-none text-black dark:text-white transition-all"
                             />
                         </div>
                     </div>
@@ -140,7 +143,7 @@ function CheckoutContent() {
                     <button 
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[#3C48F5] text-white py-6 font-black uppercase text-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        className="w-full bg-[#3C48F5] text-white py-6 font-black uppercase text-xl border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                     >
                         {loading ? <Loader2 className="animate-spin" /> : <>Payer {parseInt(price).toLocaleString()} FCFA</>}
                     </button>
@@ -151,7 +154,7 @@ function CheckoutContent() {
                 <div className="py-20 text-center space-y-6">
                     <div className="relative w-24 h-24 mx-auto">
                         <Loader2 className="w-full h-full text-[#3C48F5] animate-spin" />
-                        <Smartphone className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8" />
+                        <Smartphone className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-[#3C48F5]" />
                     </div>
                     <h2 className="text-2xl font-black uppercase">Validation en cours...</h2>
                     <p className="text-sm font-bold text-gray-500 leading-relaxed">
@@ -163,7 +166,7 @@ function CheckoutContent() {
 
             {step === 'success' && (
                 <div className="py-20 text-center space-y-8">
-                    <div className="w-24 h-24 bg-green-500 border-4 border-black mx-auto flex items-center justify-center shadow-[8px_8px_0px_0px_#000]">
+                    <div className="w-24 h-24 bg-green-500 border-4 border-black dark:border-white mx-auto flex items-center justify-center shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
                         <CheckCircle2 size={48} className="text-white" />
                     </div>
                     <div>
@@ -174,7 +177,7 @@ function CheckoutContent() {
                     </div>
                     <button 
                         onClick={() => router.push('/dashboard')}
-                        className="px-8 py-4 bg-black text-white font-black uppercase text-xs border-2 border-black"
+                        className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black uppercase text-xs border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5]"
                     >
                         Aller au Dashboard
                     </button>
@@ -186,24 +189,26 @@ function CheckoutContent() {
   );
 }
 
-function OperatorBtn({ active, onClick, label, color }: any) {
+function OperatorBtn({ active, onClick, label, icon, color }: any) {
     return (
         <button 
             type="button"
             onClick={onClick}
             className={`p-4 border-4 transition-all flex flex-col items-center gap-2 ${
-                active ? `border-black ${color} shadow-none translate-x-1 translate-y-1` : 'border-zinc-200 bg-white shadow-[4px_4px_0px_0px_#000] hover:border-black'
+                active ? `border-black dark:border-white ${color} shadow-none translate-x-1 translate-y-1` : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:border-black dark:hover:border-white'
             }`}
         >
-            <Smartphone size={24} />
-            <span className="text-[10px] font-black uppercase">{label}</span>
+            <div className="relative w-10 h-10">
+                <Image src={icon} alt={label} fill className="object-contain" />
+            </div>
+            <span className="text-[10px] font-black uppercase text-black dark:text-white">{label}</span>
         </button>
     )
 }
 
 export default function CheckoutPage() {
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#3C48F5]">
+    <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-[#3C48F5] transition-colors duration-300">
       <Navbar />
       <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-[#3C48F5]" size={48} /></div>}>
         <CheckoutContent />
