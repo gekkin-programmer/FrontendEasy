@@ -1,151 +1,230 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { Check, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Check, X, Zap, Shield, Crown, Building2, 
+  ArrowRight, CreditCard, Smartphone, Info
+} from 'lucide-react';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
-
-const PLANS = [
-  {
-    name: "Starter",
-    price: 0,
-    desc: "Perfect for individuals just getting started.",
-    features: ["1 Workspace", "3 Social Accounts", "10 Scheduled Posts", "Basic Analytics"],
-    missing: ["Team Members", "AI Assistant", "Approval Workflows"],
-    cta: "Start for Free",
-    popular: false
-  },
-  {
-    name: "Pro",
-    price: 29,
-    desc: "For creators and small businesses growing fast.",
-    features: ["5 Workspaces", "10 Social Accounts", "Unlimited Posts", "Advanced Analytics", "AI Assistant (GPT-4)", "Priority Support"],
-    missing: ["Approval Workflows"],
-    cta: "Get Started",
-    popular: true
-  },
-  {
-    name: "Agency",
-    price: 99,
-    desc: "For agencies managing multiple brands.",
-    features: ["Unlimited Workspaces", "Unlimited Accounts", "Unlimited Posts", "White-label Reports", "Team Roles & Approvals", "Dedicated Manager"],
-    missing: [],
-    cta: "Contact Sales",
-    popular: false
-  }
-];
+import { toast } from 'sonner';
 
 export default function PricingPage() {
-  const [annual, setAnnual] = useState(true);
+  const [isYearly, setIsYearly] = useState(false);
+
+  const plans = [
+    {
+      name: "Gratuit",
+      price: 0,
+      description: "Pour les particuliers et freelancers débutants.",
+      features: [
+        { text: "10 Posts / mois", included: true },
+        { text: "1 Workspace", included: true },
+        { text: "2 Comptes Sociaux", included: true },
+        { text: "10 Requêtes AI", included: true },
+        { text: "500 MB Stockage", included: true },
+        { text: "Scheduling Basique", included: true },
+        { text: "Analytics Basique", included: true },
+        { text: "Support Email", included: true },
+        { text: "White Label", included: false },
+        { text: "API Access", included: false },
+      ],
+      cta: "Commencer Gratuitement",
+      popular: false,
+      color: "bg-zinc-900"
+    },
+    {
+      name: "Starter",
+      price: isYearly ? 49000 : 4900,
+      period: isYearly ? "/an" : "/mois",
+      description: "Idéal pour les PME et Startups en croissance.",
+      features: [
+        { text: "100 Posts / mois", included: true },
+        { text: "3 Workspaces", included: true },
+        { text: "5 Comptes Sociaux", included: true },
+        { text: "100 Requêtes AI", included: true },
+        { text: "5 GB Stockage", included: true },
+        { text: "Scheduling Avancé", included: true },
+        { text: "Analytics Basique", included: true },
+        { text: "Support Email", included: true },
+        { text: "White Label", included: false },
+        { text: "API Access", included: false },
+      ],
+      cta: "Choisir Starter",
+      popular: true,
+      color: "bg-[#3C48F5]"
+    },
+    {
+      name: "PRO",
+      price: isYearly ? 149000 : 14900,
+      period: isYearly ? "/an" : "/mois",
+      description: "Pour les agences et créateurs professionnels.",
+      features: [
+        { text: "Posts Illimités", included: true },
+        { text: "10 Workspaces", included: true },
+        { text: "15 Comptes Sociaux", included: true },
+        { text: "AI Illimitée", included: true },
+        { text: "50 GB Stockage", included: true },
+        { text: "Scheduling Avancé", included: true },
+        { text: "Analytics Avancé", included: true },
+        { text: "Support Prioritaire", included: true },
+        { text: "API Access", included: true },
+        { text: "White Label", included: false },
+      ],
+      cta: "Passer au PRO",
+      popular: false,
+      color: "bg-zinc-900"
+    },
+    {
+      name: "Enterprise",
+      price: "Sur devis",
+      period: "",
+      description: "Solutions sur mesure pour grandes entreprises.",
+      features: [
+        { text: "Tout en Illimité", included: true },
+        { text: "500 GB Stockage", included: true },
+        { text: "Support Dédié 24/7", included: true },
+        { text: "White Label Complet", included: true },
+        { text: "Custom Integrations", included: true },
+        { text: "SLA Garanti", included: true },
+        { text: "Formation Équipe", included: true },
+        { text: "Sécurité Avancée", included: true },
+      ],
+      cta: "Contacter Sales",
+      popular: false,
+      color: "bg-black"
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#111827] text-gray-900 dark:text-white font-sans selection:bg-[#314BEC] selection:text-white">
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#3C48F5]">
       <Navbar />
-      
-      <main className="pt-32 pb-20 px-4">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6"
-          >
-            Simple pricing for <span className="text-[#314BEC]">everyone.</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-500 dark:text-gray-400"
-          >
-            Choose the plan that fits your growth. No hidden fees. Cancel anytime.
-          </motion.p>
 
-          {/* Toggle */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-4 mt-8"
-          >
-            <span className={`text-sm font-medium ${!annual ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>Monthly</span>
-            <button 
-              onClick={() => setAnnual(!annual)}
-              className="w-14 h-7 bg-gray-200 dark:bg-gray-700 rounded-full p-1 relative transition-colors"
-            >
-              <div className={`w-5 h-5 bg-[#314BEC] rounded-full shadow-md transition-transform ${annual ? 'translate-x-7' : 'translate-x-0'}`} />
-            </button>
-            <span className={`text-sm font-medium ${annual ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
-              Yearly <span className="text-[#314BEC] text-xs font-bold bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full ml-1">-20%</span>
+      <main className="pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        
+        {/* HERO SECTION */}
+        <section className="text-center mb-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-block mb-6">
+            <span className="bg-[#3C48F5] text-white px-4 py-2 font-black text-xs uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0px_0px_#fff]">
+               Flexible_Pricing
             </span>
           </motion.div>
+          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
+            Dominez le<br/>
+            <span className="text-transparent text-stroke-white italic">Marché.</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold mb-12">
+            Des plans adaptés à chaque étape de votre croissance. Payez en FCFA via Mobile Money ou Carte Bancaire.
+          </p>
+
+          {/* TOGGLE */}
+          <div className="flex items-center justify-center gap-6 mb-16">
+             <span className={`text-sm font-black uppercase tracking-widest ${!isYearly ? 'text-white' : 'text-gray-500'}`}>Mensuel</span>
+             <button 
+                onClick={() => setIsYearly(!isYearly)}
+                className="w-16 h-8 bg-zinc-800 border-2 border-white rounded-full relative p-1 transition-colors"
+             >
+                <motion.div 
+                    animate={{ x: isYearly ? 32 : 0 }}
+                    className="w-6 h-6 bg-[#3C48F5] border-2 border-white rounded-full shadow-[2px_2px_0px_0px_#000]" 
+                />
+             </button>
+             <div className="flex items-center gap-3">
+                <span className={`text-sm font-black uppercase tracking-widest ${isYearly ? 'text-white' : 'text-gray-500'}`}>Annuel</span>
+                <span className="bg-green-500 text-black text-[10px] font-black px-2 py-1 uppercase rounded-sm">-2 mois gratuits</span>
+             </div>
+          </div>
+        </section>
+
+        {/* PRICING GRID */}
+        <div className="grid lg:grid-cols-4 gap-8">
+            {plans.map((plan, idx) => (
+                <PricingCard key={idx} plan={plan} />
+            ))}
         </div>
 
-        {/* Cards */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PLANS.map((plan, i) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + (i * 0.1) }}
-              className={`relative p-8 rounded-2xl border ${plan.popular ? 'border-[#314BEC] ring-4 ring-[#314BEC]/10 shadow-xl' : 'border-gray-200 dark:border-gray-800 shadow-sm'} bg-white dark:bg-gray-900 flex flex-col`}
-            >
-              {plan.popular && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#314BEC] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Most Popular
-                </span>
-              )}
+        {/* PAYMENT METHODS */}
+        <section className="mt-32 pt-20 border-t-4 border-zinc-900 text-center">
+            <h2 className="text-3xl font-black uppercase mb-12">Méthodes de Paiement Acceptées</h2>
+            <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                <PaymentIcon name="Orange Money" color="text-orange-500" />
+                <PaymentIcon name="MTN MoMo" color="text-yellow-500" />
+                <PaymentIcon name="Visa / Mastercard" color="text-blue-500" />
+                <PaymentIcon name="Wave" color="text-cyan-400" />
+            </div>
+            <div className="mt-12 flex items-center justify-center gap-2 text-gray-500 text-sm font-mono">
+                <Shield size={16} /> 
+                <span>Sécurisé par <span className="text-white font-black">PawaPay</span> Encryption de bout en bout</span>
+            </div>
+        </section>
 
-              <div className="mb-8">
-                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 min-h-[40px]">{plan.desc}</p>
-              </div>
-
-              <div className="mb-8">
-                <span className="text-4xl font-extrabold">${annual ? Math.round(plan.price * 0.8) : plan.price}</span>
-                <span className="text-gray-500 text-sm">/month</span>
-                {annual && plan.price > 0 && (
-                  <p className="text-xs text-[#314BEC] font-medium mt-1">Billed ${Math.round(plan.price * 0.8) * 12} yearly</p>
-                )}
-              </div>
-
-              <Link 
-                href="/signup" 
-                className={`w-full py-3 rounded-xl font-bold text-center transition-all ${
-                  plan.popular 
-                    ? 'bg-[#314BEC] text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30' 
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {plan.cta}
-              </Link>
-
-              <div className="mt-8 space-y-4 flex-1">
-                {plan.features.map(f => (
-                  <div key={f} className="flex items-start gap-3">
-                    <div className="p-0.5 bg-green-100 dark:bg-green-900/30 rounded-full mt-0.5">
-                      <Check size={12} className="text-green-600 dark:text-green-400" />
-                    </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{f}</span>
-                  </div>
-                ))}
-                {plan.missing.map(f => (
-                  <div key={f} className="flex items-start gap-3 opacity-50">
-                    <div className="p-0.5 bg-gray-100 dark:bg-gray-800 rounded-full mt-0.5">
-                      <X size={12} className="text-gray-500" />
-                    </div>
-                    <span className="text-sm text-gray-500">{f}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </main>
+
       <Footer />
     </div>
   );
+}
+
+// --- COMPONENTS ---
+
+function PricingCard({ plan }: any) {
+    return (
+        <motion.div 
+            whileHover={{ y: -10 }}
+            className={`relative flex flex-col h-full border-4 border-white p-8 ${plan.popular ? 'shadow-[12px_12px_0px_0px_#3C48F5]' : 'shadow-[12px_12px_0px_0px_#222]'} ${plan.color}`}
+        >
+            {plan.popular && (
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 font-black text-[10px] uppercase border-2 border-black">
+                    Le plus populaire
+                </div>
+            )}
+
+            <div className="mb-8">
+                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{plan.name}</h3>
+                <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">{plan.description}</p>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black">
+                        {typeof plan.price === 'number' ? plan.price.toLocaleString() : plan.price}
+                    </span>
+                    {typeof plan.price === 'number' && (
+                        <span className="text-sm font-black uppercase tracking-widest text-gray-500">
+                            FCFA{plan.period}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            <div className="flex-1 space-y-4 mb-10">
+                {plan.features.map((feat: any, i: number) => (
+                    <div key={i} className={`flex items-center gap-3 text-xs font-bold ${feat.included ? 'text-gray-200' : 'text-zinc-700'}`}>
+                        {feat.included ? <Check size={14} className="text-green-500" /> : <X size={14} />}
+                        {feat.text}
+                    </div>
+                ))}
+            </div>
+
+            <button 
+                onClick={() => toast.info(`L'intégration PawaPay pour le plan ${plan.name} arrive bientôt !`)}
+                className={`w-full py-4 font-black uppercase text-xs border-4 transition-all hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${
+                    plan.popular 
+                    ? 'bg-white text-black border-black shadow-[4px_4px_0px_0px_#000]' 
+                    : 'bg-transparent text-white border-white shadow-[4px_4px_0px_0px_#3C48F5]'
+                }`}
+            >
+                {plan.cta}
+            </button>
+        </motion.div>
+    )
+}
+
+function PaymentIcon({ name, color }: any) {
+    return (
+        <div className="flex flex-col items-center gap-3">
+            <div className={`w-16 h-16 border-2 border-zinc-800 rounded-xl flex items-center justify-center bg-zinc-900 group-hover:border-white transition-colors`}>
+                <Smartphone className={color} size={32} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest">{name}</span>
+        </div>
+    )
 }
