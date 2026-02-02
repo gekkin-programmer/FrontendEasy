@@ -15,7 +15,7 @@ export class PaymentsService {
   ) {
     // Pawapay configuration (Sandbox or Production)
     this.pawaPayBaseUrl = 'https://api.pawapay.cloud/v1'; // Standard URL
-    this.pawaPayToken = this.configService.get<string>('PAWAPAY_API_TOKEN');
+    this.pawaPayToken = this.configService.get<string>('PAWAPAY_API_TOKEN') || '';
   }
 
   async initiateDeposit(userId: string, data: { planType: any, amount: number, phone: string, billingCycle: string }) {
