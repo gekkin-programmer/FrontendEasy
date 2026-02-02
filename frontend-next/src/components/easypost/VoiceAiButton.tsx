@@ -88,7 +88,7 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       const data = res.data || res;
       
       // ➤ FIX: Match backend response structure
-      // Backend returns: { message, transcription, createdPost: { ..., intent: ... } }
+      // Backend returns: { message, transcription, aiUsageCount, createdPost: { ..., intent: ... } }
       const intent = data.createdPost?.intent || data.intent; 
 
       onCommand(data.transcription, intent);
@@ -96,6 +96,19 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       toast.success("AI processed command!", {
         description: `"${data.transcription}"`
       });
+
+      // 🚀 FREEMIUM HOOK: AI USAGE TOAST
+      if (data.aiUsageCount >= 8 && data.aiUsageCount < 10) {
+        setTimeout(() => {
+          toast.info(`🎉 ${10 - data.aiUsageCount} générations restantes ce mois.`, {
+            description: "Passez à STARTER pour 100 générations !",
+            action: {
+              label: "Upgrade",
+              onClick: () => window.location.href = '/pricing'
+            }
+          });
+        }, 1500);
+      }
 
     } catch (error: any) {
       console.error("Voice Upload Error:", error);

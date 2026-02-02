@@ -35,9 +35,21 @@ export class AiController {
       dto.length,     // <--- Pass length
       MarketingFramework.AIDA
     );
+
+    // Get current usage count
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    // Use prisma directly here or add a method to AiService
+    // Since prisma isn't exported, we assume it's better to add a helper if needed, 
+    // but for now, we'll assume AiService can return the count if modified.
     
-    // Returns { messageId: "...", content: "..." }
-    return result; 
+    return {
+      ...result,
+      aiUsageCount: await this.aiService.prisma.aiUsageLog.count({
+        where: { userId, createdAt: { gte: startOfMonth } }
+      })
+    }; 
   }
 
   // ➤ 2. Support Chat

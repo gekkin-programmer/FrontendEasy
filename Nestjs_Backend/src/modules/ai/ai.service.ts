@@ -42,7 +42,7 @@ export class AiService {
 
   constructor(
     private configService: ConfigService,
-    private prisma: PrismaService // Injected for logging
+    public prisma: PrismaService // Injected for logging
   ) {
     const groqKey = this.configService.get<string>('GROQ_API_KEY') || '';
 
@@ -84,7 +84,7 @@ export class AiService {
         });
 
         if (count >= 10) {
-          throw new ForbiddenException('Monthly AI limit reached. Please upgrade to PRO for unlimited requests.');
+          throw new ForbiddenException('🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> 100 posts, 5 comptes, 100 AI requests');
         }
       }
     } catch (e) {

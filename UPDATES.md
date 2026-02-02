@@ -237,4 +237,16 @@ This file tracks all changes made to the codebase for maintainability and transp
     - Removed decorative icons from `BenefitCard` in the Creator Fund page for a cleaner look.
     - Ensured consistent Neubrutalist design on a black background for all admin pages.
 
+- **Freemium Hook & Conversion Strategy**:
+  - **Backend Enforcement**:
+    - Updated `SubscriptionGuard` to enforce 10-post and 2-social account limits for FREE users.
+    - Updated `AiService` to enforce 10-request limit for AI generations.
+    - Automated incrementing of usage counters in `PostsService` and `SocialAccountsService`.
+  - **Frontend Triggers**:
+    - Added a "2 posts remaining" warning banner in the Dashboard for FREE users reaching 8/10 posts.
+    - Implemented a full-screen upgrade blocker when the 10-post limit is reached.
+    - Added an account limit icon/prompt in the sidebar when 2 accounts are connected.
+    - Integrated real-time AI usage feedback with toast notifications for remaining generations.
+    - Personalized all upgrade messages with STARTER plan pricing (4,900 FCFA/mois).
+
 
