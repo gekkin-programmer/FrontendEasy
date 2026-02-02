@@ -118,7 +118,7 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#3C48F5]">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white font-sans selection:bg-[#3C48F5] transition-colors duration-300">
       <Navbar />
 
       <main className="pt-32 pb-20 px-4 max-w-7xl mx-auto">
@@ -126,33 +126,33 @@ export default function PricingPage() {
         {/* HERO SECTION */}
         <section className="text-center mb-20">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-block mb-6">
-            <span className="bg-[#3C48F5] text-white px-4 py-2 font-black text-xs uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0px_0px_#fff]">
+            <span className="bg-[#3C48F5] text-white px-4 py-2 font-black text-xs uppercase tracking-[0.2em] border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
                Flexible_Pricing
             </span>
           </motion.div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
             Dominez le<br/>
-            <span className="text-transparent text-stroke-white italic">Marché.</span>
+            <span className="text-transparent text-stroke-black dark:text-stroke-white italic">Marché.</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold mb-12">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-bold mb-12">
             Des plans adaptés à chaque étape de votre croissance. Payez en FCFA via Mobile Money ou Carte Bancaire.
           </p>
 
           {/* TOGGLE */}
           <div className="flex items-center justify-center gap-6 mb-16">
-             <span className={`text-sm font-black uppercase tracking-widest ${!isYearly ? 'text-white' : 'text-gray-500'}`}>Mensuel</span>
+             <span className={`text-sm font-black uppercase tracking-widest ${!isYearly ? 'text-black dark:text-white' : 'text-gray-500'}`}>Mensuel</span>
              <button 
                 onClick={() => setIsYearly(!isYearly)}
-                className="w-16 h-8 bg-zinc-800 border-2 border-white rounded-full relative p-1 transition-colors"
+                className="w-16 h-8 bg-gray-200 dark:bg-zinc-800 border-2 border-black dark:border-white rounded-full relative p-1 transition-colors"
              >
                 <motion.div 
                     animate={{ x: isYearly ? 32 : 0 }}
-                    className="w-6 h-6 bg-[#3C48F5] border-2 border-white rounded-full shadow-[2px_2px_0px_0px_#000]" 
+                    className="w-6 h-6 bg-[#3C48F5] border-2 border-black dark:border-white rounded-full shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]" 
                 />
              </button>
              <div className="flex items-center gap-3">
-                <span className={`text-sm font-black uppercase tracking-widest ${isYearly ? 'text-white' : 'text-gray-500'}`}>Annuel</span>
-                <span className="bg-green-500 text-black text-[10px] font-black px-2 py-1 uppercase rounded-sm">-2 mois gratuits</span>
+                <span className={`text-sm font-black uppercase tracking-widest ${isYearly ? 'text-black dark:text-white' : 'text-gray-500'}`}>Annuel</span>
+                <span className="bg-green-500 text-black text-[10px] font-black px-2 py-1 uppercase rounded-sm border border-black">-2 mois gratuits</span>
              </div>
           </div>
         </section>
@@ -165,7 +165,7 @@ export default function PricingPage() {
         </div>
 
         {/* PAYMENT METHODS */}
-        <section className="mt-32 pt-20 border-t-4 border-zinc-900 text-center">
+        <section className="mt-32 pt-20 border-t-4 border-gray-100 dark:border-zinc-900 text-center">
             <h2 className="text-3xl font-black uppercase mb-12">Méthodes de Paiement Acceptées</h2>
             <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                 <PaymentIcon name="Orange Money" color="text-orange-500" />
@@ -175,7 +175,7 @@ export default function PricingPage() {
             </div>
             <div className="mt-12 flex items-center justify-center gap-2 text-gray-500 text-sm font-mono">
                 <Shield size={16} /> 
-                <span>Sécurisé par <span className="text-white font-black">PawaPay</span> Encryption de bout en bout</span>
+                <span>Sécurisé par <span className="text-black dark:text-white font-black">PawaPay</span> Encryption de bout en bout</span>
             </div>
         </section>
 
@@ -192,7 +192,15 @@ function PricingCard({ plan, onSelect }: any) {
     return (
         <motion.div 
             whileHover={{ y: -10 }}
-            className={`relative flex flex-col h-full border-4 border-white p-8 ${plan.popular ? 'shadow-[12px_12px_0px_0px_#3C48F5]' : 'shadow-[12px_12px_0px_0px_#222]'} ${plan.color}`}
+            className={`relative flex flex-col h-full border-4 border-black dark:border-white p-8 transition-all ${
+                plan.popular 
+                ? 'shadow-[12px_12px_0px_0px_#3C48F5]' 
+                : 'shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#222]'
+            } ${
+                plan.name === 'Gratuit' ? 'bg-zinc-50 dark:bg-zinc-900' : 
+                plan.name === 'Starter' ? 'bg-[#3C48F5]' :
+                plan.name === 'PRO' ? 'bg-black dark:bg-zinc-900' : 'bg-white dark:bg-black'
+            }`}
         >
             {plan.popular && (
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 font-black text-[10px] uppercase border-2 border-black">
@@ -201,14 +209,14 @@ function PricingCard({ plan, onSelect }: any) {
             )}
 
             <div className="mb-8">
-                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{plan.name}</h3>
-                <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">{plan.description}</p>
-                <div className="flex items-baseline gap-2">
+                <h3 className={`text-2xl font-black uppercase tracking-tight mb-2 ${plan.name === 'Starter' || plan.name === 'PRO' ? 'text-white' : 'text-black dark:text-white'}`}>{plan.name}</h3>
+                <p className={`text-xs font-bold leading-relaxed mb-6 ${plan.name === 'Starter' || plan.name === 'PRO' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>{plan.description}</p>
+                <div className={`flex items-baseline gap-2 ${plan.name === 'Starter' || plan.name === 'PRO' ? 'text-white' : 'text-black dark:text-white'}`}>
                     <span className="text-4xl font-black">
                         {typeof plan.price === 'number' ? plan.price.toLocaleString() : plan.price}
                     </span>
                     {typeof plan.price === 'number' && (
-                        <span className="text-sm font-black uppercase tracking-widest text-gray-500">
+                        <span className={`text-sm font-black uppercase tracking-widest ${plan.name === 'Starter' || plan.name === 'PRO' ? 'text-blue-200' : 'text-gray-500'}`}>
                             FCFA{plan.period}
                         </span>
                     )}
@@ -217,8 +225,12 @@ function PricingCard({ plan, onSelect }: any) {
 
             <div className="flex-1 space-y-4 mb-10">
                 {plan.features.map((feat: any, i: number) => (
-                    <div key={i} className={`flex items-center gap-3 text-xs font-bold ${feat.included ? 'text-gray-200' : 'text-zinc-700'}`}>
-                        {feat.included ? <Check size={14} className="text-green-500" /> : <X size={14} />}
+                    <div key={i} className={`flex items-center gap-3 text-xs font-bold ${
+                        plan.name === 'Starter' || plan.name === 'PRO' 
+                        ? (feat.included ? 'text-white' : 'text-blue-900/50') 
+                        : (feat.included ? 'text-gray-800 dark:text-gray-200' : 'text-gray-300 dark:text-zinc-700')
+                    }`}>
+                        {feat.included ? <Check size={14} className={plan.name === 'Starter' || plan.name === 'PRO' ? 'text-green-300' : 'text-green-500'} /> : <X size={14} />}
                         {feat.text}
                     </div>
                 ))}
@@ -227,9 +239,11 @@ function PricingCard({ plan, onSelect }: any) {
             <button 
                 onClick={onSelect}
                 className={`w-full py-4 font-black uppercase text-xs border-4 transition-all hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${
-                    plan.popular 
+                    plan.name === 'Starter'
                     ? 'bg-white text-black border-black shadow-[4px_4px_0px_0px_#000]' 
-                    : 'bg-transparent text-white border-white shadow-[4px_4px_0px_0px_#3C48F5]'
+                    : plan.name === 'PRO'
+                    ? 'bg-[#3C48F5] text-white border-white shadow-[4px_4px_0px_0px_#fff]'
+                    : 'bg-transparent text-black dark:text-white border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5]'
                 }`}
             >
                 {plan.cta}
@@ -240,11 +254,11 @@ function PricingCard({ plan, onSelect }: any) {
 
 function PaymentIcon({ name, color }: any) {
     return (
-        <div className="flex flex-col items-center gap-3">
-            <div className={`w-16 h-16 border-2 border-zinc-800 rounded-xl flex items-center justify-center bg-zinc-900 group-hover:border-white transition-colors`}>
+        <div className="flex flex-col items-center gap-3 group">
+            <div className={`w-16 h-16 border-2 border-gray-200 dark:border-zinc-800 rounded-xl flex items-center justify-center bg-white dark:bg-zinc-900 group-hover:border-black dark:group-hover:border-white transition-colors`}>
                 <Smartphone className={color} size={32} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest">{name}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-500">{name}</span>
         </div>
     )
 }
