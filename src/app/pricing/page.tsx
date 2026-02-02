@@ -32,6 +32,8 @@ export default function PricingPage() {
     });
     router.push(`/checkout?${params.toString()}`);
   };
+
+  const plans = [
     {
       name: "Gratuit",
       price: 0,
