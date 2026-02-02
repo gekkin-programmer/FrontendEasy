@@ -491,6 +491,7 @@ model SocialAccount {
   updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, platform, platformUserId])
+  @@unique([platform, platformUserId]) // Prevent connecting the same social ID to multiple workspaces/accounts
   @@map("social_accounts")
 }
 
