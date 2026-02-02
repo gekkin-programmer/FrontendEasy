@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
-  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home
+  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home,
+  AlertTriangle, Crown
 } from 'lucide-react'; 
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa6';
 
@@ -267,6 +268,7 @@ function DashboardContent() {
                             <QuickConnectSidebar 
                                 accounts={accounts} 
                                 workspaceId={workspaceId} 
+                                currentWorkspace={currentWorkspace}
                                 refreshData={() => {
                                     refetchAccounts();
                                     queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
@@ -418,7 +420,8 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
     );
 };
 
-const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
+const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: any) => {
+    const router = useRouter();
     
     const platforms = [
         { id: 'facebook', Icon: FaFacebookF, color: 'text-[#1877F2]' },
