@@ -42,7 +42,7 @@ export default function PricingPage() {
         { text: "10 Posts / mois", included: true },
         { text: "1 Workspace", included: true },
         { text: "2 Comptes Sociaux", included: true },
-        { text: "10 Requêtes AI", included: true },
+        { text: "10 Requêtes IA", included: true },
         { text: "500 MB Stockage", included: true },
         { text: "Scheduling Basique", included: true },
         { text: "Analytics Basique", included: true },
@@ -63,7 +63,7 @@ export default function PricingPage() {
         { text: "100 Posts / mois", included: true },
         { text: "3 Workspaces", included: true },
         { text: "5 Comptes Sociaux", included: true },
-        { text: "100 Requêtes AI", included: true },
+        { text: "100 Requêtes IA", included: true },
         { text: "5 GB Stockage", included: true },
         { text: "Scheduling Avancé", included: true },
         { text: "Analytics Basique", included: true },
@@ -152,7 +152,6 @@ export default function PricingPage() {
              </button>
              <div className="flex items-center gap-3">
                 <span className={`text-sm font-black uppercase tracking-widest ${isYearly ? 'text-black dark:text-white' : 'text-gray-500'}`}>Annuel</span>
-                <span className="bg-green-500 text-black text-[10px] font-black px-2 py-1 uppercase rounded-sm border border-black">-2 mois gratuits</span>
              </div>
           </div>
         </section>
@@ -163,22 +162,6 @@ export default function PricingPage() {
                 <PricingCard key={idx} plan={plan} onSelect={() => handlePlanSelection(plan)} />
             ))}
         </div>
-
-        {/* PAYMENT METHODS */}
-        <section className="mt-32 pt-20 border-t-4 border-gray-100 dark:border-zinc-900 text-center">
-            <h2 className="text-3xl font-black uppercase mb-12">Méthodes de Paiement Acceptées</h2>
-            <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                <PaymentIcon name="Orange Money" color="text-orange-500" />
-                <PaymentIcon name="MTN MoMo" color="text-yellow-500" />
-                <PaymentIcon name="Visa / Mastercard" color="text-blue-500" />
-                <PaymentIcon name="Wave" color="text-cyan-400" />
-            </div>
-            <div className="mt-12 flex items-center justify-center gap-2 text-gray-500 text-sm font-mono">
-                <Shield size={16} /> 
-                <span>Sécurisé par <span className="text-black dark:text-white font-black">PawaPay</span> Encryption de bout en bout</span>
-            </div>
-        </section>
-
       </main>
 
       <Footer />

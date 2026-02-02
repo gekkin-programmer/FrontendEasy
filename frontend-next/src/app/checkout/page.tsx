@@ -12,10 +12,20 @@ import { toast } from 'sonner';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
 import Image from 'next/image';
+import { getCookie } from 'cookies-next';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // ➤ AUTH CHECK
+  useEffect(() => {
+    const token = getCookie('accessToken');
+    if (!token) {
+      toast.error("Veuillez vous connecter pour procéder au paiement.");
+      router.push('/login?redirect=/checkout');
+    }
+  }, [router]);
   
   const plan = searchParams.get('plan') || 'PRO';
   const price = searchParams.get('price') || '14900';

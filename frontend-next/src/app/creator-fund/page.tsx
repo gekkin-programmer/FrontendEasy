@@ -13,6 +13,7 @@ import Footer from '@/src/components/Footer';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import SpinningLoader from '@/src/components/SpinningLoader';
+import { getCookie } from 'cookies-next';
 
 // --- TYPES ---
 interface Application {
@@ -44,6 +45,12 @@ export default function CreatorFundPage() {
   // Load status
   useEffect(() => {
     const fetchStatus = async () => {
+      const token = getCookie('accessToken');
+      if (!token) {
+        setIsLoadingApp(false);
+        return;
+      }
+
       try {
         const res = await api.get<Application>('/creator-fund/my-application');
         if (res) setApplication(res);
