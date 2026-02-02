@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { FaGithub } from 'react-icons/fa6';
 import { FcGoogle } from 'react-icons/fc';
 import { Loader2 } from 'lucide-react';
+import { setCookie } from 'cookies-next';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,7 +49,12 @@ export default function LoginPage() {
       }
 
       // SUCCESS
-      localStorage.setItem('accessToken', data.accessToken);
+      setCookie('accessToken', data.accessToken, {
+        maxAge: 60 * 60 * 24, // 1 day
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
       
       // The refreshToken is automatically saved by the browser as a secure Cookie 
       // No need to save it manually.

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaArrowLeft, FaUser, FaBriefcase, FaCamera, FaGlobe, FaBuilding, FaCheck } from 'react-icons/fa6';
-import { Loader2 } from "lucide-react"; 
+import SpinningLoader from '@/src/components/SpinningLoader'; 
 
 // --- 1. DATA CONFIGURATION (Unchanged) ---
 
@@ -20,23 +20,23 @@ const CATEGORIES = [
 
 const PLANS: Record<string, any[]> = {
   personal: [
-    { id: 'personal-free', name: 'Free', price: '$0', period: '/mo', features: ['1 Workspace', '2 Social Accounts', '10 Posts/month'] },
-    { id: 'personal-pro', name: 'Basic', price: '$9', period: '/mo', features: ['1 Workspace', '5 Social Accounts', '50 Posts/month'] },
+    { id: 'FREE', name: 'Gratuit', price: '0 FCFA', period: '/mois', features: ['1 Workspace', '2 Social Accounts', '10 Posts/mois'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
   ],
   business: [
-    { id: 'business-starter', name: 'Starter', price: '$29', period: '/mo', features: ['2 Workspaces', '10 Social Accounts', '100 Posts/month'] },
-    { id: 'business-pro', name: 'Pro', price: '$79', period: '/mo', isPopular: true, features: ['5 Workspaces', '25 Social Accounts', '500 Posts/month'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', isPopular: true, features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
   ],
   creator: [
-    { id: 'creator-starter', name: 'Starter', price: '$19', period: '/mo', features: ['1 Workspace', 'Multi-platform', 'Analytics'] },
-    { id: 'creator-pro', name: 'Pro', price: '$49', period: '/mo', features: ['Audience Insights', 'Collab Tools', 'Unlimited Posts'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
   ],
   agency: [
-    { id: 'agency-team', name: 'Team', price: '$149', period: '/mo', features: ['Unlimited Clients', 'White-label Reports', '5 Seats'] },
-    { id: 'agency-pro', name: 'Agency', price: '$399', period: '/mo', features: ['API Access', 'Priority Support', '15 Seats'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
+    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Custom', period: '', features: ['Unlimited Everything', 'White-label', 'Dedicated Support'] },
   ],
   enterprise: [
-    { id: 'enterprise-custom', name: 'Custom', price: 'Contact', period: '', features: ['Custom Limits', 'SLA Support', 'Dedicated Manager'] }
+    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Sur devis', period: '', features: ['Unlimited Everything', 'Custom Integrations', 'SLA Support'] }
   ]
 };
 
@@ -76,35 +76,45 @@ export default function OnboardingPage() {
     const token = localStorage.getItem('accessToken');
 
     try {
-      // 1. Determine Workspace Name based on plan/category
-      // Fallback to "Personal" if null
-      const safeCategory = selectedCategory || 'personal';
-      const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
-
-      // 2. Call NestJS API to create Workspace
-      const res = await fetch(`${API_URL}/workspaces`, {
+      // 1. Update User Plan in Backend
+      await fetch(`${API_URL}/users/upgrade-pro`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          name: workspaceName,
-          // We can store plan info in description for now or add a 'plan' field to DTO later
-          description: `Plan: ${planId}` 
-        }),
+        body: JSON.stringify({ planType: planId }) 
       });
 
-      if (!res.ok) throw new Error('Failed to create workspace');
+      // 2. Determine Workspace Creation
+      // Agencies/Businesses ALWAYS get a professional workspace.
+      const safeCategory = selectedCategory || 'personal';
+      const isProfessional = ['business', 'agency', 'enterprise', 'creator'].includes(safeCategory);
 
-      const workspace = await res.json();
+      if (isProfessional) {
+        const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
+        const res = await fetch(`${API_URL}/workspaces`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ name: workspaceName }),
+        });
 
-      // 3. Redirect to Dashboard with the new Workspace ID
-      router.push(`/dashboard/${workspace.id}`); 
+        if (!res.ok) throw new Error('Failed to create workspace');
+        const workspaceData = await res.json();
+        const workspace = workspaceData.data || workspaceData;
+        
+        // Success: Redirect to that professional workspace
+        router.push(`/dashboard/${workspace.id}`); 
+      } else {
+        // Individual flow: Redirect to root dashboard which will pick their default workspace
+        router.push('/dashboard');
+      }
 
     } catch (err) {
       console.error("Onboarding failed:", err);
-      // Optional: toast.error("Something went wrong")
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +122,7 @@ export default function OnboardingPage() {
 
   // --- RENDER STEPS ---
 
-  if (isAuthChecking) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-600"/></div>;
+  if (isAuthChecking) return <SpinningLoader fullScreen={true} />;
 
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">

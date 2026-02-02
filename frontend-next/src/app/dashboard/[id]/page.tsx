@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 import { 
   Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
-  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home
+  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home,
+  AlertTriangle, Crown
 } from 'lucide-react'; 
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa6';
 
@@ -27,6 +28,7 @@ import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 import Team from '@/src/components/easypost/Team';
 import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
 import CalendarView from '@/src/components/easypost/CalendarView';
+import SpinningLoader from '@/src/components/SpinningLoader';
 
 type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -205,7 +207,7 @@ function DashboardContent() {
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
     const filteredPosts = posts;
 
-    if (currentWsLoading) return (<div className="h-screen flex flex-col items-center justify-center bg-[#FDFBF7] text-black"><Loader2 className="w-16 h-16 animate-spin mb-6" /><p className="font-black text-xl uppercase tracking-widest font-mono">SYSTEM_INIT...</p></div>);
+    if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
     const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
 
@@ -266,6 +268,7 @@ function DashboardContent() {
                             <QuickConnectSidebar 
                                 accounts={accounts} 
                                 workspaceId={workspaceId} 
+                                currentWorkspace={currentWorkspace}
                                 refreshData={() => {
                                     refetchAccounts();
                                     queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
@@ -276,9 +279,37 @@ function DashboardContent() {
                         <div className="flex-1 min-w-0">
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                                    {/* 🚀 FREEMIUM HOOK: POST LIMIT BANNER */}
+                                    {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 8 && currentWorkspace.currentPostCount < 10 && (
+                                        <div className="mb-6 bg-yellow-400 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <AlertTriangle size={20} />
+                                                <span className="font-black uppercase text-sm italic">Attention : {10 - currentWorkspace.currentPostCount} posts restants ce mois.</span>
+                                            </div>
+                                            <button onClick={() => router.push('/pricing')} className="bg-black text-white px-4 py-1 font-black text-xs uppercase border-2 border-black hover:bg-white hover:text-black transition-all">Upgrade Now</button>
+                                        </div>
+                                    )}
+
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white">
+                                            <NeuCard className="bg-white relative overflow-hidden">
+                                                {/* 🚀 FREEMIUM HOOK: POST BLOCKER */}
+                                                {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
+                                                    <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
+                                                        <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
+                                                        <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">Limite de Posts Atteinte !</h2>
+                                                        <p className="max-w-md font-bold mb-8 opacity-80">
+                                                            🎉 Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
+                                                            → 100 posts, 5 comptes, 100 AI requests
+                                                        </p>
+                                                        <button 
+                                                            onClick={() => router.push('/pricing')}
+                                                            className="bg-[#3C48F5] text-white px-10 py-4 font-black uppercase text-xl border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                                                        >
+                                                            Upgrade Maintenant - 7 jours gratuits
+                                                        </button>
+                                                    </div>
+                                                )}
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
                                                 <Composer onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
@@ -389,7 +420,8 @@ const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeTok
     );
 };
 
-const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
+const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: any) => {
+    const router = useRouter();
     
     const platforms = [
         { id: 'facebook', Icon: FaFacebookF, color: 'text-[#1877F2]' },
@@ -421,6 +453,17 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: any) => {
 
     return (
         <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] h-full overflow-y-auto scrollbar-hide">
+            {/* 🚀 FREEMIUM HOOK: ACCOUNT LIMIT ICON */}
+            {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
+                <button 
+                    onClick={() => router.push('/pricing')}
+                    className="w-10 h-10 flex-shrink-0 flex items-center justify-center border-2 border-black bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] mb-2"
+                    title="Upgrade to add more nodes"
+                >
+                    <Crown size={18} />
+                </button>
+            )}
+            
             <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center border-2 border-black bg-[#3C48F5] mb-2">
                 <LinkIcon size={16} className="text-white" />
             </div>

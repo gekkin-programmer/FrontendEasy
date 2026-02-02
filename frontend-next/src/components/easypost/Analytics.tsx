@@ -19,6 +19,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, type Icon as LucideIcon
 } from "lucide-react";
+import SpinningLoader from '../SpinningLoader';
 
 // Utils
 import { cn } from "@/lib/utils";
@@ -158,7 +159,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
     const isLoading = healthQuery.isLoading || forecastQuery.isLoading || timelineQuery.isLoading;
 
-    if(isLoading) return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin w-12 h-12" /></div>;
+    if(isLoading) return <SpinningLoader fullScreen={false} />;
 
     const health = healthQuery.data || { healthScore: 0, consistencyStatus: 'N/A' };
     const forecast = forecastQuery.data || { trend: 'Stable', forecastNextMonth: 0 };
@@ -347,7 +348,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     const getEngagement = (p: AnalyticsPost) => (p.metrics?.likes || 0) + (p.metrics?.comments || 0);
     const filteredPosts = posts.filter((p: AnalyticsPost) => (p.content || "").toLowerCase().includes(searchTerm.toLowerCase()));
 
-    if(isLoading) return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin w-12 h-12" /></div>;
+    if(isLoading) return <SpinningLoader fullScreen={false} />;
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-8">
@@ -424,7 +425,7 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
         },
     });
 
-    if (isLoading) return <div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8" /></div>;
+    if (isLoading) return <SpinningLoader fullScreen={false} />;
     if (error || !post) return <div className="flex-1 flex flex-col items-center justify-center p-10 text-center"><AlertCircle className="w-10 h-10 text-red-500 mb-2" /><div className="font-bold text-lg">POST DATA UNAVAILABLE</div><p className="text-sm text-gray-500 max-w-xs mt-2">This post might have been deleted or the connection to the platform was lost.</p></div>;
     return <PostAnalyticsDetail post={post} />;
 }

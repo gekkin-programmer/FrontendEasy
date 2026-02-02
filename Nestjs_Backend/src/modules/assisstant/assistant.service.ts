@@ -119,9 +119,21 @@ export class AssistantService {
         include: { media: { include: { media: true } } }
       });
 
+      // 6. Get Current Usage for Frontend
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      const aiUsageCount = await this.prisma.aiUsageLog.count({
+        where: {
+          userId,
+          createdAt: { gte: startOfMonth }
+        }
+      });
+
       return {
         message: 'Post scheduled successfully! ',
         transcription: text,
+        aiUsageCount,
         createdPost: {
           id: post.id,
           caption: post.content,

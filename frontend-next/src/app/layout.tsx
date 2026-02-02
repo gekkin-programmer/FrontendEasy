@@ -3,7 +3,6 @@ import { JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
 import "./globals.css";
 import Navbar from "../components/Navbar";
-import Preloader from "../components/Preloader";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer"; 
 import QueryProvider from "@/src/providers/query-provider"; 
@@ -64,13 +63,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning> 
+    <html lang="fr" suppressHydrationWarning className="dark"> 
       <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white`}>
         
         <QueryProvider>
           <LanguageProvider>
             {/* System Components */}
-            <Preloader />
             <Toaster position="top-center" richColors closeButton /> 
             
             {/* Layout */}

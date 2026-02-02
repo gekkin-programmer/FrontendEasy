@@ -10,6 +10,7 @@ import {
   Users, Mail, Trash2, Send, MessageSquare, 
   Clock, X, PlusCircle, UserPlus, Hash, Shield, Crown, RefreshCw
 } from 'lucide-react';
+import SpinningLoader from '../SpinningLoader';
 
 // UI
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -175,7 +176,7 @@ export default function Team({ workspaceId }: TeamProps) {
     setChatMsg("");
   };
 
-  if (loading && members.length === 0) return <div className="p-8 text-center font-mono animate-pulse">LOADING_CREW...</div>;
+  if (loading && members.length === 0) return <SpinningLoader fullScreen={false} />;
 
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 font-sans text-black">

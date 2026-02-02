@@ -101,7 +101,7 @@ export default function CreateSection() {
 
   return (
     <section 
-      className="min-h-screen bg-yellow-100 dark:bg-black/90 border-b-4 border-black dark:border-white/5 p-4 sm:p-6 md:p-12 relative overflow-hidden font-sans"
+      className="min-h-screen bg-blue-50 dark:bg-black/90 border-b-4 border-black dark:border-white/5 p-4 sm:p-6 md:p-12 relative overflow-hidden font-sans"
       aria-label="Content Creation Features"
     >
       
@@ -177,9 +177,9 @@ export default function CreateSection() {
           {/* Kanban Board (Stacked on Mobile) */}
           <div className="bg-white border-4 border-black p-4 shadow-[12px_12px_0px_0px_#000]">
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Column title="TO DO" cards={todoCards} color="bg-red-100" />
-                <Column title="DRAFT" cards={draftCards} color="bg-yellow-100" />
-                <Column title="DONE" cards={doneCards} color="bg-green-100" />
+                <Column title="TO DO" cards={todoCards} color="bg-red-50" />
+                <Column title="DRAFT" cards={draftCards} color="bg-blue-50" />
+                <Column title="DONE" cards={doneCards} color="bg-green-50" />
              </div>
           </div>
 

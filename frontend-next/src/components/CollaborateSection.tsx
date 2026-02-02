@@ -13,7 +13,7 @@ const BrutalBadge = ({ children }: { children: React.ReactNode }) => (
 );
 
 const FeatureTag = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-orange-200 border-2 border-black font-bold text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-blue-100 border-2 border-black font-bold text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
     {icon} <span>{text}</span>
   </div>
 );
@@ -28,7 +28,7 @@ export default function CollaborateSection() {
     >
       
       {/* Main Container Card */}
-      <div className="relative w-full max-w-7xl bg-[#FF9900] border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
+      <div className="relative w-full max-w-7xl bg-[#3C48F5] border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, black 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />

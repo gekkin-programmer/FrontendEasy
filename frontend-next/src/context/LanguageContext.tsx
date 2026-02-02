@@ -13,10 +13,24 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  // Initialize synchronously if possible to avoid flicker
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('app_language') as Language;
+      if (saved) return saved;
+      const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+      localStorage.setItem('app_language', deviceLang);
+      return deviceLang;
+    }
+    return 'en';
+  });
 
   const toggleLanguage = () => {
-    setLanguage((prev) => (prev === 'en' ? 'fr' : 'en'));
+    setLanguage((prev) => {
+      const newLang = prev === 'en' ? 'fr' : 'en';
+      localStorage.setItem('app_language', newLang);
+      return newLang;
+    });
   };
 
   const t = (en: string, fr: string) => (language === 'en' ? en : fr);

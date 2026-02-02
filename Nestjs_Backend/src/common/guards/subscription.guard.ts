@@ -43,9 +43,17 @@ export class SubscriptionGuard implements CanActivate {
 
     // 3. Enforcement Logic
     if (plan === PlanType.FREE) {
+      // POST LIMIT: 10
       if (workspace.currentPostCount >= 10) {
         throw new ForbiddenException(
-          'Monthly limit reached. Please upgrade to PRO to create more posts.',
+          '🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> 100 posts, 5 comptes, 100 AI requests',
+        );
+      }
+
+      // SOCIAL ACCOUNT LIMIT: 2
+      if (workspace.currentSocialAccountCount >= 2) {
+        throw new ForbiddenException(
+          '🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> Ajoutez TikTok & LinkedIn (5 comptes)',
         );
       }
     }

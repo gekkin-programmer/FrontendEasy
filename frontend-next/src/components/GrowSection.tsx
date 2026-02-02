@@ -44,7 +44,7 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
     className={`
       relative px-3 md:px-6 py-2 md:py-3 font-black text-[10px] md:text-sm uppercase tracking-wider border-t-4 border-l-4 border-r-4 border-black transition-all -mb-1 z-10 whitespace-nowrap flex-shrink-0
       ${isActive 
-        ? 'bg-yellow-300 text-black h-10 md:h-14 translate-y-0' 
+        ? 'bg-[#3C48F5] text-white h-10 md:h-14 translate-y-0' 
         : 'bg-gray-200 text-gray-500 h-8 md:h-12 translate-y-2 hover:bg-gray-100'
       }
     `}
@@ -54,7 +54,7 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
 );
 
 const ChecklistItem = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start gap-3 md:gap-4 p-2 hover:bg-yellow-100 transition-colors border-2 border-transparent hover:border-black cursor-default">
+  <li className="flex items-start gap-3 md:gap-4 p-2 hover:bg-blue-50 transition-colors border-2 border-transparent hover:border-black cursor-default">
     <div className="bg-black text-white p-1 border-2 border-black flex-shrink-0 shadow-[2px_2px_0px_0px_#000]">
       <FaCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
     </div>
@@ -73,7 +73,7 @@ const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgCl
       className="bg-white border-4 border-black p-3 md:p-4 flex flex-col items-center text-center shadow-[6px_6px_0px_0px_#000] md:shadow-[8px_8px_0px_0px_#000] relative group hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-300"
     >
       {/* Tape Effect */}
-      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-4 md:h-6 bg-yellow-200/80 rotate-2 border-l border-r border-white/50"></div>
+      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-4 md:h-6 bg-blue-200/80 rotate-2 border-l border-r border-white/50"></div>
 
       <div className="relative mb-3 md:mb-4 w-20 h-20 md:w-24 md:h-24 mt-2">
         <div className="w-full h-full border-4 border-black overflow-hidden relative">
@@ -93,7 +93,7 @@ const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgCl
       
       <div className="mt-2 md:mt-3 w-full bg-black text-white py-1 px-2 font-mono text-[10px] md:text-xs flex justify-between">
         <span className="truncate max-w-[60%]">{platform}</span>
-        <span className="text-yellow-300">{followers}</span>
+        <span className="text-blue-300">{followers}</span>
       </div>
     </motion.div>
   );
@@ -172,7 +172,7 @@ const GrowSection = () => {
             </div>
 
             {/* The Folder Content */}
-            <div className="bg-yellow-300 border-4 border-t-0 border-black dark:border-white/5 p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
+            <div className="bg-[#3C48F5] border-4 border-t-0 border-black dark:border-white/5 p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
                 <div className="flex justify-between items-center mb-4 md:mb-8 border-b-2 border-black pb-4">
                     <h3 className="font-black text-lg md:text-2xl text-black uppercase truncate">COMMUNITY.EXE</h3>
                     <div className="flex gap-2 flex-shrink-0">

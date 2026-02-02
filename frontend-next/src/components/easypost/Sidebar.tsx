@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { LayoutGrid, Calendar, PenTool, BarChart3, Settings, Users, LogOut, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface SidebarProps {
   isMobile?: boolean;
@@ -13,14 +14,15 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobile, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const menuItems = [
-    { icon: LayoutGrid, label: 'Queue', path: '/dashboard' },
-    { icon: Calendar, label: 'Calendar', path: '/dashboard/calendar' },
-    { icon: PenTool, label: 'Composer', path: '/dashboard/composer' },
-    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: Users, label: 'Team', path: '/dashboard/team' },
-    { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
+    { icon: LayoutGrid, label: t('Queue', 'File'), path: '/dashboard' },
+    { icon: Calendar, label: t('Calendar', 'Calendrier'), path: '/dashboard/calendar' },
+    { icon: PenTool, label: t('Composer', 'Compositeur'), path: '/dashboard/composer' },
+    { icon: BarChart3, label: t('Analytics', 'Analytique'), path: '/dashboard/analytics' },
+    { icon: Users, label: t('Team', 'Équipe'), path: '/dashboard/team' },
+    { icon: Settings, label: t('Settings', 'Paramètres'), path: '/dashboard/settings' },
   ];
 
   return (
@@ -66,7 +68,7 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
       <div className="p-4 border-t-2 border-black bg-white">
         <button className="flex items-center gap-3 w-full px-4 py-3 font-bold text-sm uppercase text-red-600 border-2 border-transparent hover:border-black hover:bg-red-50 transition-all">
           <LogOut size={18} strokeWidth={2.5} />
-          Logout
+          {t('Logout', 'Déconnexion')}
         </button>
       </div>
     </div>

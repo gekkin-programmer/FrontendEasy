@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; 
 import { format } from 'date-fns';
+import SpinningLoader from '../SpinningLoader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
@@ -51,12 +52,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
   };
 
-  if (isLoading) return (
-    <div className="p-12 flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-8 h-8 animate-spin text-black" />
-      <p className="font-mono text-xs font-bold uppercase">SCANNING_CONNECTIONS...</p>
-    </div>
-  );
+  if (isLoading) return <SpinningLoader fullScreen={false} />;
 
   return (
     <div className="space-y-8">

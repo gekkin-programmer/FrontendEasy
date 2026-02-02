@@ -173,6 +173,16 @@ export class SocialAccountsService {
     }
 
     // 2. Upsert to DB
+    const isNew = !(await this.prisma.socialAccount.findUnique({
+      where: {
+        workspaceId_platform_platformUserId: {
+          workspaceId,
+          platform: params.platform,
+          platformUserId: params.platformUserId
+        }
+      }
+    }));
+
     const account = await this.prisma.socialAccount.upsert({
       where: {
         workspaceId_platform_platformUserId: {
@@ -202,6 +212,13 @@ export class SocialAccountsService {
         isActive: true
       }
     });
+
+    if (isNew) {
+      await this.prisma.workspace.update({
+        where: { id: workspaceId },
+        data: { currentSocialAccountCount: { increment: 1 } }
+      });
+    }
 
     // 3. Queue Sync
     await this.queueSyncJob(account);

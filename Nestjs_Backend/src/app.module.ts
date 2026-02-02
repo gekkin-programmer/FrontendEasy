@@ -20,6 +20,9 @@ import { LoggerModule } from './modules/logger/logger.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ContentCalendarModule } from './modules/content-calendar/content-calendar.module';
 import { EngagementModule } from './modules/engagement/engagement.module';
+import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
+import { CommunityModule } from './modules/community/community.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -59,7 +62,10 @@ import { EngagementModule } from './modules/engagement/engagement.module';
     PostsModule,
     AnalyticsModule,
     ContentCalendarModule,
-    EngagementModule
+    EngagementModule,
+    CreatorFundModule,
+    CommunityModule,
+    AdminModule
   ],
   controllers: [AppController],
   providers: [AppService],
