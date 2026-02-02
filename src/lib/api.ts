@@ -10,7 +10,34 @@ interface FetchOptions extends RequestInit {
 }
 
 export const api = {
-  // ... rest of methods
+  get: <T>(endpoint: string, options?: FetchOptions) => 
+    request<T>(endpoint, { ...options, method: 'GET' }),
+
+  post: <T>(endpoint: string, body: any, options?: FetchOptions) => 
+    request<T>(endpoint, { 
+      ...options,
+      method: 'POST',
+      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
+
+  upload: <T>(endpoint: string, formData: FormData, options?: FetchOptions) => 
+    request<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: formData, 
+    }),
+
+  patch: <T>(endpoint: string, body: any, options?: FetchOptions) => 
+    request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      headers: body instanceof FormData ? options?.headers : { 'Content-Type': 'application/json', ...options?.headers },
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
+
+  delete: <T>(endpoint: string, options?: FetchOptions) => 
+    request<T>(endpoint, { ...options, method: 'DELETE' }),
 };
 
 async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
