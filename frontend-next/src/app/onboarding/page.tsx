@@ -20,23 +20,23 @@ const CATEGORIES = [
 
 const PLANS: Record<string, any[]> = {
   personal: [
-    { id: 'personal-free', name: 'Free', price: '$0', period: '/mo', features: ['1 Workspace', '2 Social Accounts', '10 Posts/month'] },
-    { id: 'personal-pro', name: 'Basic', price: '$9', period: '/mo', features: ['1 Workspace', '5 Social Accounts', '50 Posts/month'] },
+    { id: 'FREE', name: 'Gratuit', price: '0 FCFA', period: '/mois', features: ['1 Workspace', '2 Social Accounts', '10 Posts/mois'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
   ],
   business: [
-    { id: 'business-starter', name: 'Starter', price: '$29', period: '/mo', features: ['2 Workspaces', '10 Social Accounts', '100 Posts/month'] },
-    { id: 'business-pro', name: 'Pro', price: '$79', period: '/mo', isPopular: true, features: ['5 Workspaces', '25 Social Accounts', '500 Posts/month'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', isPopular: true, features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
   ],
   creator: [
-    { id: 'creator-starter', name: 'Starter', price: '$19', period: '/mo', features: ['1 Workspace', 'Multi-platform', 'Analytics'] },
-    { id: 'creator-pro', name: 'Pro', price: '$49', period: '/mo', features: ['Audience Insights', 'Collab Tools', 'Unlimited Posts'] },
+    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
   ],
   agency: [
-    { id: 'agency-team', name: 'Team', price: '$149', period: '/mo', features: ['Unlimited Clients', 'White-label Reports', '5 Seats'] },
-    { id: 'agency-pro', name: 'Agency', price: '$399', period: '/mo', features: ['API Access', 'Priority Support', '15 Seats'] },
+    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
+    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Custom', period: '', features: ['Unlimited Everything', 'White-label', 'Dedicated Support'] },
   ],
   enterprise: [
-    { id: 'enterprise-custom', name: 'Custom', price: 'Contact', period: '', features: ['Custom Limits', 'SLA Support', 'Dedicated Manager'] }
+    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Sur devis', period: '', features: ['Unlimited Everything', 'Custom Integrations', 'SLA Support'] }
   ]
 };
 
@@ -76,35 +76,48 @@ export default function OnboardingPage() {
     const token = localStorage.getItem('accessToken');
 
     try {
-      // 1. Determine Workspace Name based on plan/category
-      // Fallback to "Personal" if null
-      const safeCategory = selectedCategory || 'personal';
-      const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
-
-      // 2. Call NestJS API to create Workspace
-      const res = await fetch(`${API_URL}/workspaces`, {
+      // 1. Update User Plan in Backend
+      // Since we don't have a generic 'set-plan' for users yet without admin rights,
+      // let's assume we use the upgrade-pro or a new endpoint if needed.
+      // But for onboarding, we should ideally send the planId to the backend.
+      await fetch(`${API_URL}/users/upgrade-pro`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          name: workspaceName,
-          // We can store plan info in description for now or add a 'plan' field to DTO later
-          description: `Plan: ${planId}` 
-        }),
+        body: JSON.stringify({ planType: planId }) 
       });
 
-      if (!res.ok) throw new Error('Failed to create workspace');
+      // 2. Determine Workspace Creation
+      // Agencies/Businesses ALWAYS get a workspace.
+      // Personal users can skip or get a default one.
+      const safeCategory = selectedCategory || 'personal';
+      const needsWorkspace = ['business', 'agency', 'enterprise', 'creator'].includes(safeCategory);
 
-      const workspace = await res.json();
+      if (needsWorkspace) {
+        const workspaceName = `${safeCategory.charAt(0).toUpperCase() + safeCategory.slice(1)} Workspace`;
+        const res = await fetch(`${API_URL}/workspaces`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ name: workspaceName }),
+        });
 
-      // 3. Redirect to Dashboard with the new Workspace ID
-      router.push(`/dashboard/${workspace.id}`); 
+        if (!res.ok) throw new Error('Failed to create workspace');
+        const workspace = await res.json();
+        
+        // Success: Redirect to that workspace
+        router.push(`/dashboard/${workspace.id || workspace.data?.id}`); 
+      } else {
+        // Individual flow
+        router.push('/dashboard');
+      }
 
     } catch (err) {
       console.error("Onboarding failed:", err);
-      // Optional: toast.error("Something went wrong")
     } finally {
       setIsLoading(false);
     }
