@@ -3,7 +3,13 @@
 [![CI](https://github.com/gekkin-programmer/EasyPostV2/actions/workflows/ci.yml/badge.svg)](https://github.com/gekkin-programmer/EasyPostV2/actions/workflows/ci.yml)
 [![License: UNLICENSED](https://img.shields.io/badge/License-UNLICENSED-red.svg)](LICENSE)
 
-EasyPostV2 is a professional SaaS platform designed for social media content management, team collaboration, and automated publishing. Built with a modern tech stack focusing on performance, scalability, and developer experience.
+AI-powered scheduling for African creators.
+
+## 🌍 African-Focused Features
+
+- **Local Payments**: Integrated with **PawaPay** for seamless Mobile Money transactions (MTN MoMo, Orange Money) in **FCFA**.
+- **Neubrutalist Design**: A bold, high-contrast visual identity optimized for clarity and impact.
+- **Regional AI**: Localized AI assistants ("Steve") trained for African market contexts and tones.
 
 ##  Production Environment
 
