@@ -22,6 +22,10 @@ const PLATFORMS = [
   { id: 'youtube', label: 'YouTube', icon: FaYoutube, color: '#FF0000' },
 ];
 
+import { getCookie } from 'cookies-next';
+
+// ... imports
+
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
   const queryClient = useQueryClient();
 
@@ -47,7 +51,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   });
 
   const handleConnect = (platform: string) => {
-    const token = localStorage.getItem('accessToken');
+    const token = getCookie('accessToken'); // ➤ FIX: Use cookie instead of localStorage
     // Redirect to backend OAuth initiation
     window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
   };
