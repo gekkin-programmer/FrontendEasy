@@ -341,6 +341,7 @@ export class AuthService {
         where: { id: payload.sub } 
       });
     } catch (e) {
+      console.error("❌ validateUserByToken failed:", e.message);
       return null;
     }
   }
