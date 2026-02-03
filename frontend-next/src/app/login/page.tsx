@@ -49,6 +49,9 @@ export default function LoginPage() {
       }
 
       // SUCCESS
+      // Clean up legacy local storage if present
+      if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
+
       setCookie('accessToken', data.accessToken, {
         maxAge: 60 * 60 * 24, // 1 day
         path: '/',
