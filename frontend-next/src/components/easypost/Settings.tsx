@@ -17,11 +17,11 @@ type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
-  <div className={cn("bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] p-0 overflow-hidden", className)}>
+  <div className={cn("bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-0 overflow-hidden", className)}>
     {(title || description) && (
-        <div className="px-6 py-4 border-b-2 border-black bg-yellow-50">
-            {title && <h3 className="text-lg font-black uppercase tracking-tight">{title}</h3>}
-            {description && <p className="text-xs font-mono text-gray-600 mt-1">{description}</p>}
+        <div className="px-6 py-4 border-b-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10">
+            {title && <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{title}</h3>}
+            {description && <p className="text-xs font-mono text-gray-600 dark:text-zinc-400 mt-1">{description}</p>}
         </div>
     )}
     <div className="p-6">{children}</div>
@@ -29,11 +29,11 @@ const NeuCard = ({ title, description, children, className = "" }: any) => (
 );
 
 const NeuButton = ({ children, onClick, className = "", variant = "primary", disabled = false, icon }: any) => {
-  const baseStyles = "relative font-bold text-sm transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 px-4 py-2 uppercase";
+  const baseStyles = "relative font-bold text-sm transition-all duration-150 border-2 border-black dark:border-white disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 px-4 py-2 uppercase";
   const variants = {
-    primary: "bg-black text-white hover:bg-gray-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] active:translate-y-[2px] active:shadow-none",
-    secondary: "bg-white text-black hover:bg-yellow-100 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none",
-    danger: "bg-red-500 text-white hover:bg-red-600 shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none"
+    primary: "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none",
+    secondary: "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none",
+    danger: "bg-red-500 text-white hover:bg-red-600 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none"
   };
   return (
     <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.primary, className)}>
@@ -45,14 +45,14 @@ const NeuButton = ({ children, onClick, className = "", variant = "primary", dis
 
 const NeuInput = ({ label, type = "text", value, onChange, disabled, placeholder }: any) => (
     <div className="w-full">
-        {label && <label className="block text-xs font-black uppercase mb-1">{label}</label>}
+        {label && <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">{label}</label>}
         <input 
             type={type} 
             value={value} 
             onChange={onChange} 
             disabled={disabled} 
             placeholder={placeholder}
-            className="w-full px-3 py-2 bg-white border-2 border-black font-mono text-sm focus:outline-none focus:bg-yellow-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all disabled:bg-gray-100 disabled:text-gray-400 placeholder:text-gray-300" 
+            className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all disabled:bg-gray-100 dark:disabled:bg-zinc-900 disabled:text-gray-400 dark:disabled:text-zinc-600 placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white" 
         />
     </div>
 );
@@ -72,7 +72,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 font-sans text-black">
+    <div className="flex flex-col lg:flex-row gap-8 font-sans text-black dark:text-white transition-colors">
         {/* Sidebar */}
         <aside className="lg:w-64 flex-shrink-0">
           <nav className="space-y-2">
@@ -80,12 +80,12 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
               <button 
                 key={tab.id} 
                 onClick={() => setActiveTab(tab.id)} 
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black transition-all duration-200 
+                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200 
                 ${activeTab === tab.id 
-                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] translate-x-[-2px]' 
-                    : 'bg-white text-black hover:bg-yellow-100 hover:translate-x-1'}`}
+                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]' 
+                    : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800 hover:translate-x-1'}`}
               >
-                <span className={activeTab === tab.id ? 'text-white' : 'text-black'}>{tab.icon}</span>
+                <span className={activeTab === tab.id ? 'text-white' : 'text-black dark:text-white'}>{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
@@ -195,40 +195,40 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
             <NeuCard title="Brand Settings" description="CONFIGURE YOUR WORKSPACE IDENTITY">
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-xs font-black uppercase mb-2">Workspace Logo</label>
+                        <label className="block text-xs font-black uppercase mb-2 text-black dark:text-white">Workspace Logo</label>
                         <div className="flex items-start gap-6">
-                            <div className="relative w-24 h-24 border-2 border-black bg-gray-100 shrink-0 shadow-[4px_4px_0px_0px_#000]">
+                            <div className="relative w-24 h-24 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 shrink-0 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
                                 {formData.logo ? (
                                     <img src={formData.logo} alt="Logo" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400"><FiImage size={24} /></div>
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-zinc-600"><FiImage size={24} /></div>
                                 )}
                                 {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin" /></div>}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
                                 <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}><FiUploadCloud /> UPLOAD_LOGO</NeuButton>
-                                <p className="text-xs font-mono text-gray-500 max-w-[200px]">Max 2MB. Recommended 500x500.</p>
+                                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 max-w-[200px]">Max 2MB. Recommended 500x500.</p>
                             </div>
                         </div>
                     </div>
                     <NeuInput label="Workspace Name" value={formData.name} onChange={(e:any) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Digital Agency" />
                     <div>
-                        <label className="block text-xs font-black uppercase mb-1">Description</label>
-                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-white border-2 border-black font-mono text-sm focus:outline-none focus:bg-yellow-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all min-h-[100px] resize-none placeholder:text-gray-300" placeholder="e.g. We help local businesses grow." />
+                        <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">Description</label>
+                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all min-h-[100px] resize-none placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white" placeholder="e.g. We help local businesses grow." />
                     </div>
                     <div className="relative">
                         <NeuInput label="Website URL" value={formData.website} onChange={(e:any) => setFormData({...formData, website: e.target.value})} placeholder="https://easy.cm" />
-                        <div className="absolute top-7 right-3 text-gray-400 pointer-events-none"><FiGlobe /></div>
+                        <div className="absolute top-7 right-3 text-gray-400 dark:text-zinc-600 pointer-events-none"><FiGlobe /></div>
                     </div>
-                    <div className="flex justify-end pt-4 border-t-2 border-dashed border-gray-200">
+                    <div className="flex justify-end pt-4 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
                         <NeuButton onClick={handleUpdate} disabled={loading || uploading} icon={<FiSave />}>{loading ? 'SAVING...' : 'SAVE_CHANGES'}</NeuButton>
                     </div>
                 </div>
             </NeuCard>
-            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500">
+            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600">
                 <div className="flex justify-between items-center">
-                    <div><h4 className="font-black text-red-600">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
+                    <div><h4 className="font-black text-red-600 dark:text-red-500 uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
                     <NeuButton variant="danger" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
                 </div>
             </NeuCard>
@@ -285,14 +285,14 @@ function ProfileSettings() {
     } catch (e) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
   };
 
-  if (!user) return <div className="p-8 text-center font-mono animate-pulse">LOADING_PROFILE...</div>;
+  if (!user) return <div className="p-8 text-center font-mono animate-pulse text-black dark:text-white uppercase transition-colors">LOADING_PROFILE...</div>;
 
   return (
     <div className="space-y-8">
       <NeuCard title="Public Profile" description="VISIBLE TO TEAM MEMBERS">
-        <div className="flex flex-col md:flex-row items-start gap-8">
+        <div className="flex flex-col md:flex-row items-start gap-8 transition-colors">
           <div className="flex-shrink-0 flex flex-col items-center gap-3">
-            <div className="relative w-28 h-28 border-2 border-black bg-yellow-100 flex items-center justify-center text-black text-4xl font-black shadow-[4px_4px_0px_0px_#000] overflow-hidden group">
+            <div className="relative w-28 h-28 border-2 border-black dark:border-white bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center text-black dark:text-white text-4xl font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] overflow-hidden group transition-all">
                {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : <span>{formData.firstName ? formData.firstName.charAt(0).toUpperCase() : 'U'}</span>}
                {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin text-2xl" /></div>}
             </div>
@@ -307,16 +307,16 @@ function ProfileSettings() {
              <NeuInput label="Phone Number" value={formData.phone} onChange={(e:any) => setFormData({...formData, phone: e.target.value})} placeholder="+237..." />
           </div>
         </div>
-        <div className="mt-8 flex justify-end pt-4 border-t-2 border-dashed border-gray-200">
+        <div className="mt-8 flex justify-end pt-4 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
             <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8" icon={<FiSave />}>{loading ? 'SAVING...' : 'SAVE_CHANGES'}</NeuButton>
         </div>
       </NeuCard>
       <NeuCard title="Account Security" description="USED FOR LOGIN & ALERTS">
          <div className="max-w-lg space-y-4">
              <NeuInput label="Email Address" value={formData.email} disabled type="email" />
-             <div className="flex items-center justify-between p-3 border-2 border-black bg-gray-50">
-                 <div className="text-sm"><p className="font-bold uppercase">Email Verified</p><p className="text-xs font-mono">MANAGED_BY_PROVIDER</p></div>
-                 <div className="bg-black text-white p-1 border-2 border-black"><FiShield /></div>
+             <div className="flex items-center justify-between p-3 border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 transition-colors">
+                 <div className="text-sm text-black dark:text-white uppercase"><p className="font-bold">Email Verified</p><p className="text-xs font-mono opacity-70">MANAGED_BY_PROVIDER</p></div>
+                 <div className="bg-black dark:bg-white text-white dark:text-black p-1 border-2 border-black dark:border-white transition-colors"><FiShield /></div>
              </div>
          </div>
       </NeuCard>

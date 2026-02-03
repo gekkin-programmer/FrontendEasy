@@ -30,8 +30,8 @@ const SocialProof = () => {
               /* FULL COLOR (No grayscale) */
               hover:scale-110
               transition-transform duration-300 ease-out
-              ${/* Keeps white backgrounds transparent for JPEGs */ ''}
-              ${src.toLowerCase().endsWith('.jpeg') || src.toLowerCase().endsWith('.jpg') ? 'mix-blend-multiply' : ''} 
+              ${/* Keeps white backgrounds transparent for JPEGs in light mode, dark backgrounds in dark mode */ ''}
+              ${src.toLowerCase().endsWith('.jpeg') || src.toLowerCase().endsWith('.jpg') || src.toLowerCase().endsWith('.png') ? 'mix-blend-multiply dark:mix-blend-screen' : ''} 
             `} 
           />
         </div>
@@ -42,10 +42,10 @@ const SocialProof = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative py-16 bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5 overflow-hidden select-none">
+    <section className="relative py-16 bg-white dark:bg-black border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
         
         {/* Background "Noise" Text */}
-        <div className="absolute inset-0 flex items-center dark:opacity-0 justify-center pointer-events-none opacity-5 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
             <h1 className="text-[20vw] font-black uppercase text-black dark:text-white whitespace-nowrap leading-none">
                 EASY POST
             </h1>
@@ -55,11 +55,11 @@ const SocialProof = () => {
             <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                 
                 {/* Header Section */}
-                <div className="md:w-1/4 text-center md:text-left z-20 bg-white md:bg-transparent dark:bg-white/5 p-2">
-                    <h3 className="text-3xl font-black text-black dark:text-gray-200 uppercase leading-none">
-                        {t("LES", "TRUSTED")} <span className="text-[#3C48F6]">{t("PME'S","BY")}</span><br/>
-                        {t("Nous font ", "LOCAL BRANDS")}<br/>
-                        {t("Confiance","")}<br/>
+                <div className="md:w-1/4 text-center md:text-left z-20 bg-white dark:bg-black md:bg-transparent p-2 transition-colors">
+                    <h3 className="text-3xl font-black text-black dark:text-white uppercase leading-none tracking-tighter">
+                        {t("LES", "TRUSTED")} <span className="text-[#3C48F6]">{t("PME'S", "BY")}</span><br/>
+                        {t("NOUS FONT", "LOCAL")}<br/>
+                        {t("CONFIANCE", "BRANDS")}<br/>
                     </h3>
                 </div>
 

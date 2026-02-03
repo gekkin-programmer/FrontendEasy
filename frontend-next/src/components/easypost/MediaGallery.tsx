@@ -76,13 +76,13 @@ export default function MediaGallery() {
   };
 
   return (
-    <div className="space-y-8 font-sans text-black">
+    <div className="space-y-8 font-sans text-black dark:text-white transition-colors">
       
       {/* Storage Indicator */}
-      <div className="bg-black text-white p-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)]">
+      <div className="bg-black dark:bg-zinc-900 text-white p-4 border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
           <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-black uppercase font-mono tracking-widest">STORAGE_USAGE</span>
-              <span className="text-[10px] font-black font-mono">{formatSize(usage)} / 100 MB</span>
+              <span className="text-[10px] font-black uppercase font-mono tracking-widest text-white/70">STORAGE_USAGE</span>
+              <span className="text-[10px] font-black font-mono text-white">{formatSize(usage)} / 100 MB</span>
           </div>
           <div className="w-full h-4 bg-zinc-800 border-2 border-zinc-700 overflow-hidden p-0.5">
               <motion.div 
@@ -99,16 +99,16 @@ export default function MediaGallery() {
       {/* Upload Area */}
       <div 
         onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-black bg-white p-8 flex flex-col items-center justify-center text-black hover:bg-blue-50 transition-all cursor-pointer group shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_#000]"
+        className="border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-800 p-8 flex flex-col items-center justify-center text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-700 transition-all cursor-pointer group shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
       >
          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
-         <div className="bg-black text-white p-4 mb-4 border-2 border-black group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_#000]">
+         <div className="bg-black dark:bg-white text-white dark:text-black p-4 mb-4 border-2 border-black dark:border-white group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
             {uploadMutation.isPending ? <FiLoader className="animate-spin" size={32} /> : <FiUploadCloud size={32} strokeWidth={2} />}
          </div>
          <p className="text-lg font-black uppercase tracking-tight group-hover:underline decoration-2 underline-offset-4">
             {uploadMutation.isPending ? "Uploading..." : "Click_to_Upload"}
          </p>
-         <p className="text-xs font-mono font-bold text-gray-500 mt-2 bg-white px-2 py-1 border border-black">JPG, PNG, GIF, MP4 (MAX 10MB)</p>
+         <p className="text-xs font-mono font-bold text-gray-500 dark:text-zinc-400 mt-2 bg-white dark:bg-zinc-900 px-2 py-1 border border-black dark:border-white uppercase">JPG, PNG, GIF, MP4 (MAX 10MB)</p>
       </div>
 
       {/* Grid */}
@@ -127,19 +127,19 @@ export default function MediaGallery() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     key={asset.id} 
-                    className="group relative aspect-square bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all overflow-hidden"
+                    className="group relative aspect-square bg-white dark:bg-zinc-800 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
                 >
                     <img src={asset.url} className="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0" />
                     
                     {/* Actions Overlay (Hover) */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                         <div className="flex gap-3 items-center">
-                            <button className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-black py-2 text-xs font-black uppercase text-black hover:bg-blue-400 transition-all shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none">
+                            <button className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white py-2 text-xs font-black uppercase text-black dark:text-white hover:bg-[#3C48F5] hover:text-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none">
                                 <FiImage size={14} /> Preview
                             </button>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); if(confirm("DELETE_ASSET?")) deleteMutation.mutate(asset.id); }} 
-                                className="p-2 bg-red-500 border-2 border-black text-white hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_#000] active:translate-y-[2px] active:shadow-none"
+                                className="p-2 bg-red-500 border-2 border-black dark:border-white text-white hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none"
                             >
                                 <FiTrash2 size={16} />
                             </button>
@@ -148,10 +148,10 @@ export default function MediaGallery() {
 
                     {/* Metadata Badge */}
                     <div className="absolute top-0 left-0 flex flex-col items-start">
-                        <span className="bg-[#3C48F5] text-white text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black">
+                        <span className="bg-[#3C48F5] text-white text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black dark:border-white">
                             {formatSize(asset.size)}
                         </span>
-                        <span className="bg-black text-white text-[8px] font-bold uppercase px-2 py-0.5 border-r-2 border-b-2 border-black">
+                        <span className="bg-black dark:bg-zinc-900 text-white text-[8px] font-bold uppercase px-2 py-0.5 border-r-2 border-b-2 border-black dark:border-white">
                             {format(new Date(asset.createdAt), 'MMM d, yyyy')}
                         </span>
                     </div>
@@ -160,7 +160,7 @@ export default function MediaGallery() {
             </AnimatePresence>
          )}
          {!isLoading && assets.length === 0 && (
-             <div className="col-span-full py-20 text-center border-4 border-dashed border-gray-200 text-gray-300 font-black uppercase tracking-tighter text-4xl">
+             <div className="col-span-full py-20 text-center border-4 border-dashed border-gray-200 dark:border-zinc-700 text-gray-300 dark:text-zinc-600 font-black uppercase tracking-tighter text-4xl">
                  Library_Empty
              </div>
          )}

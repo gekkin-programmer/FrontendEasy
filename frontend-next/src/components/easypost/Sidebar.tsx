@@ -26,16 +26,16 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
   ];
 
   return (
-    <div className={cn("flex flex-col h-full bg-[#F4F4F0] border-r-2 border-black", isMobile ? "w-full" : "w-64")}>
+    <div className={cn("flex flex-col h-full bg-[#F4F4F0] dark:bg-black border-r-2 border-black dark:border-white transition-colors", isMobile ? "w-full" : "w-64")}>
       
       {/* Brand Header */}
-      <div className="h-16 flex items-center justify-between px-6 border-b-2 border-black bg-white">
+      <div className="h-16 flex items-center justify-between px-6 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-black text-white flex items-center justify-center font-black border-2 border-transparent">E</div>
-          <span className="font-black text-xl tracking-tighter">EASYPOST.</span>
+          <div className="w-8 h-8 bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black border-2 border-transparent">E</div>
+          <span className="font-black text-xl tracking-tighter text-black dark:text-white">EASYPOST.</span>
         </div>
         {isMobile && (
-          <button onClick={onClose} className="p-1 border-2 border-black hover:bg-red-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors text-black dark:text-white">
             <X size={20} strokeWidth={3} />
           </button>
         )}
@@ -53,11 +53,11 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 font-bold text-sm uppercase border-2 border-transparent transition-all hover:translate-x-1",
                 isActive 
-                  ? "bg-white border-black shadow-[4px_4px_0px_0px_#000]" 
-                  : "text-gray-500 hover:text-black hover:bg-white hover:border-black"
+                  ? "bg-white dark:bg-zinc-800 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white" 
+                  : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:bg-white dark:hover:bg-zinc-800 hover:border-black dark:hover:border-white"
               )}
             >
-              <item.icon size={18} strokeWidth={2.5} className={isActive ? "text-black" : "text-gray-400"} />
+              <item.icon size={18} strokeWidth={2.5} className={isActive ? "text-black dark:text-white" : "text-gray-400 dark:text-zinc-600"} />
               {item.label}
             </Link>
           );
@@ -65,8 +65,8 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
       </nav>
 
       {/* User Footer */}
-      <div className="p-4 border-t-2 border-black bg-white">
-        <button className="flex items-center gap-3 w-full px-4 py-3 font-bold text-sm uppercase text-red-600 border-2 border-transparent hover:border-black hover:bg-red-50 transition-all">
+      <div className="p-4 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
+        <button className="flex items-center gap-3 w-full px-4 py-3 font-bold text-sm uppercase text-red-600 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
           <LogOut size={18} strokeWidth={2.5} />
           {t('Logout', 'Déconnexion')}
         </button>
