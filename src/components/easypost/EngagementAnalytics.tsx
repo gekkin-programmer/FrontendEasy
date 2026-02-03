@@ -74,23 +74,23 @@ export default function EngagementAnalytics() {
   const stats = data || { kpi: [], platforms: [], volume: [] };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 font-sans text-black">
+    <div className="max-w-6xl mx-auto space-y-8 font-sans text-black dark:text-white transition-colors">
       
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-black pb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-black dark:border-white pb-6 gap-4">
         <div>
-          <h2 className="text-3xl font-black italic tracking-tight uppercase">Engagement Hub</h2>
-          <p className="text-sm font-mono text-gray-600 mt-1">LIVE DATA ACROSS CONNECTED NODES</p>
+          <h2 className="text-3xl font-black italic tracking-tight uppercase text-black dark:text-white">Engagement Hub</h2>
+          <p className="text-sm font-mono text-gray-600 dark:text-zinc-400 mt-1 uppercase">LIVE DATA ACROSS CONNECTED NODES</p>
         </div>
         
         <div className="flex gap-4">
-            <div className="flex bg-white border-2 border-black p-1 shadow-[4px_4px_0px_0px_#000]">
+            <div className="flex bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-1 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all">
             {['7d', '30d', '90d'].map((range) => (
                 <button
                 key={range}
                 onClick={() => setTimeRange(range as TimeRange)}
                 className={`px-4 py-1 text-xs font-black transition-all ${
-                    timeRange === range ? 'bg-black text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                    timeRange === range ? 'bg-black dark:bg-white text-white dark:text-black' : 'text-gray-500 dark:text-zinc-500 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white'
                 }`}
                 >
                 {range.toUpperCase()}
@@ -99,7 +99,7 @@ export default function EngagementAnalytics() {
             </div>
             <button 
                 onClick={handleDownload}
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 border-2 border-black font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 dark:bg-yellow-600 border-2 border-black dark:border-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all text-black dark:text-white"
             >
                 <FiDownload /> Report
             </button>
@@ -109,12 +109,12 @@ export default function EngagementAnalytics() {
       {/* KPI GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.kpi.map((kpi: any, idx: number) => (
-          <div key={idx} className="bg-white border-2 border-black p-5 shadow-[6px_6px_0px_0px_#000] hover:-translate-y-1 transition-transform">
-            <p className="text-xs font-black text-gray-500 uppercase tracking-widest">{kpi.label}</p>
+          <div key={idx} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-5 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] hover:-translate-y-1 transition-all">
+            <p className="text-xs font-black text-gray-500 dark:text-zinc-400 uppercase tracking-widest">{kpi.label}</p>
             <div className="mt-3 flex items-end justify-between">
-              <span className="text-3xl font-black text-black tabular-nums">{kpi.value}</span>
-              <span className={`flex items-center text-xs font-bold border-2 border-black px-1.5 py-0.5 ${
-                kpi.trend === 'up' ? 'bg-green-300 text-black' : 'bg-gray-200'
+              <span className="text-3xl font-black text-black dark:text-white tabular-nums">{kpi.value}</span>
+              <span className={`flex items-center text-[10px] font-bold border-2 border-black dark:border-white px-1.5 py-0.5 ${
+                kpi.trend === 'up' ? 'bg-green-300 dark:bg-green-600 text-black dark:text-white' : 'bg-gray-200 dark:bg-zinc-700 text-black dark:text-white'
               }`}>
                 {kpi.trend === 'up' ? <FiTrendingUp size={10} className="mr-1" /> : <FiLayers size={10} className="mr-1" />}
                 DATA
@@ -128,42 +128,42 @@ export default function EngagementAnalytics() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Main Volume Chart (Mock Visual) */}
-        <div className="lg:col-span-2 bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
+        <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] transition-colors">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-black uppercase">Traffic Volume</h3>
-            <span className="text-xs font-mono bg-black text-white px-2 py-1">24H CYCLE</span>
+            <h3 className="text-lg font-black uppercase text-black dark:text-white">Traffic Volume</h3>
+            <span className="text-[10px] font-mono bg-black dark:bg-white text-white dark:text-black px-2 py-1 uppercase">24H CYCLE</span>
           </div>
-          <div className="h-48 flex items-end gap-2 border-b-2 border-black pb-1">
+          <div className="h-48 flex items-end gap-2 border-b-2 border-black dark:border-white pb-1 transition-colors">
             {stats.volume.map((point: any, idx: number) => (
               <div key={idx} className="flex-1 flex flex-col justify-end gap-2 group cursor-pointer h-full">
-                 <div className="relative w-full bg-blue-600 border border-black hover:bg-yellow-400 transition-colors" style={{ height: `${(point.value / 150) * 100}%` }}></div>
-                 <span className="text-[10px] font-bold text-gray-500 text-center">{point.hour}</span>
+                 <div className="relative w-full bg-blue-600 border border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-colors" style={{ height: `${(point.value / 150) * 100}%` }}></div>
+                 <span className="text-[10px] font-bold text-gray-500 dark:text-zinc-400 text-center">{point.hour}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Platform Breakdown */}
-        <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000]">
-           <h3 className="text-lg font-black uppercase mb-6">Channel Efficiency</h3>
+        <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] transition-colors">
+           <h3 className="text-lg font-black uppercase mb-6 text-black dark:text-white">Channel Efficiency</h3>
            <div className="space-y-4">
-              {stats.platforms.length === 0 && <p className="text-xs font-mono text-gray-400">NO_CONNECTED_CHANNELS</p>}
+              {stats.platforms.length === 0 && <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase">NO_CONNECTED_CHANNELS</p>}
               {stats.platforms.map((p: any) => {
                 const Icon = ICONS[p.platform] || ICONS.FACEBOOK;
                 return (
-                    <div key={p.platform + p.username} className="flex items-center justify-between border-b-2 border-gray-100 pb-2 last:border-0">
+                    <div key={p.platform + p.username} className="flex items-center justify-between border-b-2 border-gray-100 dark:border-zinc-800 pb-2 last:border-0 transition-colors">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-black">
+                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white text-black dark:text-white transition-colors">
                                 <Icon size={14} />
                             </div>
                             <div>
-                                <p className="text-xs font-black uppercase">{p.platform}</p>
-                                <p className="text-[10px] font-mono text-gray-500 truncate max-w-[100px]">{p.username}</p>
+                                <p className="text-xs font-black uppercase text-black dark:text-white">{p.platform}</p>
+                                <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400 truncate max-w-[100px]">{p.username}</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs font-black">{p.volume} Posts</p>
-                            <p className="text-[10px] font-bold text-green-600 bg-green-100 px-1">Ratio: {p.efficiency}</p>
+                            <p className="text-xs font-black text-black dark:text-white">{p.volume} Posts</p>
+                            <p className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20 px-1 border border-green-600 dark:border-green-400 uppercase transition-colors">Ratio: {p.efficiency}</p>
                         </div>
                     </div>
                 );

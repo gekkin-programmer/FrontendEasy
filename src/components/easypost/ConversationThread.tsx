@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiMessageCircle, FiSend, FiPaperclip, FiSmile, FiMoreHorizontal,
   FiChevronLeft, FiExternalLink, FiClock, FiCheck, FiCheckCircle,
-  FiUser, FiStar, FiAlertCircle, FiEdit3, FiTrash2, FiCopy
+  FiUser, FiStar, FiAlertCircle, FiEdit3, FiTrash2, FiCopy, FiLoader
 } from 'react-icons/fi';
 import { FaTwitter, FaInstagram, FaFacebook } from 'react-icons/fa';
 
@@ -161,46 +161,46 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-black font-sans text-black dark:text-white transition-colors">
       
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white p-4 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {onBack && (
               <button 
                 onClick={onBack}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
               >
-                <FiChevronLeft size={20} />
+                <FiChevronLeft size={20} strokeWidth={3} />
               </button>
             )}
             
             <div className="relative">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl">
+              <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white flex items-center justify-center text-xl shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
                 {conversation.customer.avatar}
               </div>
-              <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full ${platform.bg} flex items-center justify-center border-2 border-white`}>
+              <div className={`absolute -bottom-1 -right-1 w-6 h-6 border-2 border-black dark:border-white ${platform.bg} flex items-center justify-center z-10`}>
                 <platform.icon className={platform.color} size={12} />
               </div>
               {conversation.customer.isVIP && (
-                <div className="absolute -top-1 -left-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <FiStar size={10} className="text-white" />
+                <div className="absolute -top-1 -left-1 w-5 h-5 bg-yellow-400 border border-black flex items-center justify-center z-10">
+                  <FiStar size={10} className="text-black" />
                 </div>
               )}
             </div>
             
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-gray-800">{conversation.customer.name}</h3>
+                <h3 className="font-black uppercase tracking-tight text-black dark:text-white">{conversation.customer.name}</h3>
                 {conversation.customer.isVIP && (
-                  <span className="text-[10px] bg-yellow-400 text-white px-1.5 py-0.5 rounded font-bold">VIP</span>
+                  <span className="text-[10px] bg-yellow-400 text-black px-1.5 py-0.5 border border-black font-black uppercase">VIP</span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-xs font-mono text-gray-500 dark:text-zinc-400 uppercase">
                 <span>{conversation.customer.handle}</span>
                 <span>•</span>
-                <span>{conversation.customer.followers.toLocaleString()} followers</span>
+                <span>{conversation.customer.followers.toLocaleString()} nodes</span>
               </div>
             </div>
           </div>
@@ -209,10 +209,10 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             {/* Status Badge */}
             <select 
               value={conversation.status}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full border-0 cursor-pointer ${
-                conversation.status === 'open' ? 'bg-green-100 text-green-700' :
-                conversation.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-gray-100 text-gray-700'
+              className={`text-xs font-black uppercase px-3 py-1.5 border-2 border-black cursor-pointer appearance-none ${
+                conversation.status === 'open' ? 'bg-green-400 text-black' :
+                conversation.status === 'pending' ? 'bg-yellow-400 text-black' :
+                'bg-gray-200 text-black'
               }`}
             >
               <option value="open">Open</option>
@@ -220,11 +220,11 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
               <option value="resolved">Resolved</option>
             </select>
             
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
-              <FiExternalLink size={18} />
+            <button className="p-2 border-2 border-black bg-white dark:bg-zinc-800 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all">
+              <FiExternalLink size={18} strokeWidth={2.5} />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
-              <FiMoreHorizontal size={18} />
+            <button className="p-2 border-2 border-black bg-white dark:bg-zinc-800 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all">
+              <FiMoreHorizontal size={18} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -235,37 +235,29 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             {conversation.tags.map((tag, idx) => (
               <span 
                 key={idx}
-                className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                className="text-[10px] font-black uppercase bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 px-2 py-1 border-2 border-black dark:border-white"
               >
                 {tag}
               </span>
             ))}
-            <button className="text-xs text-blue-600 hover:underline">+ Add tag</button>
-          </div>
-        )}
-
-        {/* Assigned To */}
-        {conversation.assignedTo && (
-          <div className="flex items-center gap-2 mt-2 ml-16 text-xs text-gray-500">
-            <FiUser size={12} />
-            <span>Assigned to <strong>{conversation.assignedTo}</strong></span>
+            <button className="text-[10px] font-black uppercase text-[#3C48F6] dark:text-blue-400 hover:underline">+ ADD_TAG</button>
           </div>
         )}
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] dark:opacity-90">
         
         {/* Original Post Context */}
         {conversation.originalPost && (
-          <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
-            <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 mb-6 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-colors">
+            <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-gray-500 dark:text-zinc-400 mb-2 uppercase">
               <platform.icon className={platform.color} size={12} />
-              <span>Original post on {platform.name}</span>
+              <span>Stream context: {platform.name}</span>
               <span>•</span>
               <span>{conversation.originalPost.timestamp}</span>
             </div>
-            <p className="text-gray-700">{conversation.originalPost.content}</p>
+            <p className="text-sm font-bold text-black dark:text-white leading-relaxed">{conversation.originalPost.content}</p>
           </div>
         )}
 
@@ -274,52 +266,52 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
           {conversation.messages.map((message, idx) => (
             <motion.div
               key={message.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: message.sender === 'team' ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
               className={`flex ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
             >
               <div 
-                className={`max-w-[70%] ${message.sender === 'team' ? 'order-2' : ''}`}
+                className={`max-w-[75%] ${message.sender === 'team' ? 'order-2' : ''}`}
                 onMouseEnter={() => setShowActions(message.id)}
                 onMouseLeave={() => setShowActions(null)}
               >
                 {/* Internal Note Badge */}
                 {message.isInternal && (
-                  <div className="flex items-center gap-1 text-xs text-yellow-600 mb-1">
+                  <div className="flex items-center gap-1 text-[10px] font-black uppercase text-yellow-600 mb-1">
                     <FiAlertCircle size={12} />
-                    <span className="font-bold">Internal Note</span>
+                    <span>Internal Note</span>
                   </div>
                 )}
                 
-                <div className={`relative group rounded-2xl p-4 ${
+                <div className={`relative group border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] ${
                   message.isInternal 
-                    ? 'bg-yellow-50 border border-yellow-200 border-dashed' 
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-dashed' 
                     : message.sender === 'team' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-white border border-gray-200'
+                      ? 'bg-[#3C48F6] text-white' 
+                      : 'bg-white dark:bg-zinc-800 text-black dark:text-white'
                 }`}>
                   {/* Team Author Info */}
                   {message.sender === 'team' && message.author && !message.isInternal && (
-                    <div className="flex items-center gap-2 mb-2 opacity-80">
-                      <span className="text-sm">{message.author.avatar}</span>
-                      <span className="text-xs font-medium">{message.author.name}</span>
+                    <div className="flex items-center gap-2 mb-2 opacity-90">
+                      <span className="text-sm border border-white p-0.5">{message.author.avatar}</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider">{message.author.name}</span>
                     </div>
                   )}
                   
                   {message.isInternal && message.author && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm">{message.author.avatar}</span>
-                      <span className="text-xs font-medium text-yellow-700">{message.author.name}</span>
+                      <span className="text-sm border border-black dark:border-white p-0.5">{message.author.avatar}</span>
+                      <span className="text-[10px] font-black uppercase text-yellow-700 dark:text-yellow-500">{message.author.name}</span>
                     </div>
                   )}
                   
-                  <p className={`text-sm ${message.isInternal ? 'text-yellow-800' : ''}`}>
+                  <p className={`text-sm font-medium leading-relaxed ${message.isInternal ? 'text-yellow-900 dark:text-yellow-200' : ''}`}>
                     {message.content}
                   </p>
                   
-                  <div className={`flex items-center justify-between mt-2 text-xs ${
-                    message.isInternal ? 'text-yellow-600' : message.sender === 'team' ? 'text-blue-200' : 'text-gray-400'
+                  <div className={`flex items-center justify-between mt-3 text-[9px] font-mono font-bold uppercase ${
+                    message.isInternal ? 'text-yellow-600 dark:text-yellow-500' : message.sender === 'team' ? 'text-blue-200' : 'text-gray-400 dark:text-zinc-500'
                   }`}>
                     <span className="flex items-center gap-1">
                       <FiClock size={10} />
@@ -346,17 +338,11 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className={`absolute ${message.sender === 'team' ? '-left-20' : '-right-20'} top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white shadow-lg rounded-lg p-1 border border-gray-200`}
+                        className={`absolute ${message.sender === 'team' ? '-left-24' : '-right-24'} top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white dark:bg-zinc-900 shadow-xl p-1 border-2 border-black dark:border-white z-20`}
                       >
-                        <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                          <FiCopy size={14} />
-                        </button>
-                        <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                          <FiEdit3 size={14} />
-                        </button>
-                        <button className="p-1.5 hover:bg-red-50 rounded text-red-500">
-                          <FiTrash2 size={14} />
-                        </button>
+                        <button className="p-1.5 hover:bg-yellow-100 dark:hover:bg-zinc-800 text-black dark:text-white"><FiCopy size={14} /></button>
+                        <button className="p-1.5 hover:bg-yellow-100 dark:hover:bg-zinc-800 text-black dark:text-white"><FiEdit3 size={14} /></button>
+                        <button className="p-1.5 hover:bg-red-500 hover:text-white text-red-500"><FiTrash2 size={14} /></button>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -370,74 +356,70 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
       </div>
 
       {/* Reply Box */}
-      <div className="bg-white border-t border-gray-200 p-4">
+      <div className="bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white p-6 transition-colors shadow-[0px_-4px_10px_rgba(0,0,0,0.05)]">
         {/* Toggle: Public Reply vs Internal Note */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => setIsInternalNote(false)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+            className={`px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase transition-all ${
               !isInternalNote 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[#3C48F6] text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
+                : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-blue-50'
             }`}
           >
-            <FiSend size={12} className="inline mr-1" />
-            Reply
+            <FiSend size={12} className="inline mr-2" strokeWidth={3} />
+            Channel Reply
           </button>
           <button
             onClick={() => setIsInternalNote(true)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+            className={`px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase transition-all ${
               isInternalNote 
-                ? 'bg-yellow-400 text-white' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-yellow-400 text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
+                : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-yellow-50'
             }`}
           >
-            <FiEdit3 size={12} className="inline mr-1" />
+            <FiEdit3 size={12} className="inline mr-2" strokeWidth={3} />
             Internal Note
           </button>
         </div>
 
-        <div className={`rounded-xl border-2 transition-colors ${
-          isInternalNote ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'
+        <div className={`border-2 border-black dark:border-white transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden ${
+          isInternalNote ? 'bg-yellow-50 dark:bg-yellow-900/10' : 'bg-white dark:bg-zinc-800'
         }`}>
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder={isInternalNote ? "Add an internal note (only visible to your team)..." : "Write a reply..."}
+            placeholder={isInternalNote ? "ADD_INTERNAL_LOG (TEAM_ONLY)..." : "TYPE_RESPONSE_STREAM..."}
             rows={3}
-            className={`w-full px-4 py-3 bg-transparent resize-none focus:outline-none text-sm ${
-              isInternalNote ? 'placeholder:text-yellow-600' : ''
-            }`}
+            className={`w-full px-4 py-4 bg-transparent resize-none focus:outline-none text-sm font-bold uppercase placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white`}
           />
           
-          <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100">
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
-                <FiPaperclip size={18} />
+          <div className="flex items-center justify-between px-4 py-3 border-t-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-900/50">
+            <div className="flex items-center gap-3">
+              <button className="p-2 border-2 border-transparent hover:border-black dark:hover:border-white transition-all text-black dark:text-white">
+                <FiPaperclip size={18} strokeWidth={2.5} />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
-                <FiSmile size={18} />
+              <button className="p-2 border-2 border-transparent hover:border-black dark:hover:border-white transition-all text-black dark:text-white">
+                <FiSmile size={18} strokeWidth={2.5} />
               </button>
-              <span className="text-xs text-gray-400">{replyText.length}/280</span>
+              <span className="text-[10px] font-mono font-black text-gray-400 dark:text-zinc-500">{replyText.length}/280_BYTES</span>
             </div>
             
             <button
               onClick={handleSend}
               disabled={!replyText.trim() || isSending}
-              className={`px-4 py-2 rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+              className={`px-8 py-2 border-2 border-black dark:border-white font-black text-xs uppercase transition-all disabled:opacity-50 disabled:grayscale flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] ${
                 isInternalNote 
-                  ? 'bg-yellow-400 text-white hover:bg-yellow-500' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-yellow-400 text-black' 
+                  : 'bg-black dark:bg-white text-white dark:text-black'
               }`}
             >
               {isSending ? (
-                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-                  ⏳
-                </motion.div>
+                <FiLoader className="animate-spin" size={16} />
               ) : (
                 <>
                   {isInternalNote ? <FiEdit3 size={16} /> : <FiSend size={16} />}
-                  {isInternalNote ? 'Add Note' : 'Send Reply'}
+                  {isInternalNote ? 'LOG_NOTE' : 'TRANSMIT'}
                 </>
               )}
             </button>
@@ -445,18 +427,18 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
         </div>
 
         {/* Quick Replies */}
-        <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-2">
-          <span className="text-xs text-gray-400 flex-shrink-0">Quick:</span>
+        <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+          <span className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 mr-2">Quick:</span>
           {[
-            "Thanks for reaching out! 🙏",
-            "Great question! Let me help.",
-            "I'll look into this for you!",
-            "Is there anything else I can help with?",
+            "Copy that! 🙏",
+            "On it right now!",
+            "Roger that! 🚀",
+            "Any other signals?",
           ].map((quick, idx) => (
             <button
               key={idx}
               onClick={() => handleQuickReply(quick)}
-              className="flex-shrink-0 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-600 transition-colors"
+              className="flex-shrink-0 px-3 py-1.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-[10px] font-black uppercase text-black dark:text-white hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
             >
               {quick}
             </button>
@@ -464,17 +446,17 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
         </div>
 
         {/* AI Suggestions */}
-        <div className="mt-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
-          <div className="flex items-center gap-2 text-xs text-purple-600 font-bold mb-2">
-            <span className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center text-white text-[10px]">AI</span>
-            Suggested Response
+        <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/10 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(168,85,247,0.4)]">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 mb-2">
+            <span className="w-5 h-5 bg-purple-600 text-white flex items-center justify-center text-[10px] border border-black shadow-[1px_1px_0px_0px_#000]">AI</span>
+            SUGGESTED_RESPONSE
           </div>
           <button
-            onClick={() => handleQuickReply("That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study - it could help other creators discover these time-saving features! 💙")}
-            className="text-sm text-left text-gray-700 hover:text-purple-700 transition-colors"
+            onClick={() => handleQuickReply("That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study!")}
+            className="text-xs font-bold text-left text-black dark:text-white hover:text-[#3C48F6] dark:hover:text-blue-400 transition-colors leading-relaxed"
           >
-            "That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study..."
-            <span className="text-purple-600 font-bold ml-1">Use this →</span>
+            "That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you..."
+            <span className="text-[#3C48F6] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
           </button>
         </div>
       </div>

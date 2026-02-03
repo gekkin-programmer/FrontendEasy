@@ -3,9 +3,9 @@ import MobileNav from '@/src/components/easypost/MobileNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-[#F4F4F0]">
+    <div className="flex min-h-screen bg-[#F4F4F0] dark:bg-black transition-colors duration-300">
       {/* Desktop Sidebar (Hidden on Mobile) */}
-      <div className="hidden md:block w-64 fixed inset-y-0 z-50">
+      <div className="hidden md:block w-64 fixed inset-y-0 z-50 border-r-2 border-black dark:border-white">
         <Sidebar />
       </div>
 
