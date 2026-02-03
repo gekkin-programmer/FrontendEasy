@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 export default function AdminGrants() {
   const [formData, setFormData] = useState({
     userId: '',
+    email: '',
     planType: 'PROFESSIONAL',
     durationDays: '30',
     reason: ''
@@ -16,6 +17,11 @@ export default function AdminGrants() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.userId && !formData.email) {
+      toast.error("Veuillez fournir un ID utilisateur ou un Email.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.post('/admin/access-grants', {
@@ -23,7 +29,7 @@ export default function AdminGrants() {
         durationDays: formData.durationDays === '0' ? null : parseInt(formData.durationDays)
       });
       toast.success("Premium access granted successfully");
-      setFormData({ ...formData, userId: '', reason: '' });
+      setFormData({ ...formData, userId: '', email: '', reason: '' });
     } catch (e: any) {
       toast.error(e.response?.data?.message || "Operation failed");
     } finally {
@@ -41,13 +47,23 @@ export default function AdminGrants() {
       <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
               <form onSubmit={handleSubmit} className="bg-white text-black border-4 border-white p-10 shadow-[16px_16px_0px_0px_#3C48F5] space-y-8">
-                  <div className="space-y-2">
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">User_ID (CUID/UUID)</label>
-                      <input 
-                          type="text" required placeholder="Paste user identity here..."
-                          value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})}
-                          className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase text-sm focus:bg-blue-50 outline-none"
-                      />
+                  <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">User_ID (CUID/UUID)</label>
+                          <input 
+                              type="text" placeholder="Paste user identity here..."
+                              value={formData.userId} onChange={e => setFormData({...formData, userId: e.target.value})}
+                              className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase text-sm focus:bg-blue-50 outline-none"
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Or User_Email</label>
+                          <input 
+                              type="email" placeholder="Enter user email..."
+                              value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                              className="w-full bg-gray-50 border-4 border-black p-4 font-black uppercase text-sm focus:bg-blue-50 outline-none"
+                          />
+                      </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
