@@ -336,6 +336,8 @@ export class AuthService {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
       
+      console.log("🔹 validateUserByToken payload:", payload);
+
       // We check if user exists in DB to be safe
       return this.prisma.user.findUnique({ 
         where: { id: payload.sub } 

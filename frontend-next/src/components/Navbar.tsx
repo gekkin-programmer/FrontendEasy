@@ -115,6 +115,11 @@ export default function Navbar() {
     } catch (e) { console.error(e); } 
     finally {
       deleteCookie('accessToken');
+      deleteCookie('refreshToken');
+      if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+      }
       setIsAuthenticated(false);
       setUser(null);
       setIsProfileOpen(false);
