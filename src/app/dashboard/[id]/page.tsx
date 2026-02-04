@@ -12,51 +12,34 @@ import { getCookie } from 'cookies-next';
 
 // ICONS
 import { 
-  Layers, BarChart2, MessageCircle, Settings as SettingsIcon, 
-  Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, Link as LinkIcon, 
-  ExternalLink, Trash2, ArrowRight, Loader2, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown
+  Layers, BarChart2, Settings as SettingsIcon, 
+  Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
+  ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
+  AlertTriangle, Crown, MessageCircle
 } from 'lucide-react'; 
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien } from 'react-icons/fa6';
 
 // COMPONENTS
 import Composer from '@/src/components/easypost/Composer';
 import PostFeed from '@/src/components/easypost/PostFeed';
 import Analytics from '@/src/components/easypost/Analytics';
-import Engagement from "@/src/components/easypost/Engagement";
 import Settings from '@/src/components/easypost/Settings';
-import EngagementAnalytics from '@/src/components/easypost/EngagementAnalytics';
 import Team from '@/src/components/easypost/Team';
 import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
 import CalendarView from '@/src/components/easypost/CalendarView';
 import SpinningLoader from '@/src/components/SpinningLoader';
 
-type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
+// EXTRACTED COMPONENTS
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/easypost/DashboardUI';
+import { QuickConnectSidebar } from '@/src/components/easypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSelector';
+import { SidebarItem } from '@/src/components/easypost/SidebarItem';
+import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
 
-// --- HELPERS ---
-const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (<button onClick={onClick} disabled={disabled} className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${active ? 'bg-[#3C48F5] text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white text-black hover:bg-blue-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'} ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}>{children}</button>);
-const NeuCard = ({ children, className = "" }: any) => (<div className={`bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 ${className}`}>{children}</div>);
-const NeuInput = (props: any) => (<input {...props} className="bg-white border-2 border-black p-2 font-bold text-sm placeholder:text-gray-400 focus:outline-none focus:bg-blue-50 focus:shadow-[4px_4px_0px_0px_#000] transition-all w-full font-mono" />);
-const NeuModal = ({ title, isOpen, onClose, children }: any) => {
-    if (!isOpen) return null;
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-                    <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 10 }} className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-md overflow-hidden z-10">
-                        <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
-                        <div className="p-6">{children}</div>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
-    );
-};
+type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
     return (
-        <Suspense fallback={<div className="h-screen w-full flex items-center justify-center font-bold">LOADING_INTERFACE...</div>}>
+        <Suspense fallback={<SpinningLoader fullScreen={true} />}>
             <DashboardContent />
         </Suspense>
     );
@@ -120,20 +103,16 @@ function DashboardContent() {
     useEffect(() => {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
-        const success = searchParams.get('success'); // General success flag
+        const success = searchParams.get('success'); 
         const token = searchParams.get('exchange_token');
 
-        // 1. Facebook Page Selection Mode
         if (selectionMode === 'facebook') {
             if (token) setTempExchangeToken(token);
             setIsFbPageSelectorOpen(true);
         }
 
-        // 2. Generic Success (e.g. from WhatsApp/LinkedIn/Google)
         if (connected === 'true' || success === 'true') {
             toast.success("CONNECTION_ESTABLISHED");
-            
-            // Clean URL
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
             url.searchParams.delete('social_selection');
@@ -141,8 +120,6 @@ function DashboardContent() {
             url.searchParams.delete('platform');
             url.searchParams.delete('success');
             window.history.replaceState(null, '', url.pathname);
-            
-            // Force refresh accounts
             refetchAccounts();
             queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
         }
@@ -164,16 +141,14 @@ function DashboardContent() {
 
     const upsertPostMutation = useMutation({
         mutationFn: (payload: any) => {
-            if (payload.id) {
-                return api.patch(`/posts/${payload.id}`, payload);
-            }
+            if (payload.id) return api.patch(`/posts/${payload.id}`, payload);
             return api.post('/posts', payload);
         },
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
             queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
             queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
-            setEditingPost(null); // Clear edit state
+            setEditingPost(null);
         },
         onError: () => toast.error("TRANSACTION_FAILED")
     });
@@ -187,7 +162,7 @@ function DashboardContent() {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
         if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
         upsertPostMutation.mutate({ 
-            id: postId, // Pass ID for update
+            id: postId,
             workspaceId, 
             content, 
             scheduledFor: date ? date.toISOString() : undefined, 
@@ -206,7 +181,6 @@ function DashboardContent() {
     };
 
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
-    const filteredPosts = posts;
 
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
@@ -214,7 +188,6 @@ function DashboardContent() {
 
     return (
         <div className="min-h-screen bg-[#F4F4F0] dark:bg-black font-sans text-black dark:text-white relative selection:bg-yellow-300 transition-colors duration-300">
-            <Toaster position="bottom-right" toastOptions={{ className: 'border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none font-bold' }} />
             <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }} />
 
             {/* Mobile Header */}
@@ -259,12 +232,11 @@ function DashboardContent() {
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white"><Search size={18} /></div></div><VoiceAiButton onCommand={handleVoiceCommand} /><button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all"><Bell size={20} className="text-black dark:text-white" /></button></div>
+                    <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white"><Search size={18} /></div></div><button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all transition-colors"><Bell size={20} className="text-black dark:text-white" /></button></div>
                 </header>
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        {/* 🟢 SIDEBAR: Re-renders when 'accounts' changes */}
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 
                                 accounts={accounts} 
@@ -280,7 +252,6 @@ function DashboardContent() {
                         <div className="flex-1 min-w-0">
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                                    {/* 🚀 FREEMIUM HOOK: POST LIMIT BANNER */}
                                     {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 8 && currentWorkspace.currentPostCount < 10 && (
                                         <div className="mb-6 bg-yellow-400 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex items-center justify-between">
                                             <div className="flex items-center gap-3">
@@ -294,7 +265,6 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden">
-                                                {/* 🚀 FREEMIUM HOOK: POST BLOCKER */}
                                                 {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
                                                     <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
@@ -314,32 +284,32 @@ function DashboardContent() {
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
                                                 <Composer onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={filteredPosts} accounts={accounts} onEdit={setEditingPost} /></div>
+                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} onEdit={setEditingPost} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
-    <div className="space-y-4">
-        <div className="flex justify-between items-center">
-            <h2 className="text-xl font-black uppercase text-black dark:text-white">Content Timeline</h2>
-            <NeuButton onClick={() => setActiveTab('queue')}>+ Quick Post</NeuButton>
-        </div>
-        <CalendarView 
-            workspaceId={workspaceId} 
-            onPostClick={(post) => {
-                setEditingPost(post);
-                setActiveTab('queue');
-            }}
-        />
-    </div>
-)}
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-center">
+                                                <h2 className="text-xl font-black uppercase text-black dark:text-white">Content Timeline</h2>
+                                                <NeuButton onClick={() => setActiveTab('queue')}>+ Quick Post</NeuButton>
+                                            </div>
+                                            <CalendarView 
+                                                workspaceId={workspaceId} 
+                                                onPostClick={(post) => {
+                                                    setEditingPost(post);
+                                                    setActiveTab('queue');
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}
-                                    {activeTab === 'settings' && <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace.name} /></div>}
+                                    {activeTab === 'settings' && <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></div>}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-[#3C48F5] text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed"><p className="text-xs font-mono text-gray-500 mb-2">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span className="text-xl font-black">PRO</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-blue-600">MANAGE</button></div></div></div>
+                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-[#3C48F5] text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span className="text-xl font-black">PRO</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div></div>
                     </div>
                 </div>
             </main>
@@ -361,158 +331,3 @@ function DashboardContent() {
         </div>
     );
 }
-
-// --- SUB COMPONENTS ---
-const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: any) => {
-    const [pages, setPages] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            setIsLoading(true);
-            let endpoint = '/social-accounts/facebook/pages';
-            if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;
-            
-            api.get<any>(endpoint)
-                .then(res => {
-                    const list = Array.isArray(res.data) ? res.data : [];
-                    setPages(list);
-                })
-                .catch(() => toast.error("FB_FETCH_FAILED"))
-                .finally(() => setIsLoading(false));
-        }
-    }, [isOpen, exchangeToken]);
-
-    const selectMutation = useMutation({
-        mutationFn: (page: any) => api.post<any>('/social-accounts/facebook/pages/select', {
-            pageId: page.id, pageName: page.name, pageAccessToken: page.access_token, exchangeToken
-        }),
-        onSuccess: (res, variables) => {
-            toast.success(`CONNECTED: ${variables.name}`);
-            if (onAccountConnected) {
-                const optimisticAccount = {
-                    id: res.data?.id || `temp-${Date.now()}`,
-                    username: variables.name, 
-                    platform: 'FACEBOOK',
-                    avatar: `https://graph.facebook.com/${variables.id}/picture` 
-                };
-                onAccountConnected(optimisticAccount);
-            }
-            onClose();
-        },
-        onError: () => toast.error("CONNECTION_FAILED")
-    });
-
-    return (
-        <NeuModal title="SELECT_ENTITY" isOpen={isOpen} onClose={onClose}>
-            {isLoading ? <div className="p-8 flex justify-center flex-col items-center gap-2"><Loader2 className="animate-spin" /><span className="text-xs font-bold animate-pulse">CONNECTING_TO_GRAPH_API...</span></div> : (
-                <div className="max-h-[300px] overflow-y-auto space-y-2">
-                    {pages.length === 0 && <div className="p-4 border-2 border-black bg-gray-100 text-center text-xs font-mono">NO_ENTITIES_FOUND.<br/>Did you uncheck pages in the popup?</div>}
-                    {pages.map((page) => (
-                        <button key={page.id} onClick={() => selectMutation.mutate(page)} className="w-full flex items-center gap-3 p-3 border-2 border-black hover:bg-yellow-100 transition-all text-left group">
-                            <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center border-2 border-black group-hover:scale-110 transition-transform"><FaFacebookF /></div>
-                            <div className="flex-1"><p className="font-bold text-sm uppercase">{page.name}</p><p className="text-[10px] font-mono text-gray-500">UID: {page.id}</p></div>
-                            <Plus size={16} />
-                        </button>
-                    ))}
-                </div>
-            )}
-        </NeuModal>
-    );
-};
-
-const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: any) => {
-    const router = useRouter();
-    
-    const platforms = [
-        { id: 'facebook', Icon: FaFacebookF, color: 'text-[#1877F2]' },
-        { id: 'instagram', Icon: FaInstagram, color: 'text-[#E4405F]' },
-        { id: 'twitter', Icon: FaTwitter, color: 'text-black' },
-        { id: 'linkedin', Icon: FaLinkedinIn, color: 'text-[#0A66C2]' },
-        { id: 'tiktok', Icon: FaTiktok, color: 'text-black' },
-        { id: 'youtube', Icon: FaYoutube, color: 'text-[#FF0000]' },
-        { id: 'pinterest', Icon: FaPinterestP, color: 'text-[#BD081C]' },
-        { id: 'whatsapp', Icon: FaWhatsapp, color: 'text-[#25D366]' },
-        { id: 'reddit', Icon: FaRedditAlien, color: 'text-[#FF4500]' },
-    ];
-
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
-
-    const handleConnect = (platform: string) => { 
-        const token = getCookie('accessToken'); // ➤ FIX: Use cookie instead of localStorage
-        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; 
-    };
-
-    const disconnectMutation = useMutation({ 
-        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), 
-        onSuccess: () => { 
-            toast.success("NODE_DISCONNECTED"); 
-            refreshData(); 
-        }, 
-        onError: () => toast.error("ERR_DISCONNECT_FAIL") 
-    });
-
-    return (
-        <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000] h-full overflow-y-auto scrollbar-hide">
-            {/* 🚀 FREEMIUM HOOK: ACCOUNT LIMIT ICON */}
-            {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
-                <button 
-                    onClick={() => router.push('/pricing')}
-                    className="w-10 h-10 flex-shrink-0 flex items-center justify-center border-2 border-black bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] mb-2"
-                    title="Upgrade to add more nodes"
-                >
-                    <Crown size={18} />
-                </button>
-            )}
-            
-            <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center border-2 border-black bg-[#3C48F5] mb-2">
-                <LinkIcon size={16} className="text-white" />
-            </div>
-
-            {platforms.map((p) => { 
-                const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); 
-                
-                return (
-                    <div key={p.id} className="relative group flex-shrink-0">
-                        {connected ? (
-                            <>
-                                <button className="w-10 h-10 flex items-center justify-center border-2 border-black bg-gray-50 opacity-100 cursor-default">
-                                    <p.Icon size={18} className="text-gray-400" />
-                                </button>
-                                <button 
-                                    onClick={() => { if(confirm("CONFIRM_TERMINATION?")) disconnectMutation.mutate(connected.id) }} 
-                                    className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
-                                    title="Disconnect"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                                <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                    <div className="w-4 h-4 bg-green-500 border-2 border-black flex items-center justify-center text-white">
-                                        <Check size={10} strokeWidth={4} />
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <button 
-                                onClick={() => handleConnect(p.id)} 
-                                className="group w-10 h-10 flex items-center justify-center border-2 border-black bg-white hover:bg-black cursor-pointer shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                                title={`Connect ${p.id}`}
-                            >
-                                <p.Icon 
-                                    size={18} 
-                                    className={cn(p.color, "transition-colors group-hover:text-white")} 
-                                />
-                            </button>
-                        )}
-                    </div>
-                ); 
-            })}
-            <div className="h-0.5 w-8 bg-black my-2 flex-shrink-0"></div>
-            <button className="text-gray-400 hover:text-black transition-colors flex-shrink-0"><ExternalLink size={16} /></button>
-        </div>
-    );
-};
-
-// ... SidebarItem & EngagementWithTabs (Same as before) ...
-const SidebarItem = ({icon: Icon, label, active, onClick}: any) => (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black transition-all ${active ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000]' : 'bg-white text-black hover:bg-blue-50 hover:translate-x-1'}`}><Icon size={18} strokeWidth={2.5} /> {label}</button>);
-const EngagementWithTabs = () => { const [subTab, setSubTab] = useState<'inbox' | 'analytics'>('inbox'); return (<div><div className="flex items-center gap-4 mb-6 border-b-2 border-black pb-4"><button onClick={() => setSubTab('inbox')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'inbox' ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><MessageCircle size={16} /> Inbox</button><button onClick={() => setSubTab('analytics')} className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black transition-all ${subTab === 'analytics' ? 'bg-[#3C48F5] text-white shadow-[4px_4px_0px_0px_#000] -translate-y-1' : 'bg-white hover:bg-gray-100 text-gray-500 border-transparent hover:border-black'}`}><BarChart2 size={16} /> Performance</button></div>{subTab === 'inbox' && <Engagement />}{subTab === 'analytics' && <EngagementAnalytics />}</div>); };
