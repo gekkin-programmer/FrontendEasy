@@ -22,54 +22,60 @@ const PLATFORMS = [
   { id: 'youtube', label: 'YouTube', icon: FaYoutube, color: '#FF0000' },
 ];
 
-import { getCookie } from 'cookies-next';
+import { getCookie, deleteCookie } from 'cookies-next';
+import { jwtDecode } from 'jwt-decode';
 
 // ... imports
 
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
   const queryClient = useQueryClient();
+  const token = getCookie('accessToken');
+  let tokenStatus = "Unknown";
+  let tokenExpiry = null;
+
+  try {
+    if (token) {
+        const decoded: any = jwtDecode(token as string);
+        tokenExpiry = new Date(decoded.exp * 1000);
+        tokenStatus = tokenExpiry > new Date() ? "Valid" : "Expired";
+    } else {
+        tokenStatus = "Missing";
+    }
+  } catch (e) { tokenStatus = "Invalid"; }
 
   // 🟢 1. FETCH ACCOUNTS (Consistent with Dashboard logic)
-  const { data: accounts = [], isLoading } = useQuery({
-    queryKey: ['social-accounts', workspaceId],
-    queryFn: async () => {
-        // Handle unwrapped array or axios object
-        const res: any = await api.get('/social-accounts');
-        return Array.isArray(res) ? res : (res.data || []);
-    },
-  });
+  // ... (rest of the file)
 
-  // 🟢 2. DISCONNECT MUTATION
-  const disconnectMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
-    onSuccess: () => {
-      toast.success("CONNECTION_TERMINATED");
-      queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] }); 
-    },
-    onError: () => toast.error("ERR_DISCONNECT_FAILED")
-  });
-
-  const handleConnect = (platform: string) => {
-    const token = getCookie('accessToken'); // ➤ FIX: Use cookie instead of localStorage
-    // Redirect to backend OAuth initiation
-    window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
+  const handleForceRefresh = () => {
+      deleteCookie('accessToken');
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
   };
-
-  if (isLoading) return <SpinningLoader fullScreen={false} />;
 
   return (
     <div className="space-y-8 font-sans text-black dark:text-white transition-colors">
       {/* Header */}
-      <div className="border-b-4 border-black dark:border-white pb-6">
-        <h2 className="text-2xl font-black uppercase tracking-tighter">Network Nodes</h2>
-        <p className="font-mono text-xs mt-2 text-gray-500 dark:text-zinc-400 font-bold uppercase">
-          STATUS: {accounts.filter((a: any) => a.isActive).length} ACTIVE / {accounts.length} TOTAL
-        </p>
+      <div className="border-b-4 border-black dark:border-white pb-6 flex justify-between items-end">
+        <div>
+            <h2 className="text-2xl font-black uppercase tracking-tighter">Network Nodes</h2>
+            <p className="font-mono text-xs mt-2 text-gray-500 dark:text-zinc-400 font-bold uppercase">
+            STATUS: {accounts.filter((a: any) => a.isActive).length} ACTIVE / {accounts.length} TOTAL
+            </p>
+        </div>
+        
+        {/* DEBUG PANEL */}
+        <div className="text-[10px] font-mono text-right opacity-70">
+            <p>TOKEN: <span className={tokenStatus === 'Valid' ? 'text-green-600' : 'text-red-500'}>{tokenStatus}</span></p>
+            {tokenExpiry && <p>EXP: {format(tokenExpiry, 'HH:mm dd/MM')}</p>}
+            {tokenStatus !== 'Valid' && (
+                <button onClick={handleForceRefresh} className="mt-1 underline text-red-500 font-bold">RESET SESSION</button>
+            )}
+        </div>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+// ... (rest of the component)
         {PLATFORMS.map((platform) => {
           const connectedAccount = accounts.find((a: any) => a.platform.toLowerCase() === platform.id);
           const isConnected = !!connectedAccount;
