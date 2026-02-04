@@ -10,6 +10,9 @@ import {
 import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react'; 
 import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
+import { getCookie, deleteCookie } from 'cookies-next';
+import { jwtDecode } from 'jwt-decode';
+import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
@@ -21,11 +24,6 @@ const PLATFORMS = [
   { id: 'tiktok', label: 'TikTok', icon: FaTiktok, color: '#000000' },
   { id: 'youtube', label: 'YouTube', icon: FaYoutube, color: '#FF0000' },
 ];
-
-import { getCookie, deleteCookie } from 'cookies-next';
-import { jwtDecode } from 'jwt-decode';
-
-// ... imports
 
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
   const queryClient = useQueryClient();
@@ -44,13 +42,38 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   } catch (e) { tokenStatus = "Invalid"; }
 
   // 🟢 1. FETCH ACCOUNTS (Consistent with Dashboard logic)
-  // ... (rest of the file)
+  const { data: accounts = [], isLoading } = useQuery({
+    queryKey: ['social-accounts', workspaceId],
+    queryFn: async () => {
+        const res: any = await api.get('/social-accounts');
+        return Array.isArray(res) ? res : (res.data || []);
+    },
+  });
+
+  // 🟢 2. DISCONNECT MUTATION
+  const disconnectMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
+    onSuccess: () => {
+      toast.success("CONNECTION_TERMINATED");
+      queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] }); 
+    },
+    onError: () => toast.error("ERR_DISCONNECT_FAILED")
+  });
+
+  const handleConnect = (platform: string) => {
+    const token = getCookie('accessToken');
+    // Redirect to backend OAuth initiation
+    window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
+  };
 
   const handleForceRefresh = () => {
       deleteCookie('accessToken');
-      localStorage.removeItem('accessToken');
+      if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
       window.location.href = '/login';
   };
+
+  if (isLoading) return <SpinningLoader fullScreen={false} />;
 
   return (
     <div className="space-y-8 font-sans text-black dark:text-white transition-colors">
@@ -68,36 +91,33 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
             <p>TOKEN: <span className={tokenStatus === 'Valid' ? 'text-green-600' : 'text-red-500'}>{tokenStatus}</span></p>
             {tokenExpiry && <p>EXP: {format(tokenExpiry, 'HH:mm dd/MM')}</p>}
             {tokenStatus !== 'Valid' && (
-                <button onClick={handleForceRefresh} className="mt-1 underline text-red-500 font-bold">RESET SESSION</button>
+                <button onClick={handleForceRefresh} className="mt-1 underline text-red-500 font-bold uppercase">RESET SESSION</button>
             )}
         </div>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-// ... (rest of the component)
         {PLATFORMS.map((platform) => {
           const connectedAccount = accounts.find((a: any) => a.platform.toLowerCase() === platform.id);
           const isConnected = !!connectedAccount;
-          const isExpired = isConnected && !connectedAccount.isActive; // ➤ Check Expiry
+          const isExpired = isConnected && !connectedAccount.isActive;
 
           return (
             <div 
               key={platform.id}
-              className={`
-                relative p-6 border-4 border-black dark:border-white transition-all
-                ${isExpired 
-                    ? 'bg-red-50 dark:bg-red-900/20 border-red-600 dark:border-red-500' // ➤ Red state for expired
+              className={cn(
+                "relative p-6 border-4 border-black dark:border-white transition-all",
+                isExpired 
+                    ? 'bg-red-50 dark:bg-red-900/20 border-red-600 dark:border-red-500' 
                     : isConnected 
                         ? 'bg-white dark:bg-zinc-900 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]' 
                         : 'bg-gray-50 dark:bg-zinc-800 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
-                }
-              `}
+              )}
             >
               {/* Status Badge */}
               <div className="absolute top-0 right-0 p-2">
                 {isExpired ? (
-                   // ➤ EXPIRED BADGE
                    <div className="bg-red-600 text-white border-2 border-black dark:border-white px-2 py-0.5 text-[10px] font-black uppercase flex items-center gap-1 animate-pulse">
                      <AlertTriangle size={10} strokeWidth={4} /> BROKEN LINK
                    </div>
@@ -114,14 +134,20 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
               {/* Icon */}
               <div 
-                className={`w-12 h-12 flex items-center justify-center border-2 mb-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all ${isExpired ? 'border-red-600 dark:border-red-500' : 'border-black dark:border-white'}`}
+                className={cn(
+                    "w-12 h-12 flex items-center justify-center border-2 mb-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all",
+                    isExpired ? 'border-red-600 dark:border-red-500' : 'border-black dark:border-white'
+                )}
                 style={{ backgroundColor: isConnected ? platform.color : 'transparent' }}
               >
                 <platform.icon size={24} className={isConnected ? "text-white" : "text-black dark:text-white"} />
               </div>
 
               {/* Info */}
-              <h3 className={`font-black text-lg uppercase mb-1 ${isExpired ? 'text-red-700 dark:text-red-400' : 'text-black dark:text-white'}`}>
+              <h3 className={cn(
+                  "font-black text-lg uppercase mb-1",
+                  isExpired ? 'text-red-700 dark:text-red-400' : 'text-black dark:text-white'
+              )}>
                   {platform.label}
               </h3>
               
@@ -143,7 +169,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               {/* Actions */}
               <div className="mt-auto flex flex-col gap-2">
                 
-                {/* ➤ RECONNECT BUTTON (Only if expired) */}
                 {isExpired && (
                     <button 
                         onClick={() => handleConnect(platform.id)}
@@ -153,13 +178,12 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                     </button>
                 )}
 
-                {/* DISCONNECT / CONNECT BUTTON */}
                 {isConnected ? (
                   <div className="flex flex-col gap-2">
                     {process.env.NEXT_PUBLIC_ENV !== 'production' && (
                         <button 
                             onClick={async () => {
-                                const token = localStorage.getItem('accessToken');
+                                const token = getCookie('accessToken');
                                 await fetch(`${API_URL}/social-accounts/${connectedAccount.id}/expire`, {
                                     method: 'PATCH',
                                     headers: { Authorization: `Bearer ${token}` }
