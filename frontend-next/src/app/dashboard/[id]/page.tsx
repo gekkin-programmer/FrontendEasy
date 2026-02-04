@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import { cn } from '@/lib/utils';
+import { getCookie } from 'cookies-next';
 
 // ICONS
 import { 
@@ -438,7 +439,7 @@ const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorksp
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
     const handleConnect = (platform: string) => { 
-        const token = localStorage.getItem('accessToken'); 
+        const token = getCookie('accessToken'); // ➤ FIX: Use cookie instead of localStorage
         window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; 
     };
 
