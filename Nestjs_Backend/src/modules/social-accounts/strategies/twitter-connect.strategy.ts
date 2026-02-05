@@ -20,19 +20,21 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       pkce: true, 
       state: true, 
       passReqToCallback: true,
+      skipUserProfile: false,
       scope: [
         'tweet.read',
         'tweet.write',
         'users.read',
-        'offline.access',
-        'direct_messages.read',
-        'direct_messages.write'
+        'offline.access'
       ],
     });
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
+      console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
+      console.log("🔹 Profile:", JSON.stringify(profile, null, 2));
+      
       let state = {};
       if (req.query.state) {
           try {
