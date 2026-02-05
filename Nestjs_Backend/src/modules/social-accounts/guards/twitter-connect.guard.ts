@@ -11,7 +11,7 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
 
     return {
       // Pass metadata manually via state
-      state: JSON.stringify({ workspaceId, token }),
+      state: JSON.stringify({ workspaceId, token: String(token) }),
     };
   }
 }

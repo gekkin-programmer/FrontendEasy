@@ -13,7 +13,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
     super({
       clientID: configService.get<string>('TWITTER_API_KEY') || 'placeholder',
       clientSecret: configService.get<string>('TWITTER_API_SECRET') || 'placeholder',
-      callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/twitter`,
+      callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/twitter`,
       authorizationURL: 'https://twitter.com/i/oauth2/authorize',
       tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientType: 'confidential',
