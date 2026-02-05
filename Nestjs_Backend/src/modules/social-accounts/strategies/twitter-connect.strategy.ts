@@ -38,22 +38,34 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
     });
     const key = configService.get<string>('TWITTER_API_KEY');
     const secret = configService.get<string>('TWITTER_API_SECRET');
-    console.log(`🔹 Twitter Strategy Init: Key=${key ? key.substring(0,4)+'***' : 'MISSING'}, Secret=${secret ? 'PRESENT' : 'MISSING'}`);
-    console.log(`🔹 Callback: ${configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/twitter`}`);
+    console.log(`🔹 Twitter Strategy Init: Key=${key ? key.substring(0,4)+'***' : 'PRESENT'}, Secret=${secret ? 'PRESENT' : 'MISSING'}`);
+  }
+
+  // ➤ Handle Token Parameters (Inject Code Verifier)
+  authenticate(req: any, options: any) {
+    const stateCookie = req.signedCookies['twitter_oauth_state'];
+    if (stateCookie) {
+        try {
+            const { code_verifier } = JSON.parse(stateCookie);
+            options.codeVerifier = code_verifier;
+            console.log("🔹 Twitter Strategy: code_verifier injected from cookie");
+        } catch (e) {}
+    }
+    super.authenticate(req, options);
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
       
-      // Retrieve metadata from session (set by Guard)
-      const { workspaceId, token: jwtToken } = req.session?.twitterMetadata || {};
-      
-      if (!workspaceId || !jwtToken) {
-          console.error("❌ Twitter Strategy: No metadata found in session");
-          return done(new Error("Session lost: Missing workspace metadata"), false);
+      // Retrieve metadata from Signed Cookie
+      const stateCookie = req.signedCookies['twitter_oauth_state'];
+      if (!stateCookie) {
+          console.error("❌ Twitter Strategy: No metadata found in signed cookie");
+          return done(new Error("Session lost: Missing state cookie"), false);
       }
 
+      const { workspaceId, token: jwtToken } = JSON.parse(stateCookie);
       console.log("🔹 Twitter Strategy: Metadata retrieved", { workspaceId, hasToken: !!jwtToken });
 
       let userId;

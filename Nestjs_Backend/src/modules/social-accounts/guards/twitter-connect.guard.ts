@@ -2,28 +2,50 @@
 
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import pkceChallenge from 'pkce-challenge';
 
 @Injectable()
 export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
+    const res = context.switchToHttp().getResponse();
     const { workspaceId, token } = req.query;
 
-    // Store metadata in session to retrieve it in the strategy later
-    // avoiding conflicts with Passport's internal PKCE state management.
-    if (req.session && workspaceId && token) {
-        req.session.twitterMetadata = { workspaceId, token };
-        console.log("🔹 Twitter Guard: Metadata saved to session", req.session.twitterMetadata);
-    } else if (!req.session) {
-        console.error("❌ Twitter Guard: No session found!");
+    if (workspaceId && token) {
+        // 1. Generate Manual PKCE
+        const pkce = await pkceChallenge();
+        
+        // 2. Save EVERYTHING in a signed cookie (more reliable than session on Render)
+        const metadata = JSON.stringify({ 
+            workspaceId, 
+            token, 
+            code_verifier: pkce.code_verifier 
+        });
+
+        res.cookie('twitter_oauth_state', metadata, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+            signed: true
+        });
+
+        // 3. Inject challenge into request so Strategy can use it
+        req.query.code_challenge = pkce.code_challenge;
+        console.log("🔹 Twitter Guard: Manual PKCE Generated & Cookie Set");
     }
 
-    const result = (await super.canActivate(context)) as boolean;
-    return result;
+    return (await super.canActivate(context)) as boolean;
   }
 
-  // Remove getAuthenticateOptions override to let Passport handle state/PKCE automatically
-  
+  getAuthenticateOptions(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+    return {
+      codeChallenge: req.query.code_challenge,
+      codeChallengeMethod: 'S256'
+    };
+  }
+
   handleRequest(err, user, info) {
     if (err || !user) {
       console.error("❌ Twitter Auth Failed:", err);
