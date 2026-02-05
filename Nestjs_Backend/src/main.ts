@@ -38,10 +38,11 @@ async function bootstrap() {
       secret: process.env.COOKIE_SECRET || 'dev-session-secret',
       resave: false,
       saveUninitialized: false,
+      proxy: true, // ➤ REQUIRED for Render (Load Balancer)
       cookie: {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 60 * 60 * 1000, // 1 hour for OAuth flows
+        maxAge: 60 * 60 * 1000, // 1 hour
       },
     }),
   );
