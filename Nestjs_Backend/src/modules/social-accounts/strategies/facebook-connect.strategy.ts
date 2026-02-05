@@ -17,7 +17,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       
       // ➤ CRITICAL: Must be true to read 'state'
       passReqToCallback: true, 
-      state: false, 
+      state: true, 
       
       scope: [
         'email', 

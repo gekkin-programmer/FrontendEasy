@@ -18,7 +18,7 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube-
       ],
       accessType: 'offline', // Critical: Gives us a Refresh Token
       prompt: 'consent', // Forces consent screen to ensure we get Refresh Token
-      state: false,
+      state: true,
       passReqToCallback: true,
     } as any);
   }

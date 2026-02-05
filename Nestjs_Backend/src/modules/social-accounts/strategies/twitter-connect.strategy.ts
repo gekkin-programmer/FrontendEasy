@@ -16,7 +16,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter'
       callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/twitter`,
       clientType: 'confidential',
       pkce: true, // X OAuth 2.0 requires PKCE
-      state: false, // ➤ CRITICAL: Disable session-based state management
+      state: true, // ➤ REQUIRED for PKCE
       passReqToCallback: true,
       scope: [
         'tweet.read',

@@ -14,7 +14,7 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       userProfileURL: 'https://open.tiktokapis.com/v2/user/info/', 
-      state: false,
+      state: true,
       passReqToCallback: true,
     } as any);
   }

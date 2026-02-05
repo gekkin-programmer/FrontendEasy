@@ -15,7 +15,7 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
-      state: false, // ➤ Disable session-based state for stateless API
+      state: true, 
       passReqToCallback: true, // ➤ CRITICAL: To read req.query.state
     }as any);
   }
