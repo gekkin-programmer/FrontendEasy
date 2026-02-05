@@ -11,10 +11,10 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
 
     // Store metadata in session to retrieve it in the strategy later
     // avoiding conflicts with Passport's internal PKCE state management.
-    if (req.session) {
+    if (req.session && workspaceId && token) {
         req.session.twitterMetadata = { workspaceId, token };
         console.log("🔹 Twitter Guard: Metadata saved to session", req.session.twitterMetadata);
-    } else {
+    } else if (!req.session) {
         console.error("❌ Twitter Guard: No session found!");
     }
 
