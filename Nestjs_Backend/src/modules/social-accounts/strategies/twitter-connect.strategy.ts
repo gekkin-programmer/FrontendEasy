@@ -18,7 +18,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientType: 'confidential',
       pkce: true, 
-      state: false, 
+      state: true, // ➤ REQUIRED for PKCE with passport-twitter-oauth2
       passReqToCallback: true,
       skipUserProfile: false,
       scope: [
