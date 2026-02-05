@@ -158,6 +158,9 @@ importers:
       passport-twitter:
         specifier: ^1.0.4
         version: 1.0.4
+      passport-twitter-oauth2:
+        specifier: ^2.1.1
+        version: 2.1.1
       pdfkit:
         specifier: ^0.17.2
         version: 0.17.2
@@ -5120,6 +5123,10 @@ packages:
   passport-tiktok-auth@1.0.12:
     resolution: {integrity: sha512-KFwzq1rYps9gcj6ZmMARxA3yjiNA/E5daSU+/ZF6mv9KXPbdx/Bp/mYmHLzxGinE/yN8datvjKbAkU3IBO8nqg==}
     engines: {node: '>=0.10.0'}
+
+  passport-twitter-oauth2@2.1.1:
+    resolution: {integrity: sha512-wkJLfsms4xIS5MO9IK243rJI9cASJBma9CYJAnVf0alj4blp/wykeQrr0i0HgBwrtAiJUN/nqx3P9rzwS5ytAQ==}
+    engines: {node: '>= 0.4.0'}
 
   passport-twitter@1.0.4:
     resolution: {integrity: sha512-qvdauqCqCJJci82mJ9hZZQ6nAv7aSHV31svL8+9H7mRlDdXCdfU6AARQrmmJu3DRmv9fvIebM7zzxR7mVufN3A==}
@@ -12114,6 +12121,11 @@ snapshots:
       lodash: 4.17.23
       passport-oauth: 1.0.0
       pkginfo: 0.4.1
+
+  passport-twitter-oauth2@2.1.1:
+    dependencies:
+      passport-oauth2: 1.8.0
+      xtraverse: 0.1.0
 
   passport-twitter@1.0.4:
     dependencies:

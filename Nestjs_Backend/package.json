@@ -70,6 +70,7 @@
     "passport-local": "^1.0.0",
     "passport-tiktok-auth": "^1.0.12",
     "passport-twitter": "^1.0.4",
+    "passport-twitter-oauth2": "^2.1.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.17.2",
     "pino-http": "^11.0.0",

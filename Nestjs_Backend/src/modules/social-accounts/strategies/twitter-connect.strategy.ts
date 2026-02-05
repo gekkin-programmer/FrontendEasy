@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-twitter';
+import { Strategy } from 'passport-twitter-oauth2';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
 
@@ -11,17 +11,26 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter'
     private authService: AuthService,
   ) {
     super({
-      consumerKey: configService.get<string>('TWITTER_API_KEY') || 'placeholder',
-      consumerSecret: configService.get<string>('TWITTER_API_SECRET') || 'placeholder',
+      clientID: configService.get<string>('TWITTER_API_KEY') || 'placeholder',
+      clientSecret: configService.get<string>('TWITTER_API_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/twitter`,
+      clientType: 'confidential',
+      pkce: true, // X OAuth 2.0 requires PKCE
+      state: true,
       passReqToCallback: true,
+      scope: [
+        'tweet.read',
+        'tweet.write',
+        'users.read',
+        'offline.access',
+        'direct_messages.read',
+        'direct_messages.write'
+      ],
     });
   }
 
-  async validate(req: any, token: string, tokenSecret: string, profile: any, done: Function) {
+  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
-      // Twitter OAuth 1.0a uses 'state' differently, usually via session
-      // For this implementation we'll try to extract from query if possible
       let state = {};
       if (req.query.state) {
           try {
@@ -41,8 +50,8 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter'
         platformUserId: profile.id,
         name: profile.displayName || profile.username,
         avatar: profile.photos?.[0]?.value,
-        accessToken: token,
-        refreshToken: tokenSecret, // In OAuth 1.0a, tokenSecret is stored as refreshToken
+        accessToken,
+        refreshToken, 
         workspaceId,
         userId
       };
