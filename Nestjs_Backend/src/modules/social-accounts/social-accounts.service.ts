@@ -112,6 +112,43 @@ export class SocialAccountsService {
     });
   }
 
+  async handleInstagramCallback(data: any) {
+    try {
+      // 1. Get Facebook Pages
+      const pagesRes = await axios.get(`https://graph.facebook.com/v19.0/me/accounts?fields=id,name,instagram_business_account&access_token=${data.accessToken}`);
+      const pages = pagesRes.data.data || [];
+      
+      // 2. Find Page with Instagram Account
+      const pageWithIg = pages.find((p: any) => p.instagram_business_account);
+      
+      if (!pageWithIg) {
+          this.logger.warn(`No Instagram Business Account linked to any Facebook Page for user ${data.userId}`);
+          throw new NotFoundException("No Instagram Business Account linked to your Facebook Pages. Please ensure you have a Business account linked to a Page.");
+      }
+
+      const igId = pageWithIg.instagram_business_account.id;
+
+      // 3. Get Instagram Account Details
+      const igRes = await axios.get(`https://graph.facebook.com/v19.0/${igId}?fields=id,username,profile_picture_url&access_token=${data.accessToken}`);
+      const igData = igRes.data;
+
+      return this.upsertAccount({
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+        platform: 'INSTAGRAM',
+        platformUserId: igId,
+        name: igData.username || 'Instagram User',
+        avatar: igData.profile_picture_url,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken
+      });
+
+    } catch (e) {
+      this.logger.error("Instagram Link Failed", e.response?.data || e);
+      throw new UnauthorizedException(e.response?.data?.error?.message || "Failed to link Instagram Account");
+    }
+  }
+
   // ➤ WHATSAPP HANDLER (Has specific logic)
   async handleWhatsappCallback(data: any) {
     try {

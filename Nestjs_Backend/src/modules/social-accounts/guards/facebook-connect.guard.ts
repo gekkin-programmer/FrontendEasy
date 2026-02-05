@@ -6,12 +6,17 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
   getAuthenticateOptions(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;
+    const isInstagram = req.path.includes('instagram');
 
-    console.log("🔹 Guard: Setting State", { workspaceId, hasToken: !!token }); // Debug log
+    console.log("🔹 Guard: Setting State", { workspaceId, hasToken: !!token, isInstagram }); // Debug log
 
     return {
       // Pass metadata safely through OAuth flow
-      state: JSON.stringify({ workspaceId, token }),
+      state: JSON.stringify({ 
+        workspaceId, 
+        token, 
+        platform: isInstagram ? 'INSTAGRAM' : 'FACEBOOK' 
+      }),
       scope: [
         'email', 
         'public_profile', 

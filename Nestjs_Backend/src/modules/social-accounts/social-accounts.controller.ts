@@ -78,7 +78,21 @@ export class SocialAccountsController {
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleFacebookCallback(req.user);
+    // Check if it's actually an IG or WA flow
+    if (req.user.platform === 'INSTAGRAM') {
+        await this.socialAccountsService.handleInstagramCallback(req.user);
+    } else if (req.user.platform === 'WHATSAPP') {
+        await this.socialAccountsService.handleWhatsappCallback(req.user);
+    } else {
+        await this.socialAccountsService.handleFacebookCallback(req.user);
+    }
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  @Get('callback/instagram')
+  @UseGuards(FacebookConnectGuard)
+  async instagramCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleInstagramCallback(req.user);
     this.redirectHome(res, req.user.workspaceId);
   }
 

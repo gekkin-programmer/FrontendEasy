@@ -48,7 +48,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
           console.error("❌ No state found in query params!");
       }
       
-      const { workspaceId, token, userId: stateUserId } = state as any;
+      const { workspaceId, token, userId: stateUserId, platform, isWhatsapp } = state as any;
 
       // 2. Resolve User ID (Either from State or JWT Token in State)
       let userId = stateUserId;
@@ -63,7 +63,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       }
 
       const payload = {
-        platform: 'FACEBOOK',
+        platform: isWhatsapp ? 'WHATSAPP' : (platform || 'FACEBOOK'),
         platformUserId: profile.id,
         avatar: profile.photos?.[0]?.value || profile._json?.picture?.data?.url, 
         name: profile.displayName || 'Facebook User',
