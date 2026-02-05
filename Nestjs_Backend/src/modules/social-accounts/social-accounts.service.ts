@@ -114,19 +114,23 @@ export class SocialAccountsService {
 
   async handleInstagramCallback(data: any) {
     try {
+      this.logger.log(`Starting Instagram link for user ${data.userId}`);
       // 1. Get Facebook Pages
       const pagesRes = await axios.get(`https://graph.facebook.com/v19.0/me/accounts?fields=id,name,instagram_business_account&access_token=${data.accessToken}`);
       const pages = pagesRes.data.data || [];
       
+      this.logger.debug(`Found ${pages.length} Facebook Pages for IG discovery`);
+
       // 2. Find Page with Instagram Account
       const pageWithIg = pages.find((p: any) => p.instagram_business_account);
       
       if (!pageWithIg) {
           this.logger.warn(`No Instagram Business Account linked to any Facebook Page for user ${data.userId}`);
-          throw new NotFoundException("No Instagram Business Account linked to your Facebook Pages. Please ensure you have a Business account linked to a Page.");
+          throw new NotFoundException("No Instagram Business Account found. Ensure your IG Business account is linked to a Facebook Page.");
       }
 
       const igId = pageWithIg.instagram_business_account.id;
+      this.logger.log(`Found linked IG Business Account: ${igId}`);
 
       // 3. Get Instagram Account Details
       const igRes = await axios.get(`https://graph.facebook.com/v19.0/${igId}?fields=id,username,profile_picture_url&access_token=${data.accessToken}`);
@@ -144,27 +148,31 @@ export class SocialAccountsService {
       });
 
     } catch (e) {
-      this.logger.error("Instagram Link Failed", e.response?.data || e);
-      throw new UnauthorizedException(e.response?.data?.error?.message || "Failed to link Instagram Account");
+      const errorDetail = e.response?.data?.error?.message || e.message;
+      this.logger.error("Instagram Link Failed", { error: errorDetail, data: e.response?.data });
+      throw new UnauthorizedException(`Instagram link failed: ${errorDetail}`);
     }
   }
 
   // ➤ WHATSAPP HANDLER (Has specific logic)
   async handleWhatsappCallback(data: any) {
     try {
+      this.logger.log(`Starting WhatsApp link for user ${data.userId}`);
       // Data here comes from Strategy, likely containing User Token
       const res = await axios.get(
         `https://graph.facebook.com/v19.0/me?fields=id,name,accounts,whatsapp_business_accounts&access_token=${data.accessToken}`
       );
       
       const wabas = res.data.whatsapp_business_accounts?.data || [];
+      this.logger.debug(`Found ${wabas.length} WhatsApp Business Accounts`);
       
       if (wabas.length === 0) {
           this.logger.warn(`No WhatsApp Business Accounts found for user ${data.userId}`);
-          throw new NotFoundException("No WhatsApp Business Accounts found.");
+          throw new NotFoundException("No WhatsApp Business Account found. Ensure you have a WhatsApp Business account set up in your Meta Business Manager.");
       }
 
       const waba = wabas[0]; // Select first for MVP
+      this.logger.log(`Linking WABA: ${waba.id} (${waba.name})`);
 
       return this.upsertAccount({
         userId: data.userId,
@@ -178,8 +186,11 @@ export class SocialAccountsService {
       });
 
     } catch (e) {
-      this.logger.error("WhatsApp Link Failed", e.response?.data || e);
-      throw new UnauthorizedException("Failed to link WhatsApp Account");
+      const errorDetail = e.response?.data?.error?.message || e.message;
+      this.logger.error("WhatsApp Link Failed", { error: errorDetail, data: e.response?.data });
+      
+      if (e instanceof NotFoundException) throw e;
+      throw new UnauthorizedException(`WhatsApp link failed: ${errorDetail}`);
     }
   }
 
