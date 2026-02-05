@@ -14,4 +14,13 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
       state: Buffer.from(JSON.stringify({ workspaceId, token: String(token) })).toString('base64'),
     };
   }
+
+  handleRequest(err, user, info) {
+    if (err || !user) {
+      console.error("❌ Twitter Auth Failed:", err);
+      console.error("❌ Passport Info:", info); // Contains the specific OAuth error
+      throw err || new Error("Twitter Authentication failed");
+    }
+    return user;
+  }
 }

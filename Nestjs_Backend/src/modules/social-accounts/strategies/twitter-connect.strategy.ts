@@ -31,6 +31,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       ],
       scopeSeparator: ' ', // ➤ CRITICAL: X requires spaces, not commas
     });
+    console.log(`🔹 Twitter Strategy Initialized with Callback: ${configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/twitter`}`);
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
