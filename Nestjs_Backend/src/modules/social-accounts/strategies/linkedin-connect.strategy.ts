@@ -24,6 +24,8 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 LinkedIn OAuth Validate Triggered");
+      console.log("🔹 AccessToken received:", accessToken ? "YES" : "NO");
+      console.log("🔹 RefreshToken received:", refreshToken ? "YES" : "NO");
       console.log("🔹 Profile:", profile);
       
       // 1. Decode State

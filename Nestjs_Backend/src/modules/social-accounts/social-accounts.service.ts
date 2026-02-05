@@ -74,19 +74,28 @@ export class SocialAccountsService {
   }
 
   async handleLinkedinCallback(data: any) {
-    return this.upsertAccount({
-      userId: data.userId,
-      workspaceId: data.workspaceId,
-      platform: 'LINKEDIN',
-      platformUserId: data.platformUserId,
-      name: data.name,
-      avatar: data.avatar,
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken
-    });
+    this.logger.log(`Handling LinkedIn callback for user ${data.userId}`);
+    try {
+        const result = await this.upsertAccount({
+          userId: data.userId,
+          workspaceId: data.workspaceId,
+          platform: 'LINKEDIN',
+          platformUserId: data.platformUserId,
+          name: data.name,
+          avatar: data.avatar,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken
+        });
+        this.logger.log(`LinkedIn account upserted: ${result.id}`);
+        return result;
+    } catch (e) {
+        this.logger.error(`LinkedIn Callback Upsert Failed: ${e.message}`, e.stack);
+        throw new UnauthorizedException(`LinkedIn connection failed: ${e.message}`);
+    }
   }
 
   async handleTwitterCallback(data: any) {
+    this.logger.log(`Handling Twitter callback for user ${data.userId}`);
     return this.upsertAccount({
       userId: data.userId,
       workspaceId: data.workspaceId,
