@@ -5,7 +5,13 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class TwitterConnectGuard extends AuthGuard('twitter') {
-  // Twitter OAuth 1.0a is stricter and handles 'state' differently (often via session),
-  // but Passport usually handles the redirect logic automatically.
-  // We can inject query params if the strategy supports it, but standard 1.0a relies on the callback URL itself.
+  getAuthenticateOptions(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+    const { workspaceId, token } = req.query;
+
+    return {
+      // Pass metadata manually via state
+      state: JSON.stringify({ workspaceId, token }),
+    };
+  }
 }

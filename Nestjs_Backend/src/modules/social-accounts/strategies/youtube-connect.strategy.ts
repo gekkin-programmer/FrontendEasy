@@ -17,19 +17,34 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube-
         'https://www.googleapis.com/auth/youtube.readonly' // Read stats
       ],
       accessType: 'offline', // Critical: Gives us a Refresh Token
-      prompt: 'consent' // Forces consent screen to ensure we get Refresh Token
-    });
+      prompt: 'consent', // Forces consent screen to ensure we get Refresh Token
+      state: false,
+      passReqToCallback: true,
+    } as any);
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
-    const payload = {
-      platform: 'YOUTUBE',
-      platformUserId: profile.id,
-      name: profile.displayName,
-      accessToken,
-      refreshToken, // Store this securely! Google access tokens die in 1 hour.
-      avatar: profile.photos?.[0]?.value,
-    };
-    done(null, payload);
+  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+    try {
+      let state = {};
+      if (req.query.state) {
+          try {
+            state = JSON.parse(req.query.state as string);
+          } catch(e) {}
+      }
+      const { workspaceId } = state as any;
+
+      const payload = {
+        platform: 'YOUTUBE',
+        platformUserId: profile.id,
+        name: profile.displayName,
+        accessToken,
+        refreshToken, 
+        avatar: profile.photos?.[0]?.value,
+        workspaceId,
+      };
+      done(null, payload);
+    } catch (e) {
+      done(e, false);
+    }
   }
 }

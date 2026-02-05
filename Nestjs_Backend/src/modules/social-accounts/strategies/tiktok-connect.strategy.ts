@@ -14,18 +14,33 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       userProfileURL: 'https://open.tiktokapis.com/v2/user/info/', 
-    });
+      state: false,
+      passReqToCallback: true,
+    } as any);
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
-    const payload = {
-      platform: 'TIKTOK',
-      platformUserId: profile.id,
-      name: profile.displayName || profile.username,
-      accessToken,
-      refreshToken, 
-      avatar: profile._json?.avatar_url,
-    };
-    done(null, payload);
+  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+    try {
+      let state = {};
+      if (req.query.state) {
+          try {
+            state = JSON.parse(req.query.state as string);
+          } catch(e) {}
+      }
+      const { workspaceId } = state as any;
+
+      const payload = {
+        platform: 'TIKTOK',
+        platformUserId: profile.id,
+        name: profile.displayName || profile.username,
+        accessToken,
+        refreshToken, 
+        avatar: profile._json?.avatar_url,
+        workspaceId,
+      };
+      done(null, payload);
+    } catch (e) {
+      done(e, false);
+    }
   }
 }
