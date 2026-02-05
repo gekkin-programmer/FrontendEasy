@@ -22,12 +22,18 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
+      console.log("🔹 LinkedIn OAuth Validate Triggered");
+      console.log("🔹 Profile:", profile);
+      
       // 1. Decode State
       let state = {};
       if (req.query.state) {
           try {
             state = JSON.parse(req.query.state as string);
-          } catch(e) {}
+            console.log("🔹 LinkedIn Parsed State:", state);
+          } catch(e) {
+            console.error("❌ LinkedIn State Parse Error:", e.message);
+          }
       }
       const { workspaceId, token, userId: stateUserId } = state as any;
 

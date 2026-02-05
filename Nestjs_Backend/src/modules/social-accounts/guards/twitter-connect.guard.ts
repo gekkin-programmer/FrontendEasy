@@ -4,7 +4,7 @@ import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class TwitterConnectGuard extends AuthGuard('twitter') {
+export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
   getAuthenticateOptions(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;

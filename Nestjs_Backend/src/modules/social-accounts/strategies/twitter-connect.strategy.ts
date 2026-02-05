@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
-export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter') {
+export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-oauth2') {
   constructor(
     configService: ConfigService,
     private authService: AuthService,
@@ -14,9 +14,11 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter'
       clientID: configService.get<string>('TWITTER_API_KEY') || 'placeholder',
       clientSecret: configService.get<string>('TWITTER_API_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/twitter`,
+      authorizationURL: 'https://twitter.com/i/oauth2/authorize',
+      tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientType: 'confidential',
-      pkce: true, // X OAuth 2.0 requires PKCE
-      state: true, // ➤ REQUIRED for PKCE
+      pkce: true, 
+      state: true, 
       passReqToCallback: true,
       scope: [
         'tweet.read',
