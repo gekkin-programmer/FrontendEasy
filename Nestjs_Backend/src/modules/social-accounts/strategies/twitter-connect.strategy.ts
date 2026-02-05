@@ -30,6 +30,11 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
         'dm.write'
       ],
       scopeSeparator: ' ', // ➤ CRITICAL: X requires spaces, not commas
+      customHeaders: {
+        Authorization: `Basic ${Buffer.from(
+          `${configService.get<string>('TWITTER_API_KEY')}:${configService.get<string>('TWITTER_API_SECRET')}`
+        ).toString('base64')}`
+      },
     });
     const key = configService.get<string>('TWITTER_API_KEY');
     const secret = configService.get<string>('TWITTER_API_SECRET');
