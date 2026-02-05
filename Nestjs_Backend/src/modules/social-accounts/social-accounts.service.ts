@@ -158,12 +158,13 @@ export class SocialAccountsService {
   async handleWhatsappCallback(data: any) {
     try {
       this.logger.log(`Starting WhatsApp link for user ${data.userId}`);
-      // Data here comes from Strategy, likely containing User Token
+      
+      // 1. Fetch WABAs via dedicated edge (more robust than fields on /me)
       const res = await axios.get(
-        `https://graph.facebook.com/v19.0/me?fields=id,name,accounts,whatsapp_business_accounts&access_token=${data.accessToken}`
+        `https://graph.facebook.com/v19.0/me/whatsapp_business_accounts?access_token=${data.accessToken}`
       );
       
-      const wabas = res.data.whatsapp_business_accounts?.data || [];
+      const wabas = res.data.data || [];
       this.logger.debug(`Found ${wabas.length} WhatsApp Business Accounts`);
       
       if (wabas.length === 0) {

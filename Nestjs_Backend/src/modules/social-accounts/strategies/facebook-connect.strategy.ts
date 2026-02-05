@@ -20,12 +20,15 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       
       scope: [
         'email', 
+        'public_profile',
         'pages_show_list', 
         'pages_read_engagement', 
         'pages_manage_posts',
         'pages_read_user_content',
-        'instagram_basic',           // Required for Instagram
-        'instagram_content_publish'  // Required for Instagram
+        'instagram_basic',
+        'instagram_content_publish',
+        'whatsapp_business_management',
+        'whatsapp_business_messaging'
       ],
       profileFields: ['id', 'displayName', 'emails', 'photos'],
     });
