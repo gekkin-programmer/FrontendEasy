@@ -106,7 +106,7 @@ export class SocialAccountsController {
     // Redirects to LinkedIn
   }
 
-  @Get('linkedin/callback')
+  @Get('callback/linkedin')
   @UseGuards(LinkedInConnectGuard)
   async linkedinCallback(@Req() req, @Res() res: Response) {
     await this.socialAccountsService.handleLinkedinCallback(req.user);
@@ -123,7 +123,7 @@ export class SocialAccountsController {
     // Redirects to Twitter
   }
 
-  @Get('twitter/callback')
+  @Get('callback/twitter')
   @UseGuards(TwitterConnectGuard)
   async twitterCallback(@Req() req, @Res() res: Response) {
     await this.socialAccountsService.handleTwitterCallback(req.user);
@@ -140,7 +140,7 @@ export class SocialAccountsController {
     // Redirects to Google
   }
 
-  @Get('youtube/callback')
+  @Get('callback/youtube')
   @UseGuards(YoutubeConnectGuard)
   async youtubeCallback(@Req() req, @Res() res: Response) {
     await this.socialAccountsService.handleYoutubeCallback(req.user);

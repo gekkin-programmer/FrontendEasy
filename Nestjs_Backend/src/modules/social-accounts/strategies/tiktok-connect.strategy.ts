@@ -9,7 +9,7 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
     super({
       clientID: configService.get<string>('TIKTOK_CLIENT_KEY'),
       clientSecret: configService.get<string>('TIKTOK_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL'),
+      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/tiktok`,
       scope: ['user.info.basic'],
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',

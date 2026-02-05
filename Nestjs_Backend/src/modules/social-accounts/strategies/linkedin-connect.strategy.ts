@@ -13,8 +13,7 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
     super({
       clientID: configService.get<string>('LINKEDIN_CLIENT_ID') || 'placeholder',
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
-      // Construct callback URL dynamically like we did for Facebook
-      callbackURL: `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/linkedin/callback`,
+      callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
       state: true, // ➤ CRITICAL: Must be true to use state for security & metadata
       passReqToCallback: true, // ➤ CRITICAL: To read req.query.state

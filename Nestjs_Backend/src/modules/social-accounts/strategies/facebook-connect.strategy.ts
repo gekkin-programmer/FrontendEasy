@@ -13,7 +13,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
     super({
       clientID: configService.get<string>('FACEBOOK_APP_ID') || 'fb_id_placeholder',
       clientSecret: configService.get<string>('FACEBOOK_APP_SECRET') || 'fb_secret_placeholder',
-      callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || 'http://localhost:3000/callback',
+      callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/facebook`,
       
       // ➤ CRITICAL: Must be true to read 'state'
       passReqToCallback: true, 

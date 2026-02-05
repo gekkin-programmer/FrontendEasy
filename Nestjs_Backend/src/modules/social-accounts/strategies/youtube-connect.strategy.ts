@@ -9,7 +9,7 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube-
     super({
       clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('YOUTUBE_CALLBACK_URL'), // Different callback!
+      callbackURL: configService.get<string>('YOUTUBE_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/youtube`, 
       scope: [
         'email',
         'profile',
