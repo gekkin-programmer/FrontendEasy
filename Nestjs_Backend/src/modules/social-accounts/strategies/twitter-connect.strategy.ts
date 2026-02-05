@@ -25,8 +25,11 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
         'tweet.read',
         'tweet.write',
         'users.read',
-        'offline.access'
+        'offline.access',
+        'dm.read',
+        'dm.write'
       ],
+      scopeSeparator: ' ', // ➤ CRITICAL: X requires spaces, not commas
     });
   }
 
