@@ -38,18 +38,15 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
     try {
       console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
       
-      let state = {};
-      if (req.query.state) {
-          try {
-            // Decode Base64 state
-            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
-            state = JSON.parse(decodedState);
-            console.log("🔹 Twitter Decoded State:", state);
-          } catch(e) {
-            console.error("❌ Twitter State Decode Error:", e.message);
-          }
+      // Retrieve metadata from session (set by Guard)
+      const { workspaceId, token: jwtToken } = req.session?.twitterMetadata || {};
+      
+      if (!workspaceId || !jwtToken) {
+          console.error("❌ Twitter Strategy: No metadata found in session");
+          return done(new Error("Session lost: Missing workspace metadata"), false);
       }
-      const { workspaceId, token: jwtToken } = state as any;
+
+      console.log("🔹 Twitter Strategy: Metadata retrieved", { workspaceId, hasToken: !!jwtToken });
 
       let userId;
       if (jwtToken) {
