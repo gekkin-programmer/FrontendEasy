@@ -14,7 +14,7 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       userProfileURL: 'https://open.tiktokapis.com/v2/user/info/', 
-      state: true,
+      state: false,
       passReqToCallback: true,
     } as any);
   }
@@ -24,7 +24,8 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
           } catch(e) {}
       }
       const { workspaceId } = state as any;

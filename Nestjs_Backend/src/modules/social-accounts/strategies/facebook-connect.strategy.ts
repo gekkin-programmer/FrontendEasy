@@ -17,7 +17,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       
       // ➤ CRITICAL: Must be true to read 'state'
       passReqToCallback: true, 
-      state: true, 
+      state: false, 
       
       scope: [
         'email', 
@@ -39,12 +39,12 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 Facebook OAuth Validate Triggered");
-      console.log("🔹 Req Query:", req.query);
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
-            console.log("🔹 Parsed State:", state);
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
+            console.log("🔹 Facebook Decoded State:", state);
           } catch(e) {
             console.warn("⚠️ Could not parse OAuth state:", req.query.state);
           }

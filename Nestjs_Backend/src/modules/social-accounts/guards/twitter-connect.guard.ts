@@ -10,8 +10,8 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
     const { workspaceId, token } = req.query;
 
     return {
-      // Pass metadata manually via state
-      state: JSON.stringify({ workspaceId, token: String(token) }),
+      // Base64 encode to prevent JSON corruption in URL
+      state: Buffer.from(JSON.stringify({ workspaceId, token: String(token) })).toString('base64'),
     };
   }
 }

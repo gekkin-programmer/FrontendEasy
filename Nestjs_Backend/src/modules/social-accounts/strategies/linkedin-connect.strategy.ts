@@ -16,7 +16,7 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
       scopeSeparator: ' ', // ➤ Added for stability
-      state: true, 
+      state: false, // ➤ Disable Passport session state
       passReqToCallback: true, // ➤ CRITICAL: To read req.query.state
     }as any);
   }
@@ -24,18 +24,16 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 LinkedIn OAuth Validate Triggered");
-      console.log("🔹 AccessToken received:", accessToken ? "YES" : "NO");
-      console.log("🔹 RefreshToken received:", refreshToken ? "YES" : "NO");
-      console.log("🔹 Profile:", profile);
       
       // 1. Decode State
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
-            console.log("🔹 LinkedIn Parsed State:", state);
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
+            console.log("🔹 LinkedIn Decoded State:", state);
           } catch(e) {
-            console.error("❌ LinkedIn State Parse Error:", e.message);
+            console.error("❌ LinkedIn State Decode Error:", e.message);
           }
       }
       const { workspaceId, token, userId: stateUserId } = state as any;

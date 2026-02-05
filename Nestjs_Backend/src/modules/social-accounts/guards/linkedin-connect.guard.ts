@@ -11,7 +11,7 @@ export class LinkedInConnectGuard extends AuthGuard('linkedin') {
     const { workspaceId, token } = req.query;
 
     return {
-      state: JSON.stringify({ workspaceId, token }),
+      state: Buffer.from(JSON.stringify({ workspaceId, token })).toString('base64'),
       scope: ['openid', 'profile', 'email', 'w_member_social'],
     };
   }

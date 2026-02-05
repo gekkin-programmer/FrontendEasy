@@ -12,11 +12,11 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
 
     return {
       // Pass metadata safely through OAuth flow
-      state: JSON.stringify({ 
+      state: Buffer.from(JSON.stringify({ 
         workspaceId, 
         token, 
         platform: isInstagram ? 'INSTAGRAM' : 'FACEBOOK' 
-      }),
+      })).toString('base64'),
       scope: [
         'email', 
         'public_profile', 

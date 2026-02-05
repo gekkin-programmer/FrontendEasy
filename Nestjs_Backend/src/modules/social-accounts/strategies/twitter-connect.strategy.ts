@@ -18,7 +18,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientType: 'confidential',
       pkce: true, 
-      state: true, 
+      state: false, 
       passReqToCallback: true,
       skipUserProfile: false,
       scope: [
@@ -36,13 +36,17 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
-      console.log("🔹 Profile:", JSON.stringify(profile, null, 2));
       
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
-          } catch(e) {}
+            // Decode Base64 state
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
+            console.log("🔹 Twitter Decoded State:", state);
+          } catch(e) {
+            console.error("❌ Twitter State Decode Error:", e.message);
+          }
       }
       const { workspaceId, token: jwtToken } = state as any;
 

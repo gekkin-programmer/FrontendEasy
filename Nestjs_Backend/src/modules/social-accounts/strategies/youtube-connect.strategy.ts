@@ -18,7 +18,7 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube-
       ],
       accessType: 'offline', // Critical: Gives us a Refresh Token
       prompt: 'consent', // Forces consent screen to ensure we get Refresh Token
-      state: true,
+      state: false,
       passReqToCallback: true,
     } as any);
   }
@@ -28,7 +28,8 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube-
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
           } catch(e) {}
       }
       const { workspaceId } = state as any;

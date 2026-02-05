@@ -8,7 +8,7 @@ export class WhatsappConnectGuard extends AuthGuard('facebook') {
     const { workspaceId, token } = req.query;
 
     return {
-      state: JSON.stringify({ workspaceId, token, isWhatsapp: true }), 
+      state: Buffer.from(JSON.stringify({ workspaceId, token, isWhatsapp: true })).toString('base64'), 
       scope: ['email', 'public_profile', 'whatsapp_business_management', 'whatsapp_business_messaging'],
     };
   }
