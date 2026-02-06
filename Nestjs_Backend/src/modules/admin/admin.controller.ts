@@ -48,4 +48,10 @@ export class AdminController {
   getFeedback() {
     return this.adminService.getFeedback();
   }
+
+  @Post('db-cleanup')
+  @ApiOperation({ summary: 'Wipe all non-admin data' })
+  cleanupDatabase() {
+    return this.adminService.cleanupDatabase();
+  }
 }

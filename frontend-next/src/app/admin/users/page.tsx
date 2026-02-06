@@ -77,6 +77,17 @@ export default function AdminUsers() {
     fetchUsers(search);
   };
 
+  const handleCleanupDB = async () => {
+    if (!confirm("🚨 TOTAL_WIPE: This will delete ALL non-admin users and their data. Are you absolutely sure?")) return;
+    try {
+      const res = await api.post<any>('/admin/db-cleanup', {});
+      toast.success(`Cleanup successful: ${res.deletedCount} users removed`);
+      fetchUsers();
+    } catch (e) {
+      toast.error("Failed to cleanup database");
+    }
+  };
+
   if (loading && users.length === 0) return <SpinningLoader fullScreen={true} />;
 
   return (
@@ -85,6 +96,12 @@ export default function AdminUsers() {
         <div>
           <h1 className="text-5xl font-black uppercase tracking-tighter mb-2">User_Directory</h1>
           <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">Managing {users.length} registered identities</p>
+          <button 
+            onClick={handleCleanupDB}
+            className="mt-4 text-[10px] font-black uppercase text-red-500 border-2 border-red-500 px-2 py-1 hover:bg-red-500 hover:text-white transition-all"
+          >
+            Run_System_Cleanup (Admins Only)
+          </button>
         </div>
 
         <form onSubmit={handleSearch} className="flex gap-2 w-full md:w-auto">

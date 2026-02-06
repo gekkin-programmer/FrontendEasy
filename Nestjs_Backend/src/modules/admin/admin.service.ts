@@ -130,4 +130,33 @@ export class AdminService {
       orderBy: { createdAt: 'desc' }
     });
   }
+
+  async cleanupDatabase() {
+    // 1. Identify users to DELETE (Non-admins)
+    const usersToDelete = await this.prisma.user.findMany({
+      where: { NOT: { role: 'ADMIN' } },
+      select: { id: true }
+    });
+    const userIds = usersToDelete.map(u => u.id);
+
+    if (userIds.length === 0) return { message: 'Database already clean' };
+
+    // 2. Cleanup dependencies without Cascade
+    await this.prisma.socialAccount.deleteMany({ where: { createdById: { in: userIds } } });
+    await this.prisma.task.deleteMany({ where: { OR: [{ createdById: { in: userIds } }, { assignedToId: { in: userIds } }] } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: { in: userIds } } });
+    await this.prisma.chatMessage.deleteMany({ where: { senderId: { in: userIds } } });
+    await this.prisma.activityLog.deleteMany({ where: { userId: { in: userIds } } });
+    await this.prisma.session.deleteMany({ where: { userId: { in: userIds } } });
+
+    // 3. Delete users (Triggers Cascade for Workspaces, Posts, etc.)
+    const deleted = await this.prisma.user.deleteMany({
+      where: { id: { in: userIds } }
+    });
+
+    return { 
+      message: 'Cleanup successful', 
+      deletedCount: deleted.count 
+    };
+  }
 }
