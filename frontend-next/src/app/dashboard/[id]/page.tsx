@@ -235,6 +235,8 @@ function DashboardContent() {
                     <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white"><Search size={18} /></div></div><button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all transition-colors"><Bell size={20} className="text-black dark:text-white" /></button></div>
                 </header>
 
+                
+
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start">

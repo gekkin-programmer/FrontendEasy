@@ -7,10 +7,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostStatus, ApprovalStatus } from '@prisma/client';
+import { AppEventsGateway } from '../app-events/app-events.gateway';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: AppEventsGateway,
+  ) {}
 
   // ➤ CREATE POST
   async create(dto: CreatePostDto, userId: string, workspaceId: string) {
@@ -37,8 +41,14 @@ export class PostsService {
           }))
         } : undefined
       },
-      include: { media: true, socialAccounts: true }
+      include: { 
+        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+        media: { include: { media: true } }
+      }
     });
+
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(workspaceId, 'post_created', post);
 
     // Increment Workspace Post Count
     await this.prisma.workspace.update({
@@ -56,9 +66,7 @@ export class PostsService {
     return this.prisma.post.findMany({
       where: { 
         workspaceId,
-        // If status is provided, filter by it. 
         ...(status ? { status: status as PostStatus } : {}),
-        // Search by content (case insensitive)
         ...(search ? { content: { contains: search, mode: 'insensitive' } } : {})
       },
       include: { 
@@ -67,8 +75,6 @@ export class PostsService {
         createdBy: { select: { firstName: true, avatar: true } }
       },
       orderBy: { 
-        // For Analytics (published posts), order by publishedAt
-        // For Drafts, order by updatedAt
         publishedAt: status === 'PUBLISHED' ? 'desc' : undefined,
         createdAt: status !== 'PUBLISHED' ? 'desc' : undefined
       },
@@ -99,7 +105,6 @@ export class PostsService {
     const post = await this.prisma.post.findFirst({
       where: { 
         id,
-        // Optional: Ensure it belongs to workspace if ID provided
         ...(workspaceId ? { workspaceId } : {})
       },
       include: {
@@ -122,14 +127,23 @@ export class PostsService {
       throw new ForbiddenException('Cannot edit a published post');
     }
     
-    return this.prisma.post.update({
+    const updated = await this.prisma.post.update({
       where: { id },
       data: {
         content: dto.content,
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
         status: dto.status,
+      },
+      include: {
+        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+        media: { include: { media: true } }
       }
     });
+
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+
+    return updated;
   }
 
   // ➤ DELETE
@@ -141,12 +155,15 @@ export class PostsService {
       throw new ForbiddenException('Cannot delete a published post');
     }
 
+    // Notify Workspace via WebSocket (Before Deletion)
+    this.eventsGateway.sendToWorkspace(workspaceId, 'post_deleted', { id });
+
     return this.prisma.post.delete({ where: { id } });
   }
 
   // ➤ APPROVE
   async approve(id: string, approverId: string) {
-    return this.prisma.post.update({
+    const updated = await this.prisma.post.update({
       where: { id },
       data: {
         approvalStatus: ApprovalStatus.APPROVED,
@@ -155,16 +172,20 @@ export class PostsService {
         status: PostStatus.SCHEDULED 
       }
     });
+    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+    return updated;
   }
 
   // ➤ CANCEL SCHEDULE
   async cancelSchedule(id: string) {
-    return this.prisma.post.update({
+    const updated = await this.prisma.post.update({
       where: { id },
       data: {
         status: PostStatus.DRAFT,
         scheduledFor: null
       }
     });
+    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+    return updated;
   }
 }
