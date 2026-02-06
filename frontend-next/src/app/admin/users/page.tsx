@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, ShieldCheck, Mail, Calendar, 
-  ExternalLink, MoreVertical, CheckCircle2, XCircle, Trash2, Ban, Ghost
+  ExternalLink, MoreVertical, CheckCircle2, XCircle, Trash2, Ban, Ghost,
+  AlertTriangle
 } from 'lucide-react';
 import { api } from '@/src/lib/api';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { NeuModal, NeuButton } from '@/src/components/easypost/DashboardUI';
 
 interface User {
   id: string;
@@ -34,6 +36,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const fetchUsers = async (query: string = '') => {
     setLoading(true);
@@ -61,12 +64,13 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm("⚠️ PERMANENT_DELETE: Are you absolutely sure? This cannot be undone.")) return;
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
     try {
-      await api.delete(`/admin/users/${userId}`);
+      await api.delete(`/admin/users/${userToDelete.id}`);
       toast.success("User permanently deleted");
-      setUsers(prev => prev.filter(u => u.id !== userId));
+      setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
+      setUserToDelete(null);
     } catch (e) {
       toast.error("Failed to delete user");
     }
@@ -92,6 +96,43 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-8">
+      {/* 🔴 DELETION MODAL */}
+      <NeuModal 
+        isOpen={!!userToDelete} 
+        onClose={() => setUserToDelete(null)} 
+        title="CRITICAL_OPERATION"
+      >
+        <div className="space-y-6">
+            <div className="flex items-center gap-4 p-4 bg-red-50 border-4 border-red-600 text-red-600">
+                <AlertTriangle size={48} strokeWidth={3} />
+                <div>
+                    <p className="font-black uppercase text-lg leading-tight">Permanent_Wipe</p>
+                    <p className="font-bold text-xs">This action will erase all associated data, posts, and social links.</p>
+                </div>
+            </div>
+            
+            <div className="p-4 border-2 border-black bg-zinc-50 font-mono text-xs dark:text-black">
+                <p>TARGET_ID: {userToDelete?.id}</p>
+                <p>IDENTITY: {userToDelete?.email}</p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <button 
+                    onClick={handleDeleteUser}
+                    className="w-full py-4 bg-red-600 text-white border-4 border-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                >
+                    Confirm_Deletion_Sequence
+                </button>
+                <button 
+                    onClick={() => setUserToDelete(null)}
+                    className="w-full py-2 font-bold uppercase text-xs hover:underline dark:text-white text-black"
+                >
+                    Abort_Process
+                </button>
+            </div>
+        </div>
+      </NeuModal>
+
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-5xl font-black uppercase tracking-tighter mb-2">User_Directory</h1>
@@ -112,17 +153,17 @@ export default function AdminUsers() {
                     placeholder="Search by email/name..." 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border-4 border-white font-black uppercase text-xs focus:bg-white focus:text-black transition-all outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border-4 border-white font-black uppercase text-xs focus:bg-white focus:text-black transition-all outline-none text-white focus:text-black"
                 />
             </div>
-            <button type="submit" className="px-8 py-4 bg-[#3C48F5] border-4 border-white font-black uppercase text-xs shadow-[4px_4px_0px_0px_#fff]">Filter</button>
+            <button type="submit" className="px-8 py-4 bg-[#3C48F5] border-4 border-white font-black uppercase text-xs shadow-[4px_4px_0px_0px_#fff] text-white">Filter</button>
         </form>
       </header>
 
       {/* USERS TABLE */}
       <div className="bg-zinc-900 border-4 border-white overflow-hidden shadow-[16px_16px_0px_0px_#3C48F5]">
           <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse text-white">
                   <thead>
                       <tr className="bg-white text-black border-b-4 border-black">
                           <th className="p-4 font-black uppercase text-xs">Identity</th>
@@ -170,7 +211,7 @@ export default function AdminUsers() {
                                   </div>
                               </td>
                               <td className="p-4 text-right">
-                                  <div className="flex gap-2">
+                                  <div className="flex gap-2 justify-end">
                                       <Popover>
                                           <PopoverTrigger asChild>
                                               <button className="p-2 hover:bg-white hover:text-black border-2 border-transparent hover:border-black transition-all">
@@ -178,11 +219,11 @@ export default function AdminUsers() {
                                               </button>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-48 bg-white border-4 border-black p-0 rounded-none shadow-[8px_8px_0px_0px_#000]" align="end">
-                                              <div className="flex flex-col font-black uppercase text-[10px]">
+                                              <div className="flex flex-col font-black uppercase text-[10px] text-black">
                                                   <button onClick={() => handleStatusUpdate(user.id, 'ACTIVE')} className="p-3 text-left hover:bg-blue-50 border-b-2 border-zinc-100 flex items-center gap-2"><CheckCircle2 size={14}/> Reactive User</button>
                                                   <button onClick={() => handleStatusUpdate(user.id, 'SHADOW_BANNED')} className="p-3 text-left hover:bg-purple-50 border-b-2 border-zinc-100 flex items-center gap-2 text-purple-600"><Ghost size={14}/> Shadow Ban</button>
                                                   <button onClick={() => handleStatusUpdate(user.id, 'BANNED')} className="p-3 text-left hover:bg-red-50 border-b-2 border-zinc-100 flex items-center gap-2 text-red-600"><Ban size={14}/> Hard Ban</button>
-                                                  <button onClick={() => handleDeleteUser(user.id)} className="p-3 text-left hover:bg-red-600 hover:text-white flex items-center gap-2 text-red-600 transition-colors"><Trash2 size={14}/> Delete from DB</button>
+                                                  <button onClick={() => setUserToDelete(user)} className="p-3 text-left hover:bg-red-600 hover:text-white flex items-center gap-2 text-red-600 transition-colors"><Trash2 size={14}/> Delete from DB</button>
                                               </div>
                                           </PopoverContent>
                                       </Popover>

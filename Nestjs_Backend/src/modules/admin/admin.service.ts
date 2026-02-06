@@ -106,7 +106,11 @@ export class AdminService {
     await this.prisma.chatMessage.deleteMany({ where: { senderId: id } });
     await this.prisma.activityLog.deleteMany({ where: { userId: id } });
     
-    // 2. Delete user (Triggers Cascade for Workspaces, Posts, Subscriptions, etc.)
+    // ➤ FIX: Handle relations where user was an admin or creator
+    await this.prisma.accessGrant.deleteMany({ where: { adminId: id } });
+    await this.prisma.post.deleteMany({ where: { createdById: id } });
+    
+    // 2. Delete user (Triggers Cascade for Workspaces, Received Grants, Transactions, etc.)
     return this.prisma.user.delete({ where: { id } });
   }
 
@@ -148,6 +152,10 @@ export class AdminService {
     await this.prisma.chatMessage.deleteMany({ where: { senderId: { in: userIds } } });
     await this.prisma.activityLog.deleteMany({ where: { userId: { in: userIds } } });
     await this.prisma.session.deleteMany({ where: { userId: { in: userIds } } });
+    
+    // ➤ FIX: Cleanup grants issued BY these users and posts created BY them
+    await this.prisma.accessGrant.deleteMany({ where: { adminId: { in: userIds } } });
+    await this.prisma.post.deleteMany({ where: { createdById: { in: userIds } } });
 
     // 3. Delete users (Triggers Cascade for Workspaces, Posts, etc.)
     const deleted = await this.prisma.user.deleteMany({
