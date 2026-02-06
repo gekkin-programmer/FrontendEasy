@@ -13,6 +13,9 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
     // 1. We ONLY save our metadata in a signed cookie.
     // We let Passport handle the 'state' and 'pkce' automatically via session.
     if (workspaceId && token) {
+        // Save to session (now ultra-robust with cookie-session)
+        req.session.twitterMetadata = { workspaceId, token };
+
         res.cookie('twitter_meta', JSON.stringify({ workspaceId, token }), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

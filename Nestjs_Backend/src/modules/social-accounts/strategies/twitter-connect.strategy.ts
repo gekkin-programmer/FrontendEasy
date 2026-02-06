@@ -42,15 +42,17 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
     try {
       console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
       
-      // Retrieve metadata from our dedicated signed cookie
-      const metaCookie = req.signedCookies['twitter_meta'];
-      if (!metaCookie) {
-          console.error("❌ Twitter Strategy: No metadata found in 'twitter_meta' cookie");
+      // 1. Try Session first (Robust with cookie-session)
+      // 2. Fallback to dedicated cookie
+      const meta = req.session?.twitterMetadata || (req.signedCookies['twitter_meta'] ? JSON.parse(req.signedCookies['twitter_meta']) : null);
+
+      if (!meta) {
+          console.error("❌ Twitter Strategy: No metadata found in session or cookie");
           return done(new Error("Session lost: Missing workspace metadata"), false);
       }
 
-      const { workspaceId, token: jwtToken } = JSON.parse(metaCookie);
-      console.log("🔹 Twitter Strategy: Metadata retrieved from cookie", { workspaceId });
+      const { workspaceId, token: jwtToken } = meta;
+      console.log("🔹 Twitter Strategy: Metadata retrieved", { workspaceId });
 
       let userId;
       if (jwtToken) {
