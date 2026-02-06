@@ -38,6 +38,12 @@ import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs
 // SOCKET
 import { SocketProvider, useSocket } from '@/src/context/SocketContext';
 
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
@@ -270,7 +276,44 @@ function DashboardContent() {
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white"><Search size={18} /></div></div><VoiceAiButton onCommand={handleVoiceCommand} /><button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all transition-colors"><Bell size={20} className="text-black dark:text-white" /></button></div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} />
+                            <div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white">
+                                <Search size={18} />
+                            </div>
+                        </div>
+                        
+                        {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
+                                    <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
+                                    <div className="absolute top-0 right-0 w-3 h-3 bg-[#3C48F5] border-2 border-black dark:border-white rounded-none -translate-y-1/3 translate-x-1/3" />
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
+                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white">
+                                    System_Feed
+                                </div>
+                                <div className="p-8 text-center space-y-4">
+                                    <div className="flex justify-center">
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                                            <Bell size={24} className="text-gray-400" />
+                                        </div>
+                                    </div>
+                                    <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
+                                        No new system updates detected.
+                                    </p>
+                                </div>
+                                <div className="p-2 border-t-2 border-zinc-100 dark:border-zinc-800">
+                                    <button className="w-full py-2 font-black text-[10px] uppercase hover:bg-[#3C48F5] hover:text-white transition-colors">
+                                        Clear_Logs
+                                    </button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </header>
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
