@@ -143,6 +143,7 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "db:cleanup": "tsx prisma/cleanup-db.ts"
   }
 }

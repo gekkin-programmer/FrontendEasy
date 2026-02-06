@@ -99,6 +99,14 @@ export class AdminService {
   }
 
   async deleteUser(id: string) {
+    // 1. Manually cleanup dependencies without Cascade Delete in schema
+    await this.prisma.socialAccount.deleteMany({ where: { createdById: id } });
+    await this.prisma.task.deleteMany({ where: { OR: [{ createdById: id }, { assignedToId: id }] } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: id } });
+    await this.prisma.chatMessage.deleteMany({ where: { senderId: id } });
+    await this.prisma.activityLog.deleteMany({ where: { userId: id } });
+    
+    // 2. Delete user (Triggers Cascade for Workspaces, Posts, Subscriptions, etc.)
     return this.prisma.user.delete({ where: { id } });
   }
 
