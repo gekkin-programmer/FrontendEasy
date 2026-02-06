@@ -21,13 +21,13 @@
           - generic [ref=e25]:
             - generic [ref=e26]:
               - generic [ref=e27]: First Name
-              - textbox "First" [ref=e28]: Full
+              - textbox "First" [ref=e28]: Social
             - generic [ref=e29]:
               - generic [ref=e30]: Last Name
               - textbox "Last" [ref=e31]: Tester
           - generic [ref=e32]:
             - generic [ref=e33]: Email address
-            - textbox "you@example.com" [ref=e34]: test-posts-full@example.com
+            - textbox "you@example.com" [ref=e34]: test-social-1770236837067@example.com
           - generic [ref=e35]:
             - generic [ref=e36]: Password
             - textbox "••••••••" [ref=e37]: SecurePass123!

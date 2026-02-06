@@ -279,7 +279,7 @@ export class AuthService {
     const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { secret: secret, expiresIn: '15m' }), 
+      this.jwtService.signAsync(payload, { secret: secret, expiresIn: '1d' }), 
       this.jwtService.signAsync(payload, { secret: refreshSecret, expiresIn: '7d' }),
     ]);
 
@@ -336,11 +336,14 @@ export class AuthService {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
       
+      console.log("🔹 validateUserByToken payload:", payload);
+
       // We check if user exists in DB to be safe
       return this.prisma.user.findUnique({ 
         where: { id: payload.sub } 
       });
     } catch (e) {
+      console.error("❌ validateUserByToken failed:", e.message);
       return null;
     }
   }

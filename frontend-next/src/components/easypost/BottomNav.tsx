@@ -12,7 +12,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ activeTab, setActiveTab, onCompose }: BottomNavProps) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0a0a0a] border-t border-white/10 z-50 px-6 flex items-center justify-between backdrop-blur-lg pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white z-50 px-6 flex items-center justify-between backdrop-blur-lg pb-safe transition-colors">
       
       {/* Queue (Home) */}
       <NavButton 
@@ -34,9 +34,9 @@ export default function BottomNav({ activeTab, setActiveTab, onCompose }: Bottom
       <div className="relative -top-5">
         <button 
           onClick={onCompose}
-          className="w-14 h-14 rounded-full bg-[#304AEB] text-white flex items-center justify-center shadow-lg shadow-blue-900/50 hover:scale-105 active:scale-95 transition-transform border-4 border-[#050505]"
+          className="w-14 h-14 rounded-full bg-[#3C48F6] text-white flex items-center justify-center shadow-lg shadow-blue-900/50 hover:scale-105 active:scale-95 transition-transform border-4 border-black dark:border-white"
         >
-          <PlusCircle size={28} />
+          <PlusCircle size={28} strokeWidth={3} />
         </button>
       </div>
 
@@ -66,11 +66,11 @@ function NavButton({ active, onClick, icon: Icon, label }: any) {
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1 transition-colors w-12",
-        active ? "text-[#304AEB]" : "text-gray-500 hover:text-gray-300"
+        active ? "text-[#3C48F6] dark:text-blue-400" : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white"
       )}
     >
-      <Icon size={20} strokeWidth={active ? 2.5 : 2} />
-      <span className="text-[10px] font-medium">{label}</span>
+      <Icon size={20} strokeWidth={active ? 3 : 2} />
+      <span className="text-[10px] font-black uppercase">{label}</span>
     </button>
   );
 }

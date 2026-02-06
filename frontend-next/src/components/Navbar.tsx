@@ -62,10 +62,10 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname(); 
   const router = useRouter();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, toggleLanguage, t, theme, toggleTheme } = useLanguage();
   
   const [scrolled, setScrolled] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const isDark = theme === 'dark';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
@@ -115,6 +115,11 @@ export default function Navbar() {
     } catch (e) { console.error(e); } 
     finally {
       deleteCookie('accessToken');
+      deleteCookie('refreshToken');
+      if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+      }
       setIsAuthenticated(false);
       setUser(null);
       setIsProfileOpen(false);
@@ -131,25 +136,8 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll); 
   }, [handleScroll]);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    // Default to dark if no theme is saved
-    if (savedTheme === "dark" || !savedTheme) {
-        setIsDark(true);
-        document.documentElement.classList.add("dark");
-        if (!savedTheme) localStorage.setItem("theme", "dark");
-    } else {
-        setIsDark(false);
-        document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
   const toggleDarkMode = () => {
-    const newMode = !isDark;
-    setIsDark(newMode);
-    if (newMode) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", newMode ? "dark" : "light");
+    toggleTheme();
   };
 
   const getTranslatedText = (text: { en: string; fr: string } | string) => {

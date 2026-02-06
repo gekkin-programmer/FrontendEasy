@@ -13,19 +13,23 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
     super({
       clientID: configService.get<string>('FACEBOOK_APP_ID') || 'fb_id_placeholder',
       clientSecret: configService.get<string>('FACEBOOK_APP_SECRET') || 'fb_secret_placeholder',
-      callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || 'http://localhost:3000/callback',
+      callbackURL: `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/facebook`,
       
       // ➤ CRITICAL: Must be true to read 'state'
       passReqToCallback: true, 
+      state: false, 
       
       scope: [
         'email', 
+        'public_profile',
         'pages_show_list', 
         'pages_read_engagement', 
         'pages_manage_posts',
         'pages_read_user_content',
-        'instagram_basic',           // Required for Instagram
-        'instagram_content_publish'  // Required for Instagram
+        'instagram_basic',
+        'instagram_content_publish',
+        'whatsapp_business_management',
+        'whatsapp_business_messaging'
       ],
       profileFields: ['id', 'displayName', 'emails', 'photos'],
     });
@@ -35,12 +39,12 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 Facebook OAuth Validate Triggered");
-      console.log("🔹 Req Query:", req.query);
       let state = {};
       if (req.query.state) {
           try {
-            state = JSON.parse(req.query.state as string);
-            console.log("🔹 Parsed State:", state);
+            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
+            state = JSON.parse(decodedState);
+            console.log("🔹 Facebook Decoded State:", state);
           } catch(e) {
             console.warn("⚠️ Could not parse OAuth state:", req.query.state);
           }
@@ -48,7 +52,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
           console.error("❌ No state found in query params!");
       }
       
-      const { workspaceId, token, userId: stateUserId } = state as any;
+      const { workspaceId, token, userId: stateUserId, platform, isWhatsapp } = state as any;
 
       // 2. Resolve User ID (Either from State or JWT Token in State)
       let userId = stateUserId;
@@ -63,7 +67,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       }
 
       const payload = {
-        platform: 'FACEBOOK',
+        platform: isWhatsapp ? 'WHATSAPP' : (platform || 'FACEBOOK'),
         platformUserId: profile.id,
         avatar: profile.photos?.[0]?.value || profile._json?.picture?.data?.url, 
         name: profile.displayName || 'Facebook User',

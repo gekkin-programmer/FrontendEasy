@@ -1,0 +1,56 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - region "Notifications alt+T"
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "Create an account" [level=1] [ref=e7]
+          - paragraph [ref=e8]: Start your 14-day free trial. No credit card required.
+        - generic [ref=e9]:
+          - button "Google" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+            - text: Google
+          - button "GitHub" [disabled] [ref=e16]:
+            - img [ref=e17]
+            - text: GitHub
+        - generic [ref=e23]: Or continue with email
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: First Name
+              - textbox "First" [ref=e28]: Social
+            - generic [ref=e29]:
+              - generic [ref=e30]: Last Name
+              - textbox "Last" [ref=e31]: Tester
+          - generic [ref=e32]:
+            - generic [ref=e33]: Email address
+            - textbox "you@example.com" [ref=e34]: test-social-1770236837073@example.com
+          - generic [ref=e35]:
+            - generic [ref=e36]: Password
+            - textbox "••••••••" [ref=e37]: SecurePass123!
+          - button [disabled] [ref=e38]:
+            - img [ref=e39]
+        - paragraph [ref=e42]:
+          - text: Already have an account?
+          - link "Log in" [ref=e43] [cursor=pointer]:
+            - /url: /login
+      - generic [ref=e44]:
+        - img "Background" [ref=e46]
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - img [ref=e51]
+            - img [ref=e53]
+            - img [ref=e55]
+            - img [ref=e57]
+            - img [ref=e59]
+          - blockquote [ref=e61]: "\"The category-specific features saved us hours. Being able to choose the 'Agency' workflow from day one was a game changer.\""
+          - generic [ref=e62]:
+            - img "User" [ref=e64]
+            - generic [ref=e65]:
+              - paragraph [ref=e66]: Sarah Jenkins
+              - paragraph [ref=e67]: Marketing Director @ TechFlow
+  - alert [ref=e73]
+```

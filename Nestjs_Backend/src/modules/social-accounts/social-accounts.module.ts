@@ -15,9 +15,13 @@ import { FacebookConnectStrategy } from './strategies/facebook-connect.strategy'
 import { LinkedInConnectStrategy } from './strategies/linkedin-connect.strategy';
 import { TikTokConnectStrategy } from './strategies/tiktok-connect.strategy';
 import { YoutubeConnectStrategy } from './strategies/youtube-connect.strategy';
+import { TwitterConnectStrategy } from './strategies/twitter-connect.strategy';
 
 // Sync Engine (The new logic for fetching history)
 import { FacebookService } from './platforms/facebook.service';
+import { InstagramService } from './platforms/instagram.service';
+import { TwitterService } from './platforms/twitter.service';
+import { LinkedinService } from './platforms/linkedin.service';
 import { SocialSyncProcessor } from './workers/social-sync.processor';
 
 @Module({
@@ -58,9 +62,13 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     LinkedInConnectStrategy,
     TikTokConnectStrategy,
     YoutubeConnectStrategy,
+    TwitterConnectStrategy,
 
     // Sync Providers
-    FacebookService,     
+    FacebookService,
+    InstagramService,
+    TwitterService,
+    LinkedinService,
     SocialSyncProcessor, 
   ],
   exports: [SocialAccountsService],

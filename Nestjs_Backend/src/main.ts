@@ -10,6 +10,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import cookieSession from 'cookie-session';
 import helmet from 'helmet'; // Added for security headers
 import { Logger } from 'nestjs-pino';
 
@@ -30,6 +31,17 @@ async function bootstrap() {
 
   // Cookie parser with secure secret from env (fallback only for local dev)
   app.use(cookieParser(process.env.COOKIE_SECRET || 'dev-cookie-secret-CHANGE-ME'));
+
+  // Stateless session support for OAuth 2.0 State/PKCE
+  app.use(
+    cookieSession({
+      name: 'session',
+      keys: [process.env.COOKIE_SECRET || 'dev-session-secret'],
+      maxAge: 60 * 60 * 1000, // 1 hour
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    }),
+  );
 
   // Global API prefix – all endpoints become /api/...
   app.setGlobalPrefix('api', {

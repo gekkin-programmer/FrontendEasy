@@ -62,6 +62,8 @@ enum UserStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
+  BANNED
+  SHADOW_BANNED
 }
 
 enum SocialPlatform {
@@ -491,6 +493,7 @@ model SocialAccount {
   updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, platform, platformUserId])
+  @@unique([platform, platformUserId]) // Prevent connecting the same social ID to multiple workspaces/accounts
   @@map("social_accounts")
 }
 

@@ -1,14 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Users, Search, ShieldCheck, Mail, Calendar, 
-  ExternalLink, MoreVertical, CheckCircle2, XCircle
+  ExternalLink, MoreVertical, CheckCircle2, XCircle, Trash2, Ban, Ghost
 } from 'lucide-react';
 import { api } from '@/src/lib/api';
 import { toast } from 'sonner';
 import SpinningLoader from '@/src/components/SpinningLoader';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface User {
   id: string;
@@ -16,6 +20,7 @@ interface User {
   firstName: string;
   lastName: string;
   planType: string;
+  status: string;
   role: string;
   createdAt: string;
   lastLoginAt: string;
@@ -45,6 +50,27 @@ export default function AdminUsers() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleStatusUpdate = async (userId: string, status: string) => {
+    try {
+      await api.patch(`/admin/users/${userId}/status`, { status });
+      toast.success(`User status updated to ${status}`);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
+    } catch (e) {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("⚠️ PERMANENT_DELETE: Are you absolutely sure? This cannot be undone.")) return;
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      toast.success("User permanently deleted");
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (e) {
+      toast.error("Failed to delete user");
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,9 +109,9 @@ export default function AdminUsers() {
                   <thead>
                       <tr className="bg-white text-black border-b-4 border-black">
                           <th className="p-4 font-black uppercase text-xs">Identity</th>
+                          <th className="p-4 font-black uppercase text-xs">Status</th>
                           <th className="p-4 font-black uppercase text-xs">Plan_Status</th>
                           <th className="p-4 font-black uppercase text-xs">Activity</th>
-                          <th className="p-4 font-black uppercase text-xs">Join_Date</th>
                           <th className="p-4 font-black uppercase text-xs">Actions</th>
                       </tr>
                   </thead>
@@ -104,6 +130,16 @@ export default function AdminUsers() {
                                   </div>
                               </td>
                               <td className="p-4">
+                                  <span className={`px-2 py-0.5 border-2 text-[8px] font-black uppercase tracking-tighter ${
+                                      user.status === 'ACTIVE' ? 'border-green-500 text-green-500' : 
+                                      user.status === 'BANNED' ? 'border-red-500 text-red-500 bg-red-500/10' :
+                                      user.status === 'SHADOW_BANNED' ? 'border-purple-500 text-purple-500' :
+                                      'border-zinc-500 text-zinc-500'
+                                  }`}>
+                                      {user.status}
+                                  </span>
+                              </td>
+                              <td className="p-4">
                                   <span className={`px-3 py-1 border-2 font-black text-[10px] uppercase ${
                                       user.planType === 'FREE' ? 'border-zinc-700 text-gray-500' : 'border-[#3C48F5] text-[#3C48F5]'
                                   }`}>
@@ -116,19 +152,23 @@ export default function AdminUsers() {
                                       <p className="text-[10px] font-black uppercase opacity-60">Nodes: {user._count.createdSocialAccounts}</p>
                                   </div>
                               </td>
-                              <td className="p-4">
-                                  <p className="text-[10px] font-mono uppercase text-gray-400">
-                                      {new Date(user.createdAt).toLocaleDateString()}
-                                  </p>
-                              </td>
-                              <td className="p-4">
+                              <td className="p-4 text-right">
                                   <div className="flex gap-2">
-                                      <button className="p-2 hover:bg-white hover:text-black border-2 border-transparent hover:border-black transition-all">
-                                          <ShieldCheck size={18} />
-                                      </button>
-                                      <button className="p-2 hover:bg-white hover:text-black border-2 border-transparent hover:border-black transition-all">
-                                          <ExternalLink size={18} />
-                                      </button>
+                                      <Popover>
+                                          <PopoverTrigger asChild>
+                                              <button className="p-2 hover:bg-white hover:text-black border-2 border-transparent hover:border-black transition-all">
+                                                  <MoreVertical size={18} />
+                                              </button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-48 bg-white border-4 border-black p-0 rounded-none shadow-[8px_8px_0px_0px_#000]" align="end">
+                                              <div className="flex flex-col font-black uppercase text-[10px]">
+                                                  <button onClick={() => handleStatusUpdate(user.id, 'ACTIVE')} className="p-3 text-left hover:bg-blue-50 border-b-2 border-zinc-100 flex items-center gap-2"><CheckCircle2 size={14}/> Reactive User</button>
+                                                  <button onClick={() => handleStatusUpdate(user.id, 'SHADOW_BANNED')} className="p-3 text-left hover:bg-purple-50 border-b-2 border-zinc-100 flex items-center gap-2 text-purple-600"><Ghost size={14}/> Shadow Ban</button>
+                                                  <button onClick={() => handleStatusUpdate(user.id, 'BANNED')} className="p-3 text-left hover:bg-red-50 border-b-2 border-zinc-100 flex items-center gap-2 text-red-600"><Ban size={14}/> Hard Ban</button>
+                                                  <button onClick={() => handleDeleteUser(user.id)} className="p-3 text-left hover:bg-red-600 hover:text-white flex items-center gap-2 text-red-600 transition-colors"><Trash2 size={14}/> Delete from DB</button>
+                                              </div>
+                                          </PopoverContent>
+                                      </Popover>
                                   </div>
                               </td>
                           </tr>

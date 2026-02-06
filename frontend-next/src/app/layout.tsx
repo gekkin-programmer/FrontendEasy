@@ -63,13 +63,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning className="dark"> 
-      <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white`}>
+    <html lang="fr" suppressHydrationWarning> 
+      <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
         
         <QueryProvider>
           <LanguageProvider>
-            {/* System Components */}
-            <Toaster position="top-center" richColors closeButton /> 
+            {/* 🚀 NEUBRUTALIST GLOBAL TOASTER */}
+            <Toaster 
+              position="bottom-right" 
+              expand={false}
+              richColors 
+              closeButton 
+              toastOptions={{
+                style: {
+                  borderRadius: '0px',
+                  border: '3px solid black',
+                  fontFamily: 'var(--font-jetbrains-mono)',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                },
+                className: "dark:!border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] !bg-white dark:!bg-zinc-900 !text-black dark:!text-white",
+              }}
+            /> 
             
             {/* Layout */}
             

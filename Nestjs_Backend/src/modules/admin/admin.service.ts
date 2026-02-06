@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -60,7 +60,18 @@ export class AdminService {
     });
   }
 
-  async grantAccess(adminId: string, data: { userId: string, planType: any, durationDays?: number, reason?: string }) {
+  async grantAccess(adminId: string, data: { userId?: string, email?: string, planType: any, durationDays?: number, reason?: string }) {
+    let targetUserId = data.userId;
+
+    // 0. Resolve User ID from Email if needed
+    if (!targetUserId && data.email) {
+      const user = await this.prisma.user.findUnique({ where: { email: data.email } });
+      if (!user) throw new NotFoundException('User with this email not found');
+      targetUserId = user.id;
+    }
+
+    if (!targetUserId) throw new BadRequestException('User ID or Email is required');
+
     const expiresAt = data.durationDays 
       ? new Date(Date.now() + data.durationDays * 24 * 60 * 60 * 1000)
       : null;
@@ -68,7 +79,7 @@ export class AdminService {
     // 1. Create Grant Log
     await this.prisma.accessGrant.create({
       data: {
-        userId: data.userId,
+        userId: targetUserId,
         adminId: adminId,
         planType: data.planType,
         durationDays: data.durationDays,
@@ -79,11 +90,30 @@ export class AdminService {
 
     // 2. Update User Plan
     return this.prisma.user.update({
-      where: { id: data.userId },
+      where: { id: targetUserId },
       data: {
         planType: data.planType,
         planExpiresAt: expiresAt
       }
+    });
+  }
+
+  async deleteUser(id: string) {
+    // 1. Manually cleanup dependencies without Cascade Delete in schema
+    await this.prisma.socialAccount.deleteMany({ where: { createdById: id } });
+    await this.prisma.task.deleteMany({ where: { OR: [{ createdById: id }, { assignedToId: id }] } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: id } });
+    await this.prisma.chatMessage.deleteMany({ where: { senderId: id } });
+    await this.prisma.activityLog.deleteMany({ where: { userId: id } });
+    
+    // 2. Delete user (Triggers Cascade for Workspaces, Posts, Subscriptions, etc.)
+    return this.prisma.user.delete({ where: { id } });
+  }
+
+  async updateUserStatus(id: string, status: any) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { status }
     });
   }
 

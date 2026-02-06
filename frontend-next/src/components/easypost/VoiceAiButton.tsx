@@ -136,8 +136,8 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
         className={`
             group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border shadow-sm transition-all duration-300 select-none cursor-pointer
             ${isRecording 
-                ? 'bg-red-50 border-red-200 shadow-red-500/20' 
-                : 'bg-white border-blue-100 hover:shadow-md hover:border-blue-300'}
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 shadow-red-500/20' 
+                : 'bg-white dark:bg-zinc-900 border-blue-100 dark:border-blue-900 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700'}
         `}
       >
         <div className={`
@@ -157,7 +157,7 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
             )}
         </div>
         
-        <span className={`text-xs font-bold ${isRecording ? 'text-red-500' : 'text-gray-600'}`}>
+        <span className={`text-xs font-bold ${isRecording ? 'text-red-500' : 'text-gray-600 dark:text-zinc-400'}`}>
             {isRecording ? 'Listening...' : isProcessing ? 'Thinking...' : 'Voice AI'}
         </span>
       </motion.button>
