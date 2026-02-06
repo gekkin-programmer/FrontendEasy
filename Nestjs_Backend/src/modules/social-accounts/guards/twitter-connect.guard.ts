@@ -9,7 +9,7 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;
 
-    // Store metadata in session cookie (robust & stateless)
+    // Save metadata to session cookie (consistent with LinkedIn)
     if (req.session && workspaceId && token) {
         req.session.oauthMetadata = { workspaceId, token };
         console.log("🔹 Twitter Guard: Metadata saved to session");
