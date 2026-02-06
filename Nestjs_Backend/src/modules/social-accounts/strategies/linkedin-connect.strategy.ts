@@ -15,14 +15,16 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
-      state: true, // ➤ Standard automatic handling
+      userProfileURL: 'https://api.linkedin.com/v2/userinfo', // ➤ REQUIRED for openid scope
+      state: true, 
       passReqToCallback: true, 
     }as any);
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
-      console.log("🔹 LinkedIn OAuth Validate Triggered");
+      console.log("🔹 LinkedIn OIDC Validate Triggered");
+      console.log("🔹 LinkedIn Profile:", JSON.stringify(profile, null, 2));
       
       // Retrieve metadata from session
       const meta = req.session?.oauthMetadata;
@@ -45,9 +47,9 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
 
       const payload = {
         platform: 'LINKEDIN',
-        platformUserId: profile.id, 
-        name: profile.displayName || 'LinkedIn User',
-        avatar: profile.photos?.[0]?.value,
+        platformUserId: profile.id || profile.sub, // OIDC uses 'sub'
+        name: profile.displayName || profile.name || 'LinkedIn User',
+        avatar: profile.photos?.[0]?.value || profile.picture, // OIDC uses 'picture'
         accessToken,
         refreshToken,
         workspaceId,
