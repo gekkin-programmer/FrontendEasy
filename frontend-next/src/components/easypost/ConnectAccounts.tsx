@@ -44,7 +44,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['social-accounts', workspaceId],
     queryFn: async () => {
-        const res: any = await api.get('/social-accounts');
+        const res: any = await api.get(`/social-accounts?workspaceId=${workspaceId}`);
         return Array.isArray(res) ? res : (res.data || []);
     },
   });
