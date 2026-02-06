@@ -24,4 +24,13 @@ export class TikTokConnectGuard extends AuthGuard('tiktok-connect') {
       scopeSeparator: ',', // ➤ TikTok standard is comma
     };
   }
+
+  handleRequest(err, user, info) {
+    if (err || !user) {
+      console.error("❌ TikTok Auth Failed:", err);
+      console.error("❌ Passport Info:", info); 
+      throw err || new Error("TikTok Authentication failed");
+    }
+    return user;
+  }
 }

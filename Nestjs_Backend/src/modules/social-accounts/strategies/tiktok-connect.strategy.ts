@@ -27,12 +27,24 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       state: true,
       passReqToCallback: true,
     });
+
+    const key = configService.get<string>('TIKTOK_CLIENT_KEY');
+    const secret = configService.get<string>('TIKTOK_CLIENT_SECRET');
+    console.log(`🔹 TikTok Strategy Init: Key=${key ? key.substring(0,4)+'***' : 'MISSING'}, Secret=${secret ? 'PRESENT' : 'MISSING'}`);
   }
 
   // ➤ CRITICAL: TikTok V2 requires 'client_key' instead of 'client_id' in the URL
   authorizationParams(options: any): any {
     return {
       client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY'),
+    };
+  }
+
+  // ➤ CRITICAL: TikTok V2 also requires 'client_key' and 'client_secret' in the token request body
+  tokenParams(options: any): any {
+    return {
+      client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY'),
+      client_secret: this.configService.get<string>('TIKTOK_CLIENT_SECRET'),
     };
   }
 
