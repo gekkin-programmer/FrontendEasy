@@ -9,7 +9,10 @@ import axios from 'axios';
 export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-connect') {
   private readonly logger = new Logger(TikTokConnectStrategy.name);
 
-  constructor(configService: ConfigService, private authService: AuthService) {
+  constructor(
+    private configService: ConfigService, 
+    private authService: AuthService
+  ) {
     const clientKey = configService.get<string>('TIKTOK_CLIENT_KEY');
     const clientSecret = configService.get<string>('TIKTOK_CLIENT_SECRET');
 
@@ -24,6 +27,13 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       state: true,
       passReqToCallback: true,
     });
+  }
+
+  // ➤ CRITICAL: TikTok V2 requires 'client_key' instead of 'client_id' in the URL
+  authorizationParams(options: any): any {
+    return {
+      client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY'),
+    };
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, results: any, done: Function) {
