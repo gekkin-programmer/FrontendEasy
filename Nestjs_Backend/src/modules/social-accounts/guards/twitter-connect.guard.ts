@@ -15,6 +15,10 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
         console.log("🔹 Twitter Guard: Metadata saved to session");
     }
 
+    if (!workspaceId && req.session?.oauthMetadata) {
+        console.log("🔹 Twitter Guard: Continuing with existing session metadata");
+    }
+
     return (await super.canActivate(context)) as boolean;
   }
 
