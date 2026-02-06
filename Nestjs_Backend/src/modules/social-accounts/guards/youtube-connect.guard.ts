@@ -5,16 +5,20 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class YoutubeConnectGuard extends AuthGuard('youtube') {
-  getAuthenticateOptions(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;
 
+    if (req.session && workspaceId && token) {
+        req.session.oauthMetadata = { workspaceId, token };
+    }
+
+    return (await super.canActivate(context)) as boolean;
+  }
+
+  getAuthenticateOptions(context: ExecutionContext) {
     return {
-      // Pass our metadata securely via the 'state' param
-      state: JSON.stringify({ workspaceId, token }),
-      
-      // CRITICAL FOR YOUTUBE:
-      accessType: 'offline', // Request Refresh Token
+      accessType: 'offline',
       prompt: 'consent',     
       scope: [
         'email', 

@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-tiktok-auth';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
 export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-connect') {
-  constructor(configService: ConfigService) {
+  constructor(configService: ConfigService, private authService: AuthService) {
     super({
       clientID: configService.get<string>('TIKTOK_CLIENT_KEY'),
       clientSecret: configService.get<string>('TIKTOK_CLIENT_SECRET'),
@@ -14,30 +15,32 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       userProfileURL: 'https://open.tiktokapis.com/v2/user/info/', 
-      state: false,
+      state: true,
       passReqToCallback: true,
     } as any);
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
-      let state = {};
-      if (req.query.state) {
-          try {
-            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
-            state = JSON.parse(decodedState);
-          } catch(e) {}
+      const meta = req.session?.oauthMetadata;
+      const workspaceId = meta?.workspaceId;
+      const jwtToken = meta?.token;
+
+      let userId;
+      if (jwtToken) {
+         const user = await this.authService.validateUserByToken(jwtToken);
+         userId = user?.id;
       }
-      const { workspaceId } = state as any;
 
       const payload = {
         platform: 'TIKTOK',
         platformUserId: profile.id,
         name: profile.displayName || profile.username,
-        accessToken,
-        refreshToken, 
         avatar: profile._json?.avatar_url,
         workspaceId,
+        userId,
+        accessToken,
+        refreshToken
       };
       done(null, payload);
     } catch (e) {

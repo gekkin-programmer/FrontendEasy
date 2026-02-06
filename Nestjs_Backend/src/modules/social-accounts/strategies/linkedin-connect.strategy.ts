@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
-export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedin') { // Standard name 'linkedin' is better
+export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedin') {
   constructor(
     configService: ConfigService,
     private authService: AuthService,
@@ -15,9 +15,8 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'], 
-      scopeSeparator: ' ', // ➤ Added for stability
-      state: false, // ➤ Disable Passport session state
-      passReqToCallback: true, // ➤ CRITICAL: To read req.query.state
+      state: true, // ➤ Standard automatic handling
+      passReqToCallback: true, 
     }as any);
   }
 
@@ -25,23 +24,18 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
     try {
       console.log("🔹 LinkedIn OAuth Validate Triggered");
       
-      // 1. Decode State
-      let state = {};
-      if (req.query.state) {
-          try {
-            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
-            state = JSON.parse(decodedState);
-            console.log("🔹 LinkedIn Decoded State:", state);
-          } catch(e) {
-            console.error("❌ LinkedIn State Decode Error:", e.message);
-          }
+      // Retrieve metadata from session
+      const meta = req.session?.oauthMetadata;
+      if (!meta) {
+          console.error("❌ LinkedIn Strategy: No metadata found in session");
+          return done(new Error("Session lost: Missing workspace metadata"), false);
       }
-      const { workspaceId, token, userId: stateUserId } = state as any;
 
-      // 2. Resolve User ID
-      let userId = stateUserId;
-      if (!userId && token) {
-         const user = await this.authService.validateUserByToken(token);
+      const { workspaceId, token: jwtToken } = meta;
+
+      let userId;
+      if (jwtToken) {
+         const user = await this.authService.validateUserByToken(jwtToken);
          userId = user?.id;
       }
 

@@ -7,31 +7,15 @@ import { AuthGuard } from '@nestjs/passport';
 export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const res = context.switchToHttp().getResponse();
     const { workspaceId, token } = req.query;
 
-    // 1. We ONLY save our metadata in a signed cookie.
-    // We let Passport handle the 'state' and 'pkce' automatically via session.
-    if (workspaceId && token) {
-        // Save to session (now ultra-robust with cookie-session)
-        req.session.twitterMetadata = { workspaceId, token };
-
-        res.cookie('twitter_meta', JSON.stringify({ workspaceId, token }), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 15 * 60 * 1000, 
-            signed: true
-        });
-        console.log("🔹 Twitter Guard: Metadata saved to signed cookie 'twitter_meta'");
+    // Store metadata in session cookie (robust & stateless)
+    if (req.session && workspaceId && token) {
+        req.session.oauthMetadata = { workspaceId, token };
+        console.log("🔹 Twitter Guard: Metadata saved to session");
     }
 
     return (await super.canActivate(context)) as boolean;
-  }
-
-  // We return nothing to let Passport use its internal automatic state/PKCE
-  getAuthenticateOptions(context: ExecutionContext) {
-    return {};
   }
 
   handleRequest(err, user, info) {
