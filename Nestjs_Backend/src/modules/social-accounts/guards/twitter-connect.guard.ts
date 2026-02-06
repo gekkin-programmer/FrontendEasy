@@ -40,9 +40,16 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
 
   getAuthenticateOptions(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
+    
+    // We retrieve the challenge we generated in canActivate
+    const code_challenge = req.query.code_challenge;
+    
+    // We generate a simple state or use the one from query if we want to be strict
+    // but here we must ensure it matches what Passport expects.
     return {
-      codeChallenge: req.query.code_challenge,
-      codeChallengeMethod: 'S256'
+      code_challenge,
+      code_challenge_method: 'S256',
+      state: req.signedCookies['twitter_oauth_state'] ? 'session_valid' : 'init' 
     };
   }
 
