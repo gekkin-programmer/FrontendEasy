@@ -116,7 +116,6 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
     mutationFn: ({ id, date }: { id: string, date: string }) => 
         api.patch(`/posts/${id}`, { scheduledFor: date }),
     onSuccess: () => {
-        toast.success("CONTENT_RESCHEDULED");
         trackAction('calendar_drag_drop', { workspaceId });
         queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
