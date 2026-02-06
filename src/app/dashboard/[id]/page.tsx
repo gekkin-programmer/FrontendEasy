@@ -79,7 +79,7 @@ function DashboardContent() {
 
     const { data: accounts = [], refetch: refetchAccounts } = useQuery({
         queryKey: ['social-accounts', workspaceId],
-        queryFn: () => api.get<any[]>('/social-accounts').then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+        queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
     });
 
