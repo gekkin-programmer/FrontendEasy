@@ -10,6 +10,11 @@ export class CreatePostDto {
   @IsString()
   content: string;
 
+  @ApiProperty({ example: 'cmk...workspace' })
+  @IsNotEmpty()
+  @IsString()
+  workspaceId: string;
+
   @ApiProperty({ example: ['cmk...1', 'cmk...2'], description: 'IDs of Social Accounts' })
   @IsArray()
   @IsString({ each: true })

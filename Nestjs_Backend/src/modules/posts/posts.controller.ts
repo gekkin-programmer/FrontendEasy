@@ -40,8 +40,9 @@ export class PostsController {
   @ApiOperation({ summary: 'Create a new post' })
   async create(@Body() dto: CreatePostDto, @Req() req) {
     const userId = req.user.sub;
-    // 👇 FIX: Manually get ID
-    const workspaceId = await this.getWorkspaceId(userId); 
+    
+    // Prefer workspaceId from DTO, fallback to first owned workspace if missing
+    const workspaceId = dto.workspaceId || await this.getWorkspaceId(userId); 
     
     return this.postsService.create(dto, userId, workspaceId); 
   }
