@@ -1,33 +1,51 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-tiktok-auth';
+import { Strategy } from 'passport-oauth2';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
+import axios from 'axios';
 
 @Injectable()
 export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-connect') {
   private readonly logger = new Logger(TikTokConnectStrategy.name);
 
   constructor(configService: ConfigService, private authService: AuthService) {
+    const clientKey = configService.get<string>('TIKTOK_CLIENT_KEY');
+    const clientSecret = configService.get<string>('TIKTOK_CLIENT_SECRET');
+
     super({
-      clientID: configService.get<string>('TIKTOK_CLIENT_KEY'),
-      clientSecret: configService.get<string>('TIKTOK_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/tiktok`,
-      scope: ['user.info.basic', 'video.list'],
-      scopeSeparator: ',',
       authorizationURL: 'https://www.tiktok.com/v2/auth/authorize/',
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
-      userProfileURL: 'https://open.tiktokapis.com/v2/user/info/', 
+      clientID: clientKey || 'placeholder',
+      clientSecret: clientSecret || 'placeholder',
+      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/tiktok`,
+      scope: ['user.info.basic', 'video.list'],
+      scopeSeparator: ',',
       state: true,
       passReqToCallback: true,
-    } as any);
+    });
   }
 
-  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+  async validate(req: any, accessToken: string, refreshToken: string, results: any, done: Function) {
     try {
-      this.logger.log("🔹 TikTok OAuth Validate Triggered");
+      this.logger.log("🔹 TikTok OIDC Flow (Manual) Triggered");
 
-      // Retrieve metadata from session
+      // 1. Manually fetch profile using authorized fields ONLY
+      // In Sandbox mode, we request the bare minimum to ensure authorization passes
+      const profileRes = await axios.get('https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      const profile = profileRes.data?.data?.user;
+      
+      if (!profile) {
+          this.logger.error("❌ TikTok Strategy: Failed to extract user profile from response", profileRes.data);
+          return done(new Error("Could not retrieve TikTok profile"), false);
+      }
+
+      this.logger.debug(`🔹 TikTok Profile Data: ${JSON.stringify(profile)}`);
+
+      // 2. Retrieve metadata from session
       const meta = req.session?.oauthMetadata;
       if (!meta) {
           this.logger.error("❌ TikTok Strategy: No metadata found in session");
@@ -42,19 +60,25 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
          userId = user?.id;
       }
 
+      if (!userId) {
+          return done(new Error("User session lost during TikTok OAuth"), false);
+      }
+
       const payload = {
         platform: 'TIKTOK',
-        platformUserId: profile.id || profile.open_id,
-        name: profile.displayName || profile.display_name || 'TikTok User',
-        avatar: profile.avatar_url || profile._json?.avatar_url,
+        platformUserId: profile.open_id,
+        name: profile.display_name || 'TikTok User',
+        avatar: profile.avatar_url,
         workspaceId,
         userId,
         accessToken,
         refreshToken
       };
+      
       done(null, payload);
     } catch (error) {
-      this.logger.error(`TikTok Validation Failed: ${error.message}`);
+      const errorMsg = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      this.logger.error(`TikTok OIDC Validation Failed: ${errorMsg}`);
       done(error, false);
     }
   }
