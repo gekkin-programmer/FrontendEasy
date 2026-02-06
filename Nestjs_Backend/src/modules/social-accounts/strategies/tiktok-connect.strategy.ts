@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-tiktok-auth';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,8 @@ import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
 export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-connect') {
+  private readonly logger = new Logger(TikTokConnectStrategy.name);
+
   constructor(configService: ConfigService, private authService: AuthService) {
     super({
       clientID: configService.get<string>('TIKTOK_CLIENT_KEY'),
@@ -22,9 +24,16 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
+      this.logger.log("🔹 TikTok OAuth Validate Triggered");
+
+      // Retrieve metadata from session
       const meta = req.session?.oauthMetadata;
-      const workspaceId = meta?.workspaceId;
-      const jwtToken = meta?.token;
+      if (!meta) {
+          this.logger.error("❌ TikTok Strategy: No metadata found in session");
+          return done(new Error("Session lost: Missing workspace metadata"), false);
+      }
+
+      const { workspaceId, token: jwtToken } = meta;
 
       let userId;
       if (jwtToken) {
@@ -34,17 +43,18 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
 
       const payload = {
         platform: 'TIKTOK',
-        platformUserId: profile.id,
-        name: profile.displayName || profile.username,
-        avatar: profile._json?.avatar_url,
+        platformUserId: profile.id || profile.open_id,
+        name: profile.displayName || profile.display_name || 'TikTok User',
+        avatar: profile.avatar_url || profile._json?.avatar_url,
         workspaceId,
         userId,
         accessToken,
         refreshToken
       };
       done(null, payload);
-    } catch (e) {
-      done(e, false);
+    } catch (error) {
+      this.logger.error(`TikTok Validation Failed: ${error.message}`);
+      done(error, false);
     }
   }
 }
