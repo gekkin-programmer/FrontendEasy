@@ -121,6 +121,19 @@ export class SocialAccountsService {
     });
   }
 
+  async handleTikTokCallback(data: any) {
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'TIKTOK',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken
+    });
+  }
+
   async handleInstagramCallback(data: any) {
     try {
       this.logger.log(`Starting Instagram link for user ${data.userId}`);

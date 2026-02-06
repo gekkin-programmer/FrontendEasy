@@ -12,6 +12,7 @@ import type { Response } from 'express';
 import { FacebookConnectGuard } from './guards/facebook-connect.guard';
 import { LinkedInConnectGuard } from './guards/linkedin-connect.guard';
 import { TwitterConnectGuard } from './guards/twitter-connect.guard';
+import { TikTokConnectGuard } from './guards/tiktok-connect.guard';
 import { YoutubeConnectGuard } from './guards/youtube-connect.guard';
 import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard'; // ➤ NEW IMPORT
 
@@ -165,11 +166,25 @@ export class SocialAccountsController {
   }
 
   // =================================================================
-  // 7. PLACEHOLDERS (Prevent 404s for buttons)
+  // 7. TIKTOK
   // =================================================================
 
   @Get('connect/tiktok')
-  connectTikTok(@Res() res: Response) { this.comingSoon(res, 'TikTok'); }
+  @UseGuards(TikTokConnectGuard)
+  async connectTikTok(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+    // Redirects to TikTok
+  }
+
+  @Get('callback/tiktok')
+  @UseGuards(TikTokConnectGuard)
+  async tiktokCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleTikTokCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  // =================================================================
+  // 8. PLACEHOLDERS (Prevent 404s for buttons)
+  // =================================================================
 
   @Get('connect/pinterest')
   connectPinterest(@Res() res: Response) { this.comingSoon(res, 'Pinterest'); }

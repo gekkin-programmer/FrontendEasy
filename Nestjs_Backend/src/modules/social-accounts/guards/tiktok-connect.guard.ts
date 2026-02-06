@@ -20,7 +20,13 @@ export class TikTokConnectGuard extends AuthGuard('tiktok-connect') {
 
   getAuthenticateOptions(context: ExecutionContext) {
     return {
-      scope: ['user.info.basic', 'video.list', 'video.upload'],
+      scope: [
+        'user.info.basic', 
+        'user.info.profile', 
+        'user.info.stats', 
+        'video.list', 
+        'video.upload'
+      ],
     };
   }
 }
