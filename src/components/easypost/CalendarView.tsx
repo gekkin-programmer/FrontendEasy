@@ -3,20 +3,21 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
-import { 
-  format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, 
+import {
+  format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, Loader2, GripVertical, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
-import { 
-  DndContext, 
+import {
+  DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -29,7 +30,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const ICONS: Record<string, any> = {
-  FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram, 
+  FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram,
   LINKEDIN: FaLinkedinIn, TIKTOK: FaTiktok, YOUTUBE: FaYoutube, WHATSAPP: FaWhatsapp
 };
 
@@ -40,6 +41,40 @@ const trackAction = (action: string, metadata: any = {}) => {
     console.log(`[ANALYTICS] ${action}`, metadata);
 };
 
+// 🟢 DROPPABLE CELL COMPONENT
+const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, postCount }: any) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        className,
+        isOver && "ring-4 ring-[#3C48F5] ring-inset bg-blue-50 dark:bg-blue-900/20 z-10"
+      )}
+    >
+        <div className="flex justify-between items-center mb-1">
+            <div className="flex items-center gap-2">
+                <span className={cn(
+                    "text-xs font-black w-7 h-7 flex items-center justify-center border-2 transition-colors",
+                    isToday ? 'bg-black text-white dark:bg-white dark:text-black border-black' : 'text-black dark:text-white border-transparent'
+                )}>
+                    {dayNum}
+                </span>
+                {dayLabel && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{dayLabel}</span>}
+            </div>
+            {postCount > 0 && (
+                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-yellow-300 text-black shadow-[2px_2px_0px_0px_#000]">
+                    {postCount}_NODES
+                </span>
+            )}
+        </div>
+        {children}
+    </div>
+  );
+};
+
+// 🟢 DRAGGABLE ITEM COMPONENT
 const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post: any) => void, viewType: ViewType }) => {
   const {
     attributes,
@@ -62,7 +97,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
   const Icon = ICONS[platform] || ICONS.FACEBOOK;
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -77,7 +112,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
       </div>
       <Icon size={viewType === 'day' ? 14 : 10} className="flex-shrink-0" />
       <span className="truncate flex-1 uppercase tracking-tighter">{post.content || 'No Content'}</span>
-      
+
       <div className="hidden group-hover:block absolute bottom-full left-0 w-48 bg-black text-white p-2 text-[10px] z-[100] mb-2 border-2 border-white shadow-[4px_4px_0px_0px_#000]">
           <p className="line-clamp-3 font-bold">{post.content}</p>
           <div className="flex justify-between mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase">
@@ -90,7 +125,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
 };
 
 export default function CalendarView({ workspaceId, onPostClick }: { workspaceId: string, onPostClick?: (post: any) => void }) {
-  const [currentDate, setCurrentDate] = useState(new Date()); 
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
   const queryClient = useQueryClient();
 
@@ -252,32 +287,19 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 const isCurrentMonth = isSameMonth(day, currentDate);
 
                 return (
-                <div 
+                <CalendarCell 
                     key={dayStr} 
                     id={dayStr}
+                    dayNum={format(day, 'd')}
+                    dayLabel={viewType === 'day' ? format(day, 'EEEE MMMM yyyy') : null}
+                    isToday={isToday}
+                    postCount={dayPosts.length}
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
                         !isCurrentMonth && viewType === 'month' ? 'bg-gray-100 dark:bg-zinc-800 opacity-40' : 'bg-white dark:bg-zinc-900'
                     )}
                 >
-                    <div className="flex justify-between items-center mb-1">
-                        <div className="flex items-center gap-2">
-                            <span className={cn(
-                                "text-xs font-black w-7 h-7 flex items-center justify-center border-2",
-                                isToday ? 'bg-black text-white dark:bg-white dark:text-black border-black' : 'text-black dark:text-white border-transparent'
-                            )}>
-                                {format(day, 'd')}
-                            </span>
-                            {viewType === 'day' && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{format(day, 'EEEE MMMM yyyy')}</span>}
-                        </div>
-                        {dayPosts.length > 0 && (
-                            <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-yellow-300 text-black shadow-[2px_2px_0px_0px_#000]">
-                                {dayPosts.length}_NODES
-                            </span>
-                        )}
-                    </div>
-
                     <div className={cn(
                         "flex-1 space-y-2 overflow-y-auto scrollbar-hide",
                         viewType === 'day' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : ""
@@ -288,7 +310,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                             ))}
                         </SortableContext>
                     </div>
-                </div>
+                </CalendarCell>
                 );
             })}
             </div>
