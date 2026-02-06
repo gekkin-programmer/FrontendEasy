@@ -67,35 +67,6 @@ function DashboardContent() {
     const queryClient = useQueryClient();
     const { socket } = useSocket();
 
-    // 🟢 REAL-TIME LISTENERS
-    useEffect(() => {
-        if (!socket) return;
-
-        socket.on('post_created', (newPost) => {
-            toast.success(`NEW_NODE_CREATED: ${newPost.content.substring(0, 20)}...`);
-            queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
-            queryClient.invalidateQueries({ queryKey: ['calendar'] });
-        });
-
-        socket.on('post_updated', (updatedPost) => {
-            toast.info(`NODE_UPDATED: ${updatedPost.content.substring(0, 20)}...`);
-            queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
-            queryClient.invalidateQueries({ queryKey: ['calendar'] });
-        });
-
-        socket.on('post_deleted', ({ id }) => {
-            toast.warning(`NODE_REMOVED`);
-            queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
-            queryClient.invalidateQueries({ queryKey: ['calendar'] });
-        });
-
-        return () => {
-            socket.off('post_created');
-            socket.off('post_updated');
-            socket.off('post_deleted');
-        };
-    }, [socket, workspaceId, queryClient]);
-
     // UI States
     const [activeTab, setActiveTab] = useState<TabType>('queue');
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -127,12 +98,41 @@ function DashboardContent() {
         enabled: !!workspaceId,
     });
 
-    const { data: posts = [] } = useQuery({
+    const { data: posts = [], refetch: refetchPosts } = useQuery({
         queryKey: ['posts', workspaceId, searchTerm],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
-        refetchInterval: 60000, // Reduced polling since we have WebSockets
+        refetchInterval: 60000, 
     });
+
+    // 🟢 REAL-TIME LISTENERS
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('post_created', (newPost) => {
+            toast.success(`NEW_NODE_CREATED: ${newPost.content.substring(0, 20)}...`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        socket.on('post_updated', (updatedPost) => {
+            toast.info(`NODE_UPDATED: ${updatedPost.content.substring(0, 20)}...`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        socket.on('post_deleted', ({ id }) => {
+            toast.warning(`NODE_REMOVED`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        return () => {
+            socket.off('post_created');
+            socket.off('post_updated');
+            socket.off('post_deleted');
+        };
+    }, [socket, workspaceId, queryClient, refetchPosts]);
 
     // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
@@ -190,7 +190,7 @@ function DashboardContent() {
         },
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
-            queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+            refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
             setEditingPost(null);
         },
@@ -237,7 +237,7 @@ function DashboardContent() {
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
-                <div className="flex items-center gap-3"><VoiceAiButton onCommand={handleVoiceCommand} /><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
+                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
