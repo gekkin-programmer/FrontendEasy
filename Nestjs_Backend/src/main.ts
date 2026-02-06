@@ -36,12 +36,12 @@ async function bootstrap() {
   app.use(
     session({
       secret: process.env.COOKIE_SECRET || 'dev-session-secret',
-      resave: false,
-      saveUninitialized: false,
-      proxy: true, // ➤ REQUIRED for Render (Load Balancer)
+      resave: true, // ➤ Force save to ensure state persists
+      saveUninitialized: true, // ➤ Force cookie creation
+      proxy: true,
       cookie: {
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax', // ➤ Much more reliable for OAuth redirects than 'none'
         maxAge: 60 * 60 * 1000, // 1 hour
       },
     }),

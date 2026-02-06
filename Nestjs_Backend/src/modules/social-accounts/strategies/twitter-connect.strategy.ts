@@ -18,7 +18,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientType: 'confidential',
       pkce: true, 
-      state: true, 
+      state: true, // ➤ Standard automatic handling
       passReqToCallback: true,
       skipUserProfile: false,
       scope: [
@@ -29,44 +29,28 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
         'dm.read',
         'dm.write'
       ],
-      scopeSeparator: ' ', // ➤ CRITICAL: X requires spaces, not commas
+      scopeSeparator: ' ',
       customHeaders: {
         Authorization: `Basic ${Buffer.from(
           `${configService.get<string>('TWITTER_API_KEY')}:${configService.get<string>('TWITTER_API_SECRET')}`
         ).toString('base64')}`
       },
     });
-    const key = configService.get<string>('TWITTER_API_KEY');
-    const secret = configService.get<string>('TWITTER_API_SECRET');
-    console.log(`🔹 Twitter Strategy Init: Key=${key ? key.substring(0,4)+'***' : 'PRESENT'}, Secret=${secret ? 'PRESENT' : 'MISSING'}`);
-  }
-
-  // ➤ Handle Token Parameters (Inject Code Verifier)
-  authenticate(req: any, options: any) {
-    const stateCookie = req.signedCookies['twitter_oauth_state'];
-    if (stateCookie) {
-        try {
-            const { code_verifier } = JSON.parse(stateCookie);
-            options.codeVerifier = code_verifier;
-            console.log("🔹 Twitter Strategy: code_verifier injected from cookie");
-        } catch (e) {}
-    }
-    super.authenticate(req, options);
   }
 
   async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
     try {
       console.log("🔹 Twitter OAuth 2.0 Validate Triggered");
       
-      // Retrieve metadata from Signed Cookie
-      const stateCookie = req.signedCookies['twitter_oauth_state'];
-      if (!stateCookie) {
-          console.error("❌ Twitter Strategy: No metadata found in signed cookie");
-          return done(new Error("Session lost: Missing state cookie"), false);
+      // Retrieve metadata from our dedicated signed cookie
+      const metaCookie = req.signedCookies['twitter_meta'];
+      if (!metaCookie) {
+          console.error("❌ Twitter Strategy: No metadata found in 'twitter_meta' cookie");
+          return done(new Error("Session lost: Missing workspace metadata"), false);
       }
 
-      const { workspaceId, token: jwtToken } = JSON.parse(stateCookie);
-      console.log("🔹 Twitter Strategy: Metadata retrieved", { workspaceId, hasToken: !!jwtToken });
+      const { workspaceId, token: jwtToken } = JSON.parse(metaCookie);
+      console.log("🔹 Twitter Strategy: Metadata retrieved from cookie", { workspaceId });
 
       let userId;
       if (jwtToken) {
