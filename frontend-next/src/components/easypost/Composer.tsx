@@ -467,88 +467,113 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 </div>
                 
                 <div className="flex-1 overflow-y-auto p-8 bg-[#F0F2F5] dark:bg-zinc-950 transition-colors">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         
                         {/* 1. FACEBOOK PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
-                            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
-                                    <div className="flex-1">
-                                        <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'FACEBOOK') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
+                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
+                                        <div className="flex-1">
+                                            <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
-                                {mediaPreviews.length > 0 && (
-                                    <div className={cn(
-                                        "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
-                                        mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
-                                    )}>
-                                        {mediaPreviews.slice(0, 4).map((url, i) => (
-                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                    <span>Like</span><span>Comment</span><span>Share</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 2. TWITTER PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
-                                <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
-                                <div className="space-y-2 flex-1 min-w-0">
-                                    <div className="flex gap-1 items-center">
-                                        <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
-                                    </div>
-                                    <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
                                     {mediaPreviews.length > 0 && (
                                         <div className={cn(
-                                            "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
+                                            "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
                                             mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
                                         )}>
                                             {mediaPreviews.slice(0, 4).map((url, i) => (
-                                                <img key={i} src={url} className="w-full h-full object-cover" />
+                                                <img key={i} src={url} className="w-full aspect-square object-cover" />
                                             ))}
                                         </div>
                                     )}
-                                    <div className="flex justify-between max-w-xs pt-1 text-gray-400 dark:text-zinc-500">
-                                        <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
+                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
+                                        <span>Like</span><span>Comment</span><span>Share</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* 2. TWITTER PREVIEW */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && (a.platform === 'TWITTER' || a.platform === 'X')) && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
+                                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
+                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
+                                    <div className="space-y-2 flex-1 min-w-0">
+                                        <div className="flex gap-1 items-center">
+                                            <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
+                                        </div>
+                                        <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                        {mediaPreviews.length > 0 && (
+                                            <div className={cn(
+                                                "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
+                                                mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                                            )}>
+                                                {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                    <img key={i} src={url} className="w-full h-full object-cover" />
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between max-w-xs pt-1 text-gray-400 dark:text-zinc-500">
+                                            <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* 3. LINKEDIN PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
-                            <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
-                                    <div>
-                                        <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'LINKEDIN') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
+                                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
+                                        <div>
+                                            <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
-                                {mediaPreviews.length > 0 && (
-                                    <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
-                                        {mediaPreviews.slice(0, 4).map((url, i) => (
-                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
-                                        ))}
+                                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
+                                    {mediaPreviews.length > 0 && (
+                                        <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
+                                            {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                <img key={i} src={url} className="w-full aspect-square object-cover" />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
+                                        <span>Like</span><span>Comment</span><span>Repost</span>
                                     </div>
-                                )}
-                                <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                    <span>Like</span><span>Comment</span><span>Repost</span>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* 4. TIKTOK PREVIEW (Simple placeholder) */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK_MOBILE</span>
+                                <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
+                                    {mediaPreviews.length > 0 && (
+                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                                    )}
+                                    <div className="relative z-10 space-y-2 text-white">
+                                        <p className="text-sm font-bold">@yourusername</p>
+                                        <p className="text-xs line-clamp-3">{text}</p>
+                                        <div className="h-1 bg-white/30 rounded-full w-full overflow-hidden">
+                                            <div className="h-full bg-white w-1/3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                     </div>
                 </div>

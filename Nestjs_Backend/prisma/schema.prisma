@@ -376,8 +376,9 @@ model Workspace {
   reports          Report[]
   channels         ChatChannel[]
 
-  mediaLibrary    MediaLibrary[]
-  paymentLinks    PaymentLink[]
+  mediaAssets      MediaLibrary[]
+  mediaFolders     MediaFolder[]     @relation("WorkspaceFolders")
+  paymentLinks     PaymentLink[]
   leads           Lead[]
   automationRules AutomationRule[]
 
@@ -516,29 +517,30 @@ model TeamSocialAccount {
 
 model MediaLibrary {
   id          String    @id @default(cuid())
+  url         String
+  filename    String
+  mimeType    String
+  size        Int
   workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  folderId    String?
+  folder      MediaFolder? @relation(fields: [folderId], references: [id])
+  uploadedById String?
+  uploadedBy   User?       @relation("MediaUploader", fields: [uploadedById], references: [id])
+  posts       PostMedia[]
+  createdAt   DateTime  @default(now())
+}
 
-  uploaderId String
-  uploader   User   @relation("MediaUploader", fields: [uploaderId], references: [id])
-
-  url      String
-  filename String
-  mimeType String
-  size     Int
-
-  aiDescription String?  @db.Text
-  aiTags        String[]
-
-  folder     String? @default("root")
-  isFavorite Boolean @default(false)
-
-  posts PostMedia[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("media_library")
+model MediaFolder {
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  workspace   Workspace @relation("WorkspaceFolders", fields: [workspaceId], references: [id])
+  parentId    String?
+  parent      MediaFolder?  @relation("SubFolders", fields: [parentId], references: [id])
+  subFolders  MediaFolder[] @relation("SubFolders")
+  assets      MediaLibrary[]
+  createdAt   DateTime  @default(now())
 }
 
 // ============================================================================

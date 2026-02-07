@@ -49,9 +49,9 @@ async function main() {
   });
   console.log(`🔹 Deleted ${taskCount.count} Tasks`);
 
-  // Delete Media Library
+  // Delete media linked to those users
   const mediaCount = await prisma.mediaLibrary.deleteMany({
-    where: { uploaderId: { in: userIdsToDelete } }
+    where: { uploadedById: { in: userIdsToDelete } }
   });
   console.log(`🔹 Deleted ${mediaCount.count} Media Library items`);
 

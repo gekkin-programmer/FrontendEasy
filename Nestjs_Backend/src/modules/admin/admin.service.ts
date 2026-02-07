@@ -102,7 +102,7 @@ export class AdminService {
     // 1. Manually cleanup dependencies without Cascade Delete in schema
     await this.prisma.socialAccount.deleteMany({ where: { createdById: id } });
     await this.prisma.task.deleteMany({ where: { OR: [{ createdById: id }, { assignedToId: id }] } });
-    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: id } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploadedById: id } });
     await this.prisma.chatMessage.deleteMany({ where: { senderId: id } });
     await this.prisma.activityLog.deleteMany({ where: { userId: id } });
     
@@ -148,7 +148,7 @@ export class AdminService {
     // 2. Cleanup dependencies without Cascade
     await this.prisma.socialAccount.deleteMany({ where: { createdById: { in: userIds } } });
     await this.prisma.task.deleteMany({ where: { OR: [{ createdById: { in: userIds } }, { assignedToId: { in: userIds } }] } });
-    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: { in: userIds } } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploadedById: { in: userIds } } });
     await this.prisma.chatMessage.deleteMany({ where: { senderId: { in: userIds } } });
     await this.prisma.activityLog.deleteMany({ where: { userId: { in: userIds } } });
     await this.prisma.session.deleteMany({ where: { userId: { in: userIds } } });
