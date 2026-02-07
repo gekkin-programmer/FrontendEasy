@@ -13,7 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
 
-export default function MediaGallery() {
+export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -151,15 +151,17 @@ export default function MediaGallery() {
 
       {/* Storage & Folder Creator */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-              <div className="flex justify-between text-[8px] font-black uppercase mb-1">
-                  <span>Usage</span>
-                  <span>{formatSize(usage)} / 100MB</span>
-              </div>
-              <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
-                  <div className="h-full bg-[#3C48F5]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
-              </div>
-          </div>
+          {!hideUsage && (
+            <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+                <div className="flex justify-between text-[8px] font-black uppercase mb-1">
+                    <span>Usage</span>
+                    <span>{formatSize(usage)} / 100MB</span>
+                </div>
+                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
+                    <div className="h-full bg-[#3C48F5]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+                </div>
+            </div>
+          )}
 
           <AnimatePresence>
               {isCreatingFolder && (

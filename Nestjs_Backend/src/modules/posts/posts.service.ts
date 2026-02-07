@@ -151,10 +151,6 @@ export class PostsService {
     const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
     if (!post) throw new NotFoundException('Post not found');
 
-    if (post.status === PostStatus.PUBLISHED) {
-      throw new ForbiddenException('Cannot delete a published post');
-    }
-
     // Notify Workspace via WebSocket (Before Deletion)
     this.eventsGateway.sendToWorkspace(workspaceId, 'post_deleted', { id });
 
