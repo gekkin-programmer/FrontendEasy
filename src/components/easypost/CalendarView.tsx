@@ -92,9 +92,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
     zIndex: isDragging ? 100 : 1,
   };
 
-  const rawAccount = post.socialAccounts?.[0];
-  const platform = rawAccount?.socialAccount?.platform || rawAccount?.platform || 'FACEBOOK';
-  const Icon = ICONS[platform] || ICONS.FACEBOOK;
+  const socialAccounts = post.socialAccounts || [];
 
   return (
     <div
@@ -103,21 +101,39 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
       {...attributes}
       className={cn(
           "group relative flex items-center gap-1.5 p-1.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-[10px] font-black cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-600 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none",
-          viewType === 'day' ? 'p-3 text-xs' : ''
+          viewType === 'day' ? "p-3 text-xs" : ""
       )}
       onClick={() => onClick(post)}
     >
       <div {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white">
         <GripVertical size={viewType === 'day' ? 14 : 10} />
       </div>
-      <Icon size={viewType === 'day' ? 14 : 10} className="flex-shrink-0" />
-      <span className="truncate flex-1 uppercase tracking-tighter">{post.content || 'No Content'}</span>
+      
+      <div className="flex -space-x-1 overflow-hidden shrink-0">
+        {socialAccounts.map((sa: any, idx: number) => {
+            const platform = sa.socialAccount?.platform || sa.platform || 'FACEBOOK';
+            const Icon = ICONS[platform] || ICONS.FACEBOOK;
+            return (
+                <div key={idx} className="bg-white dark:bg-black border border-black dark:border-white p-0.5 z-[1]">
+                    <Icon size={viewType === 'day' ? 12 : 8} />
+                </div>
+            );
+        })}
+      </div>
+
+      <span className="truncate flex-1 uppercase tracking-tighter ml-1">{post.content || 'No Content'}</span>
 
       <div className="hidden group-hover:block absolute bottom-full left-0 w-48 bg-black text-white p-2 text-[10px] z-[100] mb-2 border-2 border-white shadow-[4px_4px_0px_0px_#000]">
           <p className="line-clamp-3 font-bold">{post.content}</p>
-          <div className="flex justify-between mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase">
-              <span>{platform}</span>
-              <span>{post.scheduledFor ? format(parseISO(post.scheduledFor), 'HH:mm') : 'N/A'}</span>
+          <div className="flex flex-col mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase gap-1">
+              <div className="flex justify-between">
+                <span>Targets:</span>
+                <span>{socialAccounts.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Time:</span>
+                <span>{post.scheduledFor ? format(parseISO(post.scheduledFor), 'HH:mm') : 'N/A'}</span>
+              </div>
           </div>
       </div>
     </div>
@@ -283,6 +299,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
             {days.map((day) => {
                 const dayStr = format(day, 'yyyy-MM-dd');
                 const dayPosts = posts.filter(p => p.scheduledFor && isSameDay(parseISO(p.scheduledFor), day));
+                const totalNodes = dayPosts.reduce((sum, p) => sum + (p.socialAccounts?.length || 0), 0);
                 const isToday = isSameDay(day, new Date());
                 const isCurrentMonth = isSameMonth(day, currentDate);
 
@@ -293,7 +310,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     dayNum={format(day, 'd')}
                     dayLabel={viewType === 'day' ? format(day, 'EEEE MMMM yyyy') : null}
                     isToday={isToday}
-                    postCount={dayPosts.length}
+                    postCount={totalNodes}
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
