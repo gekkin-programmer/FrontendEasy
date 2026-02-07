@@ -35,11 +35,14 @@ export class MediaService {
   async findAll(userId: string, folderId?: string) {
     const workspace = await this.getWorkspace(userId);
     
+    // Normalize folderId: empty string or 'null' string should be treated as null (root)
+    const targetFolderId = (folderId === 'null' || !folderId) ? null : folderId;
+
     // Get Folders
     const folders = await this.prisma.mediaFolder.findMany({
       where: { 
         workspaceId: workspace.id,
-        parentId: folderId || null
+        parentId: targetFolderId
       },
       orderBy: { name: 'asc' }
     });
@@ -48,7 +51,7 @@ export class MediaService {
     const assets = await this.prisma.mediaLibrary.findMany({
       where: { 
         workspaceId: workspace.id,
-        folderId: folderId || null
+        folderId: targetFolderId
       },
       orderBy: { createdAt: 'desc' }
     });
