@@ -49,14 +49,16 @@ export class PostsController {
 
   @Get()
   @ApiOperation({ summary: 'List posts (Filter by Status & Search)' })
+  @ApiQuery({ name: 'workspaceId', type: String, required: false })
   @ApiQuery({ name: 'status', enum: PostStatus, required: false })
   @ApiQuery({ name: 'search', type: String, required: false })
-  async findAll(@Req() req, @Query('status') status?: PostStatus, @Query('search') search?: string) {
+  async findAll(@Req() req, @Query('workspaceId') workspaceId?: string, @Query('status') status?: PostStatus, @Query('search') search?: string) {
     const userId = req.user.sub;
-    // 👇 FIX: Manually get ID
-    const workspaceId = await this.getWorkspaceId(userId);
+    
+    // Prefer requested workspaceId, fallback only if none provided
+    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(userId);
 
-    return this.postsService.findAll(workspaceId, { status, search });
+    return this.postsService.findAll(targetWorkspaceId, { status, search });
   }
 
   @Get('calendar')
@@ -69,9 +71,9 @@ export class PostsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get post details' })
-  async findOne(@Param('id') id: string, @Req() req) {
-    const workspaceId = await this.getWorkspaceId(req.user.sub);
-    return this.postsService.findOne(id, workspaceId);
+  async findOne(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
+    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+    return this.postsService.findOne(id, targetWorkspaceId);
   }
 
   @Patch(':id')
@@ -82,9 +84,9 @@ export class PostsController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a post' })
-  async remove(@Param('id') id: string, @Req() req) {
-    const workspaceId = await this.getWorkspaceId(req.user.sub);
-    return this.postsService.remove(id, workspaceId);
+  async remove(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
+    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+    return this.postsService.remove(id, targetWorkspaceId);
   }
 
   @Post(':id/approve')
@@ -95,18 +97,18 @@ export class PostsController {
 
   @Post(':id/cancel-schedule')
   @ApiOperation({ summary: 'Cancel a scheduled post and return to draft' })
-  async cancelSchedule(@Param('id') id: string, @Req() req) {
-    const workspaceId = await this.getWorkspaceId(req.user.sub);
+  async cancelSchedule(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
+    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
     // Ensure post belongs to workspace
-    await this.postsService.findOne(id, workspaceId);
+    await this.postsService.findOne(id, targetWorkspaceId);
     return this.postsService.cancelSchedule(id);
   }
 
   @Post(':id/publish')
   @ApiOperation({ summary: 'Publish post immediately' })
-  async publish(@Param('id') id: string, @Req() req) {
-    const workspaceId = await this.getWorkspaceId(req.user.sub);
-    await this.postsService.findOne(id, workspaceId);
+  async publish(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
+    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+    await this.postsService.findOne(id, targetWorkspaceId);
     return this.publisherService.publishPost(id);
   }
 }
