@@ -207,6 +207,40 @@ enum ChatMessageType {
   FILE
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum FeedbackStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum FeedbackCategory {
+  BUG
+  FEATURE
+  IMPROVEMENT
+  QUESTION
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REJECTED
+}
+
 // ============================================================================
 // USER & AUTH
 // ============================================================================
@@ -235,6 +269,8 @@ model User {
   otpExpires    DateTime?
 
   accountType AccountType @default(PERSONAL)
+  role        UserRole    @default(USER)
+  planExpiresAt DateTime?
 
   subscription Subscription?
   planType     PlanType      @default(FREE)
@@ -251,6 +287,13 @@ model User {
   activities            ActivityLog[]
 
   sessions              Session[]
+
+  receivedGrants        AccessGrant[]     @relation("UserGrants")
+  issuedGrants          AccessGrant[]     @relation("AdminGrants")
+  communityFeedback     CommunityFeedback[]
+  feedbackUpvotes       FeedbackUpvote[]
+  creatorApplications   CreatorApplication[]
+  transactions          Transaction[]
 
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
@@ -472,6 +515,7 @@ model ChatChannel {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@unique([workspaceId, name])
   @@map("chat_channels")
 }
 
@@ -1045,4 +1089,84 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
+}
+
+model AccessGrant {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
+  adminId      String
+  admin        User     @relation("AdminGrants", fields: [adminId], references: [id])
+  planType     PlanType
+  durationDays Int?
+  expiresAt    DateTime?
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  @@map("access_grants")
+}
+
+model CommunityFeedback {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title         String
+  description   String   @db.Text
+  category      FeedbackCategory
+  screenshotUrl String?
+  status        FeedbackStatus @default(PENDING)
+  upvotes       FeedbackUpvote[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("community_feedback")
+}
+
+model FeedbackUpvote {
+  feedbackId String
+  feedback   CommunityFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, userId])
+  @@map("feedback_upvotes")
+}
+
+model CreatorApplication {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  totalFollowers  Int
+  niche           String
+  message         String?  @db.Text
+  
+  tiktokHandle    String?
+  instagramHandle String?
+  youtubeHandle   String?
+  twitterHandle   String?
+  linkedinHandle  String?
+  
+  status          ApplicationStatus @default(PENDING)
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("creator_applications")
+}
+
+model Transaction {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Float
+  planType     PlanType
+  billingCycle String   // MONTHLY, YEARLY
+  status       TransactionStatus @default(PENDING)
+  provider     String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("transactions")
 }
