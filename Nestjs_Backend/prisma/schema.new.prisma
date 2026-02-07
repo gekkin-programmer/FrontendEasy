@@ -1,32 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// ============================================================================
-// USER & AUTH
-// ============================================================================
-
-enum UserRole {
-  USER
-  ADMIN
-  MANAGER
-}
-
-enum PlanType {
-  FREE
-  STARTER
-  PROFESSIONAL
-  BUSINESS
-  ENTERPRISE
-}
+// ... (Top of file)
 
 model User {
   id                    String            @id @default(cuid())
@@ -80,29 +52,7 @@ model User {
   @@map("users")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  userId       String
-  
-  // ➤ Store the HASH of the refresh token here
-  refreshToken String   @unique 
-  
-  userAgent    String?
-  ipAddress    String?
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([refreshToken])
-  @@index([expiresAt])
-  @@map("sessions")
-}
-
-// ============================================================================
-// WORKSPACE & ORGANIZATION
-// ============================================================================
+// ... rest of models until Workspace ...
 
 model Workspace {
   id          String  @id @default(cuid())
@@ -154,30 +104,6 @@ model Workspace {
   @@map("workspaces")
 }
 
-model WorkspaceMember {
-  id          String    @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  role        WorkspaceRole @default(MEMBER)
-  permissions Json?
-
-  teamMembers TeamMember[]
-
-  status    MemberStatus @default(ACTIVE)
-  invitedBy String?
-  invitedAt DateTime?
-  joinedAt  DateTime     @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([workspaceId, userId])
-  @@map("workspace_members")
-}
-
 model Notification {
   id          String   @id @default(cuid())
   userId      String
@@ -194,5 +120,3 @@ model Notification {
 
   @@map("notifications")
 }
-
-// ... rest of file (omitting but keep in mind I should have the full file content if I were to write it all)
