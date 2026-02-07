@@ -1,23 +1,157 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// schema.prisma
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================================================
-// USER & AUTH
+// ENUMS
 // ============================================================================
 
-enum UserRole {
-  USER
+enum AccountType {
+  PERSONAL
+  ADMIN
+  ORGANIZATION
+  AGENCY
+}
+
+enum WorkspaceType {
+  PERSONAL
+  ORGANIZATION
+  AGENCY
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum WorkspaceRole {
+  OWNER
   ADMIN
   MANAGER
+  MEMBER
+  VIEWER
+}
+
+enum TeamRole {
+  LEADER
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  PINTEREST
+  THREADS
+  WHATSAPP
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+  PENDING_APPROVAL
+  REVIEW
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  GIF
+  CAROUSEL
+  STORY
+  AUDIO
+}
+
+enum ApprovalStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum StreamType {
+  HOME
+  MENTIONS
+  DIRECT_MESSAGES
+  HASHTAG
+  KEYWORD
+  LIST
+  SCHEDULED
+}
+
+enum ReportType {
+  OVERVIEW
+  ENGAGEMENT
+  AUDIENCE
+  CONTENT_PERFORMANCE
+  CUSTOM
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  POST_PUBLISHED
+  POST_FAILED
+  MENTION
+  COMMENT
+  APPROVAL_REQUESTED
+  APPROVAL_GRANTED
+  APPROVAL_REJECTED
+  TASK_ASSIGNED
+  MEMBER_JOINED
+  ACCOUNT_CONNECTED
+  REPORT_READY
+  LEAD_CAPTURED
+  PAYMENT_RECEIVED
+  TEAM_INVITE
+  SYSTEM
 }
 
 enum PlanType {
@@ -28,46 +162,95 @@ enum PlanType {
   ENTERPRISE
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+}
+
+enum CommentSentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+  QUESTION
+}
+
+enum PaymentProvider {
+  ORANGE_MONEY
+  MTN_MOMO
+  WAVE
+  STRIPE
+  CASH
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  LOST
+}
+
+enum AiTone {
+  PROFESSIONAL
+  CASUAL
+  NOUCHI
+  CAMFRANGLAIS
+  PIDGIN
+}
+
+enum ChatMessageType {
+  TEXT
+  AUDIO
+  IMAGE
+  FILE
+}
+
+// ============================================================================
+// USER & AUTH
+// ============================================================================
+
 model User {
-  id                    String            @id @default(cuid())
-  email                 String            @unique
-  firstName             String?
-  lastName              String?
-  password              String
-  avatar                String?
-  phone                 String?           @unique
-  emailVerified         Boolean           @default(false)
-  
-  accountType           PlanType          @default(FREE)
-  role                  UserRole          @default(USER)
-  planExpiresAt         DateTime?
+  id        String  @id @default(cuid())
+  email     String? @unique
+  phone     String? @unique
+  password  String?
+  firstName String?
+  lastName  String?
+  avatar    String?
+
+  provider      String?
+  providerId    String?
+
+  emailVerified           Boolean   @default(false)
+  emailVerificationToken    String?   @unique
+  emailVerificationTokenExp DateTime?
+
+  passwordResetToken        String?   @unique
+  passwordResetTokenExp     DateTime?
+
+  phoneVerified Boolean @default(false)
+  otp           String?
+  otpExpires    DateTime?
+
+  accountType AccountType @default(PERSONAL)
+
+  subscription Subscription?
+  planType     PlanType      @default(FREE)
+  planLimits   Json?
 
   ownedWorkspaces       Workspace[]       @relation("WorkspaceOwner")
-  workspaceMemberships  WorkspaceMember[]
+  workspaceMembers      WorkspaceMember[]
+  createdSocialAccounts SocialAccount[]   @relation("AccountCreator")
   posts                 Post[]
   comments              PostComment[]
   assignedTasks         Task[]            @relation("AssignedUser")
   createdTasks          Task[]            @relation("TaskCreator")
   notifications         Notification[]    @relation("UserNotifications")
   activities            ActivityLog[]
-  
-  // ➤ SECURITY SESSIONS
-  sessions              Session[]
-  
-  // ➤ CREATOR FUND
-  creatorApplications   CreatorApplication[]
-  
-  // ➤ ACCESS GRANTS
-  receivedGrants        AccessGrant[]     @relation("UserGrants")
-  issuedGrants          AccessGrant[]     @relation("AdminGrants")
 
-  // ➤ PAYMENTS
-  transactions          Transaction[]
-  
-  // ➤ COMMUNITY
-  communityFeedback     CommunityFeedback[]
-  feedbackUpvotes       FeedbackUpvote[]
-  
+  sessions              Session[]
+
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
 
@@ -83,10 +266,8 @@ model User {
 model Session {
   id           String   @id @default(cuid())
   userId       String
-  
-  // ➤ Store the HASH of the refresh token here
-  refreshToken String   @unique 
-  
+  refreshToken String   @unique
+
   userAgent    String?
   ipAddress    String?
   expiresAt    DateTime
@@ -98,6 +279,18 @@ model Session {
   @@index([refreshToken])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+model OtpVerification {
+  id        String   @id @default(cuid())
+  phone     String?  @unique
+  email     String?  @unique
+  code      String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("otp_verifications")
 }
 
 // ============================================================================
@@ -138,10 +331,8 @@ model Workspace {
   automationRules  AutomationRule[]
   notifications    Notification[]
 
-  // RAG / AI Documents
   documents Document[]
 
-  // Counters
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
   currentPostCount          Int @default(0)
@@ -178,21 +369,679 @@ model WorkspaceMember {
   @@map("workspace_members")
 }
 
-model Notification {
+model Team {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  color       String?
+
+  members        TeamMember[]
+  socialAccounts TeamSocialAccount[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String          @id @default(cuid())
+  teamId   String
+  team     Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  memberId String
+  member   WorkspaceMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  role TeamRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, memberId])
+  @@map("team_members")
+}
+
+model SocialAccount {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  platform       SocialPlatform
+  platformUserId String
+  username       String
+  displayName    String?
+  avatar         String?
+  bio            String?
+
+  accessToken    String
+  refreshToken   String?
+  tokenExpiresAt DateTime?
+
+  followersCount Int?
+  followingCount Int?
+  postsCount     Int?
+  engagementRate Float?
+  lastSyncedAt   DateTime?
+
+  isActive        Boolean @default(true)
+  autoPublish     Boolean @default(false)
+  defaultHashtags String?
+
+  createdById String
+  createdBy   User   @relation("AccountCreator", fields: [createdById], references: [id])
+
+  teams              TeamSocialAccount[]
+  posts              Post[]
+  streams            Stream[]
+  analytics          Analytics[]
+  postSocialAccounts PostSocialAccount[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, platform, platformUserId])
+  @@map("social_accounts")
+}
+
+model TeamSocialAccount {
+  id              String        @id @default(cuid())
+  teamId          String
+  team            Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  socialAccountId String
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, socialAccountId])
+  @@map("team_social_accounts")
+}
+
+model ChatChannel {
   id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  isPrivate   Boolean  @default(false)
+  
+  messages    ChatMessage[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("chat_channels")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  channelId String
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade) 
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  content       String          @db.Text
+  type          ChatMessageType @default(TEXT)
+  attachmentUrl String?
+
+  parentId String?
+  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id], onDelete: Cascade)      
+  replies  ChatMessage[] @relation("ChatThread")
+
+  attachments Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, createdAt])
+  @@map("chat_messages")
+}
+
+// ============================================================================
+// MEDIA LIBRARY
+// ============================================================================
+
+model MediaLibrary {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  uploadedById String?
+  uploadedBy   User?   @relation("MediaUploader", fields: [uploadedById], references: [id])
+
+  url      String
+  filename String
+  mimeType String
+  size     Int
+
+  folderId String?
+  folder   MediaFolder? @relation(fields: [folderId], references: [id])
+
+  isFavorite Boolean @default(false)
+
+  posts PostMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("media_library")
+}
+
+model MediaFolder {
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  workspace   Workspace @relation("WorkspaceFolders", fields: [workspaceId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      MediaFolder?  @relation("SubFolders", fields: [parentId], references: [id])
+  subFolders  MediaFolder[] @relation("SubFolders")
+  assets      MediaLibrary[]
+  createdAt   DateTime  @default(now())
+}
+
+// ============================================================================
+// AI & RAG (SECURED)
+// ============================================================================
+
+model Document {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  content  String                      @db.Text
+  vector   Unsupported("vector(384)")?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([id])
+  @@index([workspaceId])
+  @@map("easy_post_documents")
+}
+
+model AiUsageLog {
+  id           String   @id @default(uuid())
+  workspaceId  String
+  userId       String
+  action       String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  totalTokens  Int
+  cost         Float?
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId])
+  @@map("ai_usage_logs")
+}
+
+model AiFeedback {
+  id           String   @id @default(uuid())
+  aiMessageId  String
+  userId       String
+  rating       Int
+  feedbackText String?
+  createdAt    DateTime @default(now())
+
+  @@map("ai_feedbacks")
+}
+
+// ============================================================================
+// CONTENT & PUBLISHING (NORMALIZED)
+// ============================================================================
+
+model Post {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  content String @db.Text
+
+  media PostMedia[]
+
+  mediaUrls Json?
+  mediaType MediaType?
+
+  linkUrl     String?
+  linkPreview Json?
+
+  status       PostStatus @default(DRAFT)
+  scheduledFor DateTime?
+  publishedAt  DateTime?
+  expiresAt    DateTime?
+
+  socialAccounts PostSocialAccount[]
+  campaignId     String?
+  campaign       Campaign?           @relation(fields: [campaignId], references: [id])
+  tags           PostTag[]
+  labels         PostLabel[]
+
+  createdById    String
+  createdBy      User           @relation(fields: [createdById], references: [id])
+  approvalStatus ApprovalStatus @default(NONE)
+  approvedBy     String?
+  approvedAt     DateTime?
+
+  externalReviews ExternalReview[]
+  comments        PostComment[]
+
+  errorMessage String?
+  retryCount   Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  socialAccountId String?
+  socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
+
+  @@index([status, scheduledFor])
+  @@map("posts")
+}
+
+model PostMedia {
+  postId  String
+  post    Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaId String
+  media   MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  order Int @default(0)
+
+  @@id([postId, mediaId])
+  @@map("post_media")
+}
+
+model PostSocialAccount {
+  id              String        @id @default(cuid())
+  postId          String
+  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  socialAccountId String
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  status          PostStatus @default(DRAFT)
+  publishedAt     DateTime?
+  platformPostId  String?
+  platformPostUrl String?
+
+  likes    Int @default(0)
+  comments Int @default(0)
+  shares   Int @default(0)
+  views    Int @default(0)
+
+  errorMessage String?
+
+  @@unique([postId, socialAccountId])
+  @@map("post_social_accounts")
+}
+
+model PostComment {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  externalId   String?         @unique
+  authorName   String?
+  authorId     String?
+  authorAvatar String?
+  platform     SocialPlatform?
+
+  content String @db.Text
+
+  parentId String?
+  parent   PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  PostComment[] @relation("CommentReplies")
+
+  isReply     Boolean           @default(false)
+  sentiment   CommentSentiment?
+  status      String            @default("unread")
+  publishedAt DateTime          @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("post_comments")
+}
+
+model ExternalReview {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  token        String  @unique
+  reviewerName String?
+
+  status   ApprovalStatus @default(PENDING)
+  feedback String?        @db.Text
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("external_reviews")
+}
+
+// ============================================================================
+// PAYMENTS, CRM & AUTOMATION
+// ============================================================================
+
+model PaymentLink {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name     String
+  amount   Float
+  currency String          @default("XAF")
+  provider PaymentProvider @default(ORANGE_MONEY)
+
+  description String?
+
+  urlSlug String  @unique
+  active  Boolean @default(true)
+
+  clickCount Int   @default(0)
+  salesCount Int   @default(0)
+  revenue    Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payment_links")
+}
+
+model Lead {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name     String?
+  phone    String?
+  source   String?
+  platform SocialPlatform?
+
+  status LeadStatus @default(NEW)
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, phone])
+  @@map("leads")
+}
+
+model AutomationRule {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name     String
+  keywords String[]
+
+  replyType      String
+  publicReply    String?
+  privateMessage String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("automation_rules")
+}
+
+// ============================================================================
+// CAMPAIGNS, CALENDAR & REPORTING
+// ============================================================================
+
+model Campaign {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  objective   String?
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  budget Float?
+  status CampaignStatus @default(ACTIVE)
+
+  posts Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("campaigns")
+}
+
+model ContentCalendar {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  color       String?
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("content_calendars")
+}
+
+model Stream {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name            String
+  type            StreamType
+  socialAccountId String?
+  socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
+
+  filters  Json
+  settings Json?
+
+  isActive Boolean @default(true)
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("streams")
+}
+
+model Analytics {
+  id              String        @id @default(cuid())
+  socialAccountId String
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  date            DateTime
+  followers       Int
+  following       Int
+  posts           Int
+  likes           Int
+  comments        Int
+  shares          Int
+  views           Int
+  clicks          Int
+  engagementRate  Float
+  reach           Int?
+  impressions     Int?
+  platformMetrics Json?
+
+  createdAt DateTime @default(now())
+
+  @@unique([socialAccountId, date])
+  @@map("analytics")
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  type        ReportType
+
+  dateRange Json
+  metrics   Json
+  filters   Json?
+  data      Json?
+
+  isScheduled       Boolean   @default(false)
+  scheduleFrequency String?
+  recipients        Json?
+  lastGeneratedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reports")
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name  String
+  color String?
+
+  posts PostTag[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([workspaceId, name])
+  @@map("tags")
+}
+
+model PostTag {
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId  String
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}
+
+model Label {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name        String
+  color       String
+  description String?
+
+  posts PostLabel[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([workspaceId, name])
+  @@map("labels")
+}
+
+model PostLabel {
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  labelId String
+  label   Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([postId, labelId])
+  @@map("post_labels")
+}
+
+model Task {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+  priority    Priority   @default(MEDIUM)
+  status      TaskStatus @default(TODO)
+
+  dueDate DateTime?
+
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedUser", fields: [assignedToId], references: [id])
+  createdById  String
+  createdBy    User    @relation("TaskCreator", fields: [createdById], references: [id])
+
+  relatedPostId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
   workspaceId String?
   workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  type        String   // TEAM_INVITE, POST_APPROVED, POST_REJECTED, PUBLISH_SUCCESS, PUBLISH_FAILED, SYSTEM
-  title       String
-  message     String
-  link        String?
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+
+  type    NotificationType
+  title   String
+  message String
+  data    Json?
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
 
   @@map("notifications")
 }
 
-// ... rest of file (omitting but keep in mind I should have the full file content if I were to write it all)
+model ActivityLog {
+  id     String  @id @default(cuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action      String
+  entity      String
+  entityId    String
+  description String
+  metadata    Json?
+  ipAddress   String?
+
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planType PlanType
+  status   SubscriptionStatus @default(ACTIVE)
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean  @default(false)
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  trialEndsAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
