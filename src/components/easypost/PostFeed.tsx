@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+import { api } from '@/src/lib/api';
 
 // --- NEU COMPONENTS ---
 
@@ -57,56 +58,42 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
     case 'linkedin': return <span className="text-[#0077b5] font-black text-[10px]">IN</span>;
     case 'instagram': return <span className="text-[#e1306c] font-black text-[10px]">IG</span>;
     case 'facebook': return <span className="text-[#1877f2] font-black text-[10px]">FB</span>;
+    case 'tiktok': return <span className="text-[#000000] dark:text-[#ff0050] font-black text-[10px]">TT</span>;
+    case 'youtube': return <span className="text-[#ff0000] font-black text-[10px]">YT</span>;
     default: return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
   }
 };
 
 export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   // --- ACTIONS ---
   const deletePost = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
     try {
-        await fetch(`${API_URL}/posts/${postId}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/posts/${postId}`);
         toast.success("POST_DELETED");
-        window.location.reload(); 
+        // No reload: WebSocket will trigger refetch
     } catch (e) {
         toast.error("FAILED_TO_DELETE");
     }
   };
 
   const cancelSchedule = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
     try {
-        await fetch(`${API_URL}/posts/${postId}/cancel-schedule`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post(`/posts/${postId}/cancel-schedule`, {});
         toast.success("SCHEDULE_CANCELLED");
-        window.location.reload();
     } catch (e) {
         toast.error("CANCEL_FAILED");
     }
   };
 
   const publishPost = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
     try {
         toast.loading("PUBLISHING...");
-        await fetch(`${API_URL}/posts/${postId}/publish`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post(`/posts/${postId}/publish`, {});
         toast.dismiss();
         toast.success("PUBLISHED_SUCCESSFULLY");
-        window.location.reload();
     } catch (e) {
         toast.dismiss();
         toast.error("PUBLISH_FAILED");
@@ -114,21 +101,12 @@ export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
   };
 
   const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
-    const token = localStorage.getItem('accessToken');
     try {
-        await fetch(`${API_URL}/posts/${postId}`, {
-            method: 'PATCH',
-            headers: { 
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}` 
-            },
-            body: JSON.stringify({ 
-                status, 
-                scheduledFor: new Date(scheduledFor).toISOString() 
-            })
+        await api.patch(`/posts/${postId}`, { 
+            status, 
+            scheduledFor: new Date(scheduledFor).toISOString() 
         });
         toast.success("POST_SCHEDULED");
-        window.location.reload();
     } catch (e) {
         toast.error("UPDATE_FAILED");
     }
