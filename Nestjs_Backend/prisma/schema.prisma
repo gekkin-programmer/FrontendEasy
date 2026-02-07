@@ -1,4 +1,5 @@
 // schema.prisma
+// Force Build Trigger: v2.1.0 - Full Schema Restoration and Notifications Active
 
 generator client {
   provider = "prisma-client-js"
