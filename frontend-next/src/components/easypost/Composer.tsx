@@ -252,6 +252,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     }
   };
 
+  // Commerce State
+  const [price, setPrice] = useState("");
+
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
@@ -267,6 +270,15 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     setIsSubmitting(true);
     try {
         let finalMediaIds = [...selectedMediaIds];
+        let finalContent = text;
+
+        // 🛍️ COMMERCE LOGIC: Generate One-Time Link
+        if (isSelling && price) {
+            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
+            finalContent += commerceLink;
+            toast.info("COMMERCE_LINK_GENERATED");
+        }
         
         // Upload local files
         if (localFiles.length > 0) {
@@ -284,7 +296,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         else if (action === 'queue') status = 'SCHEDULED';
 
         await onSchedule(
-            text, 
+            finalContent, 
             action === 'queue' ? date || new Date() : undefined,
             finalMediaIds, 
             status, 
@@ -293,7 +305,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             workspaceId
         );
         
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
     } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
   };
 
@@ -419,7 +431,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               </div>
             </div>
           </div>
-          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
+          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
         </div>
       </div>
       
