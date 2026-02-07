@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiImage, FiMoreHorizontal, FiUploadCloud, FiZap, FiDownload, FiTrash2, FiLoader, FiCheck, FiFilter } from 'react-icons/fi';
+import { 
+    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus, 
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2 
+} from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
@@ -13,16 +16,24 @@ import SpinningLoader from '../SpinningLoader';
 export default function MediaGallery() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  
+  // Navigation State
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
 
-  // 1. Fetch Media
-  const { data: assets = [], isLoading } = useQuery({
-    queryKey: ['media'],
+  // 1. Fetch Media & Folders
+  const { data, isLoading } = useQuery({
+    queryKey: ['media', currentFolderId],
     queryFn: async () => {
-        const res = await api.get<any[]>('/media');
-        return Array.isArray(res) ? res : (res as any).data || [];
+        const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
+        return api.get<{ folders: any[], assets: any[] }>(url);
     }
   });
+
+  const assets = data?.assets || [];
+  const folders = data?.folders || [];
 
   // 2. Fetch Storage Usage
   const { data: usage = 0 } = useQuery({
@@ -33,38 +44,62 @@ export default function MediaGallery() {
     }
   });
 
-  // 3. Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/media/${id}`),
-    onSuccess: () => {
-        toast.success("ASSET_DELETED");
-        queryClient.invalidateQueries({ queryKey: ['media'] });
-        queryClient.invalidateQueries({ queryKey: ['media-usage'] });
-    },
-    onError: () => toast.error("DELETE_FAILED")
-  });
-
-  // 4. Upload Mutation
+  // 3. Mutations
   const uploadMutation = useMutation({
     mutationFn: (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
+        if (currentFolderId) formData.append('folderId', currentFolderId);
         return api.post('/media/upload', formData);
     },
     onSuccess: () => {
         toast.success("UPLOAD_SUCCESSFUL");
         queryClient.invalidateQueries({ queryKey: ['media'] });
         queryClient.invalidateQueries({ queryKey: ['media-usage'] });
-    },
-    onError: (err: any) => {
-        const msg = err.message || "UPLOAD_FAILED";
-        toast.error(msg);
+    }
+  });
+
+  const createFolderMutation = useMutation({
+      mutationFn: (name: string) => api.post('/media/folders', { name, parentId: currentFolderId }),
+      onSuccess: () => {
+          toast.success("FOLDER_CREATED");
+          setIsCreatingFolder(false);
+          setNewFolderName("");
+          queryClient.invalidateQueries({ queryKey: ['media'] });
+      }
+  });
+
+  const deleteAssetMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/media/${id}`),
+    onSuccess: () => {
+        toast.success("ASSET_DELETED");
+        queryClient.invalidateQueries({ queryKey: ['media'] });
+    }
+  });
+
+  const deleteFolderMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/media/folders/${id}`),
+    onSuccess: () => {
+        toast.success("FOLDER_DELETED");
+        queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadMutation.mutate(file);
+  };
+
+  const enterFolder = (folder: any) => {
+      setFolderPath(prev => [...prev, { id: folder.id, name: folder.name }]);
+      setCurrentFolderId(folder.id);
+  };
+
+  const goBack = () => {
+      const newPath = [...folderPath];
+      newPath.pop();
+      setFolderPath(newPath);
+      setCurrentFolderId(newPath.length > 0 ? newPath[newPath.length - 1].id : null);
   };
 
   const formatSize = (bytes: number) => {
@@ -76,92 +111,151 @@ export default function MediaGallery() {
   };
 
   return (
-    <div className="space-y-8 font-sans text-black dark:text-white transition-colors">
+    <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
       
-      {/* Storage Indicator */}
-      <div className="bg-black dark:bg-zinc-900 text-white p-4 border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
-          <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-black uppercase font-mono tracking-widest text-white/70">STORAGE_USAGE</span>
-              <span className="text-[10px] font-black font-mono text-white">{formatSize(usage)} / 100 MB</span>
+      {/* OS Toolbar */}
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-[#3C48F5] p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-white">
+          <div className="flex items-center gap-3">
+              {currentFolderId && (
+                  <button onClick={goBack} className="p-2 bg-black hover:bg-zinc-800 border-2 border-white transition-all shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+                      <FiChevronLeft size={18} strokeWidth={3} />
+                  </button>
+              )}
+              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter">
+                  <FiFolder />
+                  <span>ROOT</span>
+                  {folderPath.map(p => (
+                      <React.Fragment key={p.id}>
+                          <span className="opacity-50">/</span>
+                          <span>{p.name}</span>
+                      </React.Fragment>
+                  ))}
+              </div>
           </div>
-          <div className="w-full h-4 bg-zinc-800 border-2 border-zinc-700 overflow-hidden p-0.5">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }}
-                className={cn(
-                    "h-full transition-colors",
-                    (usage / (100 * 1024 * 1024)) > 0.9 ? "bg-red-500" : "bg-[#3C48F5]"
-                )}
-              />
+
+          <div className="flex gap-2">
+              <button 
+                onClick={() => setIsCreatingFolder(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-black hover:bg-zinc-800 border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              >
+                  <FiPlus /> New_Folder
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] transition-all"
+              >
+                  <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
+              </button>
           </div>
       </div>
 
-      {/* Upload Area */}
-      <div 
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-800 p-8 flex flex-col items-center justify-center text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-700 transition-all cursor-pointer group shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-      >
-         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
-         <div className="bg-black dark:bg-white text-white dark:text-black p-4 mb-4 border-2 border-black dark:border-white group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-            {uploadMutation.isPending ? <FiLoader className="animate-spin" size={32} /> : <FiUploadCloud size={32} strokeWidth={2} />}
-         </div>
-         <p className="text-lg font-black uppercase tracking-tight group-hover:underline decoration-2 underline-offset-4">
-            {uploadMutation.isPending ? "Uploading..." : "Click_to_Upload"}
-         </p>
-         <p className="text-xs font-mono font-bold text-gray-500 dark:text-zinc-400 mt-2 bg-white dark:bg-zinc-900 px-2 py-1 border border-black dark:border-white uppercase">JPG, PNG, GIF, MP4 (MAX 10MB)</p>
+      {/* Storage & Folder Creator */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+              <div className="flex justify-between text-[8px] font-black uppercase mb-1">
+                  <span>Usage</span>
+                  <span>{formatSize(usage)} / 100MB</span>
+              </div>
+              <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
+                  <div className="h-full bg-[#3C48F5]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+              </div>
+          </div>
+
+          <AnimatePresence>
+              {isCreatingFolder && (
+                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex gap-2">
+                      <input 
+                        autoFocus
+                        value={newFolderName}
+                        onChange={e => setNewFolderName(e.target.value)}
+                        placeholder="FOLDER_NAME..."
+                        className="flex-1 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 text-xs font-bold uppercase focus:outline-none"
+                      />
+                      <button 
+                        onClick={() => createFolderMutation.mutate(newFolderName)}
+                        className="px-4 bg-green-500 border-2 border-black dark:border-white text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                      >
+                          OK
+                      </button>
+                      <button 
+                        onClick={() => setIsCreatingFolder(false)}
+                        className="px-4 bg-white border-2 border-black dark:border-white text-black font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                      >
+                          X
+                      </button>
+                  </motion.div>
+              )}
+          </AnimatePresence>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
+
+      {/* Explorer Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
              <div className="col-span-full py-20 flex flex-col items-center justify-center">
                  <SpinningLoader fullScreen={false} />
-                 <span className="font-black uppercase text-xs tracking-widest mt-4">Scanning_Library...</span>
+                 <span className="font-black uppercase text-[10px] tracking-widest mt-4 animate-pulse">Accessing_Data_Stream...</span>
              </div>
          ) : (
-            <AnimatePresence>
-                {assets.map((asset: any) => (
-                <motion.div 
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    key={asset.id} 
-                    className="group relative aspect-square bg-white dark:bg-zinc-800 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
-                >
-                    <img src={asset.url} className="w-full h-full object-cover transition-all duration-700 grayscale group-hover:grayscale-0" />
-                    
-                    {/* Actions Overlay (Hover) */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                        <div className="flex gap-3 items-center">
-                            <button className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white py-2 text-xs font-black uppercase text-black dark:text-white hover:bg-[#3C48F5] hover:text-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none">
-                                <FiImage size={14} /> Preview
-                            </button>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); if(confirm("DELETE_ASSET?")) deleteMutation.mutate(asset.id); }} 
-                                className="p-2 bg-red-500 border-2 border-black dark:border-white text-white hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none"
-                            >
-                                <FiTrash2 size={16} />
-                            </button>
+            <AnimatePresence mode="popLayout">
+                {/* 1. Folders */}
+                {folders.map((folder: any) => (
+                    <motion.div 
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        key={folder.id}
+                        onDoubleClick={() => enterFolder(folder)}
+                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all relative"
+                    >
+                        <div className="text-[#3C48F5] dark:text-blue-400 group-hover:scale-110 transition-transform">
+                            <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
                         </div>
-                    </div>
+                        <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); if(confirm("DEL_FOLDER?")) deleteFolderMutation.mutate(folder.id); }}
+                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
+                        >
+                            <FiTrash2 size={10} />
+                        </button>
+                    </motion.div>
+                ))}
 
-                    {/* Metadata Badge */}
-                    <div className="absolute top-0 left-0 flex flex-col items-start">
-                        <span className="bg-[#3C48F5] text-white text-[10px] font-black uppercase px-2 py-1 border-r-2 border-b-2 border-black dark:border-white">
-                            {formatSize(asset.size)}
-                        </span>
-                        <span className="bg-black dark:bg-zinc-900 text-white text-[8px] font-bold uppercase px-2 py-0.5 border-r-2 border-b-2 border-black dark:border-white">
-                            {format(new Date(asset.createdAt), 'MMM d, yyyy')}
-                        </span>
-                    </div>
-                </motion.div>
+                {/* 2. Assets */}
+                {assets.map((asset: any) => (
+                    <motion.div 
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        key={asset.id} 
+                        className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
+                    >
+                        <img src={asset.url} className="w-full h-full object-cover transition-all duration-500 grayscale group-hover:grayscale-0" />
+                        
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                            <div className="flex justify-between">
+                                <span className="bg-black text-white text-[8px] px-1 border border-white uppercase">{formatSize(asset.size)}</span>
+                                <button className="p-1 bg-white text-black"><FiMoreVertical size={10}/></button>
+                            </div>
+                            <div className="flex gap-1">
+                                <button className="flex-1 bg-white hover:bg-[#3C48F5] hover:text-white transition-colors py-1 text-[8px] font-black uppercase border border-black">Use</button>
+                                <button 
+                                    onClick={() => { if(confirm("DEL_ASSET?")) deleteAssetMutation.mutate(asset.id); }}
+                                    className="bg-red-500 text-white p-1 border border-black hover:bg-red-600"
+                                >
+                                    <FiTrash2 size={12} />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
                 ))}
             </AnimatePresence>
          )}
-         {!isLoading && assets.length === 0 && (
-             <div className="col-span-full py-20 text-center border-4 border-dashed border-gray-200 dark:border-zinc-700 text-gray-300 dark:text-zinc-600 font-black uppercase tracking-tighter text-4xl">
-                 Library_Empty
+
+         {!isLoading && assets.length === 0 && folders.length === 0 && (
+             <div className="col-span-full py-20 text-center border-4 border-dashed border-zinc-200 dark:border-zinc-800 text-zinc-300 dark:text-zinc-700 font-black uppercase tracking-tighter text-3xl">
+                 Folder_Is_Empty
              </div>
          )}
       </div>
