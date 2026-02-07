@@ -25,6 +25,7 @@ interface LibraryItem { id: string; type: AssetType; name?: string; url?: string
 interface TemplateItem { id: number; title: string; content: string; }
 
 interface ComposerProps {
+  workspaceId: string;
   accounts: any[]; 
   postToEdit?: any; // New prop
   onSchedule: (
@@ -33,7 +34,8 @@ interface ComposerProps {
     mediaIds?: string[], // ➤ UPDATED: We pass IDs now
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
     selectedAccountIds?: string[],
-    postId?: string // New arg for update
+    postId?: string, // New arg for update
+    workspaceId?: string // New arg for workspace context
   ) => Promise<void>;
 }
 
@@ -80,7 +82,7 @@ const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 
-export default function Composer({ onSchedule, accounts = [], postToEdit }: ComposerProps) {
+export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId }: ComposerProps) {
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
@@ -287,7 +289,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
             finalMediaIds, 
             status, 
             targets,
-            postToEdit?.id // Pass ID if editing
+            postToEdit?.id,
+            workspaceId
         );
         
         setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]);
