@@ -101,7 +101,7 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
         ) : (
           <>
             <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight mb-2">Based on your historical engagement and industry trends.</p>
-            {data?.suggestions?.map((s: any, i: number) => (
+            {data?.suggestions?.length > 0 ? data.suggestions.map((s: any, i: number) => (
               <button 
                 key={i} 
                 onClick={() => onSelect(s.hour)}
@@ -121,7 +121,11 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
                   <span className="text-[10px] font-black text-[#3C48F5]">SELECT</span>
                 </div>
               </button>
-            ))}
+            )) : (
+              <div className="text-[10px] font-bold text-center p-4 border-2 border-dashed border-gray-200 uppercase text-gray-400">
+                No data patterns found yet. Publish more nodes to activate AI.
+              </div>
+            )}
           </>
         )}
       </div>
