@@ -3,3 +3,14 @@
 llm-context.md
 UPDATES.md
 Final-Configuration.md
+afterupdate.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+ml_service/.venv/
+ml_service/__pycache__/
