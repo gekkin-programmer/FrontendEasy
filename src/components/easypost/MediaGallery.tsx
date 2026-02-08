@@ -1,17 +1,19 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus, 
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2 
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiExternalLink
 } from 'react-icons/fi';
+import { SiCanva, SiDropbox } from 'react-icons/si';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
+import Script from 'next/script';
 
 export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
   const queryClient = useQueryClient();
@@ -59,6 +61,15 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
     }
   });
 
+  const importMutation = useMutation({
+    mutationFn: (url: string) => api.post('/media/import-url', { url, folderId: currentFolderId }),
+    onSuccess: () => {
+        toast.success("EXTERNAL_ASSET_IMPORTED");
+        queryClient.invalidateQueries({ queryKey: ['media'] });
+        queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    }
+  });
+
   const createFolderMutation = useMutation({
       mutationFn: (name: string) => api.post('/media/folders', { name, parentId: currentFolderId }),
       onSuccess: () => {
@@ -68,6 +79,42 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
           queryClient.invalidateQueries({ queryKey: ['media'] });
       }
   });
+
+  // --- CANVA INTEGRATION ---
+  const handleCanvaDesign = () => {
+    if (!(window as any).Canva?.DesignButton) {
+        return toast.error("CANVA_SDK_NOT_LOADED");
+    }
+
+    (window as any).Canva.DesignButton.initialize({
+        apiKey: process.env.NEXT_PUBLIC_CANVA_API_KEY || 'YOUR_CANVA_KEY',
+        onDesignPublish: (exportUrl: string) => {
+            console.log("Canva Export:", exportUrl);
+            importMutation.mutate(exportUrl);
+        }
+    });
+  };
+
+  // --- DROPBOX INTEGRATION ---
+  const handleDropboxImport = () => {
+    if (!(window as any).Dropbox) {
+        return toast.error("DROPBOX_SDK_NOT_LOADED");
+    }
+
+    const options = {
+        success: (files: any[]) => {
+            files.forEach(file => {
+                importMutation.mutate(file.link);
+            });
+        },
+        cancel: () => {},
+        linkType: "direct",
+        multiselect: true,
+        extensions: ['.png', '.jpg', '.jpeg', '.mp4', '.gif'],
+    };
+
+    (window as any).Dropbox.choose(options);
+  };
 
   const deleteAssetMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/${id}`),
@@ -112,7 +159,9 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
 
   return (
     <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
-      
+      <Script src="https://sdk.canva.com/designbutton/v2/api.js" strategy="lazyOnload" />
+      <Script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key={process.env.NEXT_PUBLIC_DROPBOX_APP_KEY || 'YOUR_APP_KEY'} strategy="lazyOnload" />
+
       {/* OS Toolbar */}
       <div className="flex flex-wrap gap-4 items-center justify-between bg-[#3C48F5] p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-white">
           <div className="flex items-center gap-3">
@@ -135,6 +184,19 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
 
           <div className="flex gap-2">
               <button 
+                onClick={handleCanvaDesign}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#00C4CC] hover:bg-[#00A9AF] text-white border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              >
+                  <SiCanva size={14} /> Canva
+              </button>
+              <button 
+                onClick={handleDropboxImport}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#0061FF] hover:bg-[#0051D5] text-white border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              >
+                  <SiDropbox size={14} /> Dropbox
+              </button>
+              <div className="w-px h-8 bg-white/20 mx-1 self-center" />
+              <button 
                 onClick={() => setIsCreatingFolder(true)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black hover:bg-zinc-800 border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
               >
@@ -144,7 +206,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] transition-all"
               >
-                  <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
+                  <FiUploadCloud /> {uploadMutation.isPending || importMutation.isPending ? "Syncing..." : "Upload_Asset"}
               </button>
           </div>
       </div>
