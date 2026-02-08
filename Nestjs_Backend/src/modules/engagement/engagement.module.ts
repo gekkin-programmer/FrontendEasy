@@ -4,6 +4,8 @@ import { EngagementService } from './engagement.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { SocialAccountsModule } from '../social-accounts/social-accounts.module'; 
 import { FacebookService } from '../social-accounts/platforms/facebook.service';
+import { InstagramService } from '../social-accounts/platforms/instagram.service';
+import { TwitterService } from '../social-accounts/platforms/twitter.service';
 import { HttpModule } from '@nestjs/axios'; 
 
 @Module({
@@ -15,7 +17,9 @@ import { HttpModule } from '@nestjs/axios';
   controllers: [EngagementController],
   providers: [
     EngagementService, 
-    FacebookService 
+    FacebookService,
+    InstagramService,
+    TwitterService
   ],
 })
 export class EngagementModule {}

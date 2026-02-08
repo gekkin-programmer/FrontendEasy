@@ -43,7 +43,50 @@ export class TwitterService implements ISocialPlatform {
     }
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<string> {
-    return refreshToken; 
+    async refreshAccessToken(refreshToken: string): Promise<string> {
+
+      return refreshToken; 
+
+    }
+
+  
+
+    async replyToComment(accessToken: string, tweetId: string, text: string): Promise<string> {
+
+      try {
+
+        const url = `${this.BASE_URL}/tweets`;
+
+        const { data } = await firstValueFrom(
+
+          this.httpService.post(url, 
+
+            { 
+
+              text, 
+
+              reply: { in_reply_to_tweet_id: tweetId } 
+
+            },
+
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+
+          )
+
+        );
+
+        return data.data.id;
+
+      } catch (error) {
+
+        this.logger.error(`Twitter Reply Error: ${error.message}`);
+
+        throw new Error('Twitter reply failed');
+
+      }
+
+    }
+
   }
-}
+
+  

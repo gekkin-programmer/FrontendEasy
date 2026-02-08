@@ -45,18 +45,30 @@ export default function Engagement() {
   const [filter, setFilter] = useState('all');
 
   // 🟢 1. FETCH ENGAGEMENT
-  const { data: engagements = [], isLoading } = useQuery({
+  const { data: engagements = [], isLoading, refetch } = useQuery({
     queryKey: ['engagement', workspaceId],
     queryFn: async () => {
         const res: any = await api.get(`/engagement?workspaceId=${workspaceId}`);
-        return res.data || [];
+        return res.data || res || [];
     }
+  });
+
+  // 🟢 1.1 SYNC MUTATION
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+        await api.post(`/engagement/sync?workspaceId=${workspaceId}`, {});
+    },
+    onSuccess: () => {
+        toast.success("INBOX_SYNCHRONIZED");
+        refetch();
+    },
+    onError: () => toast.error("SYNC_FAILED")
   });
 
   // 🟢 2. REPLY MUTATION
   const replyMutation = useMutation({
     mutationFn: async ({ id, text }: { id: string, text: string }) => {
-        await api.post(`/engagement/${id}/reply`, { text });
+        await api.post(`/engagement/${id}/reply?workspaceId=${workspaceId}`, { text });
     },
     onSuccess: () => {
         toast.success("REPLY_SENT_SUCCESSFULLY");
@@ -105,7 +117,14 @@ export default function Engagement() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">Inbox</h2>
             <div className="flex gap-2">
-                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement']})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title="Refresh"><FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} /></button>
+                <button 
+                    onClick={() => syncMutation.mutate()} 
+                    disabled={syncMutation.isPending || isLoading}
+                    className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-50" 
+                    title="Refresh / Sync"
+                >
+                    <FiRefreshCw size={16} className={syncMutation.isPending ? "animate-spin" : ""} />
+                </button>
             </div>
           </div>
           <div className="relative">
