@@ -1,6 +1,7 @@
 # Project Updates
 
 ## 2026-02-07
+- fix(boards): resolve board creation error by using `req.user.sub` instead of `req.user.id` in `BoardsController`.
 - feat(kanban): implement full workspace-based Kanban system.
   - Backend: Added Prisma models (`Board`, `BoardColumn`, `Card`, `CardComment`, `CardActivity`, `CardLabel`).
   - Backend: Created `BoardsModule` with comprehensive service and controller for board/card management.

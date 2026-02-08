@@ -11,6 +11,7 @@ EasyPostV2 is an AI-powered social media management platform with a NestJS backe
 - **Real-time**: WebSockets used for instant dashboard updates.
 
 ## Critical State / Recent Fixes
+- **Auth Note**: The `JwtStrategy` returns `{ sub: userId }`. Therefore, controllers must use `req.user.sub` to access the user's ID, not `req.user.id`.
 - **Kanban System**: Added a multi-board Kanban system per workspace. 
   - `Board` -> `BoardColumn` -> `Card` hierarchy.
   - `Card` relates to `User` (assignee/creator) and `Post` (for conversion).

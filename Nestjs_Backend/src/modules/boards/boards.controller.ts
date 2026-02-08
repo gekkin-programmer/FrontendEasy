@@ -30,7 +30,7 @@ export class BoardsController {
     @Request() req,
     @Body() dto: CreateBoardDto
   ) {
-    return this.boardsService.createBoard(workspaceId, req.user.id, dto);
+    return this.boardsService.createBoard(workspaceId, req.user.sub, dto);
   }
 
   @Get('workspace/:workspaceId')
@@ -39,13 +39,13 @@ export class BoardsController {
     @Param('workspaceId') workspaceId: string,
     @Request() req
   ) {
-    return this.boardsService.getBoards(workspaceId, req.user.id);
+    return this.boardsService.getBoards(workspaceId, req.user.sub);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get board details including columns and cards' })
   getBoardDetails(@Param('id') id: string, @Request() req) {
-    return this.boardsService.getBoardDetails(id, req.user.id);
+    return this.boardsService.getBoardDetails(id, req.user.sub);
   }
 
   @Patch(':id')
@@ -55,13 +55,13 @@ export class BoardsController {
     @Request() req,
     @Body() dto: UpdateBoardDto
   ) {
-    return this.boardsService.updateBoard(id, req.user.id, dto);
+    return this.boardsService.updateBoard(id, req.user.sub, dto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a board' })
   deleteBoard(@Param('id') id: string, @Request() req) {
-    return this.boardsService.deleteBoard(id, req.user.id);
+    return this.boardsService.deleteBoard(id, req.user.sub);
   }
 
   // ==========================================
@@ -75,7 +75,7 @@ export class BoardsController {
     @Request() req,
     @Body() dto: CreateColumnDto
   ) {
-    return this.boardsService.createColumn(boardId, req.user.id, dto);
+    return this.boardsService.createColumn(boardId, req.user.sub, dto);
   }
 
   @Patch('columns/:id')
@@ -85,13 +85,13 @@ export class BoardsController {
     @Request() req,
     @Body() dto: UpdateColumnDto
   ) {
-    return this.boardsService.updateColumn(id, req.user.id, dto);
+    return this.boardsService.updateColumn(id, req.user.sub, dto);
   }
 
   @Delete('columns/:id')
   @ApiOperation({ summary: 'Delete a column' })
   deleteColumn(@Param('id') id: string, @Request() req) {
-    return this.boardsService.deleteColumn(id, req.user.id);
+    return this.boardsService.deleteColumn(id, req.user.sub);
   }
 
   // ==========================================
@@ -105,13 +105,13 @@ export class BoardsController {
     @Request() req,
     @Body() dto: CreateCardDto
   ) {
-    return this.boardsService.createCard(columnId, req.user.id, dto);
+    return this.boardsService.createCard(columnId, req.user.sub, dto);
   }
 
   @Get('cards/:id')
   @ApiOperation({ summary: 'Get full card details (comments, activity)' })
   getCardDetails(@Param('id') id: string, @Request() req) {
-    return this.boardsService.getCardDetails(id, req.user.id);
+    return this.boardsService.getCardDetails(id, req.user.sub);
   }
 
   @Patch('cards/:id')
@@ -121,7 +121,7 @@ export class BoardsController {
     @Request() req,
     @Body() dto: UpdateCardDto
   ) {
-    return this.boardsService.updateCard(id, req.user.id, dto);
+    return this.boardsService.updateCard(id, req.user.sub, dto);
   }
 
   @Patch('cards/:id/move')
@@ -131,7 +131,7 @@ export class BoardsController {
     @Request() req,
     @Body() dto: MoveCardDto
   ) {
-    return this.boardsService.moveCard(id, req.user.id, dto);
+    return this.boardsService.moveCard(id, req.user.sub, dto);
   }
 
   @Post('cards/:id/comments')
@@ -141,7 +141,7 @@ export class BoardsController {
     @Request() req,
     @Body() dto: CreateCardCommentDto
   ) {
-    return this.boardsService.addComment(id, req.user.id, dto);
+    return this.boardsService.addComment(id, req.user.sub, dto);
   }
 
   // ==========================================
@@ -151,6 +151,6 @@ export class BoardsController {
   @Post('cards/:id/convert-to-post')
   @ApiOperation({ summary: 'Convert card content into a social media post draft' })
   convertToPost(@Param('id') id: string, @Request() req) {
-    return this.boardsService.convertToPost(id, req.user.id);
+    return this.boardsService.convertToPost(id, req.user.sub);
   }
 }
