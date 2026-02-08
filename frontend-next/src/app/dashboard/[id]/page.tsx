@@ -15,7 +15,7 @@ import {
   Layers, BarChart2, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle, Layout
+  AlertTriangle, Crown, MessageCircle, Layout, Heart
 } from 'lucide-react'; 
 
 // COMPONENTS
@@ -45,8 +45,9 @@ import {
 } from "@/components/ui/popover";
 
 import BoardView from '@/src/components/easypost/BoardView';
+import AudienceAnalytics from '@/src/components/easypost/AudienceAnalytics';
 
-type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
+type TabType = 'queue' |'calendar' | 'boards' | 'fans' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
     const params = useParams();
@@ -268,6 +269,7 @@ function DashboardContent() {
         { id: 'queue', label: 'Queue', icon: Layers }, 
         { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
         { id: 'boards', label: 'Boards', icon: Layout }, 
+        { id: 'fans', label: 'Fans', icon: Heart },
         { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
         { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
         { id: 'team', label: 'Team', icon: Users }, 
@@ -467,6 +469,7 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
+                                    {activeTab === 'fans' && <AudienceAnalytics workspaceId={workspaceId} />}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}

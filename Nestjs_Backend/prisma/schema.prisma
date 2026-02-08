@@ -241,6 +241,13 @@ enum TransactionStatus {
   REJECTED
 }
 
+enum AudienceSegment {
+  FAN
+  REGULAR
+  OCCASIONAL
+  INACTIVE
+}
+
 // ============================================================================
 // USER & AUTH
 // ============================================================================
@@ -372,6 +379,8 @@ model Workspace {
   streams          Stream[]
   reports          Report[]
   channels         ChatChannel[]
+  boards           Board[]
+  audience         AudienceMember[]
 
   mediaAssets      MediaLibrary[]
   mediaFolders     MediaFolder[]     @relation("WorkspaceFolders")
@@ -379,8 +388,6 @@ model Workspace {
   leads            Lead[]
   automationRules  AutomationRule[]
   notifications    Notification[]
-
-  boards           Board[]
 
   documents Document[]
 
@@ -482,6 +489,9 @@ model SocialAccount {
 
   createdById String
   createdBy   User   @relation("AccountCreator", fields: [createdById], references: [id])
+
+  audienceMemberId String?
+  audienceMember   AudienceMember? @relation(fields: [audienceMemberId], references: [id], onDelete: SetNull)
 
   teams              TeamSocialAccount[]
   posts              Post[]
@@ -689,6 +699,7 @@ model Post {
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
   cards           Card[]
+  audienceInteractions AudienceInteraction[]
 
   @@index([status, scheduledFor])
   @@map("posts")
@@ -736,6 +747,9 @@ model PostComment {
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  audienceMemberId String?
+  audienceMember   AudienceMember? @relation(fields: [audienceMemberId], references: [id], onDelete: SetNull)
 
   externalId   String?         @unique
   authorName   String?
@@ -1282,10 +1296,118 @@ model CardLabel {
   cardId      String
   card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
   
-  name        String
-  color       String
+    name        String
   
-  createdAt   DateTime @default(now())
-
-  @@map("card_labels")
-}
+    color       String
+  
+    
+  
+    createdAt   DateTime @default(now())
+  
+  
+  
+    @@map("card_labels")
+  
+  }
+  
+  
+  
+  model AudienceMember {
+  
+    id              String   @id @default(cuid())
+  
+    workspaceId     String
+  
+    workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+    
+  
+    platform        SocialPlatform
+  
+    platformUserId  String   // ID of the follower on the platform
+  
+    username        String
+  
+    displayName     String?
+  
+    avatar          String?
+  
+    
+  
+    engagementScore Float    @default(0)
+  
+    loyaltyScore    Float    @default(0)
+  
+      segment         AudienceSegment @default(INACTIVE)
+  
+      
+  
+        interactions    AudienceInteraction[]
+  
+      
+  
+        comments        PostComment[]
+  
+      
+  
+        socialAccounts  SocialAccount[]
+  
+      
+  
+        
+  
+      
+  
+        lastInteractionAt DateTime?
+  
+      
+  
+      
+  
+    
+  
+    createdAt       DateTime @default(now())
+  
+    updatedAt       DateTime @updatedAt
+  
+  
+  
+    @@unique([workspaceId, platform, platformUserId])
+  
+    @@map("audience_members")
+  
+  }
+  
+  
+  
+  model AudienceInteraction {
+  
+    id              String   @id @default(cuid())
+  
+    audienceMemberId String
+  
+    audienceMember   AudienceMember @relation(fields: [audienceMemberId], references: [id], onDelete: Cascade)
+  
+    
+  
+    postId          String?
+  
+    post            Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  
+    
+  
+    type            String   // LIKE, COMMENT, SHARE, CLICK
+  
+    weight          Int      @default(1)
+  
+    
+  
+    createdAt       DateTime @default(now())
+  
+  
+  
+    @@map("audience_interactions")
+  
+  }
+  
+  
