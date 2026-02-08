@@ -113,21 +113,31 @@ export class SmartSchedulingService {
 
         return response.data;
 
-      } catch (error) {
+          } catch (error) {
 
-        this.logger.error(`ML Service Error: ${error.message}`);
+            this.logger.error(`ML Service Error: ${error.message}`);
 
-        return {
+            return {
 
-          suggestions: [],
+              suggestions: [
 
-          heatmap: [],
+                { hour: 9, score: 0.5, confidence: 'low' },
 
-          error: "ML_SERVICE_OFFLINE"
+                { hour: 13, score: 0.5, confidence: 'low' },
 
-        };
+                { hour: 19, score: 0.5, confidence: 'low' }
 
-      }
+              ],
+
+              heatmap: [],
+
+              error: "ML_SERVICE_OFFLINE"
+
+            };
+
+          }
+
+      
 
     }
 
