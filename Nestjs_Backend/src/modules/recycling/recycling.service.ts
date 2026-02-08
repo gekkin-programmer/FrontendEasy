@@ -1,21 +1,22 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostStatus } from '@prisma/client';
-import { OpenAI } from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RecyclingService {
   private readonly logger = new Logger(RecyclingService.name);
-  private openai: OpenAI;
+  private genAI: GoogleGenerativeAI;
 
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {
-    this.openai = new OpenAI({
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
-    });
+    const apiKey = this.configService.get<string>('GOOGLE_API_KEY');
+    if (apiKey) {
+      this.genAI = new GoogleGenerativeAI(apiKey);
+    }
   }
 
   // 1. Identify Top Performing Posts
@@ -47,28 +48,46 @@ export class RecyclingService {
       .sort((a, b) => b.performanceScore - a.performanceScore);
   }
 
-  // 2. AI Variation Generator
+  // 2. AI Variation Generator (Gemini Version)
   async generateVariation(postId: string) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException('Post not found');
 
-    const prompt = `
-      Rewrite the following social media post to give it a fresh angle while maintaining the core message.
-      Include a strong hook and a clear call to action.
-      Original content: "${post.content}"
-      Format: Return only the new content text.
-    `;
+    if (!this.genAI) {
+        this.logger.warn('Google API Key missing, returning original content');
+        return {
+            originalContent: post.content,
+            newContent: post.content,
+            originalPostId: post.id
+        };
+    }
 
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{ role: "user", content: prompt }],
-    });
+    try {
+        const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+          Rewrite the following social media post to give it a fresh angle while maintaining the core message.
+          Include a strong hook and a clear call to action.
+          Original content: "${post.content}"
+          Format: Return only the new content text.
+        `;
 
-    return {
-      originalContent: post.content,
-      newContent: response.choices[0].message.content,
-      originalPostId: post.id
-    };
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        return {
+          originalContent: post.content,
+          newContent: text.trim(),
+          originalPostId: post.id
+        };
+    } catch (error) {
+        this.logger.error(`Gemini Error: ${error.message}`);
+        return {
+            originalContent: post.content,
+            newContent: post.content,
+            originalPostId: post.id
+        };
+    }
   }
 
   // 3. Automation: Recycle Post
@@ -81,12 +100,12 @@ export class RecyclingService {
     if (!originalPost) throw new NotFoundException('Original post not found');
 
     const variation = await this.generateVariation(postId);
-    if (!variation.newContent) throw new Error('AI failed to generate content');
+    const content = variation.newContent || originalPost.content;
 
     const newPost = await this.prisma.post.create({
       data: {
         workspaceId: originalPost.workspaceId,
-        content: variation.newContent,
+        content: content,
         status: PostStatus.SCHEDULED,
         scheduledFor,
         createdById: userId,
@@ -129,7 +148,6 @@ export class RecyclingService {
     const engagement = (likes * 1) + (comments * 3) + (shares * 5);
     const reach = views || (engagement > 0 ? engagement * 10 : 1);
     
-    // Normalize to 0-100 (Simplified logic)
     const score = (engagement / reach) * 1000; 
     return Math.min(Math.round(score), 100);
   }

@@ -26,6 +26,8 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AppEventsModule } from './modules/app-events/app-events.module';
 import { BoardsModule } from './modules/boards/boards.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AudienceModule } from './modules/audience/audience.module';
+import { RecyclingModule } from './modules/recycling/recycling.module';
 
 @Module({
   imports: [
@@ -68,7 +70,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AdminModule,
     AppEventsModule,
     BoardsModule,
-    NotificationsModule
+    NotificationsModule,
+    AudienceModule,
+    RecyclingModule
   ],
   controllers: [AppController],
   providers: [AppService],
