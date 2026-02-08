@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import MediaGallery from './MediaGallery';
 
@@ -81,6 +82,52 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
 const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white"><Icon size={18} strokeWidth={2.5} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
+const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['smart-scheduling', workspaceId, platform],
+    queryFn: () => api.get<any>(`/ai/smart-scheduling/suggestions?workspaceId=${workspaceId}&platform=${platform}`),
+  });
+
+  return (
+    <div className="flex flex-col font-sans">
+      <div className="bg-black dark:bg-white text-white dark:text-black p-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+        <Sparkles size={12} className="text-yellow-400" /> Best_Posting_Times
+      </div>
+      <div className="p-4 space-y-3">
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 animate-pulse">
+            <RefreshCw size={12} className="animate-spin" /> ANALYZING_AUDIENCE_PATTERNS...
+          </div>
+        ) : (
+          <>
+            <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight mb-2">Based on your historical engagement and industry trends.</p>
+            {data?.suggestions?.map((s: any, i: number) => (
+              <button 
+                key={i} 
+                onClick={() => onSelect(s.hour)}
+                className="w-full flex items-center justify-between p-2 border-2 border-black dark:border-white hover:bg-yellow-100 dark:hover:bg-zinc-800 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <Clock size={14} className="text-gray-400 group-hover:text-black dark:group-hover:text-white" />
+                  <span className="text-sm font-black">{s.hour}:00</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "text-[8px] font-black uppercase px-1.5 py-0.5 border",
+                    s.confidence === 'high' ? "bg-green-100 border-green-600 text-green-700" : "bg-blue-100 border-blue-600 text-blue-700"
+                  )}>
+                    {s.confidence}_CONFIDENCE
+                  </span>
+                  <span className="text-[10px] font-black text-[#3C48F5]">SELECT</span>
+                </div>
+              </button>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId }: ComposerProps) {
   /* ---- State ---- */
@@ -419,8 +466,31 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-              <Popover><PopoverTrigger asChild><NeuButton className="bg-white dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
+                        <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                          {/* 🚀 AI SMART SCHEDULING BUTTON */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
+                                <Sparkles size={14} className="animate-pulse" /> AI_SCHEDULER
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="center" side="top">
+                              <AiSchedulerContent 
+                                workspaceId={workspaceId} 
+                                platform={accounts.find(a => selectedAccountIds.includes(a.id))?.platform || 'FACEBOOK'} 
+                                onSelect={(hour) => {
+                                  const newDate = date || new Date();
+                                  newDate.setHours(hour);
+                                  newDate.setMinutes(0);
+                                  setDate(new Date(newDate));
+                                  toast.success(`AI suggested: ${hour}:00 set!`);
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+            
+                          <Popover><PopoverTrigger asChild><NeuButton className="bg-white dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger>
+            <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
                   <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 dark:bg-purple-900/20 text-purple-900 dark:text-purple-100 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>

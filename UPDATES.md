@@ -1,6 +1,11 @@
 # Project Updates
 
-## 2026-02-07
+## 2026-02-08
+- feat(ai): implement AI Smart Scheduling system.
+  - ML Service: Created a Python FastAPI service using `RandomForestRegressor` for engagement prediction.
+  - Backend: Integrated `SmartSchedulingModule` in NestJS to fetch historical data and communicate with Python.
+  - Frontend: Added "AI_SCHEDULER" button to `Composer` with confidence-rated suggestions.
+  - Logic: Implemented cyclical time encoding (sin/cos) for accurate pattern recognition.
 - fix(boards): resolved drag-and-drop issues by correctly identifying target columns via metadata.
 - feat(boards): added ability to rename boards and columns.
 - fix(boards): resolve board creation error by using `req.user.sub` instead of `req.user.id` in `BoardsController`.
