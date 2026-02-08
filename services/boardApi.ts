@@ -28,6 +28,7 @@ export interface Card {
   order: number;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   dueDate?: string;
+  columnId: string;
   assigneeId?: string;
   assignee?: {
     id: string;
