@@ -6,11 +6,11 @@ import { PlanType } from '@prisma/client';
 @Injectable()
 export class MediaService {
   private readonly STORAGE_LIMITS = {
-    [PlanType.FREE]: 100 * 1024 * 1024, // 100MB for Free
-    [PlanType.STARTER]: 500 * 1024 * 1024, // 500MB
-    [PlanType.PROFESSIONAL]: 2 * 1024 * 1024 * 1024, // 2GB
-    [PlanType.BUSINESS]: 10 * 1024 * 1024 * 1024, // 10GB
-    [PlanType.ENTERPRISE]: 100 * 1024 * 1024 * 1024, // 100GB
+    [PlanType.FREE]: 100 * 1024 * 1024,
+    [PlanType.STARTER]: 500 * 1024 * 1024,
+    [PlanType.PROFESSIONAL]: 2 * 1024 * 1024 * 1024,
+    [PlanType.BUSINESS]: 10 * 1024 * 1024 * 1024,
+    [PlanType.ENTERPRISE]: 100 * 1024 * 1024 * 1024,
   };
 
   constructor(
@@ -18,86 +18,110 @@ export class MediaService {
     private cloudinary: CloudinaryService
   ) {}
 
-  //Query Workspace directly instead of User relations
-  async findAll(userId: string) {
-    try {
-      const workspace = await this.prisma.workspace.findFirst({
-        where: { ownerId: userId }
-      });
-
-      if (!workspace) return [];
-
-      return this.prisma.mediaLibrary.findMany({
-        where: { workspaceId: workspace.id },
-        orderBy: { createdAt: 'desc' }
-      });
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Could not fetch media');
-    }
+  private async getWorkspace(userId: string) {
+    const workspace = await this.prisma.workspace.findFirst({
+      where: { 
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } }
+        ]
+      },
+      include: { owner: true }
+    });
+    if (!workspace) throw new NotFoundException('No workspace found');
+    return workspace;
   }
 
-  async processUpload(file: any, userId: string) {
-    try {
-      // 1. Get Workspace and Plan
-      const workspace = await this.prisma.workspace.findFirst({
-        where: { ownerId: userId },
-        include: { owner: true }
-      });
+  async findAll(userId: string, folderId?: string) {
+    const workspace = await this.getWorkspace(userId);
+    
+    // Normalize folderId: empty string or 'null' string should be treated as null (root)
+    const targetFolderId = (folderId === 'null' || !folderId) ? null : folderId;
 
-      if (!workspace) {
-        throw new NotFoundException('No workspace found for this user');
+    // Get Folders
+    const folders = await this.prisma.mediaFolder.findMany({
+      where: { 
+        workspaceId: workspace.id,
+        parentId: targetFolderId
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    // Get Assets
+    const assets = await this.prisma.mediaLibrary.findMany({
+      where: { 
+        workspaceId: workspace.id,
+        folderId: targetFolderId
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return { folders, assets };
+  }
+
+  async createFolder(name: string, userId: string, parentId?: string) {
+    const workspace = await this.getWorkspace(userId);
+    return this.prisma.mediaFolder.create({
+      data: {
+        name,
+        workspaceId: workspace.id,
+        parentId: parentId || null
       }
+    });
+  }
 
-      // 2. Check Storage Limits
-      const usage = await this.getStorageUsage(workspace.id);
-      const limit = this.STORAGE_LIMITS[workspace.owner.planType] || this.STORAGE_LIMITS[PlanType.FREE];
+  async processUpload(file: any, userId: string, folderId?: string) {
+    const workspace = await this.getWorkspace(userId);
 
-      if (usage + file.size > limit) {
-        throw new ForbiddenException('Storage limit reached. Please upgrade to PRO.');
-      }
+    const usage = await this.getStorageUsage(workspace.id);
+    const limit = this.STORAGE_LIMITS[workspace.owner.planType] || this.STORAGE_LIMITS[PlanType.FREE];
 
-      // 3. Upload to Cloudinary
-      const cloudResult = await this.cloudinary.uploadFile(file);
-      
-      const media = await this.prisma.mediaLibrary.create({
-        data: {
-          uploaderId: userId,
-          workspaceId: workspace.id,
-          url: cloudResult.secure_url,
-          filename: file.originalname,
-          mimeType: file.mimetype,
-          size: file.size,
-          aiTags: [], 
-          aiDescription: 'Uploaded via API',
-        }
-      });
-
-      return { message: 'File uploaded', media };
-    } catch (error) {
-      if (error instanceof ForbiddenException || error instanceof NotFoundException) throw error;
-      console.error(error);
-      throw new InternalServerErrorException('Upload failed');
+    if (usage + file.size > limit) {
+      throw new ForbiddenException('Storage limit reached. Please upgrade to PRO.');
     }
+
+    const cloudResult = await this.cloudinary.uploadFile(file);
+    
+    const media = await this.prisma.mediaLibrary.create({
+      data: {
+        uploadedById: userId,
+        workspaceId: workspace.id,
+        url: cloudResult.secure_url,
+        filename: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        folderId: folderId || null
+      }
+    });
+
+    return { message: 'File uploaded', media };
+  }
+
+  async moveAsset(assetId: string, folderId: string | null, userId: string) {
+    const workspace = await this.getWorkspace(userId);
+    return this.prisma.mediaLibrary.updateMany({
+      where: { id: assetId, workspaceId: workspace.id },
+      data: { folderId }
+    });
   }
 
   async remove(id: string, userId: string) {
-    const media = await this.prisma.mediaLibrary.findUnique({
-      where: { id },
-      include: { workspace: true }
+    const workspace = await this.getWorkspace(userId);
+    const media = await this.prisma.mediaLibrary.findFirst({
+      where: { id, workspaceId: workspace.id }
     });
 
     if (!media) throw new NotFoundException('Media not found');
 
-    // Only owner of the workspace can delete media for now
-    if (media.workspace.ownerId !== userId) {
-      throw new ForbiddenException('Access denied');
-    }
-
-    // Optional: Delete from Cloudinary as well
-    // await this.cloudinary.deleteFile(media.url);
-
     return this.prisma.mediaLibrary.delete({ where: { id } });
+  }
+
+  async removeFolder(id: string, userId: string) {
+    const workspace = await this.getWorkspace(userId);
+    // Recursively handle or just delete if empty (simplified for now)
+    return this.prisma.mediaFolder.deleteMany({
+      where: { id, workspaceId: workspace.id }
+    });
   }
 
   async getStorageUsage(workspaceId: string) {

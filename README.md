@@ -5,11 +5,6 @@
 
 AI-powered scheduling for African creators.
 
-## 🌍 African-Focused Features
-
-- **Local Payments**: Integrated with **PawaPay** for seamless Mobile Money transactions (MTN MoMo, Orange Money) in **FCFA**.
-- **Neubrutalist Design**: A bold, high-contrast visual identity optimized for clarity and impact.
-- **Regional AI**: Localized AI assistants ("Steve") trained for African market contexts and tones.
 
 ##  Production Environment
 

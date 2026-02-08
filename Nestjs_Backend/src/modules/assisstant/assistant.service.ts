@@ -70,11 +70,7 @@ export class AssistantService {
         media = await this.prisma.mediaLibrary.findFirst({
           where: {
             workspaceId: workspaceId, // Scope to workspace
-            OR: [
-              { aiDescription: { contains: query, mode: 'insensitive' } },
-              { filename: { contains: query, mode: 'insensitive' } },
-              { aiTags: { has: query.toLowerCase() } }
-            ],
+            filename: { contains: query, mode: 'insensitive' }
           },
           orderBy: { createdAt: 'desc' },
         });
@@ -90,7 +86,7 @@ export class AssistantService {
       // ➤ FIX: Pass userId and workspaceId, expecting object return
       const copyResult = await this.aiService.generateMarketingCopy(
         intent.searchQuery || "New Update", 
-        media ? (media.aiDescription || media.filename) : "Text Post",
+        media ? media.filename : "Text Post",
         tone,
         userId,
         workspaceId

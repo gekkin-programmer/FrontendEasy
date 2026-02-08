@@ -15,7 +15,7 @@ import {
   Layers, BarChart2, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle
+  AlertTriangle, Crown, MessageCircle, Layout
 } from 'lucide-react'; 
 
 // COMPONENTS
@@ -35,12 +35,28 @@ import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSele
 import { SidebarItem } from '@/src/components/easypost/SidebarItem';
 import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
 
-type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
+// SOCKET
+import { SocketProvider, useSocket } from '@/src/context/SocketContext';
+
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import BoardView from '@/src/components/easypost/BoardView';
+
+type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
+    const params = useParams();
+    const workspaceId = typeof params?.id === 'string' ? params.id : '';
+
     return (
         <Suspense fallback={<SpinningLoader fullScreen={true} />}>
-            <DashboardContent />
+            <SocketProvider workspaceId={workspaceId}>
+                <DashboardContent />
+            </SocketProvider>
         </Suspense>
     );
 }
@@ -51,6 +67,7 @@ function DashboardContent() {
     const searchParams = useSearchParams();
     const workspaceId = typeof params?.id === 'string' ? params.id : '';
     const queryClient = useQueryClient();
+    const { socket } = useSocket();
 
     // UI States
     const [activeTab, setActiveTab] = useState<TabType>('queue');
@@ -79,16 +96,45 @@ function DashboardContent() {
 
     const { data: accounts = [], refetch: refetchAccounts } = useQuery({
         queryKey: ['social-accounts', workspaceId],
-        queryFn: () => api.get<any[]>('/social-accounts').then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+        queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
     });
 
-    const { data: posts = [] } = useQuery({
+    const { data: posts = [], refetch: refetchPosts } = useQuery({
         queryKey: ['posts', workspaceId, searchTerm],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
-        refetchInterval: 15000, 
+        refetchInterval: 60000, 
     });
+
+    // 🟢 REAL-TIME LISTENERS
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('post_created', (newPost) => {
+            toast.success(`NEW_NODE_CREATED: ${newPost.content.substring(0, 20)}...`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        socket.on('post_updated', (updatedPost) => {
+            toast.info(`NODE_UPDATED: ${updatedPost.content.substring(0, 20)}...`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        socket.on('post_deleted', ({ id }) => {
+            toast.warning(`NODE_REMOVED`);
+            refetchPosts();
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        });
+
+        return () => {
+            socket.off('post_created');
+            socket.off('post_updated');
+            socket.off('post_deleted');
+        };
+    }, [socket, workspaceId, queryClient, refetchPosts]);
 
     // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
@@ -146,7 +192,7 @@ function DashboardContent() {
         },
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
-            queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+            refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
             setEditingPost(null);
         },
@@ -158,12 +204,12 @@ function DashboardContent() {
         createWorkspaceMutation.mutate(newWorkspaceName);
     };
 
-    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string) => {
+    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string) => {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
         if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
         upsertPostMutation.mutate({ 
             id: postId,
-            workspaceId, 
+            workspaceId: targetWorkspaceId || workspaceId, 
             content, 
             scheduledFor: date ? date.toISOString() : undefined, 
             status, 
@@ -184,7 +230,15 @@ function DashboardContent() {
 
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
-    const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
+    const navItems = [
+        { id: 'queue', label: 'Queue', icon: Layers }, 
+        { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
+        { id: 'boards', label: 'Boards', icon: Layout }, 
+        { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
+        { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
+        { id: 'team', label: 'Team', icon: Users }, 
+        { id: 'settings', label: 'Config', icon: SettingsIcon }
+    ];
 
     return (
         <div className="min-h-screen bg-[#F4F4F0] dark:bg-black font-sans text-black dark:text-white relative selection:bg-yellow-300 transition-colors duration-300">
@@ -193,7 +247,7 @@ function DashboardContent() {
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
-                <div className="flex items-center gap-3"><VoiceAiButton onCommand={handleVoiceCommand} /><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
+                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
@@ -232,7 +286,44 @@ function DashboardContent() {
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4"><div className="flex items-center gap-2"><NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} /><div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white"><Search size={18} /></div></div><button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all transition-colors"><Bell size={20} className="text-black dark:text-white" /></button></div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} />
+                            <div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white">
+                                <Search size={18} />
+                            </div>
+                        </div>
+                        
+                        {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
+                                    <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
+                                    <div className="absolute top-0 right-0 w-3 h-3 bg-[#3C48F5] border-2 border-black dark:border-white rounded-none -translate-y-1/3 translate-x-1/3" />
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
+                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white">
+                                    System_Feed
+                                </div>
+                                <div className="p-8 text-center space-y-4">
+                                    <div className="flex justify-center">
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                                            <Bell size={24} className="text-gray-400" />
+                                        </div>
+                                    </div>
+                                    <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
+                                        No new system updates detected.
+                                    </p>
+                                </div>
+                                <div className="p-2 border-t-2 border-zinc-100 dark:border-zinc-800">
+                                    <button className="w-full py-2 font-black text-[10px] uppercase hover:bg-[#3C48F5] hover:text-white transition-colors">
+                                        Clear_Logs
+                                    </button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </header>
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
@@ -282,9 +373,9 @@ function DashboardContent() {
                                                     </div>
                                                 )}
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
-                                                <Composer onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
+                                                <Composer workspaceId={workspaceId} onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} onEdit={setEditingPost} /></div>
+                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
@@ -302,6 +393,7 @@ function DashboardContent() {
                                             />
                                         </div>
                                     )}
+                                    {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}

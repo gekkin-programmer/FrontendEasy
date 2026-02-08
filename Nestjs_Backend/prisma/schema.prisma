@@ -1,4 +1,5 @@
 // schema.prisma
+// Force Build Trigger: v2.1.0 - Full Schema Restoration and Notifications Active
 
 generator client {
   provider = "prisma-client-js"
@@ -19,12 +20,6 @@ enum AccountType {
   ADMIN
   ORGANIZATION
   AGENCY
-}
-
-enum UserRole {
-  USER
-  ADMIN
-  MODERATOR
 }
 
 enum WorkspaceType {
@@ -62,8 +57,6 @@ enum UserStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
-  BANNED
-  SHADOW_BANNED
 }
 
 enum SocialPlatform {
@@ -86,6 +79,7 @@ enum PostStatus {
   FAILED
   CANCELLED
   PENDING_APPROVAL
+  REVIEW
 }
 
 enum MediaType {
@@ -157,6 +151,8 @@ enum NotificationType {
   REPORT_READY
   LEAD_CAPTURED
   PAYMENT_RECEIVED
+  TEAM_INVITE
+  SYSTEM
 }
 
 enum PlanType {
@@ -187,7 +183,6 @@ enum PaymentProvider {
   WAVE
   STRIPE
   CASH
-  PAWAPAY
 }
 
 enum LeadStatus {
@@ -212,24 +207,38 @@ enum ChatMessageType {
   FILE
 }
 
-enum ApplicationStatus {
-  PENDING
-  APPROVED
-  REJECTED
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum FeedbackStatus {
-  UNDER_REVIEW
+  PENDING
+  APPROVED
+  REJECTED
   PLANNED
   IN_PROGRESS
   COMPLETED
 }
 
 enum FeedbackCategory {
-  FEATURE
   BUG
-  PERFORMANCE
-  OTHER
+  FEATURE
+  IMPROVEMENT
+  QUESTION
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REJECTED
 }
 
 // ============================================================================
@@ -240,40 +249,33 @@ model User {
   id        String  @id @default(cuid())
   email     String? @unique
   phone     String? @unique
-  password  String? // Hash of password
+  password  String?
   firstName String?
   lastName  String?
   avatar    String?
 
-  // Auth providers
-  provider      String? 
-  providerId    String? 
-  
-  // ➤ NEW: Email Verification
+  provider      String?
+  providerId    String?
+
   emailVerified           Boolean   @default(false)
   emailVerificationToken    String?   @unique
   emailVerificationTokenExp DateTime?
 
-  // ➤ NEW: Password Reset
   passwordResetToken        String?   @unique
   passwordResetTokenExp     DateTime?
 
-  // Legacy Phone Verification (Keep if you still use phone login)
   phoneVerified Boolean @default(false)
   otp           String?
   otpExpires    DateTime?
 
-  // Account type
   accountType AccountType @default(PERSONAL)
   role        UserRole    @default(USER)
+  planExpiresAt DateTime?
 
-  // Subscription
   subscription Subscription?
   planType     PlanType      @default(FREE)
   planLimits   Json?
-  planExpiresAt DateTime?
 
-  // Relations
   ownedWorkspaces       Workspace[]       @relation("WorkspaceOwner")
   workspaceMembers      WorkspaceMember[]
   createdSocialAccounts SocialAccount[]   @relation("AccountCreator")
@@ -281,28 +283,25 @@ model User {
   comments              PostComment[]
   assignedTasks         Task[]            @relation("AssignedUser")
   createdTasks          Task[]            @relation("TaskCreator")
-  notifications         Notification[]
+  notifications         Notification[]    @relation("UserNotifications")
   activities            ActivityLog[]
-  
-  // ➤ SECURITY SESSIONS
+
   sessions              Session[]
-  
-  // ➤ CREATOR FUND
-  creatorApplications   CreatorApplication[]
-  
-  // ➤ ACCESS GRANTS
+
   receivedGrants        AccessGrant[]     @relation("UserGrants")
   issuedGrants          AccessGrant[]     @relation("AdminGrants")
-
-  // ➤ PAYMENTS
-  transactions          Transaction[]
-  
-  // ➤ COMMUNITY
   communityFeedback     CommunityFeedback[]
   feedbackUpvotes       FeedbackUpvote[]
-  
+  creatorApplications   CreatorApplication[]
+  transactions          Transaction[]
+
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
+
+  assignedCards         Card[]            @relation("CardAssignee")
+  createdCards          Card[]            @relation("CardCreator")
+  cardComments          CardComment[]
+  cardActivities        CardActivity[]
 
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
@@ -316,10 +315,8 @@ model User {
 model Session {
   id           String   @id @default(cuid())
   userId       String
-  
-  // ➤ Store the HASH of the refresh token here
-  refreshToken String   @unique 
-  
+  refreshToken String   @unique
+
   userAgent    String?
   ipAddress    String?
   expiresAt    DateTime
@@ -376,15 +373,17 @@ model Workspace {
   reports          Report[]
   channels         ChatChannel[]
 
-  mediaLibrary    MediaLibrary[]
-  paymentLinks    PaymentLink[]
-  leads           Lead[]
-  automationRules AutomationRule[]
+  mediaAssets      MediaLibrary[]
+  mediaFolders     MediaFolder[]     @relation("WorkspaceFolders")
+  paymentLinks     PaymentLink[]
+  leads            Lead[]
+  automationRules  AutomationRule[]
+  notifications    Notification[]
 
-  // RAG / AI Documents
+  boards           Board[]
+
   documents Document[]
 
-  // Counters
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
   currentPostCount          Int @default(0)
@@ -449,6 +448,7 @@ model TeamMember {
   role TeamRole @default(MEMBER)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([teamId, memberId])
   @@map("team_members")
@@ -493,7 +493,6 @@ model SocialAccount {
   updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, platform, platformUserId])
-  @@unique([platform, platformUserId]) // Prevent connecting the same social ID to multiple workspaces/accounts
   @@map("social_accounts")
 }
 
@@ -510,6 +509,48 @@ model TeamSocialAccount {
   @@map("team_social_accounts")
 }
 
+model ChatChannel {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  isPrivate   Boolean  @default(false)
+  
+  messages    ChatMessage[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, name])
+  @@map("chat_channels")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  channelId String
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade) 
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  content       String          @db.Text
+  type          ChatMessageType @default(TEXT)
+  attachmentUrl String?
+
+  parentId String?
+  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id], onDelete: Cascade)      
+  replies  ChatMessage[] @relation("ChatThread")
+
+  attachments Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId, createdAt])
+  @@map("chat_messages")
+}
+
 // ============================================================================
 // MEDIA LIBRARY
 // ============================================================================
@@ -519,18 +560,17 @@ model MediaLibrary {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  uploaderId String
-  uploader   User   @relation("MediaUploader", fields: [uploaderId], references: [id])
+  uploadedById String?
+  uploadedBy   User?   @relation("MediaUploader", fields: [uploadedById], references: [id])
 
   url      String
   filename String
   mimeType String
   size     Int
 
-  aiDescription String?  @db.Text
-  aiTags        String[]
+  folderId String?
+  folder   MediaFolder? @relation(fields: [folderId], references: [id])
 
-  folder     String? @default("root")
   isFavorite Boolean @default(false)
 
   posts PostMedia[]
@@ -541,13 +581,25 @@ model MediaLibrary {
   @@map("media_library")
 }
 
+model MediaFolder {
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  workspace   Workspace @relation("WorkspaceFolders", fields: [workspaceId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      MediaFolder?  @relation("SubFolders", fields: [parentId], references: [id])
+  subFolders  MediaFolder[] @relation("SubFolders")
+  assets      MediaLibrary[]
+  createdAt   DateTime  @default(now())
+}
+
 // ============================================================================
-// AI & RAG
+// AI & RAG (SECURED)
 // ============================================================================
 
 model Document {
   id          String    @id @default(cuid())
-  workspaceId String 
+  workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   content  String                      @db.Text
@@ -589,7 +641,7 @@ model AiFeedback {
 }
 
 // ============================================================================
-// CONTENT & PUBLISHING
+// CONTENT & PUBLISHING (NORMALIZED)
 // ============================================================================
 
 model Post {
@@ -597,26 +649,21 @@ model Post {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  // Content
   content String @db.Text
 
-  // Media
   media PostMedia[]
 
-  // Legacy media handling
   mediaUrls Json?
   mediaType MediaType?
 
   linkUrl     String?
   linkPreview Json?
 
-  // Publishing
   status       PostStatus @default(DRAFT)
   scheduledFor DateTime?
   publishedAt  DateTime?
   expiresAt    DateTime?
 
-  // Relations
   socialAccounts PostSocialAccount[]
   campaignId     String?
   campaign       Campaign?           @relation(fields: [campaignId], references: [id])
@@ -638,9 +685,10 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Optional single-account override
   socialAccountId String?
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
+
+  cards           Card[]
 
   @@index([status, scheduledFor])
   @@map("posts")
@@ -994,7 +1042,10 @@ model Task {
 model Notification {
   id     String @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   type    NotificationType
   title   String
@@ -1049,65 +1100,33 @@ model Subscription {
   @@map("subscriptions")
 }
 
-model ChatChannel {
-  id          String    @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+model AccessGrant {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
+  adminId      String
+  admin        User     @relation("AdminGrants", fields: [adminId], references: [id])
+  planType     PlanType
+  durationDays Int?
+  expiresAt    DateTime?
+  reason       String?
+  createdAt    DateTime @default(now())
 
-  name        String
-  description String?
-
-  messages ChatMessage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([workspaceId, name])
-  @@map("chat_channels")
-}
-
-model ChatMessage {
-  id        String      @id @default(cuid())
-  channelId String
-  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-
-  senderId String
-  sender   User   @relation(fields: [senderId], references: [id])
-
-  content       String          @db.Text
-  type          ChatMessageType @default(TEXT)
-  attachmentUrl String?
-
-  // Threading logic
-  parentId String?
-  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id])
-  replies  ChatMessage[] @relation("ChatThread")
-
-  attachments Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([channelId, createdAt])
-  @@map("chat_messages")
+  @@map("access_grants")
 }
 
 model CommunityFeedback {
-  id          String           @id @default(uuid())
-  title       String
-  description String           @db.Text
-  category    FeedbackCategory @default(FEATURE)
-  status      FeedbackStatus   @default(UNDER_REVIEW)
-
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title         String
+  description   String   @db.Text
+  category      FeedbackCategory
   screenshotUrl String?
-
-  authorId    String
-  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  upvotes     FeedbackUpvote[]
-
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  status        FeedbackStatus @default(PENDING)
+  upvotes       FeedbackUpvote[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("community_feedback")
 }
@@ -1123,74 +1142,150 @@ model FeedbackUpvote {
 }
 
 model CreatorApplication {
-  id        String            @id @default(uuid())
-  userId    String
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  totalFollowers  Int
+  niche           String
+  message         String?  @db.Text
+  
   tiktokHandle    String?
   instagramHandle String?
   youtubeHandle   String?
   twitterHandle   String?
   linkedinHandle  String?
-
-  totalFollowers  Int
-  niche           String
-
-  message         String?   @db.Text
-
-  status    ApplicationStatus @default(PENDING)
-  reviewedBy String?
-  reviewedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  
+  status          ApplicationStatus @default(PENDING)
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("creator_applications")
 }
 
-// ============================================================================
-// ADMIN & ACCESS CONTROL
-// ============================================================================
+model Transaction {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Float
+  planType     PlanType
+  billingCycle String   // MONTHLY, YEARLY
+  status       TransactionStatus @default(PENDING)
+  provider     String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-model AccessGrant {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
+  @@map("transactions")
+}
 
-  adminId     String
-  admin       User     @relation("AdminGrants", fields: [adminId], references: [id])
+model Board {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  color       String?  // Board theme color
 
-  planType    PlanType
-  durationDays Int?    // null = unlimited
-  expiresAt   DateTime?
-  reason      String?  @db.Text
-  status      String   @default("ACTIVE") // ACTIVE, REVOKED, EXPIRED
-
+  columns     BoardColumn[]
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("access_grants")
+  @@map("boards")
 }
 
-model Transaction {
-  id               String   @id @default(uuid())
-  userId           String
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model BoardColumn {
+  id        String   @id @default(cuid())
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   
-  amount           Float
-  currency         String   @default("XAF")
-  status           String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  name      String
+  order     Int      @default(0)
   
-  provider         String   @default("PAWAPAY")
-  providerReference String?  @unique // PawaPay depositId
+  cards     Card[]
   
-  planType         PlanType
-  billingCycle     String   @default("MONTHLY") // MONTHLY, YEARLY
-  
-  metadata         Json?    // Store phone number or extra info
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("transactions")
+  @@map("board_columns")
+}
+
+model Card {
+  id          String   @id @default(cuid())
+  columnId    String
+  column      BoardColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  
+  priority    Priority @default(MEDIUM)
+  dueDate     DateTime?
+  
+  assigneeId  String?
+  assignee    User?    @relation("CardAssignee", fields: [assigneeId], references: [id])
+  
+  creatorId   String
+  creator     User     @relation("CardCreator", fields: [creatorId], references: [id])
+
+  comments    CardComment[]
+  activities  CardActivity[]
+  labels      CardLabel[]
+
+  // For "Convert to Post" feature
+  postId      String?  @unique
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cards")
+}
+
+model CardComment {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  content   String   @db.Text
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("card_comments")
+}
+
+model CardActivity {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  action    String   // e.g., "moved", "created", "commented"
+  details   Json?    // e.g., { fromColumn: "col1", toColumn: "col2" }
+  
+  createdAt DateTime @default(now())
+
+  @@map("card_activities")
+}
+
+model CardLabel {
+  id          String   @id @default(cuid())
+  cardId      String
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  name        String
+  color       String
+  
+  createdAt   DateTime @default(now())
+
+  @@map("card_labels")
 }

@@ -15,6 +15,12 @@ export class TikTokConnectGuard extends AuthGuard('tiktok-connect') {
         console.log("🔹 TikTok Guard: Metadata saved to session");
     }
 
+    // If we are in the callback phase (no workspaceId in query) 
+    // but we have it in session, we are good to go.
+    if (!workspaceId && req.session?.oauthMetadata) {
+        console.log("🔹 TikTok Guard: Continuing with existing session metadata");
+    }
+
     return (await super.canActivate(context)) as boolean;
   }
 
@@ -23,5 +29,14 @@ export class TikTokConnectGuard extends AuthGuard('tiktok-connect') {
       scope: ['user.info.basic', 'video.list'],
       scopeSeparator: ',', // ➤ TikTok standard is comma
     };
+  }
+
+  handleRequest(err, user, info) {
+    if (err || !user) {
+      console.error("❌ TikTok Auth Failed:", err);
+      console.error("❌ Passport Info:", info); 
+      throw err || new Error("TikTok Authentication failed");
+    }
+    return user;
   }
 }

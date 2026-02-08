@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+import { api } from '@/src/lib/api';
 
 // --- NEU COMPONENTS ---
 
@@ -14,11 +15,12 @@ const NeuBadge = ({ children, className }: any) => (
   </span>
 );
 
-const NeuButton = ({ onClick, children, className }: any) => (
+const NeuButton = ({ onClick, children, className, disabled }: any) => (
   <button 
     onClick={onClick} 
+    disabled={disabled}
     className={cn(
-      "p-2 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-yellow-200 dark:hover:bg-zinc-800 transition-all text-black dark:text-white", 
+      "p-2 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-yellow-200 dark:hover:bg-zinc-800 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed", 
       className
     )}
   >
@@ -32,7 +34,7 @@ interface Post {
   content: string;
   status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'FAILED';
   scheduledFor?: string;
-  socialAccountIds?: string[];
+  socialAccounts?: any[]; 
   mediaUrls?: string[];
   errorMessage?: string;
 }
@@ -47,219 +49,27 @@ interface Account {
 interface PostFeedProps {
   posts: Post[];
   accounts: Account[];
+  workspaceId: string;
   onEdit?: (post: Post) => void;
 }
 
-// Helper
+// 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
   switch (platform?.toLowerCase()) {
     case 'twitter': return <span className="text-black dark:text-white font-black text-[10px]">X</span>;
     case 'linkedin': return <span className="text-[#0077b5] font-black text-[10px]">IN</span>;
     case 'instagram': return <span className="text-[#e1306c] font-black text-[10px]">IG</span>;
     case 'facebook': return <span className="text-[#1877f2] font-black text-[10px]">FB</span>;
+    case 'tiktok': return <span className="text-[#000000] dark:text-[#ff0050] font-black text-[10px]">TT</span>;
+    case 'youtube': return <span className="text-[#ff0000] font-black text-[10px]">YT</span>;
     default: return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
   }
 };
 
-export default function PostFeed({ posts, accounts, onEdit }: PostFeedProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-
-  const drafts = posts.filter(p => p.status === 'DRAFT');
-  const queued = posts.filter(p => p.status !== 'DRAFT');
-
-  // --- ACTIONS ---
-  const deletePost = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
-    try {
-        await fetch(`${API_URL}/posts/${postId}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success("POST_DELETED");
-        window.location.reload(); 
-    } catch (e) {
-        toast.error("FAILED_TO_DELETE");
-    }
-  };
-
-  const cancelSchedule = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
-    try {
-        await fetch(`${API_URL}/posts/${postId}/cancel-schedule`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success("SCHEDULE_CANCELLED");
-        window.location.reload();
-    } catch (e) {
-        toast.error("CANCEL_FAILED");
-    }
-  };
-
-  const publishPost = async (postId: string) => {
-    const token = localStorage.getItem('accessToken');
-    try {
-        toast.loading("PUBLISHING...");
-        await fetch(`${API_URL}/posts/${postId}/publish`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.dismiss();
-        toast.success("PUBLISHED_SUCCESSFULLY");
-        window.location.reload();
-    } catch (e) {
-        toast.dismiss();
-        toast.error("PUBLISH_FAILED");
-    }
-  };
-
-  const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
-    const token = localStorage.getItem('accessToken');
-    try {
-        await fetch(`${API_URL}/posts/${postId}`, {
-            method: 'PATCH',
-            headers: { 
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}` 
-            },
-            body: JSON.stringify({ 
-                status, 
-                scheduledFor: new Date(scheduledFor).toISOString() 
-            })
-        });
-        toast.success("POST_SCHEDULED");
-        window.location.reload();
-    } catch (e) {
-        toast.error("UPDATE_FAILED");
-    }
-  };
-
-  // --- DRAG LOGIC ---
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    e.dataTransfer.setData("postId", id);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDropToQueue = async (e: React.DragEvent) => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("postId");
-    await updateStatus(id, 'SCHEDULED', Date.now() + 3600000);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-black dark:text-white transition-colors">
-      
-      {/* --- LEFT COLUMN: DRAFTS --- */}
-      <div className="flex flex-col gap-4">
-        <div className="bg-yellow-400 p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-            <h3 className="font-black text-sm uppercase flex items-center gap-2 text-black">
-              <FileText className="w-4 h-4" /> Drafts ({drafts.length})
-            </h3>
-            {drafts.length > 0 && (
-                <button 
-                    onClick={async () => {
-                        if(confirm(`Publish all ${drafts.length} drafts?`)) {
-                            for(const d of drafts) await publishPost(d.id);
-                        }
-                    }}
-                    className="bg-black text-white text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-all"
-                >
-                    PUBLISH_ALL
-                </button>
-            )}
-        </div>
-        
-        <div className="space-y-4 min-h-[200px]">
-          <AnimatePresence mode="popLayout">
-            {drafts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
-                accounts={accounts}
-                onDelete={() => deletePost(post.id)}
-                onEdit={() => onEdit?.(post)}
-                onPublishNow={() => publishPost(post.id)}
-                onRetry={() => publishPost(post.id)}
-                draggable={true}
-                onDragStart={(e) => handleDragStart(e, post.id)}
-              />
-            ))}
-          </AnimatePresence>
-          
-          {drafts.length === 0 && (
-            <div className="text-center p-8 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
-              {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* --- RIGHT COLUMN: QUEUE (DROP ZONE) --- */}
-      <div 
-        onDrop={handleDropToQueue} 
-        onDragOver={handleDragOver}
-        className="relative group flex flex-col gap-4"
-      >
-        <div className="bg-black dark:bg-white text-white dark:text-black p-2 border-2 border-black dark:border-white inline-block w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-            <h3 className="font-black text-sm uppercase flex items-center gap-2">
-              <Clock className="w-4 h-4" /> Queue / Scheduled ({queued.length})
-            </h3>
-        </div>
-
-        {/* Drop Zone Highlight */}
-        <div className="absolute inset-0 top-10 -z-10 bg-blue-100 dark:bg-blue-900/20 border-2 border-black dark:border-white border-dashed opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
-
-        <div className="space-y-4 min-h-[200px] z-10">
-          <AnimatePresence mode="popLayout">
-            {queued.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post}
-                accounts={accounts}
-                onDelete={() => deletePost(post.id)}
-                onEdit={() => onEdit?.(post)}
-                onCancelSchedule={() => cancelSchedule(post.id)}
-                onPublishNow={() => publishPost(post.id)}
-                onRetry={() => publishPost(post.id)}
-                isQueued
-              />
-            ))}
-          </AnimatePresence>
-          
-          {queued.length === 0 && (
-             <div className="text-center p-12 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
-               {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
-             </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- SINGLE POST CARD COMPONENT ---
-
-interface PostCardProps {
-  post: Post;
-  accounts: Account[];
-  onDelete: () => void;
-  onEdit?: () => void;
-  onCancelSchedule?: () => void;
-  onPublishNow?: () => void;
-  onRetry?: () => void; // New prop
-  isQueued?: boolean;
-  draggable?: boolean;
-  onDragStart?: (e: React.DragEvent) => void;
-}
-
-const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, isQueued, draggable, onDragStart }: PostCardProps) => {
-  const accountId = post.socialAccountIds?.[0];
-  const account = accounts.find(a => a.id === accountId);
+// 🟢 SINGLE POST CARD COMPONENT
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, isQueued, draggable, onDragStart }: any) => {
+  const socialAccounts = post.socialAccounts || [];
+  const firstAccount = socialAccounts[0]?.socialAccount;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -284,22 +94,28 @@ const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublis
         draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50 dark:hover:bg-zinc-800" : ""
       )}
     >
-      {/* Drag Handle Indicator */}
       {draggable && (
         <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
           <GripVertical size={16} />
         </div>
       )}
 
-      {/* Header */}
       <div className={cn("flex justify-between items-start mb-3", draggable && "pl-4")}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-none bg-white dark:bg-zinc-800 border-2 border-black dark:border-white flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all">
-             <PlatformIcon platform={account?.platform} />
+          <div className="flex -space-x-2">
+            {socialAccounts.map((sa: any, idx: number) => (
+                <div key={idx} className="w-8 h-8 rounded-none bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all z-[1]">
+                    <PlatformIcon platform={sa.socialAccount?.platform} />
+                </div>
+            ))}
           </div>
           <div className="text-xs">
-            <p className="font-black uppercase text-black dark:text-white">{account?.username || account?.platformUsername || "Unknown"}</p>
-            <p className="opacity-70 text-[10px] font-mono text-black dark:text-white">{account?.platform || "—"}</p>
+            <p className="font-black uppercase text-black dark:text-white">
+                {firstAccount?.username || firstAccount?.platformUsername || "Draft_Node"}
+            </p>
+            <p className="opacity-70 text-[10px] font-mono text-black dark:text-white">
+                {socialAccounts.length > 1 ? `${socialAccounts.length}_TARGETS` : (firstAccount?.platform || "LOCAL")}
+            </p>
           </div>
         </div>
 
@@ -308,14 +124,13 @@ const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublis
         </NeuBadge>
       </div>
 
-      {/* Content Body */}
       <div className={cn("flex gap-3", draggable && "pl-4")}>
         {post.mediaUrls && post.mediaUrls.length > 0 && (
            <div className={cn(
              "grid gap-1 shrink-0 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
              post.mediaUrls.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
            )}>
-             {post.mediaUrls.slice(0, 4).map((url, i) => (
+             {post.mediaUrls.slice(0, 4).map((url: string, i: number) => (
                <img key={i} src={url} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" />
              ))}
            </div>
@@ -332,7 +147,6 @@ const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublis
         </div>
       )}
 
-      {/* Footer */}
       <div className={cn("mt-4 pt-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
         <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500 dark:text-zinc-400">
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
@@ -394,3 +208,143 @@ const PostCard = ({ post, accounts, onDelete, onEdit, onCancelSchedule, onPublis
     </motion.div>
   );
 };
+
+export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostFeedProps) {
+  const drafts = posts.filter(p => p.status === 'DRAFT');
+  const queued = posts.filter(p => p.status !== 'DRAFT');
+
+  const deletePost = async (postId: string) => {
+    try {
+        await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
+        toast.success("POST_DELETED");
+    } catch (e) {
+        toast.error("FAILED_TO_DELETE");
+    }
+  };
+
+  const cancelSchedule = async (postId: string) => {
+    try {
+        await api.post(`/posts/${postId}/cancel-schedule?workspaceId=${workspaceId}`, {});
+        toast.success("SCHEDULE_CANCELLED");
+    } catch (e) {
+        toast.error("CANCEL_FAILED");
+    }
+  };
+
+  const publishPost = async (postId: string) => {
+    try {
+        toast.loading("PUBLISHING...");
+        await api.post(`/posts/${postId}/publish?workspaceId=${workspaceId}`, {});
+        toast.dismiss();
+        toast.success("PUBLISHED_SUCCESSFULLY");
+    } catch (e) {
+        toast.dismiss();
+        toast.error("PUBLISH_FAILED");
+    }
+  };
+
+  const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
+    try {
+        await api.patch(`/posts/${postId}`, { 
+            status, 
+            scheduledFor: new Date(scheduledFor).toISOString(),
+            workspaceId
+        });
+        toast.success("POST_SCHEDULED");
+    } catch (e) {
+        toast.error("UPDATE_FAILED");
+    }
+  };
+
+  // --- DRAG LOGIC ---
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("postId", id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDropToQueue = async (e: React.DragEvent) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("postId");
+    await updateStatus(id, 'SCHEDULED', Date.now() + 3600000);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-black dark:text-white transition-colors">
+      <div className="flex flex-col gap-4">
+        <div className="bg-yellow-400 p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+            <h3 className="font-black text-sm uppercase flex items-center gap-2 text-black">
+              <FileText className="w-4 h-4" /> Drafts ({drafts.length})
+            </h3>
+            {drafts.length > 0 && (
+                <button 
+                    onClick={async () => {
+                        if(confirm(`Publish all ${drafts.length} drafts?`)) {
+                            for(const d of drafts) await publishPost(d.id);
+                        }
+                    }}
+                    className="bg-black text-white text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-all"
+                >
+                    PUBLISH_ALL
+                </button>
+            )}
+        </div>
+        
+        <div className="space-y-4 min-h-[200px]">
+          <AnimatePresence mode="popLayout">
+            {drafts.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
+                onPublishNow={() => publishPost(post.id)}
+                onRetry={() => publishPost(post.id)}
+                draggable={true}
+                onDragStart={(e: any) => handleDragStart(e, post.id)}
+              />
+            ))}
+          </AnimatePresence>
+          {drafts.length === 0 && (
+            <div className="text-center p-8 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
+              {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div onDrop={handleDropToQueue} onDragOver={handleDragOver} className="relative group flex flex-col gap-4">
+        <div className="bg-black dark:bg-white text-white dark:text-black p-2 border-2 border-black dark:border-white inline-block w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+            <h3 className="font-black text-sm uppercase flex items-center gap-2">
+              <Clock className="w-4 h-4" /> Queue / Scheduled ({queued.length})
+            </h3>
+        </div>
+        <div className="space-y-4 min-h-[200px] z-10">
+          <AnimatePresence mode="popLayout">
+            {queued.map((post) => (
+              <PostCard 
+                key={post.id} 
+                post={post}
+                onDelete={() => deletePost(post.id)}
+                onEdit={() => onEdit?.(post)}
+                onCancelSchedule={() => cancelSchedule(post.id)}
+                onPublishNow={() => publishPost(post.id)}
+                onRetry={() => publishPost(post.id)}
+                isQueued
+              />
+            ))}
+          </AnimatePresence>
+          {queued.length === 0 && (
+             <div className="text-center p-12 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
+               {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
+             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -102,11 +102,15 @@ export class AdminService {
     // 1. Manually cleanup dependencies without Cascade Delete in schema
     await this.prisma.socialAccount.deleteMany({ where: { createdById: id } });
     await this.prisma.task.deleteMany({ where: { OR: [{ createdById: id }, { assignedToId: id }] } });
-    await this.prisma.mediaLibrary.deleteMany({ where: { uploaderId: id } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploadedById: id } });
     await this.prisma.chatMessage.deleteMany({ where: { senderId: id } });
     await this.prisma.activityLog.deleteMany({ where: { userId: id } });
     
-    // 2. Delete user (Triggers Cascade for Workspaces, Posts, Subscriptions, etc.)
+    // ➤ FIX: Handle relations where user was an admin or creator
+    await this.prisma.accessGrant.deleteMany({ where: { adminId: id } });
+    await this.prisma.post.deleteMany({ where: { createdById: id } });
+    
+    // 2. Delete user (Triggers Cascade for Workspaces, Received Grants, Transactions, etc.)
     return this.prisma.user.delete({ where: { id } });
   }
 
@@ -129,5 +133,38 @@ export class AdminService {
       },
       orderBy: { createdAt: 'desc' }
     });
+  }
+
+  async cleanupDatabase() {
+    // 1. Identify users to DELETE (Non-admins)
+    const usersToDelete = await this.prisma.user.findMany({
+      where: { NOT: { role: 'ADMIN' } },
+      select: { id: true }
+    });
+    const userIds = usersToDelete.map(u => u.id);
+
+    if (userIds.length === 0) return { message: 'Database already clean' };
+
+    // 2. Cleanup dependencies without Cascade
+    await this.prisma.socialAccount.deleteMany({ where: { createdById: { in: userIds } } });
+    await this.prisma.task.deleteMany({ where: { OR: [{ createdById: { in: userIds } }, { assignedToId: { in: userIds } }] } });
+    await this.prisma.mediaLibrary.deleteMany({ where: { uploadedById: { in: userIds } } });
+    await this.prisma.chatMessage.deleteMany({ where: { senderId: { in: userIds } } });
+    await this.prisma.activityLog.deleteMany({ where: { userId: { in: userIds } } });
+    await this.prisma.session.deleteMany({ where: { userId: { in: userIds } } });
+    
+    // ➤ FIX: Cleanup grants issued BY these users and posts created BY them
+    await this.prisma.accessGrant.deleteMany({ where: { adminId: { in: userIds } } });
+    await this.prisma.post.deleteMany({ where: { createdById: { in: userIds } } });
+
+    // 3. Delete users (Triggers Cascade for Workspaces, Posts, etc.)
+    const deleted = await this.prisma.user.deleteMany({
+      where: { id: { in: userIds } }
+    });
+
+    return { 
+      message: 'Cleanup successful', 
+      deletedCount: deleted.count 
+    };
   }
 }

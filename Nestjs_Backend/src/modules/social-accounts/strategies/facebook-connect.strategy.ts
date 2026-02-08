@@ -1,24 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-facebook';
+import { Strategy } from 'passport-oauth2';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
+import axios from 'axios';
 
 @Injectable()
 export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'facebook') {
+  private readonly logger = new Logger(FacebookConnectStrategy.name);
+
   constructor(
     configService: ConfigService,
     private authService: AuthService,
   ) {
     super({
+      authorizationURL: 'https://www.facebook.com/v19.0/dialog/oauth',
+      tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       clientID: configService.get<string>('FACEBOOK_APP_ID') || 'fb_id_placeholder',
       clientSecret: configService.get<string>('FACEBOOK_APP_SECRET') || 'fb_secret_placeholder',
-      callbackURL: `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/facebook`,
-      
-      // ➤ CRITICAL: Must be true to read 'state'
-      passReqToCallback: true, 
-      state: false, 
-      
+      callbackURL: `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/facebook`,
       scope: [
         'email', 
         'public_profile',
@@ -31,55 +31,57 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
         'whatsapp_business_management',
         'whatsapp_business_messaging'
       ],
-      profileFields: ['id', 'displayName', 'emails', 'photos'],
+      state: true,
+      passReqToCallback: true,
     });
   }
 
-  // ➤ Updated validate signature to include 'req'
-  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+  async validate(req: any, accessToken: string, refreshToken: string, results: any, done: Function) {
     try {
-      console.log("🔹 Facebook OAuth Validate Triggered");
-      let state = {};
-      if (req.query.state) {
-          try {
-            const decodedState = Buffer.from(req.query.state as string, 'base64').toString();
-            state = JSON.parse(decodedState);
-            console.log("🔹 Facebook Decoded State:", state);
-          } catch(e) {
-            console.warn("⚠️ Could not parse OAuth state:", req.query.state);
-          }
-      } else {
-          console.error("❌ No state found in query params!");
-      }
-      
-      const { workspaceId, token, userId: stateUserId, platform, isWhatsapp } = state as any;
+      this.logger.log("🔹 Meta OAuth 2.0 (Manual) Triggered");
 
-      // 2. Resolve User ID (Either from State or JWT Token in State)
-      let userId = stateUserId;
-      if (!userId && token) {
-         const user = await this.authService.validateUserByToken(token);
+      // 1. Manually fetch Facebook user profile
+      const { data: profile } = await axios.get('https://graph.facebook.com/v19.0/me?fields=id,name,email,picture', {
+        params: { access_token: accessToken }
+      });
+
+      this.logger.debug(`🔹 Meta Profile Data: ${JSON.stringify(profile)}`);
+
+      // 2. Retrieve metadata from session (cookie-session)
+      const meta = req.session?.oauthMetadata;
+      if (!meta) {
+          this.logger.error("❌ Meta Strategy: No metadata found in session");
+          return done(new Error("Session lost: Missing workspace metadata"), false);
+      }
+
+      const { workspaceId, token: jwtToken, platform, isWhatsapp } = meta;
+
+      let userId;
+      if (jwtToken) {
+         const user = await this.authService.validateUserByToken(jwtToken);
          userId = user?.id;
       }
 
       if (!userId) {
-          console.error("❌ UserId resolution failed. Token valid?", !!token);
+          this.logger.error("❌ UserId resolution failed");
           return done(new Error("User session lost during OAuth"), false);
       }
 
       const payload = {
         platform: isWhatsapp ? 'WHATSAPP' : (platform || 'FACEBOOK'),
         platformUserId: profile.id,
-        avatar: profile.photos?.[0]?.value || profile._json?.picture?.data?.url, 
-        name: profile.displayName || 'Facebook User',
+        avatar: profile.picture?.data?.url, 
+        name: profile.name || 'Meta User',
         accessToken,
         refreshToken,
-        // ➤ Pass these to controller/service
         workspaceId, 
         userId 
       };
       
       done(null, payload);
     } catch (error) {
+      const errorMsg = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      this.logger.error(`Meta OAuth Validation Failed: ${errorMsg}`);
       done(error, false);
     }
   }

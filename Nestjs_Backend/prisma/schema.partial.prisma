@@ -1,0 +1,68 @@
+// ... (omitting top parts for brevity, focusing on the fix)
+
+model Workspace {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  logo        String?
+  website     String?
+
+  ownerId       String
+  owner         User          @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaceType WorkspaceType @default(ORGANIZATION)
+
+  settings    Json?
+  defaultTone AiTone? @default(PROFESSIONAL)
+
+  members          WorkspaceMember[]
+  teams            Team[]
+  socialAccounts   SocialAccount[]
+  posts            Post[]
+  campaigns        Campaign[]
+  contentCalendars ContentCalendar[]
+  tags             Tag[]
+  labels           Label[]
+  streams          Stream[]
+  reports          Report[]
+  channels         ChatChannel[]
+
+  mediaAssets      MediaLibrary[]
+  mediaFolders     MediaFolder[]     @relation("WorkspaceFolders")
+  paymentLinks     PaymentLink[]
+  leads            Lead[]
+  automationRules  AutomationRule[]
+  notifications    Notification[]
+
+  // RAG / AI Documents
+  documents Document[]
+
+  // Counters
+  currentMemberCount        Int @default(1)
+  currentSocialAccountCount Int @default(0)
+  currentPostCount          Int @default(0)
+
+  status WorkspaceStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("workspaces")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  type        String   // TEAM_INVITE, POST_APPROVED, POST_REJECTED, PUBLISH_SUCCESS, PUBLISH_FAILED, SYSTEM
+  title       String
+  message     String
+  link        String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("notifications")
+}

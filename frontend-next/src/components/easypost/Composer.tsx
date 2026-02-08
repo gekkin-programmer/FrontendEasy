@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import MediaGallery from './MediaGallery';
 
@@ -25,6 +26,7 @@ interface LibraryItem { id: string; type: AssetType; name?: string; url?: string
 interface TemplateItem { id: number; title: string; content: string; }
 
 interface ComposerProps {
+  workspaceId: string;
   accounts: any[]; 
   postToEdit?: any; // New prop
   onSchedule: (
@@ -33,7 +35,8 @@ interface ComposerProps {
     mediaIds?: string[], // ➤ UPDATED: We pass IDs now
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
     selectedAccountIds?: string[],
-    postId?: string // New arg for update
+    postId?: string, // New arg for update
+    workspaceId?: string // New arg for workspace context
   ) => Promise<void>;
 }
 
@@ -79,8 +82,54 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
 const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white"><Icon size={18} strokeWidth={2.5} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
+const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['smart-scheduling', workspaceId, platform],
+    queryFn: () => api.get<any>(`/ai/smart-scheduling/suggestions?workspaceId=${workspaceId}&platform=${platform}`),
+  });
 
-export default function Composer({ onSchedule, accounts = [], postToEdit }: ComposerProps) {
+  return (
+    <div className="flex flex-col font-sans">
+      <div className="bg-black dark:bg-white text-white dark:text-black p-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+        <Sparkles size={12} className="text-yellow-400" /> Best_Posting_Times
+      </div>
+      <div className="p-4 space-y-3">
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 animate-pulse">
+            <RefreshCw size={12} className="animate-spin" /> ANALYZING_AUDIENCE_PATTERNS...
+          </div>
+        ) : (
+          <>
+            <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight mb-2">Based on your historical engagement and industry trends.</p>
+            {data?.suggestions?.map((s: any, i: number) => (
+              <button 
+                key={i} 
+                onClick={() => onSelect(s.hour)}
+                className="w-full flex items-center justify-between p-2 border-2 border-black dark:border-white hover:bg-yellow-100 dark:hover:bg-zinc-800 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <Clock size={14} className="text-gray-400 group-hover:text-black dark:group-hover:text-white" />
+                  <span className="text-sm font-black">{s.hour}:00</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "text-[8px] font-black uppercase px-1.5 py-0.5 border",
+                    s.confidence === 'high' ? "bg-green-100 border-green-600 text-green-700" : "bg-blue-100 border-blue-600 text-blue-700"
+                  )}>
+                    {s.confidence}_CONFIDENCE
+                  </span>
+                  <span className="text-[10px] font-black text-[#3C48F5]">SELECT</span>
+                </div>
+              </button>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId }: ComposerProps) {
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
@@ -250,6 +299,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
     }
   };
 
+  // Commerce State
+  const [price, setPrice] = useState("");
+
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
@@ -265,6 +317,15 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
     setIsSubmitting(true);
     try {
         let finalMediaIds = [...selectedMediaIds];
+        let finalContent = text;
+
+        // 🛍️ COMMERCE LOGIC: Generate One-Time Link
+        if (isSelling && price) {
+            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
+            finalContent += commerceLink;
+            toast.info("COMMERCE_LINK_GENERATED");
+        }
         
         // Upload local files
         if (localFiles.length > 0) {
@@ -282,15 +343,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
         else if (action === 'queue') status = 'SCHEDULED';
 
         await onSchedule(
-            text, 
+            finalContent, 
             action === 'queue' ? date || new Date() : undefined,
             finalMediaIds, 
             status, 
             targets,
-            postToEdit?.id // Pass ID if editing
+            postToEdit?.id,
+            workspaceId
         );
         
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
     } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
   };
 
@@ -404,8 +466,31 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
               <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-              <Popover><PopoverTrigger asChild><NeuButton className="bg-white dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger><PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
+                        <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                          {/* 🚀 AI SMART SCHEDULING BUTTON */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
+                                <Sparkles size={14} className="animate-pulse" /> AI_SCHEDULER
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="center" side="top">
+                              <AiSchedulerContent 
+                                workspaceId={workspaceId} 
+                                platform={accounts.find(a => selectedAccountIds.includes(a.id))?.platform || 'FACEBOOK'} 
+                                onSelect={(hour) => {
+                                  const newDate = date || new Date();
+                                  newDate.setHours(hour);
+                                  newDate.setMinutes(0);
+                                  setDate(new Date(newDate));
+                                  toast.success(`AI suggested: ${hour}:00 set!`);
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+            
+                          <Popover><PopoverTrigger asChild><NeuButton className="bg-white dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger>
+            <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
                   <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-100 dark:bg-purple-900/20 text-purple-900 dark:text-purple-100 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
@@ -416,7 +501,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
               </div>
             </div>
           </div>
-          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
+          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
         </div>
       </div>
       
@@ -426,7 +511,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
             <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
             <div className="p-4 bg-blue-50/30 dark:bg-zinc-900/50">
-                <MediaGallery />
+                <MediaGallery hideUsage={true} />
             </div>
           </motion.div>
         )}
@@ -452,88 +537,113 @@ export default function Composer({ onSchedule, accounts = [], postToEdit }: Comp
                 </div>
                 
                 <div className="flex-1 overflow-y-auto p-8 bg-[#F0F2F5] dark:bg-zinc-950 transition-colors">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         
                         {/* 1. FACEBOOK PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
-                            <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
-                                    <div className="flex-1">
-                                        <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'FACEBOOK') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
+                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
+                                        <div className="flex-1">
+                                            <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
-                                {mediaPreviews.length > 0 && (
-                                    <div className={cn(
-                                        "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
-                                        mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
-                                    )}>
-                                        {mediaPreviews.slice(0, 4).map((url, i) => (
-                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                    <span>Like</span><span>Comment</span><span>Share</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 2. TWITTER PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
-                                <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
-                                <div className="space-y-2 flex-1 min-w-0">
-                                    <div className="flex gap-1 items-center">
-                                        <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
-                                    </div>
-                                    <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
                                     {mediaPreviews.length > 0 && (
                                         <div className={cn(
-                                            "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
+                                            "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
                                             mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
                                         )}>
                                             {mediaPreviews.slice(0, 4).map((url, i) => (
-                                                <img key={i} src={url} className="w-full h-full object-cover" />
+                                                <img key={i} src={url} className="w-full aspect-square object-cover" />
                                             ))}
                                         </div>
                                     )}
-                                    <div className="flex justify-between max-w-xs pt-1 text-gray-400 dark:text-zinc-500">
-                                        <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
+                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
+                                        <span>Like</span><span>Comment</span><span>Share</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* 2. TWITTER PREVIEW */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && (a.platform === 'TWITTER' || a.platform === 'X')) && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
+                                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
+                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
+                                    <div className="space-y-2 flex-1 min-w-0">
+                                        <div className="flex gap-1 items-center">
+                                            <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
+                                        </div>
+                                        <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                        {mediaPreviews.length > 0 && (
+                                            <div className={cn(
+                                                "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
+                                                mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                                            )}>
+                                                {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                    <img key={i} src={url} className="w-full h-full object-cover" />
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between max-w-xs pt-1 text-gray-400 dark:text-zinc-500">
+                                            <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* 3. LINKEDIN PREVIEW */}
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
-                            <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
-                                    <div>
-                                        <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                        <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'LINKEDIN') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
+                                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
+                                        <div>
+                                            <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
-                                {mediaPreviews.length > 0 && (
-                                    <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
-                                        {mediaPreviews.slice(0, 4).map((url, i) => (
-                                            <img key={i} src={url} className="w-full aspect-square object-cover" />
-                                        ))}
+                                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
+                                    {mediaPreviews.length > 0 && (
+                                        <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
+                                            {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                <img key={i} src={url} className="w-full aspect-square object-cover" />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
+                                        <span>Like</span><span>Comment</span><span>Repost</span>
                                     </div>
-                                )}
-                                <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                    <span>Like</span><span>Comment</span><span>Repost</span>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* 4. TIKTOK PREVIEW (Simple placeholder) */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK') && (
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK_MOBILE</span>
+                                <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
+                                    {mediaPreviews.length > 0 && (
+                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                                    )}
+                                    <div className="relative z-10 space-y-2 text-white">
+                                        <p className="text-sm font-bold">@yourusername</p>
+                                        <p className="text-xs line-clamp-3">{text}</p>
+                                        <div className="h-1 bg-white/30 rounded-full w-full overflow-hidden">
+                                            <div className="h-full bg-white w-1/3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                     </div>
                 </div>

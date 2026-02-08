@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq'; // <--- IMPORT THIS
+import { BullModule } from '@nestjs/bullmq'; 
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -23,6 +23,8 @@ import { EngagementModule } from './modules/engagement/engagement.module';
 import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
 import { CommunityModule } from './modules/community/community.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AppEventsModule } from './modules/app-events/app-events.module';
+import { BoardsModule } from './modules/boards/boards.module';
 
 @Module({
   imports: [
@@ -30,7 +32,6 @@ import { AdminModule } from './modules/admin/admin.module';
     LoggerModule,
     SentryModule.forRoot(),
 
-    // BLOCK FOR REDIS/BULLMQ ---
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -38,7 +39,6 @@ import { AdminModule } from './modules/admin/admin.module';
           host: configService.get('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
           password: configService.get('REDIS_PASSWORD'),
-          // This handles the TLS connection for Upstash
           tls: configService.get('REDIS_TLS') === 'true' 
             ? { rejectUnauthorized: false } 
             : undefined,
@@ -46,7 +46,6 @@ import { AdminModule } from './modules/admin/admin.module';
       }),
       inject: [ConfigService],
     }),
-    // ---------------------------------------
 
     PrismaModule,
     AuthModule,
@@ -65,7 +64,9 @@ import { AdminModule } from './modules/admin/admin.module';
     EngagementModule,
     CreatorFundModule,
     CommunityModule,
-    AdminModule
+    AdminModule,
+    AppEventsModule,
+    BoardsModule
   ],
   controllers: [AppController],
   providers: [AppService],
