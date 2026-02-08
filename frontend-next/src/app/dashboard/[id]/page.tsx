@@ -15,7 +15,7 @@ import {
   Layers, BarChart2, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle, Layout, Heart
+  AlertTriangle, Crown, MessageCircle, Layout, Heart, RefreshCw
 } from 'lucide-react'; 
 
 // COMPONENTS
@@ -46,8 +46,9 @@ import {
 
 import BoardView from '@/src/components/easypost/BoardView';
 import AudienceAnalytics from '@/src/components/easypost/AudienceAnalytics';
+import ContentRecycling from '@/src/components/easypost/ContentRecycling';
 
-type TabType = 'queue' |'calendar' | 'boards' | 'fans' | 'analytics' | 'engagement' | 'settings' | 'team';
+type TabType = 'queue' |'calendar' | 'boards' | 'fans' | 'recycle' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
     const params = useParams();
@@ -270,6 +271,7 @@ function DashboardContent() {
         { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
         { id: 'boards', label: 'Boards', icon: Layout }, 
         { id: 'fans', label: 'Fans', icon: Heart },
+        { id: 'recycle', label: 'Recycle', icon: RefreshCw },
         { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
         { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
         { id: 'team', label: 'Team', icon: Users }, 
@@ -436,7 +438,7 @@ function DashboardContent() {
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
                                                         <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">Limite de Posts Atteinte !</h2>
                                                         <p className="max-w-md font-bold mb-8 opacity-80">
-                                                            🎉 Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
+                                                             Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
                                                             → 100 posts, 5 comptes, 100 AI requests
                                                         </p>
                                                         <button 
@@ -470,6 +472,7 @@ function DashboardContent() {
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
                                     {activeTab === 'fans' && <AudienceAnalytics workspaceId={workspaceId} />}
+                                    {activeTab === 'recycle' && <ContentRecycling workspaceId={workspaceId} />}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}

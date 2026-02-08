@@ -674,6 +674,14 @@ model Post {
   publishedAt  DateTime?
   expiresAt    DateTime?
 
+  // Recycling & Performance
+  isEvergreen      Boolean  @default(false)
+  performanceScore Float    @default(0)
+  recycleCount     Int      @default(0)
+  originalPostId   String?
+  originalPost     Post?    @relation("RecycledPosts", fields: [originalPostId], references: [id])
+  recycledVariations Post[]  @relation("RecycledPosts")
+
   socialAccounts PostSocialAccount[]
   campaignId     String?
   campaign       Campaign?           @relation(fields: [campaignId], references: [id])
