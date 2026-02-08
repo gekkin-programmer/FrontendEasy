@@ -15,7 +15,7 @@ import {
   Layers, BarChart2, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle
+  AlertTriangle, Crown, MessageCircle, Layout
 } from 'lucide-react'; 
 
 // COMPONENTS
@@ -44,7 +44,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-type TabType = 'queue' |'calendar' | 'analytics' | 'engagement' | 'settings' | 'team';
+import BoardView from '@/src/components/easypost/BoardView';
+
+type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
     const params = useParams();
@@ -228,7 +230,15 @@ function DashboardContent() {
 
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
-    const navItems = [{ id: 'queue', label: 'Queue', icon: Layers }, { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, { id: 'analytics', label: 'Analytics', icon: BarChart2 }, { id: 'engagement', label: 'Inbox', icon: MessageCircle }, { id: 'team', label: 'Team', icon: Users }, { id: 'settings', label: 'Config', icon: SettingsIcon }];
+    const navItems = [
+        { id: 'queue', label: 'Queue', icon: Layers }, 
+        { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
+        { id: 'boards', label: 'Boards', icon: Layout }, 
+        { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
+        { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
+        { id: 'team', label: 'Team', icon: Users }, 
+        { id: 'settings', label: 'Config', icon: SettingsIcon }
+    ];
 
     return (
         <div className="min-h-screen bg-[#F4F4F0] dark:bg-black font-sans text-black dark:text-white relative selection:bg-yellow-300 transition-colors duration-300">
@@ -383,6 +393,7 @@ function DashboardContent() {
                                             />
                                         </div>
                                     )}
+                                    {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}
