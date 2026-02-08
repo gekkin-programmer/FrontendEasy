@@ -16,7 +16,24 @@ export class CloudinaryService {
         },
       );
 
-      streamifier.createReadStream(file.buffer).pipe(uploadStream);
-    });
-  }
-}
+            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+
+          });
+
+        }
+
+      
+
+        async uploadUrl(url: string): Promise<any> {
+
+          return cloudinary.uploader.upload(url, {
+
+            folder: 'easypost_uploads',
+
+          });
+
+        }
+
+      }
+
+      

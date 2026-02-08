@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException, ForbiddenE
 import { PrismaService } from '../../prisma/prisma.service';
 import { CloudinaryService } from '../../modules/providers/cloudinary.service'; 
 import { PlanType } from '@prisma/client';
+import axios from 'axios';
 
 @Injectable()
 export class MediaService {
@@ -95,6 +96,42 @@ export class MediaService {
     });
 
     return { message: 'File uploaded', media };
+  }
+
+  async importFromUrl(url: string, userId: string, folderId?: string) {
+    const workspace = await this.getWorkspace(userId);
+
+    // 1. Fetch file info to check size
+    const head = await axios.head(url);
+    const size = parseInt(head.headers['content-length'] || '0');
+    const mimeType = head.headers['content-type'] || 'image/png';
+
+    const usage = await this.getStorageUsage(workspace.id);
+    const limit = this.STORAGE_LIMITS[workspace.owner.planType] || this.STORAGE_LIMITS[PlanType.FREE];
+
+    if (size > 0 && usage + size > limit) {
+      throw new ForbiddenException('Storage limit reached. Please upgrade to PRO.');
+    }
+
+    // 2. Upload to Cloudinary via URL
+    const cloudResult = await this.cloudinary.uploadUrl(url);
+
+    // 3. Save to DB
+    const filename = url.split('/').pop()?.split('?')[0] || `imported_${Date.now()}`;
+    
+    const media = await this.prisma.mediaLibrary.create({
+      data: {
+        uploadedById: userId,
+        workspaceId: workspace.id,
+        url: cloudResult.secure_url,
+        filename,
+        mimeType,
+        size: size || cloudResult.bytes || 0,
+        folderId: folderId || null
+      }
+    });
+
+    return { message: 'Asset imported', media };
   }
 
   async moveAsset(assetId: string, folderId: string | null, userId: string) {

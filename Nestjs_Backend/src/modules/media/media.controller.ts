@@ -84,4 +84,11 @@ export class MediaController {
   async getUsage(@Query('workspaceId') workspaceId: string) {
     return this.mediaService.getStorageUsage(workspaceId);
   }
+
+  @Post('import-url')
+  @ApiOperation({ summary: 'Import an asset from an external URL (Canva/Dropbox)' })
+  async importUrl(@Req() req, @Body() body: { url: string, folderId?: string }) {
+    const userId = req.user?.sub || req.user?.id;
+    return this.mediaService.importFromUrl(body.url, userId, body.folderId);
+  }
 }
