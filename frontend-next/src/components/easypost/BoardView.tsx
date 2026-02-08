@@ -24,6 +24,7 @@ import {
   useSensors,
   DragOverlay,
   defaultDropAnimationSideEffects,
+  useDroppable,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -68,9 +69,11 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   if (isLoading) return <SpinningLoader />;
 
   if (selectedBoardId) {
+    const activeBoard = boards.find(b => b.id === selectedBoardId);
     return (
       <KanbanBoard 
         boardId={selectedBoardId} 
+        boardName={activeBoard?.name || ''}
         onBack={() => setSelectedBoardId(null)} 
       />
     );
@@ -165,12 +168,21 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
 // KANBAN BOARD COMPONENT
 // ==========================================
 
-function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void }) {
+function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardName: string, onBack: () => void }) {
   const queryClient = useQueryClient();
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   
+  // Board Rename
+  const [isEditBoardOpen, setIsEditBoardOpen] = useState(false);
+  const [editBoardName, setEditBoardName] = useState(boardName);
+
+  // Column Rename/Delete
+  const [isEditColumnOpen, setIsEditColumnOpen] = useState(false);
+  const [editingColumn, setEditingColumn] = useState<BoardColumn | null>(null);
+  const [editColumnName, setEditColumnName] = useState('');
+
   // Create Card Modal
   const [isCreateCardOpen, setIsCreateCardOpen] = useState(false);
   const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
@@ -179,6 +191,34 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
     queryFn: () => boardApi.getBoardDetails(boardId),
+  });
+
+  const updateBoardMutation = useMutation({
+    mutationFn: (name: string) => boardApi.updateBoard(boardId, { name }),
+    onSuccess: () => {
+      setIsEditBoardOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['boards'] });
+      queryClient.invalidateQueries({ queryKey: ['board', boardId] });
+      toast.success('BOARD_UPDATED');
+    }
+  });
+
+  const updateColumnMutation = useMutation({
+    mutationFn: (data: { id: string, name: string }) => boardApi.updateColumn(data.id, { name: data.name }),
+    onSuccess: () => {
+      setIsEditColumnOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['board', boardId] });
+      toast.success('COLUMN_UPDATED');
+    }
+  });
+
+  const deleteColumnMutation = useMutation({
+    mutationFn: (id: string) => boardApi.deleteColumn(id),
+    onSuccess: () => {
+      setIsEditColumnOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['board', boardId] });
+      toast.success('COLUMN_DELETED');
+    }
   });
 
   const moveCardMutation = useMutation({
@@ -220,18 +260,26 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
     const activeId = active.id;
     const overId = over.id;
 
-    if (activeId === overId) return;
+    // Resolve target column ID
+    // 1. Check if we dropped on a column container
+    let overColumnId = over.data.current?.columnId || overId;
+    
+    // 2. Check if we dropped on a card within a column
+    if (over.data.current?.type === 'Card') {
+      overColumnId = over.data.current.columnId;
+    }
 
-    // Find the column the card was dropped into
-    const overColumnId = over.data.current?.columnId || overId;
     const activeCard = board.columns?.flatMap(c => c.cards || []).find(c => c.id === activeId);
 
     if (activeCard) {
-        moveCardMutation.mutate({ 
-            cardId: activeId as string, 
-            columnId: overColumnId as string, 
-            order: 0 // Simplification: append to top/bottom logic can be added
-        });
+        // If it's a different column or different position
+        if (activeCard.columnId !== overColumnId) {
+            moveCardMutation.mutate({ 
+                cardId: activeId as string, 
+                columnId: overColumnId as string, 
+                order: 0 
+            });
+        }
     }
   };
 
@@ -245,6 +293,12 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
     setIsCreateCardOpen(true);
   };
 
+  const openEditColumn = (column: BoardColumn) => {
+    setEditingColumn(column);
+    setEditColumnName(column.name);
+    setIsEditColumnOpen(true);
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       <div className="flex items-center justify-between mb-6">
@@ -255,13 +309,18 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
           >
             <ArrowRight className="rotate-180" size={20} />
           </button>
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{board.name}</h2>
-            <p className="text-xs font-bold text-gray-500 uppercase italic">Board View • {board.columns?.length || 0} Columns</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{board.name}</h2>
+              <p className="text-xs font-bold text-gray-500 uppercase italic">Board View • {board.columns?.length || 0} Columns</p>
+            </div>
+            <button 
+              onClick={() => setIsEditBoardOpen(true)}
+              className="p-2 border-2 border-black dark:border-white hover:bg-yellow-200 transition-colors"
+            >
+              <MoreHorizontal size={16} />
+            </button>
           </div>
-        </div>
-        <div className="flex gap-2">
-           <NeuButton className="bg-white"><MoreHorizontal size={20}/></NeuButton>
         </div>
       </div>
 
@@ -278,6 +337,7 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
                 column={column} 
                 onAddCard={() => openCreateCard(column.id)}
                 onCardClick={openCardDetails}
+                onEditColumn={() => openEditColumn(column)}
               />
             ))}
             
@@ -288,6 +348,70 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
           </div>
         </DndContext>
       </div>
+
+      {/* Board Rename Modal */}
+      <NeuModal
+        isOpen={isEditBoardOpen}
+        onClose={() => setIsEditBoardOpen(false)}
+        title="RENAME_BOARD"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-black uppercase mb-1 block">New Name</label>
+            <NeuInput 
+              value={editBoardName}
+              onChange={(e: any) => setEditBoardName(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <NeuButton onClick={() => setIsEditBoardOpen(false)} className="bg-white">CANCEL</NeuButton>
+            <NeuButton 
+              onClick={() => updateBoardMutation.mutate(editBoardName)}
+              className="bg-[#3C48F5] text-white"
+            >
+              UPDATE
+            </NeuButton>
+          </div>
+        </div>
+      </NeuModal>
+
+      {/* Column Edit Modal */}
+      <NeuModal
+        isOpen={isEditColumnOpen}
+        onClose={() => setIsEditColumnOpen(false)}
+        title="MANAGE_COLUMN"
+      >
+        <div className="space-y-6">
+          <div>
+            <label className="text-xs font-black uppercase mb-1 block">Column Name</label>
+            <NeuInput 
+              value={editColumnName}
+              onChange={(e: any) => setEditColumnName(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-between items-center pt-4 border-t-2 border-dashed border-gray-100">
+            <button 
+              onClick={() => {
+                if(confirm('Are you sure? This will delete all cards in this column.')) {
+                  deleteColumnMutation.mutate(editingColumn!.id);
+                }
+              }}
+              className="text-red-500 font-black uppercase text-xs hover:underline"
+            >
+              Delete Column
+            </button>
+            <div className="flex gap-3">
+              <NeuButton onClick={() => setIsEditColumnOpen(false)} className="bg-white">CANCEL</NeuButton>
+              <NeuButton 
+                onClick={() => updateColumnMutation.mutate({ id: editingColumn!.id, name: editColumnName })}
+                className="bg-black text-white"
+              >
+                SAVE_CHANGES
+              </NeuButton>
+            </div>
+          </div>
+        </div>
+      </NeuModal>
 
       {/* Card Details Modal */}
       {selectedCardId && (
@@ -334,11 +458,20 @@ function KanbanBoard({ boardId, onBack }: { boardId: string, onBack: () => void 
 // COLUMN COMPONENT
 // ==========================================
 
-function KanbanColumn({ column, onAddCard, onCardClick }: { 
+function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: { 
   column: BoardColumn, 
   onAddCard: () => void,
-  onCardClick: (id: string) => void
+  onCardClick: (id: string) => void,
+  onEditColumn: () => void
 }) {
+  const { setNodeRef } = useDroppable({
+    id: column.id,
+    data: {
+      type: 'Column',
+      columnId: column.id
+    }
+  });
+
   return (
     <div className="flex-shrink-0 w-80 flex flex-col h-full">
       <div className="flex items-center justify-between mb-4 px-2">
@@ -355,19 +488,30 @@ function KanbanColumn({ column, onAddCard, onCardClick }: {
           >
             <Plus size={16} />
           </button>
-          <button className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+          <button 
+            onClick={onEditColumn}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+          >
             <MoreVertical size={16} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 bg-gray-50 dark:bg-zinc-900/50 border-2 border-black dark:border-white p-3 space-y-3 overflow-y-auto custom-scrollbar">
+      <div 
+        ref={setNodeRef}
+        className="flex-1 bg-gray-50 dark:bg-zinc-900/50 border-2 border-black dark:border-white p-3 space-y-3 overflow-y-auto custom-scrollbar"
+      >
         <SortableContext 
           items={column.cards?.map(c => c.id) || []} 
           strategy={verticalListSortingStrategy}
         >
           {column.cards?.map((card) => (
-            <KanbanCard key={card.id} card={card} onClick={() => onCardClick(card.id)} />
+            <KanbanCard 
+              key={card.id} 
+              card={card} 
+              columnId={column.id}
+              onClick={() => onCardClick(card.id)} 
+            />
           ))}
         </SortableContext>
         
@@ -385,7 +529,7 @@ function KanbanColumn({ column, onAddCard, onCardClick }: {
 // CARD COMPONENT
 // ==========================================
 
-function KanbanCard({ card, onClick }: { card: Card, onClick: () => void }) {
+function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string, onClick: () => void }) {
   const {
     attributes,
     listeners,
@@ -393,7 +537,13 @@ function KanbanCard({ card, onClick }: { card: Card, onClick: () => void }) {
     transform,
     transition,
     isDragging
-  } = useSortable({ id: card.id });
+  } = useSortable({ 
+    id: card.id,
+    data: {
+      type: 'Card',
+      columnId: columnId
+    }
+  });
 
   const style = {
     transform: CSS.Translate.toString(transform),

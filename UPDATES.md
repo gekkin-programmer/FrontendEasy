@@ -1,6 +1,8 @@
 # Project Updates
 
 ## 2026-02-07
+- fix(boards): resolved drag-and-drop issues by correctly identifying target columns via metadata.
+- feat(boards): added ability to rename boards and columns.
 - fix(boards): resolve board creation error by using `req.user.sub` instead of `req.user.id` in `BoardsController`.
 - feat(kanban): implement full workspace-based Kanban system.
   - Backend: Added Prisma models (`Board`, `BoardColumn`, `Card`, `CardComment`, `CardActivity`, `CardLabel`).
