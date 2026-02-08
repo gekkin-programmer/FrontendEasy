@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { AppEventsGateway } from '../app-events/app-events.gateway';
 import {
   CreateBoardDto, UpdateBoardDto,
   CreateColumnDto, UpdateColumnDto,
@@ -9,7 +10,10 @@ import {
 
 @Injectable()
 export class BoardsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: AppEventsGateway,
+  ) {}
 
   // ==========================================
   // BOARDS
@@ -159,6 +163,10 @@ export class BoardsService {
     });
 
     await this.logActivity(card.id, userId, 'created', { title: card.title });
+    
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(column.board.workspaceId, 'card_created', { columnId, card });
+    
     return card;
   }
 
@@ -204,6 +212,10 @@ export class BoardsService {
     });
 
     await this.logActivity(cardId, userId, 'updated', dto);
+    
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(card.column.board.workspaceId, 'card_updated', updatedCard);
+    
     return updatedCard;
   }
 
@@ -223,6 +235,11 @@ export class BoardsService {
       data: {
         columnId: dto.columnId,
         order: dto.order
+      },
+      include: {
+        assignee: { select: { id: true, firstName: true, avatar: true } },
+        labels: true,
+        _count: { select: { comments: true } }
       }
     });
 
@@ -232,6 +249,15 @@ export class BoardsService {
         to: targetColumn.name 
       });
     }
+
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(card.column.board.workspaceId, 'card_moved', {
+        cardId,
+        fromColumnId: card.columnId,
+        toColumnId: dto.columnId,
+        order: dto.order,
+        card: updatedCard
+    });
 
     return updatedCard;
   }

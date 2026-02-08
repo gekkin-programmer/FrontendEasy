@@ -25,6 +25,7 @@ import { CommunityModule } from './modules/community/community.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AppEventsModule } from './modules/app-events/app-events.module';
 import { BoardsModule } from './modules/boards/boards.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import { BoardsModule } from './modules/boards/boards.module';
     CommunityModule,
     AdminModule,
     AppEventsModule,
-    BoardsModule
+    BoardsModule,
+    NotificationsModule
   ],
   controllers: [AppController],
   providers: [AppService],
