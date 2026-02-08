@@ -8,8 +8,9 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Loader2, GripVertical, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, GripVertical, Download, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
   closestCenter,
@@ -28,6 +29,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import CalendarHeatmap from './CalendarHeatmap';
 
 const ICONS: Record<string, any> = {
   FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram,
@@ -143,6 +145,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
 export default function CalendarView({ workspaceId, onPostClick }: { workspaceId: string, onPostClick?: (post: any) => void }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const queryClient = useQueryClient();
 
   const { start, end } = useMemo(() => {
@@ -277,6 +280,16 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           >
             <Download size={16} /> Export
           </button>
+
+          <button 
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className={cn(
+                "flex items-center gap-2 p-3 border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all",
+                showHeatmap ? "bg-black text-white" : "bg-white text-black"
+            )}
+          >
+            <Sparkles size={16} className={cn(showHeatmap ? "text-yellow-400" : "text-gray-400")} /> Insights
+          </button>
         </div>
       </div>
 
@@ -287,6 +300,10 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
             ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {showHeatmap && <CalendarHeatmap workspaceId={workspaceId} onClose={() => setShowHeatmap(false)} />}
+      </AnimatePresence>
 
       {isLoading ? (
         <div className="h-96 flex items-center justify-center bg-white dark:bg-zinc-900"><Loader2 className="w-12 h-12 animate-spin text-[#3C48F5]" /></div>

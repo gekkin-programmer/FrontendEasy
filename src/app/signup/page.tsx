@@ -116,9 +116,9 @@ const SignupPage = () => {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {step === 'FORM' ? 'Create an account' : 'Check your email'}
             </h1>
-            <p className="mt-2 text-base text-gray-600">
+            <p className="mt-1 text-base text-gray-600">
               {step === 'FORM' 
-                ? 'Start your 14-day free trial. No credit card required.' 
+                ? '' 
                 : <span>We sent a verification code to <strong>{formData.email}</strong></span>
               }
             </p>

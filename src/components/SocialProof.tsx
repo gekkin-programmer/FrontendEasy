@@ -14,7 +14,8 @@ const SocialProof = () => {
     "/logos/dibato.PNG",
     "/logos/YXNGERAKODE.jpeg",
     "/logos/PBD.jpg",
-    "logos/lemessager.PNG"
+    "logos/lemessager.PNG",
+    "logos/ATLstudio.PNG"
   ];
 
   // We define the track content here to reuse it easily without scope issues
@@ -57,9 +58,9 @@ const SocialProof = () => {
                 {/* Header Section */}
                 <div className="md:w-1/4 text-center md:text-left z-20 bg-white dark:bg-black md:bg-transparent p-2 transition-colors">
                     <h3 className="text-3xl font-black text-black dark:text-white uppercase leading-none tracking-tighter">
-                        {t("LES", "TRUSTED")} <span className="text-[#3C48F6]">{t("PME'S", "BY")}</span><br/>
-                        {t("NOUS FONT", "LOCAL")}<br/>
-                        {t("CONFIANCE", "BRANDS")}<br/>
+                        {t("TRUSTED", "LES")} <span className="text-[#3C48F6]">{t("BY", "PME'S")}</span><br/>
+                        {t("LOCAL", "NOUS FONT")}<br/>
+                        {t("BRANDS", "CONFIANCE")}<br/>
                     </h3>
                 </div>
 
