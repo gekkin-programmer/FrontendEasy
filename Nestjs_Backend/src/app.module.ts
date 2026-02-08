@@ -24,6 +24,7 @@ import { CreatorFundModule } from './modules/creator-fund/creator-fund.module';
 import { CommunityModule } from './modules/community/community.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AppEventsModule } from './modules/app-events/app-events.module';
+import { BoardsModule } from './modules/boards/boards.module';
 
 @Module({
   imports: [
@@ -64,7 +65,8 @@ import { AppEventsModule } from './modules/app-events/app-events.module';
     CreatorFundModule,
     CommunityModule,
     AdminModule,
-    AppEventsModule
+    AppEventsModule,
+    BoardsModule
   ],
   controllers: [AppController],
   providers: [AppService],

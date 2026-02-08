@@ -298,6 +298,11 @@ model User {
   chatMessages          ChatMessage[]
   mediaUploads          MediaLibrary[]    @relation("MediaUploader")
 
+  assignedCards         Card[]            @relation("CardAssignee")
+  createdCards          Card[]            @relation("CardCreator")
+  cardComments          CardComment[]
+  cardActivities        CardActivity[]
+
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
 
@@ -374,6 +379,8 @@ model Workspace {
   leads            Lead[]
   automationRules  AutomationRule[]
   notifications    Notification[]
+
+  boards           Board[]
 
   documents Document[]
 
@@ -680,6 +687,8 @@ model Post {
 
   socialAccountId String?
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
+
+  cards           Card[]
 
   @@index([status, scheduledFor])
   @@map("posts")
@@ -1169,4 +1178,114 @@ model Transaction {
   updatedAt    DateTime @updatedAt
 
   @@map("transactions")
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  color       String?  // Board theme color
+
+  columns     BoardColumn[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("boards")
+}
+
+model BoardColumn {
+  id        String   @id @default(cuid())
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  
+  name      String
+  order     Int      @default(0)
+  
+  cards     Card[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("board_columns")
+}
+
+model Card {
+  id          String   @id @default(cuid())
+  columnId    String
+  column      BoardColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  
+  priority    Priority @default(MEDIUM)
+  dueDate     DateTime?
+  
+  assigneeId  String?
+  assignee    User?    @relation("CardAssignee", fields: [assigneeId], references: [id])
+  
+  creatorId   String
+  creator     User     @relation("CardCreator", fields: [creatorId], references: [id])
+
+  comments    CardComment[]
+  activities  CardActivity[]
+  labels      CardLabel[]
+
+  // For "Convert to Post" feature
+  postId      String?  @unique
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cards")
+}
+
+model CardComment {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  content   String   @db.Text
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("card_comments")
+}
+
+model CardActivity {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  action    String   // e.g., "moved", "created", "commented"
+  details   Json?    // e.g., { fromColumn: "col1", toColumn: "col2" }
+  
+  createdAt DateTime @default(now())
+
+  @@map("card_activities")
+}
+
+model CardLabel {
+  id          String   @id @default(cuid())
+  cardId      String
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  name        String
+  color       String
+  
+  createdAt   DateTime @default(now())
+
+  @@map("card_labels")
 }
