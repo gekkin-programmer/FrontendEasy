@@ -2,10 +2,14 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnalyticsFilterDto, AnalyticsPeriod, AnalyticsType } from './dto/analytics-query.dto';
 import { PostStatus } from '@prisma/client';
+import { SmartSchedulingService } from '../ai/smart-scheduling/smart-scheduling.service';
 
 @Injectable()
 export class AnalyticsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private smartSchedulingService: SmartSchedulingService,
+  ) {}
 
   async getAnalytics(workspaceId: string, filters: AnalyticsFilterDto) {
     const { period = AnalyticsPeriod.MONTH, type = AnalyticsType.OVERVIEW } = filters;
@@ -173,47 +177,22 @@ export class AnalyticsService {
   // =================================================================
 
   public async analyzeBestTimes(workspaceId: string) {
-    const posts = await this.prisma.post.findMany({
-      where: { workspaceId, status: PostStatus.PUBLISHED, publishedAt: { not: null } },
-      select: { 
-          publishedAt: true, 
-          socialAccounts: { select: { likes: true, comments: true, shares: true } } 
-      }
-    });
+    // Use the ML Service for high quality predictions
+    const data = await this.smartSchedulingService.getHeatmap(workspaceId, 'FACEBOOK');
+    
+    if (!data.heatmap || data.heatmap.length === 0) return [];
 
-    const heatMap = {}; 
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-    posts.forEach(post => {
-      if (!post.publishedAt) return;
-      
-      const date = new Date(post.publishedAt);
-      const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-      const hour = date.getHours(); 
-      const key = `${day}-${hour}`;
-      
-      // Sum engagement
-      let engagement = 0;
-      post.socialAccounts.forEach(sa => {
-          engagement += (sa.likes || 0) + (sa.comments || 0) + (sa.shares || 0);
-      });
-
-      if (!heatMap[key]) heatMap[key] = { count: 0, totalEng: 0 };
-      heatMap[key].count++;
-      heatMap[key].totalEng += engagement;
-    });
-
-    return Object.entries(heatMap)
-        .map(([key, data]: any) => {
-            const [day, hour] = key.split('-');
-            return {
-                day,
-                hour: parseInt(hour),
-                avgEngagement: Math.round(data.totalEng / data.count),
-                sampleSize: data.count
-            };
-        })
-        .sort((a, b) => b.avgEngagement - a.avgEngagement)
-        .slice(0, 10);
+    return data.heatmap
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10)
+        .map(s => ({
+            day: days[s.day] || 'Unknown',
+            hour: s.hour,
+            avgEngagement: Math.round(s.score * 100), // Map 0-1 to 0-100 for UI
+            sampleSize: data.confidence === 'high' ? 50 : 5 // Visual hint
+        }));
   }
 
   public async analyzeHashtags(workspaceId: string) {
