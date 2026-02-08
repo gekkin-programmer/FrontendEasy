@@ -24,6 +24,7 @@ graph TD
     User((User))
     Web[Next.js Frontend]
     API[NestJS Backend]
+    ML[Python ML Service]
     DB[(PostgreSQL)]
     AI[AI Engine - OpenAI/Claude]
     Social[Social APIs - Meta, X, LinkedIn]
@@ -31,6 +32,7 @@ graph TD
     User <-->|HTTPS| Web
     Web <-->|REST API| API
     API <-->|Prisma ORM| DB
+    API <-->|HTTP| ML
     API <-->|LangChain| AI
     API <-->|Oauth/Posting| Social
 ```
@@ -43,15 +45,29 @@ graph TD
 - **Database**: PostgreSQL (Neon)
 - **Monitoring**: [Sentry](https://sentry.io/)
 - **Logging**: [Pino](https://github.com/pinojs/pino)
-- **Documentation**: Swagger/OpenAPI
 - **Auth**: JWT + OAuth 2.0 (Google)
+
+### ML Service (`/ml_service`)
+- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.13)
+- **Machine Learning**: Scikit-learn (RandomForest), Pandas
+- **Purpose**: AI Smart Scheduling & Engagement Prediction
 
 ### Frontend (`/frontend-next`)
 - **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
 - **State Management**: [React Query](https://tanstack.com/query/latest)
 - **Styling**: TailwindCSS + Shadcn/UI
 - **Animations**: Framer Motion
-- **Monitoring**: Sentry
+
+---
+
+## 🚀 Key Features
+
+- **✅ Multi-Platform Scheduling**: Post to Facebook, Instagram, LinkedIn, X, and TikTok.
+- **✅ Kanban Workspace**: Visualize your content pipeline from idea to published.
+- **✅ AI Smart Scheduling**: ML-powered suggestions for the best time to publish.
+- **✅ Content Preview**: Live preview of how your posts will look on every platform.
+- **✅ Media Library**: Centralized asset management with folder support.
+- **✅ Convert to Post**: One-click sync from Kanban cards to social media drafts.
 
 ---
 
