@@ -6,6 +6,7 @@ import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTrian
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // --- NEU COMPONENTS ---
 
@@ -226,6 +227,32 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
+  const queryClient = useQueryClient();
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ postId, status, scheduledFor }: { postId: string, status: string, scheduledFor: string }) => {
+        return api.patch(`/posts/${postId}`, { status, scheduledFor, workspaceId });
+    },
+    onMutate: async ({ postId, status, scheduledFor }) => {
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries({ queryKey: ['posts', workspaceId] });
+        // Snapshot the previous value
+        const previousPosts = queryClient.getQueryData(['posts', workspaceId]);
+        // Optimistically update to the new value
+        queryClient.setQueryData(['posts', workspaceId], (old: any[]) => {
+            return old?.map(p => p.id === postId ? { ...p, status, scheduledFor } : p) || [];
+        });
+        return { previousPosts };
+    },
+    onError: (err, variables, context) => {
+        queryClient.setQueryData(['posts', workspaceId], context?.previousPosts);
+        toast.error("UPDATE_FAILED");
+    },
+    onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+    }
+  });
+
   const deletePost = async (postId: string) => {
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
@@ -256,19 +283,6 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
     }
   };
 
-  const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
-    try {
-        await api.patch(`/posts/${postId}`, { 
-            status, 
-            scheduledFor: new Date(scheduledFor).toISOString(),
-            workspaceId
-        });
-        toast.success("POST_SCHEDULED");
-    } catch (e) {
-        toast.error("UPDATE_FAILED");
-    }
-  };
-
   // --- DRAG LOGIC ---
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData("postId", id);
@@ -278,7 +292,13 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
   const handleDropToQueue = async (e: React.DragEvent) => {
     e.preventDefault();
     const id = e.dataTransfer.getData("postId");
-    await updateStatus(id, 'SCHEDULED', Date.now() + 3600000);
+    if (id) {
+        updateStatusMutation.mutate({ 
+            postId: id, 
+            status: 'SCHEDULED', 
+            scheduledFor: new Date(Date.now() + 3600000).toISOString() 
+        });
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {

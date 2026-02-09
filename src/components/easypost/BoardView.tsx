@@ -224,8 +224,54 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
   const moveCardMutation = useMutation({
     mutationFn: ({ cardId, columnId, order }: { cardId: string, columnId: string, order: number }) => 
       boardApi.moveCard(cardId, { columnId, order }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['board', boardId] });
+    onMutate: async ({ cardId, columnId, order }) => {
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries({ queryKey: ['board', boardId] });
+        // Snapshot the previous value
+        const previousBoard = queryClient.getQueryData(['board', boardId]);
+        
+        // Optimistically update to the new value
+        queryClient.setQueryData(['board', boardId], (old: any) => {
+            if (!old) return old;
+            
+            // 1. Find the card and remove it from its current column
+            let movedCard: any = null;
+            const newColumns = old.columns.map((col: any) => {
+                const cardIndex = col.cards.findIndex((c: any) => c.id === cardId);
+                if (cardIndex !== -1) {
+                    movedCard = { ...col.cards[cardIndex], columnId };
+                    return { ...col, cards: col.cards.filter((c: any) => c.id !== cardId) };
+                }
+                return col;
+            });
+
+            // 2. Add the card to the target column
+            if (movedCard) {
+                return {
+                    ...old,
+                    columns: newColumns.map((col: any) => {
+                        if (col.id === columnId) {
+                            const newCards = [...col.cards];
+                            newCards.splice(order, 0, movedCard);
+                            return { ...col, cards: newCards };
+                        }
+                        return col;
+                    })
+                };
+            }
+            return old;
+        });
+
+        return { previousBoard };
+    },
+    onError: (err, variables, context) => {
+        queryClient.setQueryData(['board', boardId], context?.previousBoard);
+        toast.error('MOVE_FAILED');
+    },
+    onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['board', boardId] });
+        // Also invalidate boards list as post counts might change
+        queryClient.invalidateQueries({ queryKey: ['boards'] });
     }
   });
 

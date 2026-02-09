@@ -180,7 +180,7 @@ test.describe('Post Management Full Workflow', () => {
     const queueColumn = page.locator('text=Queue').locator('xpath=./../..');
     await expect(queueColumn.getByText(scheduledContent)).toBeVisible();
     await expect(page.getByText('POST_DELETED')).toBeVisible();
-    await expect(page.getByText(content)).not.toBeVisible();
+    await expect(page.getByText(scheduledContent)).not.toBeVisible();
   });
 
   test('Test 7: Immediate Publish', async ({ page }) => {

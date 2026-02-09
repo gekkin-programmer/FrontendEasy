@@ -169,11 +169,27 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   const rescheduleMutation = useMutation({
     mutationFn: ({ id, date }: { id: string, date: string }) => 
         api.patch(`/posts/${id}`, { scheduledFor: date }),
+    onMutate: async ({ id, date }) => {
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries({ queryKey: ['calendar'] });
+        // Snapshot the previous value
+        const previousPosts = queryClient.getQueryData(['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')]);
+        // Optimistically update to the new value
+        queryClient.setQueryData(['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')], (old: any[]) => {
+            return old?.map((p: any) => p.id === id ? { ...p, scheduledFor: date } : p) || [];
+        });
+        return { previousPosts };
+    },
     onSuccess: () => {
         trackAction('calendar_drag_drop', { workspaceId });
-        queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
-    onError: () => toast.error("RESCHEDULE_FAILED")
+    onError: (err, variables, context) => {
+        queryClient.setQueryData(['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')], context?.previousPosts);
+        toast.error("RESCHEDULE_FAILED");
+    },
+    onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
+    }
   });
 
   const days = eachDayOfInterval({ start, end });
