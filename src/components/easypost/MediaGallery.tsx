@@ -58,17 +58,25 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
 
   // 3. Mutations
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        if (currentFolderId) formData.append('folderId', currentFolderId);
-        if (workspaceId) formData.append('workspaceId', workspaceId);
-        return api.post('/media/upload', formData);
+    mutationFn: async (files: File[]) => {
+        const results = [];
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (currentFolderId) formData.append('folderId', currentFolderId);
+            if (workspaceId) formData.append('workspaceId', workspaceId);
+            const res = await api.post('/media/upload', formData);
+            results.push(res);
+        }
+        return results;
     },
     onSuccess: () => {
-        toast.success("UPLOAD_SUCCESSFUL");
+        toast.success("ALL_FILES_UPLOADED_SUCCESSFULLY");
         queryClient.invalidateQueries({ queryKey: ['media'] });
         queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    },
+    onError: () => {
+        toast.error("SOME_UPLOADS_FAILED");
     }
   });
 
@@ -144,8 +152,8 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) uploadMutation.mutate(files);
   };
 
   const enterFolder = (folder: any) => {
@@ -263,7 +271,7 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
           </AnimatePresence>
       </div>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
       {/* Explorer Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">

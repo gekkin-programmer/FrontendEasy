@@ -431,6 +431,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
 
 // --- SUB-COMPONENT: PROFILE SETTINGS ---
 function ProfileSettings() {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', avatar: '' });
   const [loading, setLoading] = useState(false);
@@ -449,10 +450,22 @@ function ProfileSettings() {
             phone: data.phone || '',
             avatar: data.avatar || ''
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Profile Fetch Error:", e); }
     };
     fetchUser();
   }, []);
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: any) => api.patch(`/users/${user.id}`, data),
+    onSuccess: () => {
+        toast.success("PROFILE_SYNCHRONIZED_REALTIME");
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+    onError: (error: any) => {
+        console.error("Profile Update Error:", error);
+        toast.error(`UPDATE_FAILED: ${error.message || 'Check connection'}`);
+    }
+  });
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -474,11 +487,7 @@ function ProfileSettings() {
 
   const handleSave = async () => {
     if (!user?.id) return;
-    setLoading(true);
-    try {
-        await api.patch(`/users/${user.id}`, formData);
-        toast.success("PROFILE_UPDATED");
-    } catch (e) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
+    updateProfileMutation.mutate(formData);
   };
 
   if (!user) return <div className="p-8 text-center font-mono animate-pulse text-black dark:text-white uppercase transition-colors">LOADING_PROFILE...</div>;
@@ -504,7 +513,14 @@ function ProfileSettings() {
           </div>
         </div>
         <div className="mt-8 flex justify-end pt-4 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
-            <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8" icon={<FiSave />}>{loading ? 'SAVING...' : 'SAVE_CHANGES'}</NeuButton>
+            <NeuButton 
+                onClick={handleSave} 
+                disabled={updateProfileMutation.isPending || uploading} 
+                className="px-8" 
+                icon={updateProfileMutation.isPending ? <FiLoader className="animate-spin" /> : <FiSave />}
+            >
+                {updateProfileMutation.isPending ? 'SYNCING...' : 'SAVE_CHANGES'}
+            </NeuButton>
         </div>
       </NeuCard>
       <NeuCard title="Account Security" description="USED FOR LOGIN & ALERTS">
