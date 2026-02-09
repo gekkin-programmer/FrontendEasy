@@ -172,6 +172,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [aiContext, setAiContext] = useState("");
   const [aiTone, setAiTone] = useState(AI_TONES[0].id);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   // Modals / Data
   const [showFolderModal, setShowFolderModal] = useState(false);
@@ -302,6 +303,32 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       console.error(e);
       toast.error("AI_ERROR: GENERATION_FAILED");
       setIsAiGenerating(false);
+    }
+  };
+
+  const handleEnhance = async () => {
+    if (!text.trim()) return toast.error("ERR: TEXT_EMPTY");
+    setIsEnhancing(true);
+    try {
+        const res = await api.post<any>('/ai/enhance-text', { text });
+        const enhanced = res.content || res.data?.content;
+        if (!enhanced) throw new Error("Empty enhancement");
+
+        // Typewriter Replace
+        setText('');
+        let charIndex = 0;
+        const intervalId = setInterval(() => {
+            setText((prev) => prev + enhanced.charAt(charIndex));
+            charIndex++;
+            if (charIndex === enhanced.length) {
+                clearInterval(intervalId);
+                setIsEnhancing(false);
+                toast.success("AI: TEXT_ENHANCED");
+            }
+        }, 10);
+    } catch (e) {
+        toast.error("ENHANCE_FAILED");
+        setIsEnhancing(false);
     }
   };
 
@@ -468,6 +495,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_IMG" />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_VID" />
+              <button 
+                onClick={handleEnhance} 
+                disabled={isEnhancing || !text.trim()} 
+                title="AI_ENHANCE_TEXT"
+                className={cn(
+                    "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white disabled:opacity-50",
+                    isEnhancing && "animate-pulse"
+                )}
+              >
+                <Wand2 size={18} strokeWidth={2.5} className={cn(isEnhancing && "animate-spin")} />
+              </button>
               <div className="h-8 w-0.5 bg-black dark:bg-white mx-1" />
               <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>

@@ -28,21 +28,17 @@ export class AiController {
 
     const result = await this.aiService.generateMarketingCopy(
       dto.product,
-      "A generic test image description", // In real app, pass this from DTO
+      "A generic test image description", 
       dto.tone,
-      userId,        // <--- Pass ID
-      workspaceId,    // <--- Pass Workspace ID
-      dto.length,     // <--- Pass length
+      userId,        
+      workspaceId,    
+      dto.length,     
       MarketingFramework.AIDA
     );
 
-    // Get current usage count
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    // Use prisma directly here or add a method to AiService
-    // Since prisma isn't exported, we assume it's better to add a helper if needed, 
-    // but for now, we'll assume AiService can return the count if modified.
     
     return {
       ...result,
@@ -50,6 +46,19 @@ export class AiController {
         where: { userId, createdAt: { gte: startOfMonth } }
       })
     }; 
+  }
+
+  // ➤ 1.5 Enhance Text
+  @Post('enhance-text')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Enhance existing text with AI' })
+  async enhanceText(
+    @Body() body: { text: string },
+    @CurrentUser() user: any
+  ) {
+    const userId = user.sub || user.id;
+    const workspaceId = user.workspaceId || user.ownedWorkspaces?.[0]?.id || 'default-ws';
+    return this.aiService.enhanceText(body.text, userId, workspaceId);
   }
 
   // ➤ 2. Support Chat
