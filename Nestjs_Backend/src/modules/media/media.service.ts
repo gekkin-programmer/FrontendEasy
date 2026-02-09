@@ -19,7 +19,16 @@ export class MediaService {
     private cloudinary: CloudinaryService
   ) {}
 
-  private async getWorkspace(userId: string) {
+  private async getWorkspace(userId: string, workspaceId?: string) {
+    if (workspaceId) {
+        const workspace = await this.prisma.workspace.findUnique({
+            where: { id: workspaceId },
+            include: { owner: true }
+        });
+        if (!workspace) throw new NotFoundException('Workspace not found');
+        return workspace;
+    }
+
     const workspace = await this.prisma.workspace.findFirst({
       where: { 
         OR: [
@@ -33,8 +42,8 @@ export class MediaService {
     return workspace;
   }
 
-  async findAll(userId: string, folderId?: string) {
-    const workspace = await this.getWorkspace(userId);
+  async findAll(userId: string, folderId?: string, workspaceId?: string) {
+    const workspace = await this.getWorkspace(userId, workspaceId);
     
     // Normalize folderId: empty string or 'null' string should be treated as null (root)
     const targetFolderId = (folderId === 'null' || !folderId) ? null : folderId;
@@ -60,8 +69,8 @@ export class MediaService {
     return { folders, assets };
   }
 
-  async createFolder(name: string, userId: string, parentId?: string) {
-    const workspace = await this.getWorkspace(userId);
+  async createFolder(name: string, userId: string, parentId?: string, workspaceId?: string) {
+    const workspace = await this.getWorkspace(userId, workspaceId);
     return this.prisma.mediaFolder.create({
       data: {
         name,
@@ -71,8 +80,8 @@ export class MediaService {
     });
   }
 
-  async processUpload(file: any, userId: string, folderId?: string) {
-    const workspace = await this.getWorkspace(userId);
+  async processUpload(file: any, userId: string, folderId?: string, workspaceId?: string) {
+    const workspace = await this.getWorkspace(userId, workspaceId);
 
     const usage = await this.getStorageUsage(workspace.id);
     const limit = this.STORAGE_LIMITS[workspace.owner.planType] || this.STORAGE_LIMITS[PlanType.FREE];
@@ -98,8 +107,8 @@ export class MediaService {
     return { message: 'File uploaded', media };
   }
 
-  async importFromUrl(url: string, userId: string, folderId?: string) {
-    const workspace = await this.getWorkspace(userId);
+  async importFromUrl(url: string, userId: string, folderId?: string, workspaceId?: string) {
+    const workspace = await this.getWorkspace(userId, workspaceId);
 
     // 1. Fetch file info to check size
     const head = await axios.head(url);

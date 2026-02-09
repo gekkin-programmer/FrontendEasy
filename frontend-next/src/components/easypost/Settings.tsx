@@ -8,9 +8,11 @@ import ConnectAccounts from './ConnectAccounts'; // 🟢 The new component we bu
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
-  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase // ➤ Added FiDatabase
+  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase,
+  FiMail, FiPlus, FiCheck, FiX, FiInfo, FiZap, FiTarget
 } from 'react-icons/fi';
-import MediaGallery from './MediaGallery'; // ➤ Import MediaGallery for Storage tab
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import MediaGallery from './MediaGallery'; 
 
 // --- CONFIG ---
 type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage'; // ➤ Added storage
@@ -112,16 +114,199 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
             {/* 🟢 STORAGE TAB */}
             {activeTab === 'storage' && (
                 <div className="animate-in fade-in duration-300">
-                    <MediaGallery />
+                    <MediaGallery workspaceId={workspaceId} />
                 </div>
             )}            
-            {/* Placeholders */}
-            {activeTab === 'notifications' && <NeuCard title="Notifications"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
-            {activeTab === 'team' && <NeuCard title="Team Management"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
-            {activeTab === 'billing' && <NeuCard title="Billing & Plans"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
+            
+            {activeTab === 'notifications' && <NotificationSettings />}
+            {activeTab === 'team' && <MemberSettings workspaceId={workspaceId} />}
+            {activeTab === 'billing' && <BillingSettings />}
         </main>
     </div>
   );
+}
+
+// --- SUB-COMPONENT: MEMBER SETTINGS ---
+function MemberSettings({ workspaceId }: { workspaceId: string }) {
+    const queryClient = useQueryClient();
+    const [email, setEmail] = useState("");
+    const [role, setRole] = useState("MEMBER");
+
+    const { data: members = [], isLoading } = useQuery({
+        queryKey: ['members', workspaceId],
+        queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`)
+    });
+
+    const inviteMutation = useMutation({
+        mutationFn: (data: any) => api.post(`/workspaces/${workspaceId}/members/invite`, data),
+        onSuccess: () => {
+            toast.success("INVITATION_SENT");
+            setEmail("");
+            queryClient.invalidateQueries({ queryKey: ['members'] });
+        },
+        onError: (e: any) => toast.error(e.message || "INVITE_FAILED")
+    });
+
+    const removeMutation = useMutation({
+        mutationFn: (memberId: string) => api.delete(`/workspaces/${workspaceId}/members/${memberId}`),
+        onSuccess: () => {
+            toast.success("MEMBER_REMOVED");
+            queryClient.invalidateQueries({ queryKey: ['members'] });
+        }
+    });
+
+    return (
+        <div className="space-y-8">
+            <NeuCard title="Invite Members" description="ADD COLLABORATORS TO YOUR WORKSPACE">
+                <div className="flex gap-4 flex-col sm:flex-row">
+                    <div className="flex-1">
+                        <NeuInput value={email} onChange={(e:any) => setEmail(e.target.value)} placeholder="email@example.com" />
+                    </div>
+                    <select 
+                        value={role} 
+                        onChange={e => setRole(e.target.value)}
+                        className="bg-white dark:bg-zinc-800 border-2 border-black dark:border-white px-4 py-2 font-bold text-sm outline-none"
+                    >
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="MEMBER">MEMBER</option>
+                        <option value="VIEWER">VIEWER</option>
+                    </select>
+                    <NeuButton onClick={() => inviteMutation.mutate({ email, role })} disabled={!email || inviteMutation.isPending}>
+                        <FiMail className="mr-2" /> Invite
+                    </NeuButton>
+                </div>
+            </NeuCard>
+
+            <NeuCard title="Workspace Crew" description="MANAGE ROLES AND PERMISSIONS">
+                {isLoading ? <div className="animate-pulse flex space-y-4 flex-col"><div className="h-12 bg-gray-100 dark:bg-zinc-800 w-full" /><div className="h-12 bg-gray-100 dark:bg-zinc-800 w-full" /></div> : (
+                    <div className="divide-y-2 divide-black/5 dark:divide-white/5">
+                        {members.map((m: any) => (
+                            <div key={m.id} className="py-4 flex items-center justify-between group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 border-2 border-black dark:border-white bg-blue-50 dark:bg-zinc-800 flex items-center justify-center font-black uppercase text-sm">
+                                        {m.user?.firstName?.charAt(0) || m.user?.email?.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="font-black text-sm uppercase">{m.user?.firstName || 'User'} {m.user?.lastName}</p>
+                                        <p className="text-[10px] font-mono text-gray-500">{m.user?.email} • {m.status}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-[10px] font-black bg-black dark:bg-white text-white dark:text-black px-2 py-1 uppercase">{m.role}</span>
+                                    {m.role !== 'OWNER' && (
+                                        <button onClick={() => removeMutation.mutate(m.id)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><FiTrash2 /></button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </NeuCard>
+        </div>
+    );
+}
+
+// --- SUB-COMPONENT: BILLING SETTINGS ---
+function BillingSettings() {
+    const { data: profile } = useQuery({
+        queryKey: ['profile'],
+        queryFn: () => api.get<any>('/auth/profile')
+    });
+
+    const plan = profile?.planType || 'FREE';
+
+    return (
+        <div className="space-y-8">
+            <NeuCard title="Current Plan" description="YOUR SUBSCRIPTION DETAILS">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <span className="text-4xl font-black text-[#3C48F6] italic uppercase">{plan}</span>
+                            <span className="px-2 py-1 bg-green-100 text-green-700 border-2 border-green-600 text-[10px] font-black uppercase tracking-widest">ACTIVE</span>
+                        </div>
+                        <p className="text-sm font-bold text-gray-500 uppercase">Renewing on {new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()}</p>
+                    </div>
+                    <NeuButton className="bg-[#3C48F6] text-white">Upgrade Now</NeuButton>
+                </div>
+            </NeuCard>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] space-y-4">
+                    <FiZap className="text-yellow-500" size={24} />
+                    <h4 className="font-black uppercase text-xs">AI_Usage</h4>
+                    <div className="h-2 bg-gray-100 dark:bg-zinc-800 border border-black overflow-hidden">
+                        <div className="h-full bg-yellow-400" style={{ width: '45%' }} />
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase">45 / 100 Credits</p>
+                </div>
+                <div className="p-6 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] space-y-4">
+                    <FiTarget className="text-blue-500" size={24} />
+                    <h4 className="font-black uppercase text-xs">Scheduled_Nodes</h4>
+                    <div className="h-2 bg-gray-100 dark:bg-zinc-800 border border-black overflow-hidden">
+                        <div className="h-full bg-blue-500" style={{ width: '80%' }} />
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase">8 / 10 Active</p>
+                </div>
+                <div className="p-6 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] space-y-4">
+                    <FiDatabase className="text-purple-500" size={24} />
+                    <h4 className="font-black uppercase text-xs">Storage_Space</h4>
+                    <div className="h-2 bg-gray-100 dark:bg-zinc-800 border border-black overflow-hidden">
+                        <div className="h-full bg-purple-500" style={{ width: '12%' }} />
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase">12MB / 100MB</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// --- SUB-COMPONENT: NOTIFICATION SETTINGS ---
+function NotificationSettings() {
+    const [settings, setSettings] = useState({
+        publishSuccess: true,
+        publishFailed: true,
+        mentions: true,
+        comments: false,
+        weeklyReport: true
+    });
+
+    const toggle = (key: keyof typeof settings) => {
+        setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+        toast.success("PREFERENCE_UPDATED");
+    };
+
+    const SettingItem = ({ label, desc, value, onToggle }: any) => (
+        <div className="flex items-center justify-between py-4 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors">
+            <div>
+                <h4 className="font-black text-sm uppercase leading-none mb-1">{label}</h4>
+                <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-tight">{desc}</p>
+            </div>
+            <button 
+                onClick={onToggle}
+                className={cn(
+                    "w-12 h-6 border-2 border-black transition-all flex items-center p-0.5",
+                    value ? "bg-[#3C48F6]" : "bg-gray-200 dark:bg-zinc-800"
+                )}
+            >
+                <div className={cn("w-4 h-4 bg-white border-2 border-black transition-all", value ? "translate-x-6" : "translate-x-0")} />
+            </button>
+        </div>
+    );
+
+    return (
+        <NeuCard title="Communication Preferences" description="HOW WE ALERT YOU ABOUT ACTIVITY">
+            <div className="space-y-2">
+                <SettingItem label="Publishing Success" desc="Notify when content goes live" value={settings.publishSuccess} onToggle={() => toggle('publishSuccess')} />
+                <SettingItem label="Publishing Failures" desc="Immediate alert if a post fails" value={settings.publishFailed} onToggle={() => toggle('publishFailed')} />
+                <SettingItem label="Direct Mentions" desc="Alert when someone tags you" value={settings.mentions} onToggle={() => toggle('mentions')} />
+                <SettingItem label="Post Comments" desc="Notify on every new interaction" value={settings.comments} onToggle={() => toggle('comments')} />
+                <SettingItem label="Weekly Performance" desc="Summary report of your growth" value={settings.weeklyReport} onToggle={() => toggle('weeklyReport')} />
+            </div>
+            <div className="mt-8 pt-6 border-t-2 border-dashed border-gray-200 dark:border-zinc-700 flex justify-end">
+                <NeuButton icon={<FiSave />}>Save Preferences</NeuButton>
+            </div>
+        </NeuCard>
+    );
 }
 
 // --- SUB-COMPONENT: WORKSPACE SETTINGS ---
@@ -198,16 +383,21 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                         <label className="block text-xs font-black uppercase mb-2 text-black dark:text-white">Workspace Logo</label>
                         <div className="flex items-start gap-6">
                             <div className="relative w-24 h-24 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 shrink-0 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                                {formData.logo ? (
-                                    <img src={formData.logo} alt="Logo" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-zinc-600"><FiImage size={24} /></div>
-                                )}
+                                <img 
+                                    src={formData.logo || `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(formData.name)}`} 
+                                    alt="Logo" 
+                                    className="w-full h-full object-cover" 
+                                />
                                 {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin" /></div>}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
-                                <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}><FiUploadCloud /> UPLOAD_LOGO</NeuButton>
+                                <div className="flex gap-2">
+                                    <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}><FiUploadCloud /> UPLOAD_LOGO</NeuButton>
+                                    {formData.logo && (
+                                        <NeuButton variant="danger" onClick={() => setFormData(prev => ({ ...prev, logo: '' }))} disabled={uploading} className="px-2"><FiTrash2 /></NeuButton>
+                                    )}
+                                </div>
                                 <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 max-w-[200px]">Max 2MB. Recommended 500x500.</p>
                             </div>
                         </div>

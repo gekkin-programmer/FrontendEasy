@@ -17,16 +17,24 @@ export class MediaController {
   @Get()
   @ApiOperation({ summary: 'List all media and folders' })
   @ApiQuery({ name: 'folderId', required: false })
-  async findAll(@Req() req, @Query('folderId') folderId?: string) {
+  @ApiQuery({ name: 'workspaceId', required: false })
+  async findAll(
+    @Req() req, 
+    @Query('folderId') folderId?: string,
+    @Query('workspaceId') workspaceId?: string
+  ) {
     const userId = req.user?.sub || req.user?.id;
-    return this.mediaService.findAll(userId, folderId);
+    return this.mediaService.findAll(userId, folderId, workspaceId);
   }
 
   @Post('folders')
   @ApiOperation({ summary: 'Create a new folder' })
-  async createFolder(@Req() req, @Body() body: { name: string, parentId?: string }) {
+  async createFolder(
+    @Req() req, 
+    @Body() body: { name: string, parentId?: string, workspaceId?: string }
+  ) {
     const userId = req.user?.sub || req.user?.id;
-    return this.mediaService.createFolder(body.name, userId, body.parentId);
+    return this.mediaService.createFolder(body.name, userId, body.parentId, body.workspaceId);
   }
 
   @Post('upload')
@@ -37,7 +45,8 @@ export class MediaController {
       type: 'object',
       properties: {
         file: { type: 'string', format: 'binary' },
-        folderId: { type: 'string' }
+        folderId: { type: 'string' },
+        workspaceId: { type: 'string' }
       },
     },
   })
@@ -45,6 +54,7 @@ export class MediaController {
   async uploadFile(
     @Req() req,
     @Body('folderId') folderId: string,
+    @Body('workspaceId') workspaceId: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -55,7 +65,7 @@ export class MediaController {
     file: any,
   ) {
     const userId = req.user?.sub || req.user?.id;
-    return this.mediaService.processUpload(file, userId, folderId);
+    return this.mediaService.processUpload(file, userId, folderId, workspaceId);
   }
 
   @Patch(':id/move')
@@ -87,8 +97,8 @@ export class MediaController {
 
   @Post('import-url')
   @ApiOperation({ summary: 'Import an asset from an external URL (Canva/Dropbox)' })
-  async importUrl(@Req() req, @Body() body: { url: string, folderId?: string }) {
+  async importUrl(@Req() req, @Body() body: { url: string, folderId?: string, workspaceId?: string }) {
     const userId = req.user?.sub || req.user?.id;
-    return this.mediaService.importFromUrl(body.url, userId, body.folderId);
+    return this.mediaService.importFromUrl(body.url, userId, body.folderId, body.workspaceId);
   }
 }
