@@ -53,16 +53,29 @@ interface PostFeedProps {
   onEdit?: (post: Post) => void;
 }
 
+import { 
+  SiFacebook, SiX, SiInstagram, SiLinkedin, SiTiktok, SiYoutube 
+} from 'react-icons/si';
+
 // 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
+  const iconSize = 14;
   switch (platform?.toLowerCase()) {
-    case 'twitter': return <span className="text-black dark:text-white font-black text-[10px]">X</span>;
-    case 'linkedin': return <span className="text-[#0077b5] font-black text-[10px]">IN</span>;
-    case 'instagram': return <span className="text-[#e1306c] font-black text-[10px]">IG</span>;
-    case 'facebook': return <span className="text-[#1877f2] font-black text-[10px]">FB</span>;
-    case 'tiktok': return <span className="text-[#000000] dark:text-[#ff0050] font-black text-[10px]">TT</span>;
-    case 'youtube': return <span className="text-[#ff0000] font-black text-[10px]">YT</span>;
-    default: return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
+    case 'twitter': 
+    case 'x': 
+      return <SiX size={iconSize} className="text-black dark:text-white" />;
+    case 'linkedin': 
+      return <SiLinkedin size={iconSize} className="text-[#0A66C2]" />;
+    case 'instagram': 
+      return <SiInstagram size={iconSize} className="text-[#E4405F]" />;
+    case 'facebook': 
+      return <SiFacebook size={iconSize} className="text-[#1877F2]" />;
+    case 'tiktok': 
+      return <SiTiktok size={iconSize} className="text-black dark:text-white" />;
+    case 'youtube': 
+      return <SiYoutube size={iconSize} className="text-[#FF0000]" />;
+    default: 
+      return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
   }
 };
 
