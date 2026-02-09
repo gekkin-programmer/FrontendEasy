@@ -74,10 +74,39 @@ export class SchedulerService {
   }
 
   // Run every 60 seconds
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  async handleCron() {
-    this.logger.debug('Running scheduled posts check...');
-    await this.processDuePosts();
+    @Cron(CronExpression.EVERY_5_MINUTES)
+    async handleCron() {
+      this.logger.debug('Running scheduled posts check...');
+      await this.processDuePosts();
+    }
+  
+    // Find all posts where scheduledFor <= now AND status = SCHEDULED
+    private async processDuePosts() {
+      const now = new Date();
+      const duePosts = await this.prisma.post.findMany({
+        where: {
+          status: 'SCHEDULED',
+          scheduledFor: { lte: now }
+        },
+        include: {
+          socialAccounts: {
+            include: { socialAccount: true }
+          }
+        }
+      });
+  
+      if (duePosts.length === 0) return;
+  
+      this.logger.log(`Found ${duePosts.length} posts due for publication`);
+  
+      for (const post of duePosts) {
+        try {
+          await this.publisher.publish(post.id);
+          this.logger.log(`Successfully published due post: ${post.id}`);
+        } catch (e) {
+          this.logger.error(`Failed to publish due post ${post.id}: ${e.message}`);
+        }
+      }
+    }
   }
-
-}
+  
