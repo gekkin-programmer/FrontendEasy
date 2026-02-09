@@ -26,16 +26,22 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
   const [newFolderName, setNewFolderName] = useState("");
 
   // 1. Fetch Media & Folders
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['media', workspaceId, currentFolderId],
     queryFn: async () => {
         let url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
         if (workspaceId) {
             url += (url.includes('?') ? '&' : '?') + `workspaceId=${workspaceId}`;
         }
+        console.log("📡 [WS] Fetching Media from:", url);
         return api.get<{ folders: any[], assets: any[] }>(url);
     }
   });
+
+  useEffect(() => {
+    if (data) console.log("📦 [WS] Media Data Received:", data);
+    if (error) console.error("❌ [WS] Media Fetch Error:", error);
+  }, [data, error]);
 
   const assets = data?.assets || [];
   const folders = data?.folders || [];

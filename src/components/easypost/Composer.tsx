@@ -512,9 +512,21 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       {/* 🟢 LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
-            <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
-            <div className="p-4 bg-blue-50/30 dark:bg-zinc-900/50 min-h-[300px]">
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ height: 'auto', opacity: 1 }} 
+            exit={{ opacity: 0, height: 0 }} 
+            className="w-full bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors z-20 mt-4"
+          >
+            <div className="px-4 py-3 border-b-4 border-black dark:border-white bg-[#3C48F5] text-white flex justify-between items-center transition-colors">
+                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono">
+                    <LayoutGrid size={14} /> OS_ASSET_EXPLORER_V2.0
+                </span>
+                <button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black hover:text-white p-1 transition-colors border-2 border-transparent hover:border-black">
+                    <X size={18} strokeWidth={3} />
+                </button>
+            </div>
+            <div className="p-6 bg-[#F4F4F0] dark:bg-zinc-950 min-h-[400px]">
                 <MediaGallery 
                     hideUsage={true} 
                     workspaceId={workspaceId}
@@ -522,6 +534,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         if (!selectedMediaIds.includes(asset.id)) {
                             setSelectedMediaIds(prev => [...prev, asset.id]);
                             setMediaPreviews(prev => [...prev, asset.url]);
+                            toast.success("ASSET_LINKED_TO_STREAM");
                         }
                     }} 
                 />
