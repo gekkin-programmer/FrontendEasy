@@ -6,11 +6,12 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
-  Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
-  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
-  Sparkles, AlertTriangle, MessageCircle, RefreshCw
-} from 'lucide-react';
+    Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
+    Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
+    ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
+    Sparkles, AlertTriangle, MessageCircle, RefreshCw, Globe, ThumbsUp, MoreHorizontal, Heart
+  } from 'lucide-react'; 
+  
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -563,24 +564,34 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 </div>
                 
                 <div className="flex-1 overflow-y-auto p-8 bg-[#F0F2F5] dark:bg-zinc-950 transition-colors">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="flex flex-col items-center gap-12 max-w-lg mx-auto">
                         
-                        {/* 1. FACEBOOK PREVIEW */}
+                        {/* 1. FACEBOOK PREVIEW (Accurate Mockup) */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'FACEBOOK') && (
-                            <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
-                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
-                                        <div className="flex-1">
-                                            <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                            <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
+                            <div className="w-full space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white"><Facebook size={12} fill="currentColor"/></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Facebook_Preview</span>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-800 shadow-sm rounded-lg overflow-hidden transition-colors">
+                                    <div className="p-3 flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full border border-black/10 overflow-hidden bg-gray-100">
+                                            <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${workspaceId}`} className="w-full h-full" />
+                                        </div>
+                                        <div>
+                                            <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded-sm mb-1"></div>
+                                            <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded-sm flex items-center gap-1">
+                                                <span className="text-[8px] opacity-50 font-bold">Just now • </span>
+                                                <Globe size={8} className="opacity-50" />
+                                            </div>
                                         </div>
                                     </div>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
+                                    <div className="px-3 pb-3 text-[13px] leading-relaxed whitespace-pre-wrap text-black dark:text-zinc-200">
+                                        {text || "Sample content goes here..."}
+                                    </div>
                                     {mediaPreviews.length > 0 && (
                                         <div className={cn(
-                                            "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
+                                            "grid gap-px border-y border-gray-100 dark:border-zinc-800",
                                             mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
                                         )}>
                                             {mediaPreviews.slice(0, 4).map((url, i) => (
@@ -588,83 +599,97 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                             ))}
                                         </div>
                                     )}
-                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                        <span>Like</span><span>Comment</span><span>Share</span>
+                                    <div className="px-4 py-2 flex justify-between border-t border-gray-100 dark:border-zinc-800 mt-1">
+                                        <div className="flex gap-4">
+                                            <div className="flex items-center gap-1 text-gray-500 font-bold text-[11px] uppercase"><ThumbsUp size={14}/> Like</div>
+                                            <div className="flex items-center gap-1 text-gray-500 font-bold text-[11px] uppercase"><MessageCircle size={14}/> Comment</div>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-gray-500 font-bold text-[11px] uppercase"><Send size={14}/> Share</div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* 2. TWITTER PREVIEW */}
+                        {/* 2. INSTAGRAM PREVIEW (Pixel Perfect) */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'INSTAGRAM') && (
+                            <div className="w-full space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 bg-gradient-to-tr from-yellow-400 to-purple-600 rounded-md flex items-center justify-center text-white"><Instagram size={12}/></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Instagram_Preview</span>
+                                </div>
+                                <div className="bg-white dark:bg-black border border-gray-200 dark:border-zinc-900 shadow-sm rounded-none overflow-hidden max-w-[400px] mx-auto transition-colors">
+                                    <div className="p-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-yellow-400 to-purple-600">
+                                                <div className="w-full h-full rounded-full border-2 border-white dark:border-black overflow-hidden bg-gray-100">
+                                                    <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${workspaceId}`} className="w-full h-full" />
+                                                </div>
+                                            </div>
+                                            <span className="text-xs font-black tracking-tight dark:text-white">your_brand</span>
+                                        </div>
+                                        <MoreHorizontal size={16} className="dark:text-white" />
+                                    </div>
+                                    <div className="aspect-square bg-gray-100 dark:bg-zinc-900 border-y border-black/5 dark:border-white/5 relative">
+                                        {mediaPreviews.length > 0 ? (
+                                            <img src={mediaPreviews[0]} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 opacity-20">
+                                                <ImageIcon size={48} />
+                                                <span className="text-[10px] font-black uppercase mt-2">Media_Needed</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 space-y-2">
+                                        <div className="flex justify-between">
+                                            <div className="flex gap-3">
+                                                <Heart size={22} className="dark:text-white" />
+                                                <MessageCircle size={22} className="dark:text-white" />
+                                                <Send size={22} className="dark:text-white" />
+                                            </div>
+                                            <div className="w-5 h-6 border-2 border-black dark:border-white rounded-sm"></div>
+                                        </div>
+                                        <p className="text-xs font-bold dark:text-white">1,234 likes</p>
+                                        <div className="text-xs leading-snug">
+                                            <span className="font-black mr-2 dark:text-white">your_brand</span>
+                                            <span className="dark:text-zinc-300">{text || "Your caption here..."}</span>
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-bold pt-1">2 minutes ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. TWITTER / X PREVIEW (Legacy & Dark) */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && (a.platform === 'TWITTER' || a.platform === 'X')) && (
-                            <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
-                                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
-                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
+                            <div className="w-full space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center text-white"><Twitter size={12} fill="currentColor"/></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">X_Preview</span>
+                                </div>
+                                <div className="bg-white dark:bg-black border border-gray-200 dark:border-zinc-800 shadow-sm p-4 flex gap-3 text-black dark:text-white transition-colors">
+                                    <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0 overflow-hidden border border-black/10">
+                                        <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${workspaceId}`} className="w-full h-full" />
+                                    </div>
                                     <div className="space-y-2 flex-1 min-w-0">
                                         <div className="flex gap-1 items-center">
-                                            <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                            <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
+                                            <span className="text-sm font-black truncate">Your Brand</span>
+                                            <span className="text-sm text-gray-500 font-medium truncate">@brand • 1m</span>
                                         </div>
-                                        <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                        <p className="text-[15px] leading-normal whitespace-pre-wrap font-medium">
+                                            {text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}
+                                        </p>
                                         {mediaPreviews.length > 0 && (
                                             <div className={cn(
-                                                "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
+                                                "grid gap-px rounded-2xl overflow-hidden border border-gray-200 dark:border-zinc-800",
                                                 mediaPreviews.length === 1 ? "grid-cols-1" : "grid-cols-2"
                                             )}>
                                                 {mediaPreviews.slice(0, 4).map((url, i) => (
-                                                    <img key={i} src={url} className="w-full h-full object-cover" />
+                                                    <img key={i} src={url} className="w-full h-full object-cover aspect-video" />
                                                 ))}
                                             </div>
                                         )}
-                                        <div className="flex justify-between max-w-xs pt-1 text-gray-400 dark:text-zinc-500">
-                                            <MessageCircle size={16} /><RefreshCw size={16} /><Check size={16} /><Send size={16} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 3. LINKEDIN PREVIEW */}
-                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'LINKEDIN') && (
-                            <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
-                                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
-                                        <div>
-                                            <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                                            <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
-                                        </div>
-                                    </div>
-                                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
-                                    {mediaPreviews.length > 0 && (
-                                        <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
-                                            {mediaPreviews.slice(0, 4).map((url, i) => (
-                                                <img key={i} src={url} className="w-full aspect-square object-cover" />
-                                            ))}
-                                        </div>
-                                    )}
-                                    <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                        <span>Like</span><span>Comment</span><span>Repost</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 4. TIKTOK PREVIEW (Simple placeholder) */}
-                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK') && (
-                            <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK_MOBILE</span>
-                                <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
-                                    {mediaPreviews.length > 0 && (
-                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
-                                    )}
-                                    <div className="relative z-10 space-y-2 text-white">
-                                        <p className="text-sm font-bold">@yourusername</p>
-                                        <p className="text-xs line-clamp-3">{text}</p>
-                                        <div className="h-1 bg-white/30 rounded-full w-full overflow-hidden">
-                                            <div className="h-full bg-white w-1/3"></div>
+                                        <div className="flex justify-between max-w-xs pt-2 text-gray-500 dark:text-zinc-500">
+                                            <MessageCircle size={18} /><RefreshCw size={18} /><Heart size={18} /><Send size={18} />
                                         </div>
                                     </div>
                                 </div>
