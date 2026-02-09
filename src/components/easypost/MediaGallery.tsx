@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
 import Script from 'next/script';
 
-export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
+export default function MediaGallery({ hideUsage = false, onSelect, workspaceId }: { workspaceId?: string, hideUsage?: boolean, onSelect?: (asset: { id: string, url: string }) => void }) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -27,9 +27,12 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
 
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
-    queryKey: ['media', currentFolderId],
+    queryKey: ['media', workspaceId, currentFolderId],
     queryFn: async () => {
-        const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
+        let url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
+        if (workspaceId) {
+            url += (url.includes('?') ? '&' : '?') + `workspaceId=${workspaceId}`;
+        }
         return api.get<{ folders: any[], assets: any[] }>(url);
     }
   });
@@ -39,9 +42,10 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
 
   // 2. Fetch Storage Usage
   const { data: usage = 0 } = useQuery({
-    queryKey: ['media-usage'],
+    queryKey: ['media-usage', workspaceId],
     queryFn: async () => {
-        const res = await api.get<number>('/media/usage');
+        const url = workspaceId ? `/media/usage?workspaceId=${workspaceId}` : '/media/usage';
+        const res = await api.get<number>(url);
         return typeof res === 'number' ? res : (res as any).data || 0;
     }
   });
@@ -52,6 +56,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
         const formData = new FormData();
         formData.append('file', file);
         if (currentFolderId) formData.append('folderId', currentFolderId);
+        if (workspaceId) formData.append('workspaceId', workspaceId);
         return api.post('/media/upload', formData);
     },
     onSuccess: () => {
@@ -62,7 +67,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
   });
 
   const importMutation = useMutation({
-    mutationFn: (url: string) => api.post('/media/import-url', { url, folderId: currentFolderId }),
+    mutationFn: (url: string) => api.post('/media/import-url', { url, folderId: currentFolderId, workspaceId }),
     onSuccess: () => {
         toast.success("EXTERNAL_ASSET_IMPORTED");
         queryClient.invalidateQueries({ queryKey: ['media'] });
@@ -71,7 +76,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
   });
 
   const createFolderMutation = useMutation({
-      mutationFn: (name: string) => api.post('/media/folders', { name, parentId: currentFolderId }),
+      mutationFn: (name: string) => api.post('/media/folders', { name, parentId: currentFolderId, workspaceId }),
       onSuccess: () => {
           toast.success("FOLDER_CREATED");
           setIsCreatingFolder(false);
@@ -306,10 +311,16 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                                 <button 
                                     className="flex-1 bg-white hover:bg-[#3C48F5] hover:text-white transition-colors py-1 text-[8px] font-black uppercase border border-black"
                                     onClick={() => {
-                                        // This button could be used to select asset for composer
-                                        toast.info("ASSET_READY_FOR_USE");
+                                        if (onSelect) {
+                                            onSelect({ id: asset.id, url: asset.url });
+                                            toast.success("ASSET_ADDED_TO_POST");
+                                        } else {
+                                            toast.info("ASSET_READY_FOR_USE");
+                                        }
                                     }}
-                                >Use</button>
+                                >
+                                    {onSelect ? 'Add' : 'Use'}
+                                </button>
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); if(confirm("DEL_ASSET?")) deleteAssetMutation.mutate(asset.id); }}
                                     className="bg-red-500 text-white p-1 border border-black hover:bg-red-600"
