@@ -6,6 +6,7 @@ import { formatDistanceToNow, parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
+import { useSocket } from '@/src/context/SocketContext';
 
 // Icons
 import { 
@@ -44,8 +45,68 @@ interface TeamProps {
 
 export default function Team({ workspaceId }: TeamProps) {
   const queryClient = useQueryClient();
+  const { socket } = useSocket();
   const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'approvals'>('members');
   
+  // --- CHAT STATE ---
+  const [messages, setMessages] = useState<any[]>([]);
+  const [chatText, setChatText] = useState("");
+  const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 1. Fetch/Create General Channel
+  useEffect(() => {
+    const initChat = async () => {
+        try {
+            const channels = await api.get<any[]>(`/workspaces/${workspaceId}/channels`);
+            let general = channels.find(c => c.name === 'general');
+            
+            if (!general) {
+                general = await api.post(`/workspaces/${workspaceId}/channels`, { name: 'general' });
+            }
+            
+            setActiveChannelId(general.id);
+            const history = await api.get<any[]>(`/channels/${general.id}/messages`);
+            setMessages(history);
+        } catch (e) { console.error("Chat init error", e); }
+    };
+    if (workspaceId) initChat();
+  }, [workspaceId]);
+
+  // 2. Real-time Listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('chat_message', (msg) => {
+        if (msg.channelId === activeChannelId) {
+            setMessages(prev => [...prev, msg]);
+        }
+    });
+
+    return () => {
+        socket.off('chat_message');
+    };
+  }, [socket, activeChannelId]);
+
+  // 3. Scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessageMutation = useMutation({
+    mutationFn: (content: string) => api.post(`/channels/${activeChannelId}/messages`, { content }),
+    onSuccess: () => {
+        setChatText("");
+    }
+  });
+
+  const handleSendChat = () => {
+    if (!chatText.trim() || !activeChannelId) return;
+    sendMessageMutation.mutate(chatText);
+  };
+
   // --- QUERIES ---
   const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery({
     queryKey: ['team-members', workspaceId],
@@ -252,6 +313,55 @@ export default function Team({ workspaceId }: TeamProps) {
                                              <FileCheck size={16} strokeWidth={3} /> APPROVE_PUBLISH
                                          </NeuButton>
                                      </div>
+
+                                     {/* 💬 INTERNAL FEEDBACK SECTION */}
+                                     <div className="mt-8 pt-6 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
+                                         <h4 className="font-black uppercase text-xs mb-4 flex items-center gap-2">
+                                             <MessageSquare size={14} /> Internal_Feedback ({post.comments?.length || 0})
+                                         </h4>
+                                         
+                                         <div className="space-y-3 mb-4">
+                                             {post.comments?.map((c: any) => (
+                                                 <div key={c.id} className="text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 border border-black flex gap-2">
+                                                     <span className="font-black uppercase text-[#3C48F5]">{c.user?.firstName}:</span>
+                                                     <span className="font-medium italic text-black dark:text-white">{c.content}</span>
+                                                 </div>
+                                             ))}
+                                         </div>
+
+                                         <div className="flex gap-2">
+                                             <input 
+                                                 id={`comment-${post.id}`}
+                                                 placeholder="ADD_REVISION_NOTE..."
+                                                 className="flex-1 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white px-3 py-1 text-[10px] font-bold uppercase focus:outline-none"
+                                                 onKeyDown={(e) => {
+                                                     if (e.key === 'Enter') {
+                                                         const input = e.currentTarget;
+                                                         if (!input.value.trim()) return;
+                                                         api.post(`/posts/${post.id}/comments`, { content: input.value }).then(() => {
+                                                             input.value = '';
+                                                             refetchReviews();
+                                                             toast.success("FEEDBACK_RECORDED");
+                                                         });
+                                                     }
+                                                 }}
+                                             />
+                                             <button 
+                                                 onClick={() => {
+                                                     const input = document.getElementById(`comment-${post.id}`) as HTMLInputElement;
+                                                     if (!input.value.trim()) return;
+                                                     api.post(`/posts/${post.id}/comments`, { content: input.value }).then(() => {
+                                                         input.value = '';
+                                                         refetchReviews();
+                                                         toast.success("FEEDBACK_RECORDED");
+                                                     });
+                                                 }}
+                                                 className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase border-2 border-black"
+                                             >
+                                                 SEND
+                                             </button>
+                                         </div>
+                                     </div>
                                  </div>
                              </div>
                          ))}
@@ -269,16 +379,47 @@ export default function Team({ workspaceId }: TeamProps) {
                  <span className="font-black text-sm uppercase">TEAM_FLOW</span>
              </div>
          </div>
-         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-zinc-900 flex flex-col-reverse bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] dark:opacity-90">
-             <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-zinc-600 opacity-50">
-                 <MessageSquare size={48} strokeWidth={1} className="mb-2" />
-                 <p className="text-xs font-bold uppercase tracking-widest">Team_Chat_Active</p>
-             </div>
+         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-zinc-900 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] dark:opacity-90 transition-colors">
+             {messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-zinc-600 opacity-50">
+                    <MessageSquare size={48} strokeWidth={1} className="mb-2" />
+                    <p className="text-xs font-bold uppercase tracking-widest">No_Messages_Yet</p>
+                </div>
+             ) : (
+                messages.map((msg, i) => (
+                    <div key={i} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="w-8 h-8 border-2 border-black dark:border-white bg-blue-50 dark:bg-zinc-800 shrink-0 flex items-center justify-center text-[10px] font-black uppercase">
+                            {msg.sender?.avatar ? <img src={msg.sender.avatar} className="w-full h-full" /> : msg.sender?.firstName?.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-baseline gap-2 mb-1">
+                                <span className="text-[10px] font-black uppercase text-gray-500">{msg.sender?.firstName}</span>
+                                <span className="text-[8px] font-mono opacity-40 uppercase">{format(new Date(msg.createdAt), 'HH:mm')}</span>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-800 border-2 border-black dark:border-white p-2 text-xs font-bold shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                                {msg.content}
+                            </div>
+                        </div>
+                    </div>
+                ))
+             )}
          </div>
-         <div className="p-3 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900">
+         <div className="p-3 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
              <div className="relative w-full flex gap-2">
-                 <input placeholder="TYPE_MESSAGE..." className="w-full pl-4 pr-4 py-3 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white" />
-                 <button className="px-4 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-all"><Send size={18} strokeWidth={3} /></button>
+                 <input 
+                    value={chatText}
+                    onChange={e => setChatText(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSendChat()}
+                    placeholder="TYPE_MESSAGE..." 
+                    className="flex-1 pl-4 pr-4 py-3 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white" 
+                 />
+                 <button 
+                    onClick={handleSendChat}
+                    disabled={!chatText.trim() || sendMessageMutation.isPending}
+                    className="px-4 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-all disabled:opacity-50"
+                 >
+                    <Send size={18} strokeWidth={3} />
+                 </button>
              </div>
          </div>
       </div>

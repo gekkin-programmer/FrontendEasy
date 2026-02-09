@@ -8,17 +8,21 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostStatus, ApprovalStatus } from '@prisma/client';
 import { AppEventsGateway } from '../app-events/app-events.gateway';
+import { PublisherService } from './publishing/publisher.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     private prisma: PrismaService,
     private eventsGateway: AppEventsGateway,
+    private publisherService: PublisherService,
   ) {}
 
   // ➤ CREATE POST
   async create(dto: CreatePostDto, userId: string, workspaceId: string) {
     let status = dto.status || PostStatus.DRAFT;
+    const isInstant = !dto.scheduledFor && status !== PostStatus.DRAFT && status !== PostStatus.REVIEW;
+    
     if (dto.scheduledFor) status = PostStatus.SCHEDULED;
 
     const post = await this.prisma.post.create({
@@ -55,6 +59,11 @@ export class PostsService {
       where: { id: workspaceId },
       data: { currentPostCount: { increment: 1 } }
     });
+
+    // If it's an instant post, trigger publisher immediately
+    if (isInstant) {
+        this.publisherService.publishPost(post.id);
+    }
 
     return post;
   }
@@ -183,5 +192,28 @@ export class PostsService {
     });
     this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
     return updated;
+  }
+
+  // ➤ ADD COMMENT (Internal Review)
+  async addComment(id: string, userId: string, content: string) {
+    const comment = await this.prisma.postComment.create({
+      data: {
+        postId: id,
+        userId,
+        content,
+        publishedAt: new Date(),
+        status: 'read'
+      },
+      include: {
+        user: { select: { firstName: true, avatar: true } }
+      }
+    });
+
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (post) {
+        this.eventsGateway.sendToWorkspace(post.workspaceId, 'post_updated', { id, comment });
+    }
+
+    return comment;
   }
 }

@@ -104,11 +104,32 @@ export class PostsController {
     return this.postsService.cancelSchedule(id);
   }
 
-  @Post(':id/publish')
-  @ApiOperation({ summary: 'Publish post immediately' })
-  async publish(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
-    await this.postsService.findOne(id, targetWorkspaceId);
-    return this.publisherService.publishPost(id);
+    @Post(':id/publish')
+
+    @ApiOperation({ summary: 'Publish post immediately' })
+
+    async publish(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
+
+      const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+
+      await this.postsService.findOne(id, targetWorkspaceId);
+
+      return this.publisherService.publishPost(id);
+
+    }
+
+  
+
+    @Post(':id/comments')
+
+    @ApiOperation({ summary: 'Add internal comment/feedback to a post' })
+
+    addComment(@Param('id') id: string, @Body('content') content: string, @Req() req) {
+
+      return this.postsService.addComment(id, req.user.sub, content);
+
+    }
+
   }
-}
+
+  
