@@ -99,11 +99,17 @@ export class SchedulerService {
   
       this.logger.log(`Found ${duePosts.length} posts due for publication`);
   
-      for (const post of duePosts) {
-        try {
-          await this.publisher.publish(post.id);
-          this.logger.log(`Successfully published due post: ${post.id}`);
-        } catch (e) {
+          for (const post of duePosts) {
+  
+            try {
+  
+              await this.publisher.publishPost(post.id);
+  
+              this.logger.log(`Successfully published due post: ${post.id}`);
+  
+            } catch (e) {
+  
+      
           this.logger.error(`Failed to publish due post ${post.id}: ${e.message}`);
         }
       }
