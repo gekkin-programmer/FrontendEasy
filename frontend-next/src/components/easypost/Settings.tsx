@@ -350,7 +350,10 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
             const logoUrl = data.media?.url || data.url || data.secure_url;
             setFormData(prev => ({ ...prev, logo: logoUrl })); 
             toast.success("LOGO_UPLOADED");
-        } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { setUploading(false); }
+        } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { 
+            setUploading(false);
+            if (e.target) e.target.value = '';
+        }
     };
 
     const handleUpdate = async () => {
@@ -463,7 +466,10 @@ function ProfileSettings() {
           const avatarUrl = data.media?.url || data.url || data.secure_url;
           setFormData(prev => ({ ...prev, avatar: avatarUrl })); 
           toast.success("AVATAR_UPLOADED");
-      } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { setUploading(false); }
+      } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { 
+          setUploading(false); 
+          if (e.target) e.target.value = '';
+      }
   };
 
   const handleSave = async () => {

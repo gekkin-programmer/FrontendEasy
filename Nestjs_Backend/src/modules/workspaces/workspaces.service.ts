@@ -8,10 +8,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { WorkspaceRole, WorkspaceStatus } from '@prisma/client';
+import { AppEventsGateway } from '../app-events/app-events.gateway';
 
 @Injectable()
 export class WorkspacesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: AppEventsGateway,
+  ) {}
 
   // ➤ CREATE
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
@@ -86,10 +90,15 @@ export class WorkspacesService {
     // 1. Check permissions
     await this.verifyAdminRole(id, userId);
 
-    return this.prisma.workspace.update({
+    const updatedWorkspace = await this.prisma.workspace.update({
       where: { id },
       data: updateWorkspaceDto,
     });
+
+    // Notify workspace-specific room
+    this.eventsGateway.sendToWorkspace(id, 'workspace_updated', updatedWorkspace);
+
+    return updatedWorkspace;
   }
 
   // ➤ ARCHIVE (Soft Delete)

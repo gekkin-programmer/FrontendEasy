@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import * as bcrypt from 'bcryptjs';
+import { AppEventsGateway } from '../app-events/app-events.gateway';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: AppEventsGateway,
+  ) {}
 
   async findAll(skip: number = 0, take: number = 10) {
     return this.prisma.user.findMany({
@@ -93,7 +97,7 @@ export class UsersService {
       updateData.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateData,
       select: {
@@ -110,6 +114,11 @@ export class UsersService {
         updatedAt: true,
       },
     });
+
+    // Notify user-specific room
+    this.eventsGateway.sendToUser(id, 'user_updated', updatedUser);
+
+    return updatedUser;
   }
 
   async delete(id: string) {

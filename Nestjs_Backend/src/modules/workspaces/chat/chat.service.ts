@@ -2,10 +2,14 @@ import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/commo
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateChannelDto, CreateMessageDto } from './dto/create-message.dto';
 import { ChatMessageType } from '@prisma/client';
+import { AppEventsGateway } from '../../app-events/app-events.gateway';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: AppEventsGateway
+  ) {}
 
   // ➤ 1. Create a Channel 
   async createChannel(workspaceId: string, userId: string, dto: CreateChannelDto) {
@@ -50,7 +54,7 @@ export class ChatService {
 
     await this.verifyMembership(channel.workspaceId, userId);
 
-        return this.prisma.chatMessage.create({
+    const message = await this.prisma.chatMessage.create({
       data: {
         channelId,
         senderId: userId,
@@ -62,6 +66,11 @@ export class ChatService {
         sender: { select: { id: true, firstName: true, avatar: true } }
       }
     });
+
+    // Notify Workspace via WebSocket
+    this.eventsGateway.sendToWorkspace(channel.workspaceId, 'chat_message', message);
+
+    return message;
   }
 
   // ➤ 4. Get Message History
