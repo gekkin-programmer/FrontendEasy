@@ -9,8 +9,9 @@ import {
     Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
     Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
     ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
-    Sparkles, AlertTriangle, MessageCircle, RefreshCw, Globe, ThumbsUp, MoreHorizontal, Heart
+    Sparkles, AlertTriangle, MessageCircle, RefreshCw, Globe, ThumbsUp, MoreHorizontal, Heart, Music
   } from 'lucide-react'; 
+import { SiTiktok } from 'react-icons/si';
   
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -690,6 +691,103 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                         )}
                                         <div className="flex justify-between max-w-xs pt-2 text-gray-500 dark:text-zinc-500">
                                             <MessageCircle size={18} /><RefreshCw size={18} /><Heart size={18} /><Send size={18} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. LINKEDIN PREVIEW (Professional Mockup) */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'LINKEDIN') && (
+                            <div className="w-full space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 bg-[#0A66C2] rounded-sm flex items-center justify-center text-white"><Linkedin size={12} fill="currentColor"/></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">LinkedIn_Preview</span>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 shadow-sm transition-colors">
+                                    <div className="p-3 flex items-start gap-2">
+                                        <div className="w-12 h-12 rounded-none border border-black/10 overflow-hidden bg-gray-100">
+                                            <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${workspaceId}`} className="w-full h-full" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded-sm mb-1"></div>
+                                            <div className="h-2 w-40 bg-gray-100 dark:bg-zinc-900 rounded-sm mb-1"></div>
+                                            <div className="h-2 w-20 bg-gray-50 dark:bg-zinc-950 rounded-sm flex items-center gap-1">
+                                                <span className="text-[8px] opacity-50 font-bold">1m • </span>
+                                                <Globe size={8} className="opacity-50" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="px-3 pb-3 text-[13px] leading-relaxed text-black dark:text-zinc-200">
+                                        {text || "Share your professional insights..."}
+                                    </div>
+                                    {mediaPreviews.length > 0 && (
+                                        <div className="border-y border-gray-100 dark:border-zinc-800">
+                                            <img src={mediaPreviews[0]} className="w-full h-auto max-h-96 object-cover" />
+                                        </div>
+                                    )}
+                                    <div className="px-3 py-2 flex items-center gap-1 border-b border-gray-100 dark:border-zinc-800">
+                                        <div className="flex -space-x-1">
+                                            <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center border border-white"><ThumbsUp size={8} className="text-white" /></div>
+                                            <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center border border-white"><Heart size={8} className="text-white" /></div>
+                                        </div>
+                                        <span className="text-[10px] text-gray-500 font-medium">12 • 4 comments</span>
+                                    </div>
+                                    <div className="px-2 py-1 flex justify-around">
+                                        <div className="flex flex-col items-center p-2 text-gray-500 font-bold text-[10px] uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"><ThumbsUp size={18}/><span>Like</span></div>
+                                        <div className="flex flex-col items-center p-2 text-gray-500 font-bold text-[10px] uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"><MessageCircle size={18}/><span>Comment</span></div>
+                                        <div className="flex flex-col items-center p-2 text-gray-500 font-bold text-[10px] uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"><RefreshCw size={18}/><span>Repost</span></div>
+                                        <div className="flex flex-col items-center p-2 text-gray-500 font-bold text-[10px] uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 rounded cursor-pointer"><Send size={18}/><span>Send</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5. TIKTOK PREVIEW (Vertical Mobile Content) */}
+                        {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK') && (
+                            <div className="w-full space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center text-white"><SiTiktok size={10} fill="currentColor"/></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">TikTok_Mobile_Preview</span>
+                                </div>
+                                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-[40px] border-[8px] border-zinc-800 shadow-2xl overflow-hidden group">
+                                    {/* Video/Image Background */}
+                                    {mediaPreviews.length > 0 ? (
+                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 text-zinc-700">
+                                            <Video size={48} />
+                                            <span className="text-[8px] font-black uppercase mt-2">No_Media_Linked</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>
+                                    
+                                    {/* Right Side Actions */}
+                                    <div className="absolute right-3 bottom-20 flex flex-col items-center gap-5 z-10">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-500 mb-1">
+                                                <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${workspaceId}`} className="w-full h-full" />
+                                            </div>
+                                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center -mt-3 border-2 border-black"><Plus size={10} className="text-white" /></div>
+                                        </div>
+                                        <div className="flex flex-col items-center"><Heart size={28} className="text-white fill-white" /><span className="text-[10px] text-white font-bold">12.4K</span></div>
+                                        <div className="flex flex-col items-center"><MessageCircle size={28} className="text-white fill-white" /><span className="text-[10px] text-white font-bold">842</span></div>
+                                        <div className="flex flex-col items-center"><Send size={28} className="text-white fill-white" /><span className="text-[10px] text-white font-bold">156</span></div>
+                                    </div>
+
+                                    {/* Bottom Info */}
+                                    <div className="absolute bottom-6 left-4 right-16 z-10 space-y-2">
+                                        <p className="text-white font-black text-sm">@your_brand</p>
+                                        <p className="text-white text-xs line-clamp-2 leading-snug">{text || "Add trending hashtags..."}</p>
+                                        <div className="flex items-center gap-2 overflow-hidden w-32">
+                                            <Music size={12} className="text-white animate-spin-slow shrink-0" />
+                                            <motion.div 
+                                                animate={{ x: [120, -150] }} 
+                                                transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+                                                className="text-[10px] text-white font-medium whitespace-nowrap"
+                                            >
+                                                Original Sound - Your Brand Channel
+                                            </motion.div>
                                         </div>
                                     </div>
                                 </div>
