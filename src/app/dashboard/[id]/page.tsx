@@ -161,6 +161,20 @@ function DashboardContent() {
             queryClient.invalidateQueries({ queryKey: ['card', cardId] });
         });
 
+        socket.on('user_updated', (updatedUser) => {
+            console.log("👤 [WS] User Updated:", updatedUser);
+            queryClient.invalidateQueries({ queryKey: ['profile'] });
+            queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        });
+
+        socket.on('workspace_updated', (updatedWs) => {
+            console.log("🏢 [WS] Workspace Updated:", updatedWs);
+            if (updatedWs.id === workspaceId) {
+                queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+            }
+            queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+        });
+
         return () => {
             socket.off('post_created');
             socket.off('post_updated');
@@ -169,6 +183,8 @@ function DashboardContent() {
             socket.off('card_created');
             socket.off('card_updated');
             socket.off('card_moved');
+            socket.off('user_updated');
+            socket.off('workspace_updated');
         };
     }, [socket, workspaceId, queryClient, refetchPosts, refetchNotifications]);
 
