@@ -95,6 +95,12 @@ export class PostsController {
     return this.postsService.approve(id, req.user.sub);
   }
 
+  @Post(':id/reject')
+  @ApiOperation({ summary: 'Manager Decline' })
+  reject(@Param('id') id: string, @Req() req) {
+    return this.postsService.reject(id, req.user.sub);
+  }
+
   @Post(':id/cancel-schedule')
   @ApiOperation({ summary: 'Cancel a scheduled post and return to draft' })
   async cancelSchedule(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {

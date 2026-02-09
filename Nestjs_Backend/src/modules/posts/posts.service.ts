@@ -6,9 +6,10 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostStatus, ApprovalStatus } from '@prisma/client';
+import { PostStatus, ApprovalStatus, NotificationType } from '@prisma/client';
 import { AppEventsGateway } from '../app-events/app-events.gateway';
 import { PublisherService } from './publishing/publisher.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PostsService {
@@ -16,6 +17,7 @@ export class PostsService {
     private prisma: PrismaService,
     private eventsGateway: AppEventsGateway,
     private publisherService: PublisherService,
+    private notificationsService: NotificationsService,
   ) {}
 
   // ➤ CREATE POST
@@ -181,6 +183,29 @@ export class PostsService {
     return updated;
   }
 
+  // ➤ REJECT
+  async reject(id: string, rejectorId: string) {
+    const updated = await this.prisma.post.update({
+      where: { id },
+      data: {
+        approvalStatus: ApprovalStatus.REJECTED,
+        status: PostStatus.DRAFT 
+      }
+    });
+    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+
+    // Notify Creator
+    await this.notificationsService.create(
+        updated.createdById, 
+        updated.workspaceId, 
+        NotificationType.APPROVAL_REJECTED, 
+        'Post Rejected', 
+        'Your content needs revision and has been moved back to drafts.'
+    );
+
+    return updated;
+  }
+
   // ➤ CANCEL SCHEDULE
   async cancelSchedule(id: string) {
     const updated = await this.prisma.post.update({
@@ -212,6 +237,23 @@ export class PostsService {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (post) {
         this.eventsGateway.sendToWorkspace(post.workspaceId, 'post_updated', { id, comment });
+
+        // Notify other workspace members
+        const workspaceMembers = await this.prisma.workspaceMember.findMany({ 
+            where: { workspaceId: post.workspaceId } 
+        });
+
+        for (const member of workspaceMembers) {
+            if (member.userId !== userId) {
+                await this.notificationsService.create(
+                    member.userId, 
+                    post.workspaceId, 
+                    NotificationType.COMMENT, 
+                    'New Post Comment', 
+                    `New feedback on review from ${comment.user?.firstName || 'a teammate'}`
+                );
+            }
+        }
     }
 
     return comment;

@@ -5,11 +5,15 @@ import { PostsController } from './posts.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { SchedulerService } from './scheduler/scheduler.service';
 import { PublisherService } from './publishing/publisher.service';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { AppEventsModule } from '../app-events/app-events.module';
 
 @Module({
   imports: [
     PrismaModule,
     ScheduleModule.forRoot(), 
+    NotificationsModule,
+    AppEventsModule
   ],
   controllers: [PostsController],
   providers: [
