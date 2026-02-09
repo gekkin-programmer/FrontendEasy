@@ -178,7 +178,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current logged-in user details' })
   async getProfile(@Req() req: Request) {
     // @ts-ignore
-    return req.user; 
+    return this.authService.validateUserById(req.user.sub); 
   }
 
   @Post('email/send-otp')

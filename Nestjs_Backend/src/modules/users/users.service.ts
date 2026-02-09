@@ -118,6 +118,16 @@ export class UsersService {
     // Notify user-specific room
     this.eventsGateway.sendToUser(id, 'user_updated', updatedUser);
 
+    // Broadcast to all workspaces the user belongs to
+    const memberships = await this.prisma.workspaceMember.findMany({
+        where: { userId: id },
+        select: { workspaceId: true }
+    });
+
+    for (const m of memberships) {
+        this.eventsGateway.sendToWorkspace(m.workspaceId, 'user_updated', updatedUser);
+    }
+
     return updatedUser;
   }
 
