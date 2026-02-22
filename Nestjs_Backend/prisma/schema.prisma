@@ -261,22 +261,22 @@ model User {
   lastName  String?
   avatar    String?
 
-  provider      String?
-  providerId    String?
+  provider   String?
+  providerId String?
 
-  emailVerified           Boolean   @default(false)
+  emailVerified             Boolean   @default(false)
   emailVerificationToken    String?   @unique
   emailVerificationTokenExp DateTime?
 
-  passwordResetToken        String?   @unique
-  passwordResetTokenExp     DateTime?
+  passwordResetToken    String?   @unique
+  passwordResetTokenExp DateTime?
 
-  phoneVerified Boolean @default(false)
+  phoneVerified Boolean   @default(false)
   otp           String?
   otpExpires    DateTime?
 
-  accountType AccountType @default(PERSONAL)
-  role        UserRole    @default(USER)
+  accountType   AccountType @default(PERSONAL)
+  role          UserRole    @default(USER)
   planExpiresAt DateTime?
 
   subscription Subscription?
@@ -293,22 +293,22 @@ model User {
   notifications         Notification[]    @relation("UserNotifications")
   activities            ActivityLog[]
 
-  sessions              Session[]
+  sessions Session[]
 
-  receivedGrants        AccessGrant[]     @relation("UserGrants")
-  issuedGrants          AccessGrant[]     @relation("AdminGrants")
-  communityFeedback     CommunityFeedback[]
-  feedbackUpvotes       FeedbackUpvote[]
-  creatorApplications   CreatorApplication[]
-  transactions          Transaction[]
+  receivedGrants      AccessGrant[]        @relation("UserGrants")
+  issuedGrants        AccessGrant[]        @relation("AdminGrants")
+  communityFeedback   CommunityFeedback[]
+  feedbackUpvotes     FeedbackUpvote[]
+  creatorApplications CreatorApplication[]
+  transactions        Transaction[]
 
-  chatMessages          ChatMessage[]
-  mediaUploads          MediaLibrary[]    @relation("MediaUploader")
+  chatMessages ChatMessage[]
+  mediaUploads MediaLibrary[] @relation("MediaUploader")
 
-  assignedCards         Card[]            @relation("CardAssignee")
-  createdCards          Card[]            @relation("CardCreator")
-  cardComments          CardComment[]
-  cardActivities        CardActivity[]
+  assignedCards  Card[]         @relation("CardAssignee")
+  createdCards   Card[]         @relation("CardCreator")
+  cardComments   CardComment[]
+  cardActivities CardActivity[]
 
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
@@ -320,14 +320,14 @@ model User {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String @id @default(cuid())
   userId       String
-  refreshToken String   @unique
+  refreshToken String @unique
 
-  userAgent    String?
-  ipAddress    String?
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -382,12 +382,12 @@ model Workspace {
   boards           Board[]
   audience         AudienceMember[]
 
-  mediaAssets      MediaLibrary[]
-  mediaFolders     MediaFolder[]     @relation("WorkspaceFolders")
-  paymentLinks     PaymentLink[]
-  leads            Lead[]
-  automationRules  AutomationRule[]
-  notifications    Notification[]
+  mediaAssets     MediaLibrary[]
+  mediaFolders    MediaFolder[]    @relation("WorkspaceFolders")
+  paymentLinks    PaymentLink[]
+  leads           Lead[]
+  automationRules AutomationRule[]
+  notifications   Notification[]
 
   documents Document[]
 
@@ -520,17 +520,17 @@ model TeamSocialAccount {
 }
 
 model ChatChannel {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
+
   name        String
   description String?
-  isPrivate   Boolean  @default(false)
-  
-  messages    ChatMessage[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPrivate   Boolean @default(false)
+
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   @@unique([workspaceId, name])
   @@map("chat_channels")
@@ -539,7 +539,7 @@ model ChatChannel {
 model ChatMessage {
   id        String      @id @default(cuid())
   channelId String
-  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade) 
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   senderId String
   sender   User   @relation(fields: [senderId], references: [id])
@@ -549,7 +549,7 @@ model ChatMessage {
   attachmentUrl String?
 
   parentId String?
-  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id], onDelete: Cascade)      
+  parent   ChatMessage?  @relation("ChatThread", fields: [parentId], references: [id], onDelete: Cascade)
   replies  ChatMessage[] @relation("ChatThread")
 
   attachments Json?
@@ -592,15 +592,15 @@ model MediaLibrary {
 }
 
 model MediaFolder {
-  id          String    @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   workspaceId String
-  workspace   Workspace @relation("WorkspaceFolders", fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace   Workspace      @relation("WorkspaceFolders", fields: [workspaceId], references: [id], onDelete: Cascade)
   parentId    String?
-  parent      MediaFolder?  @relation("SubFolders", fields: [parentId], references: [id])
-  subFolders  MediaFolder[] @relation("SubFolders")
+  parent      MediaFolder?   @relation("SubFolders", fields: [parentId], references: [id])
+  subFolders  MediaFolder[]  @relation("SubFolders")
   assets      MediaLibrary[]
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime       @default(now())
 }
 
 // ============================================================================
@@ -675,11 +675,11 @@ model Post {
   expiresAt    DateTime?
 
   // Recycling & Performance
-  isEvergreen      Boolean  @default(false)
-  performanceScore Float    @default(0)
-  recycleCount     Int      @default(0)
-  originalPostId   String?
-  originalPost     Post?    @relation("RecycledPosts", fields: [originalPostId], references: [id])
+  isEvergreen        Boolean @default(false)
+  performanceScore   Float   @default(0)
+  recycleCount       Int     @default(0)
+  originalPostId     String?
+  originalPost       Post?   @relation("RecycledPosts", fields: [originalPostId], references: [id])
   recycledVariations Post[]  @relation("RecycledPosts")
 
   socialAccounts PostSocialAccount[]
@@ -706,7 +706,7 @@ model Post {
   socialAccountId String?
   socialAccount   SocialAccount? @relation(fields: [socialAccountId], references: [id])
 
-  cards           Card[]
+  cards                Card[]
   audienceInteractions AudienceInteraction[]
 
   @@index([status, scheduledFor])
@@ -1123,32 +1123,32 @@ model Subscription {
 }
 
 model AccessGrant {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   userId       String
-  user         User     @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
+  user         User      @relation("UserGrants", fields: [userId], references: [id], onDelete: Cascade)
   adminId      String
-  admin        User     @relation("AdminGrants", fields: [adminId], references: [id])
+  admin        User      @relation("AdminGrants", fields: [adminId], references: [id])
   planType     PlanType
   durationDays Int?
   expiresAt    DateTime?
   reason       String?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
 
   @@map("access_grants")
 }
 
 model CommunityFeedback {
-  id            String   @id @default(cuid())
+  id            String           @id @default(cuid())
   authorId      String
-  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author        User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
   title         String
-  description   String   @db.Text
+  description   String           @db.Text
   category      FeedbackCategory
   screenshotUrl String?
-  status        FeedbackStatus @default(PENDING)
+  status        FeedbackStatus   @default(PENDING)
   upvotes       FeedbackUpvote[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   @@map("community_feedback")
 }
@@ -1164,71 +1164,71 @@ model FeedbackUpvote {
 }
 
 model CreatorApplication {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  totalFollowers  Int
-  niche           String
-  message         String?  @db.Text
-  
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  totalFollowers Int
+  niche          String
+  message        String? @db.Text
+
   tiktokHandle    String?
   instagramHandle String?
   youtubeHandle   String?
   twitterHandle   String?
   linkedinHandle  String?
-  
-  status          ApplicationStatus @default(PENDING)
-  reviewedAt      DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+
+  status     ApplicationStatus @default(PENDING)
+  reviewedAt DateTime?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   @@map("creator_applications")
 }
 
 model Transaction {
-  id           String   @id @default(cuid())
+  id           String            @id @default(cuid())
   userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount       Float
   planType     PlanType
-  billingCycle String   // MONTHLY, YEARLY
+  billingCycle String // MONTHLY, YEARLY
   status       TransactionStatus @default(PENDING)
   provider     String
   metadata     Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   @@map("transactions")
 }
 
 model Board {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
+
   name        String
   description String?
-  color       String?  // Board theme color
+  color       String? // Board theme color
 
-  columns     BoardColumn[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  columns BoardColumn[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("boards")
 }
 
 model BoardColumn {
-  id        String   @id @default(cuid())
-  boardId   String
-  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  
-  name      String
-  order     Int      @default(0)
-  
-  cards     Card[]
-  
+  id      String @id @default(cuid())
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  name  String
+  order Int    @default(0)
+
+  cards Card[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1236,47 +1236,47 @@ model BoardColumn {
 }
 
 model Card {
-  id          String   @id @default(cuid())
-  columnId    String
-  column      BoardColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  
-  title       String
-  description String?  @db.Text
-  order       Int      @default(0)
-  
-  priority    Priority @default(MEDIUM)
-  dueDate     DateTime?
-  
-  assigneeId  String?
-  assignee    User?    @relation("CardAssignee", fields: [assigneeId], references: [id])
-  
-  creatorId   String
-  creator     User     @relation("CardCreator", fields: [creatorId], references: [id])
+  id       String      @id @default(cuid())
+  columnId String
+  column   BoardColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
-  comments    CardComment[]
-  activities  CardActivity[]
-  labels      CardLabel[]
+  title       String
+  description String? @db.Text
+  order       Int     @default(0)
+
+  priority Priority  @default(MEDIUM)
+  dueDate  DateTime?
+
+  assigneeId String?
+  assignee   User?   @relation("CardAssignee", fields: [assigneeId], references: [id])
+
+  creatorId String
+  creator   User   @relation("CardCreator", fields: [creatorId], references: [id])
+
+  comments   CardComment[]
+  activities CardActivity[]
+  labels     CardLabel[]
 
   // For "Convert to Post" feature
-  postId      String?  @unique
-  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  postId String? @unique
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("cards")
 }
 
 model CardComment {
-  id        String   @id @default(cuid())
-  cardId    String
-  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  
-  content   String   @db.Text
-  
+  id     String @id @default(cuid())
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  content String @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1284,138 +1284,90 @@ model CardComment {
 }
 
 model CardActivity {
-  id        String   @id @default(cuid())
-  cardId    String
-  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  
-  action    String   // e.g., "moved", "created", "commented"
-  details   Json?    // e.g., { fromColumn: "col1", toColumn: "col2" }
-  
+  id     String @id @default(cuid())
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  action  String // e.g., "moved", "created", "commented"
+  details Json? // e.g., { fromColumn: "col1", toColumn: "col2" }
+
   createdAt DateTime @default(now())
 
   @@map("card_activities")
 }
 
 model CardLabel {
-  id          String   @id @default(cuid())
-  cardId      String
-  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  
-    name        String
-  
-    color       String
-  
-    
-  
-    createdAt   DateTime @default(now())
-  
-  
-  
-    @@map("card_labels")
-  
-  }
-  
-  
-  
-  model AudienceMember {
-  
-    id              String   @id @default(cuid())
-  
-    workspaceId     String
-  
-    workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-    
-  
-    platform        SocialPlatform
-  
-    platformUserId  String   // ID of the follower on the platform
-  
-    username        String
-  
-    displayName     String?
-  
-    avatar          String?
-  
-    
-  
-    engagementScore Float    @default(0)
-  
-    loyaltyScore    Float    @default(0)
-  
-      segment         AudienceSegment @default(INACTIVE)
-  
-      
-  
-        interactions    AudienceInteraction[]
-  
-      
-  
-        comments        PostComment[]
-  
-      
-  
-        socialAccounts  SocialAccount[]
-  
-      
-  
-        
-  
-      
-  
-        lastInteractionAt DateTime?
-  
-      
-  
-      
-  
-    
-  
-    createdAt       DateTime @default(now())
-  
-    updatedAt       DateTime @updatedAt
-  
-  
-  
-    @@unique([workspaceId, platform, platformUserId])
-  
-    @@map("audience_members")
-  
-  }
-  
-  
-  
-  model AudienceInteraction {
-  
-    id              String   @id @default(cuid())
-  
-    audienceMemberId String
-  
-    audienceMember   AudienceMember @relation(fields: [audienceMemberId], references: [id], onDelete: Cascade)
-  
-    
-  
-    postId          String?
-  
-    post            Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
-  
-    
-  
-    type            String   // LIKE, COMMENT, SHARE, CLICK
-  
-    weight          Int      @default(1)
-  
-    
-  
-    createdAt       DateTime @default(now())
-  
-  
-  
-    @@map("audience_interactions")
-  
-  }
-  
-  
+  id     String @id @default(cuid())
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  name String
+
+  color String
+
+  createdAt DateTime @default(now())
+
+  @@map("card_labels")
+}
+
+model AudienceMember {
+  id String @id @default(cuid())
+
+  workspaceId String
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  platform SocialPlatform
+
+  platformUserId String // ID of the follower on the platform
+
+  username String
+
+  displayName String?
+
+  avatar String?
+
+  engagementScore Float @default(0)
+
+  loyaltyScore Float @default(0)
+
+  segment AudienceSegment @default(INACTIVE)
+
+  interactions AudienceInteraction[]
+
+  comments PostComment[]
+
+  socialAccounts SocialAccount[]
+
+  lastInteractionAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, platform, platformUserId])
+  @@map("audience_members")
+}
+
+model AudienceInteraction {
+  id String @id @default(cuid())
+
+  audienceMemberId String
+
+  audienceMember AudienceMember @relation(fields: [audienceMemberId], references: [id], onDelete: Cascade)
+
+  postId String?
+
+  post Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  type String // LIKE, COMMENT, SHARE, CLICK
+
+  weight Int @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@map("audience_interactions")
+}

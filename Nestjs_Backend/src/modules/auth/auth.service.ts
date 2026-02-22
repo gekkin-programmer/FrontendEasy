@@ -18,20 +18,23 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly ADMIN_EMAILS: string[];
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private emailService: EmailService,
-  ) {}
+  ) {
+    this.ADMIN_EMAILS = (configService.get<string>('ADMIN_EMAILS') || '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+  }
 
   // ==========================================
   // HELPERS: ADMIN CHECK
   // ==========================================
-  private readonly ADMIN_EMAILS = [
-    "nkouambrayan@gmail.com",
-    "brayannnkouam@gmail.com"
-  ];
 
   private getRoleForEmail(email?: string): 'USER' | 'ADMIN' {
     if (!email) return 'USER';

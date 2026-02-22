@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-// SAME SECRET AS BACKEND
-const JWT_SECRET = "c69bbe478100399727bc1257e61be3215b4655e9599b8150599410352228b2e6";
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ONLY PROTECT /admin ROUTES
+  // PROTECT /admin ROUTES (auth + role check)
   if (pathname.startsWith('/admin')) {
     const token = request.cookies.get('accessToken')?.value;
 
@@ -36,10 +35,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // PROTECT /dashboard AND /workspaces ROUTES (auth only)
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/workspaces')) {
+    const token = request.cookies.get('accessToken')?.value;
+
+    if (!token) {
+      return NextResponse.redirect(new URL('/login?reason=unauthorized', request.url));
+    }
+
+    try {
+      const secret = new TextEncoder().encode(JWT_SECRET);
+      await jwtVerify(token, secret);
+      return NextResponse.next();
+    } catch (err) {
+      return NextResponse.redirect(new URL('/login?reason=expired', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
-// MATCH ONLY ADMIN ROUTES FOR PERFORMANCE
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/workspaces/:path*'],
 };

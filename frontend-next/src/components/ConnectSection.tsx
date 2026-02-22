@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import {
-  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube, FaStore
+  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube, FaStore, FaGoogle
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiThreads } from 'react-icons/si';
@@ -42,15 +42,15 @@ const ConnectSection = () => {
   const { t } = useLanguage();
 
   const socialIcons = [
-    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
-    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
-    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
-    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
-    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
-    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
-    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
-    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'google', name: 'Google', icon: <FaStore />, hoverColor: 'group-hover:text-blue-500' },
+    { id: 'facebook', name: 'Facebook x EasyPost', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
+    { id: 'instagram', name: 'Instagram x EasyPost', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
+    { id: 'x', name: 'X (Twitter) x EasyPost', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
+    { id: 'linkedin', name: 'LinkedIn x EasyPost', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
+    { id: 'tiktok', name: 'TikTok x EasyPost', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
+    { id: 'youtube', name: 'YouTube x EasyPost', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
+    { id: 'threads', name: 'Threads x EasyPost', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
+    { id: 'pinterest', name: 'Pinterest x EasyPost', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
+    { id: 'google', name: 'Google x EasyPost', icon: <FaGoogle />, hoverColor: 'group-hover:text-blue-500' },
   ];
 
   return (

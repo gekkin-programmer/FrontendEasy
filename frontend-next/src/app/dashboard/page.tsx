@@ -2,13 +2,13 @@
 
 import { api } from "@/src/lib/api";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
+import { useRouter, useSearchParams } from "next/navigation"; //  Added useSearchParams
 import SpinningLoader from "@/src/components/SpinningLoader";
 import { getCookie } from 'cookies-next';
 
 export default function DashboardRootPage() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // 🟢 Hook to get URL params
+  const searchParams = useSearchParams(); //  Hook to get URL params
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
   const [status, setStatus] = useState('loading');
 
@@ -26,7 +26,7 @@ export default function DashboardRootPage() {
         if (Array.isArray(workspaces) && workspaces.length > 0) {
           const firstId = workspaces[0].id;
           
-          // 🟢 CRITICAL FIX: FORWARD THE PARAMS (Facebook Token, etc.)
+          //  CRITICAL FIX: FORWARD THE PARAMS (Facebook Token, etc.)
           const currentParams = searchParams.toString();
           const targetUrl = currentParams 
             ? `/dashboard/${firstId}?${currentParams}` 

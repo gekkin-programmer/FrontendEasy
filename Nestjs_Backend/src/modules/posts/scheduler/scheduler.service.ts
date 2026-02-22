@@ -29,7 +29,7 @@ export class SchedulerService {
 
     // c. Convert timezone (Simplified: Assuming date passed is already in correct target time or UTC)
     // In a real app, we'd use date-fns-tz or luxon here.
-    
+
     return this.prisma.post.update({
       where: { id: postId },
       data: {
@@ -73,46 +73,46 @@ export class SchedulerService {
     });
   }
 
-  // Run every 60 seconds
-    @Cron(CronExpression.EVERY_5_MINUTES)
-    async handleCron() {
-      this.logger.debug('Running scheduled posts check...');
-      await this.processDuePosts();
-    }
-  
-    // Find all posts where scheduledFor <= now AND status = SCHEDULED
-    private async processDuePosts() {
-      const now = new Date();
-      const duePosts = await this.prisma.post.findMany({
-        where: {
-          status: 'SCHEDULED',
-          scheduledFor: { lte: now }
-        },
-        include: {
-          socialAccounts: {
-            include: { socialAccount: true }
-          }
+  // Run every 5 minutes
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async handleCron() {
+    this.logger.debug('Running scheduled posts check...');
+    await this.processDuePosts();
+  }
+
+  // Find all posts where scheduledFor <= now AND status = SCHEDULED
+  private async processDuePosts() {
+    const now = new Date();
+    const duePosts = await this.prisma.post.findMany({
+      where: {
+        status: 'SCHEDULED',
+        scheduledFor: { lte: now }
+      },
+      include: {
+        socialAccounts: {
+          include: { socialAccount: true }
         }
+      }
+    });
+
+    if (duePosts.length === 0) return;
+
+    this.logger.log(`Found ${duePosts.length} posts due for publication`);
+
+    for (const post of duePosts) {
+      // Atomically claim the post before publishing to prevent duplicate runs
+      const claimed = await this.prisma.post.updateMany({
+        where: { id: post.id, status: 'SCHEDULED' },
+        data: { status: 'PUBLISHING' },
       });
-  
-      if (duePosts.length === 0) return;
-  
-      this.logger.log(`Found ${duePosts.length} posts due for publication`);
-  
-          for (const post of duePosts) {
-  
-            try {
-  
-              await this.publisher.publishPost(post.id);
-  
-              this.logger.log(`Successfully published due post: ${post.id}`);
-  
-            } catch (e) {
-  
-      
-          this.logger.error(`Failed to publish due post ${post.id}: ${e.message}`);
-        }
+      if (claimed.count === 0) continue; // another worker already claimed it
+
+      try {
+        await this.publisher.publishPost(post.id);
+        this.logger.log(`Successfully published due post: ${post.id}`);
+      } catch (e) {
+        this.logger.error(`Failed to publish due post ${post.id}: ${e.message}`);
       }
     }
   }
-  
+}

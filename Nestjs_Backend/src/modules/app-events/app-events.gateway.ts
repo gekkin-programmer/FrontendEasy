@@ -9,11 +9,12 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', 
+    origin: process.env.FRONTEND_URL,
   },
   namespace: 'events',
 })
@@ -22,6 +23,8 @@ export class AppEventsGateway implements OnGatewayConnection, OnGatewayDisconnec
   server: Server;
 
   private readonly logger = new Logger(AppEventsGateway.name);
+
+  constructor(private configService: ConfigService) {}
 
   handleConnection(client: Socket) {
     this.logger.log(`Client trying to connect: ${client.id}`);

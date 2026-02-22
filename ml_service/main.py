@@ -4,12 +4,19 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import datetime
+import joblib
+import os
 from typing import List, Optional
 
 app = FastAPI(title="EasyPost ML Scheduling Service")
 
-# Mock Model - In a real production environment, this would be a pre-trained model loaded via joblib/pickle
-model = RandomForestRegressor(n_estimators=100)
+MODEL_PATH = "model.joblib"
+
+# Load persisted model if available, otherwise start fresh
+if os.path.exists(MODEL_PATH):
+    model = joblib.load(MODEL_PATH)
+else:
+    model = RandomForestRegressor(n_estimators=100)
 
 class PostData(BaseModel):
     publish_time: str # ISO Format
@@ -71,6 +78,7 @@ async def predict_best_times(request: SuggestionRequest):
     y = df['engagement']
     if len(df) > 5:
         model.fit(X, y)
+        joblib.dump(model, MODEL_PATH)
 
     # 2. Generate Candidates
     candidates = []
