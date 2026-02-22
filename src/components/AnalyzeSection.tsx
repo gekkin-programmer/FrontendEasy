@@ -273,15 +273,11 @@ const AnalyzeSection = () => {
       aria-label="Analytics Features"
     >
       
-      <div className="absolute right-0 top-0 w-1/3 h-full bg-[#D6EFFF] border-l-4 border-black hidden lg:block z-0 opacity-50">
-         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:100%_40px]"></div>
-      </div>
-
-      <div className="container mx-auto grid lg:grid-cols-2 gap-y-16 gap-x-20 items-center max-w-7xl relative z-10">
+      <div className="container mx-auto max-w-4xl relative z-10">
         
-        {/* Left Column: Text */}
-        <div className="flex flex-col gap-6 md:gap-8 max-w-lg lg:max-w-none">
-          <div>
+        {/* Centered Content */}
+        <div className="flex flex-col gap-6 md:gap-8 items-center text-center">
+          <div className="flex flex-col items-center">
             <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
               ANSWERS.<br/>
@@ -290,11 +286,11 @@ const AnalyzeSection = () => {
             </h2>
           </div>
           
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
+          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 md:border-l-0 md:border-t-8 border-[#3C48F5] pl-6 md:pl-0 pt-4 md:pt-6 py-2 bg-gray-50 dark:bg-white/5 max-w-2xl">
             {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
           </p>
           
-          <ul className="space-y-4 mt-4">
+          <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 w-full">
             <FeatureItem icon={<IoBarChartOutline size={24} />}>
               {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
             </FeatureItem>
@@ -316,11 +312,6 @@ const AnalyzeSection = () => {
           </div>
         </div>
         
-        {/* Right Column: Visual (HIDDEN on Mobile/Tablet via hidden lg:flex) */}
-        <div className="relative hidden lg:flex items-center justify-center lg:justify-end py-10 lg:py-0">
-            <MainDashboardVisual />
-        </div>
-
       </div>
     </section>
   );

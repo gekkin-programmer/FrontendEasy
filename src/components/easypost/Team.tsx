@@ -142,11 +142,12 @@ export default function Team({ workspaceId }: TeamProps) {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (postId: string) => api.patch(`/posts/${postId}`, { status: 'DRAFT' }),
+    mutationFn: (postId: string) => api.post(`/posts/${postId}/reject`, {}),
     onSuccess: () => {
         toast.warning("SENT_BACK_TO_DRAFT");
         refetchReviews();
-    }
+    },
+    onError: () => toast.error("REJECTION_FAILED")
   });
 
   const removeMemberMutation = useMutation({

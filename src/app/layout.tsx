@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
+import { Toaster } from "sonner"; 
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
@@ -11,7 +11,7 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
   display: "swap",
-  weight: ["400", "500", "700", "800"], // Only load weights you use to save bandwidth
+  weight: ["400", "500", "700", "800"], 
 });
 
 // ➤ 1. MOBILE VIEWPORT CONFIG (Prevents iOS zoom on inputs)
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/applogo.png', 
     shortcut: '/applogo.png',
-    apple: '/applogo.png', // Crucial for iPhone home screen saves
+    apple: '/applogo.png', 
   },
   openGraph: {
     type: 'website',
@@ -68,7 +68,7 @@ export default function RootLayout({
         
         <QueryProvider>
           <LanguageProvider>
-            {/* 🚀 NEUBRUTALIST GLOBAL TOASTER */}
+            {/* NEUBRUTALIST GLOBAL TOASTER */}
             <Toaster 
               position="bottom-right" 
               expand={false}
