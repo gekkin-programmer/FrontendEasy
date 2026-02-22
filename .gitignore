@@ -1,6 +1,8 @@
 .vercel
 .env*.local
 llm-context.md
+CLAUDE.md
+repomix-output.xml
 UPDATES.md
 Final-Configuration.md
 afterupdate.md
