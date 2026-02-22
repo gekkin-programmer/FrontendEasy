@@ -1,4 +1,4 @@
-# EasyPost - Issue Fixes & Implementation Guide
+# EazyPost - Issue Fixes & Implementation Guide
 
 ## ✅ Issues Fixed
 
@@ -37,7 +37,7 @@
    - Prepares for backend token exchange
 
 **Files Modified/Created**:
-- `src/components/easypost/ConnectAccounts.tsx` (fixed URL)
+- `src/components/eazypost/ConnectAccounts.tsx` (fixed URL)
 - `src/app/integrations/meta-callback/page.tsx` (new callback handler)
 
 ---
@@ -322,7 +322,7 @@ frontend-next/
 │   │   └── meta-callback/page.tsx     ✅ New (created)
 │   └── dashboard/
 │       └── page.tsx                   ✅ Smart routing logic
-├── src/components/easypost/
+├── src/components/eazypost/
 │   └── ConnectAccounts.tsx            ✅ Fixed URL encoding
 └── convex/
     ├── accounts.ts                     (ready for token storage)
@@ -340,7 +340,7 @@ frontend-next/
 4. **Add other platform OAuth** (Twitter, LinkedIn, etc.)
 5. **Pick from suggestions above** and prioritize by impact
 
-Your EasyPost is on track to be **the best Buffer alternative**! 🚀
+Your EazyPost is on track to be **the best Buffer alternative**! 🚀
 
 ---
 

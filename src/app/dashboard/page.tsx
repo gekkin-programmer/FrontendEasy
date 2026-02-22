@@ -9,7 +9,7 @@ import { getCookie } from 'cookies-next';
 export default function DashboardRootPage() {
   const router = useRouter();
   const searchParams = useSearchParams(); //  Hook to get URL params
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com/api';
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {

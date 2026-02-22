@@ -37,7 +37,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         else document.documentElement.classList.remove('dark');
         return saved;
       }
-      // Default to dark for EasyPost
+      // Default to dark for EazyPost
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
       return 'dark';

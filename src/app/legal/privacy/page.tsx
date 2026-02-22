@@ -2,8 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | EasyPost Africa',
-  description: 'How EasyPost collects, uses, and protects your personal data.',
+  title: 'Privacy Policy | EazyPost Africa',
+  description: 'How EazyPost collects, uses, and protects your personal data.',
 };
 
 export default function PrivacyPage() {
@@ -21,10 +21,10 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Introduction</h2>
             <p>
-              EasyPost ("EasyPost," "we," "our," or "us") is a social media management platform operated by EasyPost Inc., headquartered in Cameroon. We are committed to protecting your personal information and your right to privacy.
+              EazyPost ("EazyPost," "we," "our," or "us") is a social media management platform operated by EazyPost Inc., headquartered in Cameroon. We are committed to protecting your personal information and your right to privacy.
             </p>
             <p className="mt-3">
-              This Privacy Policy applies to all information collected through our website at <strong>https://easyposttio.vercel.app</strong>, our mobile applications, and any related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
+              This Privacy Policy applies to all information collected through our website at <strong>https://eazyposttio.vercel.app</strong>, our mobile applications, and any related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
             </p>
           </section>
 
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
                 <strong>Account Information:</strong> Full name, email address, and profile picture when you register via email or social login (Google, Facebook).
               </li>
               <li>
-                <strong>Social Media Platform Data:</strong> When you connect a social account, we access only the permissions you explicitly grant. For Facebook and Instagram, this may include your Pages, Business accounts, post metrics, and audience data. We access this data solely to provide the scheduling, publishing, and analytics features of EasyPost.
+                <strong>Social Media Platform Data:</strong> When you connect a social account, we access only the permissions you explicitly grant. For Facebook and Instagram, this may include your Pages, Business accounts, post metrics, and audience data. We access this data solely to provide the scheduling, publishing, and analytics features of EazyPost.
               </li>
               <li>
                 <strong>Content You Create:</strong> Text captions, images, videos, and scheduled posts you create or upload inside the platform.
@@ -55,11 +55,11 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. Facebook &amp; Instagram Platform Data</h2>
             <p className="mb-3">
-              EasyPost integrates with the Meta (Facebook) Platform APIs. Our use of data obtained through these APIs is strictly governed by the <a href="https://developers.facebook.com/policy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Meta Platform Terms</a> and <a href="https://developers.facebook.com/devpolicy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Meta Developer Policies</a>.
+              EazyPost integrates with the Meta (Facebook) Platform APIs. Our use of data obtained through these APIs is strictly governed by the <a href="https://developers.facebook.com/policy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Meta Platform Terms</a> and <a href="https://developers.facebook.com/devpolicy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Meta Developer Policies</a>.
             </p>
             <ul className="list-disc pl-5 space-y-3">
               <li>We request only the minimum permissions necessary to deliver the functionality you use (e.g., <code>pages_manage_posts</code>, <code>instagram_content_publish</code>).</li>
-              <li>We use Facebook Platform Data only to provide and improve the EasyPost service to you — not for advertising, data brokering, or any other secondary purpose.</li>
+              <li>We use Facebook Platform Data only to provide and improve the EazyPost service to you — not for advertising, data brokering, or any other secondary purpose.</li>
               <li><strong>We do not sell, license, or transfer Facebook Platform Data to any third party.</strong></li>
               <li><strong>We do not use Facebook Platform Data to train machine learning or artificial intelligence models.</strong></li>
               <li>Facebook-sourced data is retained only as long as needed to operate the Service (see Section 7). You may revoke our access at any time via your Facebook account settings.</li>
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
               <li><strong>Vercel / Render:</strong> Cloud hosting infrastructure.</li>
             </ul>
             <p className="mt-3">
-              All third-party providers are bound by data processing agreements and are prohibited from using your data for any purpose beyond providing their service to EasyPost.
+              All third-party providers are bound by data processing agreements and are prohibited from using your data for any purpose beyond providing their service to EazyPost.
             </p>
           </section>
 
@@ -108,10 +108,10 @@ export default function PrivacyPage() {
               <li><strong>Erasure:</strong> Request deletion of your personal data (see our <a href="/legal/data-deletion" className="text-blue-600 hover:underline">Data Deletion page</a>).</li>
               <li><strong>Portability:</strong> Receive your data in a structured, machine-readable format.</li>
               <li><strong>Objection:</strong> Object to certain types of processing.</li>
-              <li><strong>Withdraw Consent:</strong> You may disconnect your social accounts at any time from within the EasyPost dashboard.</li>
+              <li><strong>Withdraw Consent:</strong> You may disconnect your social accounts at any time from within the EazyPost dashboard.</li>
             </ul>
             <p className="mt-3">
-              To exercise any of these rights, contact us at <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a>. We will respond within 30 days.
+              To exercise any of these rights, contact us at <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a>. We will respond within 30 days.
             </p>
           </section>
 
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">9. Children's Privacy</h2>
             <p>
-              EasyPost is not directed to individuals under the age of 13. We do not knowingly collect personal data from children under 13. If you believe we have inadvertently collected such data, please contact us immediately at <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a> and we will delete it promptly.
+              EazyPost is not directed to individuals under the age of 13. We do not knowingly collect personal data from children under 13. If you believe we have inadvertently collected such data, please contact us immediately at <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a> and we will delete it promptly.
             </p>
           </section>
 
@@ -151,7 +151,7 @@ export default function PrivacyPage() {
               <li><strong>Preference cookies:</strong> Theme (light/dark mode) and language preference.</li>
             </ul>
             <p className="mt-3">
-              We do not use advertising cookies, third-party tracking cookies, or analytics cookies. You may clear all cookies via your browser settings, which will log you out of EasyPost.
+              We do not use advertising cookies, third-party tracking cookies, or analytics cookies. You may clear all cookies via your browser settings, which will log you out of EazyPost.
             </p>
           </section>
 
@@ -159,7 +159,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">11. International Data Transfers</h2>
             <p>
-              EasyPost operates from Cameroon. Your data may be processed and stored in servers located in the United States or European Union via our hosting providers (Vercel, Render, Neon). By using the Service, you consent to the transfer of your information to countries outside your country of residence.
+              EazyPost operates from Cameroon. Your data may be processed and stored in servers located in the United States or European Union via our hosting providers (Vercel, Render, Neon). By using the Service, you consent to the transfer of your information to countries outside your country of residence.
             </p>
           </section>
 
@@ -176,9 +176,9 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">13. Contact Us</h2>
             <p>For privacy-related questions, data requests, or concerns:</p>
             <ul className="mt-3 space-y-1 text-sm">
-              <li><strong>Email:</strong> <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a></li>
-              <li><strong>Company:</strong> EasyPost Inc., Cameroon</li>
-              <li><strong>Website:</strong> <a href="https://easyposttio.vercel.app" className="text-blue-600 hover:underline">https://easyposttio.vercel.app</a></li>
+              <li><strong>Email:</strong> <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a></li>
+              <li><strong>Company:</strong> EazyPost Inc., Cameroon</li>
+              <li><strong>Website:</strong> <a href="https://eazyposttio.vercel.app" className="text-blue-600 hover:underline">https://eazyposttio.vercel.app</a></li>
             </ul>
           </section>
 

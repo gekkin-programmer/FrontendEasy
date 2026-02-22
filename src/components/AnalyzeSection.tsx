@@ -287,7 +287,7 @@ const AnalyzeSection = () => {
           </div>
           
           <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 md:border-l-0 md:border-t-8 border-[#3C48F5] pl-6 md:pl-0 pt-4 md:pt-6 py-2 bg-gray-50 dark:bg-white/5 max-w-2xl">
-            {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
+            {t("Most tools just show you a graph and wish you luck. EazyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EazyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
           </p>
           
           <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 w-full">

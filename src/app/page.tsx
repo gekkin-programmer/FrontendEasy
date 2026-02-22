@@ -13,7 +13,7 @@ import AnalyzeSection from '../components/AnalyzeSection';
 import ConnectSection from '../components/ConnectSection';
 import GrowSection from '../components/GrowSection';
 import SupportSection from '../components/SupportSection';
-import EasyAI from '../components/easypost/EasyAI';
+import EasyAI from '../components/eazypost/EasyAI';
 import Footer from '../components/Footer';
 
 export default function Home() {

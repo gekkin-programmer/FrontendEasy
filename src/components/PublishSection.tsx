@@ -63,7 +63,7 @@ export default function PublishSection() {
                     <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-white">
                         <Image 
                            src={publishImage}
-                           alt="EasyPost Kanban Scheduling Interface"
+                           alt="EazyPost Kanban Scheduling Interface"
                            fill
                            className="object-cover object-top"
                            sizes="(max-width: 768px) 100vw, 50vw"

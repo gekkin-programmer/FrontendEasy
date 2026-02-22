@@ -354,7 +354,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         // 🛍️ COMMERCE LOGIC: Generate One-Time Link
         if (isSelling && price) {
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
+            const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://eazypost.me/pay/${shortId}`;
             finalContent += commerceLink;
             toast.info("COMMERCE_LINK_GENERATED");
         }

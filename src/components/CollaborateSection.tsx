@@ -77,7 +77,7 @@ export default function CollaborateSection() {
                     <div className="w-3 h-3 md:w-4 md:h-4 bg-white border-2 border-black rounded-full"></div>
                 </div>
                 <div className="bg-white border-2 text-black border-black px-3 md:px-4 py-0.5 md:py-1 text-[10px] md:text-xs font-mono font-bold uppercase truncate max-w-[150px] md:max-w-[200px]">
-                    app.easypost.cm/team
+                    app.eazypost.cm/team
                 </div>
                 <div className="w-6 md:w-8"></div> {/* Spacer */}
               </div>

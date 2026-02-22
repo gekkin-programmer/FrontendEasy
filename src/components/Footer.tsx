@@ -74,9 +74,9 @@ const Footer: React.FC = () => {
               <img
                 className="h-12 w-auto bg-white dark:bg-zinc-800 p-1 rounded-none border-2 border-white dark:border-zinc-700 group-hover:rotate-3 transition-transform"
                 src="/assets/WiggleLogo.png" 
-                alt="EasyPost Logo"
+                alt="EazyPost Logo"
               />
-              <span className="text-3xl font-black uppercase tracking-tighter text-white">EasyPost</span>
+              <span className="text-3xl font-black uppercase tracking-tighter text-white">EazyPost</span>
             </Link>
             <p className="text-lg font-medium text-gray-400 dark:text-zinc-500 max-w-sm leading-relaxed border-l-4 border-[#3C48F6] pl-4 uppercase">
               {t(
@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="border-t-2 border-gray-800 dark:border-zinc-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm font-mono text-gray-500 dark:text-zinc-600 uppercase">
-            &copy; {new Date().getFullYear()} EASYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
+            &copy; {new Date().getFullYear()} EAZYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
           <div className="flex items-center gap-2">
               <span className="text-[10px] font-black text-gray-400 dark:text-zinc-600 uppercase tracking-widest">Systems Operational</span>

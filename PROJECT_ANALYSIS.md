@@ -1,7 +1,7 @@
-# EasyPost Frontend - Next.js Application Analysis
+# EazyPost Frontend - Next.js Application Analysis
 
 ## Project Overview
-**EasyPost** is a **Social Media Scheduler & Management Platform** built with Next.js, Convex (backend-as-a-service), and Clerk (authentication). It allows users to create workspaces, connect multiple social media accounts (Twitter, LinkedIn, Instagram, Facebook, TikTok, YouTube, Pinterest, Telegram), and schedule/publish posts across those platforms.
+**EazyPost** is a **Social Media Scheduler & Management Platform** built with Next.js, Convex (backend-as-a-service), and Clerk (authentication). It allows users to create workspaces, connect multiple social media accounts (Twitter, LinkedIn, Instagram, Facebook, TikTok, YouTube, Pinterest, Telegram), and schedule/publish posts across those platforms.
 
 ---
 
@@ -46,7 +46,7 @@ frontend-next/
 │   │   └── sso-callback/           # Social OAuth callback (Meta/Telegram)
 │   │
 │   ├── components/                  # React components
-│   │   ├── easypost/               # EasyPost-specific components
+│   │   ├── eazypost/               # EazyPost-specific components
 │   │   │   ├── Composer.tsx        # Post creation form
 │   │   │   ├── PostFeed.tsx        # Displays drafts/queue (drag-drop)
 │   │   │   ├── ConnectAccounts.tsx # Social account connection UI
@@ -222,7 +222,7 @@ Main workspace hub with 5 tabs:
 - Roles (Owner, Editor, Viewer)
 - Invitations
 
-### 4. **Social Account Connection** (`src/components/easypost/ConnectAccounts.tsx`)
+### 4. **Social Account Connection** (`src/components/eazypost/ConnectAccounts.tsx`)
 Supports multiple platforms with different auth flows:
 
 **Real OAuth (Implemented)**
@@ -389,7 +389,7 @@ Dashboard updates accounts list
 
 ## 📝 Summary
 
-**EasyPost** is a **modern, real-time social media scheduler** with:
+**EazyPost** is a **modern, real-time social media scheduler** with:
 - ✅ Multi-platform support (8+ social networks)
 - ✅ Real-time collaboration via Convex
 - ✅ OAuth-based authentication (Clerk)

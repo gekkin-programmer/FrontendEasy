@@ -32,7 +32,7 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
       <div className="h-16 flex items-center justify-between px-6 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black border-2 border-transparent">E</div>
-          <span className="font-black text-xl tracking-tighter text-black dark:text-white">EASYPOST.</span>
+          <span className="font-black text-xl tracking-tighter text-black dark:text-white">EAZYPOST.</span>
         </div>
         {isMobile && (
           <button onClick={onClose} className="p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors text-black dark:text-white">

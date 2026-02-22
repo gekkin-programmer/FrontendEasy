@@ -1,5 +1,5 @@
-import Sidebar from '@/src/components/easypost/Sidebar';
-import MobileNav from '@/src/components/easypost/MobileNav';
+import Sidebar from '@/src/components/eazypost/Sidebar';
+import MobileNav from '@/src/components/eazypost/MobileNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
