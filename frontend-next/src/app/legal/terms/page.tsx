@@ -2,8 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | EasyPost Africa',
-  description: 'Terms and conditions for using the EasyPost platform.',
+  title: 'Terms of Service | EazyPost Africa',
+  description: 'Terms and conditions for using the EazyPost platform.',
 };
 
 export default function TermsPage() {
@@ -21,7 +21,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using EasyPost ("the Service") operated by EasyPost Inc. ("EasyPost," "we," "our," or "us"), you confirm that you are at least 13 years of age, have read and understood these Terms of Service ("Terms"), and agree to be legally bound by them. If you do not agree, you must not use the Service.
+              By accessing or using EazyPost ("the Service") operated by EazyPost Inc. ("EazyPost," "we," "our," or "us"), you confirm that you are at least 13 years of age, have read and understood these Terms of Service ("Terms"), and agree to be legally bound by them. If you do not agree, you must not use the Service.
             </p>
           </section>
 
@@ -29,7 +29,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">2. Description of Service</h2>
             <p>
-              EasyPost provides social media management tools including content scheduling, multi-platform publishing, audience analytics, AI-powered caption generation, and team collaboration features. The Service connects to third-party platforms (Facebook, Instagram, LinkedIn, Twitter/X, TikTok) via their official APIs.
+              EazyPost provides social media management tools including content scheduling, multi-platform publishing, audience analytics, AI-powered caption generation, and team collaboration features. The Service connects to third-party platforms (Facebook, Instagram, LinkedIn, Twitter/X, TikTok) via their official APIs.
             </p>
             <p className="mt-3">
               We reserve the right to modify, suspend, or discontinue any feature of the Service at any time with reasonable notice where possible.
@@ -40,22 +40,22 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. Eligibility &amp; Account Registration</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>You must be at least <strong>13 years old</strong> to use EasyPost. Users under 18 must have parental or guardian consent.</li>
+              <li>You must be at least <strong>13 years old</strong> to use EazyPost. Users under 18 must have parental or guardian consent.</li>
               <li>You must provide accurate and complete registration information and keep it up to date.</li>
               <li>You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</li>
-              <li>You must notify us immediately at <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a> of any unauthorized account access.</li>
+              <li>You must notify us immediately at <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a> of any unauthorized account access.</li>
             </ul>
           </section>
 
           {/* 4. Acceptable Use */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">4. Acceptable Use Policy</h2>
-            <p className="mb-3">You agree to use EasyPost only for lawful purposes. You must NOT:</p>
+            <p className="mb-3">You agree to use EazyPost only for lawful purposes. You must NOT:</p>
             <ul className="list-disc pl-5 space-y-2">
               <li>Upload, publish, or schedule content that is illegal, defamatory, obscene, hateful, harassing, or violates the rights of others.</li>
               <li>Violate the Terms of Service or Community Standards of any connected platform (Meta/Facebook, Instagram, LinkedIn, Twitter/X, TikTok).</li>
               <li>Use the Service to send unsolicited commercial messages (spam) or engage in bulk automated actions that violate platform policies.</li>
-              <li>Attempt to gain unauthorized access to, probe, scan, or test the vulnerability of any EasyPost system or network.</li>
+              <li>Attempt to gain unauthorized access to, probe, scan, or test the vulnerability of any EazyPost system or network.</li>
               <li>Use any automated means (bots, scrapers) to access the Service outside of our official API.</li>
               <li>Impersonate any person or entity or misrepresent your affiliation with any person or entity.</li>
               <li>Use the Service to infringe any intellectual property rights.</li>
@@ -66,13 +66,13 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">5. Third-Party Platform Compliance</h2>
             <p>
-              EasyPost integrates with third-party social media platforms. By connecting your accounts, you authorize EasyPost to act on your behalf within the scope of the permissions you grant. You acknowledge and agree that:
+              EazyPost integrates with third-party social media platforms. By connecting your accounts, you authorize EazyPost to act on your behalf within the scope of the permissions you grant. You acknowledge and agree that:
             </p>
             <ul className="list-disc pl-5 space-y-2 mt-3">
               <li>Your use of connected platforms remains subject to those platforms' own terms and policies.</li>
-              <li>EasyPost is an independent service and is not endorsed by, affiliated with, or sponsored by Meta, Instagram, LinkedIn, Twitter/X, or TikTok.</li>
+              <li>EazyPost is an independent service and is not endorsed by, affiliated with, or sponsored by Meta, Instagram, LinkedIn, Twitter/X, or TikTok.</li>
               <li>We cannot guarantee uninterrupted API access to third-party platforms, as access may be modified or revoked by those platforms at any time.</li>
-              <li>You are solely responsible for the content you publish through EasyPost and for ensuring it complies with applicable platform rules.</li>
+              <li>You are solely responsible for the content you publish through EazyPost and for ensuring it complies with applicable platform rules.</li>
             </ul>
           </section>
 
@@ -80,7 +80,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">6. Content Ownership &amp; License</h2>
             <p>
-              You retain all ownership rights to content you create and upload to EasyPost. By uploading content, you grant EasyPost a limited, non-exclusive, royalty-free license to store, process, and transmit that content solely for the purpose of providing the Service to you. We do not claim ownership of your content and will not use it for advertising or any purpose beyond the Service.
+              You retain all ownership rights to content you create and upload to EazyPost. By uploading content, you grant EazyPost a limited, non-exclusive, royalty-free license to store, process, and transmit that content solely for the purpose of providing the Service to you. We do not claim ownership of your content and will not use it for advertising or any purpose beyond the Service.
             </p>
           </section>
 
@@ -88,7 +88,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">7. Subscription &amp; Billing</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>EasyPost offers free and paid subscription tiers. Paid features are described on our <a href="/pricing" className="text-blue-600 hover:underline">Pricing page</a>.</li>
+              <li>EazyPost offers free and paid subscription tiers. Paid features are described on our <a href="/pricing" className="text-blue-600 hover:underline">Pricing page</a>.</li>
               <li>Paid subscriptions are billed in advance on a monthly or annual basis. All fees are non-refundable except where required by applicable law.</li>
               <li>We reserve the right to modify pricing with 30 days' notice to existing subscribers.</li>
               <li>Free tier usage is subject to monthly limits (e.g., number of posts per month) as displayed in the dashboard.</li>
@@ -99,10 +99,10 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">8. Account Suspension &amp; Termination</h2>
             <p>
-              We may suspend or permanently terminate your account without prior notice if you breach these Terms, engage in fraudulent activity, or act in a manner harmful to EasyPost, its users, or third-party platforms. Upon termination, your right to use the Service ceases immediately and your data will be deleted in accordance with our Privacy Policy.
+              We may suspend or permanently terminate your account without prior notice if you breach these Terms, engage in fraudulent activity, or act in a manner harmful to EazyPost, its users, or third-party platforms. Upon termination, your right to use the Service ceases immediately and your data will be deleted in accordance with our Privacy Policy.
             </p>
             <p className="mt-3">
-              You may delete your account at any time from the Settings page or by contacting <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a>.
+              You may delete your account at any time from the Settings page or by contacting <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a>.
             </p>
           </section>
 
@@ -118,7 +118,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">10. Limitation of Liability</h2>
             <p>
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, EASYPOST SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE, DATA, OR BUSINESS OPPORTUNITIES, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF THE SERVICE, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID TO EASYPOST IN THE 12 MONTHS PRECEDING THE CLAIM.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, EAZYPOST SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE, DATA, OR BUSINESS OPPORTUNITIES, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF THE SERVICE, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID TO EAZYPOST IN THE 12 MONTHS PRECEDING THE CLAIM.
             </p>
           </section>
 
@@ -143,8 +143,8 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">13. Contact</h2>
             <p>For questions about these Terms:</p>
             <ul className="mt-3 space-y-1 text-sm">
-              <li><strong>Email:</strong> <a href="mailto:support@easypost.cm" className="text-blue-600 hover:underline">support@easypost.cm</a></li>
-              <li><strong>Company:</strong> EasyPost Inc., Cameroon</li>
+              <li><strong>Email:</strong> <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a></li>
+              <li><strong>Company:</strong> EazyPost Inc., Cameroon</li>
             </ul>
           </section>
 

@@ -142,8 +142,8 @@ const GrowSection = () => {
             
             <p className="text-base md:text-xl font-bold text-gray-800 leading-snug">
               {t(
-                "Whether you're just getting started or scaling to new heights, EasyPost gets your content in front of more people.",
-                "Que vous commenciez ou que vous passiez à la vitesse supérieure, EasyPost propulse votre contenu."
+                "Whether you're just getting started or scaling to new heights, EazyPost gets your content in front of more people.",
+                "Que vous commenciez ou que vous passiez à la vitesse supérieure, EazyPost propulse votre contenu."
               )}
             </p>
             

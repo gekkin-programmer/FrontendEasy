@@ -8,7 +8,7 @@ import joblib
 import os
 from typing import List, Optional
 
-app = FastAPI(title="EasyPost ML Scheduling Service")
+app = FastAPI(title="EazyPost ML Scheduling Service")
 
 MODEL_PATH = "model.joblib"
 

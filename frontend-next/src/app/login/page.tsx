@@ -82,7 +82,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
             <Image 
               src="/assets/WiggleLogo.png" 
-              alt="EasyPost Logo" 
+              alt="EazyPost Logo" 
               width={48} 
               height={48} 
               className="object-contain"
@@ -130,7 +130,7 @@ export default function LoginPage() {
                <div className="relative w-10 h-10">
                  <Image 
                    src="/assets/WiggleLogo.png" 
-                   alt="EasyPost Logo" 
+                   alt="EazyPost Logo" 
                    fill
                    className="object-contain"
                    priority

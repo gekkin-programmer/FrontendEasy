@@ -3,7 +3,7 @@ import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { AiTone, AiLength } from '../ai.service'; 
 
 export class TestAiDto {
-  @ApiProperty({ example: 'EasyPost App', description: 'What are you selling?' })
+  @ApiProperty({ example: 'EazyPost App', description: 'What are you selling?' })
   @IsString()
   product: string;
 

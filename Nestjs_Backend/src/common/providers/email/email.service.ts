@@ -66,7 +66,7 @@ export class EmailService {
     const html = `
       <div style="font-family: sans-serif; padding: 20px;">
         <h2 style="color: #304AEB;">You've been invited!</h2>
-        <p>You have been invited to join the workspace <strong>${workspaceName}</strong> on EasyPost.</p>
+        <p>You have been invited to join the workspace <strong>${workspaceName}</strong> on EazyPost.</p>
         <br/>
         <a href="${link}" style="background-color: #304AEB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
           Accept Invitation

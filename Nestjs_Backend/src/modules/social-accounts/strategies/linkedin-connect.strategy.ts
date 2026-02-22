@@ -18,7 +18,7 @@ export class LinkedInConnectStrategy extends PassportStrategy(Strategy, 'linkedi
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
       clientID: configService.get<string>('LINKEDIN_CLIENT_ID') || 'placeholder',
       clientSecret: configService.get<string>('LINKEDIN_CLIENT_SECRET') || 'placeholder',
-      callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/linkedin`,
+      callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://eazypostv2.onrender.com'}/api/social-accounts/callback/linkedin`,
       scope: ['openid', 'profile', 'email', 'w_member_social'],
       state: true,
       passReqToCallback: true,

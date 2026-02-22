@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /c/Users/nkoua/Desktop/EazyPostV2 remote -v)",
+      "Bash(gh repo view:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git clone:*)",
+      "Bash(rsync:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm prisma format:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote:*)",
+      "Bash(git remote remove:*)",
+      "Bash(git subtree split:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rm -rf . -q)",
+      "Bash(xargs sed:*)"
+    ]
+  }
+}

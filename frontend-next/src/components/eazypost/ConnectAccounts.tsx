@@ -14,7 +14,7 @@ import { getCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { cn } from "@/lib/utils";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com/api';
 
 const PLATFORMS = [
   { id: 'facebook', label: 'Facebook', icon: FaFacebookF, color: '#1877F2' },

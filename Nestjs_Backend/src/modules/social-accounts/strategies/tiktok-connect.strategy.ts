@@ -21,7 +21,7 @@ export class TikTokConnectStrategy extends PassportStrategy(Strategy, 'tiktok-co
       tokenURL: 'https://open.tiktokapis.com/v2/oauth/token/',
       clientID: clientKey || 'placeholder',
       clientSecret: clientSecret || 'placeholder',
-      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/tiktok`,
+      callbackURL: configService.get<string>('TIKTOK_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://eazypostv2.onrender.com'}/api/social-accounts/callback/tiktok`,
       scope: ['user.info.basic', 'video.list'],
       scopeSeparator: ',',
       state: true,

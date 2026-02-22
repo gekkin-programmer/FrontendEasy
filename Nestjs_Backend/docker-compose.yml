@@ -4,12 +4,12 @@ services:
   # The Database
   db:
     image: postgres:15-alpine
-    container_name: easypost_db_container
+    container_name: eazypost_db_container
     restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: easypost_db
+      POSTGRES_DB: eazypost_db
     ports:
       - '5432:5432'
     volumes:

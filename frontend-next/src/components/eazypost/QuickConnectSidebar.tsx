@@ -40,7 +40,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'reddit', Icon: FaRedditAlien, color: 'text-[#FF4500]' },
     ];
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com/api';
 
     const handleConnect = (platform: string) => { 
         const token = getCookie('accessToken');

@@ -19,21 +19,21 @@ import {
 } from 'lucide-react'; 
 
 // COMPONENTS
-import Composer from '@/src/components/easypost/Composer';
-import PostFeed from '@/src/components/easypost/PostFeed';
-import Analytics from '@/src/components/easypost/Analytics';
-import Settings from '@/src/components/easypost/Settings';
-import Team from '@/src/components/easypost/Team';
-import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
-import CalendarView from '@/src/components/easypost/CalendarView';
+import Composer from '@/src/components/eazypost/Composer';
+import PostFeed from '@/src/components/eazypost/PostFeed';
+import Analytics from '@/src/components/eazypost/Analytics';
+import Settings from '@/src/components/eazypost/Settings';
+import Team from '@/src/components/eazypost/Team';
+import VoiceAiButton from '@/src/components/eazypost/VoiceAiButton';
+import CalendarView from '@/src/components/eazypost/CalendarView';
 import SpinningLoader from '@/src/components/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/easypost/DashboardUI';
-import { QuickConnectSidebar } from '@/src/components/easypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSelector';
-import { SidebarItem } from '@/src/components/easypost/SidebarItem';
-import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/eazypost/DashboardUI';
+import { QuickConnectSidebar } from '@/src/components/eazypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/src/components/eazypost/FacebookPageSelector';
+import { SidebarItem } from '@/src/components/eazypost/SidebarItem';
+import { EngagementWithTabs } from '@/src/components/eazypost/EngagementWithTabs';
 
 // SOCKET
 import { SocketProvider, useSocket } from '@/src/context/SocketContext';
@@ -44,9 +44,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/src/components/easypost/BoardView';
-import AudienceAnalytics from '@/src/components/easypost/AudienceAnalytics';
-import ContentRecycling from '@/src/components/easypost/ContentRecycling';
+import BoardView from '@/src/components/eazypost/BoardView';
+import AudienceAnalytics from '@/src/components/eazypost/AudienceAnalytics';
+import ContentRecycling from '@/src/components/eazypost/ContentRecycling';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'fans' | 'recycle' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -308,7 +308,7 @@ function DashboardContent() {
 
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
-                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
+                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EAZYPOST.</div></div>
                 <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
@@ -335,7 +335,7 @@ function DashboardContent() {
                                 <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                                     <Image 
                                         src="/applogo.png" 
-                                        alt="EasyPost Logo" 
+                                        alt="EazyPost Logo" 
                                         width={40} 
                                         height={40} 
                                         className="object-contain p-1" 

@@ -25,7 +25,7 @@ export default withSentryConfig(nextConfig, {
 
   // Suppresses source map uploading logs during bundling
   silent: true,
-  org: "easypost",
+  org: "eazypost",
   project: "frontend",
 
   // For all available options, see:

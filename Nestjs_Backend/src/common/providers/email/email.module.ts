@@ -19,7 +19,7 @@ import { EmailService } from './email.service';
           },
         },
         defaults: {
-          from: `"EasyPost Africa" <${config.get('SMTP_FROM')}>`,
+          from: `"EazyPost Africa" <${config.get('SMTP_FROM')}>`,
         },
         template: {
           dir: join(__dirname, 'templates'), // Points to your .hbs files

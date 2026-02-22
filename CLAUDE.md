@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-EasyPostV2 is an AI-powered social media management platform for African creators. It is a monorepo with three active services:
+EazyPostV2 is an AI-powered social media management platform for African creators. It is a monorepo with three active services:
 
 - `Nestjs_Backend/` — Primary REST API (NestJS v11)
 - `frontend-next/` — Web app (Next.js App Router)
@@ -93,7 +93,7 @@ Set `NEXT_PUBLIC_API_URL` in `.env.local` to `http://localhost:3000/api` for loc
 
 **API layer** — `src/lib/api.ts` is a thin fetch wrapper that reads `accessToken` from cookies, auto-redirects on 401, and handles FormData vs JSON transparently. All feature-specific calls live in `services/` (e.g. `postApi.ts`, `boardApi.ts`, `aiApi.ts`).
 
-**Component structure** — Landing/marketing components sit in `src/components/`. Product UI lives in `src/components/easypost/` (e.g. `Composer.tsx`, `BoardView.tsx`, `DashboardUI.tsx`, `CalendarView.tsx`). Types shared across the app are in `src/components/easypost/types.ts`.
+**Component structure** — Landing/marketing components sit in `src/components/`. Product UI lives in `src/components/eazypost/` (e.g. `Composer.tsx`, `BoardView.tsx`, `DashboardUI.tsx`, `CalendarView.tsx`). Types shared across the app are in `src/components/eazypost/types.ts`.
 
 **State** — React Query (`@tanstack/react-query`) for server state. No global client state library.
 
@@ -119,6 +119,6 @@ Single endpoint: `POST /predict` — accepts historical post engagement data and
 
 | Service | URL |
 |---------|-----|
-| Frontend | https://easyposttio.vercel.app |
-| Backend API | https://easypostv2.onrender.com |
-| Swagger docs | https://easypostv2.onrender.com/api-docs |
+| Frontend | https://eazyposttio.vercel.app |
+| Backend API | https://eazypostv2.onrender.com |
+| Swagger docs | https://eazypostv2.onrender.com/api-docs |

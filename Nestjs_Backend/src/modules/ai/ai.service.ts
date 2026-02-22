@@ -194,7 +194,7 @@ export class AiService {
     if (!this.model) return { messageId: 'mock', response: 'Steve AI is sleeping.' };
 
     const prompt = `
-      You are Steve, Senior Support at EasyPost. 
+      You are Steve, Senior Support at EazyPost. 
       Context: We help African creators manage social media. 
       User Query: "${userMessage}"
       Be helpful, bold, and energetic.

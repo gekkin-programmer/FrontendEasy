@@ -1,6 +1,6 @@
-# EasyPostV2 - All-in-One Social Media Management Platform
+# EazyPostV2 - All-in-One Social Media Management Platform
 
-[![CI](https://github.com/gekkin-programmer/EasyPostV2/actions/workflows/ci.yml/badge.svg)](https://github.com/gekkin-programmer/EasyPostV2/actions/workflows/ci.yml)
+[![CI](https://github.com/gekkin-programmer/EazyPostV2/actions/workflows/ci.yml/badge.svg)](https://github.com/gekkin-programmer/EazyPostV2/actions/workflows/ci.yml)
 [![License: UNLICENSED](https://img.shields.io/badge/License-UNLICENSED-red.svg)](LICENSE)
 
 AI-powered scheduling for African creators.
@@ -10,9 +10,9 @@ AI-powered scheduling for African creators.
 
 | Service | URL | Platform |
 |---------|-----|----------|
-| **Frontend** | [https://easyposttio.vercel.app](https://easyposttio.vercel.app) | Vercel |
-| **Backend API** | [https://easypostv2.onrender.com](https://easypostv2.onrender.com) | Render |
-| **API Documentation** | [https://easypostv2.onrender.com/api-docs](https://easypostv2.onrender.com/api-docs) | Swagger |
+| **Frontend** | [https://eazyposttio.vercel.app](https://eazyposttio.vercel.app) | Vercel |
+| **Backend API** | [https://eazypostv2.onrender.com](https://eazypostv2.onrender.com) | Render |
+| **API Documentation** | [https://eazypostv2.onrender.com/api-docs](https://eazypostv2.onrender.com/api-docs) | Swagger |
 | **Database** | Neon PostgreSQL (Serverless) | Neon.tech |
 
 ---
@@ -80,8 +80,8 @@ graph TD
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/gekkin-programmer/EasyPostV2.git
-cd EasyPostV2
+git clone https://github.com/gekkin-programmer/EazyPostV2.git
+cd EazyPostV2
 ```
 
 ### 2. Backend Setup
@@ -127,4 +127,4 @@ The application will be running at `http://localhost:3001`.
 
 ##  License
 
-© 2026 EasyPost. All rights reserved.
+© 2026 EazyPost. All rights reserved.

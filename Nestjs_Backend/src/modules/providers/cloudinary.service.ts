@@ -8,7 +8,7 @@ export class CloudinaryService {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: 'easypost_uploads',
+          folder: 'eazypost_uploads',
         },
         (error, result) => {
           if (error) return reject(error);
@@ -28,7 +28,7 @@ export class CloudinaryService {
 
           return cloudinary.uploader.upload(url, {
 
-            folder: 'easypost_uploads',
+            folder: 'eazypost_uploads',
 
           });
 

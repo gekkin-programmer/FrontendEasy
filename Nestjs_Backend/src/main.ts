@@ -66,8 +66,8 @@ async function bootstrap() {
     : [
         'http://localhost:3000',
         'http://localhost:3001',
-        'https://easyposttio.vercel.app',
-        // Add preview domains if using Vercel previews: 'https://*.easyposttio.vercel.app'
+        'https://eazyposttio.vercel.app',
+        // Add preview domains if using Vercel previews: 'https://*.eazyposttio.vercel.app'
       ];
 
   app.enableCors({
@@ -81,11 +81,11 @@ async function bootstrap() {
 
   // ── Swagger / API Documentation ───────────────────────────────────────
   const config = new DocumentBuilder()
-    .setTitle('EasyPost API')
+    .setTitle('EazyPost API')
     .setDescription('The Digital Marketing Engine for Africa – Social Content & Team Productivity')
     .setVersion('2.0') // bumped version to reflect v2 of the product
     .addBearerAuth()
-    .addServer(process.env.API_URL || 'https://easypostv2.onrender.com', 'Production')
+    .addServer(process.env.API_URL || 'https://eazypostv2.onrender.com', 'Production')
     .addServer('http://localhost:3000', 'Local Development')
     .addTag('auth', 'Authentication, sessions, OAuth')
     .addTag('health', 'System health & monitoring')
@@ -113,7 +113,7 @@ async function bootstrap() {
 
   await app.listen(port, host);
 
-  console.log(`🚀 EasyPost API running on http://${host}:${port}`);
+  console.log(`🚀 EazyPost API running on http://${host}:${port}`);
   console.log(`📚 Swagger UI:     http://${host}:${port}/api-docs`);
   console.log(`🔥 Health check:   http://${host}:${port}/api/health`);
   console.log(`Env: ${process.env.NODE_ENV || 'unknown'}`);

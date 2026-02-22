@@ -50,7 +50,7 @@ export class PaymentsService {
             address: { value: data.phone }
           },
           customerTimestamp: new Date().toISOString(),
-          statementDescription: `EasyPost ${data.planType}`
+          statementDescription: `EazyPost ${data.planType}`
         },
         {
           headers: {

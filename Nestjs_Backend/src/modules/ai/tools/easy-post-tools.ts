@@ -40,7 +40,7 @@ const analyticsToolSchema = z.object({
 /**
  * Factory function to create tools that require injected services.
  */
-export const createEasyPostTools = (
+export const createEazyPostTools = (
   postsService: PostsService,
   analyticsService: AnalyticsService,
   socialAccountsService: SocialAccountsService,
