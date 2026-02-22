@@ -208,7 +208,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             parentId: null
         }));
         setLibraryData(formattedMedia);
-    } catch (e) { console.error("Library fetch failed", e); }
+    } catch (e) { toast.error("MEDIA_LIBRARY_LOAD_FAILED"); }
   };
 
   useEffect(() => { if (isLibraryOpen) fetchLibrary(); }, [isLibraryOpen]);
@@ -300,7 +300,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       }, speed);
 
     } catch (e) {
-      console.error(e);
       toast.error("AI_ERROR: GENERATION_FAILED");
       setIsAiGenerating(false);
     }

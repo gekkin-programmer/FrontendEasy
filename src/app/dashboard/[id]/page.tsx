@@ -161,14 +161,12 @@ function DashboardContent() {
             queryClient.invalidateQueries({ queryKey: ['card', cardId] });
         });
 
-        socket.on('user_updated', (updatedUser) => {
-            console.log("👤 [WS] User Updated:", updatedUser);
+        socket.on('user_updated', () => {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             queryClient.invalidateQueries({ queryKey: ['team-members'] });
         });
 
         socket.on('workspace_updated', (updatedWs) => {
-            console.log("🏢 [WS] Workspace Updated:", updatedWs);
             if (updatedWs.id === workspaceId) {
                 queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
             }

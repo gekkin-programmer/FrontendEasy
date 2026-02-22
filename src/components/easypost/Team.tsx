@@ -163,7 +163,7 @@ export default function Team({ workspaceId }: TeamProps) {
   const [role, setRole] = useState("MEMBER");
 
   const handleInvite = () => {
-    if (!email.includes('@')) return toast.error("INVALID_EMAIL");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("INVALID_EMAIL");
     inviteMutation.mutate({ email, role });
     setEmail("");
   };

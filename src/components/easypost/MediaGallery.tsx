@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus, 
@@ -33,15 +33,10 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
         if (workspaceId) {
             url += (url.includes('?') ? '&' : '?') + `workspaceId=${workspaceId}`;
         }
-        console.log("📡 [WS] Fetching Media from:", url);
         return api.get<{ folders: any[], assets: any[] }>(url);
     }
   });
 
-  useEffect(() => {
-    if (data) console.log("📦 [WS] Media Data Received:", data);
-    if (error) console.error("❌ [WS] Media Fetch Error:", error);
-  }, [data, error]);
 
   const assets = data?.assets || [];
   const folders = data?.folders || [];
@@ -108,7 +103,6 @@ export default function MediaGallery({ hideUsage = false, onSelect, workspaceId 
     (window as any).Canva.DesignButton.initialize({
         apiKey: process.env.NEXT_PUBLIC_CANVA_API_KEY || 'YOUR_CANVA_KEY',
         onDesignPublish: (exportUrl: string) => {
-            console.log("Canva Export:", exportUrl);
             importMutation.mutate(exportUrl);
         }
     });

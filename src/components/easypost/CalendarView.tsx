@@ -39,8 +39,8 @@ const ICONS: Record<string, any> = {
 type ViewType = 'month' | 'week' | 'day';
 
 // 🟢 TRACKING HELPER
-const trackAction = (action: string, metadata: any = {}) => {
-    console.log(`[ANALYTICS] ${action}`, metadata);
+const trackAction = (_action: string, _metadata: any = {}) => {
+    // analytics hook — wire to your telemetry provider if needed
 };
 
 // 🟢 DROPPABLE CELL COMPONENT
