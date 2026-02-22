@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
         { label: t('Privacy Policy', 'Politique de confidentialité'), href: '/legal/privacy' },
         { label: t('Terms of Service', "Conditions d'utilisation"), href: '/legal/terms' },
         { label: t('Data Deletion', 'Suppression des données'), href: '/legal/data-deletion' },
-        { label: t('Cookie Policy', 'Cookies'), href: '#' },
+        { label: t('Cookie Policy', 'Cookies'), href: '/legal/privacy#cookie-policy' },
       ],
     },
   ];
