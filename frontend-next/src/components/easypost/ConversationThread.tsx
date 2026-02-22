@@ -149,8 +149,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Add message to conversation (in real app, this would update state)
-    console.log('Sending:', { text: replyText, isInternal: isInternalNote });
+    // TODO: wire up real send API call here
     
     setReplyText('');
     setIsSending(false);

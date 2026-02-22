@@ -30,7 +30,6 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     });
 
     socket.on('connect', () => {
-      console.log('📡 [WS] Connected to Server');
       setIsConnected(true);
       if (workspaceId) {
         socket.emit('join_workspace', workspaceId);
@@ -38,7 +37,6 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     });
 
     socket.on('disconnect', () => {
-      console.log('📡 [WS] Disconnected');
       setIsConnected(false);
     });
 
