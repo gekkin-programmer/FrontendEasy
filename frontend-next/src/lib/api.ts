@@ -85,7 +85,6 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
   } catch (error: any) {
     // 7. Handle Network Errors (Common on 3G in Yaoundé)
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-       console.error("NETWORK_DISCONNECTED :: Check 3G/Fiber status");
        throw new Error('NETWORK_OFFLINE');
     }
     throw error;

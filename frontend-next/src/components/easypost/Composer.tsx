@@ -161,7 +161,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
-  const [isLibraryOpen, setIsLibraryOpen] = useState(true); 
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -272,7 +272,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       const textToType = prefix + generatedContent;
       
       let charIndex = 0;
-      const speed = 15; // ms per char
+      const TYPEWRITER_SPEED_MS = 15;
 
       const intervalId = setInterval(() => {
         setText((prev) => prev + textToType.charAt(charIndex));
@@ -297,7 +297,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               }, 1000);
             }
         }
-      }, speed);
+      }, TYPEWRITER_SPEED_MS);
 
     } catch (e) {
       toast.error("AI_ERROR: GENERATION_FAILED");
