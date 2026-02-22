@@ -42,13 +42,14 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
       setIsConnected(false);
     });
 
-    socket.on('joined', (data) => {
-        console.log('📡 [WS] Joined Room:', data);
-    });
+    socket.on('joined', () => {});
 
     socketRef.current = socket;
 
     return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('joined');
       socket.disconnect();
     };
   }, [workspaceId]);

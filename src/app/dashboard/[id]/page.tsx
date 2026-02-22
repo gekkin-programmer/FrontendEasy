@@ -98,7 +98,7 @@ function DashboardContent() {
         queryFn: () => api.get<any[]>('/workspaces').then(res => Array.isArray(res) ? res : (res as any)?.data || []) 
     });
 
-    const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
+    const { data: currentWorkspace, isLoading: currentWsLoading, isError: currentWsError } = useQuery({
         queryKey: ['workspace', workspaceId],
         queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
         enabled: !!workspaceId,
@@ -281,6 +281,16 @@ function DashboardContent() {
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
 
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
+    if (currentWsError) return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center p-8">
+            <AlertTriangle size={40} className="text-red-500" />
+            <h2 className="text-xl font-bold">Failed to load workspace</h2>
+            <p className="text-gray-500 text-sm max-w-xs">Could not fetch workspace data. Check your connection and try again.</p>
+            <button onClick={() => router.push('/workspaces')} className="px-6 py-3 bg-[#3C48F6] text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+                Back to workspaces
+            </button>
+        </div>
+    );
     
     const navItems = [
         { id: 'queue', label: 'Queue', icon: Layers }, 

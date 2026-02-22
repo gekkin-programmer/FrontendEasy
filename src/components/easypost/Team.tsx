@@ -108,13 +108,13 @@ export default function Team({ workspaceId }: TeamProps) {
   };
 
   // --- QUERIES ---
-  const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery({
+  const { data: members = [], isLoading: membersLoading, isError: membersError, refetch: refetchMembers } = useQuery({
     queryKey: ['team-members', workspaceId],
     queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`).then(res => res || []),
     enabled: !!workspaceId
   });
 
-  const { data: reviewPosts = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery({
+  const { data: reviewPosts = [], isLoading: reviewsLoading, isError: reviewsError, refetch: refetchReviews } = useQuery({
     queryKey: ['review-posts', workspaceId],
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&status=REVIEW`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     enabled: !!workspaceId && activeTab === 'approvals'
@@ -172,6 +172,13 @@ export default function Team({ workspaceId }: TeamProps) {
   const pendingInvites = members.filter((m: any) => m.status === 'INVITED' || m.status === 'PENDING');
 
   if (membersLoading && activeTab === 'members') return <SpinningLoader fullScreen={false} />;
+  if (membersError) return (
+    <div className="flex flex-col items-center justify-center h-64 gap-4">
+      <AlertCircle size={32} className="text-red-500" />
+      <p className="font-bold uppercase text-sm text-red-500">Failed_To_Load_Team</p>
+      <NeuButton onClick={() => refetchMembers()} variant="default" className="px-6 py-2">Retry</NeuButton>
+    </div>
+  );
 
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 font-sans text-black dark:text-white transition-colors">
@@ -264,7 +271,14 @@ export default function Team({ workspaceId }: TeamProps) {
                  {activeTab === 'approvals' && (
                      <div className="space-y-6">
                          {reviewsLoading ? <div className="py-10 flex justify-center"><RefreshCw className="animate-spin" /></div> : null}
-                         {reviewPosts.length === 0 && !reviewsLoading && (
+                         {reviewsError && !reviewsLoading && (
+                             <div className="py-10 flex flex-col items-center gap-3 border-4 border-dashed border-red-100">
+                                 <AlertCircle size={32} className="text-red-400" />
+                                 <p className="font-bold uppercase text-xs text-red-500">Failed_To_Load_Approvals</p>
+                                 <NeuButton onClick={() => refetchReviews()} variant="default" className="px-4 py-2 text-xs">Retry</NeuButton>
+                             </div>
+                         )}
+                         {reviewPosts.length === 0 && !reviewsLoading && !reviewsError && (
                              <div className="py-20 text-center border-4 border-dashed border-zinc-100 dark:border-zinc-800">
                                  <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4 opacity-20" />
                                  <p className="font-black uppercase text-zinc-300 dark:text-zinc-700 text-2xl">All_Clear_No_Pending_Reviews</p>
@@ -339,23 +353,27 @@ export default function Team({ workspaceId }: TeamProps) {
                                                      if (e.key === 'Enter') {
                                                          const input = e.currentTarget;
                                                          if (!input.value.trim()) return;
-                                                         api.post(`/posts/${post.id}/comments`, { content: input.value }).then(() => {
+                                                         api.post(`/posts/${post.id}/comments`, { content: input.value })
+                                                           .then(() => {
                                                              input.value = '';
                                                              refetchReviews();
                                                              toast.success("FEEDBACK_RECORDED");
-                                                         });
+                                                           })
+                                                           .catch(() => toast.error("FEEDBACK_FAILED"));
                                                      }
                                                  }}
                                              />
-                                             <button 
+                                             <button
                                                  onClick={() => {
                                                      const input = document.getElementById(`comment-${post.id}`) as HTMLInputElement;
                                                      if (!input.value.trim()) return;
-                                                     api.post(`/posts/${post.id}/comments`, { content: input.value }).then(() => {
+                                                     api.post(`/posts/${post.id}/comments`, { content: input.value })
+                                                       .then(() => {
                                                          input.value = '';
                                                          refetchReviews();
                                                          toast.success("FEEDBACK_RECORDED");
-                                                     });
+                                                       })
+                                                       .catch(() => toast.error("FEEDBACK_FAILED"));
                                                  }}
                                                  className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase border-2 border-black"
                                              >
