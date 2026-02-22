@@ -200,18 +200,18 @@ export default function Navbar() {
                         transition={{ duration: 0.15 }}
                         className="absolute top-12 left-1/2 -translate-x-1/2 pt-4 w-[600px] z-50"
                     >
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-zinc-700 p-6 grid grid-cols-2 gap-8 relative">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-zinc-900 border-t-2 border-l-2 border-black dark:border-zinc-700 rotate-45"></div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.18)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-2 border-black/80 dark:border-white/15 p-6 grid grid-cols-2 gap-8 relative">
+                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-zinc-900 border-t-2 border-l-2 border-black/80 dark:border-white/15 rotate-45"></div>
                             {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
                                 <div key={idx}>
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">{getTranslatedText(col.heading)}</h4>
+                                    <h4 className="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-4 border-b border-gray-200 dark:border-white/10 pb-2">{getTranslatedText(col.heading)}</h4>
                                     <div className="space-y-4">
                                         {col.links.map(link => (
                                             <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-yellow-100 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-transparent group-hover:border-black transition-all"><link.Icon size={14}/></div>
+                                                <div className="p-2 bg-yellow-100 dark:bg-white/8 rounded-md text-black dark:text-zinc-300 border-2 border-transparent group-hover:border-black dark:group-hover:border-white/30 transition-all"><link.Icon size={14}/></div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] transition-colors">{getTranslatedText(link.label)}</div>
-                                                    <div className="text-[10px] text-gray-500 font-medium">{getTranslatedText(link.description!)}</div>
+                                                    <div className="text-sm font-bold text-black dark:text-zinc-100 group-hover:text-[#3C48F6] dark:group-hover:text-[#6B7BFA] transition-colors">{getTranslatedText(link.label)}</div>
+                                                    <div className="text-[10px] text-gray-500 dark:text-zinc-500 font-medium">{getTranslatedText(link.description!)}</div>
                                                 </div>
                                             </Link>
                                         ))}
@@ -221,9 +221,9 @@ export default function Navbar() {
                             {item.dropdownContent?.type === 'channels' && (
                                 <div className="col-span-2 grid grid-cols-2 gap-4">
                                     {item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-black">
-                                            <c.Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                                            <span className="text-sm font-bold text-black dark:text-white">{getTranslatedText(c.label)}</span>
+                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-white/8 transition-colors border border-transparent hover:border-black dark:hover:border-white/25">
+                                            <c.Icon className="w-5 h-5 text-gray-600 dark:text-zinc-400" />
+                                            <span className="text-sm font-bold text-black dark:text-zinc-100">{getTranslatedText(c.label)}</span>
                                         </Link>
                                     ))}
                                 </div>
