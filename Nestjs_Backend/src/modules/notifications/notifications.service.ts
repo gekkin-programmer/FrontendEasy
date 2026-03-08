@@ -12,7 +12,14 @@ export class NotificationsService {
     private eventsGateway: AppEventsGateway,
   ) {}
 
-  async create(userId: string, workspaceId: string | null, type: NotificationType, title: string, message: string, data?: any) {
+  async create(
+    userId: string,
+    workspaceId: string | null,
+    type: NotificationType,
+    title: string,
+    message: string,
+    data?: any,
+  ) {
     const notification = await this.prisma.notification.create({
       data: {
         userId,
@@ -25,12 +32,16 @@ export class NotificationsService {
     });
 
     // Notify user via WebSocket
-    this.eventsGateway.sendToUser(userId, 'notification_received', notification);
+    this.eventsGateway.sendToUser(
+      userId,
+      'notification_received',
+      notification,
+    );
 
     // If it's a workspace notification, notify others if needed (logic can vary)
     if (workspaceId) {
-        // Option: emit to workspace room too
-        // this.eventsGateway.sendToWorkspace(workspaceId, 'workspace_notification', notification);
+      // Option: emit to workspace room too
+      // this.eventsGateway.sendToWorkspace(workspaceId, 'workspace_notification', notification);
     }
 
     return notification;
@@ -47,7 +58,7 @@ export class NotificationsService {
   async markAsRead(id: string, userId: string) {
     return this.prisma.notification.updateMany({
       where: { id, userId },
-      data: { 
+      data: {
         isRead: true,
         readAt: new Date(),
       },
@@ -57,7 +68,7 @@ export class NotificationsService {
   async markAllAsRead(userId: string) {
     return this.prisma.notification.updateMany({
       where: { userId, isRead: false },
-      data: { 
+      data: {
         isRead: true,
         readAt: new Date(),
       },

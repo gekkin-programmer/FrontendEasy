@@ -8,6 +8,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [PrismaModule, ConfigModule],
   providers: [RecyclingService],
   controllers: [RecyclingController],
-  exports: [RecyclingService]
+  exports: [RecyclingService],
 })
 export class RecyclingModule {}

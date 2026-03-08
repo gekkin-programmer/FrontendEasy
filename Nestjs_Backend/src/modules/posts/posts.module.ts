@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule'; 
+import { ScheduleModule } from '@nestjs/schedule';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
@@ -11,15 +11,11 @@ import { AppEventsModule } from '../app-events/app-events.module';
 @Module({
   imports: [
     PrismaModule,
-    ScheduleModule.forRoot(), 
+    ScheduleModule.forRoot(),
     NotificationsModule,
-    AppEventsModule
+    AppEventsModule,
   ],
   controllers: [PostsController],
-  providers: [
-    PostsService, 
-    SchedulerService, 
-    PublisherService  
-  ], 
+  providers: [PostsService, SchedulerService, PublisherService],
 })
 export class PostsModule {}

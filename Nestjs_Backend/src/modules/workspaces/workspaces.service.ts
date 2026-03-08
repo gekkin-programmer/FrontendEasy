@@ -51,8 +51,12 @@ export class WorkspacesService {
         status: { not: 'INACTIVE' }, // Don't show deleted ones
       },
       include: {
-        members: { include: { user: { select: { id: true, firstName: true, avatar: true } } } }, // Show who is in the team
-        _count: { select: { socialAccounts: true, posts: true } } // Show stats
+        members: {
+          include: {
+            user: { select: { id: true, firstName: true, avatar: true } },
+          },
+        }, // Show who is in the team
+        _count: { select: { socialAccounts: true, posts: true } }, // Show stats
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -64,27 +68,37 @@ export class WorkspacesService {
       where: { id },
       include: {
         socialAccounts: true,
-          members: { 
-    include: { 
-      user: { 
-        select: { id: true, firstName: true, lastName: true, avatar: true, email: true } 
-      } 
-    } 
-  },
-      }
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!workspace) throw new NotFoundException('Workspace not found');
 
     // Security: Check if user is a member
-    const isMember = workspace.members.some(m => m.userId === userId);
+    const isMember = workspace.members.some((m) => m.userId === userId);
     if (!isMember) throw new ForbiddenException('Access denied');
 
     return workspace;
   }
 
   // ➤ UPDATE
-  async update(id: string, updateWorkspaceDto: UpdateWorkspaceDto, userId: string) {
+  async update(
+    id: string,
+    updateWorkspaceDto: UpdateWorkspaceDto,
+    userId: string,
+  ) {
     // 1. Check permissions
     await this.verifyAdminRole(id, userId);
 
@@ -94,7 +108,11 @@ export class WorkspacesService {
     });
 
     // Notify workspace-specific room
-    this.eventsGateway.sendToWorkspace(id, 'workspace_updated', updatedWorkspace);
+    this.eventsGateway.sendToWorkspace(
+      id,
+      'workspace_updated',
+      updatedWorkspace,
+    );
 
     return updatedWorkspace;
   }
@@ -103,7 +121,7 @@ export class WorkspacesService {
   async remove(id: string, userId: string) {
     // 1. Check permissions (Only Owner can delete)
     const membership = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId: id, userId } }
+      where: { workspaceId_userId: { workspaceId: id, userId } },
     });
 
     if (!membership || membership.role !== 'OWNER') {
@@ -131,7 +149,7 @@ export class WorkspacesService {
   async setPostCount(workspaceId: string, count: number) {
     return this.prisma.workspace.update({
       where: { id: workspaceId },
-      data: { currentPostCount: count }
+      data: { currentPostCount: count },
     });
   }
 }

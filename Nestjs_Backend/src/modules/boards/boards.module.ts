@@ -8,6 +8,6 @@ import { AppEventsModule } from '../app-events/app-events.module';
   imports: [PrismaModule, AppEventsModule],
   providers: [BoardsService],
   controllers: [BoardsController],
-  exports: [BoardsService]
+  exports: [BoardsService],
 })
 export class BoardsModule {}

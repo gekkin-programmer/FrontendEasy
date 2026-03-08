@@ -64,7 +64,6 @@ export class AuthController {
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     try {
       // 1. Validate & Start Session
-      // @ts-expect-error - req.user is added by Passport
       const { accessToken, refreshToken } =
         await this.authService.validateGoogleUser(req.user);
 

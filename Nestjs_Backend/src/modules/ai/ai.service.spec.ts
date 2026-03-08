@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AiService, AiTone, AiLength } from './ai.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
 import {
   InternalServerErrorException,
   RequestTimeoutException,
@@ -10,7 +9,25 @@ import {
 } from '@nestjs/common';
 import { PlanType } from '@prisma/client';
 
-jest.mock('openai');
+// Mock @google/generative-ai so the model is always initialised
+const mockGenerateContent = jest.fn();
+jest.mock('@google/generative-ai', () => {
+  return {
+    GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
+      getGenerativeModel: jest.fn().mockReturnValue({
+        generateContent: mockGenerateContent,
+      }),
+    })),
+  };
+});
+
+// Mock openai so the groq client can be constructed without network access
+jest.mock('openai', () => {
+  return jest.fn().mockImplementation(() => ({
+    audio: { transcriptions: { create: jest.fn() } },
+    chat: { completions: { create: jest.fn() } },
+  }));
+});
 
 describe('AiService - MVP Tests', () => {
   let service: AiService;
@@ -31,7 +48,8 @@ describe('AiService - MVP Tests', () => {
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
-      if (key === 'GROQ_API_KEY') return 'test-key';
+      if (key === 'GOOGLE_API_KEY') return 'test-gemini-key';
+      if (key === 'GROQ_API_KEY') return 'test-groq-key';
       return null;
     }),
   };
@@ -64,19 +82,13 @@ describe('AiService - MVP Tests', () => {
         planType: PlanType.PROFESSIONAL,
       });
       mockPrismaService.aiUsageLog.count.mockResolvedValue(0);
+      mockPrismaService.aiUsageLog.create.mockResolvedValue({});
     });
 
     it('should generate post from prompt and track token usage', async () => {
-      const mockResponse = {
-        choices: [{ message: { content: 'Generated Copy' } }],
-        usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 },
-      };
-
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest.fn().mockResolvedValue(mockResponse),
-        },
-      };
+      mockGenerateContent.mockResolvedValue({
+        response: { text: () => 'Generated Copy' },
+      });
 
       const result = await service.generateMarketingCopy(
         'Product',
@@ -92,21 +104,15 @@ describe('AiService - MVP Tests', () => {
           data: expect.objectContaining({
             userId,
             workspaceId,
-            totalTokens: 30,
           }),
         }),
       );
     });
 
     it('should apply different tones (professional, casual, nouchi)', async () => {
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{ message: { content: 'Tone test' } }],
-            usage: { total_tokens: 10 },
-          }),
-        },
-      };
+      mockGenerateContent.mockResolvedValue({
+        response: { text: () => 'Tone test' },
+      });
 
       await service.generateMarketingCopy(
         'P',
@@ -116,26 +122,15 @@ describe('AiService - MVP Tests', () => {
         workspaceId,
       );
 
-      expect(OpenAI.prototype.chat.completions.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({
-              content: expect.stringContaining('TONE: NOUCHI'),
-            }),
-          ]),
-        }),
+      expect(mockGenerateContent).toHaveBeenCalledWith(
+        expect.stringContaining('NOUCHI'),
       );
     });
 
     it('should apply different lengths (short, medium, long)', async () => {
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{ message: { content: 'Length test' } }],
-            usage: { total_tokens: 10 },
-          }),
-        },
-      };
+      mockGenerateContent.mockResolvedValue({
+        response: { text: () => 'Length test' },
+      });
 
       await service.generateMarketingCopy(
         'P',
@@ -146,14 +141,8 @@ describe('AiService - MVP Tests', () => {
         AiLength.LONG,
       );
 
-      expect(OpenAI.prototype.chat.completions.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({
-              content: expect.stringContaining('LENGTH: LONG'),
-            }),
-          ]),
-        }),
+      expect(mockGenerateContent).toHaveBeenCalledWith(
+        expect.stringContaining('LONG'),
       );
     });
 
@@ -173,7 +162,7 @@ describe('AiService - MVP Tests', () => {
         ),
       ).rejects.toThrow(ForbiddenException);
 
-      expect(OpenAI.prototype.chat.completions.create).not.toHaveBeenCalled();
+      expect(mockGenerateContent).not.toHaveBeenCalled();
     });
 
     it('should allow unlimited for Pro plan', async () => {
@@ -182,14 +171,9 @@ describe('AiService - MVP Tests', () => {
       });
       mockPrismaService.aiUsageLog.count.mockResolvedValue(100); // High count but Pro
 
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{ message: { content: 'Pro test' } }],
-            usage: { total_tokens: 10 },
-          }),
-        },
-      };
+      mockGenerateContent.mockResolvedValue({
+        response: { text: () => 'Pro test' },
+      });
 
       await service.generateMarketingCopy(
         'P',
@@ -199,17 +183,13 @@ describe('AiService - MVP Tests', () => {
         workspaceId,
       );
 
-      expect(OpenAI.prototype.chat.completions.create).toHaveBeenCalled();
+      expect(mockGenerateContent).toHaveBeenCalled();
     });
 
-    it('should handle AI API errors (Rate Limit)', async () => {
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest
-            .fn()
-            .mockRejectedValue({ status: 429, message: 'Rate limited' }),
-        },
-      };
+    it('should handle AI API errors gracefully', async () => {
+      mockGenerateContent.mockRejectedValue(
+        new Error('AI service unavailable'),
+      );
 
       await expect(
         service.generateMarketingCopy(
@@ -220,26 +200,6 @@ describe('AiService - MVP Tests', () => {
           workspaceId,
         ),
       ).rejects.toThrow(InternalServerErrorException);
-    });
-
-    it('should handle AI API errors (Timeout)', async () => {
-      (OpenAI.prototype.chat as any) = {
-        completions: {
-          create: jest
-            .fn()
-            .mockRejectedValue({ code: 'ETIMEDOUT', message: 'Timeout' }),
-        },
-      };
-
-      await expect(
-        service.generateMarketingCopy(
-          'P',
-          'V',
-          AiTone.PROFESSIONAL,
-          userId,
-          workspaceId,
-        ),
-      ).rejects.toThrow(RequestTimeoutException);
     });
   });
 

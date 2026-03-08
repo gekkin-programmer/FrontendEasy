@@ -2,7 +2,10 @@ import { IsString, IsInt, IsOptional, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AiFeedbackDto {
-  @ApiProperty({ description: 'The ID of the AI message being rated (returned in chat response)' })
+  @ApiProperty({
+    description:
+      'The ID of the AI message being rated (returned in chat response)',
+  })
   @IsString()
   messageId: string;
 

@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateChannelDto, CreateMessageDto } from './dto/create-message.dto';
 import { ChatMessageType } from '@prisma/client';
@@ -8,13 +12,17 @@ import { AppEventsGateway } from '../../app-events/app-events.gateway';
 export class ChatService {
   constructor(
     private prisma: PrismaService,
-    private eventsGateway: AppEventsGateway
+    private eventsGateway: AppEventsGateway,
   ) {}
 
-  // ➤ 1. Create a Channel 
-  async createChannel(workspaceId: string, userId: string, dto: CreateChannelDto) {
+  // ➤ 1. Create a Channel
+  async createChannel(
+    workspaceId: string,
+    userId: string,
+    dto: CreateChannelDto,
+  ) {
     await this.verifyMembership(workspaceId, userId);
-    
+
     const name = dto.name.toLowerCase().replace(/\s/g, '-');
 
     // Check if exists first to avoid error
@@ -22,19 +30,19 @@ export class ChatService {
       where: {
         workspaceId_name: {
           workspaceId,
-          name
-        }
-      }
+          name,
+        },
+      },
     });
 
-    if (existing) return existing; 
+    if (existing) return existing;
 
     return this.prisma.chatChannel.create({
       data: {
         workspaceId,
         name,
-        description: dto.description
-      }
+        description: dto.description,
+      },
     });
   }
 
@@ -43,13 +51,15 @@ export class ChatService {
     await this.verifyMembership(workspaceId, userId);
     return this.prisma.chatChannel.findMany({
       where: { workspaceId },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
     });
   }
 
   // ➤ 3. Send Message
   async sendMessage(channelId: string, userId: string, dto: CreateMessageDto) {
-    const channel = await this.prisma.chatChannel.findUnique({ where: { id: channelId } });
+    const channel = await this.prisma.chatChannel.findUnique({
+      where: { id: channelId },
+    });
     if (!channel) throw new NotFoundException('Channel not found');
 
     await this.verifyMembership(channel.workspaceId, userId);
@@ -58,24 +68,30 @@ export class ChatService {
       data: {
         channelId,
         senderId: userId,
-        content: dto.content || '', 
-        type: (dto.type as ChatMessageType) || ChatMessageType.TEXT,  
-        attachmentUrl: dto.attachmentUrl
+        content: dto.content || '',
+        type: (dto.type as ChatMessageType) || ChatMessageType.TEXT,
+        attachmentUrl: dto.attachmentUrl,
       },
       include: {
-        sender: { select: { id: true, firstName: true, avatar: true } }
-      }
+        sender: { select: { id: true, firstName: true, avatar: true } },
+      },
     });
 
     // Notify Workspace via WebSocket
-    this.eventsGateway.sendToWorkspace(channel.workspaceId, 'chat_message', message);
+    this.eventsGateway.sendToWorkspace(
+      channel.workspaceId,
+      'chat_message',
+      message,
+    );
 
     return message;
   }
 
   // ➤ 4. Get Message History
   async getMessages(channelId: string, userId: string) {
-    const channel = await this.prisma.chatChannel.findUnique({ where: { id: channelId } });
+    const channel = await this.prisma.chatChannel.findUnique({
+      where: { id: channelId },
+    });
     if (!channel) throw new NotFoundException('Channel not found');
 
     await this.verifyMembership(channel.workspaceId, userId);
@@ -85,16 +101,17 @@ export class ChatService {
       take: 50, // Limit to last 50 messages
       orderBy: { createdAt: 'asc' }, // Oldest first (like Slack)
       include: {
-        sender: { select: { id: true, firstName: true, avatar: true } }
-      }
+        sender: { select: { id: true, firstName: true, avatar: true } },
+      },
     });
   }
 
   // Helper
   private async verifyMembership(workspaceId: string, userId: string) {
     const member = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } }
+      where: { workspaceId_userId: { workspaceId, userId } },
     });
-    if (!member) throw new ForbiddenException('You are not a member of this workspace');
+    if (!member)
+      throw new ForbiddenException('You are not a member of this workspace');
   }
 }

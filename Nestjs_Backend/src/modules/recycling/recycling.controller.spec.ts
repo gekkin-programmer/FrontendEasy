@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RecyclingController } from './recycling.controller';
+import { RecyclingService } from './recycling.service';
 
 describe('RecyclingController', () => {
   let controller: RecyclingController;
@@ -7,6 +8,17 @@ describe('RecyclingController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecyclingController],
+      providers: [
+        {
+          provide: RecyclingService,
+          useValue: {
+            getRecyclableCandidates: jest.fn(),
+            toggleEvergreen: jest.fn(),
+            recyclePost: jest.fn(),
+            getRecycleHistory: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<RecyclingController>(RecyclingController);

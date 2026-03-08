@@ -1,8 +1,16 @@
-import { 
-  Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../modules/auth/guards/jwt-auth.guard'; 
+import { JwtAuthGuard } from '../../../modules/auth/guards/jwt-auth.guard';
 import { MembersService } from './members.service';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -24,9 +32,9 @@ export class MembersController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Invite a colleague' })
   invite(
-    @Param('workspaceId') workspaceId: string, 
+    @Param('workspaceId') workspaceId: string,
     @Body() dto: InviteMemberDto,
-    @Req() req
+    @Req() req,
   ) {
     return this.membersService.invite(workspaceId, dto, req.user.sub);
   }
@@ -46,9 +54,14 @@ export class MembersController {
     @Param('workspaceId') workspaceId: string,
     @Param('memberId') memberId: string,
     @Body() dto: UpdateRoleDto,
-    @Req() req
+    @Req() req,
   ) {
-    return this.membersService.updateRole(workspaceId, memberId, dto, req.user.sub);
+    return this.membersService.updateRole(
+      workspaceId,
+      memberId,
+      dto,
+      req.user.sub,
+    );
   }
 
   @Delete(':memberId')
@@ -57,7 +70,7 @@ export class MembersController {
   remove(
     @Param('workspaceId') workspaceId: string,
     @Param('memberId') memberId: string,
-    @Req() req
+    @Req() req,
   ) {
     return this.membersService.remove(workspaceId, memberId, req.user.sub);
   }

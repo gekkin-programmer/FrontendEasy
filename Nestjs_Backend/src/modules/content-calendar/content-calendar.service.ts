@@ -24,19 +24,19 @@ export class ContentCalendarService {
             socialAccount: {
               select: {
                 platform: true,
-                username: true
-              }
-            }
-          }
-        }
+                username: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { scheduledFor: 'asc' },
     });
 
     //Flatten the response
-    return posts.map(post => ({
+    return posts.map((post) => ({
       ...post,
-      socialAccounts: post.socialAccounts.map(link => link.socialAccount) 
+      socialAccounts: post.socialAccounts.map((link) => link.socialAccount),
     }));
   }
 }

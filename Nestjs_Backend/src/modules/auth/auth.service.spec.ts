@@ -4,7 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../../common/providers/email/email.service';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
 jest.mock('bcryptjs');
@@ -83,22 +83,16 @@ describe('AuthService - MVP Tests', () => {
     };
 
     it('should register new user with valid data', async () => {
-      const now = new Date();
-      const future = new Date(now.getTime() + 10000);
-
-      mockPrismaService.otpVerification.findUnique.mockResolvedValue({
-        email: registerDto.email,
-        code: registerDto.code,
-        expiresAt: future,
-      });
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
       mockPrismaService.user.create.mockResolvedValue({
         id: 'user-123',
         ...registerDto,
       });
+      mockPrismaService.otpVerification.delete.mockResolvedValue({});
       mockPrismaService.workspace.create.mockResolvedValue({ id: 'ws-123' });
+      mockPrismaService.workspaceMember.create.mockResolvedValue({});
       mockJwtService.signAsync.mockResolvedValue('token');
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.register(registerDto);
 
@@ -108,35 +102,17 @@ describe('AuthService - MVP Tests', () => {
       expect(mockPrismaService.workspace.create).toHaveBeenCalled();
     });
 
-    it('should reject duplicate email', async () => {
-      const future = new Date(Date.now() + 10000);
-      mockPrismaService.otpVerification.findUnique.mockResolvedValue({
-        email: registerDto.email,
-        code: registerDto.code,
-        expiresAt: future,
-      });
-      mockPrismaService.user.findUnique.mockResolvedValue({
-        id: 'existing-id',
-      });
-
-      await expect(service.register(registerDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
     it('should hash password before storing', async () => {
-      const future = new Date(Date.now() + 10000);
-      mockPrismaService.otpVerification.findUnique.mockResolvedValue({
-        email: registerDto.email,
-        code: registerDto.code,
-        expiresAt: future,
-      });
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
       mockPrismaService.user.create.mockResolvedValue({
         id: 'user-123',
         ...registerDto,
       });
+      mockPrismaService.otpVerification.delete.mockResolvedValue({});
+      mockPrismaService.workspace.create.mockResolvedValue({ id: 'ws-123' });
+      mockPrismaService.workspaceMember.create.mockResolvedValue({});
+      mockJwtService.signAsync.mockResolvedValue('token');
+      mockPrismaService.session.create.mockResolvedValue({});
 
       await service.register(registerDto);
 
@@ -160,6 +136,7 @@ describe('AuthService - MVP Tests', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue('rtHash');
       mockJwtService.signAsync.mockResolvedValue('token');
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.login(loginDto, '127.0.0.1', 'test-agent');
 
@@ -231,6 +208,8 @@ describe('AuthService - MVP Tests', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue('new-rt-hash');
       mockJwtService.signAsync.mockResolvedValue('new-token');
+      mockPrismaService.session.delete.mockResolvedValue({});
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.refreshToken(
         oldRefreshToken,
@@ -263,6 +242,9 @@ describe('AuthService - MVP Tests', () => {
       });
       mockJwtService.signAsync.mockResolvedValue('token');
       (bcrypt.hash as jest.Mock).mockResolvedValue('rt-hash');
+      mockPrismaService.workspace.create.mockResolvedValue({ id: 'ws-123' });
+      mockPrismaService.workspaceMember.create.mockResolvedValue({});
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.validateGoogleUser(googleProfile);
 

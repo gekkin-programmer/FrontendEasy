@@ -18,7 +18,9 @@ import { WsJwtGuard } from './guards/ws-jwt.guard';
   },
   namespace: 'events',
 })
-export class AppEventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class AppEventsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 

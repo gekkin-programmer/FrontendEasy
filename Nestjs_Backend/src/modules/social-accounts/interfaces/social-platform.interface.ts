@@ -3,7 +3,7 @@ export interface NormalizedSocialPost {
   content: string;
   mediaUrls: string[];
   publishedAt: Date;
-  permalink?: string; 
+  permalink?: string;
   engagement: {
     likes: number;
     comments: number;
@@ -42,6 +42,6 @@ export interface ISocialPlatform {
   replyToComment?(
     accessToken: string,
     commentId: string,
-    message: string
+    message: string,
   ): Promise<string>;
 }

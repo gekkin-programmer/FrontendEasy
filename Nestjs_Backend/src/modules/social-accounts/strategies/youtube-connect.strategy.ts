@@ -5,7 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
-export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube') {
+export class YoutubeConnectStrategy extends PassportStrategy(
+  Strategy,
+  'youtube',
+) {
   constructor(
     configService: ConfigService,
     private authService: AuthService,
@@ -13,12 +16,14 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube'
     super({
       clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('YOUTUBE_CALLBACK_URL') || `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/youtube`, 
+      callbackURL:
+        configService.get<string>('YOUTUBE_CALLBACK_URL') ||
+        `${configService.get<string>('BACKEND_URL') || 'http://localhost:3000'}/api/social-accounts/callback/youtube`,
       scope: [
         'email',
         'profile',
-        'https://www.googleapis.com/auth/youtube.upload', 
-        'https://www.googleapis.com/auth/youtube.readonly' 
+        'https://www.googleapis.com/auth/youtube.upload',
+        'https://www.googleapis.com/auth/youtube.readonly',
       ],
       accessType: 'offline',
       prompt: 'consent',
@@ -27,7 +32,13 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube'
     } as any);
   }
 
-  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: Function) {
+  async validate(
+    req: any,
+    accessToken: string,
+    refreshToken: string,
+    profile: any,
+    done: Function,
+  ) {
     try {
       const meta = req.session?.oauthMetadata;
       const workspaceId = meta?.workspaceId;
@@ -35,8 +46,8 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube'
 
       let userId;
       if (jwtToken) {
-         const user = await this.authService.validateUserByToken(jwtToken);
-         userId = user?.id;
+        const user = await this.authService.validateUserByToken(jwtToken);
+        userId = user?.id;
       }
 
       const payload = {
@@ -44,10 +55,10 @@ export class YoutubeConnectStrategy extends PassportStrategy(Strategy, 'youtube'
         platformUserId: profile.id,
         name: profile.displayName,
         accessToken,
-        refreshToken, 
+        refreshToken,
         avatar: profile.photos?.[0]?.value,
         workspaceId,
-        userId
+        userId,
       };
       done(null, payload);
     } catch (e) {

@@ -12,7 +12,16 @@ export class PaymentsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Initiate a mobile money deposit via PawaPay' })
-  initiatePayment(@Req() req, @Body() body: { planType: string, amount: number, phone: string, billingCycle: string }) {
+  initiatePayment(
+    @Req() req,
+    @Body()
+    body: {
+      planType: string;
+      amount: number;
+      phone: string;
+      billingCycle: string;
+    },
+  ) {
     return this.paymentsService.initiateDeposit(req.user.sub, body);
   }
 

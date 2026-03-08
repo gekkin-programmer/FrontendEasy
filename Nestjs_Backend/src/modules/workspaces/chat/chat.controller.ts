@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChannelDto, CreateMessageDto } from './dto/create-message.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -17,7 +25,7 @@ export class ChatController {
   createChannel(
     @Param('workspaceId') workspaceId: string,
     @Body() dto: CreateChannelDto,
-    @Req() req
+    @Req() req,
   ) {
     return this.chatService.createChannel(workspaceId, req.user.sub, dto);
   }
@@ -34,7 +42,7 @@ export class ChatController {
   sendMessage(
     @Param('channelId') channelId: string,
     @Body() dto: CreateMessageDto,
-    @Req() req
+    @Req() req,
   ) {
     return this.chatService.sendMessage(channelId, req.user.sub, dto);
   }

@@ -9,7 +9,7 @@ export class SchedulerService {
 
   constructor(
     private prisma: PrismaService,
-    private publisher: PublisherService
+    private publisher: PublisherService,
   ) {}
 
   // ➤ 1. SCHEDULE POST
@@ -34,8 +34,8 @@ export class SchedulerService {
       where: { id: postId },
       data: {
         scheduledFor: date,
-        status: 'SCHEDULED'
-      }
+        status: 'SCHEDULED',
+      },
     });
   }
 
@@ -47,7 +47,7 @@ export class SchedulerService {
 
     return this.prisma.post.update({
       where: { id: postId },
-      data: { scheduledFor: newDate }
+      data: { scheduledFor: newDate },
     });
   }
 
@@ -57,8 +57,8 @@ export class SchedulerService {
       where: { id: postId },
       data: {
         status: 'DRAFT',
-        scheduledFor: null
-      }
+        scheduledFor: null,
+      },
     });
   }
 
@@ -67,9 +67,9 @@ export class SchedulerService {
     return this.prisma.post.findMany({
       where: {
         workspaceId,
-        status: 'SCHEDULED'
+        status: 'SCHEDULED',
       },
-      orderBy: { scheduledFor: 'asc' }
+      orderBy: { scheduledFor: 'asc' },
     });
   }
 
@@ -86,13 +86,13 @@ export class SchedulerService {
     const duePosts = await this.prisma.post.findMany({
       where: {
         status: 'SCHEDULED',
-        scheduledFor: { lte: now }
+        scheduledFor: { lte: now },
       },
       include: {
         socialAccounts: {
-          include: { socialAccount: true }
-        }
-      }
+          include: { socialAccount: true },
+        },
+      },
     });
 
     if (duePosts.length === 0) return;
@@ -111,7 +111,9 @@ export class SchedulerService {
         await this.publisher.publishPost(post.id);
         this.logger.log(`Successfully published due post: ${post.id}`);
       } catch (e) {
-        this.logger.error(`Failed to publish due post ${post.id}: ${e.message}`);
+        this.logger.error(
+          `Failed to publish due post ${post.id}: ${e.message}`,
+        );
       }
     }
   }

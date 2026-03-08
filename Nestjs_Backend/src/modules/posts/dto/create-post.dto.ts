@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { 
-  IsArray, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString 
+import {
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 import { PostStatus, MediaType } from '@prisma/client';
 
@@ -15,7 +20,10 @@ export class CreatePostDto {
   @IsString()
   workspaceId: string;
 
-  @ApiProperty({ example: ['cmk...1', 'cmk...2'], description: 'IDs of Social Accounts' })
+  @ApiProperty({
+    example: ['cmk...1', 'cmk...2'],
+    description: 'IDs of Social Accounts',
+  })
   @IsArray()
   @IsString({ each: true })
   socialAccountIds: string[];

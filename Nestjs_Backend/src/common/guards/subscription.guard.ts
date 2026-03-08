@@ -18,9 +18,9 @@ export class SubscriptionGuard implements CanActivate {
     if (!userId) return false;
 
     // 1. Resolve Workspace ID (from body, query, or user's first workspace)
-    const workspaceId = 
-      request.body.workspaceId || 
-      request.query.workspaceId || 
+    const workspaceId =
+      request.body.workspaceId ||
+      request.query.workspaceId ||
       (await this.getDefaultWorkspaceId(userId));
 
     if (!workspaceId) {

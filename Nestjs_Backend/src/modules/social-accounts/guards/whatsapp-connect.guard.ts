@@ -8,12 +8,12 @@ export class WhatsappConnectGuard extends AuthGuard('facebook') {
     const { workspaceId, token } = req.query;
 
     if (req.session && workspaceId && token) {
-        req.session.oauthMetadata = { 
-            workspaceId, 
-            token, 
-            isWhatsapp: true 
-        };
-        console.log("🔹 WhatsApp Guard: Metadata saved to session");
+      req.session.oauthMetadata = {
+        workspaceId,
+        token,
+        isWhatsapp: true,
+      };
+      console.log('🔹 WhatsApp Guard: Metadata saved to session');
     }
 
     return (await super.canActivate(context)) as boolean;
@@ -21,7 +21,12 @@ export class WhatsappConnectGuard extends AuthGuard('facebook') {
 
   getAuthenticateOptions(context: ExecutionContext) {
     return {
-      scope: ['email', 'public_profile', 'whatsapp_business_management', 'whatsapp_business_messaging'],
+      scope: [
+        'email',
+        'public_profile',
+        'whatsapp_business_management',
+        'whatsapp_business_messaging',
+      ],
     };
   }
 }

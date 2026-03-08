@@ -25,7 +25,13 @@ describe('SmartSchedulingService', () => {
         {
           provide: HttpService,
           useValue: {
-            post: jest.fn().mockReturnValue(of({ data: { suggestions: [{ hour: 10, score: 0.9, confidence: 'high' }] } })),
+            post: jest.fn().mockReturnValue(
+              of({
+                data: {
+                  suggestions: [{ hour: 10, score: 0.9, confidence: 'high' }],
+                },
+              }),
+            ),
           },
         },
         {
@@ -44,15 +50,15 @@ describe('SmartSchedulingService', () => {
 
   it('should call ML service and return suggestions', async () => {
     const result = await service.getSuggestions('ws-123', 'FACEBOOK');
-    
+
     expect(prisma.postSocialAccount.findMany).toHaveBeenCalled();
     expect(http.post).toHaveBeenCalledWith(
       'http://localhost:8000/predict',
       expect.objectContaining({
         workspace_id: 'ws-123',
         platform: 'FACEBOOK',
-        historical_data: []
-      })
+        historical_data: [],
+      }),
     );
     expect(result.suggestions[0].hour).toBe(10);
   });

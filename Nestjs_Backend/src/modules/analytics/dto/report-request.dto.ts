@@ -8,7 +8,7 @@ export class ProductAnalyticsDto {
   @ApiProperty({ description: 'Nom du produit' })
   productName: string;
 
-  @ApiProperty({ description: 'URL de l\'image du produit' })
+  @ApiProperty({ description: "URL de l'image du produit" })
   productImage: string;
 
   @ApiProperty({ description: 'Nombre vendu' })

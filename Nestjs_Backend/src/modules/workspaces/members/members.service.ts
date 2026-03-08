@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service'; 
+import { PrismaService } from '../../../prisma/prisma.service';
 import { EmailService } from '../../../common/providers/email/email.service';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -28,11 +28,11 @@ export class MembersService {
             lastName: true,
             email: true,
             avatar: true,
-            status: true
-          }
-        }
+            status: true,
+          },
+        },
       },
-      orderBy: { role: 'asc' }
+      orderBy: { role: 'asc' },
     });
   }
 
@@ -42,11 +42,15 @@ export class MembersService {
     await this.checkPermission(workspaceId, inviterId);
 
     // 2. Get Workspace Name (for email)
-    const workspace = await this.prisma.workspace.findUnique({ where: { id: workspaceId }});
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
     if (!workspace) throw new NotFoundException('Workspace not found');
 
     // 3. Check if user exists
-    let user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    let user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     let isNewUser = false;
 
     // 4. Create Shadow User if not exists
@@ -58,16 +62,17 @@ export class MembersService {
           status: 'INACTIVE', // Shadow status
           provider: 'email',
           firstName: 'Invited', // Placeholder
-          accountType: 'PERSONAL'
-        }
+          accountType: 'PERSONAL',
+        },
       });
     }
 
     // 5. Check duplicate membership
     const existingMember = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: user.id } }
+      where: { workspaceId_userId: { workspaceId, userId: user.id } },
     });
-    if (existingMember) throw new ConflictException('User is already in this workspace');
+    if (existingMember)
+      throw new ConflictException('User is already in this workspace');
 
     // 6. Add to Workspace
     await this.prisma.workspaceMember.create({
@@ -77,7 +82,7 @@ export class MembersService {
         role: dto.role,
         status: 'INVITED',
         invitedBy: inviterId,
-      }
+      },
     });
 
     // 7. Send Email
@@ -85,11 +90,16 @@ export class MembersService {
     const tokenPayload = JSON.stringify({ email: dto.email, workspaceId });
     const inviteToken = Buffer.from(tokenPayload).toString('base64');
 
-    await this.emailService.sendInvite(dto.email, workspace.name, inviteToken, isNewUser);
+    await this.emailService.sendInvite(
+      dto.email,
+      workspace.name,
+      inviteToken,
+      isNewUser,
+    );
 
-    return { 
-      message: 'Invitation sent', 
-      userStatus: isNewUser ? 'SHADOW_CREATED' : 'EXISTING_INVITED' 
+    return {
+      message: 'Invitation sent',
+      userStatus: isNewUser ? 'SHADOW_CREATED' : 'EXISTING_INVITED',
     };
   }
 
@@ -101,14 +111,14 @@ export class MembersService {
     // Activate Membership
     await this.prisma.workspaceMember.update({
       where: { workspaceId_userId: { workspaceId, userId: user.id } },
-      data: { status: 'ACTIVE', joinedAt: new Date() }
+      data: { status: 'ACTIVE', joinedAt: new Date() },
     });
 
     // Activate Shadow User if needed
     if (user.status === 'INACTIVE') {
       await this.prisma.user.update({
         where: { id: user.id },
-        data: { status: 'ACTIVE' }
+        data: { status: 'ACTIVE' },
       });
     }
 
@@ -116,11 +126,16 @@ export class MembersService {
   }
 
   // ➤ UPDATE ROLE
-  async updateRole(workspaceId: string, memberId: string, dto: UpdateRoleDto, requesterId: string) {
+  async updateRole(
+    workspaceId: string,
+    memberId: string,
+    dto: UpdateRoleDto,
+    requesterId: string,
+  ) {
     await this.checkPermission(workspaceId, requesterId);
     return this.prisma.workspaceMember.update({
       where: { id: memberId },
-      data: { role: dto.role }
+      data: { role: dto.role },
     });
   }
 
@@ -133,7 +148,7 @@ export class MembersService {
   // Helper
   private async checkPermission(workspaceId: string, userId: string) {
     const member = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } }
+      where: { workspaceId_userId: { workspaceId, userId } },
     });
     if (!member || (member.role !== 'OWNER' && member.role !== 'ADMIN')) {
       throw new ForbiddenException('Insufficient permissions');

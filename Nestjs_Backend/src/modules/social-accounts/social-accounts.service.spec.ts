@@ -17,12 +17,16 @@ describe('SocialAccountsService - MVP Tests', () => {
     user: {
       findUnique: jest.fn(),
     },
+    workspace: {
+      update: jest.fn(),
+    },
     socialAccount: {
       upsert: jest.fn(),
       findMany: jest.fn(),
       findFirst: jest.fn(),
       findUnique: jest.fn(),
       delete: jest.fn(),
+      update: jest.fn(),
     },
   };
 
@@ -66,29 +70,36 @@ describe('SocialAccountsService - MVP Tests', () => {
         ...callbackData,
         platform: 'FACEBOOK',
       });
+      mockPrismaService.workspace.update.mockResolvedValue({});
 
       const result = await service.handleFacebookCallback(callbackData);
 
-      expect(prisma.socialAccount.upsert).toHaveBeenCalledWith(expect.objectContaining({
-        where: expect.objectContaining({
-          workspaceId_platform_platformUserId: {
-            workspaceId: callbackData.workspaceId,
-            platform: 'FACEBOOK',
-            platformUserId: callbackData.platformUserId,
-          },
+      expect(prisma.socialAccount.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            workspaceId_platform_platformUserId: {
+              workspaceId: callbackData.workspaceId,
+              platform: 'FACEBOOK',
+              platformUserId: callbackData.platformUserId,
+            },
+          }),
+          update: expect.objectContaining({
+            accessToken: callbackData.accessToken,
+          }),
         }),
-        update: expect.objectContaining({
-          accessToken: callbackData.accessToken,
-        }),
-      }));
+      );
       expect(mockQueue.add).toHaveBeenCalled();
       expect(result.platform).toBe('FACEBOOK');
     });
 
     it('should prevent duplicate account connections by using upsert', async () => {
-        mockPrismaService.socialAccount.upsert.mockResolvedValue({ id: 'existing-acc' });
-        await service.handleFacebookCallback(callbackData);
-        expect(prisma.socialAccount.upsert).toHaveBeenCalledTimes(1);
+      mockPrismaService.socialAccount.upsert.mockResolvedValue({
+        id: 'existing-acc',
+        platform: 'FACEBOOK',
+      });
+      mockPrismaService.workspace.update.mockResolvedValue({});
+      await service.handleFacebookCallback(callbackData);
+      expect(prisma.socialAccount.upsert).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -101,14 +112,18 @@ describe('SocialAccountsService - MVP Tests', () => {
         id: userId,
         ownedWorkspaces: [{ id: workspaceId }],
       });
-      mockPrismaService.socialAccount.findMany.mockResolvedValue([{ id: 'acc-1', platform: 'FACEBOOK' }]);
+      mockPrismaService.socialAccount.findMany.mockResolvedValue([
+        { id: 'acc-1', platform: 'FACEBOOK' },
+      ]);
 
       const result = await service.findAll(userId, workspaceId);
 
       expect(result).toHaveLength(1);
-      expect(prisma.socialAccount.findMany).toHaveBeenCalledWith(expect.objectContaining({
-        where: { workspaceId },
-      }));
+      expect(prisma.socialAccount.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { workspaceId },
+        }),
+      );
     });
 
     it('should disconnect account', async () => {
@@ -116,50 +131,76 @@ describe('SocialAccountsService - MVP Tests', () => {
         id: userId,
         ownedWorkspaces: [{ id: workspaceId }],
       });
-      mockPrismaService.socialAccount.findFirst.mockResolvedValue({ id: 'acc-1', workspaceId });
+      mockPrismaService.socialAccount.findFirst.mockResolvedValue({
+        id: 'acc-1',
+        workspaceId,
+      });
       mockPrismaService.socialAccount.delete.mockResolvedValue({ id: 'acc-1' });
 
       const result = await service.disconnect('acc-1', userId);
 
-      expect(prisma.socialAccount.delete).toHaveBeenCalledWith({ where: { id: 'acc-1' } });
+      expect(prisma.socialAccount.delete).toHaveBeenCalledWith({
+        where: { id: 'acc-1' },
+      });
       expect(result.id).toBe('acc-1');
     });
 
     it('should throw NotFoundException if account not found or access denied', async () => {
-        mockPrismaService.user.findUnique.mockResolvedValue({
-          id: userId,
-          ownedWorkspaces: [{ id: workspaceId }],
-        });
-        mockPrismaService.socialAccount.findFirst.mockResolvedValue(null);
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: userId,
+        ownedWorkspaces: [{ id: workspaceId }],
+      });
+      mockPrismaService.socialAccount.findFirst.mockResolvedValue(null);
 
-        await expect(service.disconnect('invalid-acc', userId)).rejects.toThrow(NotFoundException);
+      await expect(service.disconnect('invalid-acc', userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('Facebook specific logic', () => {
     it('should fetch Facebook pages using user access token', async () => {
-      const mockPages = { data: [{ id: 'page-1', name: 'Page 1', access_token: 'page-token' }] };
+      const mockPages = {
+        data: [{ id: 'page-1', name: 'Page 1', access_token: 'page-token' }],
+      };
       mockedAxios.get.mockResolvedValue({ data: mockPages });
 
       const result = await service.getFacebookPages('user-token');
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(expect.stringContaining('graph.facebook.com/me/accounts'));
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        expect.stringContaining('graph.facebook.com/me/accounts'),
+      );
       expect(result).toEqual(mockPages.data);
     });
 
     it('should handle OAuth errors gracefully during page fetch', async () => {
-      mockedAxios.get.mockRejectedValue({ response: { data: { error: 'OAuth error' } } });
-      await expect(service.getFacebookPages('bad-token')).rejects.toThrow(UnauthorizedException);
+      mockedAxios.get.mockRejectedValue({
+        response: { data: { error: 'OAuth error' } },
+      });
+      await expect(service.getFacebookPages('bad-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should support linking a specific Facebook page', async () => {
-        const pageData = { pageId: 'p1', pageName: 'My Page', pageAccessToken: 'pt1' };
-        mockPrismaService.user.findUnique.mockResolvedValue({ id: 'u1', ownedWorkspaces: [{ id: 'w1' }] });
-        mockPrismaService.socialAccount.upsert.mockResolvedValue({ id: 'acc-p1', platform: 'FACEBOOK' });
+      const pageData = {
+        pageId: 'p1',
+        pageName: 'My Page',
+        pageAccessToken: 'pt1',
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        ownedWorkspaces: [{ id: 'w1' }],
+      });
+      mockPrismaService.socialAccount.upsert.mockResolvedValue({
+        id: 'acc-p1',
+        platform: 'FACEBOOK',
+      });
+      mockPrismaService.workspace.update.mockResolvedValue({});
 
-        const result = await service.linkPageAccount('u1', pageData);
-        expect(prisma.socialAccount.upsert).toHaveBeenCalled();
-        expect(result.platform).toBe('FACEBOOK');
+      const result = await service.linkPageAccount('u1', pageData);
+      expect(prisma.socialAccount.upsert).toHaveBeenCalled();
+      expect(result.platform).toBe('FACEBOOK');
     });
   });
 });

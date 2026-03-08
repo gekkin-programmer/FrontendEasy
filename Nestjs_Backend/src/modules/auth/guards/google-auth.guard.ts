@@ -9,7 +9,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
 
   getAuthenticateOptions() {
     return {
-      session: false, 
+      session: false,
       scope: ['email', 'profile'],
     };
   }

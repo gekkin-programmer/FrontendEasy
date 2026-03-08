@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Request, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Request,
+  Patch,
+  Param,
+} from '@nestjs/common';
 import { RecyclingService } from './recycling.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -23,12 +33,18 @@ export class RecyclingController {
   }
 
   @Post('posts/:id/recycle')
-  @ApiOperation({ summary: 'Create an AI-powered recycled variation of a post' })
+  @ApiOperation({
+    summary: 'Create an AI-powered recycled variation of a post',
+  })
   recycle(
     @Param('id') id: string,
     @Request() req,
-    @Body('scheduledFor') scheduledFor: string
+    @Body('scheduledFor') scheduledFor: string,
   ) {
-    return this.recyclingService.recyclePost(id, req.user.sub, new Date(scheduledFor));
+    return this.recyclingService.recyclePost(
+      id,
+      req.user.sub,
+      new Date(scheduledFor),
+    );
   }
 }

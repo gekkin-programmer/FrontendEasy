@@ -61,7 +61,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const hashedPassword = createUserDto.password 
+    const hashedPassword = createUserDto.password
       ? await bcrypt.hash(createUserDto.password, 10)
       : null;
 
@@ -120,12 +120,16 @@ export class UsersService {
 
     // Broadcast to all workspaces the user belongs to
     const memberships = await this.prisma.workspaceMember.findMany({
-        where: { userId: id },
-        select: { workspaceId: true }
+      where: { userId: id },
+      select: { workspaceId: true },
     });
 
     for (const m of memberships) {
-        this.eventsGateway.sendToWorkspace(m.workspaceId, 'user_updated', updatedUser);
+      this.eventsGateway.sendToWorkspace(
+        m.workspaceId,
+        'user_updated',
+        updatedUser,
+      );
     }
 
     return updatedUser;
@@ -157,9 +161,9 @@ export class UsersService {
       },
     });
 
-    return { 
-      totalUsers, 
-      activeUsers, 
+    return {
+      totalUsers,
+      activeUsers,
       newUsersThisMonth,
       inactiveUsers: totalUsers - activeUsers,
     };
