@@ -30,41 +30,48 @@ export class SocialSyncProcessor extends WorkerHost {
 
   async process(job: Job<SyncJobData>): Promise<void> {
     const { socialAccountId, platform, accessToken, externalId } = job.data;
-    this.logger.log(`[Job ${job.id}] Starting history sync for ${platform}: ${externalId}`);
+    this.logger.log(
+      `[Job ${job.id}] Starting history sync for ${platform}: ${externalId}`,
+    );
 
     try {
       const account = await this.prisma.socialAccount.findUnique({
         where: { id: socialAccountId },
-        select: { workspaceId: true, createdById: true }
+        select: { workspaceId: true, createdById: true },
       });
 
       if (!account) {
         throw new Error(`SocialAccount ${socialAccountId} not found`);
       }
 
-      let posts: NormalizedSocialPost[] = []; 
+      let posts: NormalizedSocialPost[] = [];
 
       switch (platform) {
         case SocialPlatform.FACEBOOK:
-          posts = await this.facebookService.getHistory(accessToken, externalId);
+          posts = await this.facebookService.getHistory(
+            accessToken,
+            externalId,
+          );
           break;
         default:
           this.logger.warn(`Platform ${platform} sync not implemented yet.`);
           return;
       }
 
-      this.logger.log(`Fetched ${posts.length} posts. Syncing with Database...`);
+      this.logger.log(
+        `Fetched ${posts.length} posts. Syncing with Database...`,
+      );
 
       // ➤ LOGIC CHANGE: We cannot use Post.upsert because 'externalId' is now in a different table.
       // We iterate and check PostSocialAccount instead.
-      
+
       for (const post of posts) {
         // 1. Check if this specific Facebook post is already linked in our DB
         const existingLink = await this.prisma.postSocialAccount.findFirst({
           where: {
             socialAccountId: socialAccountId,
-            platformPostId: post.externalId, 
-          }
+            platformPostId: post.externalId,
+          },
         });
 
         if (existingLink) {
@@ -77,8 +84,8 @@ export class SocialSyncProcessor extends WorkerHost {
               shares: post.engagement.shares,
               views: post.engagement.views,
               // Update URL if changed
-              platformPostUrl: post.permalink 
-            }
+              platformPostUrl: post.permalink,
+            },
           });
         } else {
           // B. CREATE: New Post + New Relation
@@ -87,12 +94,12 @@ export class SocialSyncProcessor extends WorkerHost {
               workspaceId: account.workspaceId,
               createdById: account.createdById,
               content: post.content || '', // Handle empty content (image only posts)
-              mediaUrls: post.mediaUrls,   // Legacy support or migrate to MediaLibrary later
+              mediaUrls: post.mediaUrls, // Legacy support or migrate to MediaLibrary later
               status: PostStatus.PUBLISHED,
               publishedAt: new Date(post.publishedAt),
-              
+
               // Optional: link directly to account for simplified queries
-              socialAccountId: socialAccountId, 
+              socialAccountId: socialAccountId,
 
               // Create the relation to store Platform ID and Metrics
               socialAccounts: {
@@ -106,9 +113,9 @@ export class SocialSyncProcessor extends WorkerHost {
                   comments: post.engagement.comments,
                   shares: post.engagement.shares,
                   views: post.engagement.views,
-                }
-              }
-            }
+                },
+              },
+            },
           });
         }
       }
@@ -120,33 +127,34 @@ export class SocialSyncProcessor extends WorkerHost {
 
       this.logger.log(`[Job ${job.id}] Sync complete.`);
     } catch (error) {
-      
       // ➤ HANDLE TOKEN EXPIRY
       if (error instanceof SocialTokenExpiredException) {
-        this.logger.warn(`Token expired for ${socialAccountId}. Disabling and notifying user.`);
-        
+        this.logger.warn(
+          `Token expired for ${socialAccountId}. Disabling and notifying user.`,
+        );
+
         await this.prisma.socialAccount.update({
-            where: { id: socialAccountId },
-            data: { isActive: false } 
+          where: { id: socialAccountId },
+          data: { isActive: false },
         });
 
         const account = await this.prisma.socialAccount.findUnique({
-            where: { id: socialAccountId },
-            include: { createdBy: true }
+          where: { id: socialAccountId },
+          include: { createdBy: true },
         });
 
         if (account?.createdBy?.email) {
-            await this.emailService.sendTokenExpiryAlert(
-                account.createdBy.email, 
-                account.createdBy.firstName || 'User', 
-                platform
-            );
+          this.emailService.sendTokenExpiryAlert(
+            account.createdBy.email,
+            account.createdBy.firstName || 'User',
+            platform,
+          );
         }
-        return; 
+        return;
       }
 
       this.logger.error(`[Job ${job.id}] Sync failed: ${error.message}`);
-      throw error; 
+      throw error;
     }
   }
 }

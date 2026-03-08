@@ -11,29 +11,18 @@ export class CloudinaryService {
           folder: 'eazypost_uploads',
         },
         (error, result) => {
-          if (error) return reject(error);
+          if (error) return reject(error instanceof Error ? error : new Error(String(error)));
           resolve(result);
         },
       );
 
-            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+      streamifier.createReadStream(file.buffer).pipe(uploadStream);
+    });
+  }
 
-          });
-
-        }
-
-      
-
-        async uploadUrl(url: string): Promise<any> {
-
-          return cloudinary.uploader.upload(url, {
-
-            folder: 'eazypost_uploads',
-
-          });
-
-        }
-
-      }
-
-      
+  async uploadUrl(url: string): Promise<any> {
+    return cloudinary.uploader.upload(url, {
+      folder: 'eazypost_uploads',
+    });
+  }
+}

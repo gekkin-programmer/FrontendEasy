@@ -34,17 +34,19 @@ export class RecyclingService {
       },
       include: {
         socialAccounts: {
-          select: { likes: true, comments: true, shares: true, views: true }
-        }
+          select: { likes: true, comments: true, shares: true, views: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     // Score and filter
-    return posts.map(post => {
-      const score = this.calculatePerformanceScore(post);
-      return { ...post, performanceScore: score };
-    }).filter(p => p.performanceScore >= 50 || p.isEvergreen)
+    return posts
+      .map((post) => {
+        const score = this.calculatePerformanceScore(post);
+        return { ...post, performanceScore: score };
+      })
+      .filter((p) => p.performanceScore >= 50 || p.isEvergreen)
       .sort((a, b) => b.performanceScore - a.performanceScore);
   }
 
@@ -54,39 +56,41 @@ export class RecyclingService {
     if (!post) throw new NotFoundException('Post not found');
 
     if (!this.genAI) {
-        this.logger.warn('Google API Key missing, returning original content');
-        return {
-            originalContent: post.content,
-            newContent: post.content,
-            originalPostId: post.id
-        };
+      this.logger.warn('Google API Key missing, returning original content');
+      return {
+        originalContent: post.content,
+        newContent: post.content,
+        originalPostId: post.id,
+      };
     }
 
     try {
-        const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+      });
+      const prompt = `
           Rewrite the following social media post to give it a fresh angle while maintaining the core message.
           Include a strong hook and a clear call to action.
           Original content: "${post.content}"
           Format: Return only the new content text.
         `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
 
-        return {
-          originalContent: post.content,
-          newContent: text.trim(),
-          originalPostId: post.id
-        };
+      return {
+        originalContent: post.content,
+        newContent: text.trim(),
+        originalPostId: post.id,
+      };
     } catch (error) {
-        this.logger.error(`Gemini Error: ${error.message}`);
-        return {
-            originalContent: post.content,
-            newContent: post.content,
-            originalPostId: post.id
-        };
+      this.logger.error(`Gemini Error: ${error.message}`);
+      return {
+        originalContent: post.content,
+        newContent: post.content,
+        originalPostId: post.id,
+      };
     }
   }
 
@@ -94,7 +98,7 @@ export class RecyclingService {
   async recyclePost(postId: string, userId: string, scheduledFor: Date) {
     const originalPost = await this.prisma.post.findUnique({
       where: { id: postId },
-      include: { socialAccounts: { include: { socialAccount: true } } }
+      include: { socialAccounts: { include: { socialAccount: true } } },
     });
 
     if (!originalPost) throw new NotFoundException('Original post not found');
@@ -111,18 +115,18 @@ export class RecyclingService {
         createdById: userId,
         originalPostId: postId,
         socialAccounts: {
-          create: originalPost.socialAccounts.map(sa => ({
+          create: originalPost.socialAccounts.map((sa) => ({
             socialAccountId: sa.socialAccountId,
-            status: PostStatus.SCHEDULED
-          }))
-        }
-      }
+            status: PostStatus.SCHEDULED,
+          })),
+        },
+      },
     });
 
     // Increment recycle count on original
     await this.prisma.post.update({
       where: { id: postId },
-      data: { recycleCount: { increment: 1 } }
+      data: { recycleCount: { increment: 1 } },
     });
 
     return newPost;
@@ -131,24 +135,27 @@ export class RecyclingService {
   async toggleEvergreen(postId: string, status: boolean) {
     return this.prisma.post.update({
       where: { id: postId },
-      data: { isEvergreen: status }
+      data: { isEvergreen: status },
     });
   }
 
   private calculatePerformanceScore(post: any): number {
-    let likes = 0, comments = 0, shares = 0, views = 0;
-    
-    post.socialAccounts.forEach(sa => {
+    let likes = 0,
+      comments = 0,
+      shares = 0,
+      views = 0;
+
+    post.socialAccounts.forEach((sa) => {
       likes += sa.likes || 0;
       comments += sa.comments || 0;
       shares += sa.shares || 0;
       views += sa.views || 0;
     });
 
-    const engagement = (likes * 1) + (comments * 3) + (shares * 5);
+    const engagement = likes * 1 + comments * 3 + shares * 5;
     const reach = views || (engagement > 0 ? engagement * 10 : 1);
-    
-    const score = (engagement / reach) * 1000; 
+
+    const score = (engagement / reach) * 1000;
     return Math.min(Math.round(score), 100);
   }
 }

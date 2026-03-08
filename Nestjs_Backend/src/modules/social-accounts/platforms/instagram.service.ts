@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ISocialPlatform, NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import {
+  ISocialPlatform,
+  NormalizedSocialPost,
+} from '../interfaces/social-platform.interface';
 import { SocialTokenExpiredException } from '../../../common/exceptions/token-expired.exception';
 
 @Injectable()
@@ -17,11 +20,12 @@ export class InstagramService implements ISocialPlatform {
     since?: Date,
   ): Promise<NormalizedSocialPost[]> {
     try {
-      const fields = 'id,caption,timestamp,media_url,media_type,permalink,like_count,comments_count,comments{id,text,timestamp,from}';
+      const fields =
+        'id,caption,timestamp,media_url,media_type,permalink,like_count,comments_count,comments{id,text,timestamp,from}';
       const url = `${this.GRAPH_URL}/${instagramBusinessId}/media?fields=${fields}&limit=50&access_token=${accessToken}`;
-      
+
       const { data } = await firstValueFrom(this.httpService.get(url));
-      
+
       if (!data || !data.data) return [];
 
       return data.data.map((post: any) => ({
@@ -39,18 +43,21 @@ export class InstagramService implements ISocialPlatform {
         comments: this.extractComments(post),
         metadata: { raw: post },
       }));
-
     } catch (error) {
       this.handleInstagramError(error);
       return [];
     }
   }
 
-  async replyToComment(accessToken: string, commentId: string, message: string): Promise<string> {
+  async replyToComment(
+    accessToken: string,
+    commentId: string,
+    message: string,
+  ): Promise<string> {
     try {
       const url = `${this.GRAPH_URL}/${commentId}/replies`;
       const { data } = await firstValueFrom(
-        this.httpService.post(url, { message, access_token: accessToken })
+        this.httpService.post(url, { message, access_token: accessToken }),
       );
       return data.id;
     } catch (error) {
@@ -59,13 +66,13 @@ export class InstagramService implements ISocialPlatform {
     }
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<string> {
-    return refreshToken; // Usually handled via long-lived tokens in Meta
+  refreshAccessToken(refreshToken: string): Promise<string> {
+    return Promise.resolve(refreshToken); // Usually handled via long-lived tokens in Meta
   }
 
   private extractComments(post: any) {
     if (!post.comments || !post.comments.data) return [];
-    
+
     return post.comments.data.map((c: any) => ({
       externalId: c.id,
       content: c.text,
@@ -78,9 +85,11 @@ export class InstagramService implements ISocialPlatform {
   private handleInstagramError(error: any) {
     const igError = error.response?.data?.error;
     if (igError && (igError.code === 190 || igError.code === 102)) {
-        throw new SocialTokenExpiredException('INSTAGRAM');
+      throw new SocialTokenExpiredException('INSTAGRAM');
     }
-    this.logger.error(`Instagram API Error: ${igError?.message || error.message}`);
+    this.logger.error(
+      `Instagram API Error: ${igError?.message || error.message}`,
+    );
     throw new Error('Failed to fetch Instagram history');
   }
 }
