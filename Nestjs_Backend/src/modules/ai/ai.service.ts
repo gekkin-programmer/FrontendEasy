@@ -79,7 +79,7 @@ export class AiService {
     }
   }
 
-  private async checkUsageLimits(userId: string, _workspaceId: string) {
+  private async checkUsageLimits(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { planType: true },
@@ -111,7 +111,7 @@ export class AiService {
     length: AiLength = AiLength.MEDIUM,
     framework: MarketingFramework = MarketingFramework.AIDA,
   ): Promise<{ messageId: string; content: string }> {
-    await this.checkUsageLimits(userId, workspaceId);
+    await this.checkUsageLimits(userId);
     if (!this.model)
       return { messageId: 'mock', content: 'Gemini not configured.' };
 
@@ -151,7 +151,7 @@ export class AiService {
     userId: string,
     workspaceId: string,
   ): Promise<{ content: string }> {
-    await this.checkUsageLimits(userId, workspaceId);
+    await this.checkUsageLimits(userId);
     if (!this.model) return { content: text };
 
     const prompt = `
@@ -191,7 +191,7 @@ export class AiService {
     userId: string,
     workspaceId: string,
   ): Promise<any> {
-    await this.checkUsageLimits(userId, workspaceId);
+    await this.checkUsageLimits(userId);
     if (!this.model) return this.mockIntent();
 
     const prompt = `
@@ -222,7 +222,7 @@ export class AiService {
     userId: string,
     workspaceId: string,
   ): Promise<{ messageId: string; response: string }> {
-    await this.checkUsageLimits(userId, workspaceId);
+    await this.checkUsageLimits(userId);
     if (!this.model)
       return { messageId: 'mock', response: 'Steve AI is sleeping.' };
 
