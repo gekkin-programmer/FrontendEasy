@@ -18,7 +18,7 @@ import { EmailModule } from '../../common/providers/email/email.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
           expiresIn: '7d',
@@ -28,7 +28,13 @@ import { EmailModule } from '../../common/providers/email/email.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy, GoogleAuthGuard, JwtAuthGuard],
+  providers: [
+    AuthService,
+    GoogleStrategy,
+    JwtStrategy,
+    GoogleAuthGuard,
+    JwtAuthGuard,
+  ],
   exports: [AuthService, JwtAuthGuard, GoogleAuthGuard],
 })
 export class AuthModule {}

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq'; 
+import { BullModule } from '@nestjs/bullmq';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -42,14 +42,15 @@ import { RecyclingModule } from './modules/recycling/recycling.module';
 
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.get('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
           password: configService.get('REDIS_PASSWORD'),
-          tls: configService.get('REDIS_TLS') === 'true' 
-            ? { rejectUnauthorized: false } 
-            : undefined,
+          tls:
+            configService.get('REDIS_TLS') === 'true'
+              ? { rejectUnauthorized: false }
+              : undefined,
         },
       }),
       inject: [ConfigService],
@@ -77,7 +78,7 @@ import { RecyclingModule } from './modules/recycling/recycling.module';
     BoardsModule,
     NotificationsModule,
     AudienceModule,
-    RecyclingModule
+    RecyclingModule,
   ],
   controllers: [AppController],
   providers: [

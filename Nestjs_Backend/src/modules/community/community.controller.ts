@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, UseGuards, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Patch,
+  Param,
+} from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -44,7 +52,10 @@ export class CommunityController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update feedback status (Admin)' })
-  updateStatus(@Param('id') id: string, @Body('status') status: FeedbackStatus) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: FeedbackStatus,
+  ) {
     return this.communityService.updateStatus(id, status);
   }
 }

@@ -1,4 +1,10 @@
-import { Controller, Get, Query, Req, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  BadRequestException,
+} from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsFilterDto } from './dto/analytics-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -12,10 +18,12 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get Analytics Data (Type: OVERVIEW | ACCOUNTS | POSTS)' })
+  @ApiOperation({
+    summary: 'Get Analytics Data (Type: OVERVIEW | ACCOUNTS | POSTS)',
+  })
   getAnalytics(
-    @Query('workspaceId') workspaceId: string, 
-    @Query() query: AnalyticsFilterDto
+    @Query('workspaceId') workspaceId: string,
+    @Query() query: AnalyticsFilterDto,
   ) {
     if (!workspaceId) throw new BadRequestException('Workspace ID is required');
     return this.analyticsService.getAnalytics(workspaceId, query);
@@ -72,7 +80,9 @@ export class AnalyticsController {
   }
 
   @Get('insights/timeline')
-  @ApiOperation({ summary: 'Get daily publication activity for the last 30 days' })
+  @ApiOperation({
+    summary: 'Get daily publication activity for the last 30 days',
+  })
   getActivityTimeline(@Query('workspaceId') workspaceId: string) {
     if (!workspaceId) throw new BadRequestException('Workspace ID is required');
     return this.analyticsService.getActivityTimeline(workspaceId);

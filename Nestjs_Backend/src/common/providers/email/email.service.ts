@@ -9,22 +9,23 @@ export class EmailService {
 
   constructor(private config: ConfigService) {
     this.apiKey = this.config.get<string>('RESEND_API_KEY') || '';
-    this.fromEmail = this.config.get<string>('EMAIL_FROM') || 'onboarding@resend.dev';
+    this.fromEmail =
+      this.config.get<string>('EMAIL_FROM') || 'onboarding@resend.dev';
   }
 
   // ➤ 1. SEND OTP
   async sendOtp(email: string, otp: string) {
     try {
       if (!this.apiKey) {
-         console.log(`🚨 [DEV MODE] OTP for ${email}: ${otp}`);
-         return true;
+        console.log(`🚨 [DEV MODE] OTP for ${email}: ${otp}`);
+        return true;
       }
 
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
           from: this.fromEmail,
@@ -57,8 +58,14 @@ export class EmailService {
   }
 
   // ➤ 2. SEND INVITE (Required by MembersService)
-  async sendInvite(email: string, workspaceName: string, inviteToken: string, isNewUser: boolean) {
-    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3001';
+  async sendInvite(
+    email: string,
+    workspaceName: string,
+    inviteToken: string,
+    isNewUser: boolean,
+  ) {
+    const frontendUrl =
+      this.config.get<string>('FRONTEND_URL') || 'http://localhost:3001';
     const actionPath = isNewUser ? '/register' : '/dashboard';
     // Append token to URL so frontend can handle it
     const link = `${frontendUrl}${actionPath}?invite=${inviteToken}&email=${email}`;
@@ -78,37 +85,37 @@ export class EmailService {
 
     // Re-use the send logic (or copy-paste fetch block if you want to keep it simple)
     // For simplicity, let's just copy the fetch block here to avoid creating a private helper method that might break imports.
-    
+
     if (!this.apiKey) {
-        console.log(`🚨 [DEV INVITE] To: ${email}, Link: ${link}`);
-        return true;
+      console.log(`🚨 [DEV INVITE] To: ${email}, Link: ${link}`);
+      return true;
     }
 
     try {
-        await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
-            },
-            body: JSON.stringify({
-                from: this.fromEmail,
-                to: email, 
-                subject: `Invitation to ${workspaceName}`,
-                html: html
-            }),
-        });
-        return true;
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          from: this.fromEmail,
+          to: email,
+          subject: `Invitation to ${workspaceName}`,
+          html: html,
+        }),
+      });
+      return true;
     } catch (e) {
-        this.logger.error("Invite email failed", e);
-        return false;
+      this.logger.error('Invite email failed', e);
+      return false;
     }
   }
 
   // ➤ 3. SEND TOKEN EXPIRY ALERT (Required by SocialSyncProcessor)
-  async sendTokenExpiryAlert(to: string, userName: string, platform: string) {
-     if (!this.apiKey) return false;
-     // Implement real send if needed, or just return true to satisfy interface
-     return true;
+  sendTokenExpiryAlert(_to: string, _userName: string, _platform: string) {
+    if (!this.apiKey) return false;
+    // Implement real send if needed, or just return true to satisfy interface
+    return true;
   }
 }

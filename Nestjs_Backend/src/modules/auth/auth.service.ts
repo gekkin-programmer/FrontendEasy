@@ -1,17 +1,16 @@
-import { 
-  Injectable, 
-  BadRequestException, 
-  UnauthorizedException, 
+import {
+  Injectable,
+  UnauthorizedException,
   InternalServerErrorException,
-  ForbiddenException
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../common/providers/email/email.service';
 import * as bcrypt from 'bcryptjs';
-import * as crypto from 'crypto'; 
-import { User, Session } from '@prisma/client'; 
+import * as crypto from 'crypto';
+import { User, Session } from '@prisma/client';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -57,7 +56,7 @@ export class AuthService {
             provider: 'google',
             providerId: googleId,
             avatar: user.avatar || picture,
-            emailVerified: true, 
+            emailVerified: true,
             role: this.getRoleForEmail(email), // ➤ AUTO PROMOTION ON UPDATE
           },
         });
@@ -65,12 +64,12 @@ export class AuthService {
         user = await this.prisma.user.create({
           data: {
             email,
-            firstName: firstName || 'User', 
+            firstName: firstName || 'User',
             lastName: lastName || '',
             avatar: picture,
             provider: 'google',
             providerId: googleId,
-            emailVerified: true, 
+            emailVerified: true,
             accountType: 'PERSONAL',
             role: this.getRoleForEmail(email), // ➤ AUTO PROMOTION ON CREATE
           },
@@ -98,7 +97,7 @@ export class AuthService {
         firstName: dto.firstName,
         lastName: dto.lastName,
         provider: 'email',
-        emailVerified: true, 
+        emailVerified: true,
         accountType: 'PERSONAL',
         role: this.getRoleForEmail(dto.email), // ➤ AUTO PROMOTION ON REGISTER
       },
@@ -133,8 +132,12 @@ export class AuthService {
   // ==========================================
   // 4. SESSION MANAGEMENT
   // ==========================================
-  
-  private async startSession(user: User, ipAddress?: string, userAgent?: string) {
+
+  private async startSession(
+    user: User,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
     const tokens = await this.generateTokens(user);
     const rtHash = await bcrypt.hash(tokens.refreshToken, 10);
 
@@ -145,31 +148,42 @@ export class AuthService {
         ipAddress: ipAddress || 'unknown',
         userAgent: userAgent || 'unknown',
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      }
+      },
     });
 
     return tokens;
   }
 
-  async refreshToken(oldRefreshToken: string, ipAddress: string, userAgent: string) {
+  async refreshToken(
+    oldRefreshToken: string,
+    ipAddress: string,
+    userAgent: string,
+  ) {
     let payload;
     try {
       const secret = this.configService.get<string>('JWT_REFRESH_SECRET');
       payload = await this.jwtService.verifyAsync(oldRefreshToken, { secret });
-    } catch (e) {
+    } catch (_e) {
       throw new UnauthorizedException('Invalid refresh token signature');
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
     if (!user) throw new UnauthorizedException('User not found');
 
-    const sessions = await this.prisma.session.findMany({ where: { userId: user.id } });
-    
+    const sessions = await this.prisma.session.findMany({
+      where: { userId: user.id },
+    });
+
     // Explicitly typed to allow null assignment initially
     let sessionToUpdate: Session | null = null;
 
     for (const session of sessions) {
-      const isMatch = await bcrypt.compare(oldRefreshToken, session.refreshToken);
+      const isMatch = await bcrypt.compare(
+        oldRefreshToken,
+        session.refreshToken,
+      );
       if (isMatch) {
         sessionToUpdate = session;
         break;
@@ -186,27 +200,29 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-     const decoded = this.jwtService.decode(refreshToken) as any;
-     if(!decoded || !decoded.sub) return;
+    const decoded = this.jwtService.decode(refreshToken);
+    if (!decoded || !decoded.sub) return;
 
-     const sessions = await this.prisma.session.findMany({ where: { userId: decoded.sub } });
-     
-     for (const session of sessions) {
-        if (await bcrypt.compare(refreshToken, session.refreshToken)) {
-           await this.prisma.session.delete({ where: { id: session.id } });
-           break;
-        }
-     }
-     return { message: 'Logged out successfully' };
+    const sessions = await this.prisma.session.findMany({
+      where: { userId: decoded.sub },
+    });
+
+    for (const session of sessions) {
+      if (await bcrypt.compare(refreshToken, session.refreshToken)) {
+        await this.prisma.session.delete({ where: { id: session.id } });
+        break;
+      }
+    }
+    return { message: 'Logged out successfully' };
   }
 
   // ==========================================
   // 5. OTP / HELPERS
   // ==========================================
-  
+
   async sendEmailOtp(email: string) {
-    const otp = crypto.randomInt(100000, 999999).toString(); 
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.prisma.otpVerification.upsert({
       where: { email },
@@ -214,13 +230,13 @@ export class AuthService {
       create: { email, code: otp, expiresAt },
     });
 
-    await this.emailService.sendOtp(email, otp); 
+    await this.emailService.sendOtp(email, otp);
     return { message: 'OTP sent to email' };
   }
 
   async sendOtp(phone: string) {
     const otp = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.prisma.otpVerification.upsert({
       where: { phone },
@@ -233,9 +249,15 @@ export class AuthService {
   }
 
   async verifyOtp(phone: string, code: string) {
-    const otpRecord = await this.prisma.otpVerification.findUnique({ where: { phone } });
+    const otpRecord = await this.prisma.otpVerification.findUnique({
+      where: { phone },
+    });
 
-    if (!otpRecord || otpRecord.code !== code || otpRecord.expiresAt < new Date()) {
+    if (
+      !otpRecord ||
+      otpRecord.code !== code ||
+      otpRecord.expiresAt < new Date()
+    ) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
@@ -274,17 +296,26 @@ export class AuthService {
     const secret = this.configService.get<string>('JWT_SECRET');
     const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
 
-    const accessExpiry  = (this.configService.get<string>('JWT_EXPIRATION')          || '1d') as any;
-    const refreshExpiry = (this.configService.get<string>('JWT_REFRESH_EXPIRATION')  || '7d') as any;
+    const accessExpiry = (this.configService.get<string>('JWT_EXPIRATION') ||
+      '1d') as any;
+    const refreshExpiry = (this.configService.get<string>(
+      'JWT_REFRESH_EXPIRATION',
+    ) || '7d') as any;
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { secret: secret!,        expiresIn: accessExpiry }),
-      this.jwtService.signAsync(payload, { secret: refreshSecret!, expiresIn: refreshExpiry }),
+      this.jwtService.signAsync(payload, {
+        secret: secret!,
+        expiresIn: accessExpiry,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: refreshSecret!,
+        expiresIn: refreshExpiry,
+      }),
     ]);
 
     return {
       accessToken,
-      refreshToken, 
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -305,7 +336,7 @@ export class AuthService {
       data: {
         name: `${baseName}'s Workspace`,
         slug: slug,
-        ownerId: user.id, 
+        ownerId: user.id,
       },
     });
 
@@ -319,30 +350,37 @@ export class AuthService {
     });
     return workspace;
   }
-  
+
   async validateUserById(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
       select: {
-        id: true, email: true, firstName: true, lastName: true, avatar: true,
-        accountType: true, emailVerified: true, phoneVerified: true, status: true,
-        ownedWorkspaces: { select: { id: true, name: true, slug: true } }
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        accountType: true,
+        emailVerified: true,
+        phoneVerified: true,
+        status: true,
+        ownedWorkspaces: { select: { id: true, name: true, slug: true } },
       },
     });
   }
-    async validateUserByToken(token: string) {
+  async validateUserByToken(token: string) {
     try {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
-      
-      console.log("🔹 validateUserByToken payload:", payload);
+
+      console.log('🔹 validateUserByToken payload:', payload);
 
       // We check if user exists in DB to be safe
-      return this.prisma.user.findUnique({ 
-        where: { id: payload.sub } 
+      return this.prisma.user.findUnique({
+        where: { id: payload.sub },
       });
     } catch (e) {
-      console.error("❌ validateUserByToken failed:", e.message);
+      console.error('❌ validateUserByToken failed:', e.message);
       return null;
     }
   }

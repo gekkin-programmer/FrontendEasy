@@ -5,7 +5,7 @@ export class PhoneUtil {
    */
   static sanitize(phone: string): string | null {
     // 1. Remove spaces, dashes, parentheses
-    let clean = phone.replace(/[\s\-\(\)\+]/g, '');
+    let clean = phone.replace(/[\s\-()+]/g, '');
 
     // 2. Remove leading '00' if present
     if (clean.startsWith('00')) {
@@ -13,15 +13,18 @@ export class PhoneUtil {
     }
 
     // 3. If it starts with '6' or '2' (9 digits), add 237
-    if (clean.length === 9 && (clean.startsWith('6') || clean.startsWith('2'))) {
+    if (
+      clean.length === 9 &&
+      (clean.startsWith('6') || clean.startsWith('2'))
+    ) {
       clean = '237' + clean;
     }
 
     // 4. Validate final format (Must start with 237 and have 12 digits total)
     const cameroonRegex = /^237[26][0-9]{8}$/;
-    
+
     if (!cameroonRegex.test(clean)) {
-      return null; 
+      return null;
     }
 
     return clean;
@@ -41,7 +44,8 @@ export class PhoneUtil {
     if (/^69/.test(local) || /^65[5-9]/.test(local)) return 'ORANGE';
 
     // MTN prefixes: 67, 650, 651, 652, 653, 654, 68
-    if (/^67/.test(local) || /^68/.test(local) || /^65[0-4]/.test(local)) return 'MTN';
+    if (/^67/.test(local) || /^68/.test(local) || /^65[0-4]/.test(local))
+      return 'MTN';
 
     // Camtel
     if (/^62/.test(local) || /^2/.test(local)) return 'CAMTEL';

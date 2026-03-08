@@ -1,4 +1,9 @@
-import { Injectable, Logger, InternalServerErrorException, RequestTimeoutException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import OpenAI from 'openai';
@@ -11,7 +16,7 @@ export enum MarketingFramework {
   AIDA = 'AIDA',
   PAS = 'PAS',
   STORY = 'STORY',
-  DIRECT = 'DIRECT'
+  DIRECT = 'DIRECT',
 }
 
 export enum AiTone {
@@ -19,13 +24,13 @@ export enum AiTone {
   CASUAL = 'CASUAL',
   CAMFRANGLAIS = 'CAMFRANGLAIS',
   NOUCHI = 'NOUCHI',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
 }
 
 export enum AiLength {
   SHORT = 'SHORT',
   MEDIUM = 'MEDIUM',
-  LONG = 'LONG'
+  LONG = 'LONG',
 }
 
 @Injectable()
@@ -37,7 +42,7 @@ export class AiService {
 
   constructor(
     private configService: ConfigService,
-    public prisma: PrismaService
+    public prisma: PrismaService,
   ) {
     const geminiKey = this.configService.get<string>('GOOGLE_API_KEY') || '';
     const groqKey = this.configService.get<string>('GROQ_API_KEY') || '';
@@ -59,7 +64,7 @@ export class AiService {
    * 👂 THE EARS (Whisper-Large-V3 via Groq)
    */
   async transcribeAudio(filePath: string): Promise<string> {
-    if (!this.groq) return "Steve: Transcription offline.";
+    if (!this.groq) return 'Steve: Transcription offline.';
     try {
       const response = await this.groq.audio.transcriptions.create({
         file: fs.createReadStream(filePath),
@@ -70,14 +75,14 @@ export class AiService {
       return response.text;
     } catch (error) {
       this.logger.error('Groq Transcription Error', error);
-      return "";
+      return '';
     }
   }
 
-  private async checkUsageLimits(userId: string, workspaceId: string) {
+  private async checkUsageLimits(userId: string, _workspaceId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { planType: true }
+      select: { planType: true },
     });
 
     if (user?.planType === PlanType.FREE) {
@@ -86,11 +91,13 @@ export class AiService {
       startOfMonth.setHours(0, 0, 0, 0);
 
       const count = await this.prisma.aiUsageLog.count({
-        where: { userId, createdAt: { gte: startOfMonth } }
+        where: { userId, createdAt: { gte: startOfMonth } },
       });
 
       if (count >= 10) {
-        throw new ForbiddenException('🎉 Passez à STARTER pour débloquer plus de générations AI !');
+        throw new ForbiddenException(
+          '🎉 Passez à STARTER pour débloquer plus de générations AI !',
+        );
       }
     }
   }
@@ -102,10 +109,11 @@ export class AiService {
     userId: string,
     workspaceId: string,
     length: AiLength = AiLength.MEDIUM,
-    framework: MarketingFramework = MarketingFramework.AIDA
-  ): Promise<{ messageId: string, content: string }> {
+    framework: MarketingFramework = MarketingFramework.AIDA,
+  ): Promise<{ messageId: string; content: string }> {
     await this.checkUsageLimits(userId, workspaceId);
-    if (!this.model) return { messageId: 'mock', content: 'Gemini not configured.' };
+    if (!this.model)
+      return { messageId: 'mock', content: 'Gemini not configured.' };
 
     const prompt = `
       Role: Elite Social Media Copywriter for the African market.
@@ -123,7 +131,13 @@ export class AiService {
       const content = result.response.text();
       const messageId = uuidv4();
 
-      await this.logTokenUsage(userId, workspaceId, 'copywriting', 'gemini-1.5-flash', 0); // Gemini SDK doesn't expose usage easily yet in the same way
+      await this.logTokenUsage(
+        userId,
+        workspaceId,
+        'copywriting',
+        'gemini-1.5-flash',
+        0,
+      ); // Gemini SDK doesn't expose usage easily yet in the same way
 
       return { messageId, content };
     } catch (error) {
@@ -132,7 +146,11 @@ export class AiService {
     }
   }
 
-  async enhanceText(text: string, userId: string, workspaceId: string): Promise<{ content: string }> {
+  async enhanceText(
+    text: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<{ content: string }> {
     await this.checkUsageLimits(userId, workspaceId);
     if (!this.model) return { content: text };
 
@@ -154,7 +172,13 @@ export class AiService {
     try {
       const result = await this.model.generateContent(prompt);
       const enhanced = result.response.text();
-      await this.logTokenUsage(userId, workspaceId, 'enhance-text', 'gemini-1.5-flash', 0);
+      await this.logTokenUsage(
+        userId,
+        workspaceId,
+        'enhance-text',
+        'gemini-1.5-flash',
+        0,
+      );
       return { content: enhanced };
     } catch (error) {
       this.handleAiError(error, userId, 'enhance-text');
@@ -162,7 +186,11 @@ export class AiService {
     }
   }
 
-  async parseUserIntent(transcribedText: string, userId: string, workspaceId: string): Promise<any> {
+  async parseUserIntent(
+    transcribedText: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<any> {
     await this.checkUsageLimits(userId, workspaceId);
     if (!this.model) return this.mockIntent();
 
@@ -189,9 +217,14 @@ export class AiService {
     }
   }
 
-  async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
+  async chatWithSupport(
+    userMessage: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<{ messageId: string; response: string }> {
     await this.checkUsageLimits(userId, workspaceId);
-    if (!this.model) return { messageId: 'mock', response: 'Steve AI is sleeping.' };
+    if (!this.model)
+      return { messageId: 'mock', response: 'Steve AI is sleeping.' };
 
     const prompt = `
       You are Steve, Senior Support at EazyPost. 
@@ -209,23 +242,42 @@ export class AiService {
     }
   }
 
-  async submitFeedback(userId: string, dto: { messageId: string, rating: number, comment?: string }) {
+  async submitFeedback(
+    userId: string,
+    dto: { messageId: string; rating: number; comment?: string },
+  ) {
     return this.prisma.aiFeedback.create({
       data: {
         userId,
         aiMessageId: dto.messageId,
         rating: dto.rating,
-        feedbackText: dto.comment
-      }
+        feedbackText: dto.comment,
+      },
     });
   }
 
-  private async logTokenUsage(userId: string, workspaceId: string, action: string, model: string, totalTokens: number) {
+  private async logTokenUsage(
+    userId: string,
+    workspaceId: string,
+    action: string,
+    model: string,
+    totalTokens: number,
+  ) {
     try {
       await this.prisma.aiUsageLog.create({
-        data: { userId, workspaceId, action, model, inputTokens: 0, outputTokens: 0, totalTokens: totalTokens || 0 }
+        data: {
+          userId,
+          workspaceId,
+          action,
+          model,
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: totalTokens || 0,
+        },
       });
-    } catch (e) { this.logger.error('Log usage failed', e); }
+    } catch (e) {
+      this.logger.error('Log usage failed', e);
+    }
   }
 
   private handleAiError(error: any, userId: string, context: string) {
@@ -234,6 +286,12 @@ export class AiService {
   }
 
   private mockIntent() {
-    return { action: 'CREATE_POST', searchQuery: 'mock', platforms: ['FACEBOOK'], scheduleDate: new Date().toISOString(), tone: 'PROFESSIONAL' };
+    return {
+      action: 'CREATE_POST',
+      searchQuery: 'mock',
+      platforms: ['FACEBOOK'],
+      scheduleDate: new Date().toISOString(),
+      tone: 'PROFESSIONAL',
+    };
   }
 }

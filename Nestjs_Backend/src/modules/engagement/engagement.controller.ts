@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Request, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Request,
+  Param,
+} from '@nestjs/common';
 import { EngagementService } from './engagement.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -19,9 +28,9 @@ export class EngagementController {
   @Post(':id/reply')
   @ApiOperation({ summary: 'Reply to a message' })
   replyToMessage(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body('text') text: string,
-    @Query('workspaceId') workspaceId: string
+    @Query('workspaceId') workspaceId: string,
   ) {
     return this.engagementService.reply(id, text, workspaceId);
   }

@@ -13,8 +13,9 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   // Try to get token from localStorage or Cookies
   // Adjust this based on how you store your token
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  
+  const token =
+    typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -28,11 +29,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Redirect to login if token expired
       if (typeof window !== 'undefined') {
-        // window.location.href = '/login'; 
+        // window.location.href = '/login';
       }
     }
-    return Promise.reject(error);
-  }
+    return Promise.reject(new Error(String(error)));
+  },
 );
 
 // 4. Helper for File Uploads (Multipart)
@@ -47,7 +48,7 @@ api.upload = async <T>(url: string, formData: FormData): Promise<T> => {
 
 // Add typescript support for the custom .upload method
 declare module 'axios' {
-    export interface AxiosInstance {
-      upload<T = any>(url: string, data: FormData): Promise<T>;
-    }
+  export interface AxiosInstance {
+    upload<T = any>(url: string, data: FormData): Promise<T>;
+  }
 }
