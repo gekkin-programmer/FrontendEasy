@@ -11,7 +11,10 @@ export class CloudinaryService {
           folder: 'eazypost_uploads',
         },
         (error, result) => {
-          if (error) return reject(error instanceof Error ? error : new Error(String(error)));
+          if (error)
+            return reject(
+              new Error(error.message ?? 'Cloudinary upload failed'),
+            );
           resolve(result);
         },
       );
