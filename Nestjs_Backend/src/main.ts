@@ -66,8 +66,8 @@ async function bootstrap() {
     : [
         'http://localhost:3000',
         'http://localhost:3001',
-        'https://eazyposttio.vercel.app',
-        // Add preview domains if using Vercel previews: 'https://*.eazyposttio.vercel.app'
+        'https://eazypost.cm',
+        'https://www.eazypost.cm',
       ];
 
   app.enableCors({
@@ -85,7 +85,7 @@ async function bootstrap() {
     .setDescription('The Digital Marketing Engine for Africa – Social Content & Team Productivity')
     .setVersion('2.0') // bumped version to reflect v2 of the product
     .addBearerAuth()
-    .addServer(process.env.API_URL || 'https://eazypostv2.onrender.com', 'Production')
+    .addServer(process.env.API_URL || 'https://backend-eazypost.mbokofit.com', 'Production')
     .addServer('http://localhost:3000', 'Local Development')
     .addTag('auth', 'Authentication, sessions, OAuth')
     .addTag('health', 'System health & monitoring')

@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Ip,
 } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 // ➤ FIX: Add 'type' keyword here for Express interfaces
 import type { Response, Request } from 'express'; 
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -86,6 +87,7 @@ export class AuthController {
   // ==========================================
 
   @Post('register')
+  @Throttle({ default: { ttl: 3_600_000, limit: 5 } }) // 5 registrations per hour per IP
   @ApiOperation({ summary: 'Register with Email & Password' })
   async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const tokens = await this.authService.register(dto);
@@ -97,6 +99,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { ttl: 900_000, limit: 10 } }) // 10 attempts per 15 minutes per IP
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with Email & Password' })
   async login(
@@ -174,6 +177,7 @@ export class AuthController {
   }
 
   @Get('profile')
+  @SkipThrottle() // Authenticated route — no need to rate-limit
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current logged-in user details' })
   async getProfile(@Req() req: Request) {
@@ -182,6 +186,7 @@ export class AuthController {
   }
 
   @Post('email/send-otp')
+  @Throttle({ default: { ttl: 3_600_000, limit: 5 } }) // 5 OTP requests per hour per IP
   @ApiOperation({ summary: 'Send verification code to email' })
   async sendEmailOtp(@Body() body: { email: string }) { 
     return this.authService.sendEmailOtp(body.email);

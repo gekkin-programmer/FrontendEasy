@@ -119,6 +119,6 @@ Single endpoint: `POST /predict` — accepts historical post engagement data and
 
 | Service | URL |
 |---------|-----|
-| Frontend | https://eazyposttio.vercel.app |
-| Backend API | https://eazypostv2.onrender.com |
-| Swagger docs | https://eazypostv2.onrender.com/api-docs |
+| Frontend | https://eazypost.cm |
+| Backend API | https://backend-eazypost.mbokofit.com |
+| Swagger docs | https://backend-eazypost.mbokofit.com/api-docs |

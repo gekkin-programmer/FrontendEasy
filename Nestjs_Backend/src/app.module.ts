@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq'; 
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,6 +34,9 @@ import { RecyclingModule } from './modules/recycling/recycling.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // Global rate limiting: 60 requests per 60 seconds per IP by default.
+    // Auth endpoints override this with stricter limits via @Throttle().
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     LoggerModule,
     SentryModule.forRoot(),
 
@@ -75,6 +80,10 @@ import { RecyclingModule } from './modules/recycling/recycling.module';
     RecyclingModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Apply ThrottlerGuard globally so every endpoint is rate-limited
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

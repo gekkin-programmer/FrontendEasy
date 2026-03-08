@@ -18,7 +18,7 @@ export class FacebookConnectStrategy extends PassportStrategy(Strategy, 'faceboo
       tokenURL: 'https://graph.facebook.com/v19.0/oauth/access_token',
       clientID: configService.get<string>('FACEBOOK_APP_ID') || 'fb_id_placeholder',
       clientSecret: configService.get<string>('FACEBOOK_APP_SECRET') || 'fb_secret_placeholder',
-      callbackURL: `${configService.get<string>('API_URL') || 'https://eazypostv2.onrender.com'}/api/social-accounts/callback/facebook`,
+      callbackURL: `${configService.get<string>('API_URL') || 'https://backend-eazypost.mbokofit.com'}/api/social-accounts/callback/facebook`,
       scope: [
         'email', 
         'public_profile',

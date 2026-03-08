@@ -21,7 +21,7 @@ export class TwitterConnectStrategy extends PassportStrategy(Strategy, 'twitter-
       tokenURL: 'https://api.twitter.com/2/oauth2/token',
       clientID: key || 'placeholder',
       clientSecret: secret || 'placeholder',
-      callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://eazypostv2.onrender.com'}/api/social-accounts/callback/twitter`,
+      callbackURL: configService.get<string>('TWITTER_CALLBACK_URL') || `${configService.get<string>('API_URL') || 'https://backend-eazypost.mbokofit.com'}/api/social-accounts/callback/twitter`,
       scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access', 'dm.read', 'dm.write'],
       scopeSeparator: ' ',
       pkce: true,
