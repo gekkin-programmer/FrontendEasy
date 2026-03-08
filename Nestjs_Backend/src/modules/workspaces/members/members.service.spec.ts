@@ -2,12 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MembersService } from './members.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { EmailService } from '../../../common/providers/email/email.service';
-import { ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('MembersService - MVP Tests', () => {
   let service: MembersService;
-  let prisma: PrismaService;
-  let email: EmailService;
 
   const mockPrismaService = {
     workspaceMember: {
@@ -42,8 +40,6 @@ describe('MembersService - MVP Tests', () => {
     }).compile();
 
     service = module.get<MembersService>(MembersService);
-    prisma = module.get<PrismaService>(PrismaService);
-    email = module.get<EmailService>(EmailService);
   });
 
   it('should be defined', () => {

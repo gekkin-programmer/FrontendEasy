@@ -1,9 +1,8 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  ForbiddenException, 
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
   ConflictException,
-  InternalServerErrorException
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service'; 
 import { EmailService } from '../../../common/providers/email/email.service';

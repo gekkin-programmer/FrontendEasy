@@ -1,13 +1,11 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  ForbiddenException, 
-  ConflictException 
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { WorkspaceRole, WorkspaceStatus } from '@prisma/client';
 import { AppEventsGateway } from '../app-events/app-events.gateway';
 
 @Injectable()
