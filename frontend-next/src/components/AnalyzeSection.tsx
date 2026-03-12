@@ -1,16 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image'; 
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaArrowRight, 
-  FaLightbulb, 
-  FaUserFriends,
-} from 'react-icons/fa';
-import { IoBarChartOutline, IoScanSharp } from 'react-icons/io5';
-import { FiTag, FiCheckCircle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import { FaArrowRight } from 'react-icons/fa';
+import { IoScanSharp } from 'react-icons/io5';
+import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        src?: string; trigger?: string; colors?: string; style?: React.CSSProperties;
+      };
+    }
+  }
+}
 
 // --- UTILS ---
 
@@ -64,11 +69,9 @@ const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
-  <li className="flex items-start gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default group">
-    <div className="text-black mt-1 flex-shrink-0 bg-blue-100 p-2 border-2 border-black group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
-        {icon}
-    </div>
-    <span className="text-black font-bold text-base md:text-lg leading-tight self-center">{children}</span>
+  <li className="flex items-center gap-4 p-4 border-2 border-black bg-white dark:bg-zinc-900 dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default">
+    <div className="flex-shrink-0">{icon}</div>
+    <span className="text-black dark:text-white font-bold text-base md:text-lg leading-tight">{children}</span>
   </li>
 );
 
@@ -273,14 +276,10 @@ const AnalyzeSection = () => {
       aria-label="Analytics Features"
     >
       
-      <div className="absolute right-0 top-0 w-1/3 h-full bg-[#D6EFFF] border-l-4 border-black hidden lg:block z-0 opacity-50">
-         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:100%_40px]"></div>
-      </div>
+      <div className="container mx-auto max-w-3xl relative z-10">
 
-      <div className="container mx-auto grid lg:grid-cols-2 gap-y-16 gap-x-20 items-center max-w-7xl relative z-10">
-        
-        {/* Left Column: Text */}
-        <div className="flex flex-col gap-6 md:gap-8 max-w-lg lg:max-w-none">
+        {/* Full-width Text Column */}
+        <div className="flex flex-col gap-6 md:gap-8">
           <div>
             <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
@@ -295,13 +294,13 @@ const AnalyzeSection = () => {
           </p>
           
           <ul className="space-y-4 mt-4">
-            <FeatureItem icon={<IoBarChartOutline size={24} />}>
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
             </FeatureItem>
-            <FeatureItem icon={<FaUserFriends size={24} />}>
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
             </FeatureItem>
-            <FeatureItem icon={<FiTag size={24} />}>
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
             </FeatureItem>
           </ul>
@@ -314,11 +313,6 @@ const AnalyzeSection = () => {
               <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
             </a>
           </div>
-        </div>
-        
-        {/* Right Column: Visual (HIDDEN on Mobile/Tablet via hidden lg:flex) */}
-        <div className="relative hidden lg:flex items-center justify-center lg:justify-end py-10 lg:py-0">
-            <MainDashboardVisual />
         </div>
 
       </div>

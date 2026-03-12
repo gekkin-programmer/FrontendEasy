@@ -65,6 +65,7 @@ export default function Navbar() {
   const { language, toggleLanguage, t, theme, toggleTheme } = useLanguage();
   
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isDark = theme === 'dark';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
@@ -131,10 +132,12 @@ export default function Navbar() {
     setScrolled(window.scrollY > 10);
   }, []);
 
-  useEffect(() => { 
-    window.addEventListener('scroll', handleScroll); 
-    return () => window.removeEventListener('scroll', handleScroll); 
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const toggleDarkMode = () => {
     toggleTheme();
@@ -200,15 +203,15 @@ export default function Navbar() {
                         transition={{ duration: 0.15 }}
                         className="absolute top-12 left-1/2 -translate-x-1/2 pt-4 w-[600px] z-50"
                     >
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-zinc-700 p-6 grid grid-cols-2 gap-8 relative">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-zinc-900 border-t-2 border-l-2 border-black dark:border-zinc-700 rotate-45"></div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-white/10 p-6 grid grid-cols-2 gap-8 relative">
+                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-zinc-900 border-t-2 border-l-2 border-black dark:border-white/10 rotate-45"></div>
                             {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
                                 <div key={idx}>
                                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">{getTranslatedText(col.heading)}</h4>
                                     <div className="space-y-4">
                                         {col.links.map(link => (
                                             <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-yellow-100 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-transparent group-hover:border-black transition-all"><link.Icon size={14}/></div>
+                                                <div className="p-2 bg-blue-50 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-transparent group-hover:border-black transition-all"><link.Icon size={14}/></div>
                                                 <div>
                                                     <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] transition-colors">{getTranslatedText(link.label)}</div>
                                                     <div className="text-[10px] text-gray-500 font-medium">{getTranslatedText(link.description!)}</div>
@@ -253,7 +256,7 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isProfileOpen && (
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-full right-0 pt-2 w-56">
-                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border-2 border-black dark:border-zinc-700 p-2 overflow-hidden">
+                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border-2 border-black dark:border-white/10 p-2 overflow-hidden">
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Signed in as</p>
                                         <p className="text-xs font-bold text-black dark:text-white truncate">{user?.email}</p>
@@ -275,7 +278,7 @@ export default function Navbar() {
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>
             <div className="flex gap-1">
                 <button onClick={toggleLanguage} className="p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"><FaGlobe size={16}/></button>
-                <button onClick={toggleDarkMode} className="p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors">{isDark ? <FaSun size={16}/> : <FaMoon size={16}/>}</button>
+                <button onClick={toggleDarkMode} className="p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors">{mounted ? (isDark ? <FaSun size={16}/> : <FaMoon size={16}/>) : <FaMoon size={16}/>}</button>
             </div>
           </div>
 
@@ -374,7 +377,7 @@ export default function Navbar() {
                 
                 <div className="flex justify-center gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-white/10">
                     <button onClick={toggleLanguage} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500"><FaGlobe /> {language === 'fr' ? 'English' : 'Français'}</button>
-                    <button onClick={toggleDarkMode} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500">{isDark ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>}</button>
+                    <button onClick={toggleDarkMode} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500">{mounted ? (isDark ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>) : <><FaMoon /> Dark Mode</>}</button>
                 </div>
              </div>
           </motion.div>
