@@ -6,9 +6,11 @@ import { FaArrowRight, FaWhatsapp, FaHeadset } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext'; 
 
 // --- COMPONENTS ---
-const BrutalButton = ({ children, icon, color, href }: any) => (
+const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
   <a
     href={href}
+    target={target}
+    rel={rel}
     className={`
       flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 font-black text-sm md:text-lg uppercase tracking-wider
       border-4 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000]
@@ -79,7 +81,7 @@ export default function SupportSection() {
           <BrutalButton href="/help" color="primary" icon={<FaHeadset />}>
             {t("HELP CENTER", "CENTRE D'AIDE")}
           </BrutalButton>
-          <BrutalButton href="#" color="whatsapp" icon={<FaWhatsapp />}>
+          <BrutalButton href="https://whatsapp.com/channel/0029VbC0LNr9WtCDNpRnPn27" color="whatsapp" icon={<FaWhatsapp />} target="_blank" rel="noopener noreferrer">
             {t("WHATSAPP COMMUNITY", "COMMUNAUTÉ WHATSAPP")}
           </BrutalButton>
         </div>

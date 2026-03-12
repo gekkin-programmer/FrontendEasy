@@ -16,36 +16,30 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // 1. Language Initialization
-  const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('app_language') as Language;
-      if (saved) return saved;
+  // 1. Language Initialization — always start with 'en' for SSR consistency
+  const [language, setLanguage] = useState<Language>('en');
+
+  // 2. Theme Initialization — always start with 'dark' for SSR consistency
+  const [theme, setTheme] = useState<Theme>('dark');
+
+  // Hydrate language and theme from localStorage after mount
+  useEffect(() => {
+    const savedLang = localStorage.getItem('app_language') as Language;
+    if (savedLang) {
+      setLanguage(savedLang);
+    } else {
       const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
       localStorage.setItem('app_language', deviceLang);
-      return deviceLang;
+      setLanguage(deviceLang);
     }
-    return 'en';
-  });
 
-  // 2. Theme Initialization
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme') as Theme;
-      if (saved) {
-        if (saved === 'dark') document.documentElement.classList.add('dark');
-        else document.documentElement.classList.remove('dark');
-        return saved;
-      }
-      // Default to dark for EasyPost
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      return 'dark';
-    }
-    return 'dark';
-  });
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    const resolvedTheme = savedTheme || 'dark';
+    if (!savedTheme) localStorage.setItem('theme', 'dark');
+    setTheme(resolvedTheme);
+  }, []);
 
-  // Apply theme to document class on mount and when changed
+  // Apply theme class whenever theme changes
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');

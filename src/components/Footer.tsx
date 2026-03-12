@@ -30,14 +30,14 @@ const Footer: React.FC = () => {
         { label: t('Blog', 'Blog'), href: '#' },
         { label: t('Community', 'Communauté'), href: '/community' },
         { label: t('Creator Fund', 'Fonds Créateur'), href: '/creator-fund' },
-        { label: t('Help Center', "Centre d'aide"), href: '#' },
+        { label: t('Help Center', "Centre d'aide"), href: '/help' },
         { label: t('Contact', 'Contact'), href: '#' },
       ],
     },
     {
       title: t('Company', 'Entreprise'),
       links: [
-        { label: t('About Us', 'À propos'), href: '#' },
+        { label: t('About Us', 'À propos'), href: '/about' },
         { label: t('Careers', 'Carrières'), href: '#' },
         { label: t('Partners', 'Partenaires'), href: '#' },
         { label: t('Press', 'Presse'), href: '#' },
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-black dark:bg-zinc-950 text-white border-t-4 border-white dark:border-zinc-800 font-sans transition-colors">
+    <footer className="bg-black dark:bg-zinc-950 text-white border-t-4 border-black dark:border-white/10 font-sans transition-colors">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-bold text-gray-300 dark:text-zinc-400 hover:text-white dark:hover:text-white hover:underline decoration-2 decoration-yellow-400 underline-offset-4 transition-all uppercase"
+                      className="text-sm font-bold text-gray-300 dark:text-zinc-400 hover:text-white dark:hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
                     >
                       {link.label}
                     </Link>
