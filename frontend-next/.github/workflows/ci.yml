@@ -1,0 +1,85 @@
+name: CI/CD — Frontend Pipeline
+
+# ──────────────────────────────────────────────────────
+# Trigger: every push to `dev`
+#
+# Flow:
+#   push to dev
+#     └── Next.js: lint → test → build
+#                 │
+#                 ▼  passes
+#     fast-forward main ← dev
+#                 │
+#                 ▼
+#     Dokploy auto-deploy (triggered by main push)
+# ──────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  # ── Job 1: Next.js Frontend ───────────────────────
+  frontend-checks:
+    name: Next.js — Lint · Test · Build
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_API_URL: https://eazypostv2.onrender.com/api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test -- --passWithNoTests --ci
+
+      - name: Build
+        run: pnpm build
+
+  # ── Job 2: Promote dev → main ─────────────────────
+  promote-to-main:
+    name: Promote dev → main
+    needs: [frontend-checks]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fast-forward main to dev
+        run: |
+          git fetch origin main
+          git checkout main
+          git merge origin/dev --ff-only
+          git push origin main
