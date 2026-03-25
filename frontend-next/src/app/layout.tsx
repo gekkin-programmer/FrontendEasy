@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner"; 
+import { Toaster } from "sonner";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
-import Footer from "../components/Footer"; 
-import QueryProvider from "@/src/providers/query-provider"; 
+import Footer from "../components/Footer";
+import QueryProvider from "@/src/providers/query-provider";
+import dynamic from "next/dynamic";
+
+const AgentationWrapper = process.env.NODE_ENV === "development"
+  ? dynamic(() => import("../components/AgentationWrapper"), { ssr: false })
+  : () => null;
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -68,6 +73,7 @@ export default function RootLayout({
         
         <QueryProvider>
           <LanguageProvider>
+            <AgentationWrapper />
             {/* NEUBRUTALIST GLOBAL TOASTER */}
             <Toaster 
               position="bottom-right" 
