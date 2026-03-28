@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -19,10 +27,22 @@ export class PaymentsController {
       planType: string;
       amount: number;
       phone: string;
+      operator: string;
       billingCycle: string;
     },
   ) {
     return this.paymentsService.initiateDeposit(req.user.sub, body);
+  }
+
+  @Get('status/:transactionId')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Poll transaction status' })
+  getStatus(@Param('transactionId') transactionId: string, @Req() req) {
+    return this.paymentsService.getTransactionStatus(
+      transactionId,
+      req.user.sub,
+    );
   }
 
   @Post('webhook/pawapay')

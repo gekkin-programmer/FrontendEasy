@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -13,8 +17,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {
-    // Pawapay configuration (Sandbox or Production)
-    this.pawaPayBaseUrl = 'https://api.pawapay.cloud/v1'; // Standard URL
+    this.pawaPayBaseUrl = 'https://api.pawapay.cloud/v1';
     this.pawaPayToken =
       this.configService.get<string>('PAWAPAY_API_TOKEN') || '';
   }
@@ -25,10 +28,12 @@ export class PaymentsService {
       planType: any;
       amount: number;
       phone: string;
+      operator: string;
       billingCycle: string;
     },
   ) {
     const depositId = uuidv4();
+    const correspondent = this.getCorrespondent(data.phone, data.operator);
 
     // 1. Create PENDING transaction in DB
     const transaction = await this.prisma.transaction.create({
@@ -40,22 +45,22 @@ export class PaymentsService {
         billingCycle: data.billingCycle,
         status: 'PENDING',
         provider: 'PAWAPAY',
-        metadata: { phone: data.phone },
+        metadata: { phone: data.phone, operator: correspondent },
       },
     });
 
-    // 2. Call PawaPay API
-    // Documentation: https://docs.pawapay.io/
+    // 2. Call PawaPay Deposits API
     try {
       const response = await axios.post(
         `${this.pawaPayBaseUrl}/deposits`,
         {
-          depositId: depositId,
+          depositId,
           amount: data.amount.toString(),
           currency: 'XAF',
-          country: 'CM', // Default to Cameroon, can be dynamic
-          correspondent: this.getCorrespondent(data.phone),
+          country: 'CMR',
+          correspondent,
           payer: {
+            type: 'MSISDN',
             address: { value: data.phone },
           },
           customerTimestamp: new Date().toISOString(),
@@ -78,16 +83,26 @@ export class PaymentsService {
     } catch (error) {
       console.error('PawaPay Error:', error.response?.data || error.message);
 
-      // Update transaction status if initiation failed
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: { status: 'FAILED' },
       });
 
       throw new InternalServerErrorException(
-        'Could not initiate payment with PawaPay',
+        error.response?.data?.message ||
+          'Could not initiate payment with PawaPay',
       );
     }
+  }
+
+  async getTransactionStatus(transactionId: string, userId: string) {
+    const transaction = await this.prisma.transaction.findFirst({
+      where: { id: transactionId, userId },
+      select: { status: true, planType: true, billingCycle: true, amount: true },
+    });
+
+    if (!transaction) throw new NotFoundException('Transaction not found');
+    return transaction;
   }
 
   // Handle Webhook from PawaPay
@@ -98,22 +113,19 @@ export class PaymentsService {
       where: { id: depositId },
     });
 
-    if (!transaction) return;
+    if (!transaction) return { received: true };
 
     if (status === 'COMPLETED') {
-      // 1. Mark transaction as COMPLETED
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: { status: 'COMPLETED' },
       });
 
-      // 2. Calculate expiration date
       const expiresAt =
         transaction.billingCycle === 'YEARLY'
           ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
           : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-      // 3. Update User Plan
       await this.prisma.user.update({
         where: { id: transaction.userId },
         data: {
@@ -131,16 +143,21 @@ export class PaymentsService {
     return { received: true };
   }
 
-  private getCorrespondent(phone: string): string {
-    // Simple logic to detect MTN or ORANGE in Cameroon
-    // 67, 68, 650-654 = MTN
-    // 69, 655-659 = ORANGE
+  // Map frontend operator key → PawaPay correspondent code
+  private getCorrespondent(phone: string, operator?: string): string {
+    if (operator === 'MTN_MOMO_CM') return 'MTN_MOMO_CMR';
+    if (operator === 'ORANGE_MONEY_CM') return 'ORANGE_CMR';
+
+    // Fallback: detect from Cameroonian phone prefix
+    // MTN: 67x, 68x, 650-654
+    const local = phone.replace(/^237/, '');
     if (
-      phone.startsWith('23767') ||
-      phone.startsWith('23768') ||
-      phone.startsWith('237650')
-    )
-      return 'MTN_MOMO_CM';
-    return 'ORANGE_MONEY_CM';
+      local.startsWith('67') ||
+      local.startsWith('68') ||
+      /^65[0-4]/.test(local)
+    ) {
+      return 'MTN_MOMO_CMR';
+    }
+    return 'ORANGE_CMR';
   }
 }

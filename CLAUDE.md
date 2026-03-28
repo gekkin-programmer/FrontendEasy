@@ -64,6 +64,12 @@ The schema is at `Nestjs_Backend/prisma/schema.prisma`. Uses two connection stri
 
 **Workspace scoping** — Almost every entity belongs to a `Workspace`. Guards (`workspace.guard.ts`, `permission.guard.ts`) extract `workspaceId` from request params and check membership/role before any service call.
 
+**Payments** — `src/modules/payments/` handles subscriptions via PawaPay (Mobile Money, Cameroon).
+- `POST /payments/initiate` (JWT-guarded) — creates a `Transaction` (PENDING), calls PawaPay `/v1/deposits`. Requires `{ planType, amount, phone, operator, billingCycle }`. Operator values: `MTN_MOMO_CM` or `ORANGE_MONEY_CM` (mapped internally to `MTN_MOMO_CMR` / `ORANGE_CMR`).
+- `GET /payments/status/:transactionId` (JWT-guarded) — frontend polls this every 5 s to detect COMPLETED/FAILED.
+- `POST /payments/webhook/pawapay` (public) — PawaPay posts status updates here; on COMPLETED it upgrades `User.planType` and sets `User.planExpiresAt`.
+- Required env var: `PAWAPAY_API_TOKEN`. Webhook URL to register in PawaPay dashboard: `https://backend-eazypost.mbokofit.com/api/payments/webhook/pawapay`.
+
 ---
 
 ## Frontend (`frontend-next/`)
