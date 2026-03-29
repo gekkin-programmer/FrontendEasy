@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, User, Calendar, ExternalLink } from 'lucide-react';
+import { ThumbsUp, User, Calendar, ExternalLink } from 'lucide-react';
 import { api } from '@/src/lib/api';
 import SpinningLoader from '@/src/components/SpinningLoader';
 

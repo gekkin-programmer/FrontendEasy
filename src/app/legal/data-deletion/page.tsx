@@ -13,7 +13,7 @@ export default function DataDeletionPage() {
 
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Data Deletion Instructions</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-          In compliance with the Meta Platform Terms and applicable privacy laws, this page explains how to remove EazyPost's access to your Facebook and Instagram data, and how to permanently delete your EazyPost account and all associated data.
+          In compliance with the Meta Platform Terms and applicable privacy laws, this page explains how to remove EazyPost&apos;s access to your Facebook and Instagram data, and how to permanently delete your EazyPost account and all associated data.
         </p>
 
         <div className="space-y-8 text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -24,17 +24,17 @@ export default function DataDeletionPage() {
               Method 1 — Revoke Facebook / Instagram Access (Recommended)
             </h2>
             <p className="mb-4 text-sm">
-              This removes EazyPost's access to your Facebook and Instagram data. Your EazyPost account will remain active but social accounts will be disconnected.
+              This removes EazyPost&apos;s access to your Facebook and Instagram data. Your EazyPost account will remain active but social accounts will be disconnected.
             </p>
             <ol className="list-decimal pl-5 space-y-3 text-sm">
               <li>Go to <strong>Facebook.com → Settings &amp; Privacy → Settings</strong>.</li>
-              <li>In the left sidebar, click <strong>"Apps and Websites"</strong>.</li>
-              <li>Find <strong>"EazyPost"</strong> in the list and click it.</li>
-              <li>Click <strong>"Remove"</strong> and confirm.</li>
+              <li>In the left sidebar, click <strong>&quot;Apps and Websites&quot;</strong>.</li>
+              <li>Find <strong>&quot;EazyPost&quot;</strong> in the list and click it.</li>
+              <li>Click <strong>&quot;Remove&quot;</strong> and confirm.</li>
               <li>Facebook will notify EazyPost via our Data Deletion Callback URL, and we will delete all data obtained through those permissions within 48 hours.</li>
             </ol>
             <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-              Alternatively, within the EazyPost dashboard, go to <strong>Settings → Connected Accounts</strong> and click "Disconnect" next to any Facebook or Instagram account.
+              Alternatively, within the EazyPost dashboard, go to <strong>Settings → Connected Accounts</strong> and click &quot;Disconnect&quot; next to any Facebook or Instagram account.
             </p>
           </section>
 

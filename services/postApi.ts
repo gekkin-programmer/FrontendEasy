@@ -10,5 +10,5 @@ export const createPost = async (params: {
 }) => {
   const { workspaceId, ...body } = params;
   const endpoint = workspaceId ? `/posts?workspaceId=${workspaceId}` : '/posts';
-  return api.post<any>(endpoint, body);
+  return api.post<Record<string, unknown>>(endpoint, body);
 };
