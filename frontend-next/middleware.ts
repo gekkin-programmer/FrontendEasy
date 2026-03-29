@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
       // SUCCESS: ALLOW ACCESS
       return NextResponse.next();
-    } catch (err) {
+    } catch {
       console.error(`[SECURITY] Invalid token attempt for ${pathname}`);
       return NextResponse.redirect(new URL('/login?reason=expired', request.url));
     }
@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
       const secret = new TextEncoder().encode(JWT_SECRET);
       await jwtVerify(token, secret);
       return NextResponse.next();
-    } catch (err) {
+    } catch {
       return NextResponse.redirect(new URL('/login?reason=expired', request.url));
     }
   }
