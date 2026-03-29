@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Introduction</h2>
             <p>
-              EazyPost ("EazyPost," "we," "our," or "us") is a social media management platform operated by EazyPost Inc., headquartered in Cameroon. We are committed to protecting your personal information and your right to privacy.
+              EazyPost (&quot;EazyPost,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is a social media management platform operated by EazyPost Inc., headquartered in Cameroon. We are committed to protecting your personal information and your right to privacy.
             </p>
             <p className="mt-3">
               This Privacy Policy applies to all information collected through our website at <strong>https://eazyposttio.vercel.app</strong>, our mobile applications, and any related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
