@@ -55,7 +55,7 @@ export default function DataDeletionPage() {
                 <a href="mailto:support@eazypost.cm?subject=Data%20Deletion%20Request" className="text-blue-600 hover:underline font-semibold">
                   support@eazypost.cm
                 </a>{' '}
-                with the subject line <strong>"Data Deletion Request"</strong>. Include your registered email address and, if applicable, the Facebook user ID or Page ID associated with the account.
+                with the subject line <strong>&quot;Data Deletion Request&quot;</strong>. Include your registered email address and, if applicable, the Facebook user ID or Page ID associated with the account.
               </li>
             </ol>
             <p className="mt-4 text-sm">

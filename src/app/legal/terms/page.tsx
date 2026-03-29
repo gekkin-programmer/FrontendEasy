@@ -69,7 +69,7 @@ export default function TermsPage() {
               EazyPost integrates with third-party social media platforms. By connecting your accounts, you authorize EazyPost to act on your behalf within the scope of the permissions you grant. You acknowledge and agree that:
             </p>
             <ul className="list-disc pl-5 space-y-2 mt-3">
-              <li>Your use of connected platforms remains subject to those platforms' own terms and policies.</li>
+              <li>Your use of connected platforms remains subject to those platforms&apos; own terms and policies.</li>
               <li>EazyPost is an independent service and is not endorsed by, affiliated with, or sponsored by Meta, Instagram, LinkedIn, Twitter/X, or TikTok.</li>
               <li>We cannot guarantee uninterrupted API access to third-party platforms, as access may be modified or revoked by those platforms at any time.</li>
               <li>You are solely responsible for the content you publish through EazyPost and for ensuring it complies with applicable platform rules.</li>
@@ -90,7 +90,7 @@ export default function TermsPage() {
             <ul className="list-disc pl-5 space-y-2">
               <li>EazyPost offers free and paid subscription tiers. Paid features are described on our <a href="/pricing" className="text-blue-600 hover:underline">Pricing page</a>.</li>
               <li>Paid subscriptions are billed in advance on a monthly or annual basis. All fees are non-refundable except where required by applicable law.</li>
-              <li>We reserve the right to modify pricing with 30 days' notice to existing subscribers.</li>
+              <li>We reserve the right to modify pricing with 30 days&apos; notice to existing subscribers.</li>
               <li>Free tier usage is subject to monthly limits (e.g., number of posts per month) as displayed in the dashboard.</li>
             </ul>
           </section>
