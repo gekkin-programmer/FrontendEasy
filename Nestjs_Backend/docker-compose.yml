@@ -1,26 +1,80 @@
 version: '3.8'
 
+networks:
+  dokploy-network:
+    external: true
+
 services:
-  # The Database
-  db:
-    image: postgres:15-alpine
-    container_name: eazypost_db_container
-    restart: always
+  backend:
+    build:
+      context: ./Nestjs_Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - '3000'
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-eazypost.rule=Host(`backend-eazypost.mbokofit.com`)"
+      - "traefik.http.routers.backend-eazypost.entrypoints=websecure"
+      - "traefik.http.routers.backend-eazypost.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend-eazypost.loadbalancer.server.port=3000"
+      - "traefik.docker.network=dokploy-network"
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: eazypost_db
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Database (Neon serverless)
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
 
-  # The GUI 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - '8080:8080'
+      # Auth
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ADMIN_EMAILS: ${ADMIN_EMAILS}
 
-volumes:
-  postgres_data:
+      # Redis (BullMQ queues)
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_TLS: ${REDIS_TLS}
+
+      # AI
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+
+      # Email
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+
+      # OAuth
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+
+      # Media
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
+      # Payments
+      PAWAPAY_API_TOKEN: ${PAWAPAY_API_TOKEN}
+
+      # App
+      FRONTEND_URL: ${FRONTEND_URL}
+      PORT: ${PORT:-3000}
+
+  ml_service:
+    build:
+      context: ./ml_service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - '8000'
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ml-eazypost.rule=Host(`eazypost-ml-service.mbokofit.com`)"
+      - "traefik.http.routers.ml-eazypost.entrypoints=websecure"
+      - "traefik.http.routers.ml-eazypost.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ml-eazypost.loadbalancer.server.port=8000"
+      - "traefik.docker.network=dokploy-network"
