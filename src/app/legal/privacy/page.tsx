@@ -24,7 +24,7 @@ export default function PrivacyPage() {
               EazyPost (&quot;EazyPost,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is a social media management platform operated by EazyPost Inc., headquartered in Cameroon. We are committed to protecting your personal information and your right to privacy.
             </p>
             <p className="mt-3">
-              This Privacy Policy applies to all information collected through our website at <strong>https://eazyposttio.vercel.app</strong>, our mobile applications, and any related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
+              This Privacy Policy applies to all information collected through our website at <strong>https://eazyposttio.vercel.app</strong>, our mobile applications, and any related services (collectively, the &quot;Service&quot;). By using the Service, you agree to the collection and use of information in accordance with this policy.
             </p>
           </section>
 
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
 
           {/* 9. Children */}
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">9. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">9. Children&apos;s Privacy</h2>
             <p>
               EazyPost is not directed to individuals under the age of 13. We do not knowingly collect personal data from children under 13. If you believe we have inadvertently collected such data, please contact us immediately at <a href="mailto:support@eazypost.cm" className="text-blue-600 hover:underline">support@eazypost.cm</a> and we will delete it promptly.
             </p>
@@ -167,7 +167,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">12. Changes to This Policy</h2>
             <p>
-              We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy on this page and updating the "Last Updated" date. Continued use of the Service after changes constitutes acceptance of the updated policy.
+              We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date. Continued use of the Service after changes constitutes acceptance of the updated policy.
             </p>
           </section>
 

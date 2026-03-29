@@ -21,7 +21,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using EazyPost ("the Service") operated by EazyPost Inc. ("EazyPost," "we," "our," or "us"), you confirm that you are at least 13 years of age, have read and understood these Terms of Service ("Terms"), and agree to be legally bound by them. If you do not agree, you must not use the Service.
+              By accessing or using EazyPost (&quot;the Service&quot;) operated by EazyPost Inc. (&quot;EazyPost,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;), you confirm that you are at least 13 years of age, have read and understood these Terms of Service (&quot;Terms&quot;), and agree to be legally bound by them. If you do not agree, you must not use the Service.
             </p>
           </section>
 
@@ -110,7 +110,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">9. Disclaimer of Warranties</h2>
             <p>
-              THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT PUBLISHED CONTENT WILL REACH ITS INTENDED AUDIENCE ON THIRD-PARTY PLATFORMS.
+              THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT PUBLISHED CONTENT WILL REACH ITS INTENDED AUDIENCE ON THIRD-PARTY PLATFORMS.
             </p>
           </section>
 
