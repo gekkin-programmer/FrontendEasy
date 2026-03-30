@@ -126,7 +126,7 @@ export default function CalendarHeatmap({ workspaceId, onClose }: { workspaceId:
                  
                  <div className="bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 flex items-center gap-2 border-2 border-dashed border-blue-200 dark:border-blue-800">
                     <Info size={12} className="text-blue-500" />
-                    <span className="text-[9px] font-bold uppercase text-blue-600 dark:text-blue-400">Pro Tip: Schedule during "Hottest" slots to increase reach by up to 25%</span>
+                    <span className="text-[9px] font-bold uppercase text-blue-600 dark:text-blue-400">Pro Tip: Schedule during &ldquo;Hottest&rdquo; slots to increase reach by up to 25%</span>
                  </div>
               </div>
             </div>

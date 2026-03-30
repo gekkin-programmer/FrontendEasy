@@ -203,8 +203,10 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (selectionMode === 'facebook') {
-            if (token) setTempExchangeToken(token);
-            setIsFbPageSelectorOpen(true);
+            setTimeout(() => {
+                if (token) setTempExchangeToken(token);
+                setIsFbPageSelectorOpen(true);
+            }, 0);
         }
 
         if (connected === 'true' || success === 'true') {

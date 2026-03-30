@@ -101,7 +101,7 @@ export default function LoginPage() {
           <div className="flex gap-1 mb-3">
             {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
           </div>
-          <p className="text-gray-200 mb-6 leading-relaxed">"The workspace feature changed how we handle multiple clients. It's simply the best tool out there."</p>
+          <p className="text-gray-200 mb-6 leading-relaxed">&ldquo;The workspace feature changed how we handle multiple clients. It&apos;s simply the best tool out there.&rdquo;</p>
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
                 <Image 
@@ -210,7 +210,7 @@ export default function LoginPage() {
 
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="font-bold text-[#3C48F6] hover:text-blue-700 transition-colors">
                 Sign up
               </Link>

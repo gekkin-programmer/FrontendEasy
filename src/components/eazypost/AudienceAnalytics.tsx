@@ -144,7 +144,7 @@ export default function AudienceAnalytics({ workspaceId }: { workspaceId: string
                 </div>
                 <div>
                    <h4 className="font-black uppercase text-xs mb-1">Growth_Opportunity</h4>
-                   <p className="text-[10px] font-medium leading-tight">"Regulars" segment grew by 12% this week. Target them with a "Tag a friend" challenge to maximize reach.</p>
+                   <p className="text-[10px] font-medium leading-tight">&ldquo;Regulars&rdquo; segment grew by 12% this week. Target them with a &ldquo;Tag a friend&rdquo; challenge to maximize reach.</p>
                 </div>
              </div>
           </div>

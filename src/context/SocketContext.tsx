@@ -15,6 +15,7 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children, workspaceId }: { children: React.ReactNode, workspaceId?: string }) => {
   const [isConnected, setIsConnected] = useState(false);
+  const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     socket.on('joined', () => {});
 
     socketRef.current = socket;
+    setTimeout(() => setSocketInstance(socket), 0);
 
     return () => {
       socket.off('connect');
@@ -53,7 +55,7 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
   }, [workspaceId]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
+    <SocketContext.Provider value={{ socket: socketInstance, isConnected }}>
       {children}
     </SocketContext.Provider>
   );
