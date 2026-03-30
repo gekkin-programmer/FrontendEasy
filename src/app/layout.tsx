@@ -6,11 +6,7 @@ import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer";
 import QueryProvider from "@/src/providers/query-provider";
-import dynamic from "next/dynamic";
-
-const AgentationWrapper = process.env.NODE_ENV === "development"
-  ? dynamic(() => import("../components/AgentationWrapper"), { ssr: false })
-  : () => null;
+import AgentationLoader from "../components/AgentationLoader";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -73,7 +69,7 @@ export default function RootLayout({
         
         <QueryProvider>
           <LanguageProvider>
-            <AgentationWrapper />
+            <AgentationLoader />
             {/* NEUBRUTALIST GLOBAL TOASTER */}
             <Toaster 
               position="bottom-right" 
