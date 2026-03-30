@@ -51,7 +51,7 @@ jobs:
         run: pnpm lint
 
       - name: Unit tests
-        run: pnpm test -- --passWithNoTests --ci
+        run: pnpm test --passWithNoTests --ci
 
       - name: Build
         run: pnpm build
