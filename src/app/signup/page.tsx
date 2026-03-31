@@ -56,7 +56,10 @@ const SignupPage = () => {
   }, []);
 
   // API Config
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const API_URL =
+    (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
+      .replace(/\/$/, '')
+      .replace(/\/api$/, '') + '/api';
 
   // --- AUTH HANDLERS ---
   const handleGoogleSignup = () => {
@@ -116,9 +119,9 @@ const SignupPage = () => {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {step === 'FORM' ? 'Create an account' : 'Check your email'}
             </h1>
-            <p className="mt-1 text-base text-gray-600">
+            <p className="mt-2 text-base text-gray-600">
               {step === 'FORM' 
-                ? '' 
+                ? 'Start your 14-day free trial. No credit card required.' 
                 : <span>We sent a verification code to <strong>{formData.email}</strong></span>
               }
             </p>
@@ -235,7 +238,7 @@ const SignupPage = () => {
                     </div>
                     
                     <blockquote className="text-3xl lg:text-4xl font-medium leading-snug text-white mb-8 tracking-tight">
-                        &ldquo;{TESTIMONIALS[currentSlide].quote}&rdquo;
+                        "{TESTIMONIALS[currentSlide].quote}"
                     </blockquote>
 
                     <div className="flex items-center gap-5 border-t border-white/10 pt-8">
