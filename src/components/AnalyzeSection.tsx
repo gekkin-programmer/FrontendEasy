@@ -8,16 +8,6 @@ import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 import SectionBackground from './SectionBackground';
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        src?: string; trigger?: string; colors?: string; style?: React.CSSProperties;
-      };
-    }
-  }
-}
-
 // --- UTILS ---
 
 const AnimatedCounter = ({ value, duration = 1 }: { value: string | number; duration?: number }) => {
