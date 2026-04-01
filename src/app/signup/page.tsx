@@ -238,7 +238,7 @@ const SignupPage = () => {
                     </div>
                     
                     <blockquote className="text-3xl lg:text-4xl font-medium leading-snug text-white mb-8 tracking-tight">
-                        "{TESTIMONIALS[currentSlide].quote}"
+                        &ldquo;{TESTIMONIALS[currentSlide].quote}&rdquo;
                     </blockquote>
 
                     <div className="flex items-center gap-5 border-t border-white/10 pt-8">
