@@ -4,10 +4,11 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FcGoogle } from 'react-icons/fc'; 
+import { FcGoogle } from 'react-icons/fc';
 import { FaGithub, FaCheck, FaStar } from 'react-icons/fa6';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { setCookie } from 'cookies-next';
 
 // --- CAROUSEL DATA ---
 const TESTIMONIALS = [
@@ -16,21 +17,21 @@ const TESTIMONIALS = [
     quote: "The category-specific features saved us hours. Being able to choose the 'Agency' workflow from day one was a game changer.",
     author: "Sarah Jenkins",
     role: "Marketing Director @ TechFlow",
-    image: "/assets/Sarah.jpg", 
+    image: "/assets/Sarah.jpg",
   },
   {
     id: 2,
     quote: "Finally, a tool that understands the African market. The mobile money integration doubled our conversion rate in a week.",
     author: "David Okonjo",
     role: "CEO @ Lagos Ventures",
-    image: "/assets/3.jpg", 
+    image: "/assets/3.jpg",
   },
   {
     id: 3,
     quote: "The AI assistant speaks Nouchi perfectly. Our engagement on Instagram exploded because the captions actually feel real.",
     author: "Aïcha Diallo",
     role: "Content Creator @ AbidjanStyle",
-    image: "/assets/PBD.jpg", 
+    image: "/assets/PBD.jpg",
   }
 ];
 
@@ -51,7 +52,7 @@ const SignupPage = () => {
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % TESTIMONIALS.length);
-    }, 6000); 
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
@@ -98,8 +99,14 @@ const SignupPage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Verification failed');
-      
-      localStorage.setItem('accessToken', data.accessToken);
+
+      if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
+      setCookie('accessToken', data.accessToken, {
+        maxAge: 60 * 60 * 24,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.message);
@@ -110,18 +117,26 @@ const SignupPage = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 lg:grid lg:grid-cols-2 relative font-sans">
-      
+
       {/* LEFT COLUMN: FORM */}
-        <div className="relative hidden lg:flex flex-col h-screen w-full bg-[#FFFFFF] overflow-hidden sticky top-0">
-        <div className="mx-auto w-full max-w-[480px]">
+      <div className="relative flex flex-col justify-center items-center h-screen w-full bg-white overflow-y-auto px-6 py-12 lg:px-12 sticky top-0">
+        <div className="w-full max-w-[480px]">
+
+          {/* Mobile Logo */}
+          <div className="mb-8 lg:hidden">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <Image src="/assets/WiggleLogo.png" alt="EazyPost" width={36} height={36} className="object-contain" />
+              <span className="font-bold text-lg text-gray-900">EazyPost</span>
+            </Link>
+          </div>
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {step === 'FORM' ? 'Create an account' : 'Check your email'}
             </h1>
             <p className="mt-2 text-base text-gray-600">
-              {step === 'FORM' 
-                ? 'Start your 14-day free trial. No credit card required.' 
+              {step === 'FORM'
+                ? 'Start your 14-day free trial. No credit card required.'
                 : <span>We sent a verification code to <strong>{formData.email}</strong></span>
               }
             </p>
@@ -191,7 +206,7 @@ const SignupPage = () => {
                <button type="button" onClick={() => setStep('FORM')} className="w-full text-sm text-gray-500 hover:text-gray-900 mt-4 underline decoration-gray-300 underline-offset-4">Change email address</button>
             </form>
           )}
-          
+
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600">Already have an account? <Link href="/login" className="font-bold text-[#3C48F6] hover:text-blue-700 transition-colors">Log in</Link></p>
           </div>
@@ -200,7 +215,7 @@ const SignupPage = () => {
 
       {/* RIGHT COLUMN: HIGH-END CAROUSEL */}
       <div className="relative hidden lg:flex flex-col h-full w-full bg-[#050505] overflow-hidden">
-        
+
         {/* Background Image Carousel */}
         <AnimatePresence mode='popLayout'>
             <motion.div
@@ -211,12 +226,12 @@ const SignupPage = () => {
                 transition={{ duration: 1.5, ease: "easeInOut" }}
                 className="absolute inset-0 w-full h-full"
             >
-                <Image 
-                    src={TESTIMONIALS[currentSlide].image} 
-                    alt="Background" 
-                    fill 
-                    className="object-cover" 
-                    priority 
+                <Image
+                    src={TESTIMONIALS[currentSlide].image}
+                    alt="Background"
+                    fill
+                    className="object-cover"
+                    priority
                 />
             </motion.div>
         </AnimatePresence>
@@ -236,7 +251,7 @@ const SignupPage = () => {
                     <div className="flex gap-1 mb-6">
                         {[1,2,3,4,5].map(i => <FaStar key={i} className="text-yellow-400 text-lg" />)}
                     </div>
-                    
+
                     <blockquote className="text-3xl lg:text-4xl font-medium leading-snug text-white mb-8 tracking-tight">
                         &ldquo;{TESTIMONIALS[currentSlide].quote}&rdquo;
                     </blockquote>
@@ -258,7 +273,7 @@ const SignupPage = () => {
                 {TESTIMONIALS.map((_, index) => (
                     <div key={index} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
                         {index === currentSlide && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ width: "0%" }}
                                 animate={{ width: "100%" }}
                                 transition={{ duration: 6, ease: "linear" }}
