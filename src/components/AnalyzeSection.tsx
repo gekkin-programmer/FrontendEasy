@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaLightbulb } from 'react-icons/fa';
 import { IoScanSharp } from 'react-icons/io5';
 import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
