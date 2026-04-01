@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { Sparkles, ArrowRight, Upload, Grid3X3, Link2, Plus, PenTool } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground'; 
 
 // ---------- Types ----------
 interface CardData {
@@ -46,7 +47,7 @@ const doneCards: CardData[] = [
 const textsToType = [
   { en: "Create stunning posts effortlessly!", fr: "Créez des publications époustouflantes facilement !" },
   { en: "Plan, schedule, and post in seconds", fr: "Planifiez, programmez et publiez en quelques secondes" },
-  { en: "EazyPost makes posting fun and simple", fr: "EazyPost rend la publication amusante et simple" },
+  { en: "EasyPost makes posting fun and simple", fr: "EasyPost rend la publication amusante et simple" },
 ];
 
 const TYPE_SPEED = 70;
@@ -105,8 +106,7 @@ export default function CreateSection() {
       aria-label="Content Creation Features"
     >
       
-      {/* Decorative Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-white/5 pointer-events-none"></div>
+      <SectionBackground />
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
         
@@ -122,8 +122,8 @@ export default function CreateSection() {
 
           <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-8 border-[#3C48F6] pl-6 leading-snug">
             {t(
-              "Whether you’re flying solo or working with a team, EazyPost has all the features to help you create, organize, and repurpose your content.",
-              "Que vous travailliez seul ou en équipe, EazyPost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
+              "Whether you’re flying solo or working with a team, EasyPost has all the features to help you create, organize, and repurpose your content.",
+              "Que vous travailliez seul ou en équipe, EasyPost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
             )}
           </p>
 

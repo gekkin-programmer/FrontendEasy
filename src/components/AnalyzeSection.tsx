@@ -1,16 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image'; 
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaArrowRight, 
-  FaLightbulb, 
-  FaUserFriends,
-} from 'react-icons/fa';
-import { IoBarChartOutline, IoScanSharp } from 'react-icons/io5';
-import { FiTag, FiCheckCircle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import { FaArrowRight } from 'react-icons/fa';
+import { IoScanSharp } from 'react-icons/io5';
+import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        src?: string; trigger?: string; colors?: string; style?: React.CSSProperties;
+      };
+    }
+  }
+}
 
 // --- UTILS ---
 
@@ -64,11 +70,9 @@ const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
-  <li className="flex items-start gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default group">
-    <div className="text-black mt-1 flex-shrink-0 bg-blue-100 p-2 border-2 border-black group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
-        {icon}
-    </div>
-    <span className="text-black font-bold text-base md:text-lg leading-tight self-center">{children}</span>
+  <li className="flex items-center gap-4 p-4 border-2 border-black bg-white dark:bg-zinc-900 dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default">
+    <div className="flex-shrink-0">{icon}</div>
+    <span className="text-black dark:text-white font-bold text-base md:text-lg leading-tight">{children}</span>
   </li>
 );
 
@@ -272,12 +276,12 @@ const AnalyzeSection = () => {
       className="bg-white dark:bg-black/90 border-y-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
       aria-label="Analytics Features"
     >
-      
-      <div className="container mx-auto max-w-4xl relative z-10">
-        
-        {/* Centered Content */}
-        <div className="flex flex-col gap-6 md:gap-8 items-center text-center">
-          <div className="flex flex-col items-center">
+      <SectionBackground />
+      <div className="container mx-auto max-w-3xl relative z-10">
+
+        {/* Full-width Text Column */}
+        <div className="flex flex-col gap-6 md:gap-8">
+          <div>
             <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
               ANSWERS.<br/>
@@ -286,18 +290,18 @@ const AnalyzeSection = () => {
             </h2>
           </div>
           
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 md:border-l-0 md:border-t-8 border-[#3C48F5] pl-6 md:pl-0 pt-4 md:pt-6 py-2 bg-gray-50 dark:bg-white/5 max-w-2xl">
-            {t("Most tools just show you a graph and wish you luck. EazyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EazyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
+          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
+            {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
           </p>
           
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 w-full">
-            <FeatureItem icon={<IoBarChartOutline size={24} />}>
+          <ul className="space-y-4 mt-4">
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
             </FeatureItem>
-            <FeatureItem icon={<FaUserFriends size={24} />}>
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
             </FeatureItem>
-            <FeatureItem icon={<FiTag size={24} />}>
+            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
               {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
             </FeatureItem>
           </ul>
@@ -311,7 +315,7 @@ const AnalyzeSection = () => {
             </a>
           </div>
         </div>
-        
+
       </div>
     </section>
   );

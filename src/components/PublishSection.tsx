@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { Calendar, Clock, Wand2, Bell, CheckCircle } from "lucide-react";
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 // --- NEUBRUTALIST COMPONENTS ---
 
@@ -30,7 +30,6 @@ const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) =>
 
 export default function PublishSection() {
   const { t } = useLanguage();
-  const publishImage = "/assets/CreateKanban.PNG"; 
 
   return (
     <section 
@@ -38,6 +37,7 @@ export default function PublishSection() {
       aria-label="Publishing Features"
     >
       
+      <SectionBackground />
       {/* Background Decor (CSS Only Animation for Performance) */}
       <div className="absolute top-10 left-10 w-16 h-16 md:w-20 md:h-20 bg-pink-400 border-4 border-black rounded-full opacity-50 animate-pulse pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-24 h-24 md:w-32 md:h-32 bg-green-400 border-4 border-black rotate-12 opacity-50 pointer-events-none"></div>
@@ -60,15 +60,8 @@ export default function PublishSection() {
                 
                 {/* Image Content */}
                 <div className="p-4 bg-gray-100">
-                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-white">
-                        <Image 
-                           src={publishImage}
-                           alt="EazyPost Kanban Scheduling Interface"
-                           fill
-                           className="object-cover object-top"
-                           sizes="(max-width: 768px) 100vw, 50vw"
-                           priority={false} // Lazy load
-                        />
+                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-gray-200 flex items-center justify-center">
+                        <span className="text-xs font-black uppercase text-gray-400 tracking-widest">Coming Soon</span>
                     </div>
                     
                     {/* Simulated UI Actions */}

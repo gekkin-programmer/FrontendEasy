@@ -1,11 +1,12 @@
 "use client";
 import React from 'react';
 import {
-  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube, FaStore, FaGoogle
+  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import { SiThreads } from 'react-icons/si';
-import { useLanguage } from '../context/LanguageContext'; 
+import { SiThreads, SiGoogle } from 'react-icons/si';
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 interface SocialLinkProps {
   name: string;
@@ -42,15 +43,15 @@ const ConnectSection = () => {
   const { t } = useLanguage();
 
   const socialIcons = [
-    { id: 'facebook', name: 'Facebook x EazyPost', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
-    { id: 'instagram', name: 'Instagram x EazyPost', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
-    { id: 'x', name: 'X (Twitter) x EazyPost', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
-    { id: 'linkedin', name: 'LinkedIn x EazyPost', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
-    { id: 'tiktok', name: 'TikTok x EazyPost', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
-    { id: 'youtube', name: 'YouTube x EazyPost', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
-    { id: 'threads', name: 'Threads x EazyPost', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
-    { id: 'pinterest', name: 'Pinterest x EazyPost', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'google', name: 'Google x EazyPost', icon: <FaGoogle />, hoverColor: 'group-hover:text-blue-500' },
+    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
+    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
+    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
+    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
+    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
+    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
+    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
+    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
+    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4]' },
   ];
 
   return (
@@ -59,6 +60,7 @@ const ConnectSection = () => {
       aria-label="Integrations"
     >
       
+      <SectionBackground />
       {/* Decorative Bars */}
       <div className="absolute top-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>

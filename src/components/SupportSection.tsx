@@ -3,12 +3,15 @@
 import React from 'react';
 import Image from 'next/image';
 import { FaArrowRight, FaWhatsapp, FaHeadset } from 'react-icons/fa';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 // --- COMPONENTS ---
-const BrutalButton = ({ children, icon, color, href }: any) => (
+const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
   <a
     href={href}
+    target={target}
+    rel={rel}
     className={`
       flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 font-black text-sm md:text-lg uppercase tracking-wider
       border-4 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000]
@@ -31,6 +34,7 @@ export default function SupportSection() {
       aria-label="Customer Support"
     >
       
+      <SectionBackground />
       {/* Decorative Elements (CSS Only for perf) */}
       <div className="absolute top-10 left-10 w-12 h-12 md:w-16 md:h-16 bg-blue-100 border-4 border-black rounded-full animate-bounce-slow hidden md:block pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-16 h-16 md:w-24 md:h-24 bg-[#3C48F6] border-4 border-black rotate-12 hidden md:block pointer-events-none"></div>
@@ -79,7 +83,7 @@ export default function SupportSection() {
           <BrutalButton href="/help" color="primary" icon={<FaHeadset />}>
             {t("HELP CENTER", "CENTRE D'AIDE")}
           </BrutalButton>
-          <BrutalButton href="#" color="whatsapp" icon={<FaWhatsapp />}>
+          <BrutalButton href="https://whatsapp.com/channel/0029VbC0LNr9WtCDNpRnPn27" color="whatsapp" icon={<FaWhatsapp />} target="_blank" rel="noopener noreferrer">
             {t("WHATSAPP COMMUNITY", "COMMUNAUTÉ WHATSAPP")}
           </BrutalButton>
         </div>

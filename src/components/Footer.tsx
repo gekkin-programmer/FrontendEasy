@@ -30,14 +30,14 @@ const Footer: React.FC = () => {
         { label: t('Blog', 'Blog'), href: '#' },
         { label: t('Community', 'Communauté'), href: '/community' },
         { label: t('Creator Fund', 'Fonds Créateur'), href: '/creator-fund' },
-        { label: t('Help Center', "Centre d'aide"), href: '#' },
+        { label: t('Help Center', "Centre d'aide"), href: '/help' },
         { label: t('Contact', 'Contact'), href: '#' },
       ],
     },
     {
       title: t('Company', 'Entreprise'),
       links: [
-        { label: t('About Us', 'À propos'), href: '#' },
+        { label: t('About Us', 'À propos'), href: '/about' },
         { label: t('Careers', 'Carrières'), href: '#' },
         { label: t('Partners', 'Partenaires'), href: '#' },
         { label: t('Press', 'Presse'), href: '#' },
@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
         { label: t('Privacy Policy', 'Politique de confidentialité'), href: '/legal/privacy' },
         { label: t('Terms of Service', "Conditions d'utilisation"), href: '/legal/terms' },
         { label: t('Data Deletion', 'Suppression des données'), href: '/legal/data-deletion' },
-        { label: t('Cookie Policy', 'Cookies'), href: '/legal/privacy#cookie-policy' },
+        { label: t('Cookie Policy', 'Cookies'), href: '#' },
       ],
     },
   ];
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-black dark:bg-zinc-950 text-white border-t-4 border-white dark:border-zinc-800 font-sans transition-colors">
+    <footer className="bg-white dark:bg-black text-black dark:text-white border-t-4 border-black dark:border-white/10 font-sans transition-colors">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
@@ -72,13 +72,13 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3 group">
               <img
-                className="h-12 w-auto bg-white dark:bg-zinc-800 p-1 rounded-none border-2 border-white dark:border-zinc-700 group-hover:rotate-3 transition-transform"
+                className="h-12 w-auto bg-gray-100 dark:bg-zinc-800 p-1 rounded-none border-2 border-black dark:border-zinc-700 group-hover:rotate-3 transition-transform"
                 src="/assets/WiggleLogo.png" 
-                alt="EazyPost Logo"
+                alt="EasyPost Logo"
               />
-              <span className="text-3xl font-black uppercase tracking-tighter text-white">EazyPost</span>
+              <span className="text-3xl font-black uppercase tracking-tighter text-black dark:text-white">EasyPost</span>
             </Link>
-            <p className="text-lg font-medium text-gray-400 dark:text-zinc-500 max-w-sm leading-relaxed border-l-4 border-[#3C48F6] pl-4 uppercase">
+            <p className="text-lg font-medium text-gray-600 dark:text-zinc-500 max-w-sm leading-relaxed border-l-4 border-[#3C48F6] pl-4 uppercase">
               {t(
                 'The social OS for Africa. Plan, create, and dominate.',
                 'L\'OS social pour l\'Afrique. Planifiez, créez et dominez.'
@@ -91,8 +91,8 @@ const Footer: React.FC = () => {
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-white dark:border-zinc-700 bg-black dark:bg-zinc-900
-                        hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border-2 border-black dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
+                        hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-bold text-gray-300 dark:text-zinc-400 hover:text-white dark:hover:text-white hover:underline decoration-2 decoration-yellow-400 underline-offset-4 transition-all uppercase"
+                      className="text-sm font-bold text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
                     >
                       {link.label}
                     </Link>
@@ -125,9 +125,9 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t-2 border-gray-800 dark:border-zinc-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t-2 border-gray-200 dark:border-zinc-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm font-mono text-gray-500 dark:text-zinc-600 uppercase">
-            &copy; {new Date().getFullYear()} EAZYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
+            &copy; {new Date().getFullYear()} EASYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
           <div className="flex items-center gap-2">
               <span className="text-[10px] font-black text-gray-400 dark:text-zinc-600 uppercase tracking-widest">Systems Operational</span>
