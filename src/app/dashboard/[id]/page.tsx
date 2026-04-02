@@ -77,8 +77,12 @@ function DashboardContent() {
     const [editingPost, setEditingPost] = useState<any>(null);
     
     // OAUTH STATES
-    const [isFbPageSelectorOpen, setIsFbPageSelectorOpen] = useState(false);
-    const [tempExchangeToken, setTempExchangeToken] = useState("");
+    const [isFbPageSelectorOpen, setIsFbPageSelectorOpen] = useState(
+        () => searchParams.get('social_selection') === 'facebook'
+    );
+    const [tempExchangeToken, setTempExchangeToken] = useState(
+        () => searchParams.get('exchange_token') ?? ""
+    );
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -151,11 +155,6 @@ function DashboardContent() {
         const connected = searchParams.get('social_connected');
         const success = searchParams.get('success'); 
         const token = searchParams.get('exchange_token');
-
-        if (selectionMode === 'facebook') {
-            if (token) setTempExchangeToken(token);
-            setIsFbPageSelectorOpen(true);
-        }
 
         if (connected === 'true' || success === 'true') {
             toast.success("CONNECTION_ESTABLISHED");
