@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { Calendar, Clock, Wand2, Bell, CheckCircle } from "lucide-react";
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 // --- NEUBRUTALIST COMPONENTS ---
 
@@ -14,30 +14,30 @@ interface HardCardProps {
 }
 
 const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProps) => (
-  <div className={`border-4 border-black shadow-[8px_8px_0px_0px_#000] ${color} ${className}`}>
+  <div className={`border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] ${color} ${className}`}>
     {children}
   </div>
 );
 
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border-2 border-black bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] transition-all cursor-default">
-    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] border-2 border-black flex items-center justify-center text-white">
+  <div className="flex items-start gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all cursor-default">
+    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white">
       {icon}
     </div>
-    <p className="text-sm sm:text-base font-bold text-black leading-tight pt-1">{text}</p>
+    <p className="text-sm sm:text-base font-bold text-black dark:text-white leading-tight pt-1">{text}</p>
   </div>
 );
 
 export default function PublishSection() {
   const { t } = useLanguage();
-  const publishImage = "/assets/CreateKanban.PNG"; 
 
   return (
     <section 
-      className="bg-[#E0E7FF] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
+      className="bg-[#E0E7FF] dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
       aria-label="Publishing Features"
     >
       
+      <SectionBackground />
       {/* Background Decor (CSS Only Animation for Performance) */}
       <div className="absolute top-10 left-10 w-16 h-16 md:w-20 md:h-20 bg-pink-400 border-4 border-black rounded-full opacity-50 animate-pulse pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-24 h-24 md:w-32 md:h-32 bg-green-400 border-4 border-black rotate-12 opacity-50 pointer-events-none"></div>
@@ -49,7 +49,7 @@ export default function PublishSection() {
             {/* The Window Frame */}
             <HardCard className="rounded-xl overflow-hidden p-0 bg-gray-900">
                 {/* Browser Bar */}
-                <div className="bg-white border-b-4 border-black p-3 flex items-center gap-2">
+                <div className="bg-white dark:bg-zinc-900 border-b-4 border-black p-3 flex items-center gap-2">
                     <div className="flex gap-1.5">
                         <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-red-500 border-2 border-black"></div>
                         <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-blue-400 border-2 border-black"></div>
@@ -59,16 +59,9 @@ export default function PublishSection() {
                 </div>
                 
                 {/* Image Content */}
-                <div className="p-4 bg-gray-100">
-                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-white">
-                        <Image 
-                           src={publishImage}
-                           alt="EasyPost Kanban Scheduling Interface"
-                           fill
-                           className="object-cover object-top"
-                           sizes="(max-width: 768px) 100vw, 50vw"
-                           priority={false} // Lazy load
-                        />
+                <div className="p-4 bg-gray-100 dark:bg-black">
+                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-gray-200 flex items-center justify-center">
+                        <span className="text-xs font-black uppercase text-gray-400 tracking-widest">Coming Soon</span>
                     </div>
                     
                     {/* Simulated UI Actions */}
@@ -77,10 +70,10 @@ export default function PublishSection() {
                             {t("Save Draft", "Brouillon")}
                         </button>
                         <div className="flex items-center gap-2 md:gap-3">
-                            <div className="hidden sm:flex items-center gap-1 text-[10px] md:text-xs font-mono font-bold bg-white border-2 border-black px-2 py-1">
+                            <div className="flex items-center gap-1 text-[10px] md:text-xs font-mono font-bold bg-white border-2 border-black px-2 py-1 text-black">
                                 <Clock className="w-3 h-3" /> 11:45 AM
                             </div>
-                            <button className="px-4 py-1.5 md:px-6 md:py-2 bg-[#3C48F6] text-white font-black border-2 border-black shadow-[4px_4px_0px_0px_#000] text-[10px] md:text-xs uppercase hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
+                            <button type="button" className="cursor-pointer px-4 py-1.5 md:px-6 md:py-2 bg-white text-black font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-[10px] md:text-xs uppercase hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
                                 {t("Schedule", "Programmer")}
                             </button>
                         </div>
@@ -107,7 +100,7 @@ export default function PublishSection() {
             </h2>
           </div>
 
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-black pl-6">
+          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-black dark:border-white pl-6">
             {t(
               "Schedule to Facebook, Instagram, TikTok, LinkedIn, and X from one dashboard. No more tab switching.",
               "Planifiez sur Facebook, Instagram, TikTok, LinkedIn et X depuis un seul tableau de bord."
@@ -130,7 +123,7 @@ export default function PublishSection() {
           </div>
 
           <div className="pt-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white/5 text-white font-black text-lg border-4 border-transparent hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
+            <button className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black text-lg border-4 border-transparent hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black dark:hover:border-white transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
               {t("Start Publishing", "Commencer")}
               <CheckCircle strokeWidth={3} />
             </button>

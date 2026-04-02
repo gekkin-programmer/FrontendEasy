@@ -6,11 +6,12 @@ import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTrian
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
+import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
 
 // --- NEU COMPONENTS ---
 
 const NeuBadge = ({ children, className }: any) => (
-  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black dark:border-white", className)}>
+  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2", className)}>
     {children}
   </span>
 );
@@ -56,12 +57,12 @@ interface PostFeedProps {
 // 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
   switch (platform?.toLowerCase()) {
-    case 'twitter': return <span className="text-black dark:text-white font-black text-[10px]">X</span>;
-    case 'linkedin': return <span className="text-[#0077b5] font-black text-[10px]">IN</span>;
-    case 'instagram': return <span className="text-[#e1306c] font-black text-[10px]">IG</span>;
-    case 'facebook': return <span className="text-[#1877f2] font-black text-[10px]">FB</span>;
-    case 'tiktok': return <span className="text-[#000000] dark:text-[#ff0050] font-black text-[10px]">TT</span>;
-    case 'youtube': return <span className="text-[#ff0000] font-black text-[10px]">YT</span>;
+    case 'twitter': return <FaXTwitter className="text-black dark:text-white text-sm" />;
+    case 'linkedin': return <FaLinkedinIn className="text-[#0077b5] text-sm" />;
+    case 'instagram': return <FaInstagram className="text-[#e1306c] text-sm" />;
+    case 'facebook': return <FaFacebookF className="text-[#1877f2] text-sm" />;
+    case 'tiktok': return <FaTiktok className="text-black dark:text-white text-sm" />;
+    case 'youtube': return <FaYoutube className="text-[#ff0000] text-sm" />;
     default: return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
   }
 };
@@ -73,10 +74,10 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#3C48F6] text-white";
-        case 'PUBLISHED': return "bg-green-500 text-black";
-        case 'FAILED': return "bg-red-500 text-white";
-        default: return "bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400";
+        case 'SCHEDULED': return "bg-[#3C48F6]/10 dark:bg-[#3C48F6] text-[#3C48F5] dark:text-white border-[#3C48F5] dark:border-white";
+        case 'PUBLISHED': return "bg-green-100 dark:bg-green-500 text-green-800 dark:text-black border-green-500 dark:border-black";
+        case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
+        default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
     }
   };
 

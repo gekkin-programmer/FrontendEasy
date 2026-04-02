@@ -1,45 +1,59 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
 
-// SAME SECRET AS BACKEND
-const JWT_SECRET = "c69bbe478100399727bc1257e61be3215b4655e9599b8150599410352228b2e6";
+// Decode JWT payload without signature verification (Edge Runtime compatible).
+// Real security is enforced by the backend on every API call.
+function decodeToken(token: string): Record<string, unknown> | null {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
+function isExpired(payload: Record<string, unknown>): boolean {
+  const exp = payload.exp as number | undefined;
+  if (!exp) return true;
+  return exp < Math.floor(Date.now() / 1000);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get('accessToken')?.value;
 
-  // ONLY PROTECT /admin ROUTES
-  if (pathname.startsWith('/admin')) {
-    const token = request.cookies.get('accessToken')?.value;
-
+  // ── /dashboard and /workspaces: require a valid, non-expired token ──────
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/workspaces')) {
     if (!token) {
-      console.warn(`[SECURITY] Blocked unauthenticated access to ${pathname}`);
       return NextResponse.redirect(new URL('/login?reason=unauthorized', request.url));
     }
-
-    try {
-      // VERIFY JWT SIGNATURE (jose works in Edge Runtime)
-      const secret = new TextEncoder().encode(JWT_SECRET);
-      const { payload } = await jwtVerify(token, secret);
-
-      // CHECK ROLE
-      if (payload.role !== 'ADMIN') {
-        console.error(`[SECURITY] Blocked non-admin (${payload.email}) from ${pathname}`);
-        return NextResponse.redirect(new URL('/dashboard?error=forbidden', request.url));
-      }
-
-      // SUCCESS: ALLOW ACCESS
-      return NextResponse.next();
-    } catch (err) {
-      console.error(`[SECURITY] Invalid token attempt for ${pathname}`);
+    const payload = decodeToken(token);
+    if (!payload || isExpired(payload)) {
       return NextResponse.redirect(new URL('/login?reason=expired', request.url));
     }
+    return NextResponse.next();
+  }
+
+  // ── /admin: require valid token + ADMIN role ────────────────────────────
+  if (pathname.startsWith('/admin')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login?reason=unauthorized', request.url));
+    }
+    const payload = decodeToken(token);
+    if (!payload || isExpired(payload)) {
+      return NextResponse.redirect(new URL('/login?reason=expired', request.url));
+    }
+    if (payload.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard?error=forbidden', request.url));
+    }
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
-// MATCH ONLY ADMIN ROUTES FOR PERFORMANCE
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/workspaces/:path*'],
 };

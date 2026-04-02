@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { Sparkles, ArrowRight, Upload, Grid3X3, Link2, Plus, PenTool } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground'; 
 
 // ---------- Types ----------
 interface CardData {
@@ -105,8 +106,7 @@ export default function CreateSection() {
       aria-label="Content Creation Features"
     >
       
-      {/* Decorative Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000010_1px,transparent_1px),linear-gradient(to_bottom,#00000010_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-white/5 pointer-events-none"></div>
+      <SectionBackground />
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
         

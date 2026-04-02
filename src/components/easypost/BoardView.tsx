@@ -12,7 +12,60 @@ import {
 } from 'lucide-react';
 import { NeuButton, NeuCard, NeuInput, NeuModal } from './DashboardUI';
 import { cn } from '@/lib/utils';
-import SpinningLoader from '../SpinningLoader';
+// --- SKELETON LOADERS ---
+const SkeletonBlock = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse bg-gray-200 dark:bg-zinc-800 ${className ?? ''}`} />
+);
+
+function BoardsListSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <SkeletonBlock className="h-7 w-48 rounded" />
+          <SkeletonBlock className="h-4 w-32 rounded" />
+        </div>
+        <SkeletonBlock className="h-10 w-32 rounded" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-4 space-y-3">
+            <div className="h-2 w-full bg-blue-200 dark:bg-blue-900/40" />
+            <SkeletonBlock className="h-5 w-36 rounded mt-2" />
+            <SkeletonBlock className="h-3 w-full rounded" />
+            <SkeletonBlock className="h-3 w-2/3 rounded" />
+            <div className="flex justify-between pt-3 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
+              <SkeletonBlock className="h-5 w-20 rounded" />
+              <SkeletonBlock className="h-5 w-5 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KanbanSkeleton() {
+  return (
+    <div className="flex gap-4 h-full overflow-x-auto pb-4">
+      {[...Array(3)].map((_, col) => (
+        <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+          <div className="p-3 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
+            <SkeletonBlock className="h-5 w-24 rounded" />
+          </div>
+          <div className="p-3 space-y-3">
+            {[...Array(col + 2)].map((_, card) => (
+              <div key={card} className="bg-gray-50 dark:bg-zinc-800 border-2 border-black dark:border-white p-3 space-y-2">
+                <SkeletonBlock className="h-4 w-full rounded" />
+                <SkeletonBlock className="h-3 w-2/3 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // DND
 import {
@@ -66,7 +119,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
     onError: () => toast.error('BOARD_INIT_FAILED')
   });
 
-  if (isLoading) return <SpinningLoader />;
+  if (isLoading) return <BoardsListSkeleton />;
 
   if (selectedBoardId) {
     const activeBoard = boards.find(b => b.id === selectedBoardId);
@@ -251,7 +304,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     })
   );
 
-  if (isLoading || !board) return <SpinningLoader />;
+  if (isLoading || !board) return <KanbanSkeleton />;
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -657,7 +710,24 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
       title="CARD_INSPECTOR"
       maxWidth="max-w-3xl"
     >
-      {isLoading ? <SpinningLoader /> : (
+      {isLoading ? (
+        <div className="p-8 space-y-4">
+          <SkeletonBlock className="h-7 w-48 rounded" />
+          <SkeletonBlock className="h-3 w-32 rounded" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+            <div className="md:col-span-2 space-y-4">
+              <SkeletonBlock className="h-24 w-full rounded" />
+              <SkeletonBlock className="h-10 w-full rounded" />
+            </div>
+            <div className="space-y-3">
+              <SkeletonBlock className="h-5 w-20 rounded" />
+              <SkeletonBlock className="h-8 w-full rounded" />
+              <SkeletonBlock className="h-5 w-24 rounded" />
+              <SkeletonBlock className="h-8 w-full rounded" />
+            </div>
+          </div>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
             <div>

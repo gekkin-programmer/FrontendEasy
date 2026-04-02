@@ -75,6 +75,6 @@ describe('Login Page', () => {
     const googleButton = screen.getByRole('button', { name: /Google/i });
     fireEvent.click(googleButton);
     
-    expect(window.location.href).toContain('/auth/google');
+    expect(window.location.href).toContain('/api/auth/google');
   });
 });
