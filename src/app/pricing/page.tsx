@@ -58,7 +58,7 @@ export default function PricingPage() {
     {
       name: 'Starter',
       displayName: 'Starter',
-      price: isYearly ? 49000 : 4900,
+      price: isYearly ? 49000 : 10,
       period: isYearly ? t('/yr', '/an') : t('/mo', '/mois'),
       description: t(
         'Ideal for SMEs and growing startups.',
