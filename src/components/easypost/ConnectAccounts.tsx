@@ -60,7 +60,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
   const handleConnect = (platform: string) => {
     const freshToken = getCookie('accessToken');
-    // eslint-disable-next-line react-hooks/immutability
     window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${freshToken}&workspaceId=${workspaceId}`;
   };
 
@@ -79,21 +78,18 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-8 border-black dark:border-white pb-8">
         <div className="space-y-2">
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#3C48F5] border-4 border-black dark:border-white flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                    <ShieldCheck size={24} strokeWidth={3} />
-                </div>
                 <h2 className="text-4xl font-black uppercase tracking-tighter italic">Network_Nodes</h2>
             </div>
             <p className="font-mono text-sm font-bold opacity-60 uppercase tracking-widest">
-                Nodes active: {accounts.filter((a: any) => a.isActive).length} {'// Capacity:'} {accounts.length}/UNLIMITED
+                Nodes active: {accounts.filter((a: any) => a.isActive).length} // Capacity: {accounts.length}/UNLIMITED
             </p>
         </div>
         
         {/* DISCRETE DEBUG PANEL */}
-        <div className="bg-black dark:bg-white text-white dark:text-black p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5] flex flex-col gap-1 min-w-[180px]">
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tighter border-b border-white/20 dark:border-black/20 pb-1 mb-1">
+        <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5] flex flex-col gap-1 min-w-[180px]">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tighter border-b border-black/20 dark:border-white/20 pb-1 mb-1">
                 <span>Session_Sync</span>
-                <span className={cn(tokenStatus === 'Valid' ? 'text-green-400 dark:text-green-600' : 'text-red-400')}>● {tokenStatus}</span>
+                <span className={cn(tokenStatus === 'Valid' ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
             </div>
             {tokenExpiry && <p className="text-[9px] font-mono font-bold">EXP: {format(tokenExpiry, 'HH:mm dd/MM')}</p>}
             {tokenStatus !== 'Valid' && (
@@ -122,17 +118,13 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               )}
             >
               {/* Status Indicator */}
-              <div className="absolute top-4 right-4">
-                {isExpired ? (
-                   <div className="bg-white text-red-600 border-2 border-black px-2 py-1 text-[10px] font-black uppercase flex items-center gap-1 animate-bounce">
-                     <AlertTriangle size={12} strokeWidth={4} /> Critical_Failure
-                   </div>
-                ) : isConnected ? (
-                  <div className="bg-[#3C48F5] text-white border-2 border-black dark:border-white px-2 py-1 text-[10px] font-black uppercase flex items-center gap-1">
-                    <Zap size={12} fill="currentColor" /> Stream_Active
+              {isExpired && (
+                <div className="absolute top-4 right-4">
+                  <div className="bg-white text-red-600 border-2 border-black px-2 py-1 text-[10px] font-black uppercase flex items-center gap-1">
+                    <AlertTriangle size={12} strokeWidth={4} /> Critical_Failure
                   </div>
-                ) : null}
-              </div>
+                </div>
+              )}
 
               {/* Platform Identity */}
               <div className="flex items-center gap-4 mb-8">
@@ -187,16 +179,16 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                         Force_Reboot
                     </button>
                 ) : isConnected ? (
-                    <button 
+                    <button
                         onClick={() => { if(confirm("Terminate stream connection?")) disconnectMutation.mutate(connectedAccount.id) }}
-                        className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-red-500 hover:text-white dark:hover:bg-red-600 transition-colors bg-white dark:bg-black text-black dark:text-white"
+                        className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
                     >
                         <Trash2 size={14} className="inline mr-2" /> Disconnect_Node
                     </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => handleConnect(platform.id)}
-                    className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-[#3C48F5] hover:text-white transition-all shadow-[6px_6px_0px_0px_#3C48F5] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     <Plus size={16} className="inline mr-2" strokeWidth={4} /> Initialize_Stream
                   </button>
