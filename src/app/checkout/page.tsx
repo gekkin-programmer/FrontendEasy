@@ -44,8 +44,7 @@ function CheckoutContent() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await api.get<{ status: string }>(`/payments/status/${transactionId}`);
-        const { status } = res.data;
+        const { status } = await api.get<{ status: string }>(`/payments/status/${transactionId}`);
 
         if (status === 'COMPLETED') {
           clearInterval(interval);
@@ -78,7 +77,7 @@ function CheckoutContent() {
     try {
       const cleanPhone = phone.startsWith('237') ? phone : `237${phone}`;
 
-      const res = await api.post<{ transactionId: string }>('/payments/initiate', {
+      const { transactionId } = await api.post<{ transactionId: string }>('/payments/initiate', {
         planType: plan,
         amount: parseInt(price),
         phone: cleanPhone,
@@ -86,7 +85,7 @@ function CheckoutContent() {
       });
 
       toast.success("Paiement initié ! Validez le prompt PIN sur votre téléphone.");
-      pollStatus(res.data.transactionId);
+      pollStatus(transactionId);
     } catch (error: any) {
       toast.error(error.message || "Échec de l'initiation du paiement");
       setStatus('form');
