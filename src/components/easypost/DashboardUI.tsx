@@ -19,7 +19,7 @@ export const NeuButton = ({ children, onClick, active, className = "", disabled 
 );
 
 export const NeuCard = ({ children, className = "" }: any) => (
-  <div className={`bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] p-6 ${className}`}>
+  <div className={`bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] p-6 text-black dark:text-white ${className}`}>
     {children}
   </div>
 );

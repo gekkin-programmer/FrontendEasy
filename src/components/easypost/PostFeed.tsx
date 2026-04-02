@@ -11,7 +11,7 @@ import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube
 // --- NEU COMPONENTS ---
 
 const NeuBadge = ({ children, className }: any) => (
-  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black dark:border-white", className)}>
+  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2", className)}>
     {children}
   </span>
 );
@@ -74,10 +74,10 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#3C48F6] text-white";
-        case 'PUBLISHED': return "bg-green-500 text-black";
-        case 'FAILED': return "bg-red-500 text-white";
-        default: return "bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400";
+        case 'SCHEDULED': return "bg-[#3C48F6]/10 dark:bg-[#3C48F6] text-[#3C48F5] dark:text-white border-[#3C48F5] dark:border-white";
+        case 'PUBLISHED': return "bg-green-100 dark:bg-green-500 text-green-800 dark:text-black border-green-500 dark:border-black";
+        case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
+        default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
     }
   };
 
