@@ -45,14 +45,15 @@ function CheckoutContent() {
 
     const interval = setInterval(async () => {
       try {
-        const { status } = await api.get<{ status: string }>(`/payments/status/${transactionId}`);
+        const { status, failureCode } = await api.get<{ status: string; failureCode?: string }>(`/payments/status/${transactionId}`);
 
         if (status === 'COMPLETED') {
           clearInterval(interval);
           setStatus('success');
         } else if (status === 'FAILED' || status === 'REJECTED') {
           clearInterval(interval);
-          toast.error("Paiement refusé ou échoué. Veuillez réessayer.");
+          const reason = failureCode ? ` (${failureCode})` : '';
+          toast.error(t(`Payment failed${reason}. Please try again.`, `Paiement échoué${reason}. Veuillez réessayer.`));
           setStatus('form');
         } else if (Date.now() - start > TIMEOUT) {
           clearInterval(interval);
