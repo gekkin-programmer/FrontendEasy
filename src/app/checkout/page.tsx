@@ -10,7 +10,6 @@ import {
 import { api } from '@/src/lib/api';
 import { toast } from 'sonner';
 import Navbar from '@/src/components/Navbar';
-import Footer from '@/src/components/Footer';
 import Image from 'next/image';
 import { getCookie } from 'cookies-next';
 
@@ -251,7 +250,6 @@ export default function CheckoutPage() {
       <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-[#3C48F5]" size={48} /></div>}>
         <CheckoutContent />
       </Suspense>
-      <Footer />
     </div>
   );
 }
