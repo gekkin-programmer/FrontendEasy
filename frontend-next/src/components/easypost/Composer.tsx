@@ -316,7 +316,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
     setIsSubmitting(true);
     try {
-        let finalMediaIds = [...selectedMediaIds];
+        const finalMediaIds = [...selectedMediaIds];
         let finalContent = text;
 
         // 🛍️ COMMERCE LOGIC: Generate One-Time Link
