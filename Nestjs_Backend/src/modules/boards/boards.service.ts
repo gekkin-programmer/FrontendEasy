@@ -1,10 +1,18 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  CreateBoardDto, UpdateBoardDto,
-  CreateColumnDto, UpdateColumnDto,
-  CreateCardDto, UpdateCardDto,
-  MoveCardDto, CreateCardCommentDto
+  CreateBoardDto,
+  UpdateBoardDto,
+  CreateColumnDto,
+  UpdateColumnDto,
+  CreateCardDto,
+  UpdateCardDto,
+  MoveCardDto,
+  CreateCardCommentDto,
 } from './dto/boards.dto';
 
 @Injectable()
@@ -27,10 +35,10 @@ export class BoardsService {
             { name: 'To Do', order: 0 },
             { name: 'In Progress', order: 1 },
             { name: 'Done', order: 2 },
-          ]
-        }
+          ],
+        },
       },
-      include: { columns: true }
+      include: { columns: true },
     });
   }
 
@@ -40,10 +48,10 @@ export class BoardsService {
       where: { workspaceId },
       include: {
         _count: {
-          select: { columns: true }
-        }
+          select: { columns: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -57,14 +65,16 @@ export class BoardsService {
             cards: {
               orderBy: { order: 'asc' },
               include: {
-                assignee: { select: { id: true, firstName: true, avatar: true } },
+                assignee: {
+                  select: { id: true, firstName: true, avatar: true },
+                },
                 labels: true,
-                _count: { select: { comments: true } }
-              }
-            }
-          }
-        }
-      }
+                _count: { select: { comments: true } },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!board) throw new NotFoundException('Board not found');
@@ -74,18 +84,22 @@ export class BoardsService {
   }
 
   async updateBoard(boardId: string, userId: string, dto: UpdateBoardDto) {
-    const board = await this.prisma.board.findUnique({ where: { id: boardId } });
+    const board = await this.prisma.board.findUnique({
+      where: { id: boardId },
+    });
     if (!board) throw new NotFoundException('Board not found');
     await this.verifyMembership(board.workspaceId, userId, true);
 
     return this.prisma.board.update({
       where: { id: boardId },
-      data: dto
+      data: dto,
     });
   }
 
   async deleteBoard(boardId: string, userId: string) {
-    const board = await this.prisma.board.findUnique({ where: { id: boardId } });
+    const board = await this.prisma.board.findUnique({
+      where: { id: boardId },
+    });
     if (!board) throw new NotFoundException('Board not found');
     await this.verifyMembership(board.workspaceId, userId, true);
 
@@ -97,33 +111,35 @@ export class BoardsService {
   // ==========================================
 
   async createColumn(boardId: string, userId: string, dto: CreateColumnDto) {
-    const board = await this.prisma.board.findUnique({ where: { id: boardId } });
+    const board = await this.prisma.board.findUnique({
+      where: { id: boardId },
+    });
     if (!board) throw new NotFoundException('Board not found');
     await this.verifyMembership(board.workspaceId, userId, true);
 
     return this.prisma.boardColumn.create({
-      data: { boardId, ...dto }
+      data: { boardId, ...dto },
     });
   }
 
   async updateColumn(columnId: string, userId: string, dto: UpdateColumnDto) {
-    const column = await this.prisma.boardColumn.findUnique({ 
+    const column = await this.prisma.boardColumn.findUnique({
       where: { id: columnId },
-      include: { board: true }
+      include: { board: true },
     });
     if (!column) throw new NotFoundException('Column not found');
     await this.verifyMembership(column.board.workspaceId, userId, true);
 
     return this.prisma.boardColumn.update({
       where: { id: columnId },
-      data: dto
+      data: dto,
     });
   }
 
   async deleteColumn(columnId: string, userId: string) {
-    const column = await this.prisma.boardColumn.findUnique({ 
+    const column = await this.prisma.boardColumn.findUnique({
       where: { id: columnId },
-      include: { board: true }
+      include: { board: true },
     });
     if (!column) throw new NotFoundException('Column not found');
     await this.verifyMembership(column.board.workspaceId, userId, true);
@@ -136,9 +152,9 @@ export class BoardsService {
   // ==========================================
 
   async createCard(columnId: string, userId: string, dto: CreateCardDto) {
-    const column = await this.prisma.boardColumn.findUnique({ 
+    const column = await this.prisma.boardColumn.findUnique({
       where: { id: columnId },
-      include: { board: true }
+      include: { board: true },
     });
     if (!column) throw new NotFoundException('Column not found');
     await this.verifyMembership(column.board.workspaceId, userId);
@@ -154,8 +170,8 @@ export class BoardsService {
         priority: dto.priority,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
         assigneeId: dto.assigneeId,
-        order: cardCount
-      }
+        order: cardCount,
+      },
     });
 
     await this.logActivity(card.id, userId, 'created', { title: card.title });
@@ -167,18 +183,24 @@ export class BoardsService {
       where: { id: cardId },
       include: {
         column: { include: { board: true } },
-        assignee: { select: { id: true, firstName: true, avatar: true, email: true } },
+        assignee: {
+          select: { id: true, firstName: true, avatar: true, email: true },
+        },
         creator: { select: { id: true, firstName: true, avatar: true } },
         labels: true,
         comments: {
           orderBy: { createdAt: 'desc' },
-          include: { author: { select: { id: true, firstName: true, avatar: true } } }
+          include: {
+            author: { select: { id: true, firstName: true, avatar: true } },
+          },
         },
         activities: {
           orderBy: { createdAt: 'desc' },
-          include: { user: { select: { id: true, firstName: true, avatar: true } } }
-        }
-      }
+          include: {
+            user: { select: { id: true, firstName: true, avatar: true } },
+          },
+        },
+      },
     });
 
     if (!card) throw new NotFoundException('Card not found');
@@ -188,9 +210,9 @@ export class BoardsService {
   }
 
   async updateCard(cardId: string, userId: string, dto: UpdateCardDto) {
-    const card = await this.prisma.card.findUnique({ 
+    const card = await this.prisma.card.findUnique({
       where: { id: cardId },
-      include: { column: { include: { board: true } } }
+      include: { column: { include: { board: true } } },
     });
     if (!card) throw new NotFoundException('Card not found');
     await this.verifyMembership(card.column.board.workspaceId, userId);
@@ -199,8 +221,8 @@ export class BoardsService {
       where: { id: cardId },
       data: {
         ...dto,
-        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined
-      }
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      },
     });
 
     await this.logActivity(cardId, userId, 'updated', dto);
@@ -208,28 +230,30 @@ export class BoardsService {
   }
 
   async moveCard(cardId: string, userId: string, dto: MoveCardDto) {
-    const card = await this.prisma.card.findUnique({ 
+    const card = await this.prisma.card.findUnique({
       where: { id: cardId },
-      include: { column: { include: { board: true } } }
+      include: { column: { include: { board: true } } },
     });
     if (!card) throw new NotFoundException('Card not found');
     await this.verifyMembership(card.column.board.workspaceId, userId);
 
-    const targetColumn = await this.prisma.boardColumn.findUnique({ where: { id: dto.columnId } });
+    const targetColumn = await this.prisma.boardColumn.findUnique({
+      where: { id: dto.columnId },
+    });
     if (!targetColumn) throw new NotFoundException('Target column not found');
 
     const updatedCard = await this.prisma.card.update({
       where: { id: cardId },
       data: {
         columnId: dto.columnId,
-        order: dto.order
-      }
+        order: dto.order,
+      },
     });
 
     if (card.columnId !== dto.columnId) {
-      await this.logActivity(cardId, userId, 'moved', { 
-        from: card.column.name, 
-        to: targetColumn.name 
+      await this.logActivity(cardId, userId, 'moved', {
+        from: card.column.name,
+        to: targetColumn.name,
       });
     }
 
@@ -237,9 +261,9 @@ export class BoardsService {
   }
 
   async addComment(cardId: string, userId: string, dto: CreateCardCommentDto) {
-    const card = await this.prisma.card.findUnique({ 
+    const card = await this.prisma.card.findUnique({
       where: { id: cardId },
-      include: { column: { include: { board: true } } }
+      include: { column: { include: { board: true } } },
     });
     if (!card) throw new NotFoundException('Card not found');
     await this.verifyMembership(card.column.board.workspaceId, userId);
@@ -248,12 +272,16 @@ export class BoardsService {
       data: {
         cardId,
         authorId: userId,
-        content: dto.content
+        content: dto.content,
       },
-      include: { author: { select: { id: true, firstName: true, avatar: true } } }
+      include: {
+        author: { select: { id: true, firstName: true, avatar: true } },
+      },
     });
 
-    await this.logActivity(cardId, userId, 'commented', { content: dto.content });
+    await this.logActivity(cardId, userId, 'commented', {
+      content: dto.content,
+    });
     return comment;
   }
 
@@ -262,15 +290,16 @@ export class BoardsService {
   // ==========================================
 
   async convertToPost(cardId: string, userId: string) {
-    const card = await this.prisma.card.findUnique({ 
+    const card = await this.prisma.card.findUnique({
       where: { id: cardId },
-      include: { column: { include: { board: true } } }
+      include: { column: { include: { board: true } } },
     });
-    
+
     if (!card) throw new NotFoundException('Card not found');
     await this.verifyMembership(card.column.board.workspaceId, userId);
 
-    if (card.postId) return this.prisma.post.findUnique({ where: { id: card.postId } });
+    if (card.postId)
+      return this.prisma.post.findUnique({ where: { id: card.postId } });
 
     const post = await this.prisma.post.create({
       data: {
@@ -278,15 +307,17 @@ export class BoardsService {
         content: `${card.title}\n\n${card.description || ''}`,
         createdById: userId,
         status: 'DRAFT',
-      }
+      },
     });
 
     await this.prisma.card.update({
       where: { id: cardId },
-      data: { postId: post.id }
+      data: { postId: post.id },
     });
 
-    await this.logActivity(cardId, userId, 'converted_to_post', { postId: post.id });
+    await this.logActivity(cardId, userId, 'converted_to_post', {
+      postId: post.id,
+    });
 
     return post;
   }
@@ -295,26 +326,36 @@ export class BoardsService {
   // HELPERS
   // ==========================================
 
-  private async verifyMembership(workspaceId: string, userId: string, adminOnly = false) {
+  private async verifyMembership(
+    workspaceId: string,
+    userId: string,
+    adminOnly = false,
+  ) {
     const member = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } }
+      where: { workspaceId_userId: { workspaceId, userId } },
     });
 
-    if (!member) throw new ForbiddenException('You are not a member of this workspace');
-    
+    if (!member)
+      throw new ForbiddenException('You are not a member of this workspace');
+
     if (adminOnly && member.role !== 'OWNER' && member.role !== 'ADMIN') {
       throw new ForbiddenException('Admin or Owner role required');
     }
   }
 
-  private async logActivity(cardId: string, userId: string, action: string, details: any) {
+  private async logActivity(
+    cardId: string,
+    userId: string,
+    action: string,
+    details: any,
+  ) {
     await this.prisma.cardActivity.create({
       data: {
         cardId,
         userId,
         action,
-        details: details || {}
-      }
+        details: details || {},
+      },
     });
   }
 }

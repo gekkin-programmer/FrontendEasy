@@ -11,14 +11,14 @@ export class LinkedInConnectGuard extends AuthGuard('linkedin') {
 
     // Save metadata to session cookie (robust & stateless)
     if (req.session && workspaceId && token) {
-        req.session.oauthMetadata = { workspaceId, token };
-        console.log("🔹 LinkedIn Guard: Metadata saved to session");
+      req.session.oauthMetadata = { workspaceId, token };
+      console.log('🔹 LinkedIn Guard: Metadata saved to session');
     }
 
     return (await super.canActivate(context)) as boolean;
   }
 
-  getAuthenticateOptions(context: ExecutionContext) {
+  getAuthenticateOptions(_context: ExecutionContext) {
     return {
       scope: ['openid', 'profile', 'email', 'w_member_social'],
     };

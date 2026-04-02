@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkspacesService } from './workspaces.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('WorkspacesService - MVP Tests', () => {
   let service: WorkspacesService;
@@ -40,22 +40,27 @@ describe('WorkspacesService - MVP Tests', () => {
     it('should create workspace with owner as admin', async () => {
       const dto = { name: 'New Workspace' };
       const userId = 'user-1';
-      
-      mockPrismaService.workspace.create.mockResolvedValue({ id: 'ws-1', ...dto });
+
+      mockPrismaService.workspace.create.mockResolvedValue({
+        id: 'ws-1',
+        ...dto,
+      });
 
       const result = await service.create(dto as any, userId);
 
-      expect(prisma.workspace.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          ownerId: userId,
-          members: expect.objectContaining({
-            create: expect.objectContaining({
-              userId,
-              role: 'OWNER'
-            })
-          })
-        })
-      }));
+      expect(prisma.workspace.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            ownerId: userId,
+            members: expect.objectContaining({
+              create: expect.objectContaining({
+                userId,
+                role: 'OWNER',
+              }),
+            }),
+          }),
+        }),
+      );
       expect(result.name).toBe(dto.name);
     });
   });
@@ -93,8 +98,13 @@ describe('WorkspacesService - MVP Tests', () => {
       const updateDto = { name: 'Updated Name' };
 
       // Helper verifyAdminRole mock
-      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'OWNER' });
-      mockPrismaService.workspace.update.mockResolvedValue({ id: wsId, ...updateDto });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        role: 'OWNER',
+      });
+      mockPrismaService.workspace.update.mockResolvedValue({
+        id: wsId,
+        ...updateDto,
+      });
 
       const result = await service.update(wsId, updateDto as any, userId);
       expect(result.name).toBe('Updated Name');
@@ -104,13 +114,18 @@ describe('WorkspacesService - MVP Tests', () => {
       const wsId = 'ws-1';
       const userId = 'owner-1';
 
-      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'OWNER' });
-      mockPrismaService.workspace.update.mockResolvedValue({ id: wsId, status: 'INACTIVE' });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        role: 'OWNER',
+      });
+      mockPrismaService.workspace.update.mockResolvedValue({
+        id: wsId,
+        status: 'INACTIVE',
+      });
 
       await service.remove(wsId, userId);
       expect(prisma.workspace.update).toHaveBeenCalledWith({
         where: { id: wsId },
-        data: { status: 'INACTIVE' }
+        data: { status: 'INACTIVE' },
       });
     });
 
@@ -118,9 +133,13 @@ describe('WorkspacesService - MVP Tests', () => {
       const wsId = 'ws-1';
       const userId = 'non-owner-id';
 
-      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({ role: 'ADMIN' });
+      mockPrismaService.workspaceMember.findUnique.mockResolvedValue({
+        role: 'ADMIN',
+      });
 
-      await expect(service.remove(wsId, userId)).rejects.toThrow(ForbiddenException);
+      await expect(service.remove(wsId, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

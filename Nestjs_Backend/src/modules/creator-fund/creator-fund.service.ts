@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ApplyCreatorFundDto } from './dto/apply-creator-fund.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
-import { ApplicationStatus } from '@prisma/client';
 
 @Injectable()
 export class CreatorFundService {

@@ -2,7 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length } from 'class-validator';
 
 export class SendOtpDto {
-  @ApiProperty({ example: '237678128452', description: 'Cameroon Phone Number' })
+  @ApiProperty({
+    example: '237678128452',
+    description: 'Cameroon Phone Number',
+  })
   @IsString()
   phone: string;
 }

@@ -57,7 +57,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const hashedPassword = createUserDto.password 
+    const hashedPassword = createUserDto.password
       ? await bcrypt.hash(createUserDto.password, 10)
       : null;
 
@@ -138,9 +138,9 @@ export class UsersService {
       },
     });
 
-    return { 
-      totalUsers, 
-      activeUsers, 
+    return {
+      totalUsers,
+      activeUsers,
       newUsersThisMonth,
       inactiveUsers: totalUsers - activeUsers,
     };

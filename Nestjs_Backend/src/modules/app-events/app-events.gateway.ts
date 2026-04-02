@@ -13,11 +13,13 @@ import { WsJwtGuard } from './guards/ws-jwt.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', 
+    origin: '*',
   },
   namespace: 'events',
 })
-export class AppEventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class AppEventsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 

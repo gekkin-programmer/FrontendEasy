@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, UseGuards, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Patch,
+  Param,
+} from '@nestjs/common';
 import { CreatorFundService } from './creator-fund.service';
 import { ApplyCreatorFundDto } from './dto/apply-creator-fund.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
@@ -26,7 +34,7 @@ export class CreatorFundController {
   }
 
   // --- ADMIN ENDPOINTS (Should be guarded by Role in prod) ---
-  
+
   @Get('applications')
   @ApiOperation({ summary: 'List all applications (Admin)' })
   getAllApplications() {
@@ -35,7 +43,10 @@ export class CreatorFundController {
 
   @Patch(':id/status')
   @ApiOperation({ summary: 'Approve/Reject application (Admin)' })
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateApplicationStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateApplicationStatusDto,
+  ) {
     return this.creatorFundService.updateStatus(id, dto);
   }
 }

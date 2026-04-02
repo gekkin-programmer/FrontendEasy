@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FeedbackStatus } from '@prisma/client';
@@ -30,7 +30,7 @@ export class CommunityService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return items.map(item => ({
+    return items.map((item) => ({
       ...item,
       upvotes: item._count.upvotes,
     }));
@@ -62,7 +62,9 @@ export class CommunityService {
 
   // --- ADMIN ---
   async updateStatus(id: string, status: FeedbackStatus) {
-    const item = await this.prisma.communityFeedback.findUnique({ where: { id } });
+    const item = await this.prisma.communityFeedback.findUnique({
+      where: { id },
+    });
     if (!item) throw new NotFoundException('Feedback not found');
 
     return this.prisma.communityFeedback.update({

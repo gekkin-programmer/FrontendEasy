@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export enum MessageType {
   TEXT = 'TEXT',
   AUDIO = 'AUDIO',
   IMAGE = 'IMAGE',
-  FILE = 'FILE'
+  FILE = 'FILE',
 }
 
 // ------------------------------------
@@ -37,7 +43,10 @@ export class CreateMessageDto {
   @IsEnum(MessageType)
   type?: MessageType;
 
-  @ApiProperty({ example: 'https://res.cloudinary.com/.../voice.mp3', required: false })
+  @ApiProperty({
+    example: 'https://res.cloudinary.com/.../voice.mp3',
+    required: false,
+  })
   @IsOptional()
   @IsUrl()
   attachmentUrl?: string;

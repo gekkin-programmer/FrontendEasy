@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt, IsEnum, IsDateString, IsHexColor } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  IsEnum,
+  IsDateString,
+  IsHexColor,
+} from 'class-validator';
 import { Priority } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 

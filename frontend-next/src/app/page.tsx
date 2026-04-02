@@ -10,7 +10,6 @@ import CreateSection from '../components/CreateSection';
 import CollaborateSection from '../components/CollaborateSection';
 import EngageSection from '../components/EngageSection';
 import AnalyzeSection from '../components/AnalyzeSection';
-import DevicesSection from '../components/DevicesSection';
 import ConnectSection from '../components/ConnectSection';
 import GrowSection from '../components/GrowSection';
 import SupportSection from '../components/SupportSection';
@@ -31,7 +30,6 @@ export default function Home() {
       
       <CollaborateSection />
       <AnalyzeSection />
-      <DevicesSection />
 
       <ConnectSection />
       <GrowSection />

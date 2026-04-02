@@ -9,7 +9,7 @@ import { EmailService } from './email.service';
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+      useFactory: (config: ConfigService) => ({
         transport: {
           host: config.get('SMTP_HOST'), // smtp.gmail.com
           secure: true,

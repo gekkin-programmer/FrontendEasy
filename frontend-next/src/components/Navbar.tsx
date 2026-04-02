@@ -168,7 +168,7 @@ export default function Navbar() {
             <div className="relative w-8 h-8 md:w-10 md:h-10">
                 <Image src="/assets/WiggleLogo.png" alt="Logo" fill className="object-contain" priority />
             </div>
-            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">EasyPost.</span>
+            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">EazyPost.</span>
           </Link>
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
@@ -186,7 +186,7 @@ export default function Navbar() {
                   className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${
                     hoveredDropdown === getTranslatedText(item.label) 
                       ? "text-[#3C48F6]" 
-                      : "text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white"
+                      : "text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200"
                   }`}
                   onClick={(e) => item.hasDropdown && e.preventDefault()}
                 >
@@ -211,9 +211,9 @@ export default function Navbar() {
                                     <div className="space-y-4">
                                         {col.links.map(link => (
                                             <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-blue-50 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-transparent group-hover:border-black transition-all"><link.Icon size={14}/></div>
+                                                <div className="p-2 bg-blue-50 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-white dark:border-white group-hover:border-black dark:group-hover:border-white transition-all"><link.Icon size={14}/></div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] transition-colors">{getTranslatedText(link.label)}</div>
+                                                    <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] dark:group-hover:text-white transition-colors">{getTranslatedText(link.label)}</div>
                                                     <div className="text-[10px] text-gray-500 font-medium">{getTranslatedText(link.description!)}</div>
                                                 </div>
                                             </Link>
@@ -271,7 +271,7 @@ export default function Navbar() {
                 </div>
             ) : (
                 <div className="flex items-center gap-3">
-                    <Link href="/login" className="text-sm font-bold text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors uppercase">{t("Log in", "Connexion")}</Link>
+                    <Link href="/login" className="text-sm font-bold text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-200 transition-colors uppercase">{t("Log in", "Connexion")}</Link>
                     <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-sm border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">{t("Start Free", "Gratuit")}</Link>
                 </div>
             )}
@@ -307,7 +307,7 @@ export default function Navbar() {
           >
              {/* Mobile Header */}
              <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/10 flex-shrink-0">
-                <span className="font-black text-xl tracking-tighter text-black dark:text-white">EasyPost.</span>
+                <span className="font-black text-xl tracking-tighter text-black dark:text-white">EazyPost.</span>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-gray-100 dark:bg-white/10 rounded-full text-black dark:text-white"><FaTimes size={20} /></button>
              </div>
 

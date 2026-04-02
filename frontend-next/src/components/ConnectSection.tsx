@@ -1,11 +1,12 @@
 "use client";
 import React from 'react';
 import {
-  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube, FaStore
+  FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaYoutube
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import { SiThreads } from 'react-icons/si';
-import { useLanguage } from '../context/LanguageContext'; 
+import { SiThreads, SiGoogle } from 'react-icons/si';
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 interface SocialLinkProps {
   name: string;
@@ -50,7 +51,7 @@ const ConnectSection = () => {
     { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
     { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
     { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'google', name: 'Google', icon: <FaStore />, hoverColor: 'group-hover:text-blue-500' },
+    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4]' },
   ];
 
   return (
@@ -59,6 +60,7 @@ const ConnectSection = () => {
       aria-label="Integrations"
     >
       
+      <SectionBackground />
       {/* Decorative Bars */}
       <div className="absolute top-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>

@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ISocialPlatform, NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import {
+  ISocialPlatform,
+  NormalizedSocialPost,
+} from '../interfaces/social-platform.interface';
 
 @Injectable()
 export class LinkedinService implements ISocialPlatform {
@@ -13,22 +16,26 @@ export class LinkedinService implements ISocialPlatform {
   async getHistory(
     accessToken: string,
     personId: string,
-    since?: Date,
+    _since?: Date,
   ): Promise<NormalizedSocialPost[]> {
     try {
       // LinkedIn uses URNs. Example: urn:li:person:ABC12345
       const author = `urn:li:person:${personId}`;
       const url = `${this.BASE_URL}/ugcPosts?q=authors&authors=List(${encodeURIComponent(author)})&count=50`;
-      
-      const { data } = await firstValueFrom(this.httpService.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      }));
-      
+
+      const { data } = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+      );
+
       if (!data || !data.elements) return [];
 
       return data.elements.map((post: any) => ({
         externalId: post.id,
-        content: post.specificContent?.['com.linkedin.ugc.ShareContent']?.shareCommentary?.text || '',
+        content:
+          post.specificContent?.['com.linkedin.ugc.ShareContent']
+            ?.shareCommentary?.text || '',
         mediaUrls: this.extractMedia(post),
         publishedAt: new Date(post.firstPublishedAt || Date.now()),
         engagement: {
@@ -38,7 +45,6 @@ export class LinkedinService implements ISocialPlatform {
         },
         metadata: { raw: post },
       }));
-
     } catch (error) {
       this.logger.error(`LinkedIn API Error: ${error.message}`);
       return [];
@@ -51,11 +57,12 @@ export class LinkedinService implements ISocialPlatform {
 
   private extractMedia(post: any): string[] {
     const media: string[] = [];
-    const content = post.specificContent?.['com.linkedin.ugc.ShareContent']?.media;
+    const content =
+      post.specificContent?.['com.linkedin.ugc.ShareContent']?.media;
     if (Array.isArray(content)) {
-        content.forEach((m: any) => {
-            if (m.originalLandingPage) media.push(m.originalLandingPage);
-        });
+      content.forEach((m: any) => {
+        if (m.originalLandingPage) media.push(m.originalLandingPage);
+      });
     }
     return media;
   }

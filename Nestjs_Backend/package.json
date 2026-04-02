@@ -139,6 +139,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^@google/generative-ai$": "<rootDir>/__mocks__/google-generative-ai.ts"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

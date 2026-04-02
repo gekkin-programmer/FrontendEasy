@@ -43,13 +43,16 @@ describe('ChatService', () => {
     const dto = { name: 'General', description: 'General channel' };
 
     const prisma = module.get<PrismaService>(PrismaService);
-    (prisma.workspaceMember.findUnique as jest.Mock).mockResolvedValue({ workspaceId, userId });
+    (prisma.workspaceMember.findUnique as jest.Mock).mockResolvedValue({
+      workspaceId,
+      userId,
+    });
     (prisma.chatChannel.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.chatChannel.create as jest.Mock).mockResolvedValue({ 
-      id: 'ch-1', 
-      name: 'general', 
+    (prisma.chatChannel.create as jest.Mock).mockResolvedValue({
+      id: 'ch-1',
+      name: 'general',
       description: dto.description,
-      workspaceId 
+      workspaceId,
     });
 
     const result = await service.createChannel(workspaceId, userId, dto);

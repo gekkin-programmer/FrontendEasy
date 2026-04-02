@@ -1,14 +1,25 @@
-import { 
-  Controller, Get, Post, Body, Patch, Param, Delete, 
-  UseGuards, Request, Query 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { 
-  CreateBoardDto, UpdateBoardDto, 
-  CreateColumnDto, UpdateColumnDto, 
-  CreateCardDto, UpdateCardDto, 
-  MoveCardDto, CreateCardCommentDto 
+import {
+  CreateBoardDto,
+  UpdateBoardDto,
+  CreateColumnDto,
+  UpdateColumnDto,
+  CreateCardDto,
+  UpdateCardDto,
+  MoveCardDto,
+  CreateCardCommentDto,
 } from './dto/boards.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
@@ -28,17 +39,14 @@ export class BoardsController {
   createBoard(
     @Param('workspaceId') workspaceId: string,
     @Request() req,
-    @Body() dto: CreateBoardDto
+    @Body() dto: CreateBoardDto,
   ) {
     return this.boardsService.createBoard(workspaceId, req.user.sub, dto);
   }
 
   @Get('workspace/:workspaceId')
   @ApiOperation({ summary: 'List all boards in a workspace' })
-  getBoards(
-    @Param('workspaceId') workspaceId: string,
-    @Request() req
-  ) {
+  getBoards(@Param('workspaceId') workspaceId: string, @Request() req) {
     return this.boardsService.getBoards(workspaceId, req.user.sub);
   }
 
@@ -53,7 +61,7 @@ export class BoardsController {
   updateBoard(
     @Param('id') id: string,
     @Request() req,
-    @Body() dto: UpdateBoardDto
+    @Body() dto: UpdateBoardDto,
   ) {
     return this.boardsService.updateBoard(id, req.user.sub, dto);
   }
@@ -73,7 +81,7 @@ export class BoardsController {
   createColumn(
     @Param('boardId') boardId: string,
     @Request() req,
-    @Body() dto: CreateColumnDto
+    @Body() dto: CreateColumnDto,
   ) {
     return this.boardsService.createColumn(boardId, req.user.sub, dto);
   }
@@ -83,7 +91,7 @@ export class BoardsController {
   updateColumn(
     @Param('id') id: string,
     @Request() req,
-    @Body() dto: UpdateColumnDto
+    @Body() dto: UpdateColumnDto,
   ) {
     return this.boardsService.updateColumn(id, req.user.sub, dto);
   }
@@ -103,7 +111,7 @@ export class BoardsController {
   createCard(
     @Param('columnId') columnId: string,
     @Request() req,
-    @Body() dto: CreateCardDto
+    @Body() dto: CreateCardDto,
   ) {
     return this.boardsService.createCard(columnId, req.user.sub, dto);
   }
@@ -119,18 +127,14 @@ export class BoardsController {
   updateCard(
     @Param('id') id: string,
     @Request() req,
-    @Body() dto: UpdateCardDto
+    @Body() dto: UpdateCardDto,
   ) {
     return this.boardsService.updateCard(id, req.user.sub, dto);
   }
 
   @Patch('cards/:id/move')
   @ApiOperation({ summary: 'Move a card to another column/position' })
-  moveCard(
-    @Param('id') id: string,
-    @Request() req,
-    @Body() dto: MoveCardDto
-  ) {
+  moveCard(@Param('id') id: string, @Request() req, @Body() dto: MoveCardDto) {
     return this.boardsService.moveCard(id, req.user.sub, dto);
   }
 
@@ -139,7 +143,7 @@ export class BoardsController {
   addComment(
     @Param('id') id: string,
     @Request() req,
-    @Body() dto: CreateCardCommentDto
+    @Body() dto: CreateCardCommentDto,
   ) {
     return this.boardsService.addComment(id, req.user.sub, dto);
   }
@@ -149,7 +153,9 @@ export class BoardsController {
   // ==========================================
 
   @Post('cards/:id/convert-to-post')
-  @ApiOperation({ summary: 'Convert card content into a social media post draft' })
+  @ApiOperation({
+    summary: 'Convert card content into a social media post draft',
+  })
   convertToPost(@Param('id') id: string, @Request() req) {
     return this.boardsService.convertToPost(id, req.user.sub);
   }

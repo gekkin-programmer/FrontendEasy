@@ -1,6 +1,15 @@
-import { 
-  Controller, Get, Post, Body, UseGuards, Req, Res, Param, Delete, 
-  UnauthorizedException, Query, NotImplementedException, Patch
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Res,
+  Param,
+  Delete,
+  Query,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SocialAccountsService } from './social-accounts.service';
@@ -21,7 +30,7 @@ import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard'; // ➤ N
 export class SocialAccountsController {
   constructor(
     private readonly socialAccountsService: SocialAccountsService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   // =================================================================
@@ -33,7 +42,10 @@ export class SocialAccountsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'List connected accounts' })
   findAll(@Req() req, @Query('workspaceId') workspaceId: string) {
-    return this.socialAccountsService.findAll(req.user.sub || req.user.id, workspaceId);
+    return this.socialAccountsService.findAll(
+      req.user.sub || req.user.id,
+      workspaceId,
+    );
   }
 
   @Delete(':id')
@@ -41,7 +53,10 @@ export class SocialAccountsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Disconnect an account' })
   remove(@Param('id') id: string, @Req() req) {
-    return this.socialAccountsService.disconnect(id, req.user.sub || req.user.id);
+    return this.socialAccountsService.disconnect(
+      id,
+      req.user.sub || req.user.id,
+    );
   }
 
   @Post(':id/sync')
@@ -49,7 +64,10 @@ export class SocialAccountsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Trigger historical sync manually' })
   syncAccount(@Param('id') id: string, @Req() req) {
-    return this.socialAccountsService.triggerManualSync(id, req.user.sub || req.user.id);
+    return this.socialAccountsService.triggerManualSync(
+      id,
+      req.user.sub || req.user.id,
+    );
   }
 
   @Patch(':id/expire')
@@ -66,13 +84,19 @@ export class SocialAccountsController {
 
   @Get('connect/facebook')
   @UseGuards(FacebookConnectGuard)
-  async connectFacebook(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectFacebook(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to Facebook
   }
 
   @Get('connect/instagram')
   @UseGuards(FacebookConnectGuard)
-  async connectInstagram(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectInstagram(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to Facebook (Instagram Business uses FB Login)
   }
 
@@ -81,11 +105,11 @@ export class SocialAccountsController {
   async facebookCallback(@Req() req, @Res() res: Response) {
     // Check if it's actually an IG or WA flow
     if (req.user.platform === 'INSTAGRAM') {
-        await this.socialAccountsService.handleInstagramCallback(req.user);
+      await this.socialAccountsService.handleInstagramCallback(req.user);
     } else if (req.user.platform === 'WHATSAPP') {
-        await this.socialAccountsService.handleWhatsappCallback(req.user);
+      await this.socialAccountsService.handleWhatsappCallback(req.user);
     } else {
-        await this.socialAccountsService.handleFacebookCallback(req.user);
+      await this.socialAccountsService.handleFacebookCallback(req.user);
     }
     this.redirectHome(res, req.user.workspaceId);
   }
@@ -103,7 +127,10 @@ export class SocialAccountsController {
 
   @Get('connect/linkedin')
   @UseGuards(LinkedInConnectGuard)
-  async connectLinkedin(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectLinkedin(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to LinkedIn
   }
 
@@ -120,7 +147,10 @@ export class SocialAccountsController {
 
   @Get('connect/twitter')
   @UseGuards(TwitterConnectGuard)
-  async connectTwitter(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectTwitter(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to Twitter
   }
 
@@ -137,7 +167,10 @@ export class SocialAccountsController {
 
   @Get('connect/youtube')
   @UseGuards(YoutubeConnectGuard)
-  async connectYoutube(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectYoutube(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to Google
   }
 
@@ -154,7 +187,10 @@ export class SocialAccountsController {
 
   @Get('connect/whatsapp')
   @UseGuards(WhatsappConnectGuard)
-  async connectWhatsapp(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectWhatsapp(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to Facebook Login with 'whatsapp_business_management' scope
   }
 
@@ -171,7 +207,10 @@ export class SocialAccountsController {
 
   @Get('connect/tiktok')
   @UseGuards(TikTokConnectGuard)
-  async connectTikTok(@Query('workspaceId') workspaceId: string, @Query('token') token: string) {
+  async connectTikTok(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
     // Redirects to TikTok
   }
 
@@ -187,10 +226,14 @@ export class SocialAccountsController {
   // =================================================================
 
   @Get('connect/pinterest')
-  connectPinterest(@Res() res: Response) { this.comingSoon(res, 'Pinterest'); }
+  connectPinterest(@Res() res: Response) {
+    this.comingSoon(res, 'Pinterest');
+  }
 
   @Get('connect/reddit')
-  connectReddit(@Res() res: Response) { this.comingSoon(res, 'Reddit'); }
+  connectReddit(@Res() res: Response) {
+    this.comingSoon(res, 'Reddit');
+  }
 
   // --- HELPERS ---
 

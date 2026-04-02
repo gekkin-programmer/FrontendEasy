@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
 
 // 1. Create the Axios Instance
 export const api = axios.create({
@@ -13,8 +13,9 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   // Try to get token from localStorage or Cookies
   // Adjust this based on how you store your token
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  
+  const token =
+    typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -24,15 +25,17 @@ api.interceptors.request.use((config) => {
 // 3. Add Response Interceptor (Optional: Handle 401 globally)
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Redirect to login if token expired
       if (typeof window !== 'undefined') {
-        // window.location.href = '/login'; 
+        // window.location.href = '/login';
       }
     }
-    return Promise.reject(error);
-  }
+    const rejectionError =
+      error instanceof Error ? error : new Error(String(error));
+    return Promise.reject(rejectionError);
+  },
 );
 
 // 4. Helper for File Uploads (Multipart)
@@ -47,7 +50,7 @@ api.upload = async <T>(url: string, formData: FormData): Promise<T> => {
 
 // Add typescript support for the custom .upload method
 declare module 'axios' {
-    export interface AxiosInstance {
-      upload<T = any>(url: string, data: FormData): Promise<T>;
-    }
+  export interface AxiosInstance {
+    upload<T = any>(url: string, data: FormData): Promise<T>;
+  }
 }

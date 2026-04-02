@@ -9,6 +9,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [PrismaModule, HttpModule, ConfigModule],
   controllers: [SmartSchedulingController],
   providers: [SmartSchedulingService],
-  exports: [SmartSchedulingService]
+  exports: [SmartSchedulingService],
 })
 export class SmartSchedulingModule {}

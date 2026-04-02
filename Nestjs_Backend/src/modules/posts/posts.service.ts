@@ -1,7 +1,7 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  ForbiddenException 
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -29,22 +29,28 @@ export class PostsService {
         workspaceId,
         createdById: userId,
         socialAccounts: {
-          create: dto.socialAccountIds.map(accId => ({
+          create: dto.socialAccountIds.map((accId) => ({
             socialAccount: { connect: { id: accId } },
-            status: status 
-          }))
+            status: status,
+          })),
         },
-        media: dto.mediaIds ? {
-          create: dto.mediaIds.map((mediaId, index) => ({
-            media: { connect: { id: mediaId } },
-            order: index
-          }))
-        } : undefined
+        media: dto.mediaIds
+          ? {
+              create: dto.mediaIds.map((mediaId, index) => ({
+                media: { connect: { id: mediaId } },
+                order: index,
+              })),
+            }
+          : undefined,
       },
-      include: { 
-        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
-        media: { include: { media: true } }
-      }
+      include: {
+        socialAccounts: {
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
+        },
+        media: { include: { media: true } },
+      },
     });
 
     // Notify Workspace via WebSocket
@@ -53,7 +59,7 @@ export class PostsService {
     // Increment Workspace Post Count
     await this.prisma.workspace.update({
       where: { id: workspaceId },
-      data: { currentPostCount: { increment: 1 } }
+      data: { currentPostCount: { increment: 1 } },
     });
 
     return post;
@@ -64,21 +70,27 @@ export class PostsService {
     const { status, limit = 50, search } = query;
 
     return this.prisma.post.findMany({
-      where: { 
+      where: {
         workspaceId,
         ...(status ? { status: status as PostStatus } : {}),
-        ...(search ? { content: { contains: search, mode: 'insensitive' } } : {})
+        ...(search
+          ? { content: { contains: search, mode: 'insensitive' } }
+          : {}),
       },
-      include: { 
-        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+      include: {
+        socialAccounts: {
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
+        },
         media: { include: { media: true } },
-        createdBy: { select: { firstName: true, avatar: true } }
+        createdBy: { select: { firstName: true, avatar: true } },
       },
-      orderBy: { 
+      orderBy: {
         publishedAt: status === 'PUBLISHED' ? 'desc' : undefined,
-        createdAt: status !== 'PUBLISHED' ? 'desc' : undefined
+        createdAt: status !== 'PUBLISHED' ? 'desc' : undefined,
       },
-      take: Number(limit)
+      take: Number(limit),
     });
   }
 
@@ -89,29 +101,33 @@ export class PostsService {
         workspaceId,
         scheduledFor: {
           gte: start,
-          lte: end
-        }
+          lte: end,
+        },
       },
       include: {
-        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
-        media: { include: { media: true } }
+        socialAccounts: {
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
+        },
+        media: { include: { media: true } },
       },
-      orderBy: { scheduledFor: 'asc' }
+      orderBy: { scheduledFor: 'asc' },
     });
   }
 
   // ➤ GET ONE (Robust)
   async findOne(id: string, workspaceId?: string) {
     const post = await this.prisma.post.findFirst({
-      where: { 
+      where: {
         id,
-        ...(workspaceId ? { workspaceId } : {})
+        ...(workspaceId ? { workspaceId } : {}),
       },
       include: {
         socialAccounts: { include: { socialAccount: true } },
         media: { include: { media: true } },
-        comments: true
-      }
+        comments: true,
+      },
     });
 
     if (!post) throw new NotFoundException('Post not found');
@@ -119,14 +135,14 @@ export class PostsService {
   }
 
   // ➤ UPDATE
-  async update(id: string, dto: UpdatePostDto, userId: string) {
+  async update(id: string, dto: UpdatePostDto, _userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
 
     if (post.status === PostStatus.PUBLISHED) {
       throw new ForbiddenException('Cannot edit a published post');
     }
-    
+
     const updated = await this.prisma.post.update({
       where: { id },
       data: {
@@ -135,20 +151,30 @@ export class PostsService {
         status: dto.status,
       },
       include: {
-        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
-        media: { include: { media: true } }
-      }
+        socialAccounts: {
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
+        },
+        media: { include: { media: true } },
+      },
     });
 
     // Notify Workspace via WebSocket
-    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+    this.eventsGateway.sendToWorkspace(
+      updated.workspaceId,
+      'post_updated',
+      updated,
+    );
 
     return updated;
   }
 
   // ➤ DELETE
   async remove(id: string, workspaceId: string) {
-    const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
+    const post = await this.prisma.post.findFirst({
+      where: { id, workspaceId },
+    });
     if (!post) throw new NotFoundException('Post not found');
 
     // Notify Workspace via WebSocket (Before Deletion)
@@ -165,10 +191,14 @@ export class PostsService {
         approvalStatus: ApprovalStatus.APPROVED,
         approvedBy: approverId,
         approvedAt: new Date(),
-        status: PostStatus.SCHEDULED 
-      }
+        status: PostStatus.SCHEDULED,
+      },
     });
-    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+    this.eventsGateway.sendToWorkspace(
+      updated.workspaceId,
+      'post_updated',
+      updated,
+    );
     return updated;
   }
 
@@ -178,10 +208,14 @@ export class PostsService {
       where: { id },
       data: {
         status: PostStatus.DRAFT,
-        scheduledFor: null
-      }
+        scheduledFor: null,
+      },
     });
-    this.eventsGateway.sendToWorkspace(updated.workspaceId, 'post_updated', updated);
+    this.eventsGateway.sendToWorkspace(
+      updated.workspaceId,
+      'post_updated',
+      updated,
+    );
     return updated;
   }
 }

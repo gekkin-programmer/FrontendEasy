@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { FaCheck, FaInstagram, FaLinkedinIn, FaPaintBrush, FaStore } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- TYPES ---
@@ -93,7 +94,7 @@ const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgCl
       
       <div className="mt-2 md:mt-3 w-full bg-black text-white py-1 px-2 font-mono text-[10px] md:text-xs flex justify-between">
         <span className="truncate max-w-[60%]">{platform}</span>
-        <span className="text-blue-300">{followers}</span>
+        <span className="text-white">{followers}</span>
       </div>
     </motion.div>
   );
@@ -122,6 +123,7 @@ const GrowSection = () => {
       className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
       aria-label="Growth Success Stories"
     >
+      <SectionBackground />
       <style jsx>{`
         .pattern-grid {
           background-image: radial-gradient(#000 1px, transparent 1px);

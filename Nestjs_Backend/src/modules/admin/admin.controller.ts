@@ -1,9 +1,21 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Req, Delete, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Delete,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/guards/roles.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { UserStatus } from '@prisma/client';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -33,14 +45,17 @@ export class AdminController {
 
   @Patch('users/:id/status')
   @ApiOperation({ summary: 'Ban or Shadow Ban a user' })
-  updateStatus(@Param('id') id: string, @Body('status') status: string) {
+  updateStatus(@Param('id') id: string, @Body('status') status: UserStatus) {
     return this.adminService.updateUserStatus(id, status);
   }
 
   @Post('access-grants')
   @ApiOperation({ summary: 'Grant premium access to a user' })
-  grantAccess(@Req() req, @Body() body: any) {
-    return this.adminService.grantAccess(req.user.sub, body);
+  grantAccess(
+    @CurrentUser() user: { sub: string },
+    @Body() body: Parameters<AdminService['grantAccess']>[1],
+  ) {
+    return this.adminService.grantAccess(user.sub, body);
   }
 
   @Get('feedback')

@@ -12,27 +12,27 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
 
     // Save metadata to session cookie (robust & stateless)
     if (req.session && workspaceId && token) {
-        req.session.oauthMetadata = { 
-            workspaceId, 
-            token, 
-            platform: isInstagram ? 'INSTAGRAM' : 'FACEBOOK' 
-        };
-        console.log("🔹 Facebook Guard: Metadata saved to session");
+      req.session.oauthMetadata = {
+        workspaceId,
+        token,
+        platform: isInstagram ? 'INSTAGRAM' : 'FACEBOOK',
+      };
+      console.log('🔹 Facebook Guard: Metadata saved to session');
     }
 
     return (await super.canActivate(context)) as boolean;
   }
 
-  getAuthenticateOptions(context: ExecutionContext) {
+  getAuthenticateOptions(_context: ExecutionContext) {
     return {
       scope: [
-        'email', 
-        'public_profile', 
-        'pages_show_list', 
-        'pages_read_engagement', 
+        'email',
+        'public_profile',
+        'pages_show_list',
+        'pages_read_engagement',
         'pages_manage_posts',
-        'instagram_basic', 
-        'instagram_content_publish'
+        'instagram_basic',
+        'instagram_content_publish',
       ],
     };
   }

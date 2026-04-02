@@ -22,5 +22,5 @@ export class RegisterDto {
   @ApiProperty({ example: '123456', description: 'OTP Code' })
   @IsString()
   @IsNotEmpty()
-  code: string; 
+  code: string;
 }

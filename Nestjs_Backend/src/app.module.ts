@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq'; 
+import { BullModule } from '@nestjs/bullmq';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -34,14 +34,15 @@ import { BoardsModule } from './modules/boards/boards.module';
 
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         connection: {
-          host: configService.get('REDIS_HOST'),
+          host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
-          password: configService.get('REDIS_PASSWORD'),
-          tls: configService.get('REDIS_TLS') === 'true' 
-            ? { rejectUnauthorized: false } 
-            : undefined,
+          password: configService.get<string>('REDIS_PASSWORD'),
+          tls:
+            configService.get<string>('REDIS_TLS') === 'true'
+              ? { rejectUnauthorized: false }
+              : undefined,
         },
       }),
       inject: [ConfigService],
@@ -66,7 +67,7 @@ import { BoardsModule } from './modules/boards/boards.module';
     CommunityModule,
     AdminModule,
     AppEventsModule,
-    BoardsModule
+    BoardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

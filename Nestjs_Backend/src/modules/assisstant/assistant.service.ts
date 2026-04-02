@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AiService, AiTone } from '../ai/ai.service';
 import { MediaLibrary } from '@prisma/client';
@@ -20,9 +24,9 @@ export class AssistantService {
     }
 
     // 0. Get Workspace ID early (Needed for AI logging)
-    const user = await this.prisma.user.findUnique({ 
-      where: { id: userId }, 
-      include: { ownedWorkspaces: true } 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { ownedWorkspaces: true },
     });
 
     if (!user || !user.ownedWorkspaces.length) {
@@ -41,36 +45,45 @@ export class AssistantService {
 
       // 2. Parse Intent (DeepSeek/Llama)
       // ➤ FIX: Pass userId and workspaceId
-      const intent = await this.aiService.parseUserIntent(text, userId, workspaceId);
+      const intent = await this.aiService.parseUserIntent(
+        text,
+        userId,
+        workspaceId,
+      );
       console.log('🧠 Intent:', intent);
 
       // 🛑 GUARD: If AI didn't understand
       if (!intent || (!intent.action && !intent.searchQuery)) {
         return {
-          message: "I heard you, but didn't catch a clear command. Try 'Post the red shoes'.",
+          message:
+            "I heard you, but didn't catch a clear command. Try 'Post the red shoes'.",
           transcription: text,
-          intent: null
+          intent: null,
         };
       }
 
       // If it's just a general question or filter request
-      if (!intent.action || intent.action === 'FILTER' || intent.action === 'SEARCH') {
-         return {
-            message: "Command processed",
-            transcription: text,
-            intent: intent 
-         };
+      if (
+        !intent.action ||
+        intent.action === 'FILTER' ||
+        intent.action === 'SEARCH'
+      ) {
+        return {
+          message: 'Command processed',
+          transcription: text,
+          intent: intent,
+        };
       }
 
       // 3. Find Image (Prisma)
-      const query = intent.searchQuery || "";
-      let media: MediaLibrary | null = null; 
+      const query = intent.searchQuery || '';
+      let media: MediaLibrary | null = null;
 
       if (query) {
         media = await this.prisma.mediaLibrary.findFirst({
           where: {
             workspaceId: workspaceId, // Scope to workspace
-            filename: { contains: query, mode: 'insensitive' }
+            filename: { contains: query, mode: 'insensitive' },
           },
           orderBy: { createdAt: 'desc' },
         });
@@ -78,23 +91,27 @@ export class AssistantService {
 
       // If action is CREATE_POST but no image found
       if (intent.action === 'CREATE_POST' && !media && query) {
-         throw new NotFoundException(`I couldn't find any image matching "${query}".`);
+        throw new NotFoundException(
+          `I couldn't find any image matching "${query}".`,
+        );
       }
 
       // 4. Generate Caption
       const tone = (intent.tone as AiTone) || AiTone.PROFESSIONAL;
       // ➤ FIX: Pass userId and workspaceId, expecting object return
       const copyResult = await this.aiService.generateMarketingCopy(
-        intent.searchQuery || "New Update", 
-        media ? media.filename : "Text Post",
+        intent.searchQuery || 'New Update',
+        media ? media.filename : 'Text Post',
         tone,
         userId,
-        workspaceId
+        workspaceId,
       );
-      const caption = copyResult.content; 
+      const caption = copyResult.content;
 
       // 5. Schedule Post
-      const scheduleDate = intent.scheduleDate ? new Date(intent.scheduleDate) : new Date(Date.now() + 86400000);
+      const scheduleDate = intent.scheduleDate
+        ? new Date(intent.scheduleDate)
+        : new Date(Date.now() + 86400000);
 
       const post = await this.prisma.post.create({
         data: {
@@ -104,15 +121,17 @@ export class AssistantService {
           status: 'SCHEDULED',
           scheduledFor: scheduleDate,
           // ➤ FIX: Correct relation syntax for PostMedia join table
-          media: media ? {
-            create: {
-              mediaId: media.id,
-              order: 0
-            }
-          } : undefined,
+          media: media
+            ? {
+                create: {
+                  mediaId: media.id,
+                  order: 0,
+                },
+              }
+            : undefined,
           // ➤ REMOVED: platformData (doesn't exist in schema anymore)
         },
-        include: { media: { include: { media: true } } }
+        include: { media: { include: { media: true } } },
       });
 
       // 6. Get Current Usage for Frontend
@@ -122,8 +141,8 @@ export class AssistantService {
       const aiUsageCount = await this.prisma.aiUsageLog.count({
         where: {
           userId,
-          createdAt: { gte: startOfMonth }
-        }
+          createdAt: { gte: startOfMonth },
+        },
       });
 
       return {
@@ -135,10 +154,9 @@ export class AssistantService {
           caption: post.content,
           scheduledFor: post.scheduledFor,
           image: media?.url,
-          intent: intent 
-        }
+          intent: intent,
+        },
       };
-
     } finally {
       if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
     }

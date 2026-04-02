@@ -9,11 +9,11 @@ export class SchedulerService {
 
   constructor(
     private prisma: PrismaService,
-    private publisher: PublisherService
+    private publisher: PublisherService,
   ) {}
 
   // ➤ 1. SCHEDULE POST
-  async schedulePost(postId: string, date: Date, timezone: string = 'UTC') {
+  async schedulePost(postId: string, date: Date, _timezone: string = 'UTC') {
     // a. Validate Date (Cannot be in the past)
     const now = new Date();
     if (date < now) {
@@ -29,13 +29,13 @@ export class SchedulerService {
 
     // c. Convert timezone (Simplified: Assuming date passed is already in correct target time or UTC)
     // In a real app, we'd use date-fns-tz or luxon here.
-    
+
     return this.prisma.post.update({
       where: { id: postId },
       data: {
         scheduledFor: date,
-        status: 'SCHEDULED'
-      }
+        status: 'SCHEDULED',
+      },
     });
   }
 
@@ -47,7 +47,7 @@ export class SchedulerService {
 
     return this.prisma.post.update({
       where: { id: postId },
-      data: { scheduledFor: newDate }
+      data: { scheduledFor: newDate },
     });
   }
 
@@ -57,8 +57,8 @@ export class SchedulerService {
       where: { id: postId },
       data: {
         status: 'DRAFT',
-        scheduledFor: null
-      }
+        scheduledFor: null,
+      },
     });
   }
 
@@ -67,9 +67,9 @@ export class SchedulerService {
     return this.prisma.post.findMany({
       where: {
         workspaceId,
-        status: 'SCHEDULED'
+        status: 'SCHEDULED',
       },
-      orderBy: { scheduledFor: 'asc' }
+      orderBy: { scheduledFor: 'asc' },
     });
   }
 
@@ -85,7 +85,7 @@ export class SchedulerService {
     const duePosts = await this.prisma.post.findMany({
       where: {
         status: 'SCHEDULED',
-        scheduledFor: { lte: now }
+        scheduledFor: { lte: now },
       },
       take: 10, // Process in batches of 10 to avoid memory spikes
     });
@@ -99,7 +99,7 @@ export class SchedulerService {
       // Locking Mechanism: Mark as PUBLISHING immediately so next Cron doesn't grab it
       await this.prisma.post.update({
         where: { id: post.id },
-        data: { status: 'PUBLISHING' }
+        data: { status: 'PUBLISHING' },
       });
 
       // Hand off to the worker

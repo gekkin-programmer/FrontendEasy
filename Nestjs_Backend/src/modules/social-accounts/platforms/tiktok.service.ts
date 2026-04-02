@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ISocialPlatform, NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import {
+  ISocialPlatform,
+  NormalizedSocialPost,
+} from '../interfaces/social-platform.interface';
 
 @Injectable()
 export class TiktokService implements ISocialPlatform {
@@ -12,8 +15,8 @@ export class TiktokService implements ISocialPlatform {
 
   async getHistory(
     accessToken: string,
-    openId: string,
-    since?: Date,
+    _openId: string,
+    _since?: Date,
   ): Promise<NormalizedSocialPost[]> {
     try {
       // Fetching user's videos
@@ -21,11 +24,22 @@ export class TiktokService implements ISocialPlatform {
       const { data } = await firstValueFrom(
         this.httpService.post(
           url,
-          { 
-            fields: ['id', 'title', 'video_description', 'cover_image_url', 'share_url', 'create_time', 'like_count', 'comment_count', 'share_count', 'view_count'] 
+          {
+            fields: [
+              'id',
+              'title',
+              'video_description',
+              'cover_image_url',
+              'share_url',
+              'create_time',
+              'like_count',
+              'comment_count',
+              'share_count',
+              'view_count',
+            ],
           },
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        )
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+        ),
       );
 
       if (!data || !data.data || !data.data.videos) return [];
@@ -44,7 +58,6 @@ export class TiktokService implements ISocialPlatform {
         },
         metadata: { raw: v },
       }));
-
     } catch (error) {
       this.logger.error(`TikTok API Error: ${error.message}`);
       return [];
@@ -53,6 +66,6 @@ export class TiktokService implements ISocialPlatform {
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
     // TikTok requires standard OAuth2 refresh
-    return refreshToken; 
+    return refreshToken;
   }
 }

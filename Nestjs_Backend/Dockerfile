@@ -21,8 +21,8 @@ RUN \
     npm install; \
   fi
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Generate Prisma Client (with dummy env vars since live vars aren't available in Docker build context)
+RUN DATABASE_URL="postgresql://dummy:password@localhost/db" DIRECT_URL="postgresql://dummy:password@localhost/db" npx prisma generate
 
 # ── Stage 2: Build ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -35,7 +35,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build the NestJS application
-RUN npm run build
+RUN corepack enable pnpm && pnpm run build
 
 # ── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
@@ -64,4 +64,4 @@ USER nestjs
 EXPOSE 3000
 
 # Run Prisma migrations then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "DIRECT_URL=${DIRECT_URL:-${DATABASE_URL}} npx prisma migrate deploy && node dist/main"]

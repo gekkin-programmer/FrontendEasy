@@ -8,7 +8,9 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 @UseGuards(JwtAuthGuard)
 @Controller('ai/smart-scheduling')
 export class SmartSchedulingController {
-  constructor(private readonly smartSchedulingService: SmartSchedulingService) {}
+  constructor(
+    private readonly smartSchedulingService: SmartSchedulingService,
+  ) {}
 
   @Get('suggestions')
   @ApiOperation({ summary: 'Get AI-powered publishing time suggestions' })

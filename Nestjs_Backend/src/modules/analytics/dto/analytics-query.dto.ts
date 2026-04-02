@@ -12,7 +12,7 @@ export enum AnalyticsPeriod {
 export enum AnalyticsType {
   OVERVIEW = 'OVERVIEW',
   ACCOUNTS = 'ACCOUNTS', // Performance by Platform
-  POSTS = 'POSTS',       // Top Content
+  POSTS = 'POSTS', // Top Content
 }
 
 export class AnalyticsFilterDto {

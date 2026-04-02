@@ -1,16 +1,19 @@
-import { 
-  Controller, 
-  Post, 
-  UseInterceptors, 
-  UploadedFile, 
-  UseGuards, 
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
   Req,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssistantService } from './assistant.service';
@@ -34,11 +37,8 @@ export class AssistantController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  async handleVoiceCommand(
-    @Req() req,
-    @UploadedFile() file: any,
-  ) {
-    console.log(" Received File:", file);
+  async handleVoiceCommand(@Req() req, @UploadedFile() file: any) {
+    console.log(' Received File:', file);
     return this.assistantService.processVoiceCommand(file, req.user.sub);
   }
 }

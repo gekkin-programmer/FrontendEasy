@@ -7,7 +7,7 @@ process.env.TZ = 'UTC';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { json, urlencoded } from 'express';
+import { json, urlencoded, type Express } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
@@ -18,7 +18,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   // Trust proxy for Render/Vercel (corrects req.protocol)
-  (app.getHttpAdapter().getInstance() as any).set('trust proxy', 1);
+  (app.getHttpAdapter().getInstance() as Express).set('trust proxy', 1);
 
   // Use Pino Logger
   app.useLogger(app.get(Logger));
@@ -30,7 +30,9 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   // Cookie parser with secure secret from env (fallback only for local dev)
-  app.use(cookieParser(process.env.COOKIE_SECRET || 'dev-cookie-secret-CHANGE-ME'));
+  app.use(
+    cookieParser(process.env.COOKIE_SECRET || 'dev-cookie-secret-CHANGE-ME'),
+  );
 
   // Stateless session support for OAuth 2.0 State/PKCE
   app.use(
@@ -82,10 +84,15 @@ async function bootstrap() {
   // ── Swagger / API Documentation ───────────────────────────────────────
   const config = new DocumentBuilder()
     .setTitle('EasyPost API')
-    .setDescription('The Digital Marketing Engine for Africa – Social Content & Team Productivity')
+    .setDescription(
+      'The Digital Marketing Engine for Africa – Social Content & Team Productivity',
+    )
     .setVersion('2.0') // bumped version to reflect v2 of the product
     .addBearerAuth()
-    .addServer(process.env.API_URL || 'https://easypostv2.onrender.com', 'Production')
+    .addServer(
+      process.env.API_URL || 'https://easypostv2.onrender.com',
+      'Production',
+    )
     .addServer('http://localhost:3000', 'Local Development')
     .addTag('auth', 'Authentication, sessions, OAuth')
     .addTag('health', 'System health & monitoring')

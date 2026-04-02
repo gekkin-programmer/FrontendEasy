@@ -10,22 +10,22 @@ export class YoutubeConnectGuard extends AuthGuard('youtube') {
     const { workspaceId, token } = req.query;
 
     if (req.session && workspaceId && token) {
-        req.session.oauthMetadata = { workspaceId, token };
+      req.session.oauthMetadata = { workspaceId, token };
     }
 
     return (await super.canActivate(context)) as boolean;
   }
 
-  getAuthenticateOptions(context: ExecutionContext) {
+  getAuthenticateOptions(_context: ExecutionContext) {
     return {
       accessType: 'offline',
-      prompt: 'consent',     
+      prompt: 'consent',
       scope: [
-        'email', 
-        'profile', 
-        'https://www.googleapis.com/auth/youtube.upload', 
-        'https://www.googleapis.com/auth/youtube.readonly' 
-      ]
+        'email',
+        'profile',
+        'https://www.googleapis.com/auth/youtube.upload',
+        'https://www.googleapis.com/auth/youtube.readonly',
+      ],
     };
   }
 }

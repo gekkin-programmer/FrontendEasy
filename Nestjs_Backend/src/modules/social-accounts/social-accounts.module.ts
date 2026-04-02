@@ -4,7 +4,7 @@ import { BullModule } from '@nestjs/bullmq'; // <--- NEW: For Queue
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { AuthModule } from '../auth/auth.module'; 
+import { AuthModule } from '../auth/auth.module';
 
 // Controllers & Services
 import { SocialAccountsController } from './social-accounts.controller';
@@ -29,8 +29,8 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     PrismaModule,
     ConfigModule,
     HttpModule,
-    AuthModule, 
-    
+    AuthModule,
+
     // <--- Required for Background Jobs
     BullModule.registerQueue({
       name: 'social-sync',
@@ -56,7 +56,7 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
   controllers: [SocialAccountsController],
   providers: [
     SocialAccountsService,
-    
+
     // Auth Strategies
     FacebookConnectStrategy,
     LinkedInConnectStrategy,
@@ -69,7 +69,7 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     InstagramService,
     TwitterService,
     LinkedinService,
-    SocialSyncProcessor, 
+    SocialSyncProcessor,
   ],
   exports: [SocialAccountsService],
 })

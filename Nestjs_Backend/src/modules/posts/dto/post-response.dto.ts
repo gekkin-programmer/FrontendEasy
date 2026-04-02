@@ -1,8 +1,4 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  ForbiddenException 
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreatePostDto } from '././create-post.dto';
 import { UpdatePostDto } from '././update-post.dto';
@@ -26,40 +22,46 @@ export class PostsService {
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : null,
         workspaceId,
         createdById: userId,
-        
+
         // Connect Social Accounts (Many-to-Many via PostSocialAccount)
         socialAccounts: {
-          create: dto.socialAccountIds.map(accId => ({
+          create: dto.socialAccountIds.map((accId) => ({
             socialAccount: { connect: { id: accId } },
-            status: status // Propagate status to individual platform entries
-          }))
+            status: status, // Propagate status to individual platform entries
+          })),
         },
 
         // Connect Media (Many-to-Many via PostMedia)
-        media: dto.mediaIds ? {
-          create: dto.mediaIds.map((mediaId, index) => ({
-            media: { connect: { id: mediaId } },
-            order: index
-          }))
-        } : undefined
+        media: dto.mediaIds
+          ? {
+              create: dto.mediaIds.map((mediaId, index) => ({
+                media: { connect: { id: mediaId } },
+                order: index,
+              })),
+            }
+          : undefined,
       },
-      include: { media: true, socialAccounts: true }
+      include: { media: true, socialAccounts: true },
     });
   }
 
   // ➤ LIST POSTS (Filterable)
   async findAll(workspaceId: string, status?: PostStatus) {
     return this.prisma.post.findMany({
-      where: { 
+      where: {
         workspaceId,
-        ...(status ? { status } : {}) // Add filter if provided
+        ...(status ? { status } : {}), // Add filter if provided
       },
-      include: { 
-        socialAccounts: { include: { socialAccount: { select: { platform: true, username: true } } } },
+      include: {
+        socialAccounts: {
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
+        },
         media: { include: { media: true } },
-        createdBy: { select: { firstName: true, avatar: true } }
+        createdBy: { select: { firstName: true, avatar: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -70,8 +72,8 @@ export class PostsService {
       include: {
         socialAccounts: { include: { socialAccount: true } },
         media: { include: { media: true } },
-        comments: true
-      }
+        comments: true,
+      },
     });
     if (!post) throw new NotFoundException('Post not found');
     return post;
@@ -81,10 +83,10 @@ export class PostsService {
   async update(id: string, dto: UpdatePostDto, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
-    
+
     // Permission: Only Creator or Admin can edit (Simplified)
     if (post.createdById !== userId) {
-       // In real app: Check workspace role too
+      // In real app: Check workspace role too
     }
 
     return this.prisma.post.update({
@@ -94,14 +96,16 @@ export class PostsService {
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
         status: dto.status,
         // Updating relations is complex (delete old, add new), skip for MVO
-      }
+      },
     });
   }
 
   // ➤ DELETE
   async remove(id: string, workspaceId: string) {
     // Verify ownership first
-    const post = await this.prisma.post.findFirst({ where: { id, workspaceId }});
+    const post = await this.prisma.post.findFirst({
+      where: { id, workspaceId },
+    });
     if (!post) throw new NotFoundException('Post not found');
 
     return this.prisma.post.delete({ where: { id } });
@@ -110,15 +114,15 @@ export class PostsService {
   // ➤ APPROVE (Team Workflow)
   async approve(id: string, approverId: string) {
     // 1. Verify Approver is Admin/Manager (Skip logic for MVO speed)
-    
+
     return this.prisma.post.update({
       where: { id },
       data: {
         approvalStatus: ApprovalStatus.APPROVED,
         approvedBy: approverId,
         approvedAt: new Date(),
-        status: PostStatus.SCHEDULED // Auto-schedule upon approval
-      }
+        status: PostStatus.SCHEDULED, // Auto-schedule upon approval
+      },
     });
   }
 }

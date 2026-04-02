@@ -6,7 +6,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private configService: ConfigService) {
-    const rawCallbackUrl = configService.get<string>('GOOGLE_CALLBACK_URL') || '';
+    const rawCallbackUrl =
+      configService.get<string>('GOOGLE_CALLBACK_URL') || '';
     // Sanitize URL: remove quotes and whitespace
     const sanitizedCallbackUrl = rawCallbackUrl.replace(/['"]/g, '').trim();
 
@@ -25,17 +26,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { name, emails, photos, id } = profile;
-    
-    
+
     const user = {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
       picture: photos[0].value,
-      googleId: id, 
+      googleId: id,
       accessToken,
     };
-    
+
     done(null, user);
   }
 }

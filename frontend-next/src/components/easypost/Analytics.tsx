@@ -19,7 +19,82 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, type Icon as LucideIcon
 } from "lucide-react";
-import SpinningLoader from '../SpinningLoader';
+// --- SKELETON LOADERS ---
+const SkeletonBlock = ({ className }: { className?: string }) => (
+  <div className={cn("animate-pulse bg-gray-200 dark:bg-zinc-800", className)} />
+);
+
+function AnalyticsGridSkeleton() {
+  return (
+    <div className="h-full overflow-y-auto pr-2 pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]">
+            <div className="p-4 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
+              <SkeletonBlock className="h-5 w-32 rounded" />
+            </div>
+            <div className="p-4 space-y-3">
+              <SkeletonBlock className="h-10 w-24 rounded" />
+              <SkeletonBlock className="h-3 w-full rounded" />
+              <SkeletonBlock className="h-3 w-3/4 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LiveStreamSkeleton() {
+  return (
+    <div className="flex flex-col h-full gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
+            <SkeletonBlock className="h-3 w-20 mx-auto mb-2 rounded" />
+            <SkeletonBlock className="h-10 w-16 mx-auto rounded" />
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col md:flex-row gap-8 flex-1 pb-20 overflow-hidden">
+        <div className="w-full md:w-[380px] flex flex-col border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0">
+          <div className="p-4 border-b-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800">
+            <SkeletonBlock className="h-8 w-full rounded mb-3" />
+            <SkeletonBlock className="h-8 w-full rounded" />
+          </div>
+          <div className="flex-1 p-2 space-y-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-3 border-b border-gray-100 dark:border-zinc-800 space-y-2">
+                <SkeletonBlock className="h-3 w-3/4 rounded" />
+                <SkeletonBlock className="h-3 w-1/2 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex items-center justify-center">
+          <SkeletonBlock className="w-20 h-20 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PostDetailSkeleton() {
+  return (
+    <div className="flex-1 p-6 space-y-4">
+      <SkeletonBlock className="h-6 w-48 rounded" />
+      <SkeletonBlock className="h-24 w-full rounded" />
+      <div className="grid grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="border-2 border-black dark:border-white p-3">
+            <SkeletonBlock className="h-3 w-16 mb-2 rounded" />
+            <SkeletonBlock className="h-8 w-20 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Utils
 import { cn } from "@/lib/utils";
@@ -158,7 +233,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
     const isLoading = healthQuery.isLoading || forecastQuery.isLoading || timelineQuery.isLoading;
 
-    if(isLoading) return <SpinningLoader fullScreen={false} />;
+    if(isLoading) return <AnalyticsGridSkeleton />;
 
     const health = healthQuery.data || { healthScore: 0, consistencyStatus: 'N/A' };
     const forecast = forecastQuery.data || { trend: 'Stable', forecastNextMonth: 0 };
@@ -345,7 +420,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     const getEngagement = (p: AnalyticsPost) => (p.metrics?.likes || 0) + (p.metrics?.comments || 0);
     const filteredPosts = posts.filter((p: AnalyticsPost) => (p.content || "").toLowerCase().includes(searchTerm.toLowerCase()));
 
-    if(isLoading) return <SpinningLoader fullScreen={false} />;
+    if(isLoading) return <LiveStreamSkeleton />;
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-8 transition-colors">
@@ -422,7 +497,7 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
         },
     });
 
-    if (isLoading) return <SpinningLoader fullScreen={false} />;
+    if (isLoading) return <PostDetailSkeleton />;
     if (error || !post) return <div className="flex-1 flex flex-col items-center justify-center p-10 text-center text-black dark:text-white"><AlertCircle className="w-10 h-10 text-red-500 mb-2" /><div className="font-bold text-lg uppercase">POST DATA UNAVAILABLE</div><p className="text-sm text-gray-500 dark:text-zinc-400 max-w-xs mt-2 uppercase">This post might have been deleted or the connection to the platform was lost.</p></div>;
     return <PostAnalyticsDetail post={post} />;
 }

@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ISocialPlatform, NormalizedSocialPost } from '../interfaces/social-platform.interface';
+import {
+  ISocialPlatform,
+  NormalizedSocialPost,
+} from '../interfaces/social-platform.interface';
 
 @Injectable()
 export class TwitterService implements ISocialPlatform {
@@ -13,15 +16,17 @@ export class TwitterService implements ISocialPlatform {
   async getHistory(
     accessToken: string,
     twitterUserId: string,
-    since?: Date,
+    _since?: Date,
   ): Promise<NormalizedSocialPost[]> {
     try {
       const url = `${this.BASE_URL}/users/${twitterUserId}/tweets?max_results=50&tweet.fields=created_at,public_metrics,entities&expansions=attachments.media_keys&media.fields=url,preview_image_url`;
-      
-      const { data } = await firstValueFrom(this.httpService.get(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      }));
-      
+
+      const { data } = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+      );
+
       if (!data || !data.data) return [];
 
       return data.data.map((tweet: any) => ({
@@ -36,7 +41,6 @@ export class TwitterService implements ISocialPlatform {
         },
         metadata: { raw: tweet },
       }));
-
     } catch (error) {
       this.logger.error(`Twitter API Error: ${error.message}`);
       return [];
@@ -44,6 +48,6 @@ export class TwitterService implements ISocialPlatform {
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
-    return refreshToken; 
+    return refreshToken;
   }
 }

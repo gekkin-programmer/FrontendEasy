@@ -12,7 +12,7 @@ import {
   Ip,
 } from '@nestjs/common';
 // ➤ FIX: Add 'type' keyword here for Express interfaces
-import type { Response, Request } from 'express'; 
+import type { Response, Request } from 'express';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 
@@ -22,10 +22,9 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 // DTOs (Keep these as regular imports because they are Classes)
-import { AuthResponseDto } from './dto/auth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { SendOtpDto, VerifyOtpDto } from './dto/otp.dto'; 
+import { SendOtpDto } from './dto/otp.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -40,9 +39,10 @@ export class AuthController {
     res.cookie('refreshToken', token, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+      sameSite:
+        this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/'
+      path: '/',
     });
   }
 
@@ -64,19 +64,23 @@ export class AuthController {
     try {
       // 1. Validate & Start Session
       // @ts-ignore - req.user is added by Passport
-      const { accessToken, refreshToken } = await this.authService.validateGoogleUser(req.user);
-      
+      const { accessToken, refreshToken } =
+        await this.authService.validateGoogleUser(req.user);
+
       // 2. Set Refresh Token in Cookie (Secure!)
       this.setRefreshCookie(res, refreshToken);
 
       // 3. Build Redirect URL for Frontend
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-      
+      const frontendUrl =
+        this.configService.get<string>('FRONTEND_URL') ||
+        'http://localhost:3000';
+
       res.redirect(`${frontendUrl}/auth/callback?accessToken=${accessToken}`);
-      
     } catch (error) {
       console.error('Google Auth Error:', error);
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+      const frontendUrl =
+        this.configService.get<string>('FRONTEND_URL') ||
+        'http://localhost:3000';
       res.redirect(`${frontendUrl}/login?error=auth_failed`);
     }
   }
@@ -87,12 +91,15 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register with Email & Password' })
-  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const tokens = await this.authService.register(dto);
     this.setRefreshCookie(res, tokens.refreshToken);
-    return { 
-        accessToken: tokens.accessToken, 
-        user: tokens.user 
+    return {
+      accessToken: tokens.accessToken,
+      user: tokens.user,
     };
   }
 
@@ -100,19 +107,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with Email & Password' })
   async login(
-    @Body() dto: LoginDto, 
+    @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
     @Ip() ip: string,
-    @Req() req: Request
+    @Req() req: Request,
   ) {
     const userAgent = req.headers['user-agent'] || 'unknown';
     const tokens = await this.authService.login(dto, ip, userAgent);
-    
+
     this.setRefreshCookie(res, tokens.refreshToken);
-    
-    return { 
-        accessToken: tokens.accessToken, 
-        user: tokens.user 
+
+    return {
+      accessToken: tokens.accessToken,
+      user: tokens.user,
     };
   }
 
@@ -134,18 +141,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get new Access Token using Cookie' })
   async refreshToken(
-    @Req() req: Request, 
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Ip() ip: string
+    @Ip() ip: string,
   ) {
     // 1. Get from Cookie
     const oldRefreshToken = req.cookies['refreshToken'];
-    if (!oldRefreshToken) throw new BadRequestException('No refresh token provided');
+    if (!oldRefreshToken)
+      throw new BadRequestException('No refresh token provided');
 
     const userAgent = req.headers['user-agent'] || 'unknown';
 
     // 2. Service handles rotation
-    const tokens = await this.authService.refreshToken(oldRefreshToken, ip, userAgent);
+    const tokens = await this.authService.refreshToken(
+      oldRefreshToken,
+      ip,
+      userAgent,
+    );
 
     // 3. Set NEW Cookie (Rotation)
     this.setRefreshCookie(res, tokens.refreshToken);
@@ -159,15 +171,16 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies['refreshToken'];
     if (refreshToken) {
-        await this.authService.logout(refreshToken);
+      await this.authService.logout(refreshToken);
     }
-    
+
     // Clear Cookie
     res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: this.configService.get('NODE_ENV') === 'production',
-        sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
-        path: '/'
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite:
+        this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+      path: '/',
     });
 
     return { message: 'Logged out successfully' };
@@ -178,12 +191,12 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current logged-in user details' })
   async getProfile(@Req() req: Request) {
     // @ts-ignore
-    return req.user; 
+    return req.user;
   }
 
   @Post('email/send-otp')
   @ApiOperation({ summary: 'Send verification code to email' })
-  async sendEmailOtp(@Body() body: { email: string }) { 
+  async sendEmailOtp(@Body() body: { email: string }) {
     return this.authService.sendEmailOtp(body.email);
   }
 }

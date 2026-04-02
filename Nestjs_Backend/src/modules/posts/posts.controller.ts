@@ -1,13 +1,27 @@
-import { 
-  Controller, Get, Post, Body, Patch, Param, Delete, 
-  UseGuards, Req, Query, UnauthorizedException 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PublisherService } from './publishing/publisher.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PrismaService } from '../../prisma/prisma.service'; 
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { PrismaService } from '../../prisma/prisma.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { SubscriptionGuard } from '../../common/guards/subscription.guard';
 import { PostStatus } from '@prisma/client';
@@ -20,14 +34,14 @@ export class PostsController {
   constructor(
     private readonly postsService: PostsService,
     private readonly publisherService: PublisherService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   // 🛠️ HELPER: Get Workspace ID safely
   private async getWorkspaceId(userId: string): Promise<string> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { ownedWorkspaces: true }
+      include: { ownedWorkspaces: true },
     });
     if (!user || user.ownedWorkspaces.length === 0) {
       throw new UnauthorizedException('User has no workspace');
@@ -40,11 +54,11 @@ export class PostsController {
   @ApiOperation({ summary: 'Create a new post' })
   async create(@Body() dto: CreatePostDto, @Req() req) {
     const userId = req.user.sub;
-    
+
     // Prefer workspaceId from DTO, fallback to first owned workspace if missing
-    const workspaceId = dto.workspaceId || await this.getWorkspaceId(userId); 
-    
-    return this.postsService.create(dto, userId, workspaceId); 
+    const workspaceId = dto.workspaceId || (await this.getWorkspaceId(userId));
+
+    return this.postsService.create(dto, userId, workspaceId);
   }
 
   @Get()
@@ -52,11 +66,17 @@ export class PostsController {
   @ApiQuery({ name: 'workspaceId', type: String, required: false })
   @ApiQuery({ name: 'status', enum: PostStatus, required: false })
   @ApiQuery({ name: 'search', type: String, required: false })
-  async findAll(@Req() req, @Query('workspaceId') workspaceId?: string, @Query('status') status?: PostStatus, @Query('search') search?: string) {
+  async findAll(
+    @Req() req,
+    @Query('workspaceId') workspaceId?: string,
+    @Query('status') status?: PostStatus,
+    @Query('search') search?: string,
+  ) {
     const userId = req.user.sub;
-    
+
     // Prefer requested workspaceId, fallback only if none provided
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(userId);
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(userId));
 
     return this.postsService.findAll(targetWorkspaceId, { status, search });
   }
@@ -65,14 +85,27 @@ export class PostsController {
   @ApiOperation({ summary: 'Get posts for calendar (date range)' })
   @ApiQuery({ name: 'start', type: String, required: true })
   @ApiQuery({ name: 'end', type: String, required: true })
-  async getCalendar(@Query('workspaceId') workspaceId: string, @Query('start') start: string, @Query('end') end: string) {
-    return this.postsService.findInDateRange(workspaceId, new Date(start), new Date(end));
+  async getCalendar(
+    @Query('workspaceId') workspaceId: string,
+    @Query('start') start: string,
+    @Query('end') end: string,
+  ) {
+    return this.postsService.findInDateRange(
+      workspaceId,
+      new Date(start),
+      new Date(end),
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get post details' })
-  async findOne(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+  async findOne(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId?: string,
+    @Req() req?: any,
+  ) {
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(req.user.sub));
     return this.postsService.findOne(id, targetWorkspaceId);
   }
 
@@ -84,8 +117,13 @@ export class PostsController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a post' })
-  async remove(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+  async remove(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId?: string,
+    @Req() req?: any,
+  ) {
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(req.user.sub));
     return this.postsService.remove(id, targetWorkspaceId);
   }
 
@@ -97,8 +135,13 @@ export class PostsController {
 
   @Post(':id/cancel-schedule')
   @ApiOperation({ summary: 'Cancel a scheduled post and return to draft' })
-  async cancelSchedule(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+  async cancelSchedule(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId?: string,
+    @Req() req?: any,
+  ) {
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(req.user.sub));
     // Ensure post belongs to workspace
     await this.postsService.findOne(id, targetWorkspaceId);
     return this.postsService.cancelSchedule(id);
@@ -106,8 +149,13 @@ export class PostsController {
 
   @Post(':id/publish')
   @ApiOperation({ summary: 'Publish post immediately' })
-  async publish(@Param('id') id: string, @Query('workspaceId') workspaceId?: string, @Req() req?: any) {
-    const targetWorkspaceId = workspaceId || await this.getWorkspaceId(req.user.sub);
+  async publish(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId?: string,
+    @Req() req?: any,
+  ) {
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(req.user.sub));
     await this.postsService.findOne(id, targetWorkspaceId);
     return this.publisherService.publishPost(id);
   }

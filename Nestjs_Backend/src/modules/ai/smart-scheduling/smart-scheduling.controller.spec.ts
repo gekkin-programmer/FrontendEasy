@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SmartSchedulingController } from './smart-scheduling.controller';
+import { SmartSchedulingService } from './smart-scheduling.service';
 
 describe('SmartSchedulingController', () => {
   let controller: SmartSchedulingController;
@@ -7,9 +8,19 @@ describe('SmartSchedulingController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SmartSchedulingController],
+      providers: [
+        {
+          provide: SmartSchedulingService,
+          useValue: {
+            getSuggestions: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    controller = module.get<SmartSchedulingController>(SmartSchedulingController);
+    controller = module.get<SmartSchedulingController>(
+      SmartSchedulingController,
+    );
   });
 
   it('should be defined', () => {

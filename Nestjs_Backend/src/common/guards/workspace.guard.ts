@@ -1,13 +1,40 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { WorkspaceMember } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+
+interface RequestWithUser extends Request<
+  { workspaceId?: string },
+  any,
+  { workspaceId?: string }
+> {
+  user: {
+    userId: string;
+    sub: string;
+    email: string;
+    workspaceId?: string;
+  };
+  workspaceId: string;
+  membership: WorkspaceMember;
+}
 
 @Injectable()
 export class WorkspaceGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
+
+    if (!user) {
+      throw new ForbiddenException('Authentication required');
+    }
+
     const workspaceId = request.params.workspaceId || request.body.workspaceId;
 
     if (!workspaceId) {
@@ -17,7 +44,7 @@ export class WorkspaceGuard implements CanActivate {
     const membership = await this.prisma.workspaceMember.findFirst({
       where: {
         workspaceId,
-        userId: user.id,
+        userId: user.sub,
         status: 'ACTIVE',
       },
     });

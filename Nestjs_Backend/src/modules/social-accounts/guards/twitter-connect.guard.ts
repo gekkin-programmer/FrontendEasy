@@ -11,12 +11,14 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
 
     // Save metadata to session cookie (consistent with LinkedIn)
     if (req.session && workspaceId && token) {
-        req.session.oauthMetadata = { workspaceId, token };
-        console.log("🔹 Twitter Guard: Metadata saved to session");
+      req.session.oauthMetadata = { workspaceId, token };
+      console.log('🔹 Twitter Guard: Metadata saved to session');
     }
 
     if (!workspaceId && req.session?.oauthMetadata) {
-        console.log("🔹 Twitter Guard: Continuing with existing session metadata");
+      console.log(
+        '🔹 Twitter Guard: Continuing with existing session metadata',
+      );
     }
 
     return (await super.canActivate(context)) as boolean;
@@ -24,9 +26,9 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
 
   handleRequest(err, user, info) {
     if (err || !user) {
-      console.error("❌ Twitter Auth Failed:", err);
-      console.error("❌ Passport Info:", info); 
-      throw err || new Error("Twitter Authentication failed");
+      console.error('❌ Twitter Auth Failed:', err);
+      console.error('❌ Passport Info:', info);
+      throw err || new Error('Twitter Authentication failed');
     }
     return user;
   }

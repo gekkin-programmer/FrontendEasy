@@ -28,7 +28,13 @@ import { EmailModule } from '../../common/providers/email/email.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy, GoogleAuthGuard, JwtAuthGuard],
+  providers: [
+    AuthService,
+    GoogleStrategy,
+    JwtStrategy,
+    GoogleAuthGuard,
+    JwtAuthGuard,
+  ],
   exports: [AuthService, JwtAuthGuard, GoogleAuthGuard],
 })
 export class AuthModule {}

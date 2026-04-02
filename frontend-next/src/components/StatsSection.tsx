@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { useLanguage } from "../context/LanguageContext"; 
+import { useLanguage } from "../context/LanguageContext";
+import SectionBackground from './SectionBackground'; 
 
 interface StatsCardProps {
   end: number;
@@ -54,11 +55,12 @@ const StatsSection: React.FC = () => {
   ];
 
   return (
-    <section 
-      className="w-full bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5"
+    <section
+      className="w-full bg-white dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white/5 relative overflow-hidden"
       aria-label="Statistics"
     >
-      <div className="container mx-auto px-0">
+      <SectionBackground />
+      <div className="container mx-auto px-0 relative z-10">
         {/* Mobile: Stack vertical (border-b), Desktop: Horizontal (border-r) */}
         <div className="grid grid-cols-1 md:grid-cols-3">
           {stats.map((item) => (

@@ -2,20 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaLightbulb } from 'react-icons/fa';
 import { IoScanSharp } from 'react-icons/io5';
 import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        src?: string; trigger?: string; colors?: string; style?: React.CSSProperties;
-      };
-    }
-  }
-}
+import SectionBackground from './SectionBackground';
 
 // --- UTILS ---
 
@@ -275,7 +266,7 @@ const AnalyzeSection = () => {
       className="bg-white dark:bg-black/90 border-y-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
       aria-label="Analytics Features"
     >
-      
+      <SectionBackground />
       <div className="container mx-auto max-w-3xl relative z-10">
 
         {/* Full-width Text Column */}

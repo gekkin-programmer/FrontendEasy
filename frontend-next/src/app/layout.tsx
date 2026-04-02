@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer";
 import QueryProvider from "@/src/providers/query-provider";
+import AgentationLoader from "../components/AgentationLoader";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -91,10 +92,11 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            
-            <main className="min-h-screen pt-16 md:pt-1"> 
+            <main className="min-h-screen pt-16 md:pt-1">
               {children}
             </main>
+
+            <AgentationLoader />
 
           </LanguageProvider>
         </QueryProvider>

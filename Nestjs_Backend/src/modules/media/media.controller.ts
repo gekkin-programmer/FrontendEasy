@@ -1,11 +1,30 @@
-import { 
-  Controller, Post, Get, UseInterceptors, UploadedFile, UseGuards, Req, 
-  ParseFilePipe, MaxFileSizeValidator, UnauthorizedException, Param, Delete, Query, Body, Patch
+import {
+  Controller,
+  Post,
+  Get,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+  Req,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  Param,
+  Delete,
+  Query,
+  Body,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiConsumes, ApiBody, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiConsumes,
+  ApiBody,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 @ApiTags('Media Library')
 @ApiBearerAuth()
@@ -24,7 +43,10 @@ export class MediaController {
 
   @Post('folders')
   @ApiOperation({ summary: 'Create a new folder' })
-  async createFolder(@Req() req, @Body() body: { name: string, parentId?: string }) {
+  async createFolder(
+    @Req() req,
+    @Body() body: { name: string; parentId?: string },
+  ) {
     const userId = req.user?.sub || req.user?.id;
     return this.mediaService.createFolder(body.name, userId, body.parentId);
   }
@@ -37,7 +59,7 @@ export class MediaController {
       type: 'object',
       properties: {
         file: { type: 'string', format: 'binary' },
-        folderId: { type: 'string' }
+        folderId: { type: 'string' },
       },
     },
   })
@@ -47,9 +69,7 @@ export class MediaController {
     @Body('folderId') folderId: string,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), 
-        ],
+        validators: [new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 })],
       }),
     )
     file: any,
@@ -60,7 +80,11 @@ export class MediaController {
 
   @Patch(':id/move')
   @ApiOperation({ summary: 'Move asset to folder' })
-  async moveAsset(@Param('id') id: string, @Body() body: { folderId: string | null }, @Req() req) {
+  async moveAsset(
+    @Param('id') id: string,
+    @Body() body: { folderId: string | null },
+    @Req() req,
+  ) {
     const userId = req.user?.sub || req.user?.id;
     return this.mediaService.moveAsset(id, body.folderId, userId);
   }

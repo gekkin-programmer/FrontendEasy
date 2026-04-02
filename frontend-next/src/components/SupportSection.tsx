@@ -3,7 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { FaArrowRight, FaWhatsapp, FaHeadset } from 'react-icons/fa';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 // --- COMPONENTS ---
 const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
@@ -29,10 +30,11 @@ export default function SupportSection() {
 
   return (
     <section 
-      className="bg-pink-100 dark:bg-black/90 border-b-4 dark:border-white/5 border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
+      className="bg-pink-100 dark:bg-[#0a0a0a] border-b-4 dark:border-white/5 border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
       aria-label="Customer Support"
     >
       
+      <SectionBackground />
       {/* Decorative Elements (CSS Only for perf) */}
       <div className="absolute top-10 left-10 w-12 h-12 md:w-16 md:h-16 bg-blue-100 border-4 border-black rounded-full animate-bounce-slow hidden md:block pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-16 h-16 md:w-24 md:h-24 bg-[#3C48F6] border-4 border-black rotate-12 hidden md:block pointer-events-none"></div>

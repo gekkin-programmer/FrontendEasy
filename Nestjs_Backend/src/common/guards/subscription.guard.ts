@@ -12,15 +12,19 @@ export class SubscriptionGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<{
+      user?: { sub?: string; id?: string };
+      body: { workspaceId?: string };
+      query: { workspaceId?: string };
+    }>();
     const userId = request.user?.sub || request.user?.id;
 
     if (!userId) return false;
 
     // 1. Resolve Workspace ID (from body, query, or user's first workspace)
-    const workspaceId = 
-      request.body.workspaceId || 
-      request.query.workspaceId || 
+    const workspaceId =
+      request.body.workspaceId ||
+      request.query.workspaceId ||
       (await this.getDefaultWorkspaceId(userId));
 
     if (!workspaceId) {

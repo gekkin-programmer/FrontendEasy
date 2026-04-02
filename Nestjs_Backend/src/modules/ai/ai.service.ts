@@ -1,4 +1,10 @@
-import { Injectable, Logger, InternalServerErrorException, RequestTimeoutException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+  RequestTimeoutException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import * as fs from 'fs';
@@ -11,7 +17,7 @@ export enum MarketingFramework {
   AIDA = 'AIDA',
   PAS = 'PAS',
   STORY = 'STORY',
-  DIRECT = 'DIRECT'
+  DIRECT = 'DIRECT',
 }
 
 export enum AiTone {
@@ -19,13 +25,13 @@ export enum AiTone {
   CASUAL = 'CASUAL',
   CAMFRANGLAIS = 'CAMFRANGLAIS',
   NOUCHI = 'NOUCHI',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
 }
 
 export enum AiLength {
   SHORT = 'SHORT',
   MEDIUM = 'MEDIUM',
-  LONG = 'LONG'
+  LONG = 'LONG',
 }
 
 @Injectable()
@@ -37,12 +43,12 @@ export class AiService {
   // Groq often offers free beta tiers, but for future-proofing:
   private readonly PRICING = {
     input: 0.00059, // per 1k tokens
-    output: 0.00079 // per 1k tokens
+    output: 0.00079, // per 1k tokens
   };
 
   constructor(
     private configService: ConfigService,
-    public prisma: PrismaService // Injected for logging
+    public prisma: PrismaService, // Injected for logging
   ) {
     const groqKey = this.configService.get<string>('GROQ_API_KEY') || '';
 
@@ -59,11 +65,11 @@ export class AiService {
   /**
    * Checks if the user has reached their AI usage limits.
    */
-  private async checkUsageLimits(userId: string, workspaceId: string) {
+  private async checkUsageLimits(userId: string, _workspaceId: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        select: { planType: true }
+        select: { planType: true },
       });
 
       if (!user) {
@@ -79,12 +85,14 @@ export class AiService {
         const count = await this.prisma.aiUsageLog.count({
           where: {
             userId,
-            createdAt: { gte: startOfMonth }
-          }
+            createdAt: { gte: startOfMonth },
+          },
         });
 
         if (count >= 10) {
-          throw new ForbiddenException('🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> 100 posts, 5 comptes, 100 AI requests');
+          throw new ForbiddenException(
+            '🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> 100 posts, 5 comptes, 100 AI requests',
+          );
         }
       }
     } catch (e) {
@@ -97,7 +105,7 @@ export class AiService {
   // 👂 THE EARS (Whisper-Large-V3)
   // ======================================================
   async transcribeAudio(filePath: string): Promise<string> {
-    if (!this.groq) return "Mock Transcription: Post the red shoes.";
+    if (!this.groq) return 'Mock Transcription: Post the red shoes.';
 
     try {
       this.logger.log('Transcribing audio via Groq...');
@@ -110,14 +118,18 @@ export class AiService {
       return response.text;
     } catch (error) {
       this.handleAiError(error, 'system', 'transcription');
-      return ""; // Unreachable due to throw, but satisfies Typescript
+      return ''; // Unreachable due to throw, but satisfies Typescript
     }
   }
 
   // ======================================================
   // 🧠 THE STRATEGIST (Llama-3-70b via Groq)
   // ======================================================
-  async parseUserIntent(transcribedText: string, userId: string, workspaceId: string): Promise<any> {
+  async parseUserIntent(
+    transcribedText: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<any> {
     await this.checkUsageLimits(userId, workspaceId);
     if (!this.groq) return this.mockIntent();
 
@@ -155,11 +167,11 @@ export class AiService {
 
       // Log Usage
       await this.logTokenUsage(
-        userId, 
-        workspaceId, 
-        'intent-parsing', 
-        'llama-3.3-70b-versatile', 
-        response.usage
+        userId,
+        workspaceId,
+        'intent-parsing',
+        'llama-3.3-70b-versatile',
+        response.usage,
       );
 
       const content = response.choices[0].message.content || '{}';
@@ -173,14 +185,23 @@ export class AiService {
   // ======================================================
   // 🤝 THE SUPPORT AGENT (Customer Service)
   // ======================================================
-  async chatWithSupport(userMessage: string, userId: string, workspaceId: string): Promise<{ messageId: string, response: string }> {
+  async chatWithSupport(
+    userMessage: string,
+    userId: string,
+    workspaceId: string,
+  ): Promise<{ messageId: string; response: string }> {
     try {
       await this.checkUsageLimits(userId, workspaceId);
     } catch (e) {
-      if (e instanceof ForbiddenException) return { messageId: 'limit-reached', response: e.message };
+      if (e instanceof ForbiddenException)
+        return { messageId: 'limit-reached', response: e.message };
     }
 
-    if (!this.groq) return { messageId: 'mock-id', response: "Steve AI is offline. Ensure GROQ_API_KEY is configured." };
+    if (!this.groq)
+      return {
+        messageId: 'mock-id',
+        response: 'Steve AI is offline. Ensure GROQ_API_KEY is configured.',
+      };
 
     const messageId = uuidv4(); // Unique ID for feedback
     const systemPrompt = `
@@ -217,16 +238,16 @@ export class AiService {
 
       // Log Usage
       await this.logTokenUsage(
-        userId, 
-        workspaceId, 
-        'support-chat', 
-        'llama-3.3-70b-versatile', 
-        response.usage
+        userId,
+        workspaceId,
+        'support-chat',
+        'llama-3.3-70b-versatile',
+        response.usage,
       );
 
       return {
         messageId: messageId,
-        response: response.choices[0].message.content || "I didn't catch that."
+        response: response.choices[0].message.content || "I didn't catch that.",
       };
     } catch (error) {
       this.handleAiError(error, userId, 'support-chat');
@@ -244,10 +265,14 @@ export class AiService {
     userId: string,
     workspaceId: string,
     length: AiLength = AiLength.MEDIUM,
-    framework: MarketingFramework = MarketingFramework.AIDA
-  ): Promise<{ messageId: string, content: string }> {
+    framework: MarketingFramework = MarketingFramework.AIDA,
+  ): Promise<{ messageId: string; content: string }> {
     await this.checkUsageLimits(userId, workspaceId);
-    if (!this.groq) return { messageId: 'mock-id', content: `Mock Caption for ${productName}` };
+    if (!this.groq)
+      return {
+        messageId: 'mock-id',
+        content: `Mock Caption for ${productName}`,
+      };
 
     const messageId = uuidv4();
     const systemPrompt = `
@@ -267,22 +292,25 @@ export class AiService {
         model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Write a caption for: ${productName}. Visuals: ${visualDescription}` },
+          {
+            role: 'user',
+            content: `Write a caption for: ${productName}. Visuals: ${visualDescription}`,
+          },
         ],
       });
 
       // Log Usage
       await this.logTokenUsage(
-        userId, 
-        workspaceId, 
-        'copywriting', 
-        'llama-3.3-70b-versatile', 
-        response.usage
+        userId,
+        workspaceId,
+        'copywriting',
+        'llama-3.3-70b-versatile',
+        response.usage,
       );
 
       return {
         messageId: messageId,
-        content: response.choices[0].message.content || ''
+        content: response.choices[0].message.content || '',
       };
     } catch (error) {
       this.handleAiError(error, userId, 'copywriting');
@@ -297,16 +325,22 @@ export class AiService {
   /**
    * Logs token usage and estimated cost to the database.
    */
-  private async logTokenUsage(userId: string, workspaceId: string, action: string, model: string, usage: any) {
+  private async logTokenUsage(
+    userId: string,
+    workspaceId: string,
+    action: string,
+    model: string,
+    usage: any,
+  ) {
     if (!usage) return;
 
     try {
       const { prompt_tokens, completion_tokens, total_tokens } = usage;
-      
+
       // Calculate Cost
-      const cost = 
-        (prompt_tokens / 1000 * this.PRICING.input) + 
-        (completion_tokens / 1000 * this.PRICING.output);
+      const cost =
+        (prompt_tokens / 1000) * this.PRICING.input +
+        (completion_tokens / 1000) * this.PRICING.output;
 
       await this.prisma.aiUsageLog.create({
         data: {
@@ -318,10 +352,12 @@ export class AiService {
           outputTokens: completion_tokens,
           totalTokens: total_tokens,
           cost: cost,
-        }
+        },
       });
-      
-      this.logger.log(`Logged AI usage: ${total_tokens} tokens ($${cost.toFixed(6)})`);
+
+      this.logger.log(
+        `Logged AI usage: ${total_tokens} tokens ($${cost.toFixed(6)})`,
+      );
     } catch (e) {
       this.logger.error('Failed to log token usage', e);
       // Swallow error so we don't fail the request just because logging failed
@@ -332,38 +368,52 @@ export class AiService {
    * Centralized robust error handling for AI calls.
    */
   private handleAiError(error: any, userId: string, context: string) {
-    this.logger.error(`AI Error [${context}] for user ${userId}: ${error.message}`, error.stack);
+    this.logger.error(
+      `AI Error [${context}] for user ${userId}: ${error.message}`,
+      error.stack,
+    );
 
     // Timeout Handling
     if (error.code === 'ETIMEDOUT' || error.type === 'request_timeout') {
-      throw new RequestTimeoutException('The AI service timed out. Please try again.');
+      throw new RequestTimeoutException(
+        'The AI service timed out. Please try again.',
+      );
     }
 
     // Rate Limiting
     if (error.status === 429) {
-      throw new InternalServerErrorException('AI system is currently busy. Please try again in a moment.');
+      throw new InternalServerErrorException(
+        'AI system is currently busy. Please try again in a moment.',
+      );
     }
 
     // Context Length
     if (error.code === 'context_length_exceeded') {
-       throw new InternalServerErrorException('The input is too long for the AI to process.');
+      throw new InternalServerErrorException(
+        'The input is too long for the AI to process.',
+      );
     }
 
     // Generic Fallback
-    throw new InternalServerErrorException('An unexpected error occurred with the AI service.');
+    throw new InternalServerErrorException(
+      'An unexpected error occurred with the AI service.',
+    );
   }
 
   /**
    * Submits user feedback for a specific AI response.
    */
-  async submitFeedback(userId: string, dto: { messageId: string, rating: number, comment?: string }) {
+  async submitFeedback(
+    userId: string,
+    dto: { messageId: string; rating: number; comment?: string },
+  ) {
     return this.prisma.aiFeedback.create({
       data: {
         userId,
         aiMessageId: dto.messageId,
         rating: dto.rating,
-        feedbackText: dto.comment
-      }
+        feedbackText: dto.comment,
+      },
     });
   }
 
@@ -373,7 +423,7 @@ export class AiService {
       searchQuery: 'mock',
       platforms: ['FACEBOOK'],
       scheduleDate: new Date().toISOString(),
-      tone: 'PROFESSIONAL'
+      tone: 'PROFESSIONAL',
     };
   }
 }
