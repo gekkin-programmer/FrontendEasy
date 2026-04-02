@@ -17,9 +17,9 @@ type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
-  <div className={cn("bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-0 overflow-hidden", className)}>
+  <div className={cn("bg-zinc-50 dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-0 overflow-hidden", className)}>
     {(title || description) && (
-        <div className="px-6 py-4 border-b-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10">
+        <div className="px-6 py-4 border-b-2 border-black dark:border-white bg-yellow-100 dark:bg-yellow-900/10">
             {title && <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{title}</h3>}
             {description && <p className="text-xs font-mono text-gray-600 dark:text-zinc-400 mt-1">{description}</p>}
         </div>
@@ -226,7 +226,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                     </div>
                 </div>
             </NeuCard>
-            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600">
+            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600 [&>div:last-child]:bg-red-50 dark:[&>div:last-child]:bg-red-950/20">
                 <div className="flex justify-between items-center">
                     <div><h4 className="font-black text-red-600 dark:text-red-500 uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
                     <NeuButton variant="danger" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
