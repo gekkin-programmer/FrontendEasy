@@ -31,7 +31,7 @@ function CheckoutContent() {
   const cycle = searchParams.get('cycle') || 'MONTHLY';
 
   const [phone, setPhone] = useState('');
-  const [operator, setOperator] = useState('MTN_MOMO_CM');
+  const [operator, setOperator] = useState('MTN_MOMO_CMR');
   const [loading, setLoading] = useState(false);
   const [step, setStatus] = useState<'form' | 'processing' | 'success' | 'failed'>('form');
 
@@ -145,16 +145,16 @@ function CheckoutContent() {
                     <div className="space-y-2">
                         <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Opérateur</label>
                         <div className="grid grid-cols-2 gap-4">
-                            <OperatorBtn 
-                                active={operator === 'MTN_MOMO_CM'} 
-                                onClick={() => setOperator('MTN_MOMO_CM')}
+                            <OperatorBtn
+                                active={operator === 'MTN_MOMO_CMR'}
+                                onClick={() => setOperator('MTN_MOMO_CMR')}
                                 label="MTN MoMo"
                                 icon="/assets/MTNmoney.png"
                                 color="bg-yellow-400"
                             />
-                            <OperatorBtn 
-                                active={operator === 'ORANGE_MONEY_CM'} 
-                                onClick={() => setOperator('ORANGE_MONEY_CM')}
+                            <OperatorBtn
+                                active={operator === 'ORANGE_CMR'}
+                                onClick={() => setOperator('ORANGE_CMR')}
                                 label="Orange Money"
                                 icon="/assets/Orangemoney.png"
                                 color="bg-orange-500"
