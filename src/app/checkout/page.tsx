@@ -18,14 +18,14 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // ➤ AUTH CHECK
-  useEffect(() => {
-    const token = getCookie('accessToken');
-    if (!token) {
-      toast.error("Veuillez vous connecter pour procéder au paiement.");
-      router.push('/login?redirect=/checkout');
-    }
-  }, [router]);
+  // ➤ AUTH CHECK (disabled for design tweaking)
+  // useEffect(() => {
+  //   const token = getCookie('accessToken');
+  //   if (!token) {
+  //     toast.error("Veuillez vous connecter pour procéder au paiement.");
+  //     router.push('/login?redirect=/checkout');
+  //   }
+  // }, [router]);
   
   const plan = searchParams.get('plan') || 'PRO';
   const price = searchParams.get('price') || '14900';
@@ -34,7 +34,36 @@ function CheckoutContent() {
   const [phone, setPhone] = useState('');
   const [operator, setOperator] = useState('MTN_MOMO_CM');
   const [loading, setLoading] = useState(false);
-  const [step, setStatus] = useState<'form' | 'processing' | 'success'>('form');
+  const [step, setStatus] = useState<'form' | 'processing' | 'success' | 'failed'>('form');
+
+  // Poll transaction status until COMPLETED/FAILED or timeout (5 min)
+  const pollStatus = (transactionId: string) => {
+    const INTERVAL = 3000;
+    const TIMEOUT = 5 * 60 * 1000;
+    const start = Date.now();
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get<{ status: string }>(`/payments/status/${transactionId}`);
+        const { status } = res.data;
+
+        if (status === 'COMPLETED') {
+          clearInterval(interval);
+          setStatus('success');
+        } else if (status === 'FAILED' || status === 'REJECTED') {
+          clearInterval(interval);
+          toast.error("Paiement refusé ou échoué. Veuillez réessayer.");
+          setStatus('form');
+        } else if (Date.now() - start > TIMEOUT) {
+          clearInterval(interval);
+          toast.error("Le paiement a expiré. Veuillez réessayer.");
+          setStatus('form');
+        }
+      } catch {
+        // ignore transient errors, keep polling
+      }
+    }, INTERVAL);
+  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,18 +76,17 @@ function CheckoutContent() {
     setStatus('processing');
 
     try {
-      // Clean phone number (add 237 if missing)
       const cleanPhone = phone.startsWith('237') ? phone : `237${phone}`;
-      
-      await api.post<any>('/payments/initiate', {
+
+      const res = await api.post<{ transactionId: string }>('/payments/initiate', {
         planType: plan,
         amount: parseInt(price),
         phone: cleanPhone,
-        billingCycle: cycle
+        billingCycle: cycle,
       });
 
-      toast.success("Paiement initié ! Validez sur votre téléphone.");
-      setStatus('success');
+      toast.success("Paiement initié ! Validez le prompt PIN sur votre téléphone.");
+      pollStatus(res.data.transactionId);
     } catch (error: any) {
       toast.error(error.message || "Échec de l'initiation du paiement");
       setStatus('form');
@@ -85,25 +113,25 @@ function CheckoutContent() {
                 <span className="text-[#3C48F5]">Abonnement.</span>
             </h1>
             
-            <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
-                <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-100 dark:border-zinc-800 pb-6">
+            <div className="bg-black dark:bg-zinc-900 border-4 border-black dark:border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
+                <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-700 dark:border-zinc-800 pb-6">
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Plan Sélectionné</p>
-                        <h3 className="text-2xl font-black uppercase text-black dark:text-white">{plan}</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Plan Sélectionné</p>
+                        <h3 className="text-2xl font-black uppercase text-white">{plan}</h3>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Cycle</p>
-                        <h3 className="text-sm font-black uppercase text-black dark:text-white">{cycle === 'YEARLY' ? 'Annuel' : 'Mensuel'}</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Cycle</p>
+                        <h3 className="text-sm font-black uppercase text-white">{cycle === 'YEARLY' ? 'Annuel' : 'Mensuel'}</h3>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center text-3xl font-black text-black dark:text-white">
+                <div className="flex justify-between items-center text-3xl font-black text-white">
                     <span>TOTAL</span>
-                    <span className="text-[#3C48F5]">{parseInt(price).toLocaleString()} FCFA</span>
+                    <span className="text-white">{parseInt(price).toLocaleString()} FCFA</span>
                 </div>
             </div>
 
-            <div className="flex items-center gap-4 p-4 bg-blue-500/10 border-2 border-[#3C48F5] text-[#3C48F5]">
+            <div className="flex items-center gap-4 p-4 bg-blue-500/10 border-2 border-black dark:border-[#3C48F5] text-black dark:text-[#3C48F5]">
                 <ShieldCheck size={20} />
                 <p className="text-[10px] font-black uppercase tracking-wider">Paiement 100% sécurisé via Mobile Money</p>
             </div>
@@ -205,7 +233,7 @@ function OperatorBtn({ active, onClick, label, icon, color }: any) {
             type="button"
             onClick={onClick}
             className={`p-4 border-4 transition-all flex flex-col items-center gap-2 ${
-                active ? `border-black dark:border-white ${color} shadow-none translate-x-1 translate-y-1` : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:border-black dark:hover:border-white'
+                active ? `border-black dark:border-white bg-white dark:${color} shadow-none translate-x-1 translate-y-1` : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:border-black dark:hover:border-white'
             }`}
         >
             <div className="relative w-10 h-10">

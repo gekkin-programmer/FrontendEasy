@@ -70,15 +70,14 @@ const Footer: React.FC = () => {
           
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-3">
               <img
-                className="h-12 w-auto bg-gray-100 dark:bg-zinc-800 p-1 rounded-none border-2 border-black dark:border-zinc-700 group-hover:rotate-3 transition-transform"
-                src="/assets/WiggleLogo.png" 
+                className="h-12 w-auto"
+                src="/assets/WiggleLogo.png"
                 alt="EasyPost Logo"
               />
-              <span className="text-3xl font-black uppercase tracking-tighter text-black dark:text-white">EasyPost</span>
             </Link>
-            <p className="text-lg font-medium text-gray-600 dark:text-zinc-500 max-w-sm leading-relaxed border-l-4 border-[#3C48F6] pl-4 uppercase">
+            <p className="text-lg font-medium text-gray-600 dark:text-zinc-500 max-w-sm leading-relaxed uppercase">
               {t(
                 'The social OS for Africa. Plan, create, and dominate.',
                 'L\'OS social pour l\'Afrique. Planifiez, créez et dominez.'
