@@ -229,7 +229,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
             <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600 [&>div:last-child]:bg-red-50 dark:[&>div:last-child]:bg-red-950/20">
                 <div className="flex justify-between items-center">
                     <div><h4 className="font-black text-red-600 dark:text-red-500 uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
-                    <NeuButton variant="danger" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
+                    <NeuButton variant="secondary" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
                 </div>
             </NeuCard>
         </div>
