@@ -52,7 +52,7 @@ const NeuInput = ({ label, type = "text", value, onChange, disabled, placeholder
             onChange={onChange} 
             disabled={disabled} 
             placeholder={placeholder}
-            className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all disabled:bg-gray-100 dark:disabled:bg-zinc-900 disabled:text-gray-400 dark:disabled:text-zinc-600 placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white" 
+            className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all disabled:bg-zinc-200 dark:disabled:bg-zinc-900 disabled:text-gray-500 dark:disabled:text-zinc-600 placeholder:text-gray-400 dark:placeholder:text-zinc-600 text-black dark:text-white"
         />
     </div>
 );
@@ -82,8 +82,8 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
                 onClick={() => setActiveTab(tab.id)} 
                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200 
                 ${activeTab === tab.id 
-                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]' 
-                    : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800 hover:translate-x-1'}`}
+                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]'
+                    : 'bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-300 dark:hover:bg-zinc-700 hover:translate-x-1'}`}
               >
                 <span className={activeTab === tab.id ? 'text-white' : 'text-black dark:text-white'}>{tab.icon}</span>
                 {tab.label}
@@ -215,7 +215,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                     <NeuInput label="Workspace Name" value={formData.name} onChange={(e:any) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Digital Agency" />
                     <div>
                         <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">Description</label>
-                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all min-h-[100px] resize-none placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white" placeholder="e.g. We help local businesses grow." />
+                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all min-h-[100px] resize-none placeholder:text-gray-400 dark:placeholder:text-zinc-600 text-black dark:text-white" placeholder="e.g. We help local businesses grow." />
                     </div>
                     <div className="relative">
                         <NeuInput label="Website URL" value={formData.website} onChange={(e:any) => setFormData({...formData, website: e.target.value})} placeholder="https://easy.cm" />
@@ -292,8 +292,8 @@ function ProfileSettings() {
       <NeuCard title="Public Profile" description="VISIBLE TO TEAM MEMBERS">
         <div className="flex flex-col md:flex-row items-start gap-8 transition-colors">
           <div className="flex-shrink-0 flex flex-col items-center gap-3">
-            <div className="relative w-28 h-28 border-2 border-black dark:border-white bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center text-black dark:text-white text-4xl font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] overflow-hidden group transition-all">
-               {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : <span>{formData.firstName ? formData.firstName.charAt(0).toUpperCase() : 'U'}</span>}
+            <div className="relative w-28 h-28 border-2 border-black dark:border-white bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-black dark:text-white text-4xl font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] overflow-hidden group transition-all">
+               {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : (formData.firstName ? <span>{formData.firstName.charAt(0).toUpperCase()}</span> : <FiUser size={40} strokeWidth={1.5} />)}
                {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin text-2xl" /></div>}
             </div>
             <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} className="hidden" accept="image/*" />
