@@ -60,6 +60,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
   const handleConnect = (platform: string) => {
     const freshToken = getCookie('accessToken');
+    // eslint-disable-next-line react-hooks/immutability
     window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${freshToken}&workspaceId=${workspaceId}`;
   };
 
@@ -84,7 +85,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 <h2 className="text-4xl font-black uppercase tracking-tighter italic">Network_Nodes</h2>
             </div>
             <p className="font-mono text-sm font-bold opacity-60 uppercase tracking-widest">
-                Nodes active: {accounts.filter((a: any) => a.isActive).length} // Capacity: {accounts.length}/UNLIMITED
+                Nodes active: {accounts.filter((a: any) => a.isActive).length} {'// Capacity:'} {accounts.length}/UNLIMITED
             </p>
         </div>
         

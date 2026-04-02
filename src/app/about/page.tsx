@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/src/context/LanguageContext';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {

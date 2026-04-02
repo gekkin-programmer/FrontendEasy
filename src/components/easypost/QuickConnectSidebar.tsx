@@ -44,7 +44,8 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     const handleConnect = (platform: string) => { 
         const token = getCookie('accessToken');
-        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`; 
+        // eslint-disable-next-line react-hooks/immutability
+        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
     };
 
     const disconnectMutation = useMutation({ 

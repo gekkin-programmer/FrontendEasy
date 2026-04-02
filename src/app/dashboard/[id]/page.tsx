@@ -153,6 +153,7 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (selectionMode === 'facebook') {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (token) setTempExchangeToken(token);
             setIsFbPageSelectorOpen(true);
         }

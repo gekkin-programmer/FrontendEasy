@@ -396,7 +396,7 @@ export default function WorkspaceManager() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Workspace?</h3>
                 <p className="text-gray-500 text-sm mb-6">
-                  Are you sure you want to delete <span className="font-bold text-gray-900">"{itemToDelete.name}"</span>? <br/>
+                  Are you sure you want to delete <span className="font-bold text-gray-900">&quot;{itemToDelete.name}&quot;</span>? <br/>
                   All projects and members will be permanently removed.
                 </p>
                 

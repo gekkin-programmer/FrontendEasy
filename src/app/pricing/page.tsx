@@ -21,6 +21,7 @@ export default function PricingPage() {
       return;
     }
     if (plan.name === "Enterprise") {
+      // eslint-disable-next-line react-hooks/immutability
       window.location.href = "mailto:sales@easypost.io";
       return;
     }
