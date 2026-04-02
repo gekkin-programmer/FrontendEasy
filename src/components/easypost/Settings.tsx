@@ -17,9 +17,9 @@ type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
-  <div className={cn("bg-zinc-50 dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-0 overflow-hidden", className)}>
+  <div className={cn("bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-0 overflow-hidden", className)}>
     {(title || description) && (
-        <div className="px-6 py-4 border-b-2 border-black dark:border-white bg-yellow-100 dark:bg-yellow-900/10">
+        <div className="px-6 py-4 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-800">
             {title && <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{title}</h3>}
             {description && <p className="text-xs font-mono text-gray-600 dark:text-zinc-400 mt-1">{description}</p>}
         </div>
@@ -77,13 +77,15 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
         <aside className="lg:w-64 flex-shrink-0">
           <nav className="space-y-2">
             {tabs.map((tab) => (
-              <button 
-                key={tab.id} 
-                onClick={() => setActiveTab(tab.id)} 
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200 
-                ${activeTab === tab.id 
-                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]'
-                    : 'bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-300 dark:hover:bg-zinc-700 hover:translate-x-1'}`}
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200",
+                  activeTab === tab.id
+                    ? "bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] -translate-x-0.5"
+                    : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:translate-x-1"
+                )}
               >
                 <span className={activeTab === tab.id ? 'text-white' : 'text-black dark:text-white'}>{tab.icon}</span>
                 {tab.label}
@@ -226,9 +228,9 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                     </div>
                 </div>
             </NeuCard>
-            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600 [&>div:last-child]:bg-red-50 dark:[&>div:last-child]:bg-red-950/20">
+            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600">
                 <div className="flex justify-between items-center">
-                    <div><h4 className="font-black text-red-600 dark:text-red-500 uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
+                    <div><h4 className="font-black text-black dark:text-white uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
                     <NeuButton variant="secondary" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
                 </div>
             </NeuCard>
