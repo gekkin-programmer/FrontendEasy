@@ -82,6 +82,7 @@ function CheckoutContent() {
         amount: parseInt(price),
         phone: cleanPhone,
         billingCycle: cycle,
+        operator,
       });
 
       toast.success("Paiement initié ! Validez le prompt PIN sur votre téléphone.");
