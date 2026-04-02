@@ -56,7 +56,7 @@ const StatsSection: React.FC = () => {
 
   return (
     <section
-      className="w-full bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5 relative overflow-hidden"
+      className="w-full bg-white dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white/5 relative overflow-hidden"
       aria-label="Statistics"
     >
       <SectionBackground />

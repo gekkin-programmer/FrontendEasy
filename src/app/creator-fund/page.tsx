@@ -108,7 +108,7 @@ export default function CreatorFundPage() {
              <span className="text-transparent text-stroke-white italic">Influence.</span>
            </h1>
            <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold leading-relaxed mb-10">
-             We&apos;re looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.
+             We're looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.
            </p>
 
            <div className="flex justify-center gap-6">
@@ -148,7 +148,7 @@ export default function CreatorFundPage() {
 
                 {/* 3-COL GRID: BENEFITS */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    <BenefitCard title="Free Pro Access" desc="Unlock 12 months of EazyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included." />
+                    <BenefitCard title="Free Pro Access" desc="Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included." />
                     <BenefitCard title="Cash Stipend" desc="Receive up to 50,000 FCFA/month to support your content production and gear." />
                     <BenefitCard title="Global Reach" desc="We feature your profile and content across our social nodes reaching 100k+ users." />
                 </div>
@@ -169,7 +169,7 @@ export default function CreatorFundPage() {
                         <p className="text-xl text-gray-400 font-bold">Joining the fund means becoming a partner. We grow together.</p>
                         <div className="space-y-4">
                             <CommitmentItem icon={<MessageSquare />} text="Active participation in our Discord community." />
-                            <CommitmentItem icon={<CheckCircle />} text="2 posts per month mentioning EazyPost." />
+                            <CommitmentItem icon={<CheckCircle />} text="2 posts per month mentioning EasyPost." />
                             <CommitmentItem icon={<Target />} text="1 tutorial or platform review per quarter." />
                         </div>
                     </div>

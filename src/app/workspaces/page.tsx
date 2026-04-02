@@ -42,20 +42,55 @@ export default function WorkspaceManager() {
   // --- Load Data ---
   useEffect(() => { loadData(); }, []);
 
-  const loadData = async () => {
+       const loadData = async () => {
     try {
-      const data = await getWorkspaces();
+      // 1. Get simulated user session
+      const sessionStr = typeof window !== 'undefined' ? localStorage.getItem('user_session') : null;
+      const userSession = sessionStr ? JSON.parse(sessionStr) : null;
+
+      // 2. Fetch existing workspaces (or mock DB)
+      let data = await getWorkspaces();
+
+      // ---  ONBOARDING LOGIC ---
+      // If user just signed up (has session) but has NO workspaces, create the first one automatically
+      if (userSession && data.length === 0) {
+        const defaultName = userSession.category === 'personal' ? 'My Space' : 
+                            userSession.category === 'agency' ? 'Main Agency' :
+                            userSession.category === 'creator' ? 'Creator Studio' : 'Company HQ';
+
+        const initialWorkspace: Workspace = {
+          id: Date.now(),
+          name: defaultName,
+          role: 'Owner',
+          members: 1,
+          projects: 0,
+          color: '#3C48F6',
+          default_platforms: ['twitter', 'linkedin'], // Default platforms
+          timezone: 'UTC',
+          default_language: 'en'
+        };
+
+        // Create it via API (or push to mock state)
+        await createWorkspace(initialWorkspace);
+        data = [initialWorkspace]; // Update local data var
+      }
+
       setWorkspaces(data);
 
-      // If the user only has one workspace, skip the picker and go straight to dashboard
-      if (data.length === 1) {
+      // --- 🧠 SMART ROUTING ---
+      // Check if the plan is "Personal" OR if the user picked a "Starter" plan which limits workspaces
+      const isPersonalPlan = userSession?.category === 'personal' || userSession?.plan?.includes('free');
+      
+      // Logic: If Personal Plan AND they have exactly 1 workspace -> Skip this screen
+      if (isPersonalPlan && data.length === 1) {
         setIsRedirecting(true);
+        // Wait a moment so they see the loader, then go to dashboard
         setTimeout(() => {
           router.push(`/dashboard/${data[0].id}`);
         }, 800);
         return;
       }
-
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Failed to load workspaces", error);
@@ -361,7 +396,7 @@ export default function WorkspaceManager() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Workspace?</h3>
                 <p className="text-gray-500 text-sm mb-6">
-                  Are you sure you want to delete <span className="font-bold text-gray-900">&ldquo;{itemToDelete.name}&rdquo;</span>? <br/>
+                  Are you sure you want to delete <span className="font-bold text-gray-900">"{itemToDelete.name}"</span>? <br/>
                   All projects and members will be permanently removed.
                 </p>
                 

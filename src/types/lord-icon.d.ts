@@ -1,13 +1,12 @@
-import React from 'react';
+import type { HTMLAttributes } from 'react';
 
-declare global {
+declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
-      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'lord-icon': HTMLAttributes<HTMLElement> & {
         src?: string;
         trigger?: string;
         colors?: string;
-        style?: React.CSSProperties;
       };
     }
   }

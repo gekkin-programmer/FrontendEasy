@@ -30,7 +30,7 @@ export default function SupportSection() {
 
   return (
     <section 
-      className="bg-pink-100 dark:bg-black/90 border-b-4 dark:border-white/5 border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
+      className="bg-pink-100 dark:bg-[#0a0a0a] border-b-4 dark:border-white/5 border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
       aria-label="Customer Support"
     >
       

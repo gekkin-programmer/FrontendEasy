@@ -21,7 +21,7 @@ export default function PricingPage() {
       return;
     }
     if (plan.name === "Enterprise") {
-      window.location.assign("mailto:sales@eazypost.io");
+      window.location.href = "mailto:sales@easypost.io";
       return;
     }
 

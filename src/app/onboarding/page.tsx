@@ -127,8 +127,8 @@ export default function OnboardingPage() {
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">How will you use EazyPost?</h1>
-        <p className="text-gray-500 mt-2">We&apos;ll customize your experience based on your needs.</p>
+        <h1 className="text-3xl font-bold text-gray-900">How will you use EasyPost?</h1>
+        <p className="text-gray-500 mt-2">We'll customize your experience based on your needs.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-1">
@@ -258,7 +258,7 @@ export default function OnboardingPage() {
                         {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
                     </div>
                     <p className="text-lg font-medium leading-relaxed opacity-90">
-                        &ldquo;Setting up my workspace took less than 2 minutes. The onboarding experience is seamless.&rdquo;
+                        "Setting up my workspace took less than 2 minutes. The onboarding experience is seamless."
                     </p>
                 </div>
                 

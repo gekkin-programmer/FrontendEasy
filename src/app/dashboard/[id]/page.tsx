@@ -15,25 +15,25 @@ import {
   Layers, BarChart2, Settings as SettingsIcon, 
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle, Layout, Heart, RefreshCw
+  AlertTriangle, Crown, MessageCircle, Layout
 } from 'lucide-react'; 
 
 // COMPONENTS
-import Composer from '@/src/components/eazypost/Composer';
-import PostFeed from '@/src/components/eazypost/PostFeed';
-import Analytics from '@/src/components/eazypost/Analytics';
-import Settings from '@/src/components/eazypost/Settings';
-import Team from '@/src/components/eazypost/Team';
-import VoiceAiButton from '@/src/components/eazypost/VoiceAiButton';
-import CalendarView from '@/src/components/eazypost/CalendarView';
+import Composer from '@/src/components/easypost/Composer';
+import PostFeed from '@/src/components/easypost/PostFeed';
+import Analytics from '@/src/components/easypost/Analytics';
+import Settings from '@/src/components/easypost/Settings';
+import Team from '@/src/components/easypost/Team';
+import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
+import CalendarView from '@/src/components/easypost/CalendarView';
 import SpinningLoader from '@/src/components/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/eazypost/DashboardUI';
-import { QuickConnectSidebar } from '@/src/components/eazypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/src/components/eazypost/FacebookPageSelector';
-import { SidebarItem } from '@/src/components/eazypost/SidebarItem';
-import { EngagementWithTabs } from '@/src/components/eazypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/easypost/DashboardUI';
+import { QuickConnectSidebar } from '@/src/components/easypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSelector';
+import { SidebarItem } from '@/src/components/easypost/SidebarItem';
+import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
 
 // SOCKET
 import { SocketProvider, useSocket } from '@/src/context/SocketContext';
@@ -44,11 +44,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/src/components/eazypost/BoardView';
-import AudienceAnalytics from '@/src/components/eazypost/AudienceAnalytics';
-import ContentRecycling from '@/src/components/eazypost/ContentRecycling';
+import BoardView from '@/src/components/easypost/BoardView';
 
-type TabType = 'queue' |'calendar' | 'boards' | 'fans' | 'recycle' | 'analytics' | 'engagement' | 'settings' | 'team';
+type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
 export default function DashboardPage() {
     const params = useParams();
@@ -85,20 +83,12 @@ function DashboardContent() {
     const [searchTerm, setSearchTerm] = useState("");
 
     // --- QUERIES ---
-    const { data: notifications = [], refetch: refetchNotifications } = useQuery({
-        queryKey: ['notifications'],
-        queryFn: () => api.get<any[]>('/notifications'),
-        enabled: !!workspaceId,
-    });
-
-    const unreadNotificationsCount = notifications.filter((n: any) => !n.isRead).length;
-
     const { data: myWorkspaces = [] } = useQuery({ 
         queryKey: ['workspaces'], 
         queryFn: () => api.get<any[]>('/workspaces').then(res => Array.isArray(res) ? res : (res as any)?.data || []) 
     });
 
-    const { data: currentWorkspace, isLoading: currentWsLoading, isError: currentWsError } = useQuery({
+    const { data: currentWorkspace, isLoading: currentWsLoading } = useQuery({
         queryKey: ['workspace', workspaceId],
         queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
         enabled: !!workspaceId,
@@ -139,52 +129,12 @@ function DashboardContent() {
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
 
-        socket.on('notification_received', (notification) => {
-            toast.info(`🔔 ${notification.title}`, {
-                description: notification.message,
-            });
-            refetchNotifications();
-        });
-
-        socket.on('card_created', ({ columnId, card }) => {
-            toast.success(`NEW_CARD: ${card.title}`);
-            queryClient.invalidateQueries({ queryKey: ['board'] });
-        });
-
-        socket.on('card_updated', (card) => {
-            queryClient.invalidateQueries({ queryKey: ['board'] });
-            queryClient.invalidateQueries({ queryKey: ['card', card.id] });
-        });
-
-        socket.on('card_moved', ({ cardId }) => {
-            queryClient.invalidateQueries({ queryKey: ['board'] });
-            queryClient.invalidateQueries({ queryKey: ['card', cardId] });
-        });
-
-        socket.on('user_updated', () => {
-            queryClient.invalidateQueries({ queryKey: ['profile'] });
-            queryClient.invalidateQueries({ queryKey: ['team-members'] });
-        });
-
-        socket.on('workspace_updated', (updatedWs) => {
-            if (updatedWs.id === workspaceId) {
-                queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
-            }
-            queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-        });
-
         return () => {
             socket.off('post_created');
             socket.off('post_updated');
             socket.off('post_deleted');
-            socket.off('notification_received');
-            socket.off('card_created');
-            socket.off('card_updated');
-            socket.off('card_moved');
-            socket.off('user_updated');
-            socket.off('workspace_updated');
         };
-    }, [socket, workspaceId, queryClient, refetchPosts, refetchNotifications]);
+    }, [socket, workspaceId, queryClient, refetchPosts]);
 
     // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
@@ -203,10 +153,8 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (selectionMode === 'facebook') {
-            setTimeout(() => {
-                if (token) setTempExchangeToken(token);
-                setIsFbPageSelectorOpen(true);
-            }, 0);
+            if (token) setTempExchangeToken(token);
+            setIsFbPageSelectorOpen(true);
         }
 
         if (connected === 'true' || success === 'true') {
@@ -281,23 +229,11 @@ function DashboardContent() {
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
 
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
-    if (currentWsError) return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center p-8">
-            <AlertTriangle size={40} className="text-red-500" />
-            <h2 className="text-xl font-bold">Failed to load workspace</h2>
-            <p className="text-gray-500 text-sm max-w-xs">Could not fetch workspace data. Check your connection and try again.</p>
-            <button onClick={() => router.push('/workspaces')} className="px-6 py-3 bg-[#3C48F6] text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
-                Back to workspaces
-            </button>
-        </div>
-    );
     
     const navItems = [
         { id: 'queue', label: 'Queue', icon: Layers }, 
         { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
         { id: 'boards', label: 'Boards', icon: Layout }, 
-        { id: 'fans', label: 'Fans', icon: Heart },
-        { id: 'recycle', label: 'Recycle', icon: RefreshCw },
         { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
         { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
         { id: 'team', label: 'Team', icon: Users }, 
@@ -310,8 +246,8 @@ function DashboardContent() {
 
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
-                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EAZYPOST.</div></div>
-                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
+                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
+                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
@@ -337,7 +273,7 @@ function DashboardContent() {
                                 <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                                     <Image 
                                         src="/applogo.png" 
-                                        alt="EazyPost Logo" 
+                                        alt="EasyPost Logo" 
                                         width={40} 
                                         height={40} 
                                         className="object-contain p-1" 
@@ -346,8 +282,8 @@ function DashboardContent() {
                                 <span className="font-black text-2xl tracking-tighter italic text-black dark:text-white">ASYPOST.</span>
                             </div>
                         </div>
-                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-gray-100 dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
+                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-gray-100 dark:bg-zinc-800"><img src={getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-blue-600 transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -363,64 +299,25 @@ function DashboardContent() {
                             <PopoverTrigger asChild>
                                 <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
                                     <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
-                                    {unreadNotificationsCount > 0 && (
-                                        <div className="absolute top-0 right-0 w-5 h-5 bg-[#3C48F5] border-2 border-black dark:border-white text-white text-[10px] font-black flex items-center justify-center -translate-y-1/3 translate-x-1/3">
-                                            {unreadNotificationsCount}
-                                        </div>
-                                    )}
+                                    <div className="absolute top-0 right-0 w-3 h-3 bg-[#3C48F5] border-2 border-black dark:border-white rounded-none -translate-y-1/3 translate-x-1/3" />
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-80 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
-                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white flex justify-between items-center">
-                                    <span>System_Feed</span>
-                                    <span className="text-[10px] opacity-70">{notifications.length} Total</span>
+                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white">
+                                    System_Feed
                                 </div>
-                                <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-                                    {notifications.length === 0 ? (
-                                        <div className="p-8 text-center space-y-4">
-                                            <div className="flex justify-center">
-                                                <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                                                    <Bell size={24} className="text-gray-400" />
-                                                </div>
-                                            </div>
-                                            <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
-                                                No new system updates detected.
-                                            </p>
+                                <div className="p-8 text-center space-y-4">
+                                    <div className="flex justify-center">
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                                            <Bell size={24} className="text-gray-400" />
                                         </div>
-                                    ) : (
-                                        <div className="divide-y-2 divide-black/5 dark:divide-white/5">
-                                            {notifications.map((n: any) => (
-                                                <div 
-                                                    key={n.id} 
-                                                    className={cn(
-                                                        "p-4 hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer relative",
-                                                        !n.isRead && "bg-blue-50/50 dark:bg-blue-900/10"
-                                                    )}
-                                                    onClick={() => {
-                                                        if (!n.isRead) {
-                                                            api.patch(`/notifications/${n.id}/read`, {}).then(() => refetchNotifications());
-                                                        }
-                                                    }}
-                                                >
-                                                    {!n.isRead && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3C48F5]" />}
-                                                    <div className="flex gap-3">
-                                                        <div className="mt-1"><AlertTriangle size={14} className="text-[#3C48F5]" /></div>
-                                                        <div className="space-y-1">
-                                                            <p className="text-[10px] font-black uppercase tracking-tight">{n.title}</p>
-                                                            <p className="text-[10px] font-bold text-gray-500 dark:text-zinc-400 leading-tight">{n.message}</p>
-                                                            <p className="text-[8px] font-mono opacity-50">{new Date(n.createdAt).toLocaleString()}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    </div>
+                                    <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
+                                        No new system updates detected.
+                                    </p>
                                 </div>
-                                <div className="p-2 border-t-2 border-black dark:border-white">
-                                    <button 
-                                        onClick={() => api.post('/notifications/read-all', {}).then(() => refetchNotifications())}
-                                        className="w-full py-2 font-black text-[10px] uppercase bg-black text-white hover:bg-[#3C48F5] transition-colors"
-                                    >
+                                <div className="p-2 border-t-2 border-zinc-100 dark:border-zinc-800">
+                                    <button className="w-full py-2 font-black text-[10px] uppercase hover:bg-[#3C48F5] hover:text-white transition-colors">
                                         Clear_Logs
                                     </button>
                                 </div>
@@ -464,7 +361,7 @@ function DashboardContent() {
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
                                                         <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">Limite de Posts Atteinte !</h2>
                                                         <p className="max-w-md font-bold mb-8 opacity-80">
-                                                             Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
+                                                            🎉 Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
                                                             → 100 posts, 5 comptes, 100 AI requests
                                                         </p>
                                                         <button 
@@ -497,8 +394,6 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'fans' && <AudienceAnalytics workspaceId={workspaceId} />}
-                                    {activeTab === 'recycle' && <ContentRecycling workspaceId={workspaceId} />}
                                     {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
                                     {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <NeuCard className="bg-white dark:bg-zinc-900"><Team workspaceId={workspaceId} /></NeuCard>}

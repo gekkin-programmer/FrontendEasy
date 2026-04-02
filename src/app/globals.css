@@ -2,18 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── GLOBAL SCALE FIX ───────────────────────────────────────────────────────
-   App was designed at 90% browser zoom. Setting html font-size to 90% (14.4px)
-   makes 1rem = 14.4px so all Tailwind rem values match the intended design at
-   any browser zoom level. px-based borders/shadows are unaffected.
-────────────────────────────────────────────────────────────────────────────── */
-html {
-  font-size: 90%;
-}
-
 @layer base {
   :root {
-    /* --- BRAND: EazyPost Blue #304AEB --- */
+    /* --- BRAND: EasyPost Blue #304AEB --- */
     /* HSL values for opacity support: 232 83% 55% */
     --primary: 232 83% 55%; 
     --primary-foreground: 0 0% 100%;

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import Settings from "@/src/components/eazypost/Settings";
+import Settings from "@/src/components/easypost/Settings";
 
 export default function WorkspaceSettingsPage() {
   const params = useParams();

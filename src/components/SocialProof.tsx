@@ -40,7 +40,7 @@ const SocialProof = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative py-16 bg-white dark:bg-black border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
+    <section className="relative py-16 bg-white dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
         <SectionBackground />
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
