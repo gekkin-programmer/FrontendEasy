@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import Navbar from '@/src/components/Navbar';
 import Image from 'next/image';
 import { getCookie } from 'cookies-next';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -30,6 +31,7 @@ function CheckoutContent() {
   const price = searchParams.get('price') || '14900';
   const cycle = searchParams.get('cycle') || 'MONTHLY';
 
+  const { t } = useLanguage();
   const [phone, setPhone] = useState('');
   const [operator, setOperator] = useState('MTN_MOMO_CMR');
   const [loading, setLoading] = useState(false);
@@ -100,7 +102,7 @@ function CheckoutContent() {
         onClick={() => router.back()}
         className="flex items-center gap-2 font-black uppercase text-xs mb-8 hover:text-[#3C48F5] transition-colors"
       >
-        <ArrowLeft size={16} /> Retour aux tarifs
+        <ArrowLeft size={16} /> {t('Back to pricing', 'Retour aux tarifs')}
       </button>
 
       <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -108,19 +110,19 @@ function CheckoutContent() {
         {/* LEFT: PLAN SUMMARY */}
         <div className="space-y-8">
             <h1 className="text-5xl font-black uppercase tracking-tighter leading-none text-black dark:text-white">
-                Finalisez votre<br/>
-                <span className="text-[#3C48F5]">Abonnement.</span>
+                {t('Finalize your', 'Finalisez votre')}<br/>
+                <span className="text-[#3C48F5]">{t('Subscription.', 'Abonnement.')}</span>
             </h1>
             
-            <div className="bg-black dark:bg-zinc-900 border-4 border-black dark:border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
+            <div className="bg-black dark:bg-black border-4 border-black dark:border-white p-8 shadow-[12px_12px_0px_0px_#3C48F5]">
                 <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-700 dark:border-zinc-800 pb-6">
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Plan Sélectionné</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">{t('Selected Plan', 'Plan Sélectionné')}</p>
                         <h3 className="text-2xl font-black uppercase text-white">{plan}</h3>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Cycle</p>
-                        <h3 className="text-sm font-black uppercase text-white">{cycle === 'YEARLY' ? 'Annuel' : 'Mensuel'}</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">{t('Cycle', 'Cycle')}</p>
+                        <h3 className="text-sm font-black uppercase text-white">{cycle === 'YEARLY' ? t('Yearly', 'Annuel') : t('Monthly', 'Mensuel')}</h3>
                     </div>
                 </div>
 
@@ -130,20 +132,20 @@ function CheckoutContent() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-4 p-4 bg-white dark:bg-blue-500/10 border-2 border-black dark:border-[#3C48F5] text-black dark:text-[#3C48F5]">
+            <div className="flex items-center gap-4 p-4 bg-white dark:bg-black border-2 border-black dark:border-white text-black dark:text-white">
                 <ShieldCheck size={20} />
-                <p className="text-[10px] font-black uppercase tracking-wider">Paiement 100% sécurisé via Mobile Money</p>
+                <p className="text-[10px] font-black uppercase tracking-wider">{t('100% secure payment via Mobile Money', 'Paiement 100% sécurisé via Mobile Money')}</p>
             </div>
         </div>
 
         {/* RIGHT: FORM */}
-        <div className="bg-white dark:bg-zinc-900 text-black dark:text-white border-4 border-black dark:border-white p-10 shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff]">
+        <div className="bg-white dark:bg-black text-black dark:text-white border-4 border-black dark:border-white p-10 shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff]">
             {step === 'form' && (
                 <form onSubmit={handlePayment} className="space-y-8">
-                    <h2 className="text-2xl font-black uppercase border-b-4 border-black dark:border-white pb-4">Infos de Paiement</h2>
-                    
+                    <h2 className="text-2xl font-black uppercase border-b-4 border-black dark:border-white pb-4">{t('Payment Info', 'Infos de Paiement')}</h2>
+
                     <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Opérateur</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">{t('Operator', 'Opérateur')}</label>
                         <div className="grid grid-cols-2 gap-4">
                             <OperatorBtn
                                 active={operator === 'MTN_MOMO_CMR'}
@@ -163,7 +165,7 @@ function CheckoutContent() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Numéro de Téléphone</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">{t('Phone Number', 'Numéro de Téléphone')}</label>
                         <div className="relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-gray-400">+237</div>
                             <input 
@@ -182,7 +184,7 @@ function CheckoutContent() {
                         disabled={loading}
                         className="w-full bg-[#3C48F5] text-white py-6 font-black uppercase text-xl border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : <>Payer {parseInt(price).toLocaleString()} FCFA</>}
+                        {loading ? <Loader2 className="animate-spin" /> : <>{t('Pay', 'Payer')} {parseInt(price).toLocaleString()} FCFA</>}
                     </button>
                 </form>
             )}
@@ -193,10 +195,10 @@ function CheckoutContent() {
                         <Loader2 className="w-full h-full text-[#3C48F5] animate-spin" />
                         <Smartphone className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-[#3C48F5]" />
                     </div>
-                    <h2 className="text-2xl font-black uppercase">Validation en cours...</h2>
+                    <h2 className="text-2xl font-black uppercase">{t('Validating...', 'Validation en cours...')}</h2>
                     <p className="text-sm font-bold text-gray-500 leading-relaxed">
-                        Un prompt PIN a été envoyé sur votre téléphone.<br/>
-                        Saisissez votre code secret pour confirmer.
+                        {t('A PIN prompt has been sent to your phone.', 'Un prompt PIN a été envoyé sur votre téléphone.')}<br/>
+                        {t('Enter your secret code to confirm.', 'Saisissez votre code secret pour confirmer.')}
                     </p>
                 </div>
             )}
@@ -207,16 +209,16 @@ function CheckoutContent() {
                         <CheckCircle2 size={48} className="text-white" />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black uppercase mb-2">Succès !</h2>
+                        <h2 className="text-3xl font-black uppercase mb-2">{t('Success!', 'Succès !')}</h2>
                         <p className="text-sm font-bold text-gray-500">
-                            Votre paiement a été traité. Votre compte sera mis à jour dans quelques instants.
+                            {t('Your payment has been processed. Your account will be updated shortly.', 'Votre paiement a été traité. Votre compte sera mis à jour dans quelques instants.')}
                         </p>
                     </div>
-                    <button 
+                    <button
                         onClick={() => router.push('/dashboard')}
                         className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black uppercase text-xs border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5]"
                     >
-                        Aller au Dashboard
+                        {t('Go to Dashboard', 'Aller au Dashboard')}
                     </button>
                 </div>
             )}
@@ -232,7 +234,7 @@ function OperatorBtn({ active, onClick, label, icon, color }: any) {
             type="button"
             onClick={onClick}
             className={`p-4 border-4 transition-all flex flex-col items-center gap-2 ${
-                active ? `border-black dark:border-white bg-white dark:${color} shadow-none translate-x-1 translate-y-1` : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:border-black dark:hover:border-white'
+                active ? 'border-black dark:border-white bg-white dark:bg-black shadow-none translate-x-1 translate-y-1' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:border-black dark:hover:border-white'
             }`}
         >
             <div className="relative w-10 h-10">
