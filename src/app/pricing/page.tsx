@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Smartphone } from 'lucide-react';
 import Navbar from '@/src/components/Navbar';
-import Footer from '@/src/components/Footer';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/src/context/LanguageContext';
 
@@ -181,7 +180,6 @@ export default function PricingPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
@@ -195,12 +193,12 @@ function PricingCard({ plan, onSelect }: any) {
       className={`relative flex flex-col h-full border-4 border-black dark:border-white p-8 transition-all ${
         plan.popular
           ? 'shadow-[12px_12px_0px_0px_#3C48F5]'
-          : 'shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#222]'
+          : 'shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff]'
       } ${
-        plan.name === 'Free'    ? 'bg-zinc-50 dark:bg-zinc-900' :
+        plan.name === 'Free'    ? 'bg-zinc-50 dark:bg-zinc-800' :
         plan.name === 'Starter' ? 'bg-[#3C48F5]' :
-        plan.name === 'PRO'     ? 'bg-white dark:bg-zinc-900' :
-                                  'bg-white dark:bg-black'
+        plan.name === 'PRO'     ? 'bg-white dark:bg-zinc-800' :
+                                  'bg-white dark:bg-zinc-800'
       }`}
     >
       {plan.popular && (
