@@ -8,6 +8,5 @@ const AgentationWrapper = dynamic(
 );
 
 export default function AgentationLoader() {
-  if (process.env.NODE_ENV !== 'development') return null;
   return <AgentationWrapper />;
 }
