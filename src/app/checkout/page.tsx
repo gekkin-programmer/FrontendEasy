@@ -130,7 +130,7 @@ function CheckoutContent() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-4 p-4 bg-blue-500/10 border-2 border-black dark:border-[#3C48F5] text-black dark:text-[#3C48F5]">
+            <div className="flex items-center gap-4 p-4 bg-white dark:bg-blue-500/10 border-2 border-black dark:border-[#3C48F5] text-black dark:text-[#3C48F5]">
                 <ShieldCheck size={20} />
                 <p className="text-[10px] font-black uppercase tracking-wider">Paiement 100% sécurisé via Mobile Money</p>
             </div>

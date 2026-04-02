@@ -168,7 +168,7 @@ export default function Navbar() {
             <div className="relative w-8 h-8 md:w-10 md:h-10">
                 <Image src="/assets/WiggleLogo.png" alt="Logo" fill className="object-contain" priority />
             </div>
-            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">EasyPost.</span>
+            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">EazyPost.</span>
           </Link>
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
@@ -307,7 +307,7 @@ export default function Navbar() {
           >
              {/* Mobile Header */}
              <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/10 flex-shrink-0">
-                <span className="font-black text-xl tracking-tighter text-black dark:text-white">EasyPost.</span>
+                <span className="font-black text-xl tracking-tighter text-black dark:text-white">EazyPost.</span>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-gray-100 dark:bg-white/10 rounded-full text-black dark:text-white"><FaTimes size={20} /></button>
              </div>
 
