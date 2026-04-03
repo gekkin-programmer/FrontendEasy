@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import SpinningLoader from '../SpinningLoader';
 
 export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
   const queryClient = useQueryClient();
@@ -195,10 +194,14 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
       {/* Explorer Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
-             <div className="col-span-full py-20 flex flex-col items-center justify-center">
-                 <SpinningLoader fullScreen={false} />
-                 <span className="font-black uppercase text-[10px] tracking-widest mt-4 animate-pulse">Accessing_Data_Stream...</span>
-             </div>
+             <>
+               {[...Array(10)].map((_, i) => (
+                 <div key={i} className="flex flex-col items-center gap-2 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+                   <div className="w-full aspect-square bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                   <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                 </div>
+               ))}
+             </>
          ) : (
             <AnimatePresence mode="popLayout">
                 {/* 1. Folders */}

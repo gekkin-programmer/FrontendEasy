@@ -381,7 +381,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white animate-pulse" : "bg-white dark:bg-zinc-900")}>
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
                   <Plus size={14} strokeWidth={3} className="text-black dark:text-white" />
                 </button>
               </PopoverTrigger>
