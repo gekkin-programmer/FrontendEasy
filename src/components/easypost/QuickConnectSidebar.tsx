@@ -51,7 +51,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
     const telegramTokenMutation = useMutation({
-        mutationFn: () => api.post('/telegram/link-token'),
+        mutationFn: () => api.post('/telegram/link-token', {}),
         onSuccess: (res: any) => {
             setTelegramToken(res.data.token);
             setTelegramModal(true);
