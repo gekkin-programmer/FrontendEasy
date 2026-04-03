@@ -366,7 +366,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* HEADER */}
         <div className="px-4 py-3 flex items-center justify-between bg-[#3C48F5] border-b-2 border-black dark:border-white transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black dark:bg-white text-white dark:text-black px-2 py-1">TARGETS:</span>
+            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-white text-black px-2 py-1">TARGETS:</span>
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
@@ -381,8 +381,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-white/50 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-red-500 animate-pulse" : "bg-white dark:bg-zinc-900")}>
-                  <Plus size={14} strokeWidth={3} className={selectedAccountIds.length === 0 ? "text-white" : "text-black dark:text-white"} />
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white animate-pulse" : "bg-white dark:bg-zinc-900")}>
+                  <Plus size={14} strokeWidth={3} className="text-black dark:text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">
