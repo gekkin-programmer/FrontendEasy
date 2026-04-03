@@ -55,7 +55,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
     const telegramTokenMutation = useMutation({
         mutationFn: () => api.post('/telegram/link-token', {}),
         onSuccess: (res: any) => {
-            setTelegramToken(res.data.token);
+            setTelegramToken(res.token ?? res.data?.token ?? null);
             setTelegramModal(true);
         },
         onError: () => toast.error('Failed to generate Telegram link token'),
