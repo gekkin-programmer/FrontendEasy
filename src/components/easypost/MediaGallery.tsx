@@ -134,15 +134,15 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
           </div>
 
           <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black hover:bg-zinc-800 border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-zinc-100 text-black border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-all"
               >
                   <FiPlus /> New_Folder
               </button>
-              <button 
+              <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-zinc-100 text-black border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-all"
               >
                   <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
               </button>
@@ -233,9 +233,9 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                         key={asset.id} 
                         className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
                     >
-                        <img src={asset.url} className="w-full h-full object-cover transition-all duration-500 grayscale group-hover:grayscale-0" />
-                        
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                        <img src={asset.url} className="w-full h-full object-cover" />
+
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                             <div className="flex justify-between items-start">
                                 <span className="bg-black text-white text-[8px] px-1 border border-white uppercase truncate max-w-[80px]">{asset.filename}</span>
                                 <button className="p-1 bg-white text-black"><FiMoreVertical size={10}/></button>
