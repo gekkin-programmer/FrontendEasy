@@ -451,7 +451,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                 <div className="p-4 border-b-2 border-black dark:border-white bg-[#3C48F5]">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-black text-lg uppercase flex items-center gap-2 text-white"><TrendingUp className="w-5 h-5 text-white" strokeWidth={3} /> Live_Stream</h3>
-                        <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-black dark:bg-white text-white dark:text-black px-2 py-1 text-[10px] font-bold uppercase hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 flex items-center gap-1 transition-all">
+                        <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-white text-black border-2 border-black px-2 py-1 text-[10px] font-bold uppercase hover:bg-zinc-100 disabled:opacity-50 flex items-center gap-1 transition-all shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
                             {syncMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin"/> : <RefreshCw className="w-3 h-3"/>}
                             {syncMutation.isPending ? "SYNCING..." : "SYNC_NOW"}
                         </button>
@@ -505,14 +505,14 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
 function PostListCard({ post, engagement, isSelected, onClick }: { post: AnalyticsPost, engagement: number, isSelected: boolean, onClick: () => void }) {
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
-        <div onClick={onClick} className={cn("p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group", isSelected ? "bg-black dark:bg-white text-white dark:text-black" : "bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 text-black dark:text-white")}>
-            {isSelected && <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#3C48F5] border-r-2 border-white dark:border-zinc-900" />}
+        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800">
+            {isSelected && <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#3C48F5]" />}
             <div className={cn("flex justify-between items-start mb-2", isSelected && "pl-3")}>
                 <div className="flex gap-2">
-                    <span className={cn("text-[10px] font-bold uppercase px-1.5 py-0.5 border-2", isSelected ? "bg-white dark:bg-black text-black dark:text-white border-white dark:border-black" : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-black dark:border-white transition-colors")}>{post.status}</span>
-                    {hasMedia && <span className={cn("text-[10px] font-bold uppercase px-1.5 py-0.5 border-2 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-black dark:border-white transition-colors", isSelected && "border-white dark:border-black")}>MEDIA</span>}
+                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 border-2 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-black dark:border-white">{post.status}</span>
+                    {hasMedia && <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 border-2 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-black dark:border-white">MEDIA</span>}
                 </div>
-                <span className={cn("text-[10px] font-bold uppercase px-1.5 py-0.5 border-2", isSelected ? "bg-blue-600 text-white border-white dark:border-black" : "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-black dark:border-white transition-colors")}>{post.platform}</span>
+                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 border-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-black dark:border-white">{post.platform}</span>
             </div>
             <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || "No text content"}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>

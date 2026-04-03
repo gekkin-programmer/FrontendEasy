@@ -417,7 +417,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* AI PANEL */}
         <AnimatePresence>
             {isAiOpen && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black dark:border-white bg-purple-50 dark:bg-purple-900/10 p-4 transition-colors">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-4 transition-colors">
                     <div className="flex flex-col sm:flex-row gap-4 mb-3">
                         <div className="flex-1">
                             <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">WHAT_ARE_WE_SELLING?</label>
@@ -425,16 +425,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         </div>
                         <div className="w-full sm:w-1/3">
                             <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">VIBE_CHECK</label>
-                            <div className="relative">
-                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-2 text-xs font-bold uppercase appearance-none focus:outline-none text-black dark:text-white">
+                            <div className="relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 py-2 text-xs font-black uppercase appearance-none focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] text-black dark:text-white cursor-pointer pr-8 transition-all">
                                     {AI_TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                                 </select>
-                                <ChevronDown className="absolute right-2 top-2.5 w-3 h-3 pointer-events-none text-black dark:text-white" />
+                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-black dark:text-white" />
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 w-full sm:w-auto">
+                        <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black px-4 py-2 w-full sm:w-auto">
                             {isAiGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Wand2 className="w-3 h-3 mr-2" />}
                             {isAiGenerating ? "WRITING..." : "GENERATE_COPY"}
                         </NeuButton>
@@ -459,10 +459,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           )}
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-dashed border-gray-300 dark:border-zinc-700 gap-4 transition-colors">
-            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
+            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_IMG" />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_VID" />
-              <div className="h-8 w-0.5 bg-black dark:bg-white mx-1" />
               <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
