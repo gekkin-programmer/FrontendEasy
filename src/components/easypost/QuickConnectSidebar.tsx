@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils';
 import { 
   Link as LinkIcon, ExternalLink, Trash2, Check, Crown, X, AlertTriangle
 } from 'lucide-react';
-import { 
-  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, 
-  FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien 
+import {
+  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
+  FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien, FaSnapchat
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,14 +38,14 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'pinterest', Icon: FaPinterestP, color: 'text-[#BD081C]' },
         { id: 'whatsapp', Icon: FaWhatsapp, color: 'text-[#25D366]' },
         { id: 'reddit', Icon: FaRedditAlien, color: 'text-[#FF4500]' },
+        { id: 'snapchat', Icon: FaSnapchat, color: 'text-[#FFFC00]' },
     ];
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
 
     const handleConnect = (platform: string) => { 
         const token = getCookie('accessToken');
-        // eslint-disable-next-line react-hooks/immutability
-        window.location.href = `${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`;
+        window.location.assign(`${API_URL}/social-accounts/connect/${platform}?token=${token}&workspaceId=${workspaceId}`);
     };
 
     const disconnectMutation = useMutation({ 

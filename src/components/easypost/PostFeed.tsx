@@ -75,7 +75,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   const getStatusColor = (status: string) => {
     switch (status) {
         case 'SCHEDULED': return "bg-[#3C48F6]/10 dark:bg-[#3C48F6] text-[#3C48F5] dark:text-white border-[#3C48F5] dark:border-white";
-        case 'PUBLISHED': return "bg-green-100 dark:bg-green-500 text-green-800 dark:text-black border-green-500 dark:border-black";
+        case 'PUBLISHED': return "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white";
         case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
         default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
     }
@@ -277,8 +277,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-black dark:text-white transition-colors">
       <div className="flex flex-col gap-4">
-        <div className="bg-yellow-400 p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-            <h3 className="font-black text-sm uppercase flex items-center gap-2 text-black">
+        <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+            <h3 className="font-black text-sm uppercase flex items-center gap-2 text-white dark:text-black">
               <FileText className="w-4 h-4" /> Drafts ({drafts.length})
             </h3>
             {drafts.length > 0 && (
