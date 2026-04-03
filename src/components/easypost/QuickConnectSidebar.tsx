@@ -48,7 +48,9 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'twitch', Icon: FaTwitch, color: 'text-[#9146FF]', comingSoon: true },
     ];
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+    const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+        .replace(/\/$/, '')
+        .replace(/\/api$/, '') + '/api';
 
     const telegramTokenMutation = useMutation({
         mutationFn: () => api.post('/telegram/link-token', {}),
@@ -91,65 +93,69 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     return (
         <>
-            <div className="w-16 flex flex-col items-center gap-4 py-6 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
-                {/* 🚀 FREEMIUM HOOK: ACCOUNT LIMIT ICON */}
-                {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
-                    <button 
-                        onClick={() => router.push('/pricing')}
-                        className="w-10 h-10 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] mb-2"
-                        title="Upgrade to add more nodes"
-                    >
-                        <Crown size={18} className="text-black" />
-                    </button>
-                )}
-                
-                <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black mb-2">
-                    <LinkIcon size={16} className="text-white" />
+            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
+                {/* Header row */}
+                <div className="flex items-center gap-2 w-full justify-center mb-1">
+                    {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
+                        <button
+                            onClick={() => router.push('/pricing')}
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+                            title="Upgrade to add more nodes"
+                        >
+                            <Crown size={16} className="text-black" />
+                        </button>
+                    )}
+                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black">
+                        <LinkIcon size={14} className="text-white" />
+                    </div>
                 </div>
 
-                {platforms.map((p) => { 
-                    const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase()); 
-                    
-                    return (
-                        <div key={p.id} className="relative group flex-shrink-0">
-                            {connected ? (
-                                <>
-                                    <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 opacity-100 cursor-default transition-colors">
-                                        <p.Icon size={18} className="text-gray-400 dark:text-zinc-500" />
-                                    </button>
-                                    <button 
-                                        onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })} 
-                                        className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
-                                        title="Disconnect"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                    <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                        <div className="w-4 h-4 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
-                                            <Check size={10} strokeWidth={4} />
+                {/* Platform icons — 2-column grid */}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                    {platforms.map((p) => {
+                        const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase());
+
+                        return (
+                            <div key={p.id} className="relative group flex-shrink-0">
+                                {connected ? (
+                                    <>
+                                        <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 opacity-100 cursor-default transition-colors">
+                                            <p.Icon size={16} className="text-gray-400 dark:text-zinc-500" />
+                                        </button>
+                                        <button
+                                            onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
+                                            className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+                                            title="Disconnect"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                        <div className="absolute -top-1 -right-1 pointer-events-none z-20">
+                                            <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
+                                                <Check size={8} strokeWidth={4} />
+                                            </div>
                                         </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => handleConnect(p.id, (p as any).comingSoon)}
-                                    className={cn(
-                                        "group w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-pointer transition-all",
-                                        (p as any).comingSoon
-                                            ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
-                                            : "bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
-                                    )}
-                                    title={(p as any).comingSoon ? `${p.id} — coming soon` : `Connect ${p.id}`}
-                                >
-                                    <p.Icon
-                                        size={18}
-                                        className={cn(p.color, "transition-transform group-hover:scale-110")}
-                                    />
-                                </button>
-                            )}
-                        </div>
-                    ); 
-                })}
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => handleConnect(p.id, (p as any).comingSoon)}
+                                        className={cn(
+                                            "group w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-pointer transition-all",
+                                            (p as any).comingSoon
+                                                ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
+                                                : "bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
+                                        )}
+                                        title={(p as any).comingSoon ? `${p.id} — coming soon` : `Connect ${p.id}`}
+                                    >
+                                        <p.Icon
+                                            size={16}
+                                            className={cn(p.color, "transition-transform group-hover:scale-110")}
+                                        />
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* 🔵 TELEGRAM LINK MODAL */}

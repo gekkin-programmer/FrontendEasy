@@ -2,9 +2,9 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus, 
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2 
+import {
+    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
   const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
@@ -84,9 +85,27 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
     }
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploadProgress({ done: 0, total: files.length });
+    let done = 0;
+    await Promise.all(
+      files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (currentFolderId) formData.append('folderId', currentFolderId);
+        await api.post('/media/upload', formData);
+        done++;
+        setUploadProgress({ done, total: files.length });
+      })
+    );
+    setUploadProgress(null);
+    toast.success(`UPLOAD_COMPLETE: ${files.length} file${files.length > 1 ? 's' : ''}`);
+    queryClient.invalidateQueries({ queryKey: ['media'] });
+    queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    // reset input so same files can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const enterFolder = (folder: any) => {
@@ -132,7 +151,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
               </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setIsCreatingFolder(true)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
@@ -143,7 +162,22 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
               >
-                  <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
+                  <FiUploadCloud />
+                  {uploadProgress ? `${uploadProgress.done}/${uploadProgress.total} Uploading...` : "Upload_Asset"}
+              </button>
+              <button
+                onClick={() => toast.info("Canva_Import — Coming_Soon")}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#00C4CC] hover:bg-[#00B0B8] text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                title="Import from Canva"
+              >
+                  <FiDownloadCloud /> Canva
+              </button>
+              <button
+                onClick={() => toast.info("Dropbox_Import — Coming_Soon")}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#0061FF] hover:bg-[#0052D9] text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                title="Import from Dropbox"
+              >
+                  <FiDownloadCloud /> Dropbox
               </button>
           </div>
       </div>
@@ -189,7 +223,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
           </AnimatePresence>
       </div>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,image/gif" multiple />
 
       {/* Explorer Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">

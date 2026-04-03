@@ -408,7 +408,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
              <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isAiOpen && "bg-zinc-200 dark:bg-zinc-700")}>
                 <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
              </button>
-             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isLibraryOpen && "bg-zinc-200 dark:bg-zinc-700")}>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isLibraryOpen && "bg-white dark:bg-white text-black shadow-none")}>
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span>
              </button>
           </div>
