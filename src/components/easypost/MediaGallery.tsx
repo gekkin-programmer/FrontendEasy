@@ -113,15 +113,15 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
     <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
       
       {/* OS Toolbar */}
-      <div className="flex flex-wrap gap-4 items-center justify-between bg-[#3C48F5] p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-white">
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
-                  <button onClick={goBack} className="p-2 bg-black hover:bg-zinc-800 border-2 border-white transition-all shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+                  <button onClick={goBack} className="p-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                       <FiChevronLeft size={18} strokeWidth={3} />
                   </button>
               )}
-              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter">
-                  <FiFolder />
+              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter text-black dark:text-white">
+                  <FiFolder className="text-black dark:text-white" />
                   <span>ROOT</span>
                   {folderPath.map(p => (
                       <React.Fragment key={p.id}>
@@ -135,13 +135,13 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
           <div className="flex gap-2">
               <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-zinc-100 text-black border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
               >
                   <FiPlus /> New_Folder
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-zinc-100 text-black border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
               >
                   <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
               </button>
@@ -174,7 +174,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                       />
                       <button 
                         onClick={() => createFolderMutation.mutate(newFolderName)}
-                        className="px-4 bg-green-500 border-2 border-black dark:border-white text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                        className="px-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white text-black dark:text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-black hover:text-white transition-all"
                       >
                           OK
                       </button>
