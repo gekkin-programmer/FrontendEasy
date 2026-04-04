@@ -327,20 +327,36 @@ function ProfileSettings() {
   );
 }
 
+// --- NOTIFICATIONS ROW (declared outside to avoid re-mount on each render) ---
+type NotifPrefs = {
+  emailPostPublished: boolean; emailPostFailed: boolean; emailWeeklyReport: boolean;
+  emailTeamInvite: boolean; pushNewComment: boolean; pushScheduleReminder: boolean; pushPlatformAlert: boolean;
+};
+function NotifRow({ label, desc, value, onToggle }: { label: string; desc: string; value: boolean; onToggle: () => void }) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-dashed border-gray-200 dark:border-zinc-700 last:border-0">
+      <div>
+        <p className="text-sm font-black uppercase text-black dark:text-white">{label}</p>
+        <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">{desc}</p>
+      </div>
+      <button onClick={onToggle} className="flex-shrink-0 ml-4">
+        {value
+          ? <FiToggleRight size={28} className="text-[#3C48F5]" />
+          : <FiToggleLeft size={28} className="text-gray-300 dark:text-zinc-600" />}
+      </button>
+    </div>
+  );
+}
+
 // --- SUB-COMPONENT: NOTIFICATIONS SETTINGS ---
 function NotificationsSettings() {
-  const [prefs, setPrefs] = useState({
-    emailPostPublished: true,
-    emailPostFailed: true,
-    emailWeeklyReport: false,
-    emailTeamInvite: true,
-    pushNewComment: true,
-    pushScheduleReminder: true,
-    pushPlatformAlert: true,
+  const [prefs, setPrefs] = useState<NotifPrefs>({
+    emailPostPublished: true, emailPostFailed: true, emailWeeklyReport: false,
+    emailTeamInvite: true, pushNewComment: true, pushScheduleReminder: true, pushPlatformAlert: true,
   });
   const [saving, setSaving] = useState(false);
 
-  const toggle = (key: keyof typeof prefs) => setPrefs(p => ({ ...p, [key]: !p[key] }));
+  const toggle = (key: keyof NotifPrefs) => setPrefs(p => ({ ...p, [key]: !p[key] }));
 
   const handleSave = async () => {
     setSaving(true);
@@ -349,35 +365,21 @@ function NotificationsSettings() {
     toast.success("NOTIFICATION_PREFS_SAVED");
   };
 
-  const Row = ({ label, desc, k }: { label: string; desc: string; k: keyof typeof prefs }) => (
-    <div className="flex items-center justify-between py-3 border-b border-dashed border-gray-200 dark:border-zinc-700 last:border-0">
-      <div>
-        <p className="text-sm font-black uppercase text-black dark:text-white">{label}</p>
-        <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">{desc}</p>
-      </div>
-      <button onClick={() => toggle(k)} className="flex-shrink-0 ml-4">
-        {prefs[k]
-          ? <FiToggleRight size={28} className="text-[#3C48F5]" />
-          : <FiToggleLeft size={28} className="text-gray-300 dark:text-zinc-600" />}
-      </button>
-    </div>
-  );
-
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <NeuCard title="Email Notifications" description="MESSAGES SENT TO YOUR REGISTERED EMAIL">
         <div className="space-y-0">
-          <Row label="Post Published" desc="When a scheduled post goes live" k="emailPostPublished" />
-          <Row label="Post Failed" desc="When a post fails to publish" k="emailPostFailed" />
-          <Row label="Weekly Report" desc="Summary of performance every Monday" k="emailWeeklyReport" />
-          <Row label="Team Invite" desc="When someone joins your workspace" k="emailTeamInvite" />
+          <NotifRow label="Post Published" desc="When a scheduled post goes live" value={prefs.emailPostPublished} onToggle={() => toggle('emailPostPublished')} />
+          <NotifRow label="Post Failed" desc="When a post fails to publish" value={prefs.emailPostFailed} onToggle={() => toggle('emailPostFailed')} />
+          <NotifRow label="Weekly Report" desc="Summary of performance every Monday" value={prefs.emailWeeklyReport} onToggle={() => toggle('emailWeeklyReport')} />
+          <NotifRow label="Team Invite" desc="When someone joins your workspace" value={prefs.emailTeamInvite} onToggle={() => toggle('emailTeamInvite')} />
         </div>
       </NeuCard>
       <NeuCard title="Push Notifications" description="IN-APP ALERTS">
         <div className="space-y-0">
-          <Row label="New Comment" desc="When someone replies to your post" k="pushNewComment" />
-          <Row label="Schedule Reminder" desc="15 min before a scheduled post" k="pushScheduleReminder" />
-          <Row label="Platform Alert" desc="OAuth expiry or platform errors" k="pushPlatformAlert" />
+          <NotifRow label="New Comment" desc="When someone replies to your post" value={prefs.pushNewComment} onToggle={() => toggle('pushNewComment')} />
+          <NotifRow label="Schedule Reminder" desc="15 min before a scheduled post" value={prefs.pushScheduleReminder} onToggle={() => toggle('pushScheduleReminder')} />
+          <NotifRow label="Platform Alert" desc="OAuth expiry or platform errors" value={prefs.pushPlatformAlert} onToggle={() => toggle('pushPlatformAlert')} />
         </div>
       </NeuCard>
       <div className="flex justify-end">
