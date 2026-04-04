@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import ConnectAccounts from './ConnectAccounts';
-import Team from './Team';
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
@@ -120,7 +119,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
                 </div>
             )}            
             {activeTab === 'notifications' && <NotificationsSettings />}
-            {activeTab === 'team' && <Team workspaceId={workspaceId} />}
+            {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
             {activeTab === 'billing' && <BillingSettings />}
         </main>
     </div>
@@ -288,7 +287,29 @@ function ProfileSettings() {
     } catch (e) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
   };
 
-  if (!user) return <div className="p-8 text-center font-mono animate-pulse text-black dark:text-white uppercase transition-colors">LOADING_PROFILE...</div>;
+  if (!user) return (
+    <div className="space-y-8 animate-pulse">
+      <NeuCard title="Public Profile">
+        <div className="flex flex-col md:flex-row items-start gap-8">
+          <div className="w-28 h-28 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white flex-shrink-0" />
+          <div className="flex-1 space-y-4 w-full max-w-lg">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+              <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+            </div>
+            <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+            <div className="h-10 w-1/2 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white ml-auto" />
+          </div>
+        </div>
+      </NeuCard>
+      <NeuCard title="Account Security">
+        <div className="max-w-lg space-y-4">
+          <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+          <div className="h-12 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+        </div>
+      </NeuCard>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -391,55 +412,127 @@ function NotificationsSettings() {
   );
 }
 
+// --- SUB-COMPONENT: MEMBERS SETTINGS ---
+function MembersSettings({ workspaceId }: { workspaceId: string }) {
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<any[]>(`/workspace-members?workspaceId=${workspaceId}`)
+      .then(res => setMembers(Array.isArray(res) ? res : (res as any)?.data || []))
+      .catch(() => setMembers([]))
+      .finally(() => setLoading(false));
+  }, [workspaceId]);
+
+  const ACTIVITY_LABELS: Record<string, string> = {
+    OWNER: 'Managing workspace',
+    ADMIN: 'Admin controls',
+    EDITOR: 'Editing content',
+    VIEWER: 'Viewing dashboard',
+  };
+
+  const ROLE_COLOR: Record<string, string> = {
+    OWNER: 'bg-[#3C48F5] text-white',
+    ADMIN: 'bg-black dark:bg-white text-white dark:text-black',
+    EDITOR: 'bg-yellow-400 text-black',
+    VIEWER: 'bg-gray-100 dark:bg-zinc-700 text-black dark:text-white',
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <NeuCard title="Workspace Members" description={`${members.length} MEMBER${members.length !== 1 ? 'S' : ''} IN THIS WORKSPACE`}>
+        {loading ? (
+          <div className="space-y-3 animate-pulse">
+            {[0,1,2].map(i => (
+              <div key={i} className="flex items-center gap-4 p-4 border-2 border-black dark:border-white">
+                <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-700" />
+                  <div className="h-2 w-48 bg-gray-100 dark:bg-zinc-800" />
+                </div>
+                <div className="h-6 w-16 bg-gray-200 dark:bg-zinc-700" />
+              </div>
+            ))}
+          </div>
+        ) : members.length === 0 ? (
+          <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-zinc-700">
+            <FiUsers size={32} className="mx-auto mb-3 text-gray-300 dark:text-zinc-700" />
+            <p className="text-xs font-black uppercase text-gray-400">No_Members_Yet</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {members.map((m: any) => {
+              const initials = (m.user?.firstName?.[0] || '') + (m.user?.lastName?.[0] || '') || m.user?.email?.[0]?.toUpperCase() || '?';
+              const activity = ACTIVITY_LABELS[m.role] || 'Active';
+              return (
+                <div key={m.id} className="flex items-center gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+                  <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-700 flex items-center justify-center font-black uppercase text-sm text-black dark:text-white flex-shrink-0">
+                    {m.user?.avatar
+                      ? <img src={m.user.avatar} className="w-full h-full object-cover" alt="" />
+                      : initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black uppercase text-black dark:text-white truncate">
+                      {m.user?.firstName || ''} {m.user?.lastName || ''}{(!m.user?.firstName && !m.user?.lastName) ? (m.user?.email || 'Unknown') : ''}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                      <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400 truncate">{activity} · {m.user?.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className={cn("px-2 py-1 text-[10px] font-black uppercase border border-black dark:border-white", ROLE_COLOR[m.role] || ROLE_COLOR.VIEWER)}>
+                      {m.role}
+                    </span>
+                    {m.role !== 'OWNER' && (
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`Remove ${m.user?.email}?`)) return;
+                          await api.delete(`/workspace-members/${m.id}`);
+                          setMembers(prev => prev.filter(x => x.id !== m.id));
+                          toast.success("MEMBER_REMOVED");
+                        }}
+                        className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+                        title="Remove member"
+                      >
+                        <FiTrash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </NeuCard>
+    </div>
+  );
+}
+
 // --- SUB-COMPONENT: BILLING SETTINGS ---
 function BillingSettings() {
-  const plans = [
-    {
-      id: 'FREE',
-      name: 'Free',
-      price: '0',
-      icon: <FiZap size={20} />,
-      color: 'text-gray-500',
-      features: ['2 social accounts', '10 scheduled posts/mo', '100MB media storage', 'Basic analytics'],
-    },
-    {
-      id: 'STARTER',
-      name: 'Starter',
-      price: '9',
-      icon: <FiStar size={20} />,
-      color: 'text-[#3C48F5]',
-      features: ['10 social accounts', '100 scheduled posts/mo', '2GB media storage', 'Full analytics', 'Team (3 members)'],
-    },
-    {
-      id: 'PRO',
-      name: 'Pro',
-      price: '29',
-      icon: <FiTrendingUp size={20} />,
-      color: 'text-[#3C48F5]',
-      features: ['Unlimited accounts', 'Unlimited posts', '20GB media storage', 'AI scheduling', 'Team (10 members)', 'Priority support'],
-      recommended: true,
-    },
-    {
-      id: 'ENTERPRISE',
-      name: 'Enterprise',
-      price: 'Custom',
-      icon: <FiUsers size={20} />,
-      color: 'text-purple-600',
-      features: ['Everything in Pro', 'Dedicated account manager', 'Custom integrations', 'SLA guarantee', 'Unlimited team members'],
-    },
+  const USAGE = [
+    { label: 'Scheduled Posts', used: 3, limit: 10, unit: 'posts' },
+    { label: 'Social Accounts', used: 2, limit: 2, unit: 'accounts' },
+    { label: 'Media Storage', used: 18, limit: 100, unit: 'MB' },
+    { label: 'Team Members', used: 1, limit: 1, unit: 'members' },
   ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <NeuCard title="Current Plan" description="YOUR ACTIVE SUBSCRIPTION">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-              <FiZap size={22} />
+      {/* Current Plan Banner */}
+      <NeuCard title="Subscription" description="YOUR CURRENT PLAN & BILLING CYCLE">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+              <FiZap size={24} className="text-white dark:text-black" />
             </div>
             <div>
-              <p className="text-xl font-black uppercase text-black dark:text-white">Free Plan</p>
-              <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">Renews never · No credit card required</p>
+              <div className="flex items-center gap-3 mb-1">
+                <p className="text-2xl font-black uppercase text-black dark:text-white">Free</p>
+                <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white">Active</span>
+              </div>
+              <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">No billing cycle · Upgrade anytime</p>
             </div>
           </div>
           <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
@@ -448,57 +541,68 @@ function BillingSettings() {
         </div>
       </NeuCard>
 
-      <NeuCard title="Available Plans" description="CHOOSE THE RIGHT TIER FOR YOUR NEEDS">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {plans.map((plan) => (
-            <div key={plan.id} className={cn(
-              "relative border-2 border-black dark:border-white p-5 flex flex-col gap-4 transition-all",
-              plan.recommended
-                ? "bg-[#3C48F5] text-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]"
-                : "bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"
-            )}>
-              {plan.recommended && (
-                <div className="absolute -top-3 left-4 bg-black text-white text-[9px] font-black uppercase px-2 py-0.5 border border-white">
-                  RECOMMENDED
+      {/* Usage Meters */}
+      <NeuCard title="Usage" description="CURRENT PERIOD CONSUMPTION">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {USAGE.map((u) => {
+            const pct = Math.min(Math.round((u.used / u.limit) * 100), 100);
+            const isNearLimit = pct >= 80;
+            return (
+              <div key={u.label}>
+                <div className="flex justify-between text-xs font-black uppercase mb-2">
+                  <span className="text-black dark:text-white">{u.label}</span>
+                  <span className={isNearLimit ? 'text-red-500' : 'text-gray-500 dark:text-zinc-400'}>
+                    {u.used} / {u.limit} {u.unit}
+                  </span>
                 </div>
-              )}
-              <div className={cn("flex items-center gap-2", plan.recommended ? "text-white" : plan.color)}>
-                {plan.icon}
-                <span className="font-black uppercase text-sm">{plan.name}</span>
+                <div className="h-3 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 overflow-hidden">
+                  <div
+                    className={cn("h-full transition-all", isNearLimit ? "bg-red-500" : "bg-[#3C48F5]")}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
               </div>
-              <div className={cn("text-3xl font-black", plan.recommended ? "text-white" : "text-black dark:text-white")}>
-                {plan.price === 'Custom' ? 'Custom' : `$${plan.price}`}
-                {plan.price !== 'Custom' && <span className="text-xs font-mono opacity-60">/mo</span>}
-              </div>
-              <ul className="space-y-1.5 flex-1">
-                {plan.features.map((f, i) => (
-                  <li key={i} className={cn("flex items-center gap-2 text-xs font-medium", plan.recommended ? "text-white" : "text-black dark:text-white")}>
-                    <FiCheck size={12} strokeWidth={3} className={plan.recommended ? "text-white" : "text-[#3C48F5]"} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => window.location.href = '/pricing'}
-                className={cn(
-                  "w-full py-2 text-[10px] font-black uppercase border-2 transition-all",
-                  plan.recommended
-                    ? "border-white bg-white text-[#3C48F5] hover:bg-transparent hover:text-white"
-                    : "border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
-                )}
-              >
-                {plan.id === 'FREE' ? 'Current Plan' : plan.id === 'ENTERPRISE' ? 'Contact Sales' : 'Upgrade'}
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </NeuCard>
 
-      <NeuCard title="Billing History" description="RECENT TRANSACTIONS">
-        <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-zinc-700">
-          <FiCreditCard size={32} className="mx-auto mb-3 text-gray-300 dark:text-zinc-700" />
-          <p className="text-xs font-black uppercase text-gray-400 dark:text-zinc-600">No_Invoices_Yet</p>
-          <p className="text-[10px] font-mono text-gray-300 dark:text-zinc-700 mt-1">Upgrade to a paid plan to see billing history</p>
+      {/* Payment Method */}
+      <NeuCard title="Payment Method" description="HOW YOU PAY FOR YOUR SUBSCRIPTION">
+        <div className="flex items-center justify-between flex-wrap gap-4 py-2">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-8 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
+              <FiCreditCard size={16} className="text-gray-400 dark:text-zinc-500" />
+            </div>
+            <p className="text-sm font-mono text-gray-400 dark:text-zinc-500 uppercase">No payment method on file</p>
+          </div>
+          <NeuButton variant="secondary" icon={<FiCreditCard />} onClick={() => toast.info("Stripe billing portal coming soon")}>
+            Add_Card
+          </NeuButton>
+        </div>
+      </NeuCard>
+
+      {/* Invoice History */}
+      <NeuCard title="Invoice History" description="PAST TRANSACTIONS & RECEIPTS">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs font-mono">
+            <thead>
+              <tr className="border-b-2 border-black dark:border-white">
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Date</th>
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Description</th>
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Amount</th>
+                <th className="text-left py-2 font-black uppercase text-black dark:text-white">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={4} className="py-10 text-center">
+                  <FiCreditCard size={28} className="mx-auto mb-2 text-gray-200 dark:text-zinc-700" />
+                  <p className="text-[10px] font-black uppercase text-gray-300 dark:text-zinc-600">No_Invoices_Yet</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </NeuCard>
     </div>

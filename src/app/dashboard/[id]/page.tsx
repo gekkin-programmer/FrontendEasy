@@ -287,7 +287,7 @@ function DashboardContent() {
 
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
-                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 dark:bg-black/90 backdrop-blur-sm border-b-4 border-black dark:border-white items-center justify-between px-8 shadow-sm">
+                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 dark:bg-black/90 backdrop-blur-sm border-4 border-black dark:border-white items-center justify-between px-8">
                     <div className="flex items-center gap-8">
                         <div className="flex items-center gap-4">
                             <button 
