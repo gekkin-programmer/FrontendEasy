@@ -133,7 +133,7 @@ function DashboardContent() {
         enabled: !!workspaceId,
     });
 
-    const { data: posts = [], refetch: refetchPosts } = useQuery({
+    const { data: posts = [], refetch: refetchPosts, isLoading: postsLoading } = useQuery({
         queryKey: ['posts', workspaceId, searchTerm],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
@@ -448,7 +448,7 @@ function DashboardContent() {
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
                                                 <Composer workspaceId={workspaceId} onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} /></div>
+                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (

@@ -52,7 +52,27 @@ interface PostFeedProps {
   accounts: Account[];
   workspaceId: string;
   onEdit?: (post: Post) => void;
+  isLoading?: boolean;
 }
+
+const SkeletonCard = () => (
+  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] animate-pulse">
+    <div className="flex justify-between items-start mb-3">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+        <div className="space-y-1">
+          <div className="h-2.5 w-24 bg-gray-200 dark:bg-zinc-700" />
+          <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-800" />
+        </div>
+      </div>
+      <div className="h-5 w-16 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+    </div>
+    <div className="space-y-2 border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
+      <div className="h-3 w-full bg-gray-200 dark:bg-zinc-700" />
+      <div className="h-3 w-4/5 bg-gray-200 dark:bg-zinc-700" />
+    </div>
+  </div>
+);
 
 // 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
@@ -210,7 +230,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   );
 };
 
-export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostFeedProps) {
+export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false }: PostFeedProps) {
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
@@ -296,8 +316,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
         </div>
         
         <div className="space-y-4 min-h-[200px]">
+          {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
-            {drafts.map((post) => (
+            {!isLoading && drafts.map((post) => (
               <PostCard 
                 key={post.id} 
                 post={post} 
@@ -310,7 +331,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
               />
             ))}
           </AnimatePresence>
-          {drafts.length === 0 && (
+          {!isLoading && drafts.length === 0 && (
             <div className="text-center p-8 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
               {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
             </div>
@@ -325,8 +346,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
             </h3>
         </div>
         <div className="space-y-4 min-h-[200px] z-10">
+          {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
-            {queued.map((post) => (
+            {!isLoading && queued.map((post) => (
               <PostCard 
                 key={post.id} 
                 post={post}
@@ -339,7 +361,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit }: PostF
               />
             ))}
           </AnimatePresence>
-          {queued.length === 0 && (
+          {!isLoading && queued.length === 0 && (
              <div className="text-center p-12 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
                {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
              </div>

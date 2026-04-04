@@ -272,32 +272,11 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                     >
                         <img src={asset.url} className="w-full h-full object-cover" />
 
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                            <div className="flex justify-between items-start">
-                                <span className="bg-black text-white text-[8px] px-1 border border-white uppercase truncate max-w-[80px]">{asset.filename}</span>
-                                <button className="p-1 bg-white text-black"><FiMoreVertical size={10}/></button>
-                            </div>
-                            <div className="flex gap-1">
-                                <button 
-                                    className="flex-1 bg-white hover:bg-[#3C48F5] hover:text-white transition-colors py-1 text-[8px] font-black uppercase border border-black"
-                                    onClick={() => {
-                                        // This button could be used to select asset for composer
-                                        toast.info("ASSET_READY_FOR_USE");
-                                    }}
-                                >Use</button>
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); if(confirm("DEL_ASSET?")) deleteAssetMutation.mutate(asset.id); }}
-                                    className="bg-red-500 text-white p-1 border border-black hover:bg-red-600"
-                                >
-                                    <FiTrash2 size={12} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div className="absolute top-0 left-0 flex flex-col items-start pointer-events-none">
-                            <span className="bg-[#3C48F5] text-white text-[7px] font-black uppercase px-1 border-r border-b border-black">
-                                {formatSize(asset.size)}
-                            </span>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                            <button
+                                className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black"
+                                onClick={() => { navigator.clipboard.writeText(asset.url).catch(() => {}); }}
+                            >Use</button>
                         </div>
                     </motion.div>
                 ))}
