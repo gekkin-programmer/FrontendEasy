@@ -246,7 +246,7 @@ export default function Navbar() {
             ) : isAuthenticated ? (
                 <div className="relative z-50" onMouseEnter={() => setIsProfileOpen(true)} onMouseLeave={() => setIsProfileOpen(false)}>
                     <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white dark:bg-black border-2 border-black dark:border-white/20 rounded-full hover:bg-gray-50 transition-all">
-                        <div className="w-7 h-7 rounded-full bg-yellow-400 text-black flex items-center justify-center font-bold text-xs border border-black overflow-hidden">
+                        <div className="w-7 h-7 rounded-full bg-[#3C48F5] text-white flex items-center justify-center font-bold text-xs border border-black overflow-hidden">
                             {user?.avatar ? <Image src={user.avatar} alt="User" width={28} height={28} className="object-cover" /> : (user?.firstName?.charAt(0) || 'U')}
                         </div>
                         <span className="text-xs font-bold text-black dark:text-white max-w-[80px] truncate">

@@ -52,7 +52,6 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     transition={{ 
         opacity: { duration: 0.5, delay },
         scale: { type: "spring", stiffness: 200, delay },
-        // eslint-disable-next-line react-hooks/purity
         y: { duration: 5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
     }}
     style={{ rotate: rot }}
@@ -132,7 +131,7 @@ const Hero: React.FC = () => {
       ))}
 
       {/* 4. MAIN CONTENT */}
-      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl">
+      <div className="relative z-10 container mx-auto px-4 text-center max-w-7xl">
         
         {/* Headline - Typography Scaled for Mobile */}
         <motion.h1 

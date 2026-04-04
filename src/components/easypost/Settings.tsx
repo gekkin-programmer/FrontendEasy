@@ -58,70 +58,86 @@ const NeuInput = ({ label, type = "text", value, onChange, disabled, placeholder
     </div>
 );
 
+// --- SETTINGS TAB BUTTON (outside to avoid component-in-render) ---
+function TabBtn({ tab, activeTab, setActiveTab }: { tab: { id: SettingsTab; label: string; icon: React.ReactNode }; activeTab: SettingsTab; setActiveTab: (t: SettingsTab) => void }) {
+  return (
+    <button
+      onClick={() => setActiveTab(tab.id)}
+      className={cn(
+        "w-full flex items-center gap-3 px-3 py-2.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all duration-150",
+        activeTab === tab.id
+          ? "bg-[#3C48F5] text-white border-[#3C48F5] shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]"
+          : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:translate-x-0.5"
+      )}
+    >
+      <span>{tab.icon}</span>
+      {tab.label}
+    </button>
+  );
+}
+
 // --- MAIN SETTINGS COMPONENT ---
 export default function Settings({ workspaceId, workspaceName }: { workspaceId: string, workspaceName?: string }) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
 
-  const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'profile', label: 'Profile', icon: <FiUser size={16} /> },
-    { id: 'workspace', label: 'Workspace', icon: <FiBriefcase size={16} /> },
-    { id: 'account', label: 'Connections', icon: <FiShield size={16} /> },
-    { id: 'storage', label: 'Storage', icon: <FiDatabase size={16} /> }, // ➤ New Tab
-    { id: 'notifications', label: 'Notifications', icon: <FiBell size={16} /> },
-    { id: 'team', label: 'Members', icon: <FiUsers size={16} /> },
-    { id: 'billing', label: 'Billing', icon: <FiCreditCard size={16} /> },
+  const ACCOUNT_TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'profile', label: 'Profile', icon: <FiUser size={15} /> },
+    { id: 'notifications', label: 'Notifications', icon: <FiBell size={15} /> },
+    { id: 'billing', label: 'Billing', icon: <FiCreditCard size={15} /> },
+  ];
+  const WORKSPACE_TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'workspace', label: 'General', icon: <FiBriefcase size={15} /> },
+    { id: 'account', label: 'Connections', icon: <FiShield size={15} /> },
+    { id: 'storage', label: 'Storage', icon: <FiDatabase size={15} /> },
+    { id: 'team', label: 'Members', icon: <FiUsers size={15} /> },
   ];
 
+  const activeLabel = [...ACCOUNT_TABS, ...WORKSPACE_TABS].find(t => t.id === activeTab)?.label || '';
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 font-sans text-black dark:text-white transition-colors">
+    <div className="font-sans text-black dark:text-white transition-colors">
+      {/* Page Header */}
+      <div className="mb-8 pb-6 border-b-2 border-black dark:border-white flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 tracking-widest mb-1">Settings</p>
+          <h1 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">{activeLabel}</h1>
+        </div>
+        {workspaceName && (
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+            <div className="w-2 h-2 bg-[#3C48F5]" />
+            <span className="text-[10px] font-black uppercase text-black dark:text-white truncate max-w-[140px]">{workspaceName}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
-        <aside className="lg:w-64 flex-shrink-0">
-          <nav className="space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200",
-                  activeTab === tab.id
-                    ? "bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] -translate-x-0.5"
-                    : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:translate-x-1"
-                )}
-              >
-                <span className={activeTab === tab.id ? 'text-white' : 'text-black dark:text-white'}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+        <aside className="lg:w-56 flex-shrink-0 space-y-6">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">Account</p>
+            <nav className="space-y-1">
+              {ACCOUNT_TABS.map(tab => <TabBtn key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />)}
+            </nav>
+          </div>
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">Workspace</p>
+            <nav className="space-y-1">
+              {WORKSPACE_TABS.map(tab => <TabBtn key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />)}
+            </nav>
+          </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 min-w-0 space-y-8">
-            
-            {/* 1. PROFILE TAB */}
-            {activeTab === 'profile' && <ProfileSettings />}
-            
-            {/* 2. WORKSPACE TAB */}
-            {activeTab === 'workspace' && <WorkspaceSettings workspaceId={workspaceId} initialName={workspaceName || ''} />}
-            
-            {/* 3. CONNECTIONS TAB (Fixed) */}
-            {activeTab === 'account' && (
-                <div className="animate-in fade-in duration-300">
-                    {/* 🟢 THIS USES YOUR NEW REACT QUERY COMPONENT */}
-                    <ConnectAccounts workspaceId={workspaceId} />
-                </div>
-            )}
-
-            {/* 🟢 STORAGE TAB */}
-            {activeTab === 'storage' && (
-                <div className="animate-in fade-in duration-300">
-                    <MediaGallery />
-                </div>
-            )}            
-            {activeTab === 'notifications' && <NotificationsSettings />}
-            {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
-            {activeTab === 'billing' && <BillingSettings />}
+          {activeTab === 'profile' && <ProfileSettings />}
+          {activeTab === 'workspace' && <WorkspaceSettings workspaceId={workspaceId} initialName={workspaceName || ''} />}
+          {activeTab === 'account' && <div className="animate-in fade-in duration-300"><ConnectAccounts workspaceId={workspaceId} /></div>}
+          {activeTab === 'storage' && <div className="animate-in fade-in duration-300"><MediaGallery /></div>}
+          {activeTab === 'notifications' && <NotificationsSettings />}
+          {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
+          {activeTab === 'billing' && <BillingSettings />}
         </main>
+      </div>
     </div>
   );
 }
