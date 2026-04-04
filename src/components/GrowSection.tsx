@@ -139,7 +139,7 @@ const GrowSection = () => {
           <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 text-left bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
             <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-black leading-[0.9] tracking-tighter uppercase">
               {t("ZERO TO", "DE ZERO A")}<br/>
-              <span className="text-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black">ONE MILLION.</span>
+              <span className="text-[#3C48F6]">ONE MILLION.</span>
             </h2>
             
             <p className="text-base md:text-xl font-bold text-gray-800 leading-snug">

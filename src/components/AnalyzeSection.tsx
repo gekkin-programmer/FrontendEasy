@@ -267,43 +267,52 @@ const AnalyzeSection = () => {
       aria-label="Analytics Features"
     >
       <SectionBackground />
-      <div className="container mx-auto max-w-3xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-10">
 
-        {/* Full-width Text Column */}
-        <div className="flex flex-col gap-6 md:gap-8">
-          <div>
-            <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
-            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
-              ANSWERS.<br/>
-              NOT JUST<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black dark:decoration-gray-200">NUMBERS.</span>
-            </h2>
-          </div>
-          
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
-            {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
-          </p>
-          
-          <ul className="space-y-4 mt-4">
-            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
-              {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
-            </FeatureItem>
-            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
-              {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
-            </FeatureItem>
-            <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
-              {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
-            </FeatureItem>
-          </ul>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-          <div className="pt-6">
-            <a 
-                href="/signup" 
-                className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
-            >
-              <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
-            </a>
+          {/* Left: Text Column */}
+          <div className="flex flex-col gap-6 md:gap-8">
+            <div>
+              <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
+              <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
+                ANSWERS.<br/>
+                NOT JUST<br/>
+                <span className="text-[#3C48F6]">NUMBERS.</span>
+              </h2>
+            </div>
+
+            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
+              {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
+            </p>
+
+            <ul className="space-y-4 mt-4">
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
+              </FeatureItem>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
+              </FeatureItem>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
+              </FeatureItem>
+            </ul>
+
+            <div className="pt-6">
+              <a
+                  href="/signup"
+                  className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
+              >
+                <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
+              </a>
+            </div>
           </div>
+
+          {/* Right: Dashboard Visual */}
+          <div className="hidden lg:block">
+            <MainDashboardVisual />
+          </div>
+
         </div>
 
       </div>
