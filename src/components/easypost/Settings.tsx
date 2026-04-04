@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
@@ -134,7 +135,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
           {activeTab === 'storage' && <div className="animate-in fade-in duration-300"><MediaGallery /></div>}
           {activeTab === 'notifications' && <NotificationsSettings />}
           {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
-          {activeTab === 'billing' && <BillingSettings />}
+          {activeTab === 'billing' && <BillingSettings workspaceId={workspaceId} />}
         </main>
       </div>
     </div>
@@ -524,13 +525,31 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
   );
 }
 
+// --- PLAN CONFIG ---
+const PLAN_LIMITS: Record<string, { posts: number; accounts: number; storageMB: number; members: number }> = {
+  FREE:    { posts: 10,     accounts: 2,  storageMB: 100,   members: 1  },
+  STARTER: { posts: 100,    accounts: 5,  storageMB: 1024,  members: 5  },
+  PRO:     { posts: 99999,  accounts: 20, storageMB: 10240, members: 20 },
+};
+const PLAN_LABEL: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', PRO: 'Pro' };
+
 // --- SUB-COMPONENT: BILLING SETTINGS ---
-function BillingSettings() {
+function BillingSettings({ workspaceId }: { workspaceId: string }) {
+  const { data: workspace } = useQuery({
+    queryKey: ['workspace-billing', workspaceId],
+    queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
+    staleTime: 30_000,
+  });
+
+  const planType: string = workspace?.owner?.planType ?? workspace?.planType ?? 'FREE';
+  const limits = PLAN_LIMITS[planType] ?? PLAN_LIMITS.FREE;
+  const isFree = planType === 'FREE';
+
   const USAGE = [
-    { label: 'Scheduled Posts', used: 3, limit: 10, unit: 'posts' },
-    { label: 'Social Accounts', used: 2, limit: 2, unit: 'accounts' },
-    { label: 'Media Storage', used: 18, limit: 100, unit: 'MB' },
-    { label: 'Team Members', used: 1, limit: 1, unit: 'members' },
+    { label: 'Scheduled Posts',  used: workspace?.currentPostCount          ?? 0, limit: limits.posts,     unit: 'posts'   },
+    { label: 'Social Accounts',  used: workspace?.currentSocialAccountCount ?? 0, limit: limits.accounts,  unit: 'accounts'},
+    { label: 'Media Storage',    used: 0,                                         limit: limits.storageMB, unit: 'MB'      },
+    { label: 'Team Members',     used: workspace?.currentMemberCount        ?? 1, limit: limits.members,   unit: 'members' },
   ];
 
   return (
@@ -538,21 +557,20 @@ function BillingSettings() {
       {/* Current Plan Banner */}
       <NeuCard title="Subscription" description="YOUR CURRENT PLAN & BILLING CYCLE">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-              <FiZap size={24} className="text-white dark:text-black" />
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <p className="text-2xl font-black uppercase text-black dark:text-white">{PLAN_LABEL[planType] ?? planType}</p>
+              <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white">Active</span>
             </div>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <p className="text-2xl font-black uppercase text-black dark:text-white">Free</p>
-                <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white">Active</span>
-              </div>
-              <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">No billing cycle · Upgrade anytime</p>
-            </div>
+            <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">
+              {isFree ? 'No billing cycle · Upgrade anytime' : 'Monthly billing · Cancel anytime'}
+            </p>
           </div>
-          <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
-            Upgrade_Plan
-          </NeuButton>
+          {isFree && (
+            <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
+              Upgrade_Plan
+            </NeuButton>
+          )}
         </div>
       </NeuCard>
 
@@ -560,14 +578,14 @@ function BillingSettings() {
       <NeuCard title="Usage" description="CURRENT PERIOD CONSUMPTION">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {USAGE.map((u) => {
-            const pct = Math.min(Math.round((u.used / u.limit) * 100), 100);
+            const pct = limits.posts === 99999 ? 0 : Math.min(Math.round((u.used / u.limit) * 100), 100);
             const isNearLimit = pct >= 80;
             return (
               <div key={u.label}>
                 <div className="flex justify-between text-xs font-black uppercase mb-2">
                   <span className="text-black dark:text-white">{u.label}</span>
                   <span className={isNearLimit ? 'text-red-500' : 'text-gray-500 dark:text-zinc-400'}>
-                    {u.used} / {u.limit} {u.unit}
+                    {u.used}{limits.posts === 99999 ? '' : ` / ${u.limit}`} {u.unit}
                   </span>
                 </div>
                 <div className="h-3 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 overflow-hidden">
@@ -584,16 +602,26 @@ function BillingSettings() {
 
       {/* Payment Method */}
       <NeuCard title="Payment Method" description="HOW YOU PAY FOR YOUR SUBSCRIPTION">
-        <div className="flex items-center justify-between flex-wrap gap-4 py-2">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-8 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
-              <FiCreditCard size={16} className="text-gray-400 dark:text-zinc-500" />
-            </div>
-            <p className="text-sm font-mono text-gray-400 dark:text-zinc-500 uppercase">No payment method on file</p>
-          </div>
-          <NeuButton variant="secondary" icon={<FiCreditCard />} onClick={() => toast.info("Stripe billing portal coming soon")}>
-            Add_Card
-          </NeuButton>
+        <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">No payment method on file</p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => toast.info("Card payment coming soon")}
+            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            <FiCreditCard size={16} /> Add_Card
+          </button>
+          <button
+            onClick={() => toast.info("Orange Money payments coming soon via PawaPay")}
+            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-[#FF7900] text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            <FiSmartphone size={16} /> Orange_Money
+          </button>
+          <button
+            onClick={() => toast.info("MTN MoMo payments coming soon via PawaPay")}
+            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-[#FFCC00] text-black font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            <FiSmartphone size={16} /> MTN_MoMo
+          </button>
         </div>
       </NeuCard>
 
