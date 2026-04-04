@@ -399,7 +399,7 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-black">
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-black border-x-4 border-black dark:border-white">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 

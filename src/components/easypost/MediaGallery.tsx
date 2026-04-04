@@ -174,7 +174,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
               </button>
               <button
                 onClick={() => toast.info("Dropbox_Import — Coming_Soon")}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#0061FF] hover:bg-[#0052D9] text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#3C48F5] hover:bg-blue-700 text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title="Import from Dropbox"
               >
                   <FiDownloadCloud /> Dropbox
