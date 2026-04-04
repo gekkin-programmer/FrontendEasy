@@ -52,7 +52,7 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     transition={{ 
         opacity: { duration: 0.5, delay },
         scale: { type: "spring", stiffness: 200, delay },
-        y: { duration: 5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
+        y: { duration: 5 + (delay % 1), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
     }}
     style={{ rotate: rot }}
     whileHover={{ scale: 1.1, rotate: 0, zIndex: 50 }}
