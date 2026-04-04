@@ -99,22 +99,6 @@ function DashboardContent() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    const searchResults = useMemo(() => {
-        const q = searchTerm.trim().toLowerCase();
-        if (!q) return { posts: [], accounts: [] };
-        return {
-            posts: posts.filter((p: any) =>
-                p.content?.toLowerCase().includes(q) ||
-                p.status?.toLowerCase().includes(q)
-            ).slice(0, 5),
-            accounts: accounts.filter((a: any) =>
-                a.username?.toLowerCase().includes(q) ||
-                a.platform?.toLowerCase().includes(q) ||
-                a.displayName?.toLowerCase().includes(q)
-            ).slice(0, 3),
-        };
-    }, [searchTerm, posts, accounts]);
-
     // --- QUERIES ---
     const { data: myWorkspaces = [] } = useQuery({ 
         queryKey: ['workspaces'], 
@@ -137,8 +121,24 @@ function DashboardContent() {
         queryKey: ['posts', workspaceId, searchTerm],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
-        refetchInterval: 60000, 
+        refetchInterval: 60000,
     });
+
+    const searchResults = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return { posts: [], accounts: [] };
+        return {
+            posts: posts.filter((p: any) =>
+                p.content?.toLowerCase().includes(q) ||
+                p.status?.toLowerCase().includes(q)
+            ).slice(0, 5),
+            accounts: accounts.filter((a: any) =>
+                a.username?.toLowerCase().includes(q) ||
+                a.platform?.toLowerCase().includes(q) ||
+                a.displayName?.toLowerCase().includes(q)
+            ).slice(0, 3),
+        };
+    }, [searchTerm, posts, accounts]);
 
     // 🟢 REAL-TIME LISTENERS
     useEffect(() => {
