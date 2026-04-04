@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,6 +85,35 @@ function DashboardContent() {
     );
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    // Close search dropdown on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+                setIsSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const searchResults = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return { posts: [], accounts: [] };
+        return {
+            posts: posts.filter((p: any) =>
+                p.content?.toLowerCase().includes(q) ||
+                p.status?.toLowerCase().includes(q)
+            ).slice(0, 5),
+            accounts: accounts.filter((a: any) =>
+                a.username?.toLowerCase().includes(q) ||
+                a.platform?.toLowerCase().includes(q) ||
+                a.displayName?.toLowerCase().includes(q)
+            ).slice(0, 3),
+        };
+    }, [searchTerm, posts, accounts]);
 
     // --- QUERIES ---
     const { data: myWorkspaces = [] } = useQuery({ 
@@ -286,11 +315,56 @@ function DashboardContent() {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} />
-                            <div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white">
+                        <div ref={searchRef} className="relative flex items-center gap-2">
+                            <NeuInput
+                                placeholder="SEARCH_DATABASE..."
+                                value={searchTerm}
+                                onChange={(e: any) => { setSearchTerm(e.target.value); setIsSearchOpen(true); }}
+                                onFocus={() => setIsSearchOpen(true)}
+                                style={{ width: '250px' }}
+                            />
+                            <button
+                                onClick={() => setIsSearchOpen(v => !v)}
+                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                            >
                                 <Search size={18} />
-                            </div>
+                            </button>
+
+                            {/* Real-time results dropdown */}
+                            {isSearchOpen && searchTerm.trim() && (
+                                <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 overflow-hidden">
+                                    {searchResults.posts.length === 0 && searchResults.accounts.length === 0 ? (
+                                        <div className="p-4 text-center text-xs font-black uppercase text-gray-400">No_Results_Found</div>
+                                    ) : (
+                                        <>
+                                            {searchResults.posts.length > 0 && (
+                                                <div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Posts</div>
+                                                    {searchResults.posts.map((p: any) => (
+                                                        <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 transition-colors">
+                                                            <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-[#3C48F5]' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
+                                                            <span className="text-xs font-bold truncate text-black dark:text-white">{p.content?.substring(0, 60)}...</span>
+                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto flex-shrink-0">{p.status}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {searchResults.accounts.length > 0 && (
+                                                <div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Accounts</div>
+                                                    {searchResults.accounts.map((a: any) => (
+                                                        <button key={a.id} onClick={() => { setActiveTab('settings'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-3 transition-colors">
+                                                            <div className="w-2 h-2 bg-green-500 flex-shrink-0" />
+                                                            <span className="text-xs font-bold text-black dark:text-white">@{a.username}</span>
+                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto">{a.platform}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
@@ -325,7 +399,7 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-black">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 

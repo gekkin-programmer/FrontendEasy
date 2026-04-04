@@ -364,9 +364,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
 
         {/* HEADER */}
-        <div className="px-4 py-3 flex items-center justify-between bg-[#3C48F5] border-b-2 border-black dark:border-white transition-colors">
+        <div className="px-4 py-3 flex items-center justify-between bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-white text-black px-2 py-1">TARGETS:</span>
+            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black dark:bg-white text-white dark:text-black px-2 py-1">TARGETS:</span>
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
