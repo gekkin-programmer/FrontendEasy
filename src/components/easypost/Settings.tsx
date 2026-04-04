@@ -104,7 +104,6 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
         </div>
         {workspaceName && (
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-            <div className="w-2 h-2 bg-[#3C48F5]" />
             <span className="text-[10px] font-black uppercase text-black dark:text-white truncate max-w-[140px]">{workspaceName}</span>
           </div>
         )}

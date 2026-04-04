@@ -506,7 +506,6 @@ function PostListCard({ post, engagement, isSelected, onClick }: { post: Analyti
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
         <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800">
-            {isSelected && <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#3C48F5]" />}
             <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || "No text content"}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>

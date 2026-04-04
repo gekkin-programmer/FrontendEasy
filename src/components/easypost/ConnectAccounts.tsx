@@ -171,7 +171,32 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       window.location.assign('/login');
   };
 
-  if (isLoading) return <SpinningLoader fullScreen={false} />;
+  if (isLoading) return (
+    <div className="space-y-12 font-sans pb-20">
+      <div className="border-b-8 border-black dark:border-white pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <div className="h-8 w-52 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+          <div className="h-4 w-72 bg-gray-100 dark:bg-zinc-800 animate-pulse" />
+        </div>
+        <div className="h-16 w-44 bg-gray-100 dark:bg-zinc-800 border-4 border-black dark:border-white animate-pulse" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[...Array(7)].map((_, i) => (
+          <div key={i} className="flex flex-col p-8 border-4 border-black dark:border-white bg-white dark:bg-zinc-900 animate-pulse">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-16 bg-gray-200 dark:bg-zinc-700 border-4 border-black dark:border-white" />
+              <div className="space-y-2">
+                <div className="h-5 w-24 bg-gray-200 dark:bg-zinc-700" />
+                <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-800" />
+              </div>
+            </div>
+            <div className="h-10 w-full bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white mb-auto" />
+            <div className="mt-10 h-12 w-full bg-gray-200 dark:bg-zinc-700 border-4 border-black dark:border-white" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <>
