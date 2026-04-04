@@ -38,7 +38,7 @@ function TelegramLinkModal({ onClose }: { onClose: () => void }) {
   const generate = async () => {
     setLoading(true);
     try {
-      const res: any = await api.post('/telegram/link-token', {});
+      const res: any = await api.post('/telegram/link-token', { workspaceId });
       setLinkToken(res.token ?? res.data?.token);
     } catch {
       toast.error('Failed to generate link token');

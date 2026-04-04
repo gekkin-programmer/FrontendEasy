@@ -53,7 +53,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         .replace(/\/api$/, '') + '/api';
 
     const telegramTokenMutation = useMutation({
-        mutationFn: () => api.post('/telegram/link-token', {}),
+        mutationFn: () => api.post('/telegram/link-token', { workspaceId }),
         onSuccess: (res: any) => {
             setTelegramToken(res.token ?? res.data?.token ?? null);
             setTelegramModal(true);
