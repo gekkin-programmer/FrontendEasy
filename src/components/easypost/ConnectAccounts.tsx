@@ -30,7 +30,7 @@ const PLATFORMS = [
 
 // ─── Telegram Link Modal ─────────────────────────────────────────────────────
 
-function TelegramLinkModal({ onClose }: { onClose: () => void }) {
+function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; workspaceId: string }) {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -200,7 +200,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
   return (
     <>
-    {showTelegramModal && <TelegramLinkModal onClose={() => setShowTelegramModal(false)} />}
+    {showTelegramModal && <TelegramLinkModal workspaceId={workspaceId} onClose={() => setShowTelegramModal(false)} />}
     <div className="space-y-12 font-sans text-black dark:text-white transition-colors pb-20">
       
       {/* 🟢 MINIMAL NEUBRUTALIST HEADER */}
