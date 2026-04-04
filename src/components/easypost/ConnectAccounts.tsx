@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
-import { 
-  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube 
-} from 'react-icons/fa';
-import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle, ShieldCheck, Zap } from 'lucide-react'; 
+import {
+  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram
+} from 'react-icons/fa6';
+import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle, ShieldCheck, Zap, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
 import { getCookie, deleteCookie } from 'cookies-next';
@@ -19,16 +19,112 @@ const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender
   .replace(/\/api$/, '') + '/api';
 
 const PLATFORMS = [
-  { id: 'facebook', label: 'Facebook', icon: FaFacebookF, color: '#1877F2' },
-  { id: 'instagram', label: 'Instagram', icon: FaInstagram, color: '#E4405F' },
-  { id: 'twitter', label: 'Twitter (X)', icon: FaTwitter, color: '#000000' },
-  { id: 'linkedin', label: 'LinkedIn', icon: FaLinkedinIn, color: '#0077B5' },
-  { id: 'tiktok', label: 'TikTok', icon: FaTiktok, color: '#000000' },
-  { id: 'youtube', label: 'YouTube', icon: FaYoutube, color: '#FF0000' },
+  { id: 'facebook',  label: 'Facebook',   icon: FaFacebookF,  color: '#1877F2', oauth: true  },
+  { id: 'instagram', label: 'Instagram',  icon: FaInstagram,  color: '#E4405F', oauth: true  },
+  { id: 'twitter',   label: 'Twitter (X)',icon: FaTwitter,    color: '#000000', oauth: true  },
+  { id: 'linkedin',  label: 'LinkedIn',   icon: FaLinkedinIn, color: '#0077B5', oauth: true  },
+  { id: 'tiktok',    label: 'TikTok',     icon: FaTiktok,     color: '#000000', oauth: true  },
+  { id: 'youtube',   label: 'YouTube',    icon: FaYoutube,    color: '#FF0000', oauth: true  },
+  { id: 'telegram',  label: 'Telegram',   icon: FaTelegram,   color: '#26A5E4', oauth: false },
 ];
+
+// ─── Telegram Link Modal ─────────────────────────────────────────────────────
+
+function TelegramLinkModal({ onClose }: { onClose: () => void }) {
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const res: any = await api.post('/telegram/link-token', {});
+      setLinkToken(res.token ?? res.data?.token);
+    } catch {
+      toast.error('Failed to generate link token');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copy = () => {
+    if (!linkToken) return;
+    void navigator.clipboard.writeText(`/link ${linkToken}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#3C48F5] p-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b-4 border-black dark:border-white pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#26A5E4] border-4 border-black flex items-center justify-center">
+              <FaTelegram size={18} className="text-white" />
+            </div>
+            <h3 className="font-black text-xl uppercase tracking-tighter">Connect_Telegram</h3>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-black hover:text-white border-2 border-black transition-colors">
+            <X size={16} strokeWidth={3} />
+          </button>
+        </div>
+
+        {/* Instructions */}
+        <ol className="space-y-3 font-mono text-sm font-bold">
+          <li className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">1</span>
+            <span className="text-black dark:text-white">Open Telegram and search for <span className="bg-zinc-100 dark:bg-zinc-800 px-1 border border-black dark:border-white">@Eazy_Post_bot</span></span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">2</span>
+            <span className="text-black dark:text-white">Generate your link token below</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">3</span>
+            <span className="text-black dark:text-white">Send the copied command to the bot</span>
+          </li>
+        </ol>
+
+        {/* Token area */}
+        {!linkToken ? (
+          <button
+            onClick={() => void generate()}
+            disabled={loading}
+            className="w-full py-4 bg-[#26A5E4] text-white border-4 border-black font-black text-sm uppercase shadow-[6px_6px_0px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all disabled:opacity-50"
+          >
+            {loading ? <Loader2 size={16} className="inline animate-spin mr-2" /> : null}
+            {loading ? 'Generating...' : 'Generate_Link_Token'}
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-[10px] font-mono font-black uppercase text-gray-500">Token expires in 15 minutes</p>
+            <div className="flex gap-2">
+              <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 border-4 border-black dark:border-white px-4 py-3 font-mono text-sm font-black text-black dark:text-white truncate">
+                /link {linkToken}
+              </div>
+              <button
+                onClick={copy}
+                className="px-4 border-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+              >
+                {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
+              </button>
+            </div>
+            <p className="text-[10px] font-mono font-bold text-gray-500 uppercase">
+              Paste this command in the Telegram bot chat
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
   const queryClient = useQueryClient();
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
   const token = getCookie('accessToken');
   let tokenStatus = "Unknown";
   let tokenExpiry = null;
@@ -60,7 +156,11 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     onError: () => toast.error("ERR_TERMINATION_FAILED")
   });
 
-  const handleConnect = (platform: string) => {
+  const handleConnect = (platform: string, oauth: boolean) => {
+    if (!oauth) {
+      if (platform === 'telegram') setShowTelegramModal(true);
+      return;
+    }
     const freshToken = getCookie('accessToken');
     window.location.assign(`${API_URL}/social-accounts/connect/${platform}?token=${freshToken}&workspaceId=${workspaceId}`);
   };
@@ -74,6 +174,8 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   if (isLoading) return <SpinningLoader fullScreen={false} />;
 
   return (
+    <>
+    {showTelegramModal && <TelegramLinkModal onClose={() => setShowTelegramModal(false)} />}
     <div className="space-y-12 font-sans text-black dark:text-white transition-colors pb-20">
       
       {/* 🟢 MINIMAL NEUBRUTALIST HEADER */}
@@ -175,7 +277,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               <div className="mt-10 flex flex-col gap-3">
                 {isExpired ? (
                     <button 
-                        onClick={() => handleConnect(platform.id)}
+                        onClick={() => handleConnect(platform.id, platform.oauth)}
                         className="w-full py-4 bg-white text-red-600 border-4 border-black font-black text-sm uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_#000]"
                     >
                         Force_Reboot
@@ -189,7 +291,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                     </button>
                 ) : (
                   <button
-                    onClick={() => handleConnect(platform.id)}
+                    onClick={() => handleConnect(platform.id, platform.oauth)}
                     className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     <Plus size={16} className="inline mr-2" strokeWidth={4} /> Initialize_Stream
@@ -201,5 +303,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         })}
       </div>
     </div>
+    </>
   );
 }
