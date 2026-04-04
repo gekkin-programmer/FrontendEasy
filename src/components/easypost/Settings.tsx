@@ -3,14 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { api } from '@/src/lib/api'; // Use our robust client for Profile/Workspace too
-import ConnectAccounts from './ConnectAccounts'; // 🟢 The new component we built
+import { api } from '@/src/lib/api';
+import ConnectAccounts from './ConnectAccounts';
+import Team from './Team';
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
-  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase // ➤ Added FiDatabase
+  FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase,
+  FiCheck, FiZap, FiStar, FiTrendingUp, FiMail, FiSmartphone, FiToggleLeft, FiToggleRight
 } from 'react-icons/fi';
-import MediaGallery from './MediaGallery'; // ➤ Import MediaGallery for Storage tab
+import MediaGallery from './MediaGallery';
 
 // --- CONFIG ---
 type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage'; // ➤ Added storage
@@ -117,10 +119,9 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
                     <MediaGallery />
                 </div>
             )}            
-            {/* Placeholders */}
-            {activeTab === 'notifications' && <NeuCard title="Notifications"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
-            {activeTab === 'team' && <NeuCard title="Team Management"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
-            {activeTab === 'billing' && <NeuCard title="Billing & Plans"><div className="text-center p-8 font-bold text-gray-400">MODULE_NOT_LOADED</div></NeuCard>}
+            {activeTab === 'notifications' && <NotificationsSettings />}
+            {activeTab === 'team' && <Team workspaceId={workspaceId} />}
+            {activeTab === 'billing' && <BillingSettings />}
         </main>
     </div>
   );
@@ -321,6 +322,182 @@ function ProfileSettings() {
                  <div className="bg-black dark:bg-white text-white dark:text-black p-1 border-2 border-black dark:border-white transition-colors"><FiShield /></div>
              </div>
          </div>
+      </NeuCard>
+    </div>
+  );
+}
+
+// --- SUB-COMPONENT: NOTIFICATIONS SETTINGS ---
+function NotificationsSettings() {
+  const [prefs, setPrefs] = useState({
+    emailPostPublished: true,
+    emailPostFailed: true,
+    emailWeeklyReport: false,
+    emailTeamInvite: true,
+    pushNewComment: true,
+    pushScheduleReminder: true,
+    pushPlatformAlert: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const toggle = (key: keyof typeof prefs) => setPrefs(p => ({ ...p, [key]: !p[key] }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 600));
+    setSaving(false);
+    toast.success("NOTIFICATION_PREFS_SAVED");
+  };
+
+  const Row = ({ label, desc, k }: { label: string; desc: string; k: keyof typeof prefs }) => (
+    <div className="flex items-center justify-between py-3 border-b border-dashed border-gray-200 dark:border-zinc-700 last:border-0">
+      <div>
+        <p className="text-sm font-black uppercase text-black dark:text-white">{label}</p>
+        <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">{desc}</p>
+      </div>
+      <button onClick={() => toggle(k)} className="flex-shrink-0 ml-4">
+        {prefs[k]
+          ? <FiToggleRight size={28} className="text-[#3C48F5]" />
+          : <FiToggleLeft size={28} className="text-gray-300 dark:text-zinc-600" />}
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <NeuCard title="Email Notifications" description="MESSAGES SENT TO YOUR REGISTERED EMAIL">
+        <div className="space-y-0">
+          <Row label="Post Published" desc="When a scheduled post goes live" k="emailPostPublished" />
+          <Row label="Post Failed" desc="When a post fails to publish" k="emailPostFailed" />
+          <Row label="Weekly Report" desc="Summary of performance every Monday" k="emailWeeklyReport" />
+          <Row label="Team Invite" desc="When someone joins your workspace" k="emailTeamInvite" />
+        </div>
+      </NeuCard>
+      <NeuCard title="Push Notifications" description="IN-APP ALERTS">
+        <div className="space-y-0">
+          <Row label="New Comment" desc="When someone replies to your post" k="pushNewComment" />
+          <Row label="Schedule Reminder" desc="15 min before a scheduled post" k="pushScheduleReminder" />
+          <Row label="Platform Alert" desc="OAuth expiry or platform errors" k="pushPlatformAlert" />
+        </div>
+      </NeuCard>
+      <div className="flex justify-end">
+        <NeuButton onClick={handleSave} disabled={saving} icon={<FiSave />}>
+          {saving ? 'SAVING...' : 'SAVE_PREFERENCES'}
+        </NeuButton>
+      </div>
+    </div>
+  );
+}
+
+// --- SUB-COMPONENT: BILLING SETTINGS ---
+function BillingSettings() {
+  const plans = [
+    {
+      id: 'FREE',
+      name: 'Free',
+      price: '0',
+      icon: <FiZap size={20} />,
+      color: 'text-gray-500',
+      features: ['2 social accounts', '10 scheduled posts/mo', '100MB media storage', 'Basic analytics'],
+    },
+    {
+      id: 'STARTER',
+      name: 'Starter',
+      price: '9',
+      icon: <FiStar size={20} />,
+      color: 'text-[#3C48F5]',
+      features: ['10 social accounts', '100 scheduled posts/mo', '2GB media storage', 'Full analytics', 'Team (3 members)'],
+    },
+    {
+      id: 'PRO',
+      name: 'Pro',
+      price: '29',
+      icon: <FiTrendingUp size={20} />,
+      color: 'text-[#3C48F5]',
+      features: ['Unlimited accounts', 'Unlimited posts', '20GB media storage', 'AI scheduling', 'Team (10 members)', 'Priority support'],
+      recommended: true,
+    },
+    {
+      id: 'ENTERPRISE',
+      name: 'Enterprise',
+      price: 'Custom',
+      icon: <FiUsers size={20} />,
+      color: 'text-purple-600',
+      features: ['Everything in Pro', 'Dedicated account manager', 'Custom integrations', 'SLA guarantee', 'Unlimited team members'],
+    },
+  ];
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <NeuCard title="Current Plan" description="YOUR ACTIVE SUBSCRIPTION">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+              <FiZap size={22} />
+            </div>
+            <div>
+              <p className="text-xl font-black uppercase text-black dark:text-white">Free Plan</p>
+              <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">Renews never · No credit card required</p>
+            </div>
+          </div>
+          <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
+            Upgrade_Plan
+          </NeuButton>
+        </div>
+      </NeuCard>
+
+      <NeuCard title="Available Plans" description="CHOOSE THE RIGHT TIER FOR YOUR NEEDS">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {plans.map((plan) => (
+            <div key={plan.id} className={cn(
+              "relative border-2 border-black dark:border-white p-5 flex flex-col gap-4 transition-all",
+              plan.recommended
+                ? "bg-[#3C48F5] text-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]"
+                : "bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"
+            )}>
+              {plan.recommended && (
+                <div className="absolute -top-3 left-4 bg-black text-white text-[9px] font-black uppercase px-2 py-0.5 border border-white">
+                  RECOMMENDED
+                </div>
+              )}
+              <div className={cn("flex items-center gap-2", plan.recommended ? "text-white" : plan.color)}>
+                {plan.icon}
+                <span className="font-black uppercase text-sm">{plan.name}</span>
+              </div>
+              <div className={cn("text-3xl font-black", plan.recommended ? "text-white" : "text-black dark:text-white")}>
+                {plan.price === 'Custom' ? 'Custom' : `$${plan.price}`}
+                {plan.price !== 'Custom' && <span className="text-xs font-mono opacity-60">/mo</span>}
+              </div>
+              <ul className="space-y-1.5 flex-1">
+                {plan.features.map((f, i) => (
+                  <li key={i} className={cn("flex items-center gap-2 text-xs font-medium", plan.recommended ? "text-white" : "text-black dark:text-white")}>
+                    <FiCheck size={12} strokeWidth={3} className={plan.recommended ? "text-white" : "text-[#3C48F5]"} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => window.location.href = '/pricing'}
+                className={cn(
+                  "w-full py-2 text-[10px] font-black uppercase border-2 transition-all",
+                  plan.recommended
+                    ? "border-white bg-white text-[#3C48F5] hover:bg-transparent hover:text-white"
+                    : "border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
+                )}
+              >
+                {plan.id === 'FREE' ? 'Current Plan' : plan.id === 'ENTERPRISE' ? 'Contact Sales' : 'Upgrade'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </NeuCard>
+
+      <NeuCard title="Billing History" description="RECENT TRANSACTIONS">
+        <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-zinc-700">
+          <FiCreditCard size={32} className="mx-auto mb-3 text-gray-300 dark:text-zinc-700" />
+          <p className="text-xs font-black uppercase text-gray-400 dark:text-zinc-600">No_Invoices_Yet</p>
+          <p className="text-[10px] font-mono text-gray-300 dark:text-zinc-700 mt-1">Upgrade to a paid plan to see billing history</p>
+        </div>
       </NeuCard>
     </div>
   );

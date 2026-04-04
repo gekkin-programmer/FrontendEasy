@@ -389,8 +389,8 @@ function DashboardContent() {
                                         No new system updates detected.
                                     </p>
                                 </div>
-                                <div className="p-2 border-t-2 border-zinc-100 dark:border-zinc-800">
-                                    <button className="w-full py-2 font-black text-[10px] uppercase hover:bg-[#3C48F5] hover:text-white transition-colors">
+                                <div className="p-2 border-t-2 border-black dark:border-white">
+                                    <button className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">
                                         Clear_Logs
                                     </button>
                                 </div>
