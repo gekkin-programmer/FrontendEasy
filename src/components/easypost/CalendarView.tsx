@@ -258,7 +258,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:text-yellow-300"
+                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:bg-white/20 hover:text-yellow-300"
                     )}
                   >
                       {v}
@@ -273,7 +273,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
 
           <button 
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-yellow-400 text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
             <Download size={16} /> Export
           </button>

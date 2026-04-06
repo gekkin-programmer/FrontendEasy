@@ -2,16 +2,15 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus, 
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2 
+import {
+    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import SpinningLoader from '../SpinningLoader';
 
 export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
   const queryClient = useQueryClient();
@@ -22,6 +21,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
   const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
@@ -85,9 +85,27 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
     }
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploadProgress({ done: 0, total: files.length });
+    let done = 0;
+    await Promise.all(
+      files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (currentFolderId) formData.append('folderId', currentFolderId);
+        await api.post('/media/upload', formData);
+        done++;
+        setUploadProgress({ done, total: files.length });
+      })
+    );
+    setUploadProgress(null);
+    toast.success(`UPLOAD_COMPLETE: ${files.length} file${files.length > 1 ? 's' : ''}`);
+    queryClient.invalidateQueries({ queryKey: ['media'] });
+    queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    // reset input so same files can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const enterFolder = (folder: any) => {
@@ -114,15 +132,15 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
     <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
       
       {/* OS Toolbar */}
-      <div className="flex flex-wrap gap-4 items-center justify-between bg-[#3C48F5] p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-white">
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
-                  <button onClick={goBack} className="p-2 bg-black hover:bg-zinc-800 border-2 border-white transition-all shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+                  <button onClick={goBack} className="p-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                       <FiChevronLeft size={18} strokeWidth={3} />
                   </button>
               )}
-              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter">
-                  <FiFolder />
+              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter text-black dark:text-white">
+                  <FiFolder className="text-black dark:text-white" />
                   <span>ROOT</span>
                   {folderPath.map(p => (
                       <React.Fragment key={p.id}>
@@ -133,18 +151,33 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
               </div>
           </div>
 
-          <div className="flex gap-2">
-              <button 
+          <div className="flex flex-wrap gap-2">
+              <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black hover:bg-zinc-800 border-2 border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
               >
                   <FiPlus /> New_Folder
               </button>
-              <button 
+              <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
               >
-                  <FiUploadCloud /> {uploadMutation.isPending ? "Syncing..." : "Upload_Asset"}
+                  <FiUploadCloud />
+                  {uploadProgress ? `${uploadProgress.done}/${uploadProgress.total} Uploading...` : "Upload_Asset"}
+              </button>
+              <button
+                onClick={() => toast.info("Canva_Import — Coming_Soon")}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#3C48F5] hover:bg-blue-700 text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                title="Import from Canva"
+              >
+                  <FiDownloadCloud /> Canva
+              </button>
+              <button
+                onClick={() => toast.info("Dropbox_Import — Coming_Soon")}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#3C48F5] hover:bg-blue-700 text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                title="Import from Dropbox"
+              >
+                  <FiDownloadCloud /> Dropbox
               </button>
           </div>
       </div>
@@ -175,7 +208,7 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                       />
                       <button 
                         onClick={() => createFolderMutation.mutate(newFolderName)}
-                        className="px-4 bg-green-500 border-2 border-black dark:border-white text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                        className="px-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white text-black dark:text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-black hover:text-white transition-all"
                       >
                           OK
                       </button>
@@ -190,15 +223,19 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
           </AnimatePresence>
       </div>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,image/gif" multiple />
 
       {/* Explorer Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
-             <div className="col-span-full py-20 flex flex-col items-center justify-center">
-                 <SpinningLoader fullScreen={false} />
-                 <span className="font-black uppercase text-[10px] tracking-widest mt-4 animate-pulse">Accessing_Data_Stream...</span>
-             </div>
+             <>
+               {[...Array(10)].map((_, i) => (
+                 <div key={i} className="flex flex-col items-center gap-2 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+                   <div className="w-full aspect-square bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                   <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                 </div>
+               ))}
+             </>
          ) : (
             <AnimatePresence mode="popLayout">
                 {/* 1. Folders */}
@@ -233,34 +270,13 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                         key={asset.id} 
                         className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
                     >
-                        <img src={asset.url} className="w-full h-full object-cover transition-all duration-500 grayscale group-hover:grayscale-0" />
-                        
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                            <div className="flex justify-between items-start">
-                                <span className="bg-black text-white text-[8px] px-1 border border-white uppercase truncate max-w-[80px]">{asset.filename}</span>
-                                <button className="p-1 bg-white text-black"><FiMoreVertical size={10}/></button>
-                            </div>
-                            <div className="flex gap-1">
-                                <button 
-                                    className="flex-1 bg-white hover:bg-[#3C48F5] hover:text-white transition-colors py-1 text-[8px] font-black uppercase border border-black"
-                                    onClick={() => {
-                                        // This button could be used to select asset for composer
-                                        toast.info("ASSET_READY_FOR_USE");
-                                    }}
-                                >Use</button>
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); if(confirm("DEL_ASSET?")) deleteAssetMutation.mutate(asset.id); }}
-                                    className="bg-red-500 text-white p-1 border border-black hover:bg-red-600"
-                                >
-                                    <FiTrash2 size={12} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div className="absolute top-0 left-0 flex flex-col items-start pointer-events-none">
-                            <span className="bg-[#3C48F5] text-white text-[7px] font-black uppercase px-1 border-r border-b border-black">
-                                {formatSize(asset.size)}
-                            </span>
+                        <img src={asset.url} className="w-full h-full object-cover" />
+
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                            <button
+                                className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black"
+                                onClick={() => { navigator.clipboard.writeText(asset.url).catch(() => {}); }}
+                            >Use</button>
                         </div>
                     </motion.div>
                 ))}

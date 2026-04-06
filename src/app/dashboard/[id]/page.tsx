@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,6 +85,19 @@ function DashboardContent() {
     );
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    // Close search dropdown on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+                setIsSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
 
     // --- QUERIES ---
     const { data: myWorkspaces = [] } = useQuery({ 
@@ -104,12 +117,28 @@ function DashboardContent() {
         enabled: !!workspaceId,
     });
 
-    const { data: posts = [], refetch: refetchPosts } = useQuery({
+    const { data: posts = [], refetch: refetchPosts, isLoading: postsLoading } = useQuery({
         queryKey: ['posts', workspaceId, searchTerm],
         queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&search=${encodeURIComponent(searchTerm)}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
-        refetchInterval: 60000, 
+        refetchInterval: 60000,
     });
+
+    const searchResults = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return { posts: [], accounts: [] };
+        return {
+            posts: posts.filter((p: any) =>
+                p.content?.toLowerCase().includes(q) ||
+                p.status?.toLowerCase().includes(q)
+            ).slice(0, 5),
+            accounts: accounts.filter((a: any) =>
+                a.username?.toLowerCase().includes(q) ||
+                a.platform?.toLowerCase().includes(q) ||
+                a.displayName?.toLowerCase().includes(q)
+            ).slice(0, 3),
+        };
+    }, [searchTerm, posts, accounts]);
 
     // 🟢 REAL-TIME LISTENERS
     useEffect(() => {
@@ -203,17 +232,18 @@ function DashboardContent() {
         createWorkspaceMutation.mutate(newWorkspaceName);
     };
 
-    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string) => {
+    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
         if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
-        upsertPostMutation.mutate({ 
+        upsertPostMutation.mutate({
             id: postId,
-            workspaceId: targetWorkspaceId || workspaceId, 
-            content, 
-            scheduledFor: date ? date.toISOString() : undefined, 
-            status, 
-            socialAccountIds: targets, 
-            mediaIds: mediaIds || [] 
+            workspaceId: targetWorkspaceId || workspaceId,
+            content,
+            scheduledFor: date ? date.toISOString() : undefined,
+            status,
+            socialAccountIds: targets,
+            mediaIds: mediaIds || [],
+            ...(platformMeta ? { platformMeta } : {}),
         });
     };
 
@@ -258,7 +288,7 @@ function DashboardContent() {
 
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
-                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 dark:bg-black/90 backdrop-blur-sm border-b-4 border-black dark:border-white items-center justify-between px-8 shadow-sm">
+                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 dark:bg-black/90 backdrop-blur-sm border-4 border-black dark:border-white items-center justify-between px-8">
                     <div className="flex items-center gap-8">
                         <div className="flex items-center gap-4">
                             <button 
@@ -282,15 +312,60 @@ function DashboardContent() {
                             </div>
                         </div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-gray-100 dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-yellow-200 dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-[#3C48F5] dark:text-[#3C48F5] bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 border-2 border-[#3C48F5] transition-all"><Plus size={16}/> New Workspace</button></motion.div>)}</AnimatePresence>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-transparent transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-black dark:text-white bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-black dark:border-white transition-all"><Plus size={16} className="text-black dark:text-white"/> New Workspace</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <NeuInput placeholder="SEARCH_DATABASE..." value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} style={{ width: '250px' }} />
-                            <div className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white">
+                        <div ref={searchRef} className="relative flex items-center gap-2">
+                            <NeuInput
+                                placeholder="SEARCH_DATABASE..."
+                                value={searchTerm}
+                                onChange={(e: any) => { setSearchTerm(e.target.value); setIsSearchOpen(true); }}
+                                onFocus={() => setIsSearchOpen(true)}
+                                style={{ width: '250px' }}
+                            />
+                            <button
+                                onClick={() => setIsSearchOpen(v => !v)}
+                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                            >
                                 <Search size={18} />
-                            </div>
+                            </button>
+
+                            {/* Real-time results dropdown */}
+                            {isSearchOpen && searchTerm.trim() && (
+                                <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 overflow-hidden">
+                                    {searchResults.posts.length === 0 && searchResults.accounts.length === 0 ? (
+                                        <div className="p-4 text-center text-xs font-black uppercase text-gray-400">No_Results_Found</div>
+                                    ) : (
+                                        <>
+                                            {searchResults.posts.length > 0 && (
+                                                <div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Posts</div>
+                                                    {searchResults.posts.map((p: any) => (
+                                                        <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 transition-colors">
+                                                            <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-[#3C48F5]' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
+                                                            <span className="text-xs font-bold truncate text-black dark:text-white">{p.content?.substring(0, 60)}...</span>
+                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto flex-shrink-0">{p.status}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {searchResults.accounts.length > 0 && (
+                                                <div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Accounts</div>
+                                                    {searchResults.accounts.map((a: any) => (
+                                                        <button key={a.id} onClick={() => { setActiveTab('settings'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-3 transition-colors">
+                                                            <div className="w-2 h-2 bg-green-500 flex-shrink-0" />
+                                                            <span className="text-xs font-bold text-black dark:text-white">@{a.username}</span>
+                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto">{a.platform}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
@@ -315,8 +390,8 @@ function DashboardContent() {
                                         No new system updates detected.
                                     </p>
                                 </div>
-                                <div className="p-2 border-t-2 border-zinc-100 dark:border-zinc-800">
-                                    <button className="w-full py-2 font-black text-[10px] uppercase hover:bg-[#3C48F5] hover:text-white transition-colors">
+                                <div className="p-2 border-t-2 border-black dark:border-white">
+                                    <button className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">
                                         Clear_Logs
                                     </button>
                                 </div>
@@ -325,7 +400,7 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-black border-x-4 border-black dark:border-white">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start">
                             <QuickConnectSidebar 
@@ -374,7 +449,7 @@ function DashboardContent() {
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
                                                 <Composer workspaceId={workspaceId} onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} /></div>
+                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
@@ -400,7 +475,19 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-[#3C48F5] text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span className="text-xl font-black">PRO</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div></div>
+                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span
+  className={`text-xl font-black ${
+    !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
+      ? 'text-gray-400'
+      : currentWorkspace.owner.planType === 'STARTER'
+      ? 'text-[#3C48F5]'
+      : currentWorkspace.owner.planType === 'PRO'
+      ? 'text-[#3C48F5] drop-shadow-[0_0_10px_rgba(60,72,245,0.85)] animate-pulse'
+      : currentWorkspace.owner.planType === 'ENTERPRISE'
+      ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
+      : 'text-green-600'
+  }`}
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div></div>
                     </div>
                 </div>
             </main>
