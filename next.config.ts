@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     // ➤ 1. Allow SVGs
     dangerouslyAllowSVG: true,
@@ -25,7 +26,7 @@ export default withSentryConfig(nextConfig, {
 
   // Suppresses source map uploading logs during bundling
   silent: true,
-  org: "eazypost",
+  org: "easypost",
   project: "frontend",
 
   // For all available options, see:
