@@ -106,6 +106,48 @@ export class SocialAccountsService {
     }
   }
 
+  async handlePinterestCallback(data: any) {
+    this.logger.log(`Handling Pinterest callback for user ${data.userId}`);
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'PINTEREST',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+  }
+
+  async handleDiscordCallback(data: any) {
+    this.logger.log(`Handling Discord callback for user ${data.userId}`);
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'DISCORD',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+  }
+
+  async handleSnapchatCallback(data: any) {
+    this.logger.log(`Handling Snapchat callback for user ${data.userId}`);
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'SNAPCHAT',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+  }
+
   async handleTwitterCallback(data: any) {
     this.logger.log(`Handling Twitter callback for user ${data.userId}`);
     return this.upsertAccount({

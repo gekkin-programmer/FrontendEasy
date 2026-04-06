@@ -69,6 +69,9 @@ enum SocialPlatform {
   PINTEREST
   THREADS
   WHATSAPP
+  SNAPCHAT
+  DISCORD
+  TELEGRAM
 }
 
 enum PostStatus {
@@ -183,6 +186,11 @@ enum PaymentProvider {
   WAVE
   STRIPE
   CASH
+}
+
+enum SavedPaymentMethodType {
+  MOBILE_MONEY
+  CARD
 }
 
 enum LeadStatus {
@@ -305,6 +313,11 @@ model User {
 
   lastLoginAt DateTime?
   status      UserStatus @default(ACTIVE)
+
+  telegramLinkTokens TelegramLinkToken[]
+  savedPaymentMethods SavedPaymentMethod[]
+
+  stripeCustomerId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -681,6 +694,14 @@ model Post {
 
   errorMessage String?
   retryCount   Int     @default(0)
+
+  // Recycling / evergreen fields (kept in sync with DB)
+  isEvergreen      Boolean @default(false)
+  performanceScore Float?
+  recycleCount     Int     @default(0)
+  originalPostId   String?
+  originalPost     Post?   @relation("PostRecycles", fields: [originalPostId], references: [id])
+  recycledPosts    Post[]  @relation("PostRecycles")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1288,4 +1309,41 @@ model CardLabel {
   createdAt   DateTime @default(now())
 
   @@map("card_labels")
+}
+
+model TelegramLinkToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@map("telegram_link_tokens")
+}
+
+model SavedPaymentMethod {
+  id        String                 @id @default(cuid())
+  userId    String
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      SavedPaymentMethodType
+  label     String?
+  isDefault Boolean                @default(false)
+
+  // Mobile money
+  msisdn         String?
+  mobileProvider String? // "ORANGE_CMR" | "MTN_MOMO_CMR"
+
+  // Card (Stripe)
+  stripePaymentMethodId String? @unique
+  last4                 String?
+  brand                 String? // visa, mastercard
+  expiryMonth           Int?
+  expiryYear            Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("saved_payment_methods")
 }

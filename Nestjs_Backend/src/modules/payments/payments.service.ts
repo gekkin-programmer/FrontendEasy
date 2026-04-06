@@ -3,17 +3,22 @@ import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+const StripeLib: new (key: string) => any = require('stripe');
 
 @Injectable()
 export class PaymentsService {
   private readonly pawaPayBaseUrl: string;
   private readonly pawaPayToken: string;
   private readonly pawaPayWebhookSecret: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly stripe: any;
 
   constructor(
     private prisma: PrismaService,
@@ -26,7 +31,199 @@ export class PaymentsService {
       this.configService.get<string>('PAWAPAY_API_TOKEN') || '';
     this.pawaPayWebhookSecret =
       this.configService.get<string>('PAWAPAY_WEBHOOK_SECRET') || '';
+
+    const stripeKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    this.stripe = stripeKey ? new StripeLib(stripeKey) : null;
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SAVED PAYMENT METHODS
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  async listSavedMethods(userId: string) {
+    return this.prisma.savedPaymentMethod.findMany({
+      where: { userId },
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true,
+        type: true,
+        label: true,
+        isDefault: true,
+        msisdn: true,
+        mobileProvider: true,
+        last4: true,
+        brand: true,
+        expiryMonth: true,
+        expiryYear: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async saveMobileMoney(
+    userId: string,
+    data: { msisdn: string; label?: string },
+  ) {
+    const provider = this.getCorrespondent(data.msisdn);
+    const label =
+      data.label ||
+      (provider === 'MTN_MOMO_CMR' ? 'MTN MoMo' : 'Orange Money');
+
+    // Limit: 5 saved methods per user
+    const count = await this.prisma.savedPaymentMethod.count({ where: { userId } });
+    if (count >= 5) throw new BadRequestException('Maximum 5 saved payment methods allowed');
+
+    const isFirst = count === 0;
+
+    return this.prisma.savedPaymentMethod.create({
+      data: {
+        userId,
+        type: 'MOBILE_MONEY',
+        label,
+        msisdn: data.msisdn,
+        mobileProvider: provider,
+        isDefault: isFirst,
+      },
+      select: {
+        id: true,
+        type: true,
+        label: true,
+        isDefault: true,
+        msisdn: true,
+        mobileProvider: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async createStripeSetupIntent(userId: string) {
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe is not configured');
+    }
+
+    // Get or create Stripe customer
+    let user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, stripeCustomerId: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      const customer = await this.stripe.customers.create({
+        email: user.email || undefined,
+        metadata: { eazypostUserId: userId },
+      });
+      customerId = customer.id;
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { stripeCustomerId: customerId },
+      });
+    }
+
+    const setupIntent = await this.stripe.setupIntents.create({
+      customer: customerId,
+      payment_method_types: ['card'],
+    });
+
+    return { clientSecret: setupIntent.client_secret };
+  }
+
+  async saveCard(
+    userId: string,
+    data: { stripePaymentMethodId: string; label?: string },
+  ) {
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe is not configured');
+    }
+
+    // Retrieve PM from Stripe to get card details
+    const pm = await this.stripe.paymentMethods.retrieve(data.stripePaymentMethodId);
+    if (!pm.card) throw new BadRequestException('Not a card payment method');
+
+    const count = await this.prisma.savedPaymentMethod.count({ where: { userId } });
+    if (count >= 5) throw new BadRequestException('Maximum 5 saved payment methods allowed');
+
+    const isFirst = count === 0;
+
+    return this.prisma.savedPaymentMethod.create({
+      data: {
+        userId,
+        type: 'CARD',
+        label: data.label || `${pm.card.brand.toUpperCase()} ····${pm.card.last4}`,
+        stripePaymentMethodId: data.stripePaymentMethodId,
+        last4: pm.card.last4,
+        brand: pm.card.brand,
+        expiryMonth: pm.card.exp_month,
+        expiryYear: pm.card.exp_year,
+        isDefault: isFirst,
+      },
+      select: {
+        id: true,
+        type: true,
+        label: true,
+        isDefault: true,
+        last4: true,
+        brand: true,
+        expiryMonth: true,
+        expiryYear: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async setDefaultMethod(userId: string, methodId: string) {
+    const method = await this.prisma.savedPaymentMethod.findFirst({
+      where: { id: methodId, userId },
+    });
+    if (!method) throw new NotFoundException('Payment method not found');
+
+    await this.prisma.$transaction([
+      this.prisma.savedPaymentMethod.updateMany({
+        where: { userId },
+        data: { isDefault: false },
+      }),
+      this.prisma.savedPaymentMethod.update({
+        where: { id: methodId },
+        data: { isDefault: true },
+      }),
+    ]);
+
+    return { success: true };
+  }
+
+  async deleteSavedMethod(userId: string, methodId: string) {
+    const method = await this.prisma.savedPaymentMethod.findFirst({
+      where: { id: methodId, userId },
+    });
+    if (!method) throw new NotFoundException('Payment method not found');
+
+    // If deleting default, promote next one
+    if (method.isDefault) {
+      const next = await this.prisma.savedPaymentMethod.findFirst({
+        where: { userId, id: { not: methodId } },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (next) {
+        await this.prisma.savedPaymentMethod.update({
+          where: { id: next.id },
+          data: { isDefault: true },
+        });
+      }
+    }
+
+    // If card: detach from Stripe
+    if (method.stripePaymentMethodId && this.stripe) {
+      await this.stripe.paymentMethods.detach(method.stripePaymentMethodId).catch(() => {});
+    }
+
+    await this.prisma.savedPaymentMethod.delete({ where: { id: methodId } });
+    return { success: true };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PAWAPAY DEPOSIT
+  // ─────────────────────────────────────────────────────────────────────────────
 
   async initiateDeposit(
     userId: string,
@@ -36,11 +233,21 @@ export class PaymentsService {
       phone: string;
       billingCycle: string;
       operator?: string;
+      savedMethodId?: string;
     },
   ) {
+    // If using a saved method, resolve the phone
+    let phone = data.phone;
+    if (data.savedMethodId) {
+      const saved = await this.prisma.savedPaymentMethod.findFirst({
+        where: { id: data.savedMethodId, userId, type: 'MOBILE_MONEY' },
+      });
+      if (!saved?.msisdn) throw new BadRequestException('Saved method not found or has no MSISDN');
+      phone = saved.msisdn;
+    }
+
     const depositId = uuidv4();
 
-    // 1. Create PENDING transaction in DB
     const transaction = await this.prisma.transaction.create({
       data: {
         id: depositId,
@@ -50,27 +257,25 @@ export class PaymentsService {
         billingCycle: data.billingCycle,
         status: 'PENDING',
         provider: 'PAWAPAY',
-        metadata: { phone: data.phone },
+        metadata: { phone },
       },
     });
 
-    // 2. Call PawaPay API
-    // Documentation: https://docs.pawapay.io/
     try {
       const response = await axios.post(
         `${this.pawaPayBaseUrl}/deposits`,
         {
-          depositId: depositId,
+          depositId,
           amount: data.amount.toString(),
           currency: 'XAF',
           country: 'CMR',
-          correspondent: data.operator || this.getCorrespondent(data.phone),
+          correspondent: data.operator || this.getCorrespondent(phone),
           payer: {
             type: 'MSISDN',
-            address: { value: data.phone },
+            address: { value: phone },
           },
           customerTimestamp: new Date().toISOString(),
-          statementDescription: `EasyPost ${data.planType}`,
+          statementDescription: `EazyPost ${data.planType}`,
         },
         {
           headers: {
@@ -97,12 +302,10 @@ export class PaymentsService {
     } catch (error) {
       const pawaPayError = error.response?.data;
       console.error('PawaPay Error:', JSON.stringify(pawaPayError || error.message));
-
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: { status: 'FAILED' },
       });
-
       throw new InternalServerErrorException(
         pawaPayError
           ? `PawaPay: ${JSON.stringify(pawaPayError)}`
@@ -116,10 +319,7 @@ export class PaymentsService {
       where: { id: transactionId },
       select: { status: true, metadata: true },
     });
-
-    if (!transaction) {
-      throw new NotFoundException('Transaction not found');
-    }
+    if (!transaction) throw new NotFoundException('Transaction not found');
 
     const meta = transaction.metadata as Record<string, string> | null;
     return {
@@ -128,11 +328,8 @@ export class PaymentsService {
     };
   }
 
-  // Handle Webhook from PawaPay
-  // PawaPay sends Authorization: Bearer <PAWAPAY_WEBHOOK_SECRET> on every callback.
-  // Configure the same secret in your PawaPay dashboard under Callback Auth Token.
   verifyWebhookSecret(authHeader: string | undefined): void {
-    if (!this.pawaPayWebhookSecret) return; // skip if secret not configured
+    if (!this.pawaPayWebhookSecret) return;
     const token = authHeader?.replace('Bearer ', '').trim();
     if (token !== this.pawaPayWebhookSecret) {
       throw new UnauthorizedException('Invalid webhook secret');
@@ -141,38 +338,25 @@ export class PaymentsService {
 
   async handleWebhook(payload: any) {
     const { depositId, status } = payload;
-
-    const transaction = await this.prisma.transaction.findUnique({
-      where: { id: depositId },
-    });
-
+    const transaction = await this.prisma.transaction.findUnique({ where: { id: depositId } });
     if (!transaction) return;
 
     if (status === 'COMPLETED') {
-      // 1. Mark transaction as COMPLETED
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: { status: 'COMPLETED' },
       });
-
-      // 2. Calculate expiration date
       const expiresAt =
         transaction.billingCycle === 'YEARLY'
           ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
           : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-      // 3. Update User Plan
       await this.prisma.user.update({
         where: { id: transaction.userId },
-        data: {
-          planType: transaction.planType,
-          planExpiresAt: expiresAt,
-        },
+        data: { planType: transaction.planType, planExpiresAt: expiresAt },
       });
     } else if (status === 'FAILED' || status === 'REJECTED') {
       const failureCode = payload.failureReason?.failureCode || 'UNKNOWN';
       const failureMessage = payload.failureReason?.failureMessage || '';
-      console.error(`PawaPay deposit FAILED [${depositId}]: ${failureCode} — ${failureMessage}`);
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: {
@@ -186,8 +370,6 @@ export class PaymentsService {
   }
 
   private getCorrespondent(phone: string): string {
-    // MTN Cameroon prefixes: 650-654, 67x, 68x
-    // Orange Cameroon prefixes: 655-659, 69x
     if (
       phone.startsWith('23767') ||
       phone.startsWith('23768') ||

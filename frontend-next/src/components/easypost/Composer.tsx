@@ -6,11 +6,12 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send, 
-  Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy, 
-  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2, 
+  Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send,
+  Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy,
+  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2,
   Sparkles, AlertTriangle, MessageCircle, RefreshCw
 } from 'lucide-react';
+import { FaTiktok, FaYoutube, FaDiscord, FaTelegram, FaWhatsapp, FaSnapchat, FaPinterestP } from 'react-icons/fa6';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -19,6 +20,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import MediaGallery from './MediaGallery';
+import { usePlatformMode } from './composer/usePlatformMode';
+import { PlatformContextBar } from './composer/PlatformContextBar';
+import { BroadcastPanel } from './composer/BroadcastPanel';
+import { PlatformSpecificPanels } from './composer/PlatformSpecificPanels';
+import { BROADCAST_IDS } from './composer/platformConfig';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -32,11 +38,12 @@ interface ComposerProps {
   onSchedule: (
     content: string,
     date?: Date,
-    mediaIds?: string[], // ➤ UPDATED: We pass IDs now
+    mediaIds?: string[],
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
     selectedAccountIds?: string[],
-    postId?: string, // New arg for update
-    workspaceId?: string // New arg for workspace context
+    postId?: string,
+    workspaceId?: string,
+    platformMeta?: Record<string, any>
   ) => Promise<void>;
 }
 
@@ -80,7 +87,7 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
   </div>
 );
 const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white"><Icon size={18} strokeWidth={2.5} /></button>);
-const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
+const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; case 'tiktok': return <FaTiktok size={size} className="text-black dark:text-white" />; case 'youtube': case 'google': return <FaYoutube size={size} className="text-red-600" />; case 'discord': return <FaDiscord size={size} className="text-[#5865F2]" />; case 'telegram': return <FaTelegram size={size} className="text-[#26A5E4]" />; case 'whatsapp': return <FaWhatsapp size={size} className="text-[#25D366]" />; case 'snapchat': return <FaSnapchat size={size} className="text-yellow-400" />; case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
   const { data, isLoading } = useQuery({
@@ -179,12 +186,33 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const libraryInputRef = useRef<HTMLInputElement>(null);
 
+  // Platform-specific state
+  const [ytTitle, setYtTitle] = useState('');
+  const [ytCategory, setYtCategory] = useState('');
+  const [ytTags, setYtTags] = useState<string[]>([]);
+  const [pinTitle, setPinTitle] = useState('');
+  const [pinDestUrl, setPinDestUrl] = useState('');
+  const [pinBoard, setPinBoard] = useState('');
+  const [liArticleMode, setLiArticleMode] = useState(false);
+  const [firstComment, setFirstComment] = useState('');
+  const [altText, setAltText] = useState('');
+  const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // Broadcast lane state
+  const [broadcastText, setBroadcastText] = useState('');
+  const [broadcastSendNow, setBroadcastSendNow] = useState(true);
+  const [broadcastScheduledTime, setBroadcastScheduledTime] = useState<Date | undefined>();
+
   // Auto-select accounts
   useEffect(() => {
     if (accounts.length > 0 && selectedAccountIds.length === 0) {
       setSelectedAccountIds(accounts.filter(a => a.isActive !== false).map(a => a.id));
     }
   }, [accounts]);
+
+  // Derived platform mode
+  const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
 
   // ➤ LOGIC: FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
@@ -299,19 +327,63 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     }
   };
 
+  // Broadcast submit
+  const handleBroadcast = async () => {
+    if (!broadcastText.trim()) return toast.error('ERR: CONTENT_EMPTY');
+    if (!broadcastSendNow && !broadcastScheduledTime) return toast.error('ERR: NO_SCHEDULE_TIME');
+    const broadcastAccIds = selectedAccountIds.filter((id) => {
+      const acc = accounts.find((a) => a.id === id);
+      return acc && BROADCAST_IDS.has((acc.platform as string)?.toLowerCase());
+    });
+    if (broadcastAccIds.length === 0) return toast.error('ERR: NO_BROADCAST_ACCOUNTS');
+    setIsSubmitting(true);
+    try {
+      await onSchedule(
+        broadcastText,
+        broadcastSendNow ? undefined : broadcastScheduledTime,
+        [],
+        'SCHEDULED',
+        broadcastAccIds,
+        undefined,
+        workspaceId,
+      );
+      setBroadcastText('');
+      toast.success('BROADCAST SENT');
+    } catch {
+      toast.error('ERR: BROADCAST_FAILED');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Commerce State
   const [price, setPrice] = useState("");
 
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
+    setSubmitAttempted(true);
     if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
-    
+
+    // YouTube title validation
+    if (platformMode.requiresTitle && !ytTitle) {
+      setExpandedPanels(prev => new Set([...prev, 'youtube']));
+      return toast.error('ERR: YOUTUBE_TITLE_REQUIRED');
+    }
+
     // Past Date Validation
     if (date && date < new Date()) {
         return toast.error("Cannot schedule in the past");
     }
 
-    const targets = selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+    // In split mode, only post-lane accounts go here
+    const postAccountIds = platformMode.mode === 'split'
+      ? selectedAccountIds.filter((id) => {
+          const acc = accounts.find((a) => a.id === id);
+          return acc && !BROADCAST_IDS.has((acc.platform as string)?.toLowerCase());
+        })
+      : selectedAccountIds;
+
+    const targets = postAccountIds.length > 0 ? postAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
     if (targets.length === 0) return toast.error('ERR: NO_NODES_LINKED');
 
     setIsSubmitting(true);
@@ -326,7 +398,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             finalContent += commerceLink;
             toast.info("COMMERCE_LINK_GENERATED");
         }
-        
+
         // Upload local files
         if (localFiles.length > 0) {
             toast.loading(`SYSTEM: UPLOADING_${localFiles.length}_ASSETS...`);
@@ -339,24 +411,32 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         let status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT';
         if (action === 'review') status = 'REVIEW';
-        else if (action === 'execute') status = 'SCHEDULED'; 
+        else if (action === 'execute') status = 'SCHEDULED';
         else if (action === 'queue') status = 'SCHEDULED';
 
+        // Assemble platform metadata
+        const platformMeta: Record<string, any> = {};
+        if (ytTitle) platformMeta.youtube = { title: ytTitle, category: ytCategory || undefined, tags: ytTags.length > 0 ? ytTags : undefined };
+        if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
+        if (liArticleMode) platformMeta.linkedin = { articleMode: true };
+        if (firstComment) platformMeta.firstComment = firstComment;
+        if (altText) platformMeta.altText = altText;
+
         await onSchedule(
-            finalContent, 
+            finalContent,
             action === 'queue' ? date || new Date() : undefined,
-            finalMediaIds, 
-            status, 
+            finalMediaIds,
+            status,
             targets,
             postToEdit?.id,
-            workspaceId
+            workspaceId,
+            Object.keys(platformMeta).length > 0 ? platformMeta : undefined,
         );
-        
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
-    } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
-  };
 
-  const currentItems = libraryData.filter(item => item.parentId === currentFolderId);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
+        setSubmitAttempted(false);
+    } catch { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
+  };
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-black dark:text-white transition-colors">
@@ -364,7 +444,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
 
         {/* HEADER */}
-        <div className="px-4 py-3 flex items-center justify-between bg-[#3C48F5] border-b-2 border-black dark:border-white transition-colors">
+        <div className="px-4 py-3 flex items-center justify-between bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black dark:bg-white text-white dark:text-black px-2 py-1">TARGETS:</span>
 
@@ -381,8 +461,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-white/50 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-red-500 animate-pulse" : "bg-white dark:bg-zinc-900")}>
-                  <Plus size={14} strokeWidth={3} className={selectedAccountIds.length === 0 ? "text-white" : "text-black dark:text-white"} />
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
+                  <Plus size={14} strokeWidth={3} className="text-black dark:text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">
@@ -405,19 +485,26 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]", isAiOpen ? "bg-zinc-200 dark:bg-zinc-800 text-black dark:text-white" : "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200")}>
+             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isAiOpen && "bg-zinc-200 dark:bg-zinc-700")}>
                 <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
              </button>
-             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]", isLibraryOpen ? "bg-zinc-200 dark:bg-zinc-800 text-black dark:text-white" : "bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200")}>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isLibraryOpen && "bg-white dark:bg-white text-black shadow-none")}>
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span>
              </button>
           </div>
         </div>
 
+        {/* PLATFORM CONTEXT BAR */}
+        <PlatformContextBar
+          platformMode={platformMode}
+          textLength={text.length}
+          broadcastLength={broadcastText.length}
+        />
+
         {/* AI PANEL */}
         <AnimatePresence>
             {isAiOpen && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black dark:border-white bg-purple-50 dark:bg-purple-900/10 p-4 transition-colors">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-4 transition-colors">
                     <div className="flex flex-col sm:flex-row gap-4 mb-3">
                         <div className="flex-1">
                             <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">WHAT_ARE_WE_SELLING?</label>
@@ -425,16 +512,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         </div>
                         <div className="w-full sm:w-1/3">
                             <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">VIBE_CHECK</label>
-                            <div className="relative">
-                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-2 text-xs font-bold uppercase appearance-none focus:outline-none text-black dark:text-white">
+                            <div className="relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 py-2 text-xs font-black uppercase appearance-none focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] text-black dark:text-white cursor-pointer pr-8 transition-all">
                                     {AI_TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                                 </select>
-                                <ChevronDown className="absolute right-2 top-2.5 w-3 h-3 pointer-events-none text-black dark:text-white" />
+                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-black dark:text-white" />
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 w-full sm:w-auto">
+                        <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black px-4 py-2 w-full sm:w-auto">
                             {isAiGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Wand2 className="w-3 h-3 mr-2" />}
                             {isAiGenerating ? "WRITING..." : "GENERATE_COPY"}
                         </NeuButton>
@@ -443,10 +530,68 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             )}
         </AnimatePresence>
 
-        {/* COMPOSER BODY */}
+        {/* BROADCAST MODE — full broadcast panel, no post lane */}
+        {platformMode.mode === 'broadcast' && (
+          <BroadcastPanel
+            broadcastPlatforms={platformMode.broadcastPlatforms}
+            broadcastAccounts={accounts.filter(a =>
+              selectedAccountIds.includes(a.id) &&
+              BROADCAST_IDS.has((a.platform as string)?.toLowerCase())
+            )}
+            text={broadcastText}
+            setText={setBroadcastText}
+            sendNow={broadcastSendNow}
+            setSendNow={setBroadcastSendNow}
+            scheduledTime={broadcastScheduledTime}
+            setScheduledTime={setBroadcastScheduledTime}
+            isSubmitting={isSubmitting}
+            onBroadcast={handleBroadcast}
+          />
+        )}
+
+        {/* SPLIT MODE — broadcast lane on top */}
+        {platformMode.mode === 'split' && (
+          <>
+            <BroadcastPanel
+              asLane
+              broadcastPlatforms={platformMode.broadcastPlatforms}
+              broadcastAccounts={accounts.filter(a =>
+                selectedAccountIds.includes(a.id) &&
+                BROADCAST_IDS.has((a.platform as string)?.toLowerCase())
+              )}
+              text={broadcastText}
+              setText={setBroadcastText}
+              sendNow={broadcastSendNow}
+              setSendNow={setBroadcastSendNow}
+              scheduledTime={broadcastScheduledTime}
+              setScheduledTime={setBroadcastScheduledTime}
+              isSubmitting={isSubmitting}
+              onBroadcast={handleBroadcast}
+            />
+            {/* Post lane header + sync link */}
+            <div className="flex items-center justify-between px-4 py-2 border-t-4 border-black dark:border-white bg-zinc-50 dark:bg-zinc-950">
+              <div className="flex items-center gap-2">
+                {platformMode.postPlatforms.map(p => (
+                  <span key={p.id} className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">{p.label}</span>
+                ))}
+                <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">POST</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setText(broadcastText)}
+                className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-black dark:border-white px-2 py-0.5 transition-colors"
+              >
+                ↑ Sync from broadcast
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* COMPOSER BODY — shown for post + split modes */}
+        {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pb-6 bg-white dark:bg-zinc-900 transition-colors">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
-          
+
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {mediaPreviews.map((url, idx) => (
@@ -458,11 +603,31 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             </div>
           )}
 
+          {/* Platform-specific panels (YouTube, Pinterest, LinkedIn, IG+TikTok) */}
+          <PlatformSpecificPanels
+            platformMode={platformMode}
+            expandedPanels={expandedPanels}
+            onTogglePanel={(id) => setExpandedPanels(prev => {
+              const next = new Set(prev);
+              next.has(id) ? next.delete(id) : next.add(id);
+              return next;
+            })}
+            submitAttempted={submitAttempted}
+            ytTitle={ytTitle} setYtTitle={setYtTitle}
+            ytCategory={ytCategory} setYtCategory={setYtCategory}
+            ytTags={ytTags} setYtTags={setYtTags}
+            pinTitle={pinTitle} setPinTitle={setPinTitle}
+            pinDestUrl={pinDestUrl} setPinDestUrl={setPinDestUrl}
+            pinBoard={pinBoard} setPinBoard={setPinBoard}
+            liArticleMode={liArticleMode} setLiArticleMode={setLiArticleMode}
+            firstComment={firstComment} setFirstComment={setFirstComment}
+            altText={altText} setAltText={setAltText}
+          />
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-dashed border-gray-300 dark:border-zinc-700 gap-4 transition-colors">
-            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
+            <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_IMG" />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_VID" />
-              <div className="h-8 w-0.5 bg-black dark:bg-white mx-1" />
               <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
@@ -470,7 +635,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           {/* 🚀 AI SMART SCHEDULING BUTTON */}
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
+                              <button className="px-3 py-2 bg-white hover:bg-zinc-100 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
                                 <Sparkles size={14} className="animate-pulse" /> AI_SCHEDULER
                               </button>
                             </PopoverTrigger>
@@ -492,8 +657,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-blue-500 dark:bg-blue-600 text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
-                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-purple-500 dark:bg-purple-600 text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
+                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? 'UPDATE' : (date ? 'SCHEDULE' : 'EXECUTE')}
@@ -503,15 +668,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
           <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
         </div>
+        )}
       </div>
       
       {/* 🟢 LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
             <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
-            <div className="p-4 bg-blue-50/30 dark:bg-zinc-900/50">
-                <MediaGallery hideUsage={true} />
+            <div className="p-4 bg-white dark:bg-zinc-900">
+                <MediaGallery hideUsage={false} />
             </div>
           </motion.div>
         )}

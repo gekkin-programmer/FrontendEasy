@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsEnum,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -43,4 +44,9 @@ export class CreatePostDto {
   @IsOptional()
   @IsEnum(PostStatus)
   status?: PostStatus;
+
+  @ApiProperty({ example: { youtube: { title: 'My Video' } }, required: false })
+  @IsOptional()
+  @IsObject()
+  platformMeta?: Record<string, any>;
 }

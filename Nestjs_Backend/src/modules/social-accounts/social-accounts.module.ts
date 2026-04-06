@@ -16,6 +16,9 @@ import { LinkedInConnectStrategy } from './strategies/linkedin-connect.strategy'
 import { TikTokConnectStrategy } from './strategies/tiktok-connect.strategy';
 import { YoutubeConnectStrategy } from './strategies/youtube-connect.strategy';
 import { TwitterConnectStrategy } from './strategies/twitter-connect.strategy';
+import { SnapchatConnectStrategy } from './strategies/snapchat-connect.strategy';
+import { PinterestConnectStrategy } from './strategies/pinterest-connect.strategy';
+import { DiscordConnectStrategy } from './strategies/discord-connect.strategy';
 
 // Sync Engine (The new logic for fetching history)
 import { FacebookService } from './platforms/facebook.service';
@@ -63,6 +66,9 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     TikTokConnectStrategy,
     YoutubeConnectStrategy,
     TwitterConnectStrategy,
+    SnapchatConnectStrategy,
+    PinterestConnectStrategy,
+    DiscordConnectStrategy,
 
     // Sync Providers
     FacebookService,

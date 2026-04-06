@@ -27,14 +27,8 @@ export class TwitterConnectStrategy extends PassportStrategy(
       callbackURL:
         configService.get<string>('TWITTER_CALLBACK_URL') ||
         `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/twitter`,
-      scope: [
-        'tweet.read',
-        'tweet.write',
-        'users.read',
-        'offline.access',
-        'dm.read',
-        'dm.write',
-      ],
+      // Minimal scopes — DM scopes trigger X's suspicious-login detector
+      scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access'],
       scopeSeparator: ' ',
       pkce: true,
       state: true,
@@ -43,6 +37,19 @@ export class TwitterConnectStrategy extends PassportStrategy(
         Authorization: `Basic ${Buffer.from(`${key}:${secret}`).toString('base64')}`,
       },
     });
+  }
+
+  /**
+   * Appends extra query-params to the X authorization URL.
+   * force_login=false  → reuse existing X browser session instead of prompting
+   *                       for credentials again, which reduces the "suspicious
+   *                       login" block that X triggers on repeated OAuth flows.
+   */
+  authorizationParams(options: Record<string, unknown>): Record<string, unknown> {
+    return {
+      ...options,
+      force_login: 'false',
+    };
   }
 
   async validate(

@@ -124,7 +124,7 @@ export default function Team({ workspaceId }: TeamProps) {
                     <h2 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">Team_Control_Center</h2>
                     <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 font-mono mt-1 uppercase tracking-widest">Workspace_Context: {workspaceId.substring(0, 8)}...</p>
                 </div>
-                <div className="p-3 bg-yellow-400 dark:bg-yellow-600 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000]">
+                <div className="p-3 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                     <UserPlus size={24} className="text-black dark:text-white" />
                 </div>
             </div>
@@ -158,10 +158,10 @@ export default function Team({ workspaceId }: TeamProps) {
         {/* Workspace Explorer */}
         <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden flex-1 flex flex-col min-h-0">
              <div className="flex border-b-2 border-black dark:border-white flex-shrink-0 bg-gray-50 dark:bg-zinc-800">
-                 <button onClick={() => setActiveTab('members')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'members' ? 'bg-yellow-400 dark:bg-yellow-600' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
+                 <button onClick={() => setActiveTab('members')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'members' ? 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-none' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
                     ACTIVE_CREW <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{activeCrew.length}</span>
                  </button>
-                 <button onClick={() => setActiveTab('invites')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'invites' ? 'bg-yellow-400 dark:bg-yellow-600' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
+                 <button onClick={() => setActiveTab('invites')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'invites' ? 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-none' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
                     PENDING <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{pendingInvites.length}</span>
                  </button>
                  <button onClick={() => setActiveTab('approvals')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'approvals' ? 'bg-blue-500 text-white' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
@@ -177,7 +177,7 @@ export default function Team({ workspaceId }: TeamProps) {
                          {activeCrew.map((m: any) => (
                              <div key={m.id} className="p-4 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] flex items-center justify-between bg-white dark:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
                                  <div className="flex items-center gap-4">
-                                     <div className="w-10 h-10 border-2 border-black dark:border-white bg-blue-100 dark:bg-blue-900 flex items-center justify-center font-black uppercase text-sm">
+                                     <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 flex items-center justify-center font-black uppercase text-sm">
                                          {m.user?.firstName?.charAt(0) || m.user?.email?.charAt(0)}
                                      </div>
                                      <div>

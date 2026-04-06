@@ -23,7 +23,10 @@ import { LinkedInConnectGuard } from './guards/linkedin-connect.guard';
 import { TwitterConnectGuard } from './guards/twitter-connect.guard';
 import { TikTokConnectGuard } from './guards/tiktok-connect.guard';
 import { YoutubeConnectGuard } from './guards/youtube-connect.guard';
-import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard'; // ➤ NEW IMPORT
+import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard';
+import { SnapchatConnectGuard } from './guards/snapchat-connect.guard';
+import { PinterestConnectGuard } from './guards/pinterest-connect.guard';
+import { DiscordConnectGuard } from './guards/discord-connect.guard';
 
 @ApiTags('Social Accounts')
 @Controller('social-accounts')
@@ -225,10 +228,69 @@ export class SocialAccountsController {
   // 8. PLACEHOLDERS (Prevent 404s for buttons)
   // =================================================================
 
-  @Get('connect/pinterest')
-  connectPinterest(@Res() res: Response) {
-    this.comingSoon(res, 'Pinterest');
+  // =================================================================
+  // 8. SNAPCHAT
+  // =================================================================
+
+  @Get('connect/snapchat')
+  @UseGuards(SnapchatConnectGuard)
+  async connectSnapchat(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
+    // Redirects to Snapchat
   }
+
+  @Get('callback/snapchat')
+  @UseGuards(SnapchatConnectGuard)
+  async snapchatCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleSnapchatCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  // =================================================================
+  // 9. PINTEREST
+  // =================================================================
+
+  @Get('connect/pinterest')
+  @UseGuards(PinterestConnectGuard)
+  async connectPinterest(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
+    // Redirects to Pinterest
+  }
+
+  @Get('callback/pinterest')
+  @UseGuards(PinterestConnectGuard)
+  async pinterestCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handlePinterestCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  // =================================================================
+  // 10. DISCORD
+  // =================================================================
+
+  @Get('connect/discord')
+  @UseGuards(DiscordConnectGuard)
+  async connectDiscord(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
+    // Redirects to Discord
+  }
+
+  @Get('callback/discord')
+  @UseGuards(DiscordConnectGuard)
+  async discordCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleDiscordCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  // =================================================================
+  // 11. PLACEHOLDERS
+  // =================================================================
 
   @Get('connect/reddit')
   connectReddit(@Res() res: Response) {

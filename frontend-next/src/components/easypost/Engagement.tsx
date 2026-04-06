@@ -101,7 +101,7 @@ export default function Engagement() {
       <div className="w-[380px] flex flex-col border-r-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
         
         {/* Header & Filters */}
-        <div className="p-4 border-b-2 border-black dark:border-white flex flex-col gap-4 bg-yellow-400 dark:bg-yellow-600 transition-colors">
+        <div className="p-4 border-b-2 border-black dark:border-white flex flex-col gap-4 bg-white dark:bg-zinc-900 transition-colors">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">Inbox</h2>
             <div className="flex gap-2">
@@ -172,7 +172,7 @@ export default function Engagement() {
       </div>
 
       {/* RIGHT PANEL: DETAIL VIEW */}
-      <div className="flex-1 flex flex-col bg-gray-50 dark:bg-black min-w-0 relative transition-colors">
+      <div className="flex-1 flex flex-col bg-white dark:bg-zinc-900 min-w-0 relative transition-colors">
         <div className="absolute inset-0 z-0 opacity-5 dark:opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
         {activeEngagement ? (
@@ -199,7 +199,7 @@ export default function Engagement() {
              </div>
 
              {/* Content Area */}
-             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-gray-50 dark:bg-zinc-950 transition-colors">
+             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-white dark:bg-zinc-900 transition-colors">
                  <div className="max-w-3xl mx-auto space-y-8">
                      
                      <div className="flex gap-4">

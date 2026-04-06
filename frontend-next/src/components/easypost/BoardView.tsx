@@ -164,7 +164,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
               onClick={() => setSelectedBoardId(board.id)}
               className="cursor-pointer"
             >
-              <NeuCard className="h-full hover:border-[#3C48F5] transition-colors group relative overflow-hidden">
+              <NeuCard className="h-full hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors group relative overflow-hidden">
                 <div 
                   className="absolute top-0 left-0 right-0 h-2" 
                   style={{ backgroundColor: board.color || '#3C48F5' }}
@@ -358,7 +358,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-2 border-2 border-black dark:border-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-2 border-2 border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
           >
             <ArrowRight className="rotate-180" size={20} />
           </button>
@@ -535,15 +535,15 @@ function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: {
           </span>
         </div>
         <div className="flex gap-1">
-          <button 
+          <button
             onClick={onAddCard}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1 hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
           >
             <Plus size={16} />
           </button>
-          <button 
+          <button
             onClick={onEditColumn}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1 hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
           >
             <MoreVertical size={16} />
           </button>
@@ -621,7 +621,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
     >
       <NeuCard 
         onClick={onClick}
-        className="p-3 cursor-pointer hover:border-[#3C48F5] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+        className="p-3 cursor-pointer hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
       >
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">

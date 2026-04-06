@@ -3,9 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
-import { 
-  FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter, 
-  FaFacebookF, FaPinterestP, FaSlack, FaGithub, FaMastodon 
+import {
+  FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter,
+  FaFacebookF, FaPinterestP, FaSlack, FaGithub, FaMastodon,
+  FaWhatsapp, FaDiscord, FaSnapchat, FaTelegram
 } from "react-icons/fa6";
 import { SiTiktok, SiThreads, SiMedium, SiTwitch } from "react-icons/si";
 import Link from 'next/link';
@@ -37,6 +38,12 @@ const icons: IconConfig[] = [
   { Icon: SiThreads, pos: "top-[20%] right-[15%]", color: "#000000", delay: 1.1, rot: -12 },
   { Icon: FaGithub, pos: "top-[60%] right-[12%]", color: "#181717", delay: 1.5, rot: -3 },
   { Icon: SiMedium, pos: "bottom-[50%] right-[18%]", color: "#000000", delay: 1.7, rot: 9 },
+
+  // Extra platforms
+  { Icon: FaWhatsapp, pos: "top-[70%] left-[2%]", color: "#25D366", delay: 2.0, rot: 7 },
+  { Icon: FaDiscord, pos: "bottom-[30%] right-[5%]", color: "#5865F2", delay: 2.1, rot: -10 },
+  { Icon: FaSnapchat, pos: "bottom-[15%] left-[30%]", color: "#FFFC00", delay: 2.2, rot: 5 },
+  { Icon: FaTelegram, pos: "top-[15%] left-[28%]", color: "#26A5E4", delay: 2.3, rot: -7 },
 ];
 
 // --- SUB-COMPONENT: WABI-SABI STICKER ---
@@ -52,7 +59,7 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     transition={{ 
         opacity: { duration: 0.5, delay },
         scale: { type: "spring", stiffness: 200, delay },
-        y: { duration: 5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
+        y: { duration: 5 + (delay % 1), repeat: Infinity, ease: "easeInOut", delay: delay * 2 },
     }}
     style={{ rotate: rot }}
     whileHover={{ scale: 1.1, rotate: 0, zIndex: 50 }}
@@ -131,7 +138,7 @@ const Hero: React.FC = () => {
       ))}
 
       {/* 4. MAIN CONTENT */}
-      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl">
+      <div className="relative z-10 container mx-auto px-4 text-center max-w-7xl">
         
         {/* Headline - Typography Scaled for Mobile */}
         <motion.h1 
