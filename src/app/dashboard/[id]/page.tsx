@@ -232,17 +232,18 @@ function DashboardContent() {
         createWorkspaceMutation.mutate(newWorkspaceName);
     };
 
-    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string) => {
+    const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
         if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
-        upsertPostMutation.mutate({ 
+        upsertPostMutation.mutate({
             id: postId,
-            workspaceId: targetWorkspaceId || workspaceId, 
-            content, 
-            scheduledFor: date ? date.toISOString() : undefined, 
-            status, 
-            socialAccountIds: targets, 
-            mediaIds: mediaIds || [] 
+            workspaceId: targetWorkspaceId || workspaceId,
+            content,
+            scheduledFor: date ? date.toISOString() : undefined,
+            status,
+            socialAccountIds: targets,
+            mediaIds: mediaIds || [],
+            ...(platformMeta ? { platformMeta } : {}),
         });
     };
 

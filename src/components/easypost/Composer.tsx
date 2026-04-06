@@ -20,6 +20,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import MediaGallery from './MediaGallery';
+import { usePlatformMode } from './composer/usePlatformMode';
+import { PlatformContextBar } from './composer/PlatformContextBar';
+import { BroadcastPanel } from './composer/BroadcastPanel';
+import { PlatformSpecificPanels } from './composer/PlatformSpecificPanels';
+import { BROADCAST_IDS } from './composer/platformConfig';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -33,11 +38,12 @@ interface ComposerProps {
   onSchedule: (
     content: string,
     date?: Date,
-    mediaIds?: string[], // ➤ UPDATED: We pass IDs now
+    mediaIds?: string[],
     status?: 'DRAFT' | 'SCHEDULED' | 'REVIEW',
     selectedAccountIds?: string[],
-    postId?: string, // New arg for update
-    workspaceId?: string // New arg for workspace context
+    postId?: string,
+    workspaceId?: string,
+    platformMeta?: Record<string, any>
   ) => Promise<void>;
 }
 
@@ -180,12 +186,33 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const libraryInputRef = useRef<HTMLInputElement>(null);
 
+  // Platform-specific state
+  const [ytTitle, setYtTitle] = useState('');
+  const [ytCategory, setYtCategory] = useState('');
+  const [ytTags, setYtTags] = useState<string[]>([]);
+  const [pinTitle, setPinTitle] = useState('');
+  const [pinDestUrl, setPinDestUrl] = useState('');
+  const [pinBoard, setPinBoard] = useState('');
+  const [liArticleMode, setLiArticleMode] = useState(false);
+  const [firstComment, setFirstComment] = useState('');
+  const [altText, setAltText] = useState('');
+  const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // Broadcast lane state
+  const [broadcastText, setBroadcastText] = useState('');
+  const [broadcastSendNow, setBroadcastSendNow] = useState(true);
+  const [broadcastScheduledTime, setBroadcastScheduledTime] = useState<Date | undefined>();
+
   // Auto-select accounts
   useEffect(() => {
     if (accounts.length > 0 && selectedAccountIds.length === 0) {
       setSelectedAccountIds(accounts.filter(a => a.isActive !== false).map(a => a.id));
     }
   }, [accounts]);
+
+  // Derived platform mode
+  const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
 
   // ➤ LOGIC: FETCH MEDIA LIBRARY 
   const fetchLibrary = async () => {
@@ -300,19 +327,63 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     }
   };
 
+  // Broadcast submit
+  const handleBroadcast = async () => {
+    if (!broadcastText.trim()) return toast.error('ERR: CONTENT_EMPTY');
+    if (!broadcastSendNow && !broadcastScheduledTime) return toast.error('ERR: NO_SCHEDULE_TIME');
+    const broadcastAccIds = selectedAccountIds.filter((id) => {
+      const acc = accounts.find((a) => a.id === id);
+      return acc && BROADCAST_IDS.has((acc.platform as string)?.toLowerCase());
+    });
+    if (broadcastAccIds.length === 0) return toast.error('ERR: NO_BROADCAST_ACCOUNTS');
+    setIsSubmitting(true);
+    try {
+      await onSchedule(
+        broadcastText,
+        broadcastSendNow ? undefined : broadcastScheduledTime,
+        [],
+        'SCHEDULED',
+        broadcastAccIds,
+        undefined,
+        workspaceId,
+      );
+      setBroadcastText('');
+      toast.success('BROADCAST SENT');
+    } catch {
+      toast.error('ERR: BROADCAST_FAILED');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Commerce State
   const [price, setPrice] = useState("");
 
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
+    setSubmitAttempted(true);
     if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
-    
+
+    // YouTube title validation
+    if (platformMode.requiresTitle && !ytTitle) {
+      setExpandedPanels(prev => new Set([...prev, 'youtube']));
+      return toast.error('ERR: YOUTUBE_TITLE_REQUIRED');
+    }
+
     // Past Date Validation
     if (date && date < new Date()) {
         return toast.error("Cannot schedule in the past");
     }
 
-    const targets = selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+    // In split mode, only post-lane accounts go here
+    const postAccountIds = platformMode.mode === 'split'
+      ? selectedAccountIds.filter((id) => {
+          const acc = accounts.find((a) => a.id === id);
+          return acc && !BROADCAST_IDS.has((acc.platform as string)?.toLowerCase());
+        })
+      : selectedAccountIds;
+
+    const targets = postAccountIds.length > 0 ? postAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
     if (targets.length === 0) return toast.error('ERR: NO_NODES_LINKED');
 
     setIsSubmitting(true);
@@ -327,7 +398,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             finalContent += commerceLink;
             toast.info("COMMERCE_LINK_GENERATED");
         }
-        
+
         // Upload local files
         if (localFiles.length > 0) {
             toast.loading(`SYSTEM: UPLOADING_${localFiles.length}_ASSETS...`);
@@ -340,24 +411,32 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         let status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT';
         if (action === 'review') status = 'REVIEW';
-        else if (action === 'execute') status = 'SCHEDULED'; 
+        else if (action === 'execute') status = 'SCHEDULED';
         else if (action === 'queue') status = 'SCHEDULED';
 
+        // Assemble platform metadata
+        const platformMeta: Record<string, any> = {};
+        if (ytTitle) platformMeta.youtube = { title: ytTitle, category: ytCategory || undefined, tags: ytTags.length > 0 ? ytTags : undefined };
+        if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
+        if (liArticleMode) platformMeta.linkedin = { articleMode: true };
+        if (firstComment) platformMeta.firstComment = firstComment;
+        if (altText) platformMeta.altText = altText;
+
         await onSchedule(
-            finalContent, 
+            finalContent,
             action === 'queue' ? date || new Date() : undefined,
-            finalMediaIds, 
-            status, 
+            finalMediaIds,
+            status,
             targets,
             postToEdit?.id,
-            workspaceId
+            workspaceId,
+            Object.keys(platformMeta).length > 0 ? platformMeta : undefined,
         );
-        
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
-    } catch (e) { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
-  };
 
-  const currentItems = libraryData.filter(item => item.parentId === currentFolderId);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
+        setSubmitAttempted(false);
+    } catch { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
+  };
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-black dark:text-white transition-colors">
@@ -415,6 +494,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
         </div>
 
+        {/* PLATFORM CONTEXT BAR */}
+        <PlatformContextBar
+          platformMode={platformMode}
+          textLength={text.length}
+          broadcastLength={broadcastText.length}
+        />
+
         {/* AI PANEL */}
         <AnimatePresence>
             {isAiOpen && (
@@ -444,10 +530,68 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             )}
         </AnimatePresence>
 
-        {/* COMPOSER BODY */}
+        {/* BROADCAST MODE — full broadcast panel, no post lane */}
+        {platformMode.mode === 'broadcast' && (
+          <BroadcastPanel
+            broadcastPlatforms={platformMode.broadcastPlatforms}
+            broadcastAccounts={accounts.filter(a =>
+              selectedAccountIds.includes(a.id) &&
+              BROADCAST_IDS.has((a.platform as string)?.toLowerCase())
+            )}
+            text={broadcastText}
+            setText={setBroadcastText}
+            sendNow={broadcastSendNow}
+            setSendNow={setBroadcastSendNow}
+            scheduledTime={broadcastScheduledTime}
+            setScheduledTime={setBroadcastScheduledTime}
+            isSubmitting={isSubmitting}
+            onBroadcast={handleBroadcast}
+          />
+        )}
+
+        {/* SPLIT MODE — broadcast lane on top */}
+        {platformMode.mode === 'split' && (
+          <>
+            <BroadcastPanel
+              asLane
+              broadcastPlatforms={platformMode.broadcastPlatforms}
+              broadcastAccounts={accounts.filter(a =>
+                selectedAccountIds.includes(a.id) &&
+                BROADCAST_IDS.has((a.platform as string)?.toLowerCase())
+              )}
+              text={broadcastText}
+              setText={setBroadcastText}
+              sendNow={broadcastSendNow}
+              setSendNow={setBroadcastSendNow}
+              scheduledTime={broadcastScheduledTime}
+              setScheduledTime={setBroadcastScheduledTime}
+              isSubmitting={isSubmitting}
+              onBroadcast={handleBroadcast}
+            />
+            {/* Post lane header + sync link */}
+            <div className="flex items-center justify-between px-4 py-2 border-t-4 border-black dark:border-white bg-zinc-50 dark:bg-zinc-950">
+              <div className="flex items-center gap-2">
+                {platformMode.postPlatforms.map(p => (
+                  <span key={p.id} className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">{p.label}</span>
+                ))}
+                <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">POST</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setText(broadcastText)}
+                className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-black dark:border-white px-2 py-0.5 transition-colors"
+              >
+                ↑ Sync from broadcast
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* COMPOSER BODY — shown for post + split modes */}
+        {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pb-6 bg-white dark:bg-zinc-900 transition-colors">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
-          
+
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {mediaPreviews.map((url, idx) => (
@@ -458,6 +602,27 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               ))}
             </div>
           )}
+
+          {/* Platform-specific panels (YouTube, Pinterest, LinkedIn, IG+TikTok) */}
+          <PlatformSpecificPanels
+            platformMode={platformMode}
+            expandedPanels={expandedPanels}
+            onTogglePanel={(id) => setExpandedPanels(prev => {
+              const next = new Set(prev);
+              next.has(id) ? next.delete(id) : next.add(id);
+              return next;
+            })}
+            submitAttempted={submitAttempted}
+            ytTitle={ytTitle} setYtTitle={setYtTitle}
+            ytCategory={ytCategory} setYtCategory={setYtCategory}
+            ytTags={ytTags} setYtTags={setYtTags}
+            pinTitle={pinTitle} setPinTitle={setPinTitle}
+            pinDestUrl={pinDestUrl} setPinDestUrl={setPinDestUrl}
+            pinBoard={pinBoard} setPinBoard={setPinBoard}
+            liArticleMode={liArticleMode} setLiArticleMode={setLiArticleMode}
+            firstComment={firstComment} setFirstComment={setFirstComment}
+            altText={altText} setAltText={setAltText}
+          />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-dashed border-gray-300 dark:border-zinc-700 gap-4 transition-colors">
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
@@ -503,6 +668,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
           <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
         </div>
+        )}
       </div>
       
       {/* 🟢 LIBRARY & MODALS */}
