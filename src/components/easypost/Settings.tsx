@@ -2,18 +2,25 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { api } from '@/src/lib/api';
 import ConnectAccounts from './ConnectAccounts';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
   FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase,
-  FiCheck, FiZap, FiStar, FiTrendingUp, FiMail, FiSmartphone, FiToggleLeft, FiToggleRight
+  FiCheck, FiZap, FiStar, FiTrendingUp, FiMail, FiSmartphone, FiToggleLeft, FiToggleRight,
+  FiX, FiPlus, FiPhone
 } from 'react-icons/fi';
 import MediaGallery from './MediaGallery';
+
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PK
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK)
+  : null;
 
 // --- CONFIG ---
 type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage'; // ➤ Added storage
@@ -535,6 +542,265 @@ const PLAN_LIMITS: Record<string, { posts: number; accounts: number; storageMB: 
 };
 const PLAN_LABEL: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', PRO: 'Pro' };
 
+// --- SUB-COMPONENT: STRIPE CARD FORM ---
+function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setLoading(true);
+    try {
+      const { data: intentData } = await api.post<any>('/payments/methods/card/setup-intent', {}) as any;
+      const result = await stripe.confirmCardSetup(intentData.clientSecret, {
+        payment_method: { card: elements.getElement(CardElement)! },
+      });
+      if (result.error) {
+        toast.error(result.error.message || 'Card error');
+        return;
+      }
+      await api.post('/payments/methods/card/confirm', {
+        stripePaymentMethodId: result.setupIntent!.payment_method,
+      });
+      toast.success('Card saved');
+      qc.invalidateQueries({ queryKey: ['payment-methods'] });
+      onSuccess();
+    } catch {
+      toast.error('Failed to save card');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-800">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '14px',
+                color: '#000',
+                '::placeholder': { color: '#9ca3af' },
+              },
+            },
+          }}
+        />
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button type="button" onClick={onCancel} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all text-black dark:text-white">
+          Cancel
+        </button>
+        <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+          {loading ? <FiLoader className="animate-spin" /> : 'Save Card'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// --- SUB-COMPONENT: ADD MOBILE MONEY MODAL ---
+function MobileMoneyModal({ onClose }: { onClose: () => void }) {
+  const [msisdn, setMsisdn] = useState('');
+  const [label, setLabel] = useState('');
+  const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
+
+  const detected = msisdn.length >= 9
+    ? (msisdn.startsWith('23767') || msisdn.startsWith('23768') || /^237650|237651|237652|237653|237654/.test(msisdn)
+      ? 'MTN_MOMO_CMR' : 'ORANGE_CMR')
+    : null;
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!msisdn) return;
+    setLoading(true);
+    try {
+      await api.post('/payments/methods/mobile-money', { msisdn, label: label || undefined });
+      toast.success('Number saved');
+      qc.invalidateQueries({ queryKey: ['payment-methods'] });
+      onClose();
+    } catch {
+      toast.error('Failed to save number');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4">
+      <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm">
+        <div className="bg-black dark:bg-white text-white dark:text-black px-6 py-4 flex items-center justify-between border-b-4 border-black dark:border-white">
+          <span className="font-black uppercase tracking-wider text-sm">Add Mobile Money</span>
+          <button onClick={onClose}><FiX size={20} /></button>
+        </div>
+        <form onSubmit={handleSave} className="p-6 space-y-4">
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Phone Number (with country code)</label>
+            <input
+              type="tel"
+              value={msisdn}
+              onChange={e => setMsisdn(e.target.value.replace(/\s/g, ''))}
+              placeholder="e.g. 237699123456"
+              className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white px-3 py-2 font-mono text-sm focus:outline-none focus:ring-0"
+              required
+            />
+            {detected && (
+              <div className="flex items-center gap-2 mt-2">
+                {detected === 'MTN_MOMO_CMR'
+                  ? <Image src="/assets/MTNmoney.png" alt="MTN" width={48} height={20} className="object-contain" />
+                  : <Image src="/assets/Orangemoney.png" alt="Orange" width={48} height={20} className="object-contain" />}
+                <span className="text-[10px] font-black uppercase text-green-600">
+                  {detected === 'MTN_MOMO_CMR' ? 'MTN MoMo detected' : 'Orange Money detected'}
+                </span>
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Label (optional)</label>
+            <input
+              type="text"
+              value={label}
+              onChange={e => setLabel(e.target.value)}
+              placeholder="e.g. Personal Orange"
+              className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white px-3 py-2 font-mono text-sm focus:outline-none focus:ring-0"
+            />
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all">Cancel</button>
+            <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+              {loading ? <FiLoader className="animate-spin" /> : 'Save'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// --- SUB-COMPONENT: PAYMENT METHODS CARD ---
+function PaymentMethodsCard() {
+  const qc = useQueryClient();
+  const [showMobileModal, setShowMobileModal] = useState(false);
+  const [showCardForm, setShowCardForm] = useState(false);
+
+  const { data: methods = [], isLoading } = useQuery<any[]>({
+    queryKey: ['payment-methods'],
+    queryFn: () => api.get<any[]>('/payments/methods').then(r => Array.isArray(r) ? r : (r as any)?.data || []),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/payments/methods/${id}`),
+    onSuccess: () => { toast.success('Removed'); qc.invalidateQueries({ queryKey: ['payment-methods'] }); },
+    onError: () => toast.error('Failed to remove'),
+  });
+
+  const defaultMutation = useMutation({
+    mutationFn: (id: string) => api.patch(`/payments/methods/${id}/default`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['payment-methods'] }),
+    onError: () => toast.error('Failed to update'),
+  });
+
+  const stripeReady = !!stripePromise;
+
+  return (
+    <>
+      <NeuCard title="Payment Methods" description="YOUR SAVED PAYMENT OPTIONS">
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase py-4">
+            <FiLoader className="animate-spin" /> Loading...
+          </div>
+        ) : methods.length === 0 ? (
+          <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">No payment method on file</p>
+        ) : (
+          <div className="space-y-3 mb-5">
+            {methods.map((m: any) => (
+              <div key={m.id} className="flex items-center justify-between p-3 border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
+                <div className="flex items-center gap-3">
+                  {m.type === 'MOBILE_MONEY' ? (
+                    m.mobileProvider === 'MTN_MOMO_CMR'
+                      ? <Image src="/assets/MTNmoney.png" alt="MTN" width={48} height={20} className="object-contain" />
+                      : <Image src="/assets/Orangemoney.png" alt="Orange" width={48} height={20} className="object-contain" />
+                  ) : (
+                    <FiCreditCard size={20} className="text-black dark:text-white" />
+                  )}
+                  <div>
+                    <p className="text-xs font-black uppercase text-black dark:text-white">{m.label}</p>
+                    {m.type === 'MOBILE_MONEY' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">{m.msisdn}</p>}
+                    {m.type === 'CARD' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">····{m.last4} · {m.expiryMonth}/{m.expiryYear}</p>}
+                  </div>
+                  {m.isDefault && (
+                    <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-[#3C48F5] text-white">DEFAULT</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {!m.isDefault && (
+                    <button
+                      onClick={() => defaultMutation.mutate(m.id)}
+                      className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] transition-all"
+                      title="Set as default"
+                    >
+                      <FiStar size={12} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { if (confirm(`Remove "${m.label}"?`)) deleteMutation.mutate(m.id); }}
+                    className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+                    title="Remove"
+                  >
+                    <FiTrash2 size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add buttons */}
+        {methods.length < 5 && (
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setShowMobileModal(true)}
+              className="flex items-center gap-2 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
+              title="Add Orange Money"
+            >
+              <Image src="/assets/Orangemoney.png" alt="Orange Money" width={110} height={46} className="object-contain block" />
+            </button>
+            <button
+              onClick={() => setShowMobileModal(true)}
+              className="flex items-center gap-2 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
+              title="Add MTN MoMo"
+            >
+              <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={110} height={46} className="object-contain block" />
+            </button>
+            <button
+              onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info('Stripe not configured yet')}
+              className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              <FiCreditCard size={16} /> Add Visa/Card
+            </button>
+          </div>
+        )}
+
+        {showCardForm && stripePromise && (
+          <div className="mt-4 p-4 border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 mb-3">Card Details</p>
+            <Elements stripe={stripePromise}>
+              <StripeCardForm onSuccess={() => setShowCardForm(false)} onCancel={() => setShowCardForm(false)} />
+            </Elements>
+          </div>
+        )}
+      </NeuCard>
+
+      {showMobileModal && <MobileMoneyModal onClose={() => setShowMobileModal(false)} />}
+    </>
+  );
+}
+
 // --- SUB-COMPONENT: BILLING SETTINGS ---
 function BillingSettings({ workspaceId }: { workspaceId: string }) {
   const { data: workspace } = useQuery({
@@ -626,29 +892,7 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
       </NeuCard>
 
       {/* Payment Method */}
-      <NeuCard title="Payment Method" description="HOW YOU PAY FOR YOUR SUBSCRIPTION">
-        <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">No payment method on file</p>
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={() => toast.info("Card payment coming soon")}
-            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-          >
-            <FiCreditCard size={16} /> Add_Card
-          </button>
-          <div
-            onClick={() => toast.info("Orange Money payments coming soon via PawaPay")}
-            className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] cursor-pointer hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
-          >
-            <Image src="/assets/Orangemoney.png" alt="Orange Money" width={120} height={52} className="object-contain block" />
-          </div>
-          <div
-            onClick={() => toast.info("MTN MoMo payments coming soon via PawaPay")}
-            className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] cursor-pointer hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
-          >
-            <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={120} height={52} className="object-contain block" />
-          </div>
-        </div>
-      </NeuCard>
+      <PaymentMethodsCard />
 
       {/* Invoice History */}
       <NeuCard title="Invoice History" description="PAST TRANSACTIONS & RECEIPTS">
