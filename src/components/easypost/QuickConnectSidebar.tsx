@@ -124,10 +124,10 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                         </button>
                                         <button
                                             onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
-                                            className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+                                            className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white text-black opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                                             title="Disconnect"
                                         >
-                                            <Trash2 size={14} />
+                                            <Trash2 size={14} className="text-black" />
                                         </button>
                                         <div className="absolute -top-1 -right-1 pointer-events-none z-20">
                                             <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">

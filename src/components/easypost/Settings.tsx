@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -295,10 +296,11 @@ function ProfileSettings() {
   };
 
   const handleSave = async () => {
-    if (!user?.id) return;
+    const userId = user?.id || user?.sub;
+    if (!userId) return;
     setLoading(true);
     try {
-        await api.patch(`/users/${user.id}`, formData);
+        await api.patch(`/users/${userId}`, formData);
         toast.success("PROFILE_UPDATED");
     } catch (e) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
   };
@@ -541,15 +543,38 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
     staleTime: 30_000,
   });
 
+  const { data: accounts = [] } = useQuery({
+    queryKey: ['social-accounts', workspaceId],
+    queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+    staleTime: 30_000,
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: ['posts', workspaceId],
+    queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+    staleTime: 30_000,
+  });
+
+  const { data: mediaUsageMB = 0 } = useQuery({
+    queryKey: ['media-usage'],
+    queryFn: async () => {
+      const res = await api.get<number>('/media/usage');
+      return typeof res === 'number' ? res : (res as any).data || 0;
+    },
+    staleTime: 30_000,
+  });
+
   const planType: string = workspace?.owner?.planType ?? workspace?.planType ?? 'FREE';
   const limits = PLAN_LIMITS[planType] ?? PLAN_LIMITS.FREE;
   const isFree = planType === 'FREE';
 
+  const scheduledPostCount = (posts as any[]).filter((p: any) => p.status === 'SCHEDULED').length;
+
   const USAGE = [
-    { label: 'Scheduled Posts',  used: workspace?.currentPostCount          ?? 0, limit: limits.posts,     unit: 'posts'   },
-    { label: 'Social Accounts',  used: workspace?.currentSocialAccountCount ?? 0, limit: limits.accounts,  unit: 'accounts'},
-    { label: 'Media Storage',    used: 0,                                         limit: limits.storageMB, unit: 'MB'      },
-    { label: 'Team Members',     used: workspace?.currentMemberCount        ?? 1, limit: limits.members,   unit: 'members' },
+    { label: 'Scheduled Posts',  used: scheduledPostCount,              limit: limits.posts,     unit: 'posts'   },
+    { label: 'Social Accounts',  used: (accounts as any[]).length,      limit: limits.accounts,  unit: 'accounts'},
+    { label: 'Media Storage',    used: mediaUsageMB,                    limit: limits.storageMB, unit: 'MB'      },
+    { label: 'Team Members',     used: workspace?.currentMemberCount ?? 1, limit: limits.members,   unit: 'members' },
   ];
 
   return (
@@ -610,18 +635,18 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
           >
             <FiCreditCard size={16} /> Add_Card
           </button>
-          <button
+          <div
             onClick={() => toast.info("Orange Money payments coming soon via PawaPay")}
-            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-[#FF7900] text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] cursor-pointer hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
           >
-            <FiSmartphone size={16} /> Orange_Money
-          </button>
-          <button
+            <Image src="/assets/Orangemoney.png" alt="Orange Money" width={120} height={52} className="object-contain block" />
+          </div>
+          <div
             onClick={() => toast.info("MTN MoMo payments coming soon via PawaPay")}
-            className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-[#FFCC00] text-black font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] cursor-pointer hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
           >
-            <FiSmartphone size={16} /> MTN_MoMo
-          </button>
+            <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={120} height={52} className="object-contain block" />
+          </div>
         </div>
       </NeuCard>
 
