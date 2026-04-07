@@ -32,6 +32,7 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     newSocket.on('connect', () => {
       console.log('📡 [WS] Connected to Server');
       setIsConnected(true);
+      setSocket(newSocket);
       if (workspaceId) {
         newSocket.emit('join_workspace', workspaceId);
       }
@@ -46,11 +47,8 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
         console.log('📡 [WS] Joined Room:', data);
     });
 
-    setSocket(newSocket);
-
     return () => {
       newSocket.disconnect();
-      setSocket(null);
     };
   }, [workspaceId]);
 
