@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
 
@@ -15,7 +15,7 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children, workspaceId }: { children: React.ReactNode, workspaceId?: string }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     const token = getCookie('accessToken');
@@ -24,37 +24,38 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com';
     const socketUrl = API_URL.replace('/api', '') + '/events';
 
-    const socket = io(socketUrl, {
+    const newSocket = io(socketUrl, {
       auth: { token },
       transports: ['websocket'],
     });
 
-    socket.on('connect', () => {
+    newSocket.on('connect', () => {
       console.log('📡 [WS] Connected to Server');
       setIsConnected(true);
       if (workspaceId) {
-        socket.emit('join_workspace', workspaceId);
+        newSocket.emit('join_workspace', workspaceId);
       }
     });
 
-    socket.on('disconnect', () => {
+    newSocket.on('disconnect', () => {
       console.log('📡 [WS] Disconnected');
       setIsConnected(false);
     });
 
-    socket.on('joined', (data) => {
+    newSocket.on('joined', (data) => {
         console.log('📡 [WS] Joined Room:', data);
     });
 
-    socketRef.current = socket;
+    setSocket(newSocket);
 
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
+      setSocket(null);
     };
   }, [workspaceId]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
+    <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </SocketContext.Provider>
   );
