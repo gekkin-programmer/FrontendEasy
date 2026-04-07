@@ -16,28 +16,23 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // 1. Language Initialization — always start with 'en' for SSR consistency
-  const [language, setLanguage] = useState<Language>('en');
+  // 1. Language — lazy init from localStorage (client only, fallback 'en' for SSR)
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === 'undefined') return 'en';
+    const saved = localStorage.getItem('app_language') as Language;
+    if (saved) return saved;
+    const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+    localStorage.setItem('app_language', deviceLang);
+    return deviceLang;
+  });
 
-  // 2. Theme Initialization — always start with 'dark' for SSR consistency
-  const [theme, setTheme] = useState<Theme>('dark');
-
-  // Hydrate language and theme from localStorage after mount
-  useEffect(() => {
-    const savedLang = localStorage.getItem('app_language') as Language;
-    if (savedLang) {
-      setLanguage(savedLang);
-    } else {
-      const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
-      localStorage.setItem('app_language', deviceLang);
-      setLanguage(deviceLang);
-    }
-
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    const resolvedTheme = savedTheme || 'dark';
-    if (!savedTheme) localStorage.setItem('theme', 'dark');
-    setTheme(resolvedTheme);
-  }, []);
+  // 2. Theme — lazy init from localStorage (client only, fallback 'dark' for SSR)
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'dark';
+    const saved = localStorage.getItem('theme') as Theme;
+    if (!saved) localStorage.setItem('theme', 'dark');
+    return saved || 'dark';
+  });
 
   // Apply theme class whenever theme changes
   useEffect(() => {
