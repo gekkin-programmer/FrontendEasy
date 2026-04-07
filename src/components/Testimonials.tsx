@@ -48,7 +48,7 @@ const Testimonials: React.FC = () => {
                 alt={testimonial.author}
                 className="w-16 h-16 rounded-full mx-auto mb-4"
               />
-              <p className="italic mb-4">&quot;{t(testimonial.quote.en, testimonial.quote.fr)}&quot;</p>
+              <p className="italic mb-4">"{t(testimonial.quote.en, testimonial.quote.fr)}"</p>
               <p className="font-semibold">{testimonial.author}</p>
             </div>
           ))}

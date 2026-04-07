@@ -22,7 +22,6 @@ export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exch
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsLoading(true);
             let endpoint = '/social-accounts/facebook/pages';
             if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;

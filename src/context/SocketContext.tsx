@@ -15,14 +15,13 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children, workspaceId }: { children: React.ReactNode, workspaceId?: string }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     const token = getCookie('accessToken');
     if (!token) return;
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com';
     const socketUrl = API_URL.replace('/api', '') + '/events';
 
     const socket = io(socketUrl, {
@@ -31,6 +30,7 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     });
 
     socket.on('connect', () => {
+      console.log('📡 [WS] Connected to Server');
       setIsConnected(true);
       if (workspaceId) {
         socket.emit('join_workspace', workspaceId);
@@ -38,24 +38,23 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
     });
 
     socket.on('disconnect', () => {
+      console.log('📡 [WS] Disconnected');
       setIsConnected(false);
     });
 
-    socket.on('joined', () => {});
+    socket.on('joined', (data) => {
+        console.log('📡 [WS] Joined Room:', data);
+    });
 
     socketRef.current = socket;
-    setTimeout(() => setSocketInstance(socket), 0);
 
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('joined');
       socket.disconnect();
     };
   }, [workspaceId]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketInstance, isConnected }}>
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
       {children}
     </SocketContext.Provider>
   );

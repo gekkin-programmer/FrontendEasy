@@ -41,7 +41,7 @@ export const resources: Resource[] = [
     id: '3',
     category: 'Case Study',
     title: 'How TechFlow Increased Sales by 200% with Mobile Money Links',
-    description: 'See exactly how they implemented EazyPost payment links to drive conversions directly from Facebook.',
+    description: 'See exactly how they implemented EasyPost payment links to drive conversions directly from Facebook.',
     image: '/assets/Sarah.jpg',
     date: 'Dec 28, 2025',
     readTime: '7 min read',

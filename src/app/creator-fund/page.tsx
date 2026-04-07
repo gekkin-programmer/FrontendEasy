@@ -108,7 +108,7 @@ export default function CreatorFundPage() {
              <span className="text-transparent text-stroke-white italic">Influence.</span>
            </h1>
            <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold leading-relaxed mb-10">
-             We&apos;re looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.
+             We're looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.
            </p>
 
            <div className="flex justify-center gap-6">

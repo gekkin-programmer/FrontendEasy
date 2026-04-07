@@ -43,7 +43,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">5. Limitation of Liability</h2>
             <p>
-              EasyPost is provided &quot;AS IS&quot;. We are not liable for any indirect damages, loss of data, or loss of business revenue resulting from the use or inability to use our service.
+              EasyPost is provided "AS IS". We are not liable for any indirect damages, loss of data, or loss of business revenue resulting from the use or inability to use our service.
             </p>
           </section>
         </div>

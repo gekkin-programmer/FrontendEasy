@@ -11,7 +11,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Introduction</h2>
             <p>
-              Welcome to EasyPost (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it.
+              Welcome to EasyPost ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it.
             </p>
           </section>
 
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
               <li>To provide the scheduling and publishing services.</li>
               <li>To generate AI-powered captions and content suggestions.</li>
               <li>To provide customer support and respond to inquiries.</li>
-              <li>To improve our platform&apos;s security and performance.</li>
+              <li>To improve our platform's security and performance.</li>
             </ul>
           </section>
 

@@ -17,11 +17,11 @@ export default function DataDeletionPage() {
           <section className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Method 1: Via Facebook Settings</h2>
             <ol className="list-decimal pl-5 space-y-3">
-              <li>Go to your Facebook Account&apos;s &quot;Settings &amp; Privacy&quot;.</li>
-              <li>Click &quot;Settings&quot;.</li>
-              <li>Look for &quot;Apps and Websites&quot; and you will see all of the apps and websites you linked with your Facebook.</li>
-              <li>Search and Click &quot;EasyPost&quot; in the search bar.</li>
-              <li>Scroll and click &quot;Remove&quot;.</li>
+              <li>Go to your Facebook Account's "Settings & Privacy".</li>
+              <li>Click "Settings".</li>
+              <li>Look for "Apps and Websites" and you will see all of the apps and websites you linked with your Facebook.</li>
+              <li>Search and Click "EasyPost" in the search bar.</li>
+              <li>Scroll and click "Remove".</li>
               <li>Congratulations, you have successfully removed your app activities.</li>
             </ol>
           </section>
@@ -31,7 +31,7 @@ export default function DataDeletionPage() {
             <p className="mb-4">To request a full deletion of your EasyPost account and all associated data from our servers:</p>
             <ol className="list-decimal pl-5 space-y-3">
               <li>Send an email to <strong>support@easypost.cm</strong>.</li>
-              <li>Subject Line: <strong>&quot;Data Deletion Request&quot;</strong>.</li>
+              <li>Subject Line: <strong>"Data Deletion Request"</strong>.</li>
               <li>Include your registered email address.</li>
             </ol>
             <p className="mt-4 text-sm text-gray-500">We will process your request and permanently delete your data within 48 hours.</p>

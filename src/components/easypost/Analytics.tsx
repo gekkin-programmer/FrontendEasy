@@ -126,7 +126,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2 text-sm font-black uppercase transition-all border-2 border-black dark:border-white", 
-      active ? "bg-[#3C48F6] text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-100 dark:hover:bg-zinc-800", 
+      active ? "bg-[#3C48F6] text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-zinc-700", 
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -505,7 +505,7 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
 function PostListCard({ post, engagement, isSelected, onClick }: { post: AnalyticsPost, engagement: number, isSelected: boolean, onClick: () => void }) {
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
-        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800">
+        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-zinc-800">
             <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || "No text content"}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>
