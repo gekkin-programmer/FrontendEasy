@@ -3,7 +3,6 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  turbopack: false,
   images: {
     // ➤ 1. Allow SVGs
     dangerouslyAllowSVG: true,
