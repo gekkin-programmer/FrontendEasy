@@ -32,7 +32,7 @@ export default function PrivacyPage() {
               <li>To provide the scheduling and publishing services.</li>
               <li>To generate AI-powered captions and content suggestions.</li>
               <li>To provide customer support and respond to inquiries.</li>
-              <li>To improve our platform's security and performance.</li>
+              <li>To improve our platform&apos;s security and performance.</li>
             </ul>
           </section>
 
