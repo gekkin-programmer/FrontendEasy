@@ -17,10 +17,10 @@ export default function DataDeletionPage() {
           <section className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Method 1: Via Facebook Settings</h2>
             <ol className="list-decimal pl-5 space-y-3">
-              <li>Go to your Facebook Account's "Settings & Privacy".</li>
-              <li>Click "Settings".</li>
-              <li>Look for "Apps and Websites" and you will see all of the apps and websites you linked with your Facebook.</li>
-              <li>Search and Click "EasyPost" in the search bar.</li>
+              <li>Go to your Facebook Account&apos;s &ldquo;Settings &amp; Privacy&rdquo;.</li>
+              <li>Click &ldquo;Settings&rdquo;.</li>
+              <li>Look for &ldquo;Apps and Websites&rdquo; and you will see all of the apps and websites you linked with your Facebook.</li>
+              <li>Search and Click &ldquo;EasyPost&rdquo; in the search bar.</li>
               <li>Scroll and click "Remove".</li>
               <li>Congratulations, you have successfully removed your app activities.</li>
             </ol>
