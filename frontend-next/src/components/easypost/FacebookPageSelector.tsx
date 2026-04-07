@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import { Loader2, Plus } from 'lucide-react';
@@ -17,24 +17,21 @@ interface FacebookPageSelectorProps {
 }
 
 export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: FacebookPageSelectorProps) => {
-    const [pages, setPages] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            setIsLoading(true);
+    const { data: pages = [], isLoading } = useQuery<any[]>({
+        queryKey: ['facebook-pages', exchangeToken],
+        queryFn: async () => {
             let endpoint = '/social-accounts/facebook/pages';
             if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;
-            
-            api.get<any>(endpoint)
-                .then(res => {
-                    const list = Array.isArray(res.data) ? res.data : [];
-                    setPages(list);
-                })
-                .catch(() => toast.error("FB_FETCH_FAILED"))
-                .finally(() => setIsLoading(false));
-        }
-    }, [isOpen, exchangeToken]);
+            try {
+                const res = await api.get<any>(endpoint);
+                return Array.isArray(res.data) ? res.data : [];
+            } catch {
+                toast.error("FB_FETCH_FAILED");
+                return [];
+            }
+        },
+        enabled: isOpen,
+    });
 
     const selectMutation = useMutation({
         mutationFn: (page: any) => api.post<any>('/social-accounts/facebook/pages/select', {
