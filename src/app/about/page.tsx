@@ -10,18 +10,6 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/src/context/LanguageContext';
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'lord-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        src?: string;
-        trigger?: string;
-        colors?: string;
-        style?: React.CSSProperties;
-      };
-    }
-  }
-}
 
 const inputClass =
   'w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white/20 px-4 py-3 font-bold text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-[#3C48F6] dark:focus:border-[#3C48F6] transition-colors uppercase';
