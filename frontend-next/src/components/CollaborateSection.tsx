@@ -124,7 +124,7 @@ export default function CollaborateSection() {
               <div className="mx-auto w-24 h-14 bg-[#b8b8b8] rounded-lg border border-[#a0a0a0] shadow-inner" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>
