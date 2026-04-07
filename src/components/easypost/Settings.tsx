@@ -14,7 +14,7 @@ import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
   FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase,
   FiCheck, FiZap, FiStar, FiTrendingUp, FiMail, FiSmartphone, FiToggleLeft, FiToggleRight,
-  FiX, FiPlus, FiPhone
+  FiX, FiPlus, FiPhone, FiLock
 } from 'react-icons/fi';
 import MediaGallery from './MediaGallery';
 
@@ -595,7 +595,7 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
         <button type="button" onClick={onCancel} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all text-black dark:text-white">
           Cancel
         </button>
-        <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+        <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 dark:hover:bg-gray-200 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
           {loading ? <FiLoader className="animate-spin" /> : 'Save Card'}
         </button>
       </div>
@@ -672,7 +672,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex gap-2 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all">Cancel</button>
-            <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+            <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
               {loading ? <FiLoader className="animate-spin" /> : 'Save'}
             </button>
           </div>
@@ -728,11 +728,12 @@ function PaymentMethodsCard() {
                   ) : (
                     <FiCreditCard size={20} className="text-black dark:text-white" />
                   )}
-                  <div>
-                    <p className="text-xs font-black uppercase text-black dark:text-white">{m.label}</p>
-                    {m.type === 'MOBILE_MONEY' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">{m.msisdn}</p>}
-                    {m.type === 'CARD' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">····{m.last4} · {m.expiryMonth}/{m.expiryYear}</p>}
-                  </div>
+                  {(m.msisdn || m.last4) && (
+                    <div>
+                      {m.type === 'MOBILE_MONEY' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">{m.msisdn}</p>}
+                      {m.type === 'CARD' && <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">····{m.last4} · {m.expiryMonth}/{m.expiryYear}</p>}
+                    </div>
+                  )}
                   {m.isDefault && (
                     <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-[#3C48F5] text-white">DEFAULT</span>
                   )}
@@ -741,7 +742,7 @@ function PaymentMethodsCard() {
                   {!m.isDefault && (
                     <button
                       onClick={() => defaultMutation.mutate(m.id)}
-                      className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] transition-all"
+                      className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
                       title="Set as default"
                     >
                       <FiStar size={12} />
@@ -749,7 +750,7 @@ function PaymentMethodsCard() {
                   )}
                   <button
                     onClick={() => { if (confirm(`Remove "${m.label}"?`)) deleteMutation.mutate(m.id); }}
-                    className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+                    className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
                     title="Remove"
                   >
                     <FiTrash2 size={12} />
@@ -779,7 +780,7 @@ function PaymentMethodsCard() {
             </button>
             <button
               onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info('Stripe not configured yet')}
-              className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
               <FiCreditCard size={16} /> Add Visa/Card
             </button>
@@ -871,20 +872,35 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
           {USAGE.map((u) => {
             const pct = limits.posts === 99999 ? 0 : Math.min(Math.round((u.used / u.limit) * 100), 100);
             const isNearLimit = pct >= 80;
+            const isAtLimit = pct >= 100;
             return (
-              <div key={u.label}>
+              <div key={u.label} className={cn("relative", isAtLimit && "opacity-90")}>
                 <div className="flex justify-between text-xs font-black uppercase mb-2">
-                  <span className="text-black dark:text-white">{u.label}</span>
-                  <span className={isNearLimit ? 'text-red-500' : 'text-gray-500 dark:text-zinc-400'}>
+                  <span className={cn("text-black dark:text-white flex items-center gap-1.5", isAtLimit && "text-red-600 dark:text-red-400")}>
+                    {isAtLimit && <FiLock size={11} />}
+                    {u.label}
+                  </span>
+                  <span className={isAtLimit ? 'text-red-600 dark:text-red-400' : isNearLimit ? 'text-orange-500' : 'text-gray-500 dark:text-zinc-400'}>
                     {u.used}{limits.posts === 99999 ? '' : ` / ${u.limit}`} {u.unit}
                   </span>
                 </div>
-                <div className="h-3 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 overflow-hidden">
+                <div className={cn("h-3 border-2 overflow-hidden", isAtLimit ? "border-red-500" : "border-black dark:border-white bg-gray-100 dark:bg-zinc-800")}>
                   <div
-                    className={cn("h-full transition-all", isNearLimit ? "bg-red-500" : "bg-[#3C48F5]")}
+                    className={cn("h-full transition-all", isAtLimit ? "bg-red-500" : isNearLimit ? "bg-orange-400" : "bg-[#3C48F5]")}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
+                {isAtLimit && (
+                  <div className="mt-1.5 flex items-center justify-between">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">LIMIT REACHED · ACTION BLOCKED</span>
+                    <button
+                      onClick={() => window.location.href = '/pricing'}
+                      className="text-[9px] font-black uppercase tracking-widest text-[#3C48F5] hover:underline"
+                    >
+                      Upgrade →
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
