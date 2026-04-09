@@ -28,6 +28,5 @@ export default withSentryConfig(nextConfig, {
   project: "frontend",
   // Only upload wider source maps when auth is available (CI/CD), not during Docker builds
   widenClientFileUpload: hasSentryAuth,
-  disableSourceMapUpload: !hasSentryAuth,
   tunnelRoute: "/monitoring",
 });
