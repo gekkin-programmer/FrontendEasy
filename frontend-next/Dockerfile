@@ -36,7 +36,8 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 # Skip Sentry source map uploads in Docker (no auth token available)
 ENV SENTRY_UPLOAD_SOURCEMAPS=false
-ENV NODE_OPTIONS="--max-old-space-size=1024"
+# Build runs on GitHub Actions (7 GB RAM) — 4 GB heap is safe
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 RUN corepack enable pnpm && pnpm run build
 
