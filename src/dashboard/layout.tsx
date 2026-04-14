@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      {/* Mobile Bottom Nav (Hidden on Desktop) */}
+      {/* Mobile Bottom Nav (Hidden on Desktop for better UX) */}
       <MobileNav />
     </div>
   );

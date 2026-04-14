@@ -19,7 +19,7 @@ export const aiApi = {
     formData.append('file', audioBlob, 'command.webm');
     
     // Adjust endpoint based on your backend route for voice intent
-    const response = await api.post<Record<string, unknown>>('/ai/command', formData);
+    const response = await api.post<any>('/ai/command', formData);
     return response;
   },
 
@@ -31,7 +31,7 @@ export const aiApi = {
 
   // 3. Marketing Copy
   generateCopy: async (product: string, tone: string) => {
-    const response = await api.post<Record<string, unknown>>('/ai/test-copywriting', {
+    const response = await api.post<any>('/ai/test-copywriting', { 
       product, 
       tone 
     });

@@ -9,7 +9,7 @@ ENV NODE_OPTIONS="--max-old-space-size=1536"
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
+    corepack enable pnpm && pnpm install --prefer-frozen-lockfile; \
   elif [ -f yarn.lock ]; then \
     yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then \
