@@ -59,7 +59,7 @@ export default function WorkspaceManager() {
                             userSession.category === 'creator' ? 'Creator Studio' : 'Company HQ';
 
         const initialWorkspace: Workspace = {
-          id: String(Date.now()),
+          id: Date.now(),
           name: defaultName,
           role: 'Owner',
           members: 1,
