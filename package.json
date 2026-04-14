@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "next dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=2048' next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
