@@ -28,7 +28,9 @@ COPY . .
 
 # Build-time env vars (NEXT_PUBLIC_* are inlined at build time)
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
