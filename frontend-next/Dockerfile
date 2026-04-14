@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 
-ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
@@ -34,7 +34,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 # Skip Sentry source map uploads in Docker (no auth token available)
 ENV SENTRY_UPLOAD_SOURCEMAPS=false
-ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 RUN corepack enable pnpm && pnpm run build
 
