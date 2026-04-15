@@ -8,7 +8,7 @@ import { api } from '@/src/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, X, AlertTriangle, Copy, CheckCheck
+  Link as LinkIcon, Trash2, Check, Crown, X, AlertTriangle, Copy, CheckCheck, Pause, Play
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
@@ -81,14 +81,20 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const disconnectMutation = useMutation({ 
-        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), 
-        onSuccess: () => { 
-            toast.success("NODE_DISCONNECTED"); 
+    const disconnectMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
+        onSuccess: () => {
+            toast.success("NODE_DISCONNECTED");
             setNodeToDisconnect(null);
-            refreshData(); 
-        }, 
-        onError: () => toast.error("ERR_DISCONNECT_FAIL") 
+            refreshData();
+        },
+        onError: () => toast.error("ERR_DISCONNECT_FAIL")
+    });
+
+    const pauseMutation = useMutation({
+        mutationFn: (id: string) => api.patch(`/social-accounts/${id}/pause`, {}),
+        onSuccess: () => refreshData(),
+        onError: () => toast.error("ERR_PAUSE_FAIL"),
     });
 
     return (
@@ -119,20 +125,47 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                             <div key={p.id} className="relative group flex-shrink-0">
                                 {connected ? (
                                     <>
-                                        <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 opacity-100 cursor-default transition-colors">
-                                            <p.Icon size={16} className="text-gray-400 dark:text-zinc-500" />
+                                        {/* Base layer: platform icon, dimmed when paused */}
+                                        <button className={cn(
+                                            "w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-default transition-colors",
+                                            connected.isPaused ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-gray-50 dark:bg-zinc-800"
+                                        )}>
+                                            <p.Icon size={16} className={cn(connected.isPaused ? "text-yellow-500" : "text-gray-400 dark:text-zinc-500")} />
                                         </button>
-                                        <button
-                                            onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
-                                            className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white text-black opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
-                                            title="Disconnect"
-                                        >
-                                            <Trash2 size={14} className="text-black" />
-                                        </button>
+
+                                        {/* Hover overlay: two mini buttons — pause/play + disconnect */}
+                                        <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
+                                            <button
+                                                onClick={() => pauseMutation.mutate(connected.id)}
+                                                disabled={pauseMutation.isPending}
+                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 hover:bg-yellow-300 transition-colors cursor-pointer"
+                                                title={connected.isPaused ? "Resume queue" : "Pause queue"}
+                                            >
+                                                {connected.isPaused
+                                                    ? <Play size={10} className="text-black" strokeWidth={3} />
+                                                    : <Pause size={10} className="text-black" strokeWidth={3} />
+                                                }
+                                            </button>
+                                            <button
+                                                onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
+                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white hover:bg-red-50 transition-colors cursor-pointer"
+                                                title="Disconnect"
+                                            >
+                                                <Trash2 size={10} className="text-black" strokeWidth={3} />
+                                            </button>
+                                        </div>
+
+                                        {/* Status dot: yellow when paused, green when active */}
                                         <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                            <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
-                                                <Check size={8} strokeWidth={4} />
-                                            </div>
+                                            {connected.isPaused ? (
+                                                <div className="w-3.5 h-3.5 bg-yellow-400 border-2 border-black dark:border-white flex items-center justify-center">
+                                                    <Pause size={7} strokeWidth={4} className="text-black" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
+                                                    <Check size={8} strokeWidth={4} />
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 ) : (
