@@ -134,6 +134,6 @@ jobs:
       - name: Trigger Dokploy redeploy
         run: |
           curl -s -X POST \
-            "https://admin.zylo-platform.cloud/api/deploy?refreshToken=${{ secrets.DOKPLOY_WEBHOOK_TOKEN }}" \
+            "https://admin.zylo-platform.cloud/api/deploy?refreshToken=fylM8JdpagwStFhWDVtzc" \
             -H "Content-Type: application/json" \
-            --fail-with-body || echo "Webhook call failed — check DOKPLOY_WEBHOOK_TOKEN secret"
+            --fail-with-body || echo "Dokploy webhook call failed"
