@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -88,6 +88,34 @@ function DashboardContent() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
 
+    // Notifications
+    type AppNotif = { id: string; type: 'success' | 'error' | 'info'; message: string; time: string; read: boolean };
+    const notifKey = `eazypost_notifs_${workspaceId}`;
+    const [notifications, setNotifications] = useState<AppNotif[]>(() => {
+        if (typeof window === 'undefined') return [];
+        try { return JSON.parse(localStorage.getItem(`eazypost_notifs_${workspaceId}`) || '[]'); } catch { return []; }
+    });
+    const addNotification = useCallback((type: AppNotif['type'], message: string) => {
+        const notif: AppNotif = { id: Date.now().toString(), type, message, time: new Date().toISOString(), read: false };
+        setNotifications(prev => {
+            const next = [notif, ...prev].slice(0, 50);
+            try { localStorage.setItem(`eazypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
+            return next;
+        });
+    }, [workspaceId]);
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const markAllRead = useCallback(() => {
+        setNotifications(prev => {
+            const next = prev.map(n => ({ ...n, read: true }));
+            try { localStorage.setItem(`eazypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
+            return next;
+        });
+    }, [workspaceId]);
+    const clearNotifications = useCallback(() => {
+        setNotifications([]);
+        try { localStorage.removeItem(`eazypost_notifs_${workspaceId}`); } catch {}
+    }, [workspaceId]);
+
     // Close search dropdown on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -146,18 +174,21 @@ function DashboardContent() {
 
         socket.on('post_created', (newPost) => {
             toast.success(`NEW_NODE_CREATED: ${newPost.content.substring(0, 20)}...`);
+            addNotification('success', `Post published: "${newPost.content.substring(0, 50)}${newPost.content.length > 50 ? '…' : ''}"`);
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
 
         socket.on('post_updated', (updatedPost) => {
             toast.info(`NODE_UPDATED: ${updatedPost.content.substring(0, 20)}...`);
+            addNotification('info', `Post updated: "${updatedPost.content.substring(0, 50)}${updatedPost.content.length > 50 ? '…' : ''}"`);
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
 
         socket.on('post_deleted', ({ id }) => {
             toast.warning(`NODE_REMOVED`);
+            addNotification('info', 'A post was removed from the queue');
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
@@ -187,6 +218,7 @@ function DashboardContent() {
 
         if (connected === 'true' || success === 'true') {
             toast.success("CONNECTION_ESTABLISHED");
+            addNotification('success', 'Social account connected successfully');
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
             url.searchParams.delete('social_selection');
@@ -220,11 +252,15 @@ function DashboardContent() {
         },
         onSuccess: () => {
             toast.success("TRANSACTION_COMMITTED");
+            addNotification('success', 'Post saved and scheduled successfully');
             refetchPosts();
-            queryClient.invalidateQueries({ queryKey: ['calendar'] }); 
+            queryClient.invalidateQueries({ queryKey: ['calendar'] });
             setEditingPost(null);
         },
-        onError: () => toast.error("TRANSACTION_FAILED")
+        onError: () => {
+            toast.error("TRANSACTION_FAILED");
+            addNotification('error', 'Post failed to save — please retry');
+        }
     });
 
     const handleCreateWorkspace = () => {
@@ -369,29 +405,53 @@ function DashboardContent() {
                         </div>
                         
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
-                        <Popover>
+                        <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
                                 <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
                                     <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
-                                    <div className="absolute top-0 right-0 w-3 h-3 bg-[#3C48F5] border-2 border-black dark:border-white rounded-none -translate-y-1/3 translate-x-1/3" />
+                                    {unreadCount > 0 && (
+                                        <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </div>
+                                    )}
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-80 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
-                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white">
-                                    System_Feed
+                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white flex items-center justify-between">
+                                    <span>System_Feed</span>
+                                    {notifications.length > 0 && <span className="text-[9px] opacity-60">{notifications.length} log{notifications.length !== 1 ? 's' : ''}</span>}
                                 </div>
-                                <div className="p-8 text-center space-y-4">
-                                    <div className="flex justify-center">
-                                        <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                                            <Bell size={24} className="text-gray-400" />
+                                {notifications.length === 0 ? (
+                                    <div className="p-8 text-center space-y-4">
+                                        <div className="flex justify-center">
+                                            <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
+                                                <Bell size={24} className="text-gray-400" />
+                                            </div>
                                         </div>
+                                        <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
+                                            No events logged yet.
+                                        </p>
                                     </div>
-                                    <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
-                                        No new system updates detected.
-                                    </p>
-                                </div>
+                                ) : (
+                                    <div className="max-h-72 overflow-y-auto divide-y divide-black/10 dark:divide-white/10">
+                                        {notifications.map(n => (
+                                            <div key={n.id} className="flex items-start gap-3 px-3 py-2.5">
+                                                <div className={`mt-0.5 w-2 h-2 flex-shrink-0 rounded-none ${n.type === 'success' ? 'bg-green-500' : n.type === 'error' ? 'bg-red-500' : 'bg-[#3C48F5]'}`} />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-[11px] font-bold text-black dark:text-white leading-tight">{n.message}</p>
+                                                    <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-0.5">
+                                                        {new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {new Date(n.time).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 <div className="p-2 border-t-2 border-black dark:border-white">
-                                    <button className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">
+                                    <button
+                                        onClick={clearNotifications}
+                                        className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                    >
                                         Clear_Logs
                                     </button>
                                 </div>
