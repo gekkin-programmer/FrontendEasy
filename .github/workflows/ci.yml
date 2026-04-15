@@ -5,14 +5,14 @@ name: CI/CD — Frontend Pipeline
 #
 # Flow:
 #   push to dev
-#     └── Next.js: lint → test → build (type-check only)
+#     └── Next.js: lint → test → build
 #                 │
 #                 ▼  passes
-#     fast-forward main ← dev
-#                 │
-#                 ▼
 #     Build Docker image on GitHub Actions (7 GB RAM)
 #     Push → ghcr.io/gekkin-programmer/eazypost-frontend:latest
+#                 │
+#                 ▼  image is live in GHCR
+#     fast-forward main ← dev
 #                 │
 #                 ▼
 #     Webhook → Dokploy pulls new image & redeploys
@@ -61,38 +61,12 @@ jobs:
       - name: Build
         run: pnpm build
 
-  # ── Job 2: Promote dev → main ─────────────────────
-  promote-to-main:
-    name: Promote dev → main
-    needs: [frontend-checks]
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout (full history)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Promote dev → main
-        run: |
-          git fetch origin
-          git checkout -B main origin/main
-          git reset --hard origin/dev
-          git push origin main --force-with-lease
-
-  # ── Job 3: Build Docker image & push to GHCR ──────
+  # ── Job 2: Build Docker image & push to GHCR ──────
+  # Must run BEFORE promote-to-main so the new image is
+  # already in GHCR when Dokploy's push-webhook fires.
   build-and-push:
     name: Build Docker image → GHCR
-    needs: [promote-to-main]
+    needs: [frontend-checks]
     runs-on: ubuntu-latest
 
     permissions:
@@ -100,10 +74,8 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -129,9 +101,39 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # ── Job 3: Promote dev → main & trigger Dokploy ───
+  # Runs after the image is safely in GHCR, so Dokploy
+  # pulls the correct (new) image on the push webhook.
+  promote-to-main:
+    name: Promote dev → main + deploy
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Promote dev → main
+        run: |
+          git fetch origin
+          git checkout -B main origin/main
+          git reset --hard origin/dev
+          git push origin main --force-with-lease
+
       - name: Trigger Dokploy redeploy
         run: |
           curl -s -X POST \
             "https://admin.zylo-platform.cloud/api/deploy?refreshToken=${{ secrets.DOKPLOY_WEBHOOK_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --fail-with-body || echo "Webhook call failed — check token"
+            --fail-with-body || echo "Webhook call failed — check DOKPLOY_WEBHOOK_TOKEN secret"
