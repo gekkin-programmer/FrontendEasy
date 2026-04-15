@@ -218,7 +218,7 @@ function DashboardContent() {
 
         if (connected === 'true' || success === 'true') {
             toast.success("CONNECTION_ESTABLISHED");
-            addNotification('success', 'Social account connected successfully');
+            setTimeout(() => addNotification('success', 'Social account connected successfully'), 0);
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
             url.searchParams.delete('social_selection');
