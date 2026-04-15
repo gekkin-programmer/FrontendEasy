@@ -16,6 +16,8 @@ interface OnboardingGuideProps {
   currentWorkspace: WorkspaceData | null | undefined;
   onSwitchTab: (tab: string) => void;
   onOpenComposer: () => void;
+  /** Hide the guide entirely if the user already has multiple workspaces */
+  isFirstWorkspace: boolean;
 }
 
 interface Step {
@@ -40,6 +42,7 @@ export default function OnboardingGuide({
   currentWorkspace,
   onSwitchTab,
   onOpenComposer,
+  isFirstWorkspace,
 }: OnboardingGuideProps) {
   const { t } = useLanguage();
 
@@ -153,6 +156,8 @@ export default function OnboardingGuide({
     }
   }, [allComplete]);
 
+  // Don't show for experienced users who already have other workspaces
+  if (!isFirstWorkspace) return null;
   if (dismissed) return null;
 
   const progressPct = Math.round((completedCount / steps.length) * 100);

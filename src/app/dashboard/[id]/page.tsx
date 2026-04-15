@@ -483,6 +483,7 @@ function DashboardContent() {
                                 currentWorkspace={currentWorkspace}
                                 onSwitchTab={(tab) => setActiveTab(tab as TabType)}
                                 onOpenComposer={() => setActiveTab('queue')}
+                                isFirstWorkspace={myWorkspaces.length <= 1}
                             />
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
