@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/popover";
 
 import BoardView from '@/src/components/easypost/BoardView';
+import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -475,6 +476,14 @@ function DashboardContent() {
                         </div>
 
                         <div className="flex-1 min-w-0">
+                            <OnboardingGuide
+                                workspaceId={workspaceId}
+                                accounts={accounts}
+                                posts={posts}
+                                currentWorkspace={currentWorkspace}
+                                onSwitchTab={(tab) => setActiveTab(tab as TabType)}
+                                onOpenComposer={() => setActiveTab('queue')}
+                            />
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                                     {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 8 && currentWorkspace.currentPostCount < 10 && (
