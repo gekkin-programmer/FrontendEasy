@@ -452,7 +452,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 const isExpired = acc.isActive === false;
                 return (
                   <div key={acc.id} className="relative w-8 h-8 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]" title={isExpired ? 'Connection expired' : acc.username}>
-                    {acc.avatar ? <img src={acc.avatar} className="w-full h-full object-cover" /> : <span className="text-xs font-black text-black dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>}
+                    <span className="text-xs font-black text-black dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
+                    {acc.avatar && (
+                      <img
+                        src={acc.avatar}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        alt=""
+                      />
+                    )}
                     <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 p-[1px] border border-black dark:border-white z-10"><PlatformIcon platform={acc.platform} size={10} /></div>
                     {isExpired && <div className="absolute inset-0 bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
                   </div>
