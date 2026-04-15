@@ -686,7 +686,25 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
             <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
             <div className="p-4 bg-white dark:bg-zinc-900">
-                <MediaGallery hideUsage={false} />
+                <MediaGallery
+                    hideUsage={false}
+                    sections={[
+                        { id: 'post',         label: 'Attach to Post'  },
+                        { id: 'firstComment', label: 'First Comment'   },
+                        { id: 'broadcast',    label: 'Broadcast'       },
+                    ]}
+                    onUse={(asset, section) => {
+                        if (section === 'post') {
+                            handleSelectFromLibrary({ id: asset.id, type: asset.type || 'image', url: asset.url, name: asset.name, parentId: asset.folderId || null });
+                        } else if (section === 'firstComment') {
+                            setFirstComment(prev => (prev ? prev + '\n' : '') + asset.url);
+                            toast.success('URL_ADDED_TO_FIRST_COMMENT');
+                        } else if (section === 'broadcast') {
+                            setBroadcastText(prev => (prev ? prev + '\n' : '') + asset.url);
+                            toast.success('URL_ADDED_TO_BROADCAST');
+                        }
+                    }}
+                />
             </div>
           </motion.div>
         )}

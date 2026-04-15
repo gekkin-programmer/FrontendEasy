@@ -12,10 +12,21 @@ import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
-export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolean }) {
+interface Section { id: string; label: string; }
+
+export default function MediaGallery({
+  hideUsage = false,
+  onUse,
+  sections = [],
+}: {
+  hideUsage?: boolean;
+  onUse?: (asset: any, sectionId: string) => void;
+  sections?: Section[];
+}) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
+
   // Navigation State
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
@@ -272,11 +283,45 @@ export default function MediaGallery({ hideUsage = false }: { hideUsage?: boolea
                     >
                         <img src={asset.url} className="w-full h-full object-cover" />
 
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                            <button
-                                className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black"
-                                onClick={() => { navigator.clipboard.writeText(asset.url).catch(() => {}); }}
-                            >Use</button>
+                        <div
+                            className={cn(
+                                "absolute inset-0 transition-opacity flex flex-col justify-end p-2",
+                                sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                            )}
+                        >
+                            {onUse && sectionMenuFor === asset.id ? (
+                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1 mb-1">
+                                    {sections.map(s => (
+                                        <button
+                                            key={s.id}
+                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-[#3C48F5] transition-colors"
+                                            onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
+                                        >
+                                            {s.label}
+                                        </button>
+                                    ))}
+                                    <button
+                                        className="w-full bg-white dark:bg-zinc-800 text-black dark:text-white py-1 text-[8px] font-black uppercase border border-black dark:border-white"
+                                        onClick={() => setSectionMenuFor(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-yellow-300 transition-colors"
+                                    onClick={() => {
+                                        if (onUse) {
+                                            setSectionMenuFor(asset.id);
+                                        } else {
+                                            navigator.clipboard.writeText(asset.url).catch(() => {});
+                                            toast.success("URL_COPIED");
+                                        }
+                                    }}
+                                >
+                                    Use
+                                </button>
+                            )}
                         </div>
                     </motion.div>
                 ))}
