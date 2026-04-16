@@ -93,8 +93,18 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     const pauseMutation = useMutation({
         mutationFn: (id: string) => api.patch(`/social-accounts/${id}/pause`, {}),
+        onMutate: (id) => {
+            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
+                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
+            );
+        },
         onSuccess: () => refreshData(),
-        onError: () => toast.error("ERR_PAUSE_FAIL"),
+        onError: (_, id) => {
+            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
+                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
+            );
+            toast.error("ERR_PAUSE_FAIL");
+        },
     });
 
     return (

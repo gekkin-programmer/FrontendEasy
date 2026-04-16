@@ -49,6 +49,135 @@ import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
+interface PreviewData { text: string; mediaPreviews: string[]; selectedAccountIds: string[]; }
+
+const PLATFORM_COLORS: Record<string, string> = {
+    INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
+    LINKEDIN: '#0A66C2', TIKTOK: '#010101', YOUTUBE: '#FF0000', DISCORD: '#5865F2',
+    TELEGRAM: '#26A5E4', PINTEREST: '#BD081C', SNAPCHAT: '#FFFC00',
+};
+
+function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChange, onClose }: {
+    previewData: PreviewData; accounts: any[]; platformIdx: number;
+    onPlatformChange: (i: number) => void; onClose: () => void;
+}) {
+    const platforms = [...new Set(
+        accounts.filter(a => previewData.selectedAccountIds.includes(a.id)).map(a => a.platform?.toUpperCase())
+    )].filter(Boolean) as string[];
+
+    const safeIdx = Math.min(platformIdx, Math.max(0, platforms.length - 1));
+    const current = platforms[safeIdx] ?? null;
+    const color = current ? (PLATFORM_COLORS[current] ?? '#3C48F5') : '#3C48F5';
+    const { text, mediaPreviews } = previewData;
+
+    return (
+        <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-3 py-2 bg-[#3C48F5] border-b-2 border-black">
+                <span className="font-black text-[9px] uppercase tracking-widest text-white flex items-center gap-1.5">
+                    <Layout size={10} /> LIVE_PREVIEW
+                </span>
+                <button onClick={onClose} className="hover:bg-black/20 p-0.5 transition-colors text-white">
+                    <X size={12} strokeWidth={3} />
+                </button>
+            </div>
+
+            {/* Platform navigator */}
+            <div className="flex items-center justify-between px-3 py-1.5 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white">
+                <button
+                    onClick={() => onPlatformChange(Math.max(0, safeIdx - 1))}
+                    disabled={safeIdx === 0 || platforms.length <= 1}
+                    className="w-6 h-6 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-800 disabled:opacity-20 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-sm font-black text-black dark:text-white"
+                >‹</button>
+                <span className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white">
+                    {current ?? 'SELECT_ACCOUNT'}
+                </span>
+                <button
+                    onClick={() => onPlatformChange(Math.min(platforms.length - 1, safeIdx + 1))}
+                    disabled={safeIdx >= platforms.length - 1 || platforms.length <= 1}
+                    className="w-6 h-6 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-800 disabled:opacity-20 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-sm font-black text-black dark:text-white"
+                >›</button>
+            </div>
+
+            {/* Phone shell */}
+            <div className="bg-zinc-100 dark:bg-zinc-950 p-3">
+                <div className="mx-auto w-[176px]">
+                    <div className="bg-black rounded-[22px] border-[3px] border-black overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]">
+                        {/* Status bar */}
+                        <div className="bg-black h-6 flex items-center justify-between px-3 relative">
+                            <span className="text-white text-[7px] font-bold">9:41</span>
+                            <div className="absolute left-1/2 -translate-x-1/2 w-12 h-2.5 bg-zinc-900 rounded-full" />
+                            <div className="w-3 h-1.5 bg-white rounded-sm opacity-80" />
+                        </div>
+                        {/* App bar */}
+                        <div className="h-7 flex items-center justify-center" style={{ backgroundColor: color }}>
+                            <span className="text-white text-[8px] font-black uppercase tracking-widest">
+                                {current ?? '---'}
+                            </span>
+                        </div>
+                        {/* Content */}
+                        <div className="bg-white min-h-[260px] max-h-[260px] overflow-y-auto">
+                            {current === 'TIKTOK' ? (
+                                <div className="relative h-[260px] bg-black">
+                                    {mediaPreviews[0] && <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />}
+                                    <div className="absolute bottom-0 left-0 right-0 p-2 z-10">
+                                        <div className="text-white text-[9px] font-bold">@creator</div>
+                                        <div className="text-white text-[8px] line-clamp-3 mt-0.5">{text || 'Your caption...'}</div>
+                                    </div>
+                                </div>
+                            ) : !current ? (
+                                <div className="flex items-center justify-center h-[260px] text-[10px] text-gray-300 font-mono text-center px-4">
+                                    Select accounts<br />in the composer
+                                </div>
+                            ) : (
+                                <div className="p-2">
+                                    <div className="flex items-center gap-1.5 mb-1.5">
+                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: color + '25', border: `1.5px solid ${color}` }} />
+                                        <div>
+                                            <div className="text-[8px] font-black text-black">Your Profile</div>
+                                            <div className="text-[7px] text-gray-400">Just now</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-[9px] leading-relaxed whitespace-pre-wrap text-black mb-1.5">
+                                        {text || <span className="text-gray-300 italic text-[8px]">Start typing…</span>}
+                                    </div>
+                                    {mediaPreviews.length > 0 && (
+                                        <div className={`grid gap-0.5 ${mediaPreviews.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                            {mediaPreviews.slice(0, 4).map((url, i) => (
+                                                <img key={i} src={url} className="w-full aspect-square object-cover" alt="" />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2 mt-1.5 pt-1 border-t border-gray-100">
+                                        <span className="text-[7px] font-bold text-gray-400">Like</span>
+                                        <span className="text-[7px] font-bold text-gray-400">Comment</span>
+                                        <span className="text-[7px] font-bold text-gray-400">Share</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        {/* Home bar */}
+                        <div className="bg-white h-4 flex items-center justify-center">
+                            <div className="w-12 h-0.5 bg-black rounded-full opacity-25" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Dot indicators for multiple platforms */}
+            {platforms.length > 1 && (
+                <div className="flex justify-center gap-1.5 py-2 bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white">
+                    {platforms.map((_, i) => (
+                        <button key={i} onClick={() => onPlatformChange(i)}
+                            className={`w-2 h-2 border border-black dark:border-white transition-all ${i === safeIdx ? 'bg-[#3C48F5]' : 'bg-gray-200 dark:bg-zinc-700'}`}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function DashboardPage() {
     const params = useParams();
     const workspaceId = typeof params?.id === 'string' ? params.id : '';
@@ -76,6 +205,11 @@ function DashboardContent() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<any>(null);
+
+    // Composer preview panel state
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], selectedAccountIds: [] });
+    const [previewPlatformIdx, setPreviewPlatformIdx] = useState(0);
     
     // OAUTH STATES
     const [isFbPageSelectorOpen, setIsFbPageSelectorOpen] = useState(
@@ -257,6 +391,7 @@ function DashboardContent() {
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
             setEditingPost(null);
+            setIsPreviewMode(false);
         },
         onError: () => {
             toast.error("TRANSACTION_FAILED");
@@ -517,7 +652,15 @@ function DashboardContent() {
                                                     </div>
                                                 )}
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
-                                                <Composer workspaceId={workspaceId} onSchedule={handleAddPost} accounts={accounts} postToEdit={editingPost} />
+                                                <Composer
+                                    workspaceId={workspaceId}
+                                    onSchedule={handleAddPost}
+                                    accounts={accounts}
+                                    postToEdit={editingPost}
+                                    isPreviewActive={isPreviewMode}
+                                    onPreviewToggle={() => { setIsPreviewMode(v => !v); setPreviewPlatformIdx(0); }}
+                                    onPreviewDataChange={setPreviewData}
+                                />
                                             </NeuCard>
                                             <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} /></div>
                                         </div>
@@ -545,7 +688,23 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className="hidden lg:block w-64 sticky top-32 self-start space-y-4"><div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div><nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav><div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span
+                        <div className="hidden lg:block w-64 sticky top-32 self-start">
+                            <AnimatePresence mode="wait">
+                                {isPreviewMode ? (
+                                    <motion.div key="preview" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+                                        <PhoneMockupPreview
+                                            previewData={previewData}
+                                            accounts={accounts}
+                                            platformIdx={previewPlatformIdx}
+                                            onPlatformChange={setPreviewPlatformIdx}
+                                            onClose={() => setIsPreviewMode(false)}
+                                        />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
+                                        <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div>
+                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span
   className={`text-xl font-black ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
@@ -557,7 +716,11 @@ function DashboardContent() {
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </main>

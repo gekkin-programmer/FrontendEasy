@@ -33,8 +33,11 @@ interface TemplateItem { id: number; title: string; content: string; }
 
 interface ComposerProps {
   workspaceId: string;
-  accounts: any[]; 
-  postToEdit?: any; // New prop
+  accounts: any[];
+  postToEdit?: any;
+  isPreviewActive?: boolean;
+  onPreviewToggle?: () => void;
+  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; selectedAccountIds: string[] }) => void;
   onSchedule: (
     content: string,
     date?: Date,
@@ -136,7 +139,7 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
   );
 };
 
-export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId }: ComposerProps) {
+export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange }: ComposerProps) {
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
@@ -210,6 +213,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       setSelectedAccountIds(accounts.filter(a => a.isActive !== false).map(a => a.id));
     }
   }, [accounts]);
+
+  // Sync composer data to parent preview panel in real-time
+  const previewDataChangeRef = useRef(onPreviewDataChange);
+  previewDataChangeRef.current = onPreviewDataChange;
+  useEffect(() => {
+    previewDataChangeRef.current?.({ text, mediaPreviews, selectedAccountIds });
+  }, [text, mediaPreviews, selectedAccountIds]);
 
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
@@ -363,6 +373,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     setSubmitAttempted(true);
     if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
+    if (isPreviewActive && onPreviewToggle) onPreviewToggle();
 
     // YouTube title validation
     if (platformMode.requiresTitle && !ytTitle) {
@@ -666,7 +677,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><LayoutGrid size={14} /> PREVIEW</button>
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700")}><LayoutGrid size={14} /> PREVIEW</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
@@ -683,9 +694,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       {/* 🟢 LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors">
-            <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
-            <div className="p-4 bg-white dark:bg-zinc-900">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors max-h-[420px]">
+            <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors flex-shrink-0"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
+            <div className="p-4 bg-white dark:bg-zinc-900 overflow-y-auto flex-1">
                 <MediaGallery
                     hideUsage={false}
                     sections={[
