@@ -56,7 +56,7 @@ export default function OnboardingGuide({
     }
   });
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   // Sync dismissed to localStorage whenever it changes
   useEffect(() => {
@@ -171,7 +171,7 @@ export default function OnboardingGuide({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.25 }}
-          className="fixed bottom-6 left-6 md:left-[calc(256px+24px)] z-40 w-[300px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
+          className="fixed bottom-6 left-6 z-40 w-[300px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
         >
           {/* Header row */}
           <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-[#3C48F5]">
