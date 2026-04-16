@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp, ChevronDown, Check, X, Zap, Link2, FileText, CalendarDays, BarChart2, Users } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check, X, Link2, FileText, CalendarDays, BarChart2, Users } from 'lucide-react';
 import { useLanguage } from '@/src/context/LanguageContext';
 
 interface SocialAccount { id: string; platform?: string; }
@@ -167,21 +167,17 @@ export default function OnboardingGuide({
       {!dismissed && (
         <motion.div
           key="onboarding-guide"
-          initial={{ opacity: 0, y: -12 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
+          exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.25 }}
-          className="mb-6 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
+          className="fixed bottom-6 left-6 md:left-[calc(256px+24px)] z-40 w-[300px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
         >
           {/* Header row */}
           <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-[#3C48F5]">
             <div className="flex items-center gap-2">
-              <Zap size={16} className="text-yellow-300" strokeWidth={3} />
               <span className="font-black text-xs uppercase tracking-widest text-white">
                 {t('Getting Started', 'Démarrage')}
-              </span>
-              <span className="ml-2 text-xs font-mono text-white/70">
-                {completedCount}/{steps.length}
               </span>
             </div>
             <div className="flex items-center gap-2">

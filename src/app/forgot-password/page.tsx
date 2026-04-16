@@ -42,10 +42,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 lg:grid lg:grid-cols-2 relative">
+    <div className={`min-h-screen bg-white font-sans text-gray-900 relative ${!sent ? 'lg:grid lg:grid-cols-2' : ''}`}>
 
-      {/* LEFT SIDE */}
-      <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
+      {/* LEFT SIDE — hidden on sent state */}
+      <div className={`flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen ${!sent ? 'hidden lg:flex' : 'hidden'}`}>
         <div className="relative z-10">
           <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
             <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" width={48} height={48} className="object-contain" priority />
