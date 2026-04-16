@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono } from "next/font/google";
+import { Rubik } from "next/font/google";
 import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
 import Script from "next/script";
 import "./globals.css";
@@ -9,11 +9,11 @@ import Footer from "../components/Footer";
 import QueryProvider from "@/src/providers/query-provider";
 import AgentationLoader from "../components/AgentationLoader";
 
-const jetbrainsMono = JetBrains_Mono({
+const rubik = Rubik({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
+  variable: "--font-rubik",
   display: "swap",
-  weight: ["400", "500", "700", "800"], // Only load weights you use to save bandwidth
+  weight: ["400", "500", "700", "800"],
 });
 
 // ➤ 1. MOBILE VIEWPORT CONFIG (Prevents iOS zoom on inputs)
@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
+      <body className={`${rubik.variable} font-sans antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
         <Script src="https://cdn.lordicon.com/lordicon.js" strategy="lazyOnload" />
         
         <QueryProvider>
@@ -81,7 +81,7 @@ export default function RootLayout({
                 style: {
                   borderRadius: '0px',
                   border: '3px solid black',
-                  fontFamily: 'var(--font-jetbrains-mono)',
+                  fontFamily: 'var(--font-rubik)',
                   fontSize: '12px',
                   fontWeight: '800',
                   textTransform: 'uppercase',
