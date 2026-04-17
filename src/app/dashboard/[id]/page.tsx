@@ -11,12 +11,13 @@ import { cn } from '@/lib/utils';
 import { getCookie } from 'cookies-next';
 
 // ICONS
-import { 
-  Layers, BarChart2, Settings as SettingsIcon, 
-  Search, Bell, Check, ChevronDown, Plus, Users, Menu, X, 
+import {
+  Layers, BarChart2, Settings as SettingsIcon,
+  Search, Bell, Check, ChevronDown, Plus, Users, Menu, X,
   ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
-  AlertTriangle, Crown, MessageCircle, Layout
-} from 'lucide-react'; 
+  AlertTriangle, Crown, MessageCircle, Layout,
+  Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
+} from 'lucide-react';
 
 // COMPONENTS
 import Composer from '@/src/components/easypost/Composer';
@@ -57,123 +58,283 @@ const PLATFORM_COLORS: Record<string, string> = {
     TELEGRAM: '#26A5E4', PINTEREST: '#BD081C', SNAPCHAT: '#FFFC00',
 };
 
+// ─── Platform-specific preview renderers ───────────────────────────────────
+
+function TikTokPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+    return (
+        <div className="relative bg-black overflow-hidden" style={{ height: 380 }}>
+            {media[0]
+                ? <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
+                : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-black" />
+            }
+            {/* Following | For You */}
+            <div className="absolute top-0 left-0 right-0 flex justify-center gap-5 pt-3 z-20">
+                <span className="text-white/50 text-[11px] font-semibold">Following</span>
+                <span className="text-white text-[11px] font-bold border-b-[2px] border-white pb-0.5">For You</span>
+            </div>
+            {/* Right action column */}
+            <div className="absolute right-2 bottom-16 flex flex-col items-center gap-4 z-20">
+                <div className="relative">
+                    <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden bg-zinc-600">
+                        {account?.avatar && <img src={account.avatar} className="w-full h-full object-cover" alt="" />}
+                    </div>
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FE2C55] rounded-full flex items-center justify-center">
+                        <Plus size={9} className="text-white" strokeWidth={3} />
+                    </div>
+                </div>
+                {[Heart, MessageCircle, Bookmark, Share2].map((Icon, i) => (
+                    <div key={i} className="flex flex-col items-center gap-0.5">
+                        <Icon size={22} className="text-white" strokeWidth={1.5} />
+                        <span className="text-white text-[9px]">0</span>
+                    </div>
+                ))}
+            </div>
+            {/* Bottom: username + caption + sound */}
+            <div className="absolute bottom-0 left-0 right-12 p-3 z-20">
+                {media[0] && (
+                    <span className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded mb-1">
+                        📷 Photo
+                    </span>
+                )}
+                <div className="text-white text-[11px] font-bold">@{account?.username || 'creator'}</div>
+                <div className="text-white/90 text-[10px] line-clamp-2 mt-0.5">{text || 'Your caption here…'}</div>
+                <div className="flex items-center gap-1 mt-2">
+                    <Music size={10} className="text-white" />
+                    <span className="text-white/70 text-[9px]">Original sound</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function InstagramPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+    return (
+        <div className="bg-white overflow-y-auto" style={{ maxHeight: 400 }}>
+            <div className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-white border border-white">
+                            {account?.avatar
+                                ? <img src={account.avatar} className="w-full h-full object-cover" alt="" />
+                                : <div className="w-full h-full bg-gray-200" />}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-[11px] font-bold leading-tight">{account?.username || 'your.account'}</div>
+                        <div className="text-[9px] text-gray-400 leading-tight">Just now</div>
+                    </div>
+                </div>
+                <MoreHorizontal size={14} className="text-gray-500" />
+            </div>
+            {media[0]
+                ? <img src={media[0]} className="w-full aspect-square object-cover" alt="" />
+                : <div className="w-full aspect-square bg-gray-100 flex items-center justify-center text-gray-300 text-xs font-mono">NO_MEDIA</div>
+            }
+            <div className="flex items-center justify-between px-3 py-2">
+                <div className="flex items-center gap-3">
+                    <Heart size={18} strokeWidth={1.5} className="text-gray-800" />
+                    <MessageCircle size={18} strokeWidth={1.5} className="text-gray-800" />
+                    <Share2 size={18} strokeWidth={1.5} className="text-gray-800" />
+                </div>
+                <Bookmark size={18} strokeWidth={1.5} className="text-gray-800" />
+            </div>
+            <div className="px-3 pb-4 text-[11px]">
+                <span className="font-bold">{account?.username || 'your.account'} </span>
+                <span className="text-gray-800">{text || <span className="text-gray-400 italic">Your caption…</span>}</span>
+            </div>
+        </div>
+    );
+}
+
+function TwitterPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+    const truncated = text.length > 280;
+    const display = truncated ? text.slice(0, 277) + '…' : text;
+    return (
+        <div className="bg-white p-3">
+            <div className="flex gap-2.5">
+                <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-100">
+                    {account?.avatar && <img src={account.avatar} className="w-full h-full object-cover" alt="" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1 flex-wrap">
+                        <span className="text-[12px] font-black truncate">{account?.displayName || account?.username}</span>
+                        <span className="text-[11px] text-gray-400 truncate">@{account?.username}</span>
+                        <span className="text-[11px] text-gray-400">· now</span>
+                    </div>
+                    <div className="text-[12px] leading-relaxed mt-0.5 text-gray-900">
+                        {display || <span className="text-gray-400">What's happening?</span>}
+                    </div>
+                    {media.length > 0 && (
+                        <div className={cn("grid gap-0.5 mt-2 rounded-xl overflow-hidden", media.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+                            {media.slice(0, 4).map((url, i) => <img key={i} src={url} className="w-full aspect-square object-cover" alt="" />)}
+                        </div>
+                    )}
+                    {truncated && <div className="text-[9px] text-red-500 mt-1">{text.length}/280 — will be cut off</div>}
+                    <div className="flex items-center justify-between mt-2 max-w-[200px] text-gray-400">
+                        <MessageCircle size={15} strokeWidth={1.5} />
+                        <Repeat2 size={15} strokeWidth={1.5} />
+                        <Heart size={15} strokeWidth={1.5} />
+                        <Share2 size={15} strokeWidth={1.5} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function LinkedInPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+    return (
+        <div className="bg-white overflow-y-auto" style={{ maxHeight: 400 }}>
+            <div className="flex items-start gap-2 p-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-200">
+                    {account?.avatar && <img src={account.avatar} className="w-full h-full object-cover" alt="" />}
+                </div>
+                <div>
+                    <div className="text-[12px] font-bold leading-tight">{account?.displayName || account?.username}</div>
+                    <div className="text-[10px] text-gray-500 leading-tight">Your headline here</div>
+                    <div className="text-[10px] text-gray-400 leading-tight">Just now · 🌐</div>
+                </div>
+            </div>
+            <div className="px-3 pb-2 text-[12px] text-gray-800 leading-relaxed whitespace-pre-wrap">
+                {text || <span className="text-gray-400 italic">Share an update…</span>}
+            </div>
+            {media.length > 0 && (
+                <div className={cn("grid gap-0.5", media.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+                    {media.slice(0, 4).map((url, i) => <img key={i} src={url} className="w-full aspect-square object-cover" alt="" />)}
+                </div>
+            )}
+            <div className="px-3 py-2 border-t border-gray-100 flex items-center justify-between text-gray-500">
+                <div className="flex items-center gap-1">
+                    <ThumbsUp size={13} strokeWidth={1.5} />
+                    <span className="text-[10px]">Like</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <MessageCircle size={13} strokeWidth={1.5} />
+                    <span className="text-[10px]">Comment</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <Repeat2 size={13} strokeWidth={1.5} />
+                    <span className="text-[10px]">Repost</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <Share2 size={13} strokeWidth={1.5} />
+                    <span className="text-[10px]">Send</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function GenericFeedPreview({ text, media, account, platform }: { text: string; media: string[]; account: any; platform: string }) {
+    const color = PLATFORM_COLORS[platform] ?? '#3C48F5';
+    return (
+        <div className="bg-white overflow-y-auto" style={{ maxHeight: 400 }}>
+            <div className="flex items-center gap-2 p-3 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0" style={{ border: `2px solid ${color}` }}>
+                    {account?.avatar
+                        ? <img src={account.avatar} className="w-full h-full object-cover" alt="" />
+                        : <div className="w-full h-full flex items-center justify-center text-[10px] font-black" style={{ backgroundColor: color + '20', color }}>{account?.username?.[0]?.toUpperCase()}</div>}
+                </div>
+                <div>
+                    <div className="text-[11px] font-bold">{account?.displayName || account?.username}</div>
+                    <div className="text-[9px] text-gray-400">Just now</div>
+                </div>
+            </div>
+            <div className="p-3 text-[12px] text-gray-800 leading-relaxed whitespace-pre-wrap">
+                {text || <span className="text-gray-400 italic">Your content here…</span>}
+            </div>
+            {media.length > 0 && (
+                <div className={cn("grid gap-0.5", media.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+                    {media.slice(0, 4).map((url, i) => <img key={i} src={url} className="w-full aspect-square object-cover" alt="" />)}
+                </div>
+            )}
+            <div className="px-3 py-2 border-t border-gray-100 flex gap-4 text-gray-500 text-[10px] font-bold">
+                <span>Like</span><span>Comment</span><span>Share</span>
+            </div>
+        </div>
+    );
+}
+
+// ─── Main preview panel ────────────────────────────────────────────────────
+
 function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChange, onClose }: {
     previewData: PreviewData; accounts: any[]; platformIdx: number;
     onPlatformChange: (i: number) => void; onClose: () => void;
 }) {
-    const platforms = [...new Set(
-        accounts.filter(a => previewData.selectedAccountIds.includes(a.id)).map(a => a.platform?.toUpperCase())
-    )].filter(Boolean) as string[];
+    // Build unique platform entries, preserving account metadata
+    const platformAccounts: { platform: string; account: any }[] = [];
+    accounts
+        .filter(a => previewData.selectedAccountIds.includes(a.id))
+        .forEach(a => {
+            const p = a.platform?.toUpperCase();
+            if (p && !platformAccounts.find(x => x.platform === p)) platformAccounts.push({ platform: p, account: a });
+        });
 
-    const safeIdx = Math.min(platformIdx, Math.max(0, platforms.length - 1));
-    const current = platforms[safeIdx] ?? null;
-    const color = current ? (PLATFORM_COLORS[current] ?? '#3C48F5') : '#3C48F5';
+    const safeIdx = Math.min(platformIdx, Math.max(0, platformAccounts.length - 1));
+    const current = platformAccounts[safeIdx] ?? null;
     const { text, mediaPreviews } = previewData;
 
     return (
         <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-3 py-2 bg-[#3C48F5] border-b-2 border-black">
-                <span className="font-black text-[9px] uppercase tracking-widest text-white flex items-center gap-1.5">
-                    <Layout size={10} /> LIVE_PREVIEW
+            <div className="flex items-center justify-between px-3 py-2 bg-[#3C48F5] border-b-2 border-black dark:border-white">
+                <span className="font-black text-[10px] uppercase tracking-widest text-white">
+                    {current ? `${current.platform} Preview` : 'Live Preview'}
                 </span>
                 <button onClick={onClose} className="hover:bg-black/20 p-0.5 transition-colors text-white">
-                    <X size={12} strokeWidth={3} />
+                    <X size={14} strokeWidth={3} />
                 </button>
             </div>
 
-            {/* Platform navigator */}
-            <div className="flex items-center justify-between px-3 py-1.5 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white">
-                <button
-                    onClick={() => onPlatformChange(Math.max(0, safeIdx - 1))}
-                    disabled={safeIdx === 0 || platforms.length <= 1}
-                    className="w-6 h-6 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-800 disabled:opacity-20 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-sm font-black text-black dark:text-white"
-                >‹</button>
-                <span className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white">
-                    {current ?? 'SELECT_ACCOUNT'}
-                </span>
-                <button
-                    onClick={() => onPlatformChange(Math.min(platforms.length - 1, safeIdx + 1))}
-                    disabled={safeIdx >= platforms.length - 1 || platforms.length <= 1}
-                    className="w-6 h-6 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-800 disabled:opacity-20 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-sm font-black text-black dark:text-white"
-                >›</button>
-            </div>
-
-            {/* Phone shell */}
-            <div className="bg-zinc-100 dark:bg-zinc-950 p-3">
-                <div className="mx-auto w-[176px]">
-                    <div className="bg-black rounded-[22px] border-[3px] border-black overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]">
-                        {/* Status bar */}
-                        <div className="bg-black h-6 flex items-center justify-between px-3 relative">
-                            <span className="text-white text-[7px] font-bold">9:41</span>
-                            <div className="absolute left-1/2 -translate-x-1/2 w-12 h-2.5 bg-zinc-900 rounded-full" />
-                            <div className="w-3 h-1.5 bg-white rounded-sm opacity-80" />
-                        </div>
-                        {/* App bar */}
-                        <div className="h-7 flex items-center justify-center" style={{ backgroundColor: color }}>
-                            <span className="text-white text-[8px] font-black uppercase tracking-widest">
-                                {current ?? '---'}
-                            </span>
-                        </div>
-                        {/* Content */}
-                        <div className="bg-white min-h-[260px] max-h-[260px] overflow-y-auto">
-                            {current === 'TIKTOK' ? (
-                                <div className="relative h-[260px] bg-black">
-                                    {mediaPreviews[0] && <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="" />}
-                                    <div className="absolute bottom-0 left-0 right-0 p-2 z-10">
-                                        <div className="text-white text-[9px] font-bold">@creator</div>
-                                        <div className="text-white text-[8px] line-clamp-3 mt-0.5">{text || 'Your caption...'}</div>
-                                    </div>
-                                </div>
-                            ) : !current ? (
-                                <div className="flex items-center justify-center h-[260px] text-[10px] text-gray-300 font-mono text-center px-4">
-                                    Select accounts<br />in the composer
-                                </div>
-                            ) : (
-                                <div className="p-2">
-                                    <div className="flex items-center gap-1.5 mb-1.5">
-                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: color + '25', border: `1.5px solid ${color}` }} />
-                                        <div>
-                                            <div className="text-[8px] font-black text-black">Your Profile</div>
-                                            <div className="text-[7px] text-gray-400">Just now</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-[9px] leading-relaxed whitespace-pre-wrap text-black mb-1.5">
-                                        {text || <span className="text-gray-300 italic text-[8px]">Start typing…</span>}
-                                    </div>
-                                    {mediaPreviews.length > 0 && (
-                                        <div className={`grid gap-0.5 ${mediaPreviews.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                                            {mediaPreviews.slice(0, 4).map((url, i) => (
-                                                <img key={i} src={url} className="w-full aspect-square object-cover" alt="" />
-                                            ))}
-                                        </div>
-                                    )}
-                                    <div className="flex gap-2 mt-1.5 pt-1 border-t border-gray-100">
-                                        <span className="text-[7px] font-bold text-gray-400">Like</span>
-                                        <span className="text-[7px] font-bold text-gray-400">Comment</span>
-                                        <span className="text-[7px] font-bold text-gray-400">Share</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        {/* Home bar */}
-                        <div className="bg-white h-4 flex items-center justify-center">
-                            <div className="w-12 h-0.5 bg-black rounded-full opacity-25" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Dot indicators for multiple platforms */}
-            {platforms.length > 1 && (
-                <div className="flex justify-center gap-1.5 py-2 bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white">
-                    {platforms.map((_, i) => (
-                        <button key={i} onClick={() => onPlatformChange(i)}
-                            className={`w-2 h-2 border border-black dark:border-white transition-all ${i === safeIdx ? 'bg-[#3C48F5]' : 'bg-gray-200 dark:bg-zinc-700'}`}
-                        />
-                    ))}
+            {/* Account avatar tabs — click to switch platform */}
+            {platformAccounts.length > 0 && (
+                <div className="flex gap-2 px-3 py-2 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white overflow-x-auto scrollbar-hide">
+                    {platformAccounts.map((item, i) => {
+                        const color = PLATFORM_COLORS[item.platform] ?? '#3C48F5';
+                        return (
+                            <button
+                                key={item.platform}
+                                onClick={() => onPlatformChange(i)}
+                                title={item.platform}
+                                className={cn(
+                                    "relative w-8 h-8 rounded-full flex-shrink-0 overflow-hidden transition-all",
+                                    i === safeIdx
+                                        ? "ring-2 ring-offset-1 ring-[#3C48F5] shadow-[2px_2px_0px_0px_#3C48F5]"
+                                        : "ring-1 ring-gray-300 dark:ring-zinc-600 hover:ring-black dark:hover:ring-white opacity-60 hover:opacity-100"
+                                )}
+                            >
+                                {item.account?.avatar
+                                    ? <img src={item.account.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                                    : <div className="w-full h-full flex items-center justify-center text-[11px] font-black" style={{ backgroundColor: color + '20', color }}>
+                                        {item.account?.username?.[0]?.toUpperCase() ?? '?'}
+                                      </div>
+                                }
+                                {/* Platform color dot */}
+                                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-white" style={{ backgroundColor: color }} />
+                            </button>
+                        );
+                    })}
                 </div>
             )}
+
+            {/* Platform UI render — no phone frame, just the app interface */}
+            <div className="overflow-hidden">
+                {!current ? (
+                    <div className="h-72 flex items-center justify-center text-[11px] text-gray-400 dark:text-zinc-500 font-mono text-center px-6 leading-relaxed bg-gray-50 dark:bg-zinc-950">
+                        No accounts selected.<br />Add targets in the composer.
+                    </div>
+                ) : current.platform === 'TIKTOK' ? (
+                    <TikTokPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'INSTAGRAM' ? (
+                    <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
+                    <TwitterPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'LINKEDIN' ? (
+                    <LinkedInPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : (
+                    <GenericFeedPreview text={text} media={mediaPreviews} account={current.account} platform={current.platform} />
+                )}
+            </div>
         </div>
     );
 }
@@ -688,7 +849,7 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className="hidden lg:block w-64 sticky top-32 self-start">
+                        <div className={cn("hidden lg:block sticky top-32 self-start transition-all duration-200", isPreviewMode ? "w-80" : "w-64")}>
                             <AnimatePresence mode="wait">
                                 {isPreviewMode ? (
                                     <motion.div key="preview" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
