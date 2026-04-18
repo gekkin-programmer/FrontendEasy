@@ -128,9 +128,6 @@ const Footer: React.FC = () => {
           <p className="text-sm font-mono text-gray-500 dark:text-zinc-600 uppercase">
             &copy; {new Date().getFullYear()} EASYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
-          <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black text-gray-400 dark:text-zinc-600 uppercase tracking-widest">Systems Operational</span>
-          </div>
         </div>
       </div>
     </footer>
