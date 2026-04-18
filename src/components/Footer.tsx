@@ -79,8 +79,8 @@ const Footer: React.FC = () => {
             </Link>
             <p className="text-lg font-medium text-gray-600 dark:text-zinc-500 max-w-sm leading-relaxed uppercase">
               {t(
-                'The social OS for Africa. Plan, create, and dominate.',
-                'L\'OS social pour l\'Afrique. Planifiez, créez et dominez.'
+                'One platform. Every platform. Built for African creators.',
+                'Une plateforme. Toutes les plateformes. Faite pour les créateurs africains.'
               )}
             </p>
             

@@ -308,9 +308,13 @@ const AnalyzeSection = () => {
             </div>
           </div>
 
-          {/* Right: Dashboard Visual */}
-          <div className="hidden lg:block">
-            <MainDashboardVisual />
+          {/* Right: Analytics illustration */}
+          <div className="hidden lg:block flex items-center justify-center">
+            <img
+              src="/assets/undraw_analytics.png"
+              alt="Analytics illustration"
+              className="w-full max-w-md mx-auto mix-blend-multiply dark:mix-blend-normal dark:opacity-90"
+            />
           </div>
 
         </div>

@@ -8,7 +8,7 @@ import { api } from '@/src/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, X, AlertTriangle, Copy, CheckCheck, Pause, Play
+  Link as LinkIcon, Trash2, Check, Crown, Copy, CheckCheck, Pause, Play
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
@@ -27,7 +27,6 @@ interface QuickConnectSidebarProps {
 export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: QuickConnectSidebarProps) => {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const [nodeToDisconnect, setNodeToDisconnect] = useState<any>(null);
     const [telegramModal, setTelegramModal] = useState(false);
     const [telegramToken, setTelegramToken] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -83,11 +82,8 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     const disconnectMutation = useMutation({
         mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
-        onSuccess: () => {
-            setNodeToDisconnect(null);
-            refreshData();
-        },
-        onError: () => {}
+        onSuccess: () => refreshData(),
+        onError: () => {},
     });
 
     const pauseMutation = useMutation({
@@ -155,7 +151,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                                 }
                                             </button>
                                             <button
-                                                onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
+                                                onClick={() => disconnectMutation.mutate(connected.id)}
                                                 className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white hover:bg-red-50 transition-colors cursor-pointer"
                                                 title="Disconnect"
                                             >
@@ -257,52 +253,6 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                 )}
             </AnimatePresence>
 
-            {/* 🟢 DISCONNECT MODAL */}
-            <AnimatePresence>
-                {nodeToDisconnect && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-zinc-950 border-4 border-red-500 shadow-[12px_12px_0px_0px_#ef4444] w-full max-w-sm overflow-hidden"
-                        >
-                            <div className="bg-red-600 text-white p-4 border-b-4 border-red-500 flex justify-between items-center">
-                                <span className="font-black uppercase tracking-widest flex items-center gap-2 text-sm">
-                                    <AlertTriangle size={18} className="text-yellow-300" /> DANGER_ZONE
-                                </span>
-                                <button onClick={() => setNodeToDisconnect(null)} className="hover:text-red-300 transition-colors"><X size={22} strokeWidth={3}/></button>
-                            </div>
-                            <div className="p-6 space-y-5">
-                                <div className="border-l-4 border-red-500 pl-3">
-                                    <p className="font-black uppercase text-xs text-white">
-                                        Terminate link with{' '}
-                                        <span className="text-red-400">{nodeToDisconnect.platform.toUpperCase()}</span>
-                                    </p>
-                                </div>
-                                <p className="text-[10px] font-mono text-zinc-400 leading-relaxed">
-                                    All scheduled posts and real-time syncing for this node will be disabled immediately. This action cannot be undone.
-                                </p>
-                                <div className="grid grid-cols-2 gap-3 pt-1">
-                                    <button
-                                        onClick={() => setNodeToDisconnect(null)}
-                                        className="py-3 bg-zinc-800 text-zinc-200 border-2 border-zinc-600 font-black uppercase text-[10px] hover:bg-zinc-700 hover:border-zinc-500 transition-all"
-                                    >
-                                        Abort
-                                    </button>
-                                    <button
-                                        onClick={() => disconnectMutation.mutate(nodeToDisconnect.id)}
-                                        disabled={disconnectMutation.isPending}
-                                        className="py-3 bg-red-600 text-white border-2 border-red-400 font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#991b1b] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-50"
-                                    >
-                                        {disconnectMutation.isPending ? "Terminating..." : "Confirm"}
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </>
     );
 };
