@@ -162,7 +162,7 @@ function TwitterPreview({ text, media, account }: { text: string; media: string[
                         <span className="text-[11px] text-gray-400">· now</span>
                     </div>
                     <div className="text-[12px] leading-relaxed mt-0.5 text-gray-900">
-                        {display || <span className="text-gray-400">What's happening?</span>}
+                        {display || <span className="text-gray-400">What&apos;s happening?</span>}
                     </div>
                     {media.length > 0 && (
                         <div className={cn("grid gap-0.5 mt-2 rounded-xl overflow-hidden", media.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
