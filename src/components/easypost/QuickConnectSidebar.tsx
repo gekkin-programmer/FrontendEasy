@@ -13,7 +13,7 @@ import {
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
   FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien, FaSnapchat, FaTelegram,
-  FaDiscord, FaTwitch
+  FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -45,6 +45,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'telegram', Icon: FaTelegram, color: 'text-[#2AABEE]' },
         { id: 'discord', Icon: FaDiscord, color: 'text-[#5865F2]' },
         { id: 'twitch', Icon: FaTwitch, color: 'text-[#9146FF]', comingSoon: true },
+        { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white', comingSoon: true },
     ];
 
     const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')

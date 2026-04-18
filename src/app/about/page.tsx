@@ -24,33 +24,33 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: 'Bryan Kengne',
-      role: t('Co-Founder & CEO', 'Co-Fondateur & PDG'),
+      name: 'Christian Mbouyemen',
+      role: t('CEO — Best-Corp', 'PDG — Best-Corp'),
       bio: t(
-        'Visionary behind EasyPost. Building the future of social media management for Africa.',
-        "Visionnaire derrière EasyPost. Construisant l'avenir de la gestion des réseaux sociaux pour l'Afrique."
+        'Serial entrepreneur and business strategist driving Best-Corp\'s vision across Central Africa. Christian turns bold market opportunities into structured, scalable ventures — EazyPost being his latest bet on the African creator economy.',
+        "Entrepreneur en série et stratège d'affaires, Christian pilote la vision de Best-Corp en Afrique Centrale. Il transforme les opportunités de marché en entreprises structurées et scalables — EazyPost étant son dernier pari sur l'économie créative africaine."
       ),
       image: 'https://i.pravatar.cc/300?img=11',
       accent: 'bg-[#3C48F6]',
       socials: { linkedin: '#', twitter: '#', github: '#' },
     },
     {
-      name: 'Team Member',
-      role: t('Co-Founder & CTO', 'Co-Fondateur & DT'),
+      name: 'Pene Nkouam Bryan',
+      role: t('Lead Engineer & Co-Founder', 'Ingénieur Principal & Co-Fondateur'),
       bio: t(
-        'Architecting scalable systems so creators can post smarter, not harder.',
-        'Construire des systèmes scalables pour que les créateurs publient plus intelligemment.'
+        'Full-stack architect and the technical backbone of EazyPost. Bryan designs and ships the systems that power scheduling, AI generation, and multi-platform publishing — obsessed with building things that actually work at scale.',
+        "Architecte full-stack et pilier technique d'EazyPost. Bryan conçoit et livre les systèmes qui alimentent la planification, la génération IA et la publication multi-plateforme — obsédé par la construction de choses qui fonctionnent vraiment à l'échelle."
       ),
       image: 'https://i.pravatar.cc/300?img=32',
       accent: 'bg-[#3C48F6]',
       socials: { linkedin: '#', twitter: '#', github: '#' },
     },
     {
-      name: 'Team Member',
-      role: t('Lead Designer', 'Designer Principal'),
+      name: 'Yvan Ouatadem Loic',
+      role: t('Full-Stack Developer', 'Développeur Full-Stack'),
       bio: t(
-        'Turning bold ideas into pixel-perfect interfaces. Every pixel has a purpose.',
-        'Transformer des idées audacieuses en interfaces parfaites. Chaque pixel a un but.'
+        'Frontend-leaning full-stack developer who crafts the interfaces creators interact with every day. Loic bridges design and engineering — if it looks good and works fast, he probably built it.',
+        "Développeur full-stack orienté frontend qui conçoit les interfaces que les créateurs utilisent chaque jour. Loic fait le pont entre design et ingénierie — si ça rend bien et va vite, c'est probablement lui qui l'a construit."
       ),
       image: 'https://i.pravatar.cc/300?img=47',
       accent: 'bg-pink-400',
