@@ -469,21 +469,18 @@ function DashboardContent() {
         if (!socket) return;
 
         socket.on('post_created', (newPost) => {
-            toast.success(`NEW_NODE_CREATED: ${newPost.content.substring(0, 20)}...`);
             addNotification('success', `Post published: "${newPost.content.substring(0, 50)}${newPost.content.length > 50 ? '…' : ''}"`);
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
 
         socket.on('post_updated', (updatedPost) => {
-            toast.info(`NODE_UPDATED: ${updatedPost.content.substring(0, 20)}...`);
             addNotification('info', `Post updated: "${updatedPost.content.substring(0, 50)}${updatedPost.content.length > 50 ? '…' : ''}"`);
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
 
         socket.on('post_deleted', ({ id }) => {
-            toast.warning(`NODE_REMOVED`);
             addNotification('info', 'A post was removed from the queue');
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
@@ -513,7 +510,6 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {
-            toast.success("CONNECTION_ESTABLISHED");
             setTimeout(() => addNotification('success', 'Social account connected successfully'), 0);
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
@@ -532,13 +528,12 @@ function DashboardContent() {
     const createWorkspaceMutation = useMutation({
         mutationFn: (name: string) => api.post<any>('/workspaces', { name }),
         onSuccess: (res) => {
-            toast.success("WORKSPACE_INITIALIZED");
             setIsCreateModalOpen(false);
             setNewWorkspaceName("");
             queryClient.invalidateQueries({ queryKey: ['workspaces'] });
             router.push(`/dashboard/${res.data.id}`);
         },
-        onError: () => toast.error("INIT_FAILED")
+        onError: () => {}
     });
 
     const upsertPostMutation = useMutation({
@@ -547,7 +542,6 @@ function DashboardContent() {
             return api.post('/posts', payload);
         },
         onSuccess: () => {
-            toast.success("TRANSACTION_COMMITTED");
             addNotification('success', 'Post saved and scheduled successfully');
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
@@ -555,19 +549,18 @@ function DashboardContent() {
             setIsPreviewMode(false);
         },
         onError: () => {
-            toast.error("TRANSACTION_FAILED");
             addNotification('error', 'Post failed to save — please retry');
         }
     });
 
     const handleCreateWorkspace = () => {
-        if (!newWorkspaceName.trim()) return toast.error("INPUT_NAME_REQUIRED");
+        if (!newWorkspaceName.trim()) return;
         createWorkspaceMutation.mutate(newWorkspaceName);
     };
 
     const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
         const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
-        if (targets.length === 0) { toast.error("ERR_NO_NODES_SELECTED"); return; }
+        if (targets.length === 0) return;
         upsertPostMutation.mutate({
             id: postId,
             workspaceId: targetWorkspaceId || workspaceId,
@@ -585,7 +578,7 @@ function DashboardContent() {
         if (text.includes("analytics")) setActiveTab("analytics");
         else if (text.includes("team")) setActiveTab("team");
         else if (text.includes("queue")) setActiveTab("queue");
-        else toast.info(`AI_CMD: ${text.substring(0, 20)}...`);
+        else {}
     };
 
     const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;

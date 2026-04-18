@@ -256,7 +256,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           // Backend returns the created MediaLibrary object
           return res.id || res.data?.id; 
       } catch (e) { 
-          toast.error("UPLOAD_FAILED"); 
           return null; 
       }
   };
@@ -274,7 +273,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       if (!selectedMediaIds.includes(item.id)) {
           setSelectedMediaIds(prev => [...prev, item.id]);
           setMediaPreviews(prev => [...prev, item.url || '']);
-          toast.success("MEDIA_LINKED");
       }
   };
 
@@ -285,7 +283,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
   // ➤ LOGIC: AI GENERATION
   const handleAiGenerate = async () => {
-    if (!aiContext.trim()) return toast.error("ERR: EMPTY_PROMPT");
+    if (!aiContext.trim()) return;
     setIsAiGenerating(true);
     
     try {
@@ -313,39 +311,29 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             setIsAiGenerating(false);
             setIsAiOpen(false); 
             setAiContext("");
-            toast.success("AI: COPY_GENERATED");
 
             // 🚀 FREEMIUM HOOK: AI USAGE TOAST
             if (aiUsageCount >= 8 && aiUsageCount < 10) {
-              setTimeout(() => {
-                toast.info(`🎉 ${10 - aiUsageCount} générations restantes ce mois.`, {
-                  description: "Passez à STARTER pour 100 générations !",
-                  action: {
-                    label: "Upgrade",
-                    onClick: () => window.location.href = '/pricing'
-                  }
-                });
-              }, 1000);
+              setTimeout(() => {}, 1000);
             }
         }
       }, speed);
 
     } catch (e) {
       console.error(e);
-      toast.error("AI_ERROR: GENERATION_FAILED");
       setIsAiGenerating(false);
     }
   };
 
   // Broadcast submit
   const handleBroadcast = async () => {
-    if (!broadcastText.trim()) return toast.error('ERR: CONTENT_EMPTY');
-    if (!broadcastSendNow && !broadcastScheduledTime) return toast.error('ERR: NO_SCHEDULE_TIME');
+    if (!broadcastText.trim()) return;
+    if (!broadcastSendNow && !broadcastScheduledTime) return;
     const broadcastAccIds = selectedAccountIds.filter((id) => {
       const acc = accounts.find((a) => a.id === id);
       return acc && BROADCAST_IDS.has((acc.platform as string)?.toLowerCase());
     });
-    if (broadcastAccIds.length === 0) return toast.error('ERR: NO_BROADCAST_ACCOUNTS');
+    if (broadcastAccIds.length === 0) return;
     setIsSubmitting(true);
     try {
       await onSchedule(
@@ -360,7 +348,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       setBroadcastText('');
       toast.success('BROADCAST SENT');
     } catch {
-      toast.error('ERR: BROADCAST_FAILED');
     } finally {
       setIsSubmitting(false);
     }
@@ -372,18 +359,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     setSubmitAttempted(true);
-    if (!text && mediaPreviews.length === 0) return toast.error('ERR: CONTENT_EMPTY');
+    if (!text && mediaPreviews.length === 0) return;
     if (isPreviewActive && onPreviewToggle) onPreviewToggle();
 
     // YouTube title validation
     if (platformMode.requiresTitle && !ytTitle) {
       setExpandedPanels(prev => new Set([...prev, 'youtube']));
-      return toast.error('ERR: YOUTUBE_TITLE_REQUIRED');
+      return;
     }
 
     // Past Date Validation
     if (date && date < new Date()) {
-        return toast.error("Cannot schedule in the past");
+        return;
     }
 
     // In split mode, only post-lane accounts go here
@@ -395,7 +382,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       : selectedAccountIds;
 
     const targets = postAccountIds.length > 0 ? postAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
-    if (targets.length === 0) return toast.error('ERR: NO_NODES_LINKED');
+    if (targets.length === 0) return;
 
     setIsSubmitting(true);
     try {
@@ -407,17 +394,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
             finalContent += commerceLink;
-            toast.info("COMMERCE_LINK_GENERATED");
         }
 
         // Upload local files
         if (localFiles.length > 0) {
-            toast.loading(`SYSTEM: UPLOADING_${localFiles.length}_ASSETS...`);
             for (const file of localFiles) {
                 const uploadedId = await uploadSingleFile(file);
                 if (uploadedId) finalMediaIds.push(uploadedId);
             }
-            toast.dismiss();
         }
 
         let status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT';
@@ -446,7 +430,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
         setSubmitAttempted(false);
-    } catch { toast.error("ERR: SUBMISSION_FAILED"); } finally { setIsSubmitting(false); }
+    } catch { } finally { setIsSubmitting(false); }
   };
 
   return (
@@ -492,7 +476,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     const isExpired = acc.isActive === false;
                     const isSelected = selectedAccountIds.includes(acc.id);
                     return (
-                      <div key={acc.id} onClick={() => { if (isExpired) { toast.error(`Please reconnect ${acc.username}`); return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 dark:border-zinc-800 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-yellow-50 dark:hover:bg-zinc-800 cursor-pointer")}>
+                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 dark:border-zinc-800 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-yellow-50 dark:hover:bg-zinc-800 cursor-pointer")}>
                         <div className={cn("w-4 h-4 border-2 flex items-center justify-center", isExpired ? "border-red-500" : "border-black dark:border-white")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 bg-black dark:bg-white" />)}</div>
                         <div className="flex-1"><div className={cn("text-xs font-bold uppercase text-black dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[8px] font-mono text-gray-500 dark:text-zinc-400">{acc.platform} {isExpired && "(EXPIRED)"}</div></div>
                         <PlatformIcon platform={acc.platform} size={14} />
@@ -668,7 +652,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                   newDate.setHours(hour);
                                   newDate.setMinutes(0);
                                   setDate(new Date(newDate));
-                                  toast.success(`AI suggested: ${hour}:00 set!`);
                                 }}
                               />
                             </PopoverContent>
@@ -709,10 +692,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                             handleSelectFromLibrary({ id: asset.id, type: asset.type || 'image', url: asset.url, name: asset.name, parentId: asset.folderId || null });
                         } else if (section === 'firstComment') {
                             setFirstComment(prev => (prev ? prev + '\n' : '') + asset.url);
-                            toast.success('URL_ADDED_TO_FIRST_COMMENT');
                         } else if (section === 'broadcast') {
                             setBroadcastText(prev => (prev ? prev + '\n' : '') + asset.url);
-                            toast.success('URL_ADDED_TO_BROADCAST');
                         }
                     }}
                 />

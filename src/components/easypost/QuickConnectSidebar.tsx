@@ -58,12 +58,12 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
             setTelegramToken(res.token ?? res.data?.token ?? null);
             setTelegramModal(true);
         },
-        onError: () => toast.error('Failed to generate Telegram link token'),
+        onError: () => {},
     });
 
     const handleConnect = (platform: string, comingSoon?: boolean) => {
         if (comingSoon) {
-            toast.info(`${platform.charAt(0).toUpperCase() + platform.slice(1)} integration coming soon!`);
+            return;
             return;
         }
         if (platform === 'telegram') {
@@ -84,11 +84,10 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
     const disconnectMutation = useMutation({
         mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
         onSuccess: () => {
-            toast.success("NODE_DISCONNECTED");
             setNodeToDisconnect(null);
             refreshData();
         },
-        onError: () => toast.error("ERR_DISCONNECT_FAIL")
+        onError: () => {}
     });
 
     const pauseMutation = useMutation({
@@ -103,7 +102,6 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
             queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
                 old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
             );
-            toast.error("ERR_PAUSE_FAIL");
         },
     });
 
@@ -263,38 +261,41 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
             <AnimatePresence>
                 {nodeToDisconnect && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden"
+                            className="bg-zinc-950 border-4 border-red-500 shadow-[12px_12px_0px_0px_#ef4444] w-full max-w-sm overflow-hidden"
                         >
-                            <div className="bg-red-500 text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
-                                <span className="font-black uppercase tracking-wider flex items-center gap-2">
-                                    <AlertTriangle size={20} /> Danger_Zone
+                            <div className="bg-red-600 text-white p-4 border-b-4 border-red-500 flex justify-between items-center">
+                                <span className="font-black uppercase tracking-widest flex items-center gap-2 text-sm">
+                                    <AlertTriangle size={18} className="text-yellow-300" /> DANGER_ZONE
                                 </span>
-                                <button onClick={() => setNodeToDisconnect(null)}><X size={24} strokeWidth={3}/></button>
+                                <button onClick={() => setNodeToDisconnect(null)} className="hover:text-red-300 transition-colors"><X size={22} strokeWidth={3}/></button>
                             </div>
-                            <div className="p-6 space-y-4">
-                                <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    You are about to terminate the link with <span className="text-red-500">{nodeToDisconnect.platform.toUpperCase()}</span>.
+                            <div className="p-6 space-y-5">
+                                <div className="border-l-4 border-red-500 pl-3">
+                                    <p className="font-black uppercase text-xs text-white">
+                                        Terminate link with{' '}
+                                        <span className="text-red-400">{nodeToDisconnect.platform.toUpperCase()}</span>
+                                    </p>
+                                </div>
+                                <p className="text-[10px] font-mono text-zinc-400 leading-relaxed">
+                                    All scheduled posts and real-time syncing for this node will be disabled immediately. This action cannot be undone.
                                 </p>
-                                <p className="text-[10px] font-mono opacity-70 text-black dark:text-white leading-relaxed">
-                                    This will disable scheduled posts and real-time syncing for this node. This action is irreversible.
-                                </p>
-                                <div className="grid grid-cols-2 gap-3 pt-2">
-                                    <button 
+                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                    <button
                                         onClick={() => setNodeToDisconnect(null)}
-                                        className="py-3 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                        className="py-3 bg-zinc-800 text-zinc-200 border-2 border-zinc-600 font-black uppercase text-[10px] hover:bg-zinc-700 hover:border-zinc-500 transition-all"
                                     >
-                                        Abort_Mission
+                                        Abort
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => disconnectMutation.mutate(nodeToDisconnect.id)}
                                         disabled={disconnectMutation.isPending}
-                                        className="py-3 bg-red-500 text-white border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-50"
+                                        className="py-3 bg-red-600 text-white border-2 border-red-400 font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#991b1b] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-50"
                                     >
-                                        {disconnectMutation.isPending ? "Terminating..." : "Confirm_Delete"}
+                                        {disconnectMutation.isPending ? "Terminating..." : "Confirm"}
                                     </button>
                                 </div>
                             </div>
