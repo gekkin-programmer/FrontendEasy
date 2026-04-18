@@ -8,7 +8,7 @@ import { api } from '@/src/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, Copy, CheckCheck, Pause, Play
+  Link as LinkIcon, Trash2, Check, Crown, X, Copy, CheckCheck, Pause, Play
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
