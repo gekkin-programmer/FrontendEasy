@@ -115,7 +115,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-[#3C48F5] shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
                             title="Upgrade to add more nodes"
                         >
                             <Crown size={16} className="text-black" />
