@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -115,6 +115,18 @@ export default function Team({ workspaceId }: TeamProps) {
   // Form State
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("MEMBER");
+  const [isRoleOpen, setIsRoleOpen] = useState(false);
+  const roleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (roleRef.current && !roleRef.current.contains(e.target as Node)) {
+        setIsRoleOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const handleInvite = () => {
     if (!email.includes('@')) return toast.error("INVALID_EMAIL");
@@ -160,28 +172,58 @@ export default function Team({ workspaceId }: TeamProps) {
             </div>
             
             <div className="flex gap-4 flex-col sm:flex-row">
+                {/* Email Input */}
                 <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-zinc-400" size={18} />
-                    <input 
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" size={18} />
+                    <input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                         placeholder="TEAM_MEMBER_EMAIL"
-                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 transition-all uppercase text-black dark:text-white"
+                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:border-[#3C48F5] focus:bg-[#EEF0FF] dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all uppercase text-black dark:text-white"
                     />
                 </div>
-                <div className="relative min-w-[160px]">
-                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-white z-10 pointer-events-none" size={16} />
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white z-10 pointer-events-none" size={14} strokeWidth={3} />
-                    <select
-                        value={role}
-                        onChange={e => setRole(e.target.value)}
-                        className="w-full h-full bg-white dark:bg-zinc-800 border-2 border-black dark:border-white pl-10 pr-9 py-3 font-black text-sm outline-none cursor-pointer appearance-none uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-yellow-50 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] transition-all text-black dark:text-white"
+
+                {/* Custom Role Dropdown */}
+                <div ref={roleRef} className="relative min-w-[160px]">
+                    <button
+                        type="button"
+                        onClick={() => setIsRoleOpen(v => !v)}
+                        className={cn(
+                            "w-full flex items-center pl-10 pr-4 py-3 border-2 border-black dark:border-white font-black text-sm uppercase transition-all text-left text-black dark:text-white",
+                            isRoleOpen
+                                ? "bg-[#3C48F5] text-white border-[#3C48F5] shadow-none translate-x-[4px] translate-y-[4px]"
+                                : "bg-white dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-yellow-50 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000]"
+                        )}
                     >
-                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
+                        <Shield className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" size={16} />
+                        <span className="flex-1">{role}</span>
+                        <ChevronDown size={14} strokeWidth={3} className={cn("transition-transform duration-150", isRoleOpen && "rotate-180")} />
+                    </button>
+
+                    {isRoleOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] z-50 overflow-hidden">
+                            {ROLES.map(r => (
+                                <button
+                                    key={r}
+                                    type="button"
+                                    onClick={() => { setRole(r); setIsRoleOpen(false); }}
+                                    className={cn(
+                                        "w-full text-left px-4 py-3 font-black text-sm uppercase transition-colors border-b border-black/10 dark:border-white/10 last:border-b-0",
+                                        role === r
+                                            ? "bg-[#3C48F5] text-white"
+                                            : "text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-zinc-700"
+                                    )}
+                                >
+                                    {r}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
                 <NeuButton onClick={handleInvite} disabled={inviteMutation.isPending} variant="primary" className="px-8 py-3">
-                    {inviteMutation.isPending ? 'SYNCING...' : 'INVITE'}
+                    {inviteMutation.isPending ? 'SENDING...' : 'INVITE'}
                 </NeuButton>
             </div>
         </div>
@@ -201,7 +243,7 @@ export default function Team({ workspaceId }: TeamProps) {
                  <button onClick={() => { refetchMembers(); refetchReviews(); }} className="ml-auto px-4 hover:bg-gray-200 dark:hover:bg-zinc-700 border-l-2 border-black dark:border-white text-black dark:text-white"><RefreshCw size={14} /></button>
              </div>
 
-             <div className="flex-1 overflow-y-auto bg-blue-50 dark:bg-zinc-900 p-4">
+             <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-4">
                  {/* LIST: MEMBERS */}
                  {activeTab === 'members' && (
                      <div className="space-y-3">
@@ -224,6 +266,36 @@ export default function Team({ workspaceId }: TeamProps) {
                                      {m.role !== 'OWNER' && (
                                          <button onClick={() => removeMemberMutation.mutate(m.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
                                      )}
+                                 </div>
+                             </div>
+                         ))}
+                     </div>
+                 )}
+
+                 {/* LIST: PENDING INVITES */}
+                 {activeTab === 'invites' && (
+                     <div className="space-y-3">
+                         {membersLoading && [1, 2].map(i => <SkeletonMemberRow key={i} />)}
+                         {!membersLoading && pendingInvites.length === 0 && (
+                             <div className="py-20 text-center border-4 border-dashed border-gray-200 dark:border-zinc-800">
+                                 <Mail size={48} className="mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
+                                 <p className="font-black uppercase text-gray-300 dark:text-zinc-600 text-xl">No_Pending_Invites</p>
+                             </div>
+                         )}
+                         {!membersLoading && pendingInvites.map((m: any) => (
+                             <div key={m.id} className="p-4 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] flex items-center justify-between bg-white dark:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+                                 <div className="flex items-center gap-4">
+                                     <div className="w-10 h-10 border-2 border-dashed border-black dark:border-white bg-gray-50 dark:bg-zinc-700 flex items-center justify-center">
+                                         <Mail size={16} className="text-gray-400 dark:text-zinc-400" />
+                                     </div>
+                                     <div>
+                                         <p className="text-sm font-black uppercase text-black dark:text-white">{m.user?.email}</p>
+                                         <p className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400 uppercase">awaiting acceptance</p>
+                                     </div>
+                                 </div>
+                                 <div className="flex items-center gap-3">
+                                     <div className="px-2 py-1 bg-yellow-400 text-black text-[10px] font-black border border-black uppercase">{m.role}</div>
+                                     <button onClick={() => removeMemberMutation.mutate(m.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
                                  </div>
                              </div>
                          ))}
