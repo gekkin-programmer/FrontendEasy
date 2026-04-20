@@ -82,48 +82,17 @@ export default function CollaborateSection() {
           </motion.div>
         </motion.div>
 
-        {/* === 2. MacBook Mockup === */}
+        {/* === 2. Preview GIF === */}
         <motion.div
-          className="relative w-full max-w-6xl mx-auto mt-auto px-4 md:px-0"
+          className="w-full max-w-6xl mx-auto mt-auto px-4 md:px-0"
           variants={fadeLeft} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
         >
-          {/* MacBook Lid */}
-          <div className="relative mx-auto" style={{ width: '100%' }}>
-            {/* Screen housing */}
-            <div className="relative bg-gradient-to-b from-[#d1d1d1] to-[#b8b8b8] rounded-t-2xl border-[3px] border-[#a0a0a0] shadow-[0_-4px_20px_rgba(0,0,0,0.4)] p-[10px] pb-0">
-              {/* Camera notch */}
-              <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#555] border border-[#444]" />
-              {/* Screen bezel */}
-              <div className="bg-black rounded-t-xl overflow-hidden border border-[#222]">
-                {/* Screen content area */}
-                <div className="aspect-[16/10] w-full bg-gray-900 flex items-center justify-center relative">
-                  <div className="text-center space-y-3">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-600">Your mockup here</div>
-                    <div className="w-16 h-0.5 bg-gray-700 mx-auto" />
-                    <div className="text-[9px] font-mono text-gray-700">app.eazypost.cm/team</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Hinge */}
-            <div className="bg-gradient-to-b from-[#b0b0b0] to-[#c8c8c8] h-[6px] border-x-[3px] border-[#a0a0a0] shadow-inner" />
-            {/* Base / keyboard */}
-            <div className="bg-gradient-to-b from-[#c8c8c8] to-[#d8d8d8] rounded-b-2xl border-[3px] border-t-0 border-[#a0a0a0] px-6 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-              {/* Keyboard rows (decorative) */}
-              <div className="space-y-1.5 mb-3">
-                {[11, 9, 9, 9].map((cols, row) => (
-                  <div key={row} className="flex gap-1 justify-center">
-                    {[...Array(cols)].map((_, i) => (
-                      <div key={i} className="h-3 flex-1 max-w-[28px] bg-[#b8b8b8] rounded-sm border border-[#a0a0a0] shadow-[0_1px_0_#888]" />
-                    ))}
-                  </div>
-                ))}
-              </div>
-              {/* Trackpad */}
-              <div className="mx-auto w-24 h-14 bg-[#b8b8b8] rounded-lg border border-[#a0a0a0] shadow-inner" />
-            </div>
-          </div>
+          <img
+            src="/assets/Team.gif"
+            alt="Team collaboration preview"
+            className="w-full border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]"
+          />
         </motion.div>
 
       </div>
