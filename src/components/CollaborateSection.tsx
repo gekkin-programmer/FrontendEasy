@@ -27,12 +27,12 @@ export default function CollaborateSection() {
 
   return (
     <section
-      className="w-full py-16 md:py-20 px-4 flex justify-center font-sans relative overflow-hidden"
+      className="w-full py-16 md:py-20 flex justify-center font-sans relative overflow-hidden"
       aria-label="Collaboration Features"
     >
       <SectionBackground />
       {/* Main Container Card */}
-      <div className="relative w-full max-w-7xl bg-black border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
+      <div className="relative w-full bg-black border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, black 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
@@ -84,7 +84,7 @@ export default function CollaborateSection() {
 
         {/* === 2. MacBook Mockup === */}
         <motion.div
-          className="relative w-full max-w-4xl mx-auto mt-auto px-4 md:px-0"
+          className="relative w-full max-w-6xl mx-auto mt-auto px-4 md:px-0"
           variants={fadeLeft} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
         >
