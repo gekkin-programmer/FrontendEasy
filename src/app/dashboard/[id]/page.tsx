@@ -502,11 +502,33 @@ function DashboardContent() {
         });
     };
 
+    // --- INVITE ACCEPTANCE ---
+    const inviteProcessedRef = useRef(false);
+    useEffect(() => {
+        const inviteToken = searchParams.get('invite');
+        if (!inviteToken || !workspaceId || inviteProcessedRef.current) return;
+        inviteProcessedRef.current = true;
+
+        api.post(`/workspaces/${workspaceId}/members/accept`, { token: inviteToken })
+            .then(() => {
+                toast.success('You joined the workspace!');
+                queryClient.invalidateQueries({ queryKey: ['team-members', workspaceId] });
+                queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+            })
+            .catch(() => {})
+            .finally(() => {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('invite');
+                url.searchParams.delete('email');
+                window.history.replaceState(null, '', url.toString());
+            });
+    }, [searchParams, workspaceId, queryClient]);
+
     // --- OAUTH LOGIC ---
     useEffect(() => {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
-        const success = searchParams.get('success'); 
+        const success = searchParams.get('success');
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {

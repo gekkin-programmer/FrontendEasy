@@ -240,7 +240,13 @@ export default function Team({ workspaceId }: TeamProps) {
                  <button onClick={() => setActiveTab('approvals')} className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'approvals' ? 'bg-blue-500 text-white' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
                     WAITING_APPROVAL <span className="bg-white text-black px-1.5 py-0.5 text-[8px] font-mono">{reviewPosts.length}</span>
                  </button>
-                 <button onClick={() => { refetchMembers(); refetchReviews(); }} className="ml-auto px-4 hover:bg-gray-200 dark:hover:bg-zinc-700 border-l-2 border-black dark:border-white text-black dark:text-white"><RefreshCw size={14} /></button>
+                 <button
+                   onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchReviews(); }}
+                   className="ml-auto px-5 py-4 hover:bg-yellow-400 dark:hover:bg-yellow-500 hover:text-black border-l-2 border-black dark:border-white text-black dark:text-white transition-colors"
+                   title="Refresh"
+                 >
+                   <RefreshCw size={14} />
+                 </button>
              </div>
 
              <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-4">
@@ -382,7 +388,12 @@ export default function Team({ workspaceId }: TeamProps) {
          <div className="p-3 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900">
              <div className="relative w-full flex gap-2">
                  <input placeholder="TYPE_MESSAGE..." className="w-full pl-4 pr-4 py-3 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white" />
-                 <button className="px-4 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-600 transition-all"><Send size={18} strokeWidth={3} /></button>
+                 <button
+                   onClick={() => toast.info("Team chat coming soon")}
+                   className="px-4 py-3 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-yellow-400 hover:text-black hover:border-yellow-400 dark:hover:bg-yellow-500 dark:hover:text-black dark:hover:border-yellow-500 transition-all flex-shrink-0"
+                 >
+                   <Send size={18} strokeWidth={3} />
+                 </button>
              </div>
          </div>
       </div>
