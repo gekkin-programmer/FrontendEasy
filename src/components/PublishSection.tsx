@@ -60,8 +60,36 @@ export default function PublishSection() {
                 
                 {/* Image Content */}
                 <div className="p-4 bg-gray-100 dark:bg-black">
-                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-gray-200 flex items-center justify-center">
-                        <span className="text-xs font-black uppercase text-gray-400 tracking-widest">Coming Soon</span>
+                    <div className="border-2 border-black overflow-hidden relative bg-white flex flex-col">
+                        {/* Platform pills */}
+                        <div className="border-b-2 border-black p-2 flex gap-1.5 flex-wrap">
+                          {[
+                            { label: "FB", active: true },
+                            { label: "IG", active: true },
+                            { label: "X", active: false },
+                            { label: "LI", active: false },
+                          ].map((p) => (
+                            <span key={p.label} className={`text-[9px] font-black px-2 py-0.5 border-2 border-black ${p.active ? "bg-[#3C48F5] text-white" : "bg-white text-black"}`}>{p.label}</span>
+                          ))}
+                        </div>
+                        {/* Post content */}
+                        <div className="p-3 flex-1 text-left space-y-1">
+                          <p className="font-bold text-black text-[11px] leading-tight">Our new product line drops this Friday!</p>
+                          <p className="text-gray-500 text-[10px] leading-relaxed">Built for creators across Africa. Join the waitlist and be first to get access.</p>
+                          <p className="text-[#3C48F5] text-[10px] font-bold">#EazyPost #ContentCreator #Africa</p>
+                        </div>
+                        {/* Footer bar */}
+                        <div className="border-t-2 border-black p-2 flex justify-between items-center">
+                          <span className="text-[9px] font-mono text-gray-400">142 / 280</span>
+                          <div className="flex gap-1">
+                            <div className="w-5 h-5 bg-gray-100 border-2 border-black flex items-center justify-center">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-2.5 h-2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                            <div className="w-5 h-5 bg-gray-100 border-2 border-black flex items-center justify-center">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-2.5 h-2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                     
                     {/* Simulated UI Actions */}
@@ -73,7 +101,7 @@ export default function PublishSection() {
                             <div className="flex items-center gap-1 text-[10px] md:text-xs font-mono font-bold bg-white border-2 border-black px-2 py-1 text-black">
                                 <Clock className="w-3 h-3" /> 11:45 AM
                             </div>
-                            <button type="button" className="cursor-pointer px-4 py-1.5 md:px-6 md:py-2 bg-white text-black font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-[10px] md:text-xs uppercase hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
+                            <button type="button" className="cursor-pointer px-4 py-1.5 md:px-6 md:py-2 bg-white text-black font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-[10px] md:text-xs uppercase hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
                                 {t("Schedule", "Programmer")}
                             </button>
                         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaLightbulb } from 'react-icons/fa';
 import { IoScanSharp } from 'react-icons/io5';
@@ -310,10 +311,13 @@ const AnalyzeSection = () => {
 
           {/* Right: Analytics illustration */}
           <div className="hidden lg:flex items-center justify-center">
-            <img
+            <Image
               src="/assets/undraw_analytics.png"
               alt="Analytics illustration"
-              className="w-full max-w-md mx-auto"
+              width={520}
+              height={420}
+              className="w-full max-w-lg mx-auto"
+              priority
             />
           </div>
 

@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { FaCheck, FaInstagram, FaLinkedinIn, FaPaintBrush, FaStore } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaCheck, FaInstagram, FaLinkedinIn, FaFacebookF, FaPinterestP, FaYoutube } from 'react-icons/fa';
+import { FaXTwitter, FaTiktok } from 'react-icons/fa6';
+import { SiThreads } from 'react-icons/si';
 import { useLanguage } from '../context/LanguageContext';
 import SectionBackground from './SectionBackground';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,15 +27,15 @@ const creatorsData: CreatorData[] = [
 ];
 
 const businessesData: CreatorData[] = [
-  { imgSrc: '/assets/PBD.jpg', name: 'PBD', followers: '8.2K', platform: 'Facebook', platformIcon: <FaStore size={14}/>, iconBgClass: 'bg-green-600' },
-  { imgSrc: '/assets/meetormatch.jpg', name: 'MeetOrMatch', followers: '15.7K', platform: 'Pinterest', platformIcon: <FaPaintBrush size={14}/>, iconBgClass: 'bg-red-500' },
+  { imgSrc: '/assets/PBD.jpg', name: 'PBD', followers: '8.2K', platform: 'Facebook', platformIcon: <FaFacebookF size={14}/>, iconBgClass: 'bg-[#1877F2]' },
+  { imgSrc: '/assets/meetormatch.jpg', name: 'MeetOrMatch', followers: '15.7K', platform: 'Pinterest', platformIcon: <FaPinterestP size={14}/>, iconBgClass: 'bg-[#E60023]' },
   { imgSrc: '/assets/logo.JFN.png', name: 'JFN High Tech', followers: '25.3K', platform: 'Instagram', platformIcon: <FaInstagram size={14}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
 ];
 
 const agenciesData: CreatorData[] = [
-  { imgSrc: '/assets/YungEra.jpg', name: 'Yung Era', followers: '150+', platform: 'Instagram', platformIcon: <FaInstagram size={14}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
+  { imgSrc: '/assets/YungEra.jpg', name: 'Yung Era', followers: '150+', platform: 'TikTok', platformIcon: <FaTiktok size={14}/>, iconBgClass: 'bg-black' },
   { imgSrc: '/assets/VirtualKnit.jpg', name: 'Creative Labs', followers: '99K', platform: 'LinkedIn', platformIcon: <FaLinkedinIn size={14}/>, iconBgClass: 'bg-[#0A66C2]' },
-  { imgSrc: '/assets/brutalism5.jpg', name: 'Pixel Perfect', followers: 'Top Rated', platform: 'Dribbble', platformIcon: <FaPaintBrush size={14}/>, iconBgClass: 'bg-pink-500' },
+  { imgSrc: '/assets/brutalism5.jpg', name: 'Pixel Perfect', followers: 'Top Rated', platform: 'Threads', platformIcon: <SiThreads size={14}/>, iconBgClass: 'bg-black' },
 ];
 
 // --- COMPONENTS ---
