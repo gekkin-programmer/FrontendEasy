@@ -1,22 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { formatDistanceToNow, parseISO, format } from 'date-fns';
+import { parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 
 // Icons
-import { 
-  Users, Mail, Trash2, Send, MessageSquare, 
-  Clock, X, PlusCircle, UserPlus, Hash, Shield, Crown, RefreshCw,
-  FileCheck, Eye, CheckCircle2, AlertCircle
+import {
+  Mail, Trash2, Send, MessageSquare,
+  Clock, X, UserPlus, Hash, Shield, Crown, RefreshCw,
+  FileCheck, Eye, CheckCircle2, ChevronDown
 } from 'lucide-react';
-import SpinningLoader from '../SpinningLoader';
-
-// UI
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 // Available Roles
 const ROLES = ['ADMIN', 'MEMBER', 'VIEWER'];
@@ -38,6 +34,20 @@ const NeuButton = ({ children, onClick, className = "", variant = "default", dis
   );
 };
 
+// Skeleton row shown while members load
+const SkeletonMemberRow = () => (
+  <div className="p-4 border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-between bg-white animate-pulse">
+    <div className="flex items-center gap-4">
+      <div className="w-10 h-10 bg-gray-200 border-2 border-black flex-shrink-0" />
+      <div className="space-y-2">
+        <div className="h-3 w-36 bg-gray-200 rounded-sm" />
+        <div className="h-2 w-52 bg-gray-100 rounded-sm" />
+      </div>
+    </div>
+    <div className="h-6 w-16 bg-gray-200" />
+  </div>
+);
+
 interface TeamProps {
   workspaceId: string;
 }
@@ -47,6 +57,12 @@ export default function Team({ workspaceId }: TeamProps) {
   const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'approvals'>('members');
   
   // --- QUERIES ---
+  const { data: workspace } = useQuery({
+    queryKey: ['workspace', workspaceId],
+    queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
+    enabled: !!workspaceId,
+  });
+
   const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery({
     queryKey: ['team-members', workspaceId],
     queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`).then(res => res || []),
@@ -109,8 +125,6 @@ export default function Team({ workspaceId }: TeamProps) {
   const activeCrew = members.filter((m: any) => m.status === 'ACTIVE' || m.status === 'JOINED' || m.status === 'OWNER');
   const pendingInvites = members.filter((m: any) => m.status === 'INVITED' || m.status === 'PENDING');
 
-  if (membersLoading && activeTab === 'members') return <SpinningLoader fullScreen={false} />;
-
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 font-sans text-black dark:text-white transition-colors">
       
@@ -121,8 +135,24 @@ export default function Team({ workspaceId }: TeamProps) {
         <div className="bg-white dark:bg-zinc-900 p-6 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] flex-shrink-0">
             <div className="flex justify-between items-start mb-6 border-b-2 border-dashed border-gray-300 dark:border-zinc-700 pb-4">
                 <div>
-                    <h2 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">Team_Control_Center</h2>
-                    <p className="text-sm font-medium text-gray-500 dark:text-zinc-400 font-mono mt-1 uppercase tracking-widest">Workspace_Context: {workspaceId.substring(0, 8)}...</p>
+                    <h2 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">
+                      {workspace?.name || 'Team Control Center'}
+                    </h2>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className="text-[10px] font-mono text-gray-500 dark:text-zinc-400 uppercase tracking-widest">
+                        {activeCrew.length} member{activeCrew.length !== 1 ? 's' : ''}
+                      </span>
+                      {pendingInvites.length > 0 && (
+                        <span className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400 uppercase tracking-widest">
+                          · {pendingInvites.length} pending
+                        </span>
+                      )}
+                      {workspace?.owner?.planType && (
+                        <span className="bg-[#3C48F5] text-white text-[9px] font-black px-2 py-0.5 uppercase border border-black">
+                          {workspace.owner.planType}
+                        </span>
+                      )}
+                    </div>
                 </div>
                 <div className="p-3 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                     <UserPlus size={24} className="text-black dark:text-white" />
@@ -139,12 +169,13 @@ export default function Team({ workspaceId }: TeamProps) {
                         className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 transition-all uppercase text-black dark:text-white"
                     />
                 </div>
-                <div className="relative">
+                <div className="relative min-w-[160px]">
                     <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-white z-10 pointer-events-none" size={16} />
-                    <select 
-                        value={role} 
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-white z-10 pointer-events-none" size={14} strokeWidth={3} />
+                    <select
+                        value={role}
                         onChange={e => setRole(e.target.value)}
-                        className="h-full bg-white dark:bg-zinc-800 border-2 border-black dark:border-white pl-10 pr-8 py-3 font-bold text-sm outline-none cursor-pointer appearance-none uppercase w-full sm:w-auto hover:bg-gray-50 text-black dark:text-white"
+                        className="w-full h-full bg-white dark:bg-zinc-800 border-2 border-black dark:border-white pl-10 pr-9 py-3 font-black text-sm outline-none cursor-pointer appearance-none uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-yellow-50 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] transition-all text-black dark:text-white"
                     >
                         {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
@@ -170,11 +201,12 @@ export default function Team({ workspaceId }: TeamProps) {
                  <button onClick={() => { refetchMembers(); refetchReviews(); }} className="ml-auto px-4 hover:bg-gray-200 dark:hover:bg-zinc-700 border-l-2 border-black dark:border-white text-black dark:text-white"><RefreshCw size={14} /></button>
              </div>
 
-             <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-4">
+             <div className="flex-1 overflow-y-auto bg-blue-50 dark:bg-zinc-900 p-4">
                  {/* LIST: MEMBERS */}
                  {activeTab === 'members' && (
                      <div className="space-y-3">
-                         {activeCrew.map((m: any) => (
+                         {membersLoading && [1, 2, 3].map(i => <SkeletonMemberRow key={i} />)}
+                         {!membersLoading && activeCrew.map((m: any) => (
                              <div key={m.id} className="p-4 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] flex items-center justify-between bg-white dark:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
                                  <div className="flex items-center gap-4">
                                      <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 flex items-center justify-center font-black uppercase text-sm">
