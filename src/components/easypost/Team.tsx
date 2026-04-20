@@ -11,8 +11,8 @@ import { useSocket } from '@/src/context/SocketContext';
 // Icons
 import {
   Mail, Trash2, Send, MessageSquare,
-  Clock, X, UserPlus, Hash, Shield, Crown, RefreshCw,
-  FileCheck, Eye, CheckCircle2, ChevronDown, Wifi, WifiOff,
+  Clock, X, UserPlus, Shield, Crown, RefreshCw,
+  FileCheck, Eye, CheckCircle2, ChevronDown,
 } from 'lucide-react';
 
 // Available Roles
@@ -69,7 +69,7 @@ interface TeamProps {
 
 export default function Team({ workspaceId }: TeamProps) {
   const queryClient = useQueryClient();
-  const { socket, isConnected } = useSocket();
+  const { socket } = useSocket();
   const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'approvals'>('members');
 
   // ── QUERIES ───────────────────────────────────────────────────────────
@@ -154,6 +154,7 @@ export default function Team({ workspaceId }: TeamProps) {
   const [channelId, setChannelId] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(true);
+  const [chatExpanded, setChatExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -220,6 +221,7 @@ export default function Team({ workspaceId }: TeamProps) {
     const text = chatInput.trim();
     if (!text || !channelId) return;
     setChatInput('');
+    setChatExpanded(false);
     inputRef.current?.focus();
 
     // Optimistic: add message locally (will be deduped by socket)
@@ -278,7 +280,7 @@ export default function Team({ workspaceId }: TeamProps) {
     <div className="flex flex-col lg:flex-row gap-6 font-sans text-black dark:text-white transition-colors" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
 
       {/* LEFT: MANAGEMENT */}
-      <div className="flex-1 min-w-0 flex flex-col gap-6 overflow-hidden">
+      <div className={cn("flex flex-col gap-6 overflow-hidden transition-all duration-300", chatExpanded ? "w-0 opacity-0 pointer-events-none flex-none" : "flex-1 min-w-0 opacity-100")}>
 
         {/* Invite Box */}
         <div className="bg-white dark:bg-zinc-900 p-6 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] flex-shrink-0">
@@ -388,7 +390,7 @@ export default function Team({ workspaceId }: TeamProps) {
             </button>
             <button
               onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchReviews(); }}
-              className="ml-auto px-5 py-4 hover:bg-yellow-400 dark:hover:bg-yellow-500 hover:text-black active:bg-yellow-500 active:text-black border-l-2 border-black dark:border-white text-black dark:text-white transition-colors"
+              className="ml-auto px-5 py-4 hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600 border-l-2 border-black dark:border-white text-black dark:text-white transition-colors"
               title="Refresh"
             >
               <RefreshCw size={14} />
@@ -514,21 +516,10 @@ export default function Team({ workspaceId }: TeamProps) {
       </div>
 
       {/* RIGHT: TEAM CHAT */}
-      <div className="w-full lg:w-[320px] flex-shrink-0 flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden min-h-0">
+      <div className={cn("flex-shrink-0 flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden min-h-0 transition-all duration-300", chatExpanded ? "flex-1 w-full" : "w-full lg:w-[320px]")}>
 
         {/* Chat Header */}
-        <div className="flex-shrink-0 px-4 py-3 border-b-2 border-black dark:border-white flex items-center justify-between bg-white dark:bg-zinc-900">
-          <div className="flex items-center gap-2">
-            <div className="p-1 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white">
-              <Hash size={14} />
-            </div>
-            <span className="font-black text-sm uppercase tracking-wider">TEAM_FLOW</span>
-          </div>
-          <div className={cn("flex items-center gap-1.5 text-[9px] font-black uppercase", isConnected ? "text-green-800" : "text-red-800")}>
-            {isConnected ? <Wifi size={12} strokeWidth={2.5} /> : <WifiOff size={12} strokeWidth={2.5} />}
-            {isConnected ? 'LIVE' : 'OFFLINE'}
-          </div>
-        </div>
+        <div className="flex-shrink-0 px-4 py-3 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900" />
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1 bg-white dark:bg-zinc-900 min-h-0">
@@ -614,6 +605,7 @@ export default function Team({ workspaceId }: TeamProps) {
               value={chatInput}
               onChange={e => setChatInput(e.target.value)}
               onKeyDown={handleChatKey}
+              onFocus={() => setChatExpanded(true)}
               placeholder="TYPE_MESSAGE..."
               disabled={!channelId}
               className="flex-1 min-w-0 px-3 py-2.5 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-[#3C48F5] focus:shadow-[3px_3px_0px_0px_#3C48F5] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
