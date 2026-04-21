@@ -43,6 +43,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme]);
 
+  // Sync <html lang> with selected language
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const toggleLanguage = () => {
     setLanguage((prev) => {
       const newLang = prev === 'en' ? 'fr' : 'en';

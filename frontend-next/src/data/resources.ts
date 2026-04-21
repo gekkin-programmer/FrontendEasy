@@ -22,7 +22,7 @@ export const resources: Resource[] = [
     category: 'Guide',
     title: 'The Ultimate Guide to Social Media Scheduling in 2026',
     description: 'Learn how to automate your workflow and save 10 hours a week with these proven strategies.',
-    image: '/assets/3.jpg', // Ensure you have these images or use placeholders
+    image: '/assets/3.jpg', 
     date: 'Jan 4, 2026',
     readTime: '5 min read',
     link: '#'

@@ -11,8 +11,6 @@ export interface Workspace {
   default_platforms: string[];
   timezone: string;
   default_language: string;
-  
-  // ✅ NEW FIELDS
   plan?: 'free' | 'starter' | 'pro' | 'agency' | 'enterprise'; 
   notify_on_publish?: boolean;
   notify_on_failure?: boolean;

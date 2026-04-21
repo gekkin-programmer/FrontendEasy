@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Calendar, Clock, Wand2, Bell, CheckCircle } from "lucide-react";
+import { Calendar, Wand2, Bell, CheckCircle } from "lucide-react";
 import { useLanguage } from '../context/LanguageContext';
 import SectionBackground from './SectionBackground';
 
@@ -46,39 +46,13 @@ export default function PublishSection() {
         
         {/* LEFT – VISUAL (The Browser Window) */}
         <div className="relative order-2 lg:order-1">
-            {/* The Window Frame */}
-            <HardCard className="rounded-xl overflow-hidden p-0 bg-gray-900">
-                {/* Browser Bar */}
-                <div className="bg-white dark:bg-zinc-900 border-b-4 border-black p-3 flex items-center gap-2">
-                    <div className="flex gap-1.5">
-                        <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-red-500 border-2 border-black"></div>
-                        <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-blue-400 border-2 border-black"></div>
-                        <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-green-500 border-2 border-black"></div>
-                    </div>
-                    <div className="flex-1 bg-gray-100 border-2 border-black h-4 md:h-6 mx-4 rounded-full"></div>
-                </div>
-                
-                {/* Image Content */}
-                <div className="p-4 bg-gray-100 dark:bg-black">
-                    <div className="border-2 border-black rounded-lg overflow-hidden relative aspect-video bg-gray-200 flex items-center justify-center">
-                        <span className="text-xs font-black uppercase text-gray-400 tracking-widest">Coming Soon</span>
-                    </div>
-                    
-                    {/* Simulated UI Actions */}
-                    <div className="flex justify-between items-center mt-4">
-                        <button className="px-3 py-1.5 md:px-4 md:py-2 bg-white text-black font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] text-[10px] md:text-xs uppercase">
-                            {t("Save Draft", "Brouillon")}
-                        </button>
-                        <div className="flex items-center gap-2 md:gap-3">
-                            <div className="flex items-center gap-1 text-[10px] md:text-xs font-mono font-bold bg-white border-2 border-black px-2 py-1 text-black">
-                                <Clock className="w-3 h-3" /> 11:45 AM
-                            </div>
-                            <button type="button" className="cursor-pointer px-4 py-1.5 md:px-6 md:py-2 bg-white text-black font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-[10px] md:text-xs uppercase hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all">
-                                {t("Schedule", "Programmer")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Illustration Card */}
+            <HardCard className="rounded-xl overflow-hidden p-0 bg-white">
+                <img
+                  src="/assets/undraw_writing-online.svg"
+                  alt="Writing online illustration"
+                  className="w-full h-auto object-contain p-8 md:p-10"
+                />
             </HardCard>
 
             {/* Floating Sticker */}

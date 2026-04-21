@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { boardApi, Board, BoardColumn, Card } from '@/services/boardApi';
 import { toast } from 'sonner';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, MoreVertical, Calendar, User as UserIcon, 
@@ -97,7 +98,8 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [newBoardName, setNewBoardName] = useState('');
-  
+  const { t } = useLanguage();
+
   const queryClient = useQueryClient();
 
   // Fetch Boards
@@ -110,13 +112,13 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   const createBoardMutation = useMutation({
     mutationFn: (name: string) => boardApi.createBoard(workspaceId, { name }),
     onSuccess: (newBoard) => {
-      toast.success('BOARD_INITIALIZED');
+      toast.success(t('BOARD_INITIALIZED', 'TABLEAU_INITIALISÉ'));
       setIsCreateBoardOpen(false);
       setNewBoardName('');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
       setSelectedBoardId(newBoard.id);
     },
-    onError: () => toast.error('BOARD_INIT_FAILED')
+    onError: () => toast.error(t('BOARD_INIT_FAILED', 'INIT_TABLEAU_ÉCHOUÉE'))
   });
 
   if (isLoading) return <BoardsListSkeleton />;
@@ -136,23 +138,23 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">Workspace Boards</h2>
-          <p className="text-sm font-bold text-gray-500 uppercase">Manage your projects and tasks</p>
+          <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{t("Workspace Boards", "Tableaux de l'Espace")}</h2>
+          <p className="text-sm font-bold text-gray-500 uppercase">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
         </div>
         <NeuButton onClick={() => setIsCreateBoardOpen(true)} className="bg-[#3C48F5] text-white">
-          <Plus size={20} className="mr-2" /> NEW_BOARD
+          <Plus size={20} className="mr-2" /> {t("NEW_BOARD", "NOUVEAU_TABLEAU")}
         </NeuButton>
       </div>
 
       {boards.length === 0 ? (
         <div className="py-20 text-center border-4 border-dashed border-gray-300 dark:border-zinc-800">
           <Layout size={48} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-black uppercase text-gray-400">No boards found in this workspace</h3>
-          <button 
+          <h3 className="text-xl font-black uppercase text-gray-400">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
+          <button
             onClick={() => setIsCreateBoardOpen(true)}
             className="mt-4 text-[#3C48F5] font-black uppercase underline hover:no-underline"
           >
-            Create your first board
+            {t("Create your first board", "Créer votre premier tableau")}
           </button>
         </div>
       ) : (
@@ -171,7 +173,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
                 />
                 <div className="pt-4">
                   <h3 className="text-lg font-black uppercase mb-2 group-hover:text-[#3C48F5]">{board.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{board.description || 'No description provided'}</p>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{board.description || t('No description provided', 'Aucune description fournie')}</p>
                   
                   <div className="flex items-center justify-between mt-auto pt-4 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
                     <span className="text-[10px] font-black uppercase bg-gray-100 dark:bg-zinc-800 px-2 py-1">
@@ -194,21 +196,21 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">Board Name</label>
-            <NeuInput 
-              placeholder="E.G. MARKETING_CAMPAIGN_2026"
+            <label className="text-xs font-black uppercase mb-1 block">{t("Board Name", "Nom du Tableau")}</label>
+            <NeuInput
+              placeholder={t("E.G. MARKETING_CAMPAIGN_2026", "EX. CAMPAGNE_MARKETING_2026")}
               value={newBoardName}
               onChange={(e: any) => setNewBoardName(e.target.value)}
               autoFocus
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsCreateBoardOpen(false)} className="bg-white">CANCEL</NeuButton>
-            <NeuButton 
+            <NeuButton onClick={() => setIsCreateBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton
               onClick={() => createBoardMutation.mutate(newBoardName)}
               className="bg-[#3C48F5] text-white"
             >
-              CREATE_BOARD
+              {t("CREATE_BOARD", "CRÉER_TABLEAU")}
             </NeuButton>
           </div>
         </div>
@@ -223,6 +225,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
 
 function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardName: string, onBack: () => void }) {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -252,7 +255,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       setIsEditBoardOpen(false);
       queryClient.invalidateQueries({ queryKey: ['boards'] });
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success('BOARD_UPDATED');
+      toast.success(t('BOARD_UPDATED', 'TABLEAU_MIS_À_JOUR'));
     }
   });
 
@@ -261,7 +264,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     onSuccess: () => {
       setIsEditColumnOpen(false);
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success('COLUMN_UPDATED');
+      toast.success(t('COLUMN_UPDATED', 'COLONNE_MISE_À_JOUR'));
     }
   });
 
@@ -270,7 +273,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     onSuccess: () => {
       setIsEditColumnOpen(false);
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success('COLUMN_DELETED');
+      toast.success(t('COLUMN_DELETED', 'COLONNE_SUPPRIMÉE'));
     }
   });
 
@@ -289,7 +292,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       setIsCreateCardOpen(false);
       setNewCardTitle('');
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success('CARD_CREATED');
+      toast.success(t('CARD_CREATED', 'CARTE_CRÉÉE'));
     }
   });
 
@@ -365,7 +368,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{board.name}</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase italic">Board View • {board.columns?.length || 0} Columns</p>
+              <p className="text-xs font-bold text-gray-500 uppercase italic">{t("Board View", "Vue Tableau")} • {board.columns?.length || 0} {t("Columns", "Colonnes")}</p>
             </div>
             <button 
               onClick={() => setIsEditBoardOpen(true)}
@@ -396,7 +399,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
             
             <button className="flex-shrink-0 w-80 h-16 border-4 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center gap-2 hover:border-[#3C48F5] hover:text-[#3C48F5] transition-all group">
               <Plus size={20} />
-              <span className="font-black uppercase text-sm">Add Column</span>
+              <span className="font-black uppercase text-sm">{t("Add Column", "Ajouter Colonne")}</span>
             </button>
           </div>
         </DndContext>
@@ -410,19 +413,19 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">New Name</label>
-            <NeuInput 
+            <label className="text-xs font-black uppercase mb-1 block">{t("New Name", "Nouveau Nom")}</label>
+            <NeuInput
               value={editBoardName}
               onChange={(e: any) => setEditBoardName(e.target.value)}
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsEditBoardOpen(false)} className="bg-white">CANCEL</NeuButton>
-            <NeuButton 
+            <NeuButton onClick={() => setIsEditBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton
               onClick={() => updateBoardMutation.mutate(editBoardName)}
               className="bg-[#3C48F5] text-white"
             >
-              UPDATE
+              {t("UPDATE", "METTRE_À_JOUR")}
             </NeuButton>
           </div>
         </div>
@@ -436,30 +439,30 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       >
         <div className="space-y-6">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">Column Name</label>
-            <NeuInput 
+            <label className="text-xs font-black uppercase mb-1 block">{t("Column Name", "Nom de la Colonne")}</label>
+            <NeuInput
               value={editColumnName}
               onChange={(e: any) => setEditColumnName(e.target.value)}
             />
           </div>
           <div className="flex justify-between items-center pt-4 border-t-2 border-dashed border-gray-100">
-            <button 
+            <button
               onClick={() => {
-                if(confirm('Are you sure? This will delete all cards in this column.')) {
+                if(confirm(t('Are you sure? This will delete all cards in this column.', 'Êtes-vous sûr ? Cela supprimera toutes les cartes de cette colonne.'))) {
                   deleteColumnMutation.mutate(editingColumn!.id);
                 }
               }}
               className="text-red-500 font-black uppercase text-xs hover:underline"
             >
-              Delete Column
+              {t("Delete Column", "Supprimer Colonne")}
             </button>
             <div className="flex gap-3">
-              <NeuButton onClick={() => setIsEditColumnOpen(false)} className="bg-white">CANCEL</NeuButton>
-              <NeuButton 
+              <NeuButton onClick={() => setIsEditColumnOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+              <NeuButton
                 onClick={() => updateColumnMutation.mutate({ id: editingColumn!.id, name: editColumnName })}
                 className="bg-black text-white"
               >
-                SAVE_CHANGES
+                {t("SAVE_CHANGES", "ENREGISTRER")}
               </NeuButton>
             </div>
           </div>
@@ -483,22 +486,22 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">Title</label>
-            <NeuInput 
-              placeholder="TASK_TITLE..."
+            <label className="text-xs font-black uppercase mb-1 block">{t("Title", "Titre")}</label>
+            <NeuInput
+              placeholder={t("TASK_TITLE...", "TITRE_TÂCHE...")}
               value={newCardTitle}
               onChange={(e: any) => setNewCardTitle(e.target.value)}
               autoFocus
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsCreateCardOpen(false)} className="bg-white">CANCEL</NeuButton>
-            <NeuButton 
+            <NeuButton onClick={() => setIsCreateCardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton
               onClick={() => createCardMutation.mutate({ columnId: targetColumnId!, title: newCardTitle })}
               className="bg-[#3C48F5] text-white"
               disabled={!newCardTitle.trim()}
             >
-              CREATE
+              {t("CREATE", "CRÉER")}
             </NeuButton>
           </div>
         </div>
@@ -511,12 +514,13 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
 // COLUMN COMPONENT
 // ==========================================
 
-function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: { 
-  column: BoardColumn, 
+function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: {
+  column: BoardColumn,
   onAddCard: () => void,
   onCardClick: (id: string) => void,
   onEditColumn: () => void
 }) {
+  const { t } = useLanguage();
   const { setNodeRef } = useDroppable({
     id: column.id,
     data: {
@@ -570,7 +574,7 @@ function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: {
         
         {column.cards?.length === 0 && (
           <div className="h-20 border-2 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center">
-             <p className="text-[10px] font-black uppercase text-gray-400">Empty_Column</p>
+             <p className="text-[10px] font-black uppercase text-gray-400">{t("Empty_Column", "Colonne_Vide")}</p>
           </div>
         )}
       </div>

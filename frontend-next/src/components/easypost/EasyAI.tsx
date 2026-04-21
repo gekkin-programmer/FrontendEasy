@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { api } from '@/src/lib/api';
 import { toast } from 'sonner';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface Message {
   role: 'user' | 'ai';
@@ -46,6 +47,7 @@ const Typewriter = ({ text, speed = 20, onComplete }: { text: string, speed?: nu
 export default function EasyAI() {
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
+  const { t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -148,7 +150,7 @@ export default function EasyAI() {
                 <div className="text-left hidden sm:block">
                     <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-wider">Online</p>
                     <p className="text-sm font-black text-black dark:text-white uppercase transition-colors">
-                        {isDashboard ? "ASK STEVE" : "NEED HELP?"}
+                        {isDashboard ? t("ASK STEVE", "DEMANDER À STEVE") : t("NEED HELP?", "BESOIN D'AIDE ?")}
                     </p>
                 </div>
             </motion.button>
@@ -194,7 +196,7 @@ export default function EasyAI() {
                                 STEVE AI
                             </h3>
                             <p className="text-[10px] font-bold text-white/80 uppercase tracking-widest">
-                                {isDashboard ? "DIGITAL MARKETER" : "SUPPORT AGENT"}
+                                {isDashboard ? t("DIGITAL MARKETER", "MARKETEUR DIGITAL") : t("SUPPORT AGENT", "AGENT DE SUPPORT")}
                             </p>
                         </div>
                     </div>
@@ -218,10 +220,10 @@ export default function EasyAI() {
                             </div>
                             <div>
                                 <p className="font-black text-xl text-black dark:text-white uppercase transition-colors">
-                                    {isDashboard ? "Let's Create Magic" : "How can I help?"}
+                                    {isDashboard ? t("Let's Create Magic", "Créons la Magie") : t("How can I help?", "Comment puis-je aider ?")}
                                 </p>
                                 <p className="text-sm font-bold text-gray-500 dark:text-zinc-400 mt-1 max-w-[200px] mx-auto uppercase">
-                                    I can write captions, analyze data, or help you navigate.
+                                    {t("I can write captions, analyze data, or help you navigate.", "Je peux rédiger des légendes, analyser des données ou vous aider à naviguer.")}
                                 </p>
                             </div>
                         </div>
@@ -298,7 +300,7 @@ export default function EasyAI() {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Type a message..."
+                            placeholder={t("Type a message...", "Tapez un message...")}
                             className="w-full pl-4 pr-14 py-3 sm:py-4 bg-gray-50 dark:bg-zinc-800 border-2 border-black dark:border-white rounded-xl text-black dark:text-white font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] focus:-translate-y-1 focus:-translate-x-1 transition-all text-sm sm:text-base disabled:opacity-50"
                             disabled={isTyping}
                         />

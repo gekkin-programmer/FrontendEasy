@@ -14,7 +14,7 @@ export interface Project {
   };
 }
 
-// Mock Database
+// Mock Database DB for test
 let PROJECTS_DB: Project[] = [
   { 
     id: 'p1', workspaceId: 1, name: 'Q3 Marketing', description: 'Social takeover', 
@@ -31,7 +31,7 @@ let PROJECTS_DB: Project[] = [
 ];
 
 const DELAY = 600;
-const MAX_PROJECTS_PER_WORKSPACE = 10; // Feature 10
+const MAX_PROJECTS_PER_WORKSPACE = 10; // Feature 10 Ten
 
 export const getProjects = async (workspaceId: number): Promise<Project[]> => {
   return new Promise((resolve) => {
@@ -57,7 +57,7 @@ export const createProject = async (workspaceId: number, data: Partial<Project>)
         description: data.description || '',
         status: 'active',
         color: data.color || '#3C48F6',
-        members: 1, // Default owner
+        members: 1, // Default owner of the space 
         stats: { posts: 0, engagement: '0%' }
       };
       PROJECTS_DB.push(newProject);
@@ -84,7 +84,7 @@ export const deleteProject = async (projectId: string): Promise<void> => {
   });
 };
 
-// Feature 6: Archive
+// Feature 6 six: Archive
 export const toggleArchiveProject = async (projectId: string): Promise<Project> => {
   return new Promise((resolve) => {
     setTimeout(() => {

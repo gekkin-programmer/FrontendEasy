@@ -3,8 +3,9 @@
 import React, { useState, useMemo } from 'react';
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api'; 
+import { api } from '@/src/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // Charting
 import { 
@@ -155,18 +156,19 @@ export default function Analytics() {
   const params = useParams();
   const workspaceId = params.id as string;
   const [viewMode, setViewMode] = useState<'stream' | 'strategy'>('stream');
+  const { t } = useLanguage();
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-500 gap-8 font-sans text-black dark:text-white transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
         <div className="border-l-4 border-[#3C48F5] pl-4">
-           <h2 className="text-3xl font-black uppercase tracking-tighter">Analytics_Hub</h2>
-           <p className="text-sm font-mono font-bold text-gray-500 dark:text-zinc-400">REAL_TIME_PERFORMANCE_TRACKING</p>
+           <h2 className="text-3xl font-black uppercase tracking-tighter">{t("Analytics_Hub", "Hub_Analytique")}</h2>
+           <p className="text-sm font-mono font-bold text-gray-500 dark:text-zinc-400">{t("REAL_TIME_PERFORMANCE_TRACKING", "SUIVI_PERFORMANCE_EN_TEMPS_RÉEL")}</p>
         </div>
         <div className="flex gap-4">
-           <NeuButton active={viewMode === 'stream'} onClick={() => setViewMode('stream')}><List size={16} strokeWidth={3} /> Live_Monitor</NeuButton>
-           <NeuButton active={viewMode === 'strategy'} onClick={() => setViewMode('strategy')}><LayoutDashboard size={16} strokeWidth={3} /> Niche_Intel</NeuButton>
+           <NeuButton active={viewMode === 'stream'} onClick={() => setViewMode('stream')}><List size={16} strokeWidth={3} /> {t("Live_Monitor", "Moniteur_Live")}</NeuButton>
+           <NeuButton active={viewMode === 'strategy'} onClick={() => setViewMode('strategy')}><LayoutDashboard size={16} strokeWidth={3} /> {t("Niche_Intel", "Intel_Niche")}</NeuButton>
         </div>
       </div>
 
@@ -184,6 +186,7 @@ export default function Analytics() {
 // VIEW 1: STRATEGY (Deep Intelligence)
 // ============================================================================
 function StrategyView({ workspaceId }: { workspaceId: string }) {
+    const { t } = useLanguage();
     
     // 1. Account Health
     const healthQuery = useQuery({
@@ -243,7 +246,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 
-                <NeuCard title="Account_Health" icon={Activity} className="bg-blue-50 dark:bg-blue-900/10">
+                <NeuCard title={t("Account_Health", "Santé_Compte")} icon={Activity} className="bg-blue-50 dark:bg-blue-900/10">
                     <div className="flex items-end justify-between mb-4">
                         <div>
                             <span className="text-5xl font-black text-black dark:text-white">{health.healthScore}</span>
@@ -254,10 +257,10 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     <div className="w-full bg-gray-200 dark:bg-zinc-800 h-4 border-2 border-black dark:border-white">
                         <div className="bg-blue-600 h-full transition-all duration-1000" style={{ width: `${health.healthScore}%` }}></div>
                     </div>
-                    <p className="mt-3 text-xs font-mono font-bold text-gray-600 dark:text-zinc-400 uppercase">AVG GAP: {health.avgPostingGap || 'N/A'}</p>
+                    <p className="mt-3 text-xs font-mono font-bold text-gray-600 dark:text-zinc-400 uppercase">{t("AVG GAP:", "ÉCART MOY:")} {health.avgPostingGap || 'N/A'}</p>
                 </NeuCard>
 
-                <NeuCard title="AI_Forecast" icon={TrendingUp}>
+                <NeuCard title={t("AI_Forecast", "Prévision_IA")} icon={TrendingUp}>
                     <div className="flex flex-col h-full justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
@@ -265,17 +268,17 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                     {forecast.trend}
                                 </span>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400 font-bold uppercase">Next Month Projection</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 font-bold uppercase">{t("Next Month Projection", "Projection Mois Prochain")}</p>
                         </div>
                         <div className="mt-4">
                             <span className="text-4xl font-black text-black dark:text-white">~{forecast.forecastNextMonth?.toLocaleString()}</span>
-                            <span className="text-sm font-bold ml-2 text-black dark:text-white uppercase">Interactions</span>
+                            <span className="text-sm font-bold ml-2 text-black dark:text-white uppercase">{t("Interactions", "Interactions")}</span>
                         </div>
-                        <p className="mt-2 text-[10px] font-mono text-gray-400 dark:text-zinc-500 uppercase">BASED ON LINEAR REGRESSION MODEL</p>
+                        <p className="mt-2 text-[10px] font-mono text-gray-400 dark:text-zinc-500 uppercase">{t("BASED ON LINEAR REGRESSION MODEL", "BASÉ SUR MODÈLE DE RÉGRESSION LINÉAIRE")}</p>
                     </div>
                 </NeuCard>
 
-                <NeuCard title="Content_ROI" icon={LayoutDashboard}>
+                <NeuCard title={t("Content_ROI", "ROI_Contenu")} icon={LayoutDashboard}>
                     <div className="h-[140px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={contentMixQuery.data || []} layout="vertical" margin={{ left: 0, right: 20 }}>
@@ -289,14 +292,14 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-center text-[10px] font-bold uppercase mt-2 text-black dark:text-white">Avg. Engagement per Type</p>
+                    <p className="text-center text-[10px] font-bold uppercase mt-2 text-black dark:text-white">{t("Avg. Engagement per Type", "Eng. Moy. par Type")}</p>
                 </NeuCard>
             </div>
 
             {/* 🟢 ACTIVITY & PLATFORM CHARTS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 
-                <NeuCard title="Activity_Timeline" icon={Activity} className="md:col-span-1">
+                <NeuCard title={t("Activity_Timeline", "Chronologie_Activité")} icon={Activity} className="md:col-span-1">
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={timelineQuery.data || []}>
@@ -308,10 +311,10 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-[10px] font-bold uppercase mt-2 text-center text-black dark:text-white">Post Frequency (Last 30 Days)</p>
+                    <p className="text-[10px] font-bold uppercase mt-2 text-center text-black dark:text-white">{t("Post Frequency (Last 30 Days)", "Fréquence Publications (30 Derniers Jours)")}</p>
                 </NeuCard>
 
-                <NeuCard title="Platform_Battle" icon={Zap} className="md:col-span-1">
+                <NeuCard title={t("Platform_Battle", "Bataille_Plateformes")} icon={Zap} className="md:col-span-1">
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={platformQuery.data || []}>
@@ -319,18 +322,18 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                 <XAxis dataKey="platform" tick={{fontSize: 10, fontWeight: 'bold', fill: 'currentColor'}} />
                                 <YAxis tick={{fontSize: 10, fontWeight: 'bold', fill: 'currentColor'}} />
                                 <Tooltip contentStyle={{ borderRadius: '0px', border: '2px solid currentColor' }} />
-                                <Bar dataKey="totalEngagement" name="Engagements" fill="#facc15" stroke="currentColor" strokeWidth={2} />
+                                <Bar dataKey="totalEngagement" name={t("Engagements", "Engagements")} fill="#facc15" stroke="currentColor" strokeWidth={2} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-[10px] font-bold uppercase mt-2 text-center text-black dark:text-white">Total Engagement per Node</p>
+                    <p className="text-[10px] font-bold uppercase mt-2 text-center text-black dark:text-white">{t("Total Engagement per Node", "Engagement Total par Nœud")}</p>
                 </NeuCard>
 
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <NeuCard title="Golden_Windows" icon={Calendar} className="lg:col-span-1">
+                <NeuCard title={t("Golden_Windows", "Créneaux_Or")} icon={Calendar} className="lg:col-span-1">
                     <div className="space-y-3">
                         {bestTimeQuery.data?.slice(0, 4).map((slot: any, i: number) => (
                             <div key={i} className="flex items-center justify-between p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all">
@@ -343,38 +346,38 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                 </div>
                                 <div className="text-right">
                                     <span className="block font-black text-green-600 dark:text-green-400">{slot.avgEngagement}</span>
-                                    <span className="text-[8px] font-bold uppercase text-gray-400 dark:text-zinc-500">Avg. Eng.</span>
+                                    <span className="text-[8px] font-bold uppercase text-gray-400 dark:text-zinc-500">{t("Avg. Eng.", "Eng. Moy.")}</span>
                                 </div>
                             </div>
                         ))}
-                        {(!bestTimeQuery.data || bestTimeQuery.data.length === 0) && <div className="text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">NEED MORE DATA</div>}
+                        {(!bestTimeQuery.data || bestTimeQuery.data.length === 0) && <div className="text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">{t("NEED MORE DATA", "PLUS DE DONNÉES NÉCESSAIRES")}</div>}
                     </div>
                 </NeuCard>
 
-                <NeuCard title="Power_Words" icon={Zap} className="lg:col-span-1">
+                <NeuCard title={t("Power_Words", "Mots_Puissants")} icon={Zap} className="lg:col-span-1">
                     <div className="flex flex-wrap gap-2 content-start h-full">
                         {smartCopyQuery.data?.map((item: any, i: number) => (
-                            <span 
-                                key={i} 
+                            <span
+                                key={i}
                                 className="px-2 py-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-xs uppercase hover:bg-blue-300 dark:hover:bg-blue-700 transition-colors cursor-default"
                                 style={{ fontSize: Math.max(10, 10 + (item.impactScore / 2)) + 'px' }}
                             >
                                 {item.word}
                             </span>
                         ))}
-                        {(!smartCopyQuery.data || smartCopyQuery.data.length === 0) && <div className="w-full text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">ANALYZING TEXT...</div>}
+                        {(!smartCopyQuery.data || smartCopyQuery.data.length === 0) && <div className="w-full text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">{t("ANALYZING TEXT...", "ANALYSE DU TEXTE...")}</div>}
                     </div>
                 </NeuCard>
 
-                <NeuCard title="Top_Hashtags" icon={Hash} className="lg:col-span-1">
+                <NeuCard title={t("Top_Hashtags", "Meilleurs_Hashtags")} icon={Hash} className="lg:col-span-1">
                     <div className="space-y-2">
                         {hashtagsQuery.data?.slice(0, 5).map((tag: any, i: number) => (
                             <div key={i} className="flex justify-between items-center border-b border-dashed border-gray-300 dark:border-zinc-700 pb-1">
                                 <span className="font-bold text-sm text-blue-600 dark:text-blue-400">#{tag.tag}</span>
-                                <span className="font-mono text-xs font-bold text-black dark:text-white uppercase">{tag.avgEngagement} Eng.</span>
+                                <span className="font-mono text-xs font-bold text-black dark:text-white uppercase">{tag.avgEngagement} {t("Eng.", "Eng.")}</span>
                             </div>
                         ))}
-                        {(!hashtagsQuery.data || hashtagsQuery.data.length === 0) && <div className="text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">NO HASHTAGS FOUND</div>}
+                        {(!hashtagsQuery.data || hashtagsQuery.data.length === 0) && <div className="text-center text-xs font-bold text-gray-400 dark:text-zinc-600 py-4 uppercase">{t("NO HASHTAGS FOUND", "AUCUN HASHTAG TROUVÉ")}</div>}
                     </div>
                 </NeuCard>
 
@@ -387,6 +390,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
 function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     const queryClient = useQueryClient();
+    const { t } = useLanguage();
     
     // 🟢 1. FETCH OVERVIEW STATS
     const { data: overview = { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 } } = useQuery({
@@ -428,19 +432,19 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
             {/* 🟢 OVERVIEW CARDS */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
                 <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">Total_Posts</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">{t("Total_Posts", "Total_Publications")}</span>
                     <span className="text-4xl font-black tabular-nums text-black dark:text-white">{overview.totalPosts || 0}</span>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">Published</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">{t("Published", "Publiées")}</span>
                     <span className="text-4xl font-black tabular-nums text-black dark:text-white">{overview.totalPosts || 0}</span>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">Scheduled</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">{t("Scheduled", "Planifiées")}</span>
                     <span className="text-4xl font-black tabular-nums text-black dark:text-white">{overview.scheduled || 0}</span>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">Drafts</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 dark:text-zinc-400 mb-1">{t("Drafts", "Brouillons")}</span>
                     <span className="text-4xl font-black tabular-nums text-black dark:text-white">{overview.drafts || 0}</span>
                 </div>
             </div>
@@ -450,21 +454,21 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
             <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0 h-full transition-colors">
                 <div className="p-4 border-b-2 border-black dark:border-white bg-[#3C48F5]">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-black text-lg uppercase text-white">Live_STREAM</h3>
+                        <h3 className="font-black text-lg uppercase text-white">{t("Live_STREAM", "FLUX_EN_DIRECT")}</h3>
                         <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-white text-black border-2 border-black px-2 py-1 text-[10px] font-bold uppercase hover:bg-zinc-100 disabled:opacity-50 flex items-center gap-1 transition-all shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
                             {syncMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin"/> : <RefreshCw className="w-3 h-3"/>}
-                            {syncMutation.isPending ? "SYNCING..." : "SYNC_NOW"}
+                            {syncMutation.isPending ? t("SYNCING...", "SYNC EN COURS...") : t("SYNC_NOW", "SYNC_MAINTENANT")}
                         </button>
                     </div>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-zinc-400 w-4 h-4" strokeWidth={3} />
-                        <input type="text" placeholder="SEARCH_POSTS..." className="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:bg-blue-50 dark:focus:bg-zinc-700 focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] transition-all uppercase text-black dark:text-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        <input type="text" placeholder={t("SEARCH_POSTS...", "CHERCHER_PUBLICATIONS...")} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:bg-blue-50 dark:focus:bg-zinc-700 focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] transition-all uppercase text-black dark:text-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-0 bg-white dark:bg-zinc-900 transition-colors">
                     {filteredPosts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-zinc-600 space-y-2 border-b-2 border-dashed border-gray-300 dark:border-zinc-700 mx-4 mt-4 uppercase">
-                            <AlertCircle size={32} strokeWidth={1} /><p className="text-sm font-bold">No_Active_Posts</p>
+                            <AlertCircle size={32} strokeWidth={1} /><p className="text-sm font-bold">{t("No_Active_Posts", "Aucune_Publication_Active")}</p>
                         </div>
                     ) : (
                         filteredPosts.map((post: AnalyticsPost) => (
@@ -478,8 +482,8 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                 {selectedPostId ? <PostAnalyticsDetailWrapper postId={selectedPostId} /> : (
                     <div className="flex-1 flex flex-col items-center justify-center text-black dark:text-white bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] dark:opacity-80 transition-all">
                         <div className="w-20 h-20 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white flex items-center justify-center mb-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all"><TrendingUp size={40} strokeWidth={1.5} /></div>
-                        <p className="font-black text-xl uppercase tracking-tight">Select_A_Post</p>
-                        <p className="font-mono text-xs text-gray-500 dark:text-zinc-400 mt-2 uppercase">VIEW_REAL_TIME_DATA</p>
+                        <p className="font-black text-xl uppercase tracking-tight">{t("Select_A_Post", "Sélectionner_Une_Publication")}</p>
+                        <p className="font-mono text-xs text-gray-500 dark:text-zinc-400 mt-2 uppercase">{t("VIEW_REAL_TIME_DATA", "VOIR_DONNÉES_EN_TEMPS_RÉEL")}</p>
                     </div>
                 )}
             </div>
@@ -498,15 +502,16 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
     });
 
     if (isLoading) return <PostDetailSkeleton />;
-    if (error || !post) return <div className="flex-1 flex flex-col items-center justify-center p-10 text-center text-black dark:text-white"><AlertCircle className="w-10 h-10 text-red-500 mb-2" /><div className="font-bold text-lg uppercase">POST DATA UNAVAILABLE</div><p className="text-sm text-gray-500 dark:text-zinc-400 max-w-xs mt-2 uppercase">This post might have been deleted or the connection to the platform was lost.</p></div>;
+    if (error || !post) return <div className="flex-1 flex flex-col items-center justify-center p-10 text-center text-black dark:text-white"><AlertCircle className="w-10 h-10 text-red-500 mb-2" /><div className="font-bold text-lg uppercase">{t("POST DATA UNAVAILABLE", "DONNÉES DE PUBLICATION INDISPONIBLES")}</div><p className="text-sm text-gray-500 dark:text-zinc-400 max-w-xs mt-2 uppercase">{t("This post might have been deleted or the connection to the platform was lost.", "Cette publication a peut-être été supprimée ou la connexion à la plateforme a été perdue.")}</p></div>;
     return <PostAnalyticsDetail post={post} />;
 }
 
 function PostListCard({ post, engagement, isSelected, onClick }: { post: AnalyticsPost, engagement: number, isSelected: boolean, onClick: () => void }) {
+    const { t } = useLanguage();
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
         <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-zinc-800">
-            <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || "No text content"}</p>
+            <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || t("No text content", "Aucun contenu textuel")}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>
                 <div className="flex items-center gap-1.5"><MessageCircle size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.comments || 0}</span></div>
@@ -516,6 +521,7 @@ function PostListCard({ post, engagement, isSelected, onClick }: { post: Analyti
 }
 
 function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
+    const { t } = useLanguage();
     const metrics = post.metrics || { likes: 0, comments: 0, shares: 0, views: 0 };
     const hasReachData = metrics.views > 0;
     const totalInteractions = metrics.likes + metrics.comments + metrics.shares;
@@ -529,13 +535,13 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
         reachDisplay = metrics.views.toLocaleString();
     } else if (metrics.likes > 0) {
         engagementRate = "-";
-        reachDisplay = "No Data"; 
+        reachDisplay = t("No Data", "Pas de Données");
     }
 
     const chartData = [
-        { name: 'LIKES', value: metrics.likes, fill: '#3b82f6' }, 
-        { name: 'COMMENTS', value: metrics.comments, fill: '#22c55e' }, 
-        { name: 'SHARES', value: metrics.shares, fill: '#a855f7' }, 
+        { name: t('LIKES', 'J\'AIME'), value: metrics.likes, fill: '#3b82f6' },
+        { name: t('COMMENTS', 'COMMENTAIRES'), value: metrics.comments, fill: '#22c55e' },
+        { name: t('SHARES', 'PARTAGES'), value: metrics.shares, fill: '#a855f7' },
     ];
 
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
@@ -558,26 +564,26 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
                         <span className="bg-green-500 text-white px-2 py-0.5 text-xs font-black uppercase border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">PUBLISHED</span>
                         <div className="w-px h-4 bg-black dark:bg-white mx-1"></div>
                         <span className="bg-white dark:bg-zinc-700 text-black dark:text-white px-2 py-0.5 text-xs font-bold uppercase border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                            {post.publishedAt ? formatDistanceToNow(new Date(post.publishedAt)) + ' ago' : 'Draft'}
+                            {post.publishedAt ? formatDistanceToNow(new Date(post.publishedAt)) + t(' ago', ' il y a') : t('Draft', 'Brouillon')}
                         </span>
                     </div>
                     <h1 className="text-xl font-black text-black dark:text-white leading-tight line-clamp-3 uppercase break-words transition-colors">
-                        {post.content || "Untitled Post"}
+                        {post.content || t("Untitled Post", "Publication Sans Titre")}
                     </h1>
                 </div>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x-2 divide-black dark:divide-white border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
-                <BigStatBox label="Likes" value={metrics.likes} icon={ThumbsUp} color="bg-blue-100 dark:bg-blue-900/30" />
-                <BigStatBox label="Comments" value={metrics.comments} icon={MessageCircle} color="bg-green-100 dark:bg-green-900/30" />
-                <BigStatBox label="Actual Reach" value={reachDisplay} icon={Eye} color="bg-purple-100 dark:bg-purple-900/30" />
+                <BigStatBox label={t("Likes", "J'aime")} value={metrics.likes} icon={ThumbsUp} color="bg-blue-100 dark:bg-blue-900/30" />
+                <BigStatBox label={t("Comments", "Commentaires")} value={metrics.comments} icon={MessageCircle} color="bg-green-100 dark:bg-green-900/30" />
+                <BigStatBox label={t("Actual Reach", "Portée Réelle")} value={reachDisplay} icon={Eye} color="bg-purple-100 dark:bg-purple-900/30" />
                 
                 <div className="p-6 flex flex-col justify-center items-center text-center bg-blue-50 dark:bg-blue-900/10 transition-colors">
-                    <span className="text-xs font-black uppercase tracking-wider mb-1 text-black dark:text-white">Eng._Rate</span>
+                    <span className="text-xs font-black uppercase tracking-wider mb-1 text-black dark:text-white">{t("Eng._Rate", "Taux_Eng.")}</span>
                     <span className="text-3xl font-black text-black dark:text-white tabular-nums">{engagementRate}</span>
                     {!hasReachData && metrics.likes > 0 && (
-                        <span className="text-[10px] text-gray-500 dark:text-zinc-400 mt-1 font-mono uppercase">WAITING FOR REACH</span>
+                        <span className="text-[10px] text-gray-500 dark:text-zinc-400 mt-1 font-mono uppercase">{t("WAITING FOR REACH", "EN ATTENTE DE PORTÉE")}</span>
                     )}
                 </div>
             </div>
@@ -585,9 +591,9 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
             {/* Chart */}
             <div className="p-8 flex-1 min-h-[350px] relative bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] dark:opacity-90 transition-all">
                 <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-black text-2xl uppercase tracking-tighter text-black dark:text-white">Engagement_Split</h3>
+                    <h3 className="font-black text-2xl uppercase tracking-tighter text-black dark:text-white">{t("Engagement_Split", "Répartition_Engagement")}</h3>
                     <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-xs font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] text-black dark:text-white">
-                        <Tag size={12} /> Distribution
+                        <Tag size={12} /> {t("Distribution", "Distribution")}
                     </div>
                 </div>
                 
@@ -595,7 +601,7 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
                     {totalInteractions === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-zinc-600 uppercase">
                             <Hash className="w-8 h-8 mb-2 opacity-50"/>
-                            <span className="font-bold text-sm">No Interactions Yet</span>
+                            <span className="font-bold text-sm">{t("No Interactions Yet", "Aucune Interaction Pour L'instant")}</span>
                         </div>
                     ) : (
                         <ResponsiveContainer width="100%" height="100%">

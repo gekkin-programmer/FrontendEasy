@@ -165,20 +165,15 @@ const Hero: React.FC = () => {
                 )}
             </motion.p>
             
-            {/* Annotation (Hidden on Mobile to save space) */}
-            <motion.div 
-                initial={{ opacity: 0, rotate: -10 }} 
-                animate={{ opacity: 1, rotate: -5 }} 
+            {/* Analytics illustration (Hidden on Mobile) */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
                 className="absolute -right-24 -bottom-4 hidden lg:block pointer-events-none"
                 aria-hidden="true"
             >
-                <div className="font-handwriting text-sm text-gray-500 -rotate-6">
-                    {t("It's actually easy.", "Aussi simple que ça.")}
-                </div>
-                <svg width="40" height="20" viewBox="0 0 40 20" className="text-gray-400 rotate-180">
-                    <path d="M35 15C20 15 10 5 5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                </svg>
+                <img src="/assets/undraw_analytics.png" alt="" width={160} height={120} className="opacity-80" />
             </motion.div>
         </div>
 

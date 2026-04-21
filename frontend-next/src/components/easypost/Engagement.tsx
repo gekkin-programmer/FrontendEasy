@@ -5,15 +5,16 @@ import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // Icons
-import { 
+import {
   FiMessageCircle, FiFilter, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
   FiSend, FiSmile, FiArchive, FiTrash2, FiUser,
   FiExternalLink, FiRefreshCw, FiZap
 } from 'react-icons/fi';
-import { 
-  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok 
+import {
+  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ const SENTIMENT_STYLES: any = {
 };
 
 export default function Engagement() {
+  const { t } = useLanguage();
   const params = useParams();
   const workspaceId = params.id as string;
   const queryClient = useQueryClient();
@@ -59,14 +61,14 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/reply`, { text });
     },
     onSuccess: () => {
-        toast.success("REPLY_SENT_SUCCESSFULLY");
+        toast.success(t('Reply sent successfully', 'Réponse envoyée avec succès'));
         setReplyText('');
         // Update local state immediately (Optimistic-ish)
-        queryClient.setQueryData(['engagement', workspaceId], (old: any[]) => 
+        queryClient.setQueryData(['engagement', workspaceId], (old: any[]) =>
             old.map((e: any) => e._id === activeId ? { ...e, status: 'replied' } : e)
         );
     },
-    onError: () => toast.error("FAILED_TO_SEND_REPLY")
+    onError: () => toast.error(t('Failed to send reply', 'Échec de l\'envoi de la réponse'))
   });
 
   // 🟢 3. STATUS MUTATION
@@ -75,12 +77,12 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/status`, { status });
     },
     onSuccess: (_, variables) => {
-        toast.success("STATUS_UPDATED");
+        toast.success(t('Status updated', 'Statut mis à jour'));
         if(variables.status === 'archived') setActiveId(null);
         queryClient.invalidateQueries({ queryKey: ['engagement'] });
     }
   });
-  
+
   // DERIVED STATE
   const activeEngagement = engagements.find((e: any) => e._id === activeId);
   const filteredEngagements = engagements.filter((e: any) => {
@@ -96,42 +98,42 @@ export default function Engagement() {
 
   return (
     <div className="flex h-[calc(100vh-140px)] bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden animate-in fade-in font-sans text-black dark:text-white transition-colors">
-      
+
       {/* LEFT PANEL: INBOX LIST */}
       <div className="w-[380px] flex flex-col border-r-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
-        
+
         {/* Header & Filters */}
         <div className="p-4 border-b-2 border-black dark:border-white flex flex-col gap-4 bg-white dark:bg-zinc-900 transition-colors">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">Inbox</h2>
+            <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
             <div className="flex gap-2">
-                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement']})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title="Refresh"><FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} /></button>
+                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement']})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title={t('Refresh', 'Actualiser')}><FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} /></button>
             </div>
           </div>
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-zinc-400" size={16} />
-            <input 
-              type="text" 
-              placeholder="SEARCH_MESSAGES..." 
+            <input
+              type="text"
+              placeholder={t('Search messages...', 'Rechercher des messages...')}
               className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all text-black dark:text-white"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label="ALL" active={filter === 'all'} onClick={() => setFilter('all')} />
-             <FilterBadge label="UNREAD" active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread').length} onClick={() => setFilter('unread')} />
+             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all'} onClick={() => setFilter('all')} />
+             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread').length} onClick={() => setFilter('unread')} />
           </div>
         </div>
 
         {/* List */}
         <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 transition-colors">
           {filteredEngagements.length === 0 && (
-             <div className="p-8 text-center text-gray-400 dark:text-zinc-500 text-sm font-mono border-b-2 border-dashed border-gray-300 dark:border-zinc-700">NO_MESSAGES_FOUND</div>
+             <div className="p-8 text-center text-gray-400 dark:text-zinc-500 text-sm font-mono border-b-2 border-dashed border-gray-300 dark:border-zinc-700">{t('No messages found', 'Aucun message trouvé')}</div>
           )}
           {filteredEngagements.map((e: any) => (
-            <div 
+            <div
               key={e._id}
               onClick={() => setActiveId(e._id)}
-              className={`p-4 cursor-pointer border-b-2 border-black dark:border-white transition-all group relative hover:bg-yellow-50 dark:hover:bg-zinc-800 
+              className={`p-4 cursor-pointer border-b-2 border-black dark:border-white transition-all group relative hover:bg-yellow-50 dark:hover:bg-zinc-800
                 ${activeId === e._id ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
             >
               {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-2 bg-yellow-400 dark:bg-yellow-600 border-r-2 border-black dark:border-white" />}
@@ -151,7 +153,7 @@ export default function Engagement() {
                             {e.authorName}
                         </span>
                         <span className={`text-[10px] font-mono ${activeId === e._id ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-500 dark:text-zinc-400'}`}>
-                            {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : 'Now'}
+                            {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : t('Now', 'Maintenant')}
                         </span>
                     </div>
                     <p className={`text-xs line-clamp-2 ${activeId === e._id ? 'text-gray-200 dark:text-zinc-700' : 'text-gray-800 dark:text-zinc-300'}`}>
@@ -160,7 +162,7 @@ export default function Engagement() {
                     <div className="flex gap-2 mt-2">
                          {e.status === 'replied' && (
                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-green-400 text-black border-2 border-black">
-                                 <FiCheck size={10} strokeWidth={4} /> REPLIED
+                                 <FiCheck size={10} strokeWidth={4} /> {t('REPLIED', 'RÉPONDU')}
                              </span>
                          )}
                     </div>
@@ -191,8 +193,8 @@ export default function Engagement() {
                    </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ActionButton icon={<FiCheckCircle />} tooltip="Mark Read" onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
-                    <ActionButton icon={<FiArchive />} tooltip="Archive" onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
+                    <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark Read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
+                    <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
                     <div className="w-0.5 h-6 bg-black dark:bg-white mx-2" />
                     <ActionButton icon={<FiMoreHorizontal />} />
                 </div>
@@ -201,7 +203,7 @@ export default function Engagement() {
              {/* Content Area */}
              <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-white dark:bg-zinc-900 transition-colors">
                  <div className="max-w-3xl mx-auto space-y-8">
-                     
+
                      <div className="flex gap-4">
                          <div className="w-12 h-12 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-lg font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
                             {activeEngagement.authorName.charAt(0)}
@@ -225,22 +227,22 @@ export default function Engagement() {
              <div className="p-6 bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white z-20 shadow-[0px_-4px_10px_rgba(0,0,0,0.05)] transition-colors">
                 <div className="max-w-3xl mx-auto">
                     <div className="relative border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_#000] transition-all">
-                        <textarea 
+                        <textarea
                            value={replyText}
                            onChange={(e) => setReplyText(e.target.value)}
                            className="w-full p-4 text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[100px] placeholder:text-gray-400 dark:placeholder:text-zinc-500 placeholder:font-bold placeholder:uppercase text-black dark:text-white"
-                           placeholder={`REPLY TO ${activeEngagement.authorName}...`}
+                           placeholder={`${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...`}
                         />
                         <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-zinc-900 border-t-2 border-black dark:border-white transition-colors">
                             <div className="flex gap-2">
                                 <IconButton icon={<FiSmile />} />
                             </div>
-                            <button 
+                            <button
                                 onClick={handleReply}
                                 disabled={!replyText || replyMutation.isPending}
                                 className="bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase px-6 py-2 border-2 border-transparent hover:bg-yellow-400 hover:text-black hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,0)] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff]"
                             >
-                                <FiSend size={14} strokeWidth={3} /> {replyMutation.isPending ? 'SENDING...' : 'REPLY'}
+                                <FiSend size={14} strokeWidth={3} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
                             </button>
                         </div>
                     </div>
@@ -252,8 +254,8 @@ export default function Engagement() {
                 <div className="w-20 h-20 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex items-center justify-center mb-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]">
                     <FiMessageCircle size={32} strokeWidth={1.5} />
                 </div>
-                <p className="text-lg font-black uppercase tracking-tight">Select_Message</p>
-                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 mt-2">CLICK_ITEM_FROM_INBOX</p>
+                <p className="text-lg font-black uppercase tracking-tight">{t('Select a Message', 'Sélectionnez un message')}</p>
+                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
             </div>
         )}
       </div>
