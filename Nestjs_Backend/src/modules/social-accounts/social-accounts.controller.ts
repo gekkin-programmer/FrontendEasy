@@ -10,8 +10,11 @@ import {
   Delete,
   Query,
   Patch,
+  HttpCode,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '../../common/decorators/public.decorator';
 import { SocialAccountsService } from './social-accounts.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,6 +30,8 @@ import { WhatsappConnectGuard } from './guards/whatsapp-connect.guard';
 import { SnapchatConnectGuard } from './guards/snapchat-connect.guard';
 import { PinterestConnectGuard } from './guards/pinterest-connect.guard';
 import { DiscordConnectGuard } from './guards/discord-connect.guard';
+import { InstagramBusinessConnectGuard } from './guards/instagram-business-connect.guard';
+import { ThreadsConnectGuard } from './guards/threads-connect.guard';
 
 @ApiTags('Social Accounts')
 @Controller('social-accounts')
@@ -73,6 +78,17 @@ export class SocialAccountsController {
     );
   }
 
+  @Patch(':id/pause')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Toggle queue pause for a social account' })
+  togglePause(@Param('id') id: string, @Req() req) {
+    return this.socialAccountsService.togglePause(
+      id,
+      req.user.sub || req.user.id,
+    );
+  }
+
   @Patch(':id/expire')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
@@ -95,32 +111,31 @@ export class SocialAccountsController {
   }
 
   @Get('connect/instagram')
-  @UseGuards(FacebookConnectGuard)
+  @UseGuards(FacebookConnectGuard) // Use robust Facebook Login instead of native Instagram Login
   async connectInstagram(
     @Query('workspaceId') _workspaceId: string,
     @Query('token') _token: string,
   ) {
-    // Redirects to Facebook (Instagram Business uses FB Login)
+    // Redirects to Facebook Login (which already requests required Instagram permissions)
   }
 
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: Response) {
-    // Check if it's actually an IG or WA flow
-    if (req.user.platform === 'INSTAGRAM') {
-      await this.socialAccountsService.handleInstagramCallback(req.user);
-    } else if (req.user.platform === 'WHATSAPP') {
+    if (req.user.platform === 'WHATSAPP') {
       await this.socialAccountsService.handleWhatsappCallback(req.user);
+    } else if (req.user.platform === 'INSTAGRAM') {
+      await this.socialAccountsService.handleInstagramCallback(req.user);
     } else {
       await this.socialAccountsService.handleFacebookCallback(req.user);
     }
     this.redirectHome(res, req.user.workspaceId);
   }
 
-  @Get('callback/instagram')
-  @UseGuards(FacebookConnectGuard)
-  async instagramCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleInstagramCallback(req.user);
+  @Get('callback/instagram-business')
+  @UseGuards(InstagramBusinessConnectGuard)
+  async instagramBusinessCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleInstagramBusinessCallback(req.user);
     this.redirectHome(res, req.user.workspaceId);
   }
 
@@ -289,12 +304,61 @@ export class SocialAccountsController {
   }
 
   // =================================================================
-  // 11. PLACEHOLDERS
+  // 11. THREADS
+  // =================================================================
+
+  @Get('connect/threads')
+  @UseGuards(ThreadsConnectGuard)
+  async connectThreads(
+    @Query('workspaceId') _workspaceId: string,
+    @Query('token') _token: string,
+  ) {
+    // Redirects to Threads
+  }
+
+  @Get('callback/threads')
+  @UseGuards(ThreadsConnectGuard)
+  async threadsCallback(@Req() req, @Res() res: Response) {
+    await this.socialAccountsService.handleThreadsCallback(req.user);
+    this.redirectHome(res, req.user.workspaceId);
+  }
+
+  // =================================================================
+  // 12. PLACEHOLDERS
   // =================================================================
 
   @Get('connect/reddit')
   connectReddit(@Res() res: Response) {
     this.comingSoon(res, 'Reddit');
+  }
+
+  // =================================================================
+  // 12. WEBHOOKS
+  // =================================================================
+
+  @Get('webhook/instagram')
+  @Public()
+  @ApiOperation({ summary: 'Instagram webhook verification (GET challenge)' })
+  verifyInstagramWebhook(@Query() query: any, @Res() res: Response) {
+    const verifyToken = process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN;
+    if (
+      query['hub.mode'] === 'subscribe' &&
+      query['hub.verify_token'] === verifyToken
+    ) {
+      return res.status(200).send(query['hub.challenge']);
+    }
+    return res.status(403).send('Forbidden');
+  }
+
+  @Post('webhook/instagram')
+  @Public()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Instagram webhook event handler' })
+  handleInstagramWebhook(
+    @Headers('x-hub-signature-256') signature: string,
+    @Body() body: any,
+  ) {
+    return this.socialAccountsService.handleInstagramWebhook(signature, body);
   }
 
   // --- HELPERS ---

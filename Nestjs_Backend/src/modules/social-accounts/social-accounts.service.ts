@@ -9,6 +9,7 @@ import { SocialPlatform } from '@prisma/client';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
+import * as crypto from 'crypto';
 
 import { Cron, CronExpression } from '@nestjs/schedule'; // ➤ Import Cron
 
@@ -53,6 +54,19 @@ export class SocialAccountsService {
         this.logger.error(`Refresh failed for ${account.platform}`, e.message);
       }
     }
+  }
+
+  // ➤ Toggle queue pause for a social account
+  async togglePause(id: string, userId: string) {
+    const account = await this.prisma.socialAccount.findFirst({
+      where: { id, createdById: userId },
+    });
+    if (!account) throw new Error('Account not found');
+    return this.prisma.socialAccount.update({
+      where: { id },
+      data: { isPaused: !account.isPaused },
+      select: { id: true, isPaused: true, platform: true, username: true },
+    });
   }
 
   // ➤ FOR TESTING: Expire token
@@ -126,6 +140,20 @@ export class SocialAccountsService {
       userId: data.userId,
       workspaceId: data.workspaceId,
       platform: 'DISCORD',
+      platformUserId: data.platformUserId,
+      name: data.name,
+      avatar: data.avatar,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+  }
+
+  async handleThreadsCallback(data: any) {
+    this.logger.log(`Handling Threads callback for user ${data.userId}`);
+    return this.upsertAccount({
+      userId: data.userId,
+      workspaceId: data.workspaceId,
+      platform: 'THREADS',
       platformUserId: data.platformUserId,
       name: data.name,
       avatar: data.avatar,
@@ -242,6 +270,30 @@ export class SocialAccountsService {
     }
   }
 
+  async handleInstagramBusinessCallback(data: any) {
+    this.logger.log(`Starting Instagram Business link for user ${data.userId}`);
+    try {
+      return await this.upsertAccount({
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+        platform: 'INSTAGRAM',
+        platformUserId: data.platformUserId,
+        name: data.name,
+        avatar: data.avatar,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      });
+    } catch (e) {
+      const errorDetail = e.response?.data?.error?.message || e.message;
+      this.logger.error('Instagram Business Link Failed', {
+        error: errorDetail,
+      });
+      throw new UnauthorizedException(
+        `Instagram Business link failed: ${errorDetail}`,
+      );
+    }
+  }
+
   // ➤ WHATSAPP HANDLER (Has specific logic)
   async handleWhatsappCallback(data: any) {
     try {
@@ -287,6 +339,43 @@ export class SocialAccountsService {
       if (e instanceof NotFoundException) throw e;
       throw new UnauthorizedException(`WhatsApp link failed: ${errorDetail}`);
     }
+  }
+
+  // =================================================================
+  // ➤ INSTAGRAM WEBHOOK
+  // =================================================================
+
+  handleInstagramWebhook(signature: string, body: any) {
+    this.logger.log(`Instagram webhook received: ${JSON.stringify(body)}`);
+
+    // Signature verification
+    const appSecret = process.env.INSTAGRAM_APP_SECRET;
+    if (appSecret && signature) {
+      const expected =
+        'sha256=' +
+        crypto
+          .createHmac('sha256', appSecret)
+          .update(JSON.stringify(body))
+          .digest('hex');
+      if (signature !== expected) {
+        this.logger.warn('Instagram webhook signature mismatch — ignoring');
+        return { status: 'ignored' };
+      }
+    }
+
+    const entries: any[] = body.entry || [];
+    for (const entry of entries) {
+      for (const change of entry.changes || []) {
+        this.logger.log(
+          `IG webhook event: field=${change.field} value=${JSON.stringify(change.value)}`,
+        );
+      }
+      for (const msg of entry.messaging || []) {
+        this.logger.log(`IG DM event: ${JSON.stringify(msg)}`);
+      }
+    }
+
+    return { status: 'ok' };
   }
 
   // =================================================================

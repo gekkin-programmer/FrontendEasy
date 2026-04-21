@@ -41,6 +41,14 @@ export class PublisherService {
         continue;
       }
 
+      // Skip paused accounts — their queued posts stay pending until unpaused
+      if (account.isPaused) {
+        this.logger.log(
+          ` Skipping ${account.platform} @${account.username} — queue is paused`,
+        );
+        continue;
+      }
+
       let attempts = 0;
       let platformPostId = '';
       let lastError = '';
@@ -84,6 +92,13 @@ export class PublisherService {
               if (!mediaUrl) throw new Error('TikTok requires a video file.');
               platformPostId = await this.postToTikTok(
                 account.accessToken,
+                mediaUrl,
+              );
+              break;
+            case 'THREADS':
+              platformPostId = await this.postToThreads(
+                account.accessToken,
+                formattedContent,
                 mediaUrl,
               );
               break;
@@ -241,6 +256,41 @@ export class PublisherService {
       },
     );
     return res.data.publish_id;
+  }
+
+  // =================================================================
+  // 5. THREADS
+  // =================================================================
+  private async postToThreads(token: string, text: string, imageUrl?: string) {
+    // 1. Create a container
+    const containerParams: any = {
+      media_type: imageUrl ? 'IMAGE' : 'TEXT',
+      text,
+      access_token: token,
+    };
+    if (imageUrl) {
+      containerParams.image_url = imageUrl;
+    }
+
+    const containerRes = await axios.post(
+      'https://graph.threads.net/v1.0/me/threads',
+      null,
+      { params: containerParams }
+    );
+    const containerId = containerRes.data.id;
+
+    if (!containerId) {
+      throw new Error('Failed to create Threads container');
+    }
+
+    // 2. Publish the container
+    const publishRes = await axios.post(
+      'https://graph.threads.net/v1.0/me/threads_publish',
+      null,
+      { params: { creation_id: containerId, access_token: token } }
+    );
+
+    return publishRes.data.id;
   }
 
   private async simulateApiCall(_platform: string) {

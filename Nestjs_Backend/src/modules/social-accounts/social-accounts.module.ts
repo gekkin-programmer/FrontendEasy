@@ -19,6 +19,8 @@ import { TwitterConnectStrategy } from './strategies/twitter-connect.strategy';
 import { SnapchatConnectStrategy } from './strategies/snapchat-connect.strategy';
 import { PinterestConnectStrategy } from './strategies/pinterest-connect.strategy';
 import { DiscordConnectStrategy } from './strategies/discord-connect.strategy';
+import { InstagramBusinessConnectStrategy } from './strategies/instagram-business-connect.strategy';
+import { ThreadsConnectStrategy } from './strategies/threads-connect.strategy';
 
 // Sync Engine (The new logic for fetching history)
 import { FacebookService } from './platforms/facebook.service';
@@ -69,6 +71,8 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     SnapchatConnectStrategy,
     PinterestConnectStrategy,
     DiscordConnectStrategy,
+    InstagramBusinessConnectStrategy,
+    ThreadsConnectStrategy,
 
     // Sync Providers
     FacebookService,
