@@ -493,6 +493,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
 }
 
 function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
+    const { t } = useLanguage();
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['post-analytics', postId],
         queryFn: async () => {

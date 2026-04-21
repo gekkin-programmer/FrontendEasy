@@ -256,7 +256,7 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isProfileOpen && (
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-full right-0 pt-2 w-56">
-                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border-2 border-black dark:border-white/10 p-2 overflow-hidden">
+                                <div className="bg-white dark:bg-black rounded-lg shadow-xl border-2 border-black dark:border-white/20 p-2 overflow-hidden">
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Signed in as</p>
                                         <p className="text-xs font-bold text-black dark:text-white truncate">{user?.email}</p>
