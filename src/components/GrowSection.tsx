@@ -121,7 +121,7 @@ const GrowSection = () => {
 
   return (
     <section 
-      className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
+      className="bg-[#E6E6E6] dark:bg-black border-b-4 border-black dark:border-white/5 py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
       aria-label="Growth Success Stories"
     >
       <SectionBackground />

@@ -804,7 +804,7 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden">
+                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px]">
                                                 {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
                                                     <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
@@ -851,8 +851,8 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
-                                    {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
+                                    {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900 min-h-[600px]"><Analytics /></NeuCard>}
+                                    {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900 min-h-[600px]"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <Team workspaceId={workspaceId} />}
                                     {activeTab === 'settings' && <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></div>}
                                 </motion.div>

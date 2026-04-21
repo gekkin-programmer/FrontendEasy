@@ -249,7 +249,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
                 </h2>
-                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_{t("VIEW", "VUE")} // {t("ENGINE_READY", "MOTEUR_PRÊT")}</p>
+                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_{t("VIEW", "VUE")} {t("ENGINE_READY", "MOTEUR_PRÊT")}</p>
             </div>
         </div>
 

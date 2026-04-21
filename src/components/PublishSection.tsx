@@ -33,7 +33,7 @@ export default function PublishSection() {
 
   return (
     <section 
-      className="bg-[#E0E7FF] dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
+      className="bg-[#E0E7FF] dark:bg-black border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
       aria-label="Publishing Features"
     >
       

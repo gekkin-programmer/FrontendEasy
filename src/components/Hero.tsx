@@ -108,7 +108,7 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-[#0a0a0a] pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-white/10 font-sans"
+      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-white/10 font-sans"
       aria-label="Introduction"
     >
       
@@ -170,10 +170,11 @@ const Hero: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
-                className="absolute -right-24 -bottom-4 hidden lg:block pointer-events-none"
+                className="absolute -right-28 -bottom-2 hidden xl:block pointer-events-none z-0"
                 aria-hidden="true"
             >
-                <img src="/assets/undraw_analytics.png" alt="" width={160} height={120} className="opacity-80" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/undraw_analytics.png" alt="" width={140} height={105} className="opacity-70 dark:opacity-40" />
             </motion.div>
         </div>
 
