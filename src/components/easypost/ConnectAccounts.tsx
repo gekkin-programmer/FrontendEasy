@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import {
-  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram
+  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram, FaThreads
 } from 'react-icons/fa6';
 import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle, ShieldCheck, Zap, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
@@ -13,6 +13,7 @@ import SpinningLoader from '../SpinningLoader';
 import { getCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { cn } from "@/lib/utils";
+import { useLanguage } from '@/src/context/LanguageContext';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
   .replace(/\/$/, '')
@@ -26,11 +27,13 @@ const PLATFORMS = [
   { id: 'tiktok',    label: 'TikTok',     icon: FaTiktok,     color: '#000000', oauth: true  },
   { id: 'youtube',   label: 'YouTube',    icon: FaYoutube,    color: '#FF0000', oauth: true  },
   { id: 'telegram',  label: 'Telegram',   icon: FaTelegram,   color: '#26A5E4', oauth: false },
+  { id: 'threads',   label: 'Threads',    icon: FaThreads,    color: '#000000', oauth: true  },
 ];
 
 // ─── Telegram Link Modal ─────────────────────────────────────────────────────
 
 function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; workspaceId: string }) {
+  const { t } = useLanguage();
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -41,7 +44,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
       const res: any = await api.post('/telegram/link-token', { workspaceId });
       setLinkToken(res.token ?? res.data?.token);
     } catch {
-      toast.error('Failed to generate link token');
+      toast.error(t('Failed to generate link token', 'Échec de la génération du jeton de liaison'));
     } finally {
       setLoading(false);
     }
@@ -63,7 +66,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
             <div className="w-10 h-10 bg-[#26A5E4] border-4 border-black flex items-center justify-center">
               <FaTelegram size={18} className="text-white" />
             </div>
-            <h3 className="font-black text-xl uppercase tracking-tighter">Connect_Telegram</h3>
+            <h3 className="font-black text-xl uppercase tracking-tighter">{t("Connect Telegram", "Connecter Telegram")}</h3>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-black hover:text-white border-2 border-black transition-colors">
             <X size={16} strokeWidth={3} />
@@ -74,15 +77,15 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
         <ol className="space-y-3 font-mono text-sm font-bold">
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">1</span>
-            <span className="text-black dark:text-white">Open Telegram and search for <span className="bg-zinc-100 dark:bg-zinc-800 px-1 border border-black dark:border-white">@Eazy_Post_bot</span></span>
+            <span className="text-black dark:text-white">{t("Open Telegram and search for", "Ouvrez Telegram et recherchez")} <span className="bg-zinc-100 dark:bg-zinc-800 px-1 border border-black dark:border-white">@Eazy_Post_bot</span></span>
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">2</span>
-            <span className="text-black dark:text-white">Generate your link token below</span>
+            <span className="text-black dark:text-white">{t("Generate your link token below", "Générez votre jeton de liaison ci-dessous")}</span>
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 bg-black text-white flex items-center justify-center text-xs font-black">3</span>
-            <span className="text-black dark:text-white">Send the copied command to the bot</span>
+            <span className="text-black dark:text-white">{t("Send the copied command to the bot", "Envoyez la commande copiée au bot")}</span>
           </li>
         </ol>
 
@@ -94,11 +97,11 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
             className="w-full py-4 bg-[#26A5E4] text-white border-4 border-black font-black text-sm uppercase shadow-[6px_6px_0px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all disabled:opacity-50"
           >
             {loading ? <Loader2 size={16} className="inline animate-spin mr-2" /> : null}
-            {loading ? 'Generating...' : 'Generate_Link_Token'}
+            {loading ? t('Generating...', 'Génération en cours...') : t('Generate Link Token', 'Générer le jeton de liaison')}
           </button>
         ) : (
           <div className="space-y-3">
-            <p className="text-[10px] font-mono font-black uppercase text-gray-500">Token expires in 15 minutes</p>
+            <p className="text-[10px] font-mono font-black uppercase text-gray-500">{t("Token expires in 15 minutes", "Le jeton expire dans 15 minutes")}</p>
             <div className="flex gap-2">
               <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 border-4 border-black dark:border-white px-4 py-3 font-mono text-sm font-black text-black dark:text-white truncate">
                 /link {linkToken}
@@ -111,7 +114,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
               </button>
             </div>
             <p className="text-[10px] font-mono font-bold text-gray-500 uppercase">
-              Paste this command in the Telegram bot chat
+              {t("Paste this command in the Telegram bot chat", "Collez cette commande dans le chat du bot Telegram")}
             </p>
           </div>
         )}
@@ -123,21 +126,22 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const token = getCookie('accessToken');
-  let tokenStatus = "Unknown";
+  let tokenStatus = t("Unknown", "Inconnu");
   let tokenExpiry = null;
 
   try {
     if (token) {
         const decoded: any = jwtDecode(token as string);
         tokenExpiry = new Date(decoded.exp * 1000);
-        tokenStatus = tokenExpiry > new Date() ? "Valid" : "Expired";
+        tokenStatus = tokenExpiry > new Date() ? t("Valid", "Valide") : t("Expired", "Expiré");
     } else {
-        tokenStatus = "Missing";
+        tokenStatus = t("Missing", "Absent");
     }
-  } catch (e) { tokenStatus = "Invalid"; }
+  } catch (e) { tokenStatus = t("Invalid", "Invalide"); }
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['social-accounts', workspaceId],
@@ -150,10 +154,10 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const disconnectMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
     onSuccess: () => {
-      toast.success("NODE_DECOMMISSIONED");
+      toast.success(t("Account disconnected", "Compte déconnecté"));
       queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
     },
-    onError: () => toast.error("ERR_TERMINATION_FAILED")
+    onError: () => toast.error(t("Disconnection failed", "Échec de la déconnexion"))
   });
 
   const handleConnect = (platform: string, oauth: boolean) => {
@@ -202,32 +206,32 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     <>
     {showTelegramModal && <TelegramLinkModal workspaceId={workspaceId} onClose={() => setShowTelegramModal(false)} />}
     <div className="space-y-12 font-sans text-black dark:text-white transition-colors pb-20">
-      
-      {/* 🟢 MINIMAL NEUBRUTALIST HEADER */}
+
+      {/* NEUBRUTALIST HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-8 border-black dark:border-white pb-8">
         <div className="space-y-2">
             <div className="flex items-center gap-3">
-                <h2 className="text-4xl font-black uppercase tracking-tighter italic">Network_Nodes</h2>
+                <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t("Network Nodes", "Nœuds Réseau")}</h2>
             </div>
             <p className="font-mono text-sm font-bold opacity-60 uppercase tracking-widest">
-                Nodes active: {accounts.filter((a: any) => a.isActive).length} {'//'} Capacity: {accounts.length}/UNLIMITED
+                {t("Nodes active:", "Nœuds actifs:")} {accounts.filter((a: any) => a.isActive).length} {'//'} {t("Capacity:", "Capacité:")} {accounts.length}/UNLIMITED
             </p>
         </div>
-        
-        {/* DISCRETE DEBUG PANEL */}
+
+        {/* SESSION DEBUG PANEL */}
         <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5] flex flex-col gap-1 min-w-[180px]">
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tighter border-b border-black/20 dark:border-white/20 pb-1 mb-1">
-                <span>Session_Sync</span>
-                <span className={cn(tokenStatus === 'Valid' ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
+                <span>{t("Session Sync", "Sync Session")}</span>
+                <span className={cn(tokenStatus === t("Valid", "Valide") ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
             </div>
-            {tokenExpiry && <p className="text-[9px] font-mono font-bold">EXP: {format(tokenExpiry, 'HH:mm dd/MM')}</p>}
-            {tokenStatus !== 'Valid' && (
-                <button onClick={handleForceRefresh} className="text-[10px] font-black uppercase bg-red-500 text-white px-2 py-1 mt-1 hover:bg-white hover:text-red-500 transition-all">Emergency_Reset</button>
+            {tokenExpiry && <p className="text-[9px] font-mono font-bold">{t("EXP:", "EXP:")} {format(tokenExpiry, 'HH:mm dd/MM')}</p>}
+            {tokenStatus !== t("Valid", "Valide") && (
+                <button onClick={handleForceRefresh} className="text-[10px] font-black uppercase bg-red-500 text-white px-2 py-1 mt-1 hover:bg-white hover:text-red-500 transition-all">{t("Emergency Reset", "Réinitialisation d'urgence")}</button>
             )}
         </div>
       </div>
 
-      {/* 🟢 NODE GRID */}
+      {/* NODE GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {PLATFORMS.map((platform) => {
           const connectedAccount = accounts.find((a: any) => a.platform.toLowerCase() === platform.id);
@@ -235,14 +239,14 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
           const isExpired = isConnected && !connectedAccount.isActive;
 
           return (
-            <div 
+            <div
               key={platform.id}
               className={cn(
                 "relative group flex flex-col p-8 border-4 border-black dark:border-white transition-all duration-300",
-                isExpired 
-                    ? 'bg-red-500 text-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]' 
-                    : isConnected 
-                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#3C48F5]' 
+                isExpired
+                    ? 'bg-red-500 text-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]'
+                    : isConnected
+                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#3C48F5]'
                         : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
               )}
             >
@@ -250,33 +254,33 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               {isExpired && (
                 <div className="absolute top-4 right-4">
                   <div className="bg-white text-red-600 border-2 border-black px-2 py-1 text-[10px] font-black uppercase flex items-center gap-1">
-                    <AlertTriangle size={12} strokeWidth={4} /> Critical_Failure
+                    <AlertTriangle size={12} strokeWidth={4} /> {t("Critical Failure", "Défaillance critique")}
                   </div>
                 </div>
               )}
 
               {/* Platform Identity */}
               <div className="flex items-center gap-4 mb-8">
-                  <div 
+                  <div
                     className={cn(
                         "w-16 h-16 flex items-center justify-center border-4 transition-all duration-500",
                         isExpired ? 'bg-white border-black' : isConnected ? 'bg-black dark:bg-white border-black dark:border-white scale-110' : 'bg-white dark:bg-black border-black dark:border-white'
                     )}
                   >
-                    <platform.icon 
-                        size={32} 
+                    <platform.icon
+                        size={32}
                         className={cn(
                             "transition-colors",
                             isExpired ? "text-red-600" : isConnected ? "text-white dark:text-black" : "text-black dark:text-white"
-                        )} 
+                        )}
                     />
                   </div>
                   <div>
                       <h3 className="font-black text-2xl uppercase tracking-tighter leading-none">{platform.label}</h3>
-                      <p className="text-[10px] font-mono font-bold uppercase opacity-50 mt-1">Social_Node_v2</p>
+                      <p className="text-[10px] font-mono font-bold uppercase opacity-50 mt-1">{t("Social Node v2", "Nœud social v2")}</p>
                   </div>
               </div>
-              
+
               {/* Node Data */}
               <div className="flex-1 space-y-4">
                   {isConnected ? (
@@ -288,12 +292,12 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                         ID: @{connectedAccount.username}
                       </div>
                       <p className={cn("text-[10px] font-mono uppercase font-black", isExpired ? "text-white" : "text-gray-400")}>
-                        Established: {format(new Date(connectedAccount.createdAt), 'yyyy.MM.dd // HH:mm')}
+                        {t("Established:", "Établi le:")} {format(new Date(connectedAccount.createdAt), 'yyyy.MM.dd // HH:mm')}
                       </p>
                     </div>
                   ) : (
                     <div className="h-16 flex items-center border-2 border-dashed border-black dark:border-white px-4">
-                        <p className="text-[10px] font-mono font-black uppercase text-gray-400">Signal_Lost // No_Link_Detected</p>
+                        <p className="text-[10px] font-mono font-black uppercase text-gray-400">{t("Signal Lost // No Link Detected", "Signal perdu // Aucune liaison détectée")}</p>
                     </div>
                   )}
               </div>
@@ -301,25 +305,25 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               {/* Actions */}
               <div className="mt-10 flex flex-col gap-3">
                 {isExpired ? (
-                    <button 
+                    <button
                         onClick={() => handleConnect(platform.id, platform.oauth)}
                         className="w-full py-4 bg-white text-red-600 border-4 border-black font-black text-sm uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_#000]"
                     >
-                        Force_Reboot
+                        {t("Force Reboot", "Forcer le redémarrage")}
                     </button>
                 ) : isConnected ? (
                     <button
-                        onClick={() => { if(confirm("Terminate stream connection?")) disconnectMutation.mutate(connectedAccount.id) }}
+                        onClick={() => { if(confirm(t("Terminate stream connection?", "Terminer la connexion?"))) disconnectMutation.mutate(connectedAccount.id) }}
                         className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
                     >
-                        <Trash2 size={14} className="inline mr-2" /> Disconnect_Node
+                        <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
                     </button>
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}
                     className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
-                    <Plus size={16} className="inline mr-2" strokeWidth={4} /> Initialize_Stream
+                    <Plus size={16} className="inline mr-2" strokeWidth={4} /> {t("Connect", "Connecter")}
                   </button>
                 )}
               </div>

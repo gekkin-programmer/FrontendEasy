@@ -8,14 +8,15 @@ import { api } from '@/src/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, X, AlertTriangle, Copy, CheckCheck
+  Link as LinkIcon, Trash2, Check, Crown, X, Copy, CheckCheck, Pause, Play
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
   FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien, FaSnapchat, FaTelegram,
-  FaDiscord, FaTwitch
+  FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface QuickConnectSidebarProps {
   accounts: any[];
@@ -25,9 +26,9 @@ interface QuickConnectSidebarProps {
 }
 
 export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: QuickConnectSidebarProps) => {
+    const { t } = useLanguage();
     const router = useRouter();
     const queryClient = useQueryClient();
-    const [nodeToDisconnect, setNodeToDisconnect] = useState<any>(null);
     const [telegramModal, setTelegramModal] = useState(false);
     const [telegramToken, setTelegramToken] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -46,6 +47,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'telegram', Icon: FaTelegram, color: 'text-[#2AABEE]' },
         { id: 'discord', Icon: FaDiscord, color: 'text-[#5865F2]' },
         { id: 'twitch', Icon: FaTwitch, color: 'text-[#9146FF]', comingSoon: true },
+        { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white' },
     ];
 
     const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
@@ -58,12 +60,12 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
             setTelegramToken(res.token ?? res.data?.token ?? null);
             setTelegramModal(true);
         },
-        onError: () => toast.error('Failed to generate Telegram link token'),
+        onError: () => {},
     });
 
     const handleConnect = (platform: string, comingSoon?: boolean) => {
         if (comingSoon) {
-            toast.info(`${platform.charAt(0).toUpperCase() + platform.slice(1)} integration coming soon!`);
+            return;
             return;
         }
         if (platform === 'telegram') {
@@ -81,14 +83,25 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const disconnectMutation = useMutation({ 
-        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`), 
-        onSuccess: () => { 
-            toast.success("NODE_DISCONNECTED"); 
-            setNodeToDisconnect(null);
-            refreshData(); 
-        }, 
-        onError: () => toast.error("ERR_DISCONNECT_FAIL") 
+    const disconnectMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
+        onSuccess: () => refreshData(),
+        onError: () => {},
+    });
+
+    const pauseMutation = useMutation({
+        mutationFn: (id: string) => api.patch(`/social-accounts/${id}/pause`, {}),
+        onMutate: (id) => {
+            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
+                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
+            );
+        },
+        onSuccess: () => refreshData(),
+        onError: (_, id) => {
+            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
+                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
+            );
+        },
     });
 
     return (
@@ -99,8 +112,8 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 animate-pulse shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
-                            title="Upgrade to add more nodes"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-[#3C48F5] shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+                            title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
                             <Crown size={16} className="text-black" />
                         </button>
@@ -119,20 +132,47 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                             <div key={p.id} className="relative group flex-shrink-0">
                                 {connected ? (
                                     <>
-                                        <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 opacity-100 cursor-default transition-colors">
-                                            <p.Icon size={16} className="text-gray-400 dark:text-zinc-500" />
+                                        {/* Base layer: platform icon, dimmed when paused */}
+                                        <button className={cn(
+                                            "w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-default transition-colors",
+                                            connected.isPaused ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-gray-50 dark:bg-zinc-800"
+                                        )}>
+                                            <p.Icon size={16} className={cn(connected.isPaused ? "text-yellow-500" : "text-gray-400 dark:text-zinc-500")} />
                                         </button>
-                                        <button
-                                            onClick={() => setNodeToDisconnect({ id: connected.id, platform: p.id })}
-                                            className="absolute inset-0 w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white text-black opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
-                                            title="Disconnect"
-                                        >
-                                            <Trash2 size={14} className="text-black" />
-                                        </button>
+
+                                        {/* Hover overlay: two mini buttons — pause/play + disconnect */}
+                                        <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
+                                            <button
+                                                onClick={() => pauseMutation.mutate(connected.id)}
+                                                disabled={pauseMutation.isPending}
+                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 hover:bg-yellow-300 transition-colors cursor-pointer"
+                                                title={connected.isPaused ? t("Resume queue", "Reprendre la file") : t("Pause queue", "Mettre en pause")}
+                                            >
+                                                {connected.isPaused
+                                                    ? <Play size={10} className="text-black" strokeWidth={3} />
+                                                    : <Pause size={10} className="text-black" strokeWidth={3} />
+                                                }
+                                            </button>
+                                            <button
+                                                onClick={() => disconnectMutation.mutate(connected.id)}
+                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white hover:bg-red-50 transition-colors cursor-pointer"
+                                                title={t("Disconnect", "Déconnecter")}
+                                            >
+                                                <Trash2 size={10} className="text-black" strokeWidth={3} />
+                                            </button>
+                                        </div>
+
+                                        {/* Status dot: yellow when paused, green when active */}
                                         <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                            <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
-                                                <Check size={8} strokeWidth={4} />
-                                            </div>
+                                            {connected.isPaused ? (
+                                                <div className="w-3.5 h-3.5 bg-yellow-400 border-2 border-black dark:border-white flex items-center justify-center">
+                                                    <Pause size={7} strokeWidth={4} className="text-black" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
+                                                    <Check size={8} strokeWidth={4} />
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 ) : (
@@ -144,7 +184,9 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                                 ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
                                                 : "bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
                                         )}
-                                        title={(p as any).comingSoon ? `${p.id} — coming soon` : `Connect ${p.id}`}
+                                        title={(p as any).comingSoon
+                                            ? t(`${p.id} — coming soon`, `${p.id} — bientôt disponible`)
+                                            : t(`Connect ${p.id}`, `Connecter ${p.id}`)}
                                     >
                                         <p.Icon
                                             size={16}
@@ -158,7 +200,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                 </div>
             </div>
 
-            {/* 🔵 TELEGRAM LINK MODAL */}
+            {/* TELEGRAM LINK MODAL */}
             <AnimatePresence>
                 {telegramModal && telegramToken && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -170,13 +212,13 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                         >
                             <div className="bg-[#2AABEE] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
                                 <span className="font-black uppercase tracking-wider flex items-center gap-2">
-                                    <FaTelegram size={20} /> Connect_Telegram
+                                    <FaTelegram size={20} /> {t("Connect Telegram", "Connecter Telegram")}
                                 </span>
                                 <button onClick={() => setTelegramModal(false)}><X size={24} strokeWidth={3} /></button>
                             </div>
                             <div className="p-6 space-y-4">
                                 <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    1. Open Telegram and message
+                                    {t("1. Open Telegram and message", "1. Ouvrez Telegram et envoyez un message à")}
                                 </p>
                                 <a
                                     href="https://t.me/Eazy_Post_bot"
@@ -187,7 +229,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                     @Eazy_Post_bot
                                 </a>
                                 <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    2. Send this command (expires in 15 min):
+                                    {t("2. Send this command (expires in 15 min):", "2. Envoyez cette commande (expire dans 15 min):")}
                                 </p>
                                 <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white p-3">
                                     <code className="flex-1 font-mono text-sm text-black dark:text-white break-all">
@@ -196,19 +238,19 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                     <button
                                         onClick={copyCommand}
                                         className="flex-shrink-0 p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-                                        title="Copy"
+                                        title={t("Copy", "Copier")}
                                     >
                                         {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
                                     </button>
                                 </div>
                                 <p className="text-[10px] font-mono opacity-60 text-black dark:text-white">
-                                    The bot will confirm when your account is linked.
+                                    {t("The bot will confirm when your account is linked.", "Le bot confirmera lorsque votre compte sera lié.")}
                                 </p>
                                 <button
                                     onClick={() => { setTelegramModal(false); refreshData(); }}
                                     className="w-full py-3 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#555] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                 >
-                                    Done
+                                    {t("Done", "Terminé")}
                                 </button>
                             </div>
                         </motion.div>
@@ -216,49 +258,6 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                 )}
             </AnimatePresence>
 
-            {/* 🟢 DISCONNECT MODAL */}
-            <AnimatePresence>
-                {nodeToDisconnect && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                        <motion.div 
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden"
-                        >
-                            <div className="bg-red-500 text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
-                                <span className="font-black uppercase tracking-wider flex items-center gap-2">
-                                    <AlertTriangle size={20} /> Danger_Zone
-                                </span>
-                                <button onClick={() => setNodeToDisconnect(null)}><X size={24} strokeWidth={3}/></button>
-                            </div>
-                            <div className="p-6 space-y-4">
-                                <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    You are about to terminate the link with <span className="text-red-500">{nodeToDisconnect.platform.toUpperCase()}</span>.
-                                </p>
-                                <p className="text-[10px] font-mono opacity-70 text-black dark:text-white leading-relaxed">
-                                    This will disable scheduled posts and real-time syncing for this node. This action is irreversible.
-                                </p>
-                                <div className="grid grid-cols-2 gap-3 pt-2">
-                                    <button 
-                                        onClick={() => setNodeToDisconnect(null)}
-                                        className="py-3 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                                    >
-                                        Abort_Mission
-                                    </button>
-                                    <button 
-                                        onClick={() => disconnectMutation.mutate(nodeToDisconnect.id)}
-                                        disabled={disconnectMutation.isPending}
-                                        className="py-3 bg-red-500 text-white border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all disabled:opacity-50"
-                                    >
-                                        {disconnectMutation.isPending ? "Terminating..." : "Confirm_Delete"}
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </>
     );
 };
