@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/src/context/LanguageContext';
 import {
   FiMessageCircle, FiSend, FiPaperclip, FiSmile, FiMoreHorizontal,
   FiChevronLeft, FiExternalLink, FiClock, FiCheck, FiCheckCircle,
@@ -128,6 +129,7 @@ interface ConversationThreadProps {
 }
 
 export default function ConversationThread({ conversationId, onBack }: ConversationThreadProps) {
+  const { t } = useLanguage();
   const [conversation] = useState<Conversation>(MOCK_CONVERSATION);
   const [replyText, setReplyText] = useState('');
   const [isInternalNote, setIsInternalNote] = useState(false);
@@ -207,7 +209,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
 
           <div className="flex items-center gap-2">
             {/* Status Badge */}
-            <select 
+            <select
               value={conversation.status}
               className={`text-xs font-black uppercase px-3 py-1.5 border-2 border-black cursor-pointer appearance-none ${
                 conversation.status === 'open' ? 'bg-green-400 text-black' :
@@ -215,9 +217,9 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                 'bg-gray-200 text-black'
               }`}
             >
-              <option value="open">Open</option>
-              <option value="pending">Pending</option>
-              <option value="resolved">Resolved</option>
+              <option value="open">{t("Open", "Ouvert")}</option>
+              <option value="pending">{t("Pending", "En attente")}</option>
+              <option value="resolved">{t("Resolved", "Résolu")}</option>
             </select>
             
             <button className="p-2 border-2 border-black bg-white dark:bg-zinc-800 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all">
@@ -240,7 +242,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                 {tag}
               </span>
             ))}
-            <button className="text-[10px] font-black uppercase text-[#3C48F6] dark:text-blue-400 hover:underline">+ ADD_TAG</button>
+            <button className="text-[10px] font-black uppercase text-[#3C48F6] dark:text-blue-400 hover:underline">+ {t("ADD TAG", "AJOUTER TAG")}</button>
           </div>
         )}
       </div>
@@ -280,7 +282,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                 {message.isInternal && (
                   <div className="flex items-center gap-1 text-[10px] font-black uppercase text-yellow-600 mb-1">
                     <FiAlertCircle size={12} />
-                    <span>Internal Note</span>
+                    <span>{t("Internal Note", "Note Interne")}</span>
                   </div>
                 )}
                 
@@ -321,11 +323,11 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                     {message.sender === 'team' && message.status && !message.isInternal && (
                       <span className="flex items-center gap-1">
                         {message.status === 'read' ? (
-                          <><FiCheckCircle size={10} /> Read</>
+                          <><FiCheckCircle size={10} /> {t("Read", "Lu")}</>
                         ) : message.status === 'delivered' ? (
-                          <><FiCheck size={10} /> Delivered</>
+                          <><FiCheck size={10} /> {t("Delivered", "Livré")}</>
                         ) : (
-                          <><FiCheck size={10} /> Sent</>
+                          <><FiCheck size={10} /> {t("Sent", "Envoyé")}</>
                         )}
                       </span>
                     )}
@@ -368,18 +370,18 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             }`}
           >
             <FiSend size={12} className="inline mr-2" strokeWidth={3} />
-            Channel Reply
+            {t("Channel Reply", "Répondre sur le Canal")}
           </button>
           <button
             onClick={() => setIsInternalNote(true)}
             className={`px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase transition-all ${
-              isInternalNote 
-                ? 'bg-yellow-400 text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
+              isInternalNote
+                ? 'bg-yellow-400 text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5'
                 : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-yellow-50'
             }`}
           >
             <FiEdit3 size={12} className="inline mr-2" strokeWidth={3} />
-            Internal Note
+            {t("Internal Note", "Note Interne")}
           </button>
         </div>
 
@@ -389,7 +391,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder={isInternalNote ? "ADD_INTERNAL_LOG (TEAM_ONLY)..." : "TYPE_RESPONSE_STREAM..."}
+            placeholder={isInternalNote ? t("Add internal note (team only)...", "Ajouter une note interne (équipe uniquement)...") : t("Type your response...", "Tapez votre réponse...")}
             rows={3}
             className={`w-full px-4 py-4 bg-transparent resize-none focus:outline-none text-sm font-bold uppercase placeholder:text-gray-300 dark:placeholder:text-zinc-600 text-black dark:text-white`}
           />
@@ -419,7 +421,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
               ) : (
                 <>
                   {isInternalNote ? <FiEdit3 size={16} /> : <FiSend size={16} />}
-                  {isInternalNote ? 'LOG_NOTE' : 'TRANSMIT'}
+                  {isInternalNote ? t("Log Note", "Enregistrer") : t("Send", "Envoyer")}
                 </>
               )}
             </button>
@@ -428,7 +430,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
 
         {/* Quick Replies */}
         <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
-          <span className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 mr-2">Quick:</span>
+          <span className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 mr-2">{t("Quick:", "Rapide :")}</span>
           {[
             "Copy that! 🙏",
             "On it right now!",
@@ -449,7 +451,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
         <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/10 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(168,85,247,0.4)]">
           <div className="flex items-center gap-2 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 mb-2">
             <span className="w-5 h-5 bg-purple-600 text-white flex items-center justify-center text-[10px] border border-black shadow-[1px_1px_0px_0px_#000]">AI</span>
-            SUGGESTED_RESPONSE
+            {t("SUGGESTED RESPONSE", "RÉPONSE SUGGÉRÉE")}
           </div>
           <button
             onClick={() => handleQuickReply("That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study!")}

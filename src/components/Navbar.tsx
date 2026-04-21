@@ -168,7 +168,7 @@ export default function Navbar() {
             <div className="relative w-8 h-8 md:w-10 md:h-10">
                 <Image src="/assets/WiggleLogo.png" alt="Logo" fill className="object-contain" priority />
             </div>
-            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">EazyPost.</span>
+            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">azyPost.</span>
           </Link>
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
@@ -186,7 +186,7 @@ export default function Navbar() {
                   className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${
                     hoveredDropdown === getTranslatedText(item.label) 
                       ? "text-[#3C48F6]" 
-                      : "text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200"
+                      : "text-black dark:text-white"
                   }`}
                   onClick={(e) => item.hasDropdown && e.preventDefault()}
                 >
@@ -277,7 +277,7 @@ export default function Navbar() {
             )}
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>
             <div className="flex gap-1">
-                <button onClick={toggleLanguage} className="p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"><FaGlobe size={16}/></button>
+                <button onClick={toggleLanguage} className="flex items-center gap-1.5 px-2 py-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors text-xs font-black uppercase" aria-label="Toggle language"><FaGlobe size={14}/>{language === 'en' ? 'FR' : 'EN'}</button>
                 <button onClick={toggleDarkMode} className="p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors">{mounted ? (isDark ? <FaSun size={16}/> : <FaMoon size={16}/>) : <FaMoon size={16}/>}</button>
             </div>
           </div>
@@ -307,7 +307,7 @@ export default function Navbar() {
           >
              {/* Mobile Header */}
              <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/10 flex-shrink-0">
-                <span className="font-black text-xl tracking-tighter text-black dark:text-white">EazyPost.</span>
+                <span className="font-black text-xl tracking-tighter text-black dark:text-white">azyPost.</span>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-gray-100 dark:bg-white/10 rounded-full text-black dark:text-white"><FaTimes size={20} /></button>
              </div>
 
@@ -361,23 +361,23 @@ export default function Navbar() {
              <div className="p-6 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/50 flex-shrink-0 safe-pb">
                 {!isAuthenticated ? (
                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm border-2 border-black dark:border-white font-bold text-black dark:text-white uppercase text-sm">Log In</Link>
-                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm bg-black dark:bg-white text-white dark:text-black font-bold uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">Sign Up</Link>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm border-2 border-black dark:border-white font-bold text-black dark:text-white uppercase text-sm">{t("Log In", "Connexion")}</Link>
+                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm bg-black dark:bg-white text-white dark:text-black font-bold uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">{t("Sign Up", "Inscription")}</Link>
                     </div>
                 ) : (
                     <div className="space-y-3">
                         <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-black uppercase text-sm shadow-[4px_4px_0px_0px_#000] border-2 border-black">
-                            <FaChartBar /> Dashboard
+                            <FaChartBar /> {t("Dashboard", "Tableau de bord")}
                         </Link>
                         <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold uppercase text-sm border-2 border-red-200 hover:bg-red-50 transition-colors">
-                            <FaSignOutAlt /> Sign Out
+                            <FaSignOutAlt /> {t("Sign Out", "Déconnexion")}
                         </button>
                     </div>
                 )}
                 
                 <div className="flex justify-center gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-white/10">
                     <button onClick={toggleLanguage} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500"><FaGlobe /> {language === 'fr' ? 'English' : 'Français'}</button>
-                    <button onClick={toggleDarkMode} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500">{mounted ? (isDark ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>) : <><FaMoon /> Dark Mode</>}</button>
+                    <button onClick={toggleDarkMode} className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500">{mounted ? (isDark ? <><FaSun /> {t("Light Mode", "Mode Clair")}</> : <><FaMoon /> {t("Dark Mode", "Mode Sombre")}</>) : <><FaMoon /> {t("Dark Mode", "Mode Sombre")}</>}</button>
                 </div>
              </div>
           </motion.div>

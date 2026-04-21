@@ -116,7 +116,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 lg:grid lg:grid-cols-2 relative font-sans">
+    <div className={`min-h-screen bg-white dark:bg-gray-900 relative font-sans ${step === 'FORM' ? 'lg:grid lg:grid-cols-2' : ''}`}>
 
       {/* LEFT COLUMN: FORM */}
       <div className="relative flex flex-col justify-center items-center h-screen w-full bg-white overflow-y-auto px-6 py-12 lg:px-12 sticky top-0">
@@ -213,8 +213,8 @@ const SignupPage = () => {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: HIGH-END CAROUSEL */}
-      <div className="relative hidden lg:flex flex-col h-full w-full bg-[#050505] overflow-hidden">
+      {/* RIGHT COLUMN: HIGH-END CAROUSEL — hidden on verify step */}
+      <div className={`relative flex-col h-full w-full bg-[#050505] overflow-hidden ${step === 'FORM' ? 'hidden lg:flex' : 'hidden'}`}>
         
         {/* Background Image Carousel */}
         <AnimatePresence mode='popLayout'>

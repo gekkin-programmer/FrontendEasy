@@ -597,7 +597,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pb-6 bg-white dark:bg-zinc-900 transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[220px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[320px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">

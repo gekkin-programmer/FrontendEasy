@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
+import { useLanguage } from '@/src/context/LanguageContext';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
@@ -76,6 +77,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
 
 // 🟢 DRAGGABLE ITEM COMPONENT
 const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post: any) => void, viewType: ViewType }) => {
+  const { t } = useLanguage();
   const {
     attributes,
     listeners,
@@ -121,17 +123,17 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
         })}
       </div>
 
-      <span className="truncate flex-1 uppercase tracking-tighter ml-1">{post.content || 'No Content'}</span>
+      <span className="truncate flex-1 uppercase tracking-tighter ml-1">{post.content || t('No Content', 'Aucun Contenu')}</span>
 
       <div className="hidden group-hover:block absolute bottom-full left-0 w-48 bg-black text-white p-2 text-[10px] z-[100] mb-2 border-2 border-white shadow-[4px_4px_0px_0px_#000]">
           <p className="line-clamp-3 font-bold">{post.content}</p>
           <div className="flex flex-col mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase gap-1">
               <div className="flex justify-between">
-                <span>Targets:</span>
+                <span>{t('Targets:', 'Cibles:')}</span>
                 <span>{socialAccounts.length}</span>
               </div>
               <div className="flex justify-between">
-                <span>Time:</span>
+                <span>{t('Time:', 'Heure:')}</span>
                 <span>{post.scheduledFor ? format(parseISO(post.scheduledFor), 'HH:mm') : 'N/A'}</span>
               </div>
           </div>
@@ -144,6 +146,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const { start, end } = useMemo(() => {
     if (viewType === 'month') {
@@ -170,7 +173,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         trackAction('calendar_drag_drop', { workspaceId });
         queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
-    onError: () => toast.error("RESCHEDULE_FAILED")
+    onError: () => toast.error(t("RESCHEDULE_FAILED", "REPLANIFICATION_ÉCHOUÉE"))
   });
 
   const days = eachDayOfInterval({ start, end });
@@ -204,7 +207,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   };
 
   const handleExport = () => {
-      const headers = ['Date', 'Platform', 'Content', 'Status'];
+      const headers = [t('Date', 'Date'), t('Platform', 'Plateforme'), t('Content', 'Contenu'), t('Status', 'Statut')];
       const rows = posts.map(p => {
           const content = (p.content || '').replace(/"/g, '""');
           return [
@@ -223,7 +226,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       link.remove();
       
       trackAction('calendar_export', { workspaceId, postCount: posts.length });
-      toast.success("EXPORT_GENERATED");
+      toast.success(t("EXPORT_GENERATED", "EXPORT_GÉNÉRÉ"));
   };
 
   const navigate = (direction: 'prev' | 'next') => {
@@ -246,7 +249,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
                 </h2>
-                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_VIEW // ENGINE_READY</p>
+                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_{t("VIEW", "VUE")} // {t("ENGINE_READY", "MOTEUR_PRÊT")}</p>
             </div>
         </div>
 
@@ -271,11 +274,11 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
             <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
           </div>
 
-          <button 
+          <button
             onClick={handleExport}
             className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
-            <Download size={16} /> Export
+            <Download size={16} /> {t("Export", "Exporter")}
           </button>
         </div>
       </div>

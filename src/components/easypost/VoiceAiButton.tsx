@@ -5,6 +5,7 @@ import { Mic, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface VoiceAiButtonProps {
   onCommand: (transcription: string, intent: any) => void;
@@ -13,7 +14,8 @@ interface VoiceAiButtonProps {
 export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  
+  const { t } = useLanguage();
+
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const startTime = useRef<number>(0);
@@ -36,10 +38,10 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       startTime.current = Date.now();
       mediaRecorder.current.start();
       setIsRecording(true);
-      toast.info("Listening... (Release to send)");
+      toast.info(t("Listening... (Release to send)", "Écoute... (Relâchez pour envoyer)"));
     } catch (err) {
       console.error(err);
-      toast.error("Microphone access denied. Please check browser settings.");
+      toast.error(t("Microphone access denied. Please check browser settings.", "Accès au microphone refusé. Vérifiez les paramètres du navigateur."));
     }
   };
 
@@ -51,8 +53,8 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
     const duration = Date.now() - startTime.current;
 
     // Minimum recording duration check
-    if (duration < 500) { 
-      toast.warning("Hold longer to record!");
+    if (duration < 500) {
+      toast.warning(t("Hold longer to record!", "Maintenez plus longtemps pour enregistrer !"));
       if (mediaRecorder.current) {
           mediaRecorder.current.onstop = null; // Remove handler to prevent upload
           mediaRecorder.current.stop();
@@ -92,18 +94,24 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       const intent = data.createdPost?.intent || data.intent; 
 
       onCommand(data.transcription, intent);
-      
-      toast.success("AI processed command!", {
+
+      toast.success(t("AI processed command!", "Commande IA traitée !"), {
         description: `"${data.transcription}"`
       });
 
-      // 🚀 FREEMIUM HOOK: AI USAGE TOAST
+      // FREEMIUM HOOK: AI USAGE TOAST
       if (data.aiUsageCount >= 8 && data.aiUsageCount < 10) {
         setTimeout(() => {
-          toast.info(`🎉 ${10 - data.aiUsageCount} générations restantes ce mois.`, {
-            description: "Passez à STARTER pour 100 générations !",
+          toast.info(t(
+            `${10 - data.aiUsageCount} generations remaining this month.`,
+            `${10 - data.aiUsageCount} générations restantes ce mois.`
+          ), {
+            description: t(
+              "Upgrade to STARTER for 100 generations!",
+              "Passez à STARTER pour 100 générations !"
+            ),
             action: {
-              label: "Upgrade",
+              label: t("Upgrade", "Passer"),
               onClick: () => window.location.href = '/pricing'
             }
           });
@@ -113,7 +121,7 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
     } catch (error: any) {
       console.error("Voice Upload Error:", error);
       const msg = error.response?.data?.message || error.message;
-      toast.error(`Failed: ${msg}`);
+      toast.error(t(`Failed: ${msg}`, `Échec : ${msg}`));
     } finally {
       setIsProcessing(false);
     }
@@ -149,16 +157,20 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
             ) : isRecording ? (
                 <Mic className="w-3.5 h-3.5" />
             ) : (
-                <img 
+                <img
                     src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`}
-                    alt="AI"
+                    alt={t("AI assistant", "Assistant IA")}
                     className="w-full h-full rounded-full border border-white/20"
                 />
             )}
         </div>
         
         <span className={`text-xs font-bold ${isRecording ? 'text-red-500' : 'text-gray-600 dark:text-zinc-400'}`}>
-            {isRecording ? 'Listening...' : isProcessing ? 'Thinking...' : 'Voice AI'}
+            {isRecording
+              ? t('Listening...', 'Écoute...')
+              : isProcessing
+              ? t('Thinking...', 'Réflexion...')
+              : t('Voice AI', 'IA Vocale')}
         </span>
       </motion.button>
 

@@ -14,6 +14,7 @@ import {
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import SpinningLoader from '../SpinningLoader';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // --- CONFIG ---
 const ICONS: Record<string, any> = {
@@ -25,6 +26,7 @@ type TimeRange = '7d' | '30d' | '90d';
 
 export default function EngagementAnalytics() {
   const params = useParams();
+  const { t } = useLanguage();
   const workspaceId = typeof params?.id === 'string' ? params.id : '';
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
@@ -45,10 +47,10 @@ export default function EngagementAnalytics() {
       // TRANSFORM: Backend Data -> UI Structure
       return {
         kpi: [
-          { label: 'Total Posts', value: overview.overview.totalPosts, trend: 'neutral' },
-          { label: 'Total Reach', value: overview.overview.totalReach, trend: 'up' },
-          { label: 'Engagement', value: overview.overview.totalLikes, trend: 'up' }, // Using Likes as proxy for engagement
-          { label: 'Engagement Rate', value: overview.overview.engagementRate, trend: 'up' },
+          { label: t('Total Posts', 'Total Publications'), value: overview.overview.totalPosts, trend: 'neutral' },
+          { label: t('Total Reach', 'Portée Totale'), value: overview.overview.totalReach, trend: 'up' },
+          { label: t('Engagement', 'Engagement'), value: overview.overview.totalLikes, trend: 'up' },
+          { label: t('Engagement Rate', "Taux d'Engagement"), value: overview.overview.engagementRate, trend: 'up' },
         ],
         platforms: accounts.map((acc: any) => ({
           platform: acc.platform,
@@ -67,7 +69,7 @@ export default function EngagementAnalytics() {
     enabled: !!workspaceId
   });
 
-  const handleDownload = () => toast.success("REPORT_GENERATION_QUEUED");
+  const handleDownload = () => toast.success(t("Report queued for generation", "Rapport mis en file de génération"));
 
   if (isLoading) return <SpinningLoader fullScreen={false} />;
 
@@ -79,8 +81,8 @@ export default function EngagementAnalytics() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-black dark:border-white pb-6 gap-4">
         <div>
-          <h2 className="text-3xl font-black italic tracking-tight uppercase text-black dark:text-white">Engagement Hub</h2>
-          <p className="text-sm font-mono text-gray-600 dark:text-zinc-400 mt-1 uppercase">LIVE DATA ACROSS CONNECTED NODES</p>
+          <h2 className="text-3xl font-black italic tracking-tight uppercase text-black dark:text-white">{t("Engagement Hub", "Hub d'Engagement")}</h2>
+          <p className="text-sm font-mono text-gray-600 dark:text-zinc-400 mt-1 uppercase">{t("LIVE DATA ACROSS CONNECTED NODES", "DONNÉES EN DIRECT SUR LES NŒUDS CONNECTÉS")}</p>
         </div>
         
         <div className="flex gap-4">
@@ -101,7 +103,7 @@ export default function EngagementAnalytics() {
                 onClick={handleDownload}
                 className="flex items-center gap-2 px-4 py-2 bg-yellow-400 dark:bg-yellow-600 border-2 border-black dark:border-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all text-black dark:text-white"
             >
-                <FiDownload /> Report
+                <FiDownload /> {t("Report", "Rapport")}
             </button>
         </div>
       </div>
@@ -130,8 +132,8 @@ export default function EngagementAnalytics() {
         {/* Main Volume Chart (Mock Visual) */}
         <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] transition-colors">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-black uppercase text-black dark:text-white">Traffic Volume</h3>
-            <span className="text-[10px] font-mono bg-black dark:bg-white text-white dark:text-black px-2 py-1 uppercase">24H CYCLE</span>
+            <h3 className="text-lg font-black uppercase text-black dark:text-white">{t("Traffic Volume", "Volume de Trafic")}</h3>
+            <span className="text-[10px] font-mono bg-black dark:bg-white text-white dark:text-black px-2 py-1 uppercase">{t("24H CYCLE", "CYCLE 24H")}</span>
           </div>
           <div className="h-48 flex items-end gap-2 border-b-2 border-black dark:border-white pb-1 transition-colors">
             {stats.volume.map((point: any, idx: number) => (
@@ -145,9 +147,9 @@ export default function EngagementAnalytics() {
 
         {/* Platform Breakdown */}
         <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] transition-colors">
-           <h3 className="text-lg font-black uppercase mb-6 text-black dark:text-white">Channel Efficiency</h3>
+           <h3 className="text-lg font-black uppercase mb-6 text-black dark:text-white">{t("Channel Efficiency", "Efficacité des Canaux")}</h3>
            <div className="space-y-4">
-              {stats.platforms.length === 0 && <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase">NO_CONNECTED_CHANNELS</p>}
+              {stats.platforms.length === 0 && <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase">{t("No connected channels", "Aucun canal connecté")}</p>}
               {stats.platforms.map((p: any) => {
                 const Icon = ICONS[p.platform] || ICONS.FACEBOOK;
                 return (
@@ -162,8 +164,8 @@ export default function EngagementAnalytics() {
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs font-black text-black dark:text-white">{p.volume} Posts</p>
-                            <p className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20 px-1 border border-green-600 dark:border-green-400 uppercase transition-colors">Ratio: {p.efficiency}</p>
+                            <p className="text-xs font-black text-black dark:text-white">{p.volume} {t("Posts", "Publications")}</p>
+                            <p className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20 px-1 border border-green-600 dark:border-green-400 uppercase transition-colors">{t("Ratio", "Ratio")}: {p.efficiency}</p>
                         </div>
                     </div>
                 );

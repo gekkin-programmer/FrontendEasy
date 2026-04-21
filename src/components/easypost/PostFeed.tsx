@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // --- NEU COMPONENTS ---
 
@@ -231,49 +232,50 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 };
 
 export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false }: PostFeedProps) {
+  const { t } = useLanguage();
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   const deletePost = async (postId: string) => {
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
-        toast.success("POST_DELETED");
+        toast.success(t("Post deleted", "Publication supprimée"));
     } catch (e) {
-        toast.error("FAILED_TO_DELETE");
+        toast.error(t("Failed to delete", "Échec de la suppression"));
     }
   };
 
   const cancelSchedule = async (postId: string) => {
     try {
         await api.post(`/posts/${postId}/cancel-schedule?workspaceId=${workspaceId}`, {});
-        toast.success("SCHEDULE_CANCELLED");
+        toast.success(t("Schedule cancelled", "Planification annulée"));
     } catch (e) {
-        toast.error("CANCEL_FAILED");
+        toast.error(t("Cancellation failed", "Échec de l'annulation"));
     }
   };
 
   const publishPost = async (postId: string) => {
     try {
-        toast.loading("PUBLISHING...");
+        toast.loading(t("Publishing...", "Publication en cours..."));
         await api.post(`/posts/${postId}/publish?workspaceId=${workspaceId}`, {});
         toast.dismiss();
-        toast.success("PUBLISHED_SUCCESSFULLY");
+        toast.success(t("Published successfully", "Publié avec succès"));
     } catch (e) {
         toast.dismiss();
-        toast.error("PUBLISH_FAILED");
+        toast.error(t("Publish failed", "Échec de la publication"));
     }
   };
 
   const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
     try {
-        await api.patch(`/posts/${postId}`, { 
-            status, 
+        await api.patch(`/posts/${postId}`, {
+            status,
             scheduledFor: new Date(scheduledFor).toISOString(),
             workspaceId
         });
-        toast.success("POST_SCHEDULED");
+        toast.success(t("Post scheduled", "Publication planifiée"));
     } catch (e) {
-        toast.error("UPDATE_FAILED");
+        toast.error(t("Update failed", "Échec de la mise à jour"));
     }
   };
 
@@ -299,18 +301,18 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       <div className="flex flex-col gap-4">
         <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
             <h3 className="font-black text-sm uppercase flex items-center gap-2 text-white dark:text-black">
-              <FileText className="w-4 h-4" /> Drafts ({drafts.length})
+              <FileText className="w-4 h-4" /> {t("Drafts", "Brouillons")} ({drafts.length})
             </h3>
             {drafts.length > 0 && (
-                <button 
+                <button
                     onClick={async () => {
-                        if(confirm(`Publish all ${drafts.length} drafts?`)) {
+                        if(confirm(t(`Publish all ${drafts.length} drafts?`, `Publier les ${drafts.length} brouillons ?`))) {
                             for(const d of drafts) await publishPost(d.id);
                         }
                     }}
                     className="bg-black text-white text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-all"
                 >
-                    PUBLISH_ALL
+                    {t("PUBLISH ALL", "TOUT PUBLIER")}
                 </button>
             )}
         </div>
@@ -333,7 +335,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             <div className="text-center p-8 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
-              {posts.length === 0 ? "No_Drafts_Yet" : "No_Matching_Drafts"}
+              {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
             </div>
           )}
         </div>
@@ -342,7 +344,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       <div onDrop={handleDropToQueue} onDragOver={handleDragOver} className="relative group flex flex-col gap-4">
         <div className="bg-black dark:bg-white text-white dark:text-black p-2 border-2 border-black dark:border-white inline-block w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
             <h3 className="font-black text-sm uppercase flex items-center gap-2">
-              <Clock className="w-4 h-4" /> Queue / Scheduled ({queued.length})
+              <Clock className="w-4 h-4" /> {t("Queue / Scheduled", "File / Programmé")} ({queued.length})
             </h3>
         </div>
         <div className="space-y-4 min-h-[200px] z-10">
@@ -363,7 +365,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
              <div className="text-center p-12 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
-               {posts.length === 0 ? "DRAG_DRAFT_HERE_TO_SCHEDULE" : "NO_MATCHING_QUEUE_ITEMS"}
+               {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
              </div>
           )}
         </div>
