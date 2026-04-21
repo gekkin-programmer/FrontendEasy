@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/src/lib/api';
 import { useSocket } from '@/src/context/SocketContext';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // Icons
 import {
@@ -68,6 +69,7 @@ interface TeamProps {
 }
 
 export default function Team({ workspaceId }: TeamProps) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const { socket } = useSocket();
   const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'approvals'>('members');
@@ -99,29 +101,29 @@ export default function Team({ workspaceId }: TeamProps) {
   // ── MUTATIONS ─────────────────────────────────────────────────────────
   const inviteMutation = useMutation({
     mutationFn: (data: { email: string; role: string }) => api.post(`/workspaces/${workspaceId}/members/invite`, data),
-    onSuccess: () => { toast.success("INVITATION_SENT"); refetchMembers(); },
-    onError: (e: any) => toast.error(e.message || "INVITE_FAILED"),
+    onSuccess: () => { toast.success(t('Invitation sent', 'Invitation envoyée')); refetchMembers(); },
+    onError: (e: any) => toast.error(e.message || t('Invite failed', 'Échec de l\'invitation')),
   });
 
   const approveMutation = useMutation({
     mutationFn: (postId: string) => api.post(`/posts/${postId}/approve`, {}),
     onSuccess: () => {
-      toast.success("CONTENT_APPROVED_LIVE");
+      toast.success(t('Content approved and live', 'Contenu approuvé et en ligne'));
       refetchReviews();
       queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
       queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
-    onError: () => toast.error("APPROVAL_FAILED"),
+    onError: () => toast.error(t('Approval failed', 'Échec de l\'approbation')),
   });
 
   const rejectMutation = useMutation({
     mutationFn: (postId: string) => api.patch(`/posts/${postId}`, { status: 'DRAFT' }),
-    onSuccess: () => { toast.warning("SENT_BACK_TO_DRAFT"); refetchReviews(); },
+    onSuccess: () => { toast.warning(t('Sent back to draft', 'Renvoyé en brouillon')); refetchReviews(); },
   });
 
   const removeMemberMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/workspaces/${workspaceId}/members/${id}`),
-    onSuccess: () => { toast.success("MEMBER_REMOVED"); refetchMembers(); },
+    onSuccess: () => { toast.success(t('Member removed', 'Membre retiré')); refetchMembers(); },
   });
 
   // ── FORM STATE ────────────────────────────────────────────────────────
@@ -139,7 +141,7 @@ export default function Team({ workspaceId }: TeamProps) {
   }, []);
 
   const handleInvite = () => {
-    if (!email.includes('@')) return toast.error("INVALID_EMAIL");
+    if (!email.includes('@')) return toast.error(t('Invalid email', 'E-mail invalide'));
     inviteMutation.mutate({ email, role });
     setEmail("");
   };
@@ -249,7 +251,7 @@ export default function Team({ workspaceId }: TeamProps) {
     } catch {
       // Remove optimistic on failure
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
-      toast.error("Message failed to send");
+      toast.error(t('Message failed to send', 'Échec de l\'envoi du message'));
       setChatInput(text);
     }
   };
@@ -265,7 +267,7 @@ export default function Team({ workspaceId }: TeamProps) {
     sender?.firstName?.[0]?.toUpperCase() || sender?.email?.[0]?.toUpperCase() || '?';
 
   const getDisplayName = (sender: ChatMsg['sender']) =>
-    sender?.firstName ? `${sender.firstName} ${sender.lastName || ''}`.trim() : (sender?.email || 'Unknown');
+    sender?.firstName ? `${sender.firstName} ${sender.lastName || ''}`.trim() : (sender?.email || t('Unknown', 'Inconnu'));
 
   // Group messages by date
   const groupedMessages = messages.reduce<{ date: string; msgs: ChatMsg[] }[]>((groups, msg) => {
@@ -287,15 +289,15 @@ export default function Team({ workspaceId }: TeamProps) {
           <div className="flex justify-between items-start mb-6 border-b-2 border-dashed border-gray-300 dark:border-zinc-700 pb-4">
             <div>
               <h2 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">
-                {workspace?.name || 'Team Control Center'}
+                {workspace?.name || t('Team Control Center', 'Centre de contrôle d\'équipe')}
               </h2>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
                 <span className="text-[10px] font-mono text-gray-500 dark:text-zinc-400 uppercase tracking-widest">
-                  {activeCrew.length} member{activeCrew.length !== 1 ? 's' : ''}
+                  {activeCrew.length} {t('member', 'membre')}{activeCrew.length !== 1 ? t('s', 's') : ''}
                 </span>
                 {pendingInvites.length > 0 && (
                   <span className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400 uppercase tracking-widest">
-                    · {pendingInvites.length} pending
+                    · {pendingInvites.length} {t('pending', 'en attente')}
                   </span>
                 )}
                 {workspace?.owner?.planType && (
@@ -318,7 +320,7 @@ export default function Team({ workspaceId }: TeamProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
-                placeholder="TEAM_MEMBER_EMAIL"
+                placeholder={t('Team member email', 'E-mail du membre')}
                 className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:border-[#3C48F5] focus:bg-[#EEF0FF] dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all uppercase text-black dark:text-white"
               />
             </div>
@@ -362,7 +364,7 @@ export default function Team({ workspaceId }: TeamProps) {
             </div>
 
             <NeuButton onClick={handleInvite} disabled={inviteMutation.isPending} variant="primary" className="px-8 py-3">
-              {inviteMutation.isPending ? 'SENDING...' : 'INVITE'}
+              {inviteMutation.isPending ? t('Sending...', 'Envoi...') : t('Invite', 'Inviter')}
             </NeuButton>
           </div>
         </div>
@@ -374,24 +376,24 @@ export default function Team({ workspaceId }: TeamProps) {
               onClick={() => setActiveTab('members')}
               className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'members' ? 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-none' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600'}`}
             >
-              ACTIVE_CREW <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{activeCrew.length}</span>
+              {t('Active Crew', 'Équipe active')} <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{activeCrew.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('invites')}
               className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'invites' ? 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-none' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600'}`}
             >
-              PENDING <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{pendingInvites.length}</span>
+              {t('Pending', 'En attente')} <span className="bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[8px] font-mono">{pendingInvites.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('approvals')}
               className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'approvals' ? 'bg-blue-500 text-white active:bg-blue-700' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600'}`}
             >
-              WAITING_APPROVAL <span className={`px-1.5 py-0.5 text-[8px] font-mono ${activeTab === 'approvals' ? 'bg-white text-black' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{reviewPosts.length}</span>
+              {t('Waiting Approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 text-[8px] font-mono ${activeTab === 'approvals' ? 'bg-white text-black' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{reviewPosts.length}</span>
             </button>
             <button
               onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchReviews(); }}
               className="ml-auto px-5 py-4 hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600 border-l-2 border-black dark:border-white text-black dark:text-white transition-colors"
-              title="Refresh"
+              title={t('Refresh', 'Actualiser')}
             >
               <RefreshCw size={14} />
             </button>
@@ -409,7 +411,7 @@ export default function Team({ workspaceId }: TeamProps) {
                         {m.user?.firstName?.charAt(0) || m.user?.email?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-black uppercase text-black dark:text-white">{m.user?.firstName || 'User'} {m.user?.lastName}</p>
+                        <p className="text-sm font-black uppercase text-black dark:text-white">{m.user?.firstName || t('User', 'Utilisateur')} {m.user?.lastName}</p>
                         <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">{m.user?.email}</p>
                       </div>
                     </div>
@@ -433,7 +435,7 @@ export default function Team({ workspaceId }: TeamProps) {
                 {!membersLoading && pendingInvites.length === 0 && (
                   <div className="py-20 text-center border-4 border-dashed border-gray-200 dark:border-zinc-800">
                     <Mail size={48} className="mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
-                    <p className="font-black uppercase text-gray-300 dark:text-zinc-600 text-xl">No_Pending_Invites</p>
+                    <p className="font-black uppercase text-gray-300 dark:text-zinc-600 text-xl">{t('No Pending Invites', 'Aucune invitation en attente')}</p>
                   </div>
                 )}
                 {!membersLoading && pendingInvites.map((m: any) => (
@@ -444,7 +446,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       </div>
                       <div>
                         <p className="text-sm font-black uppercase text-black dark:text-white">{m.user?.email}</p>
-                        <p className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400 uppercase">awaiting acceptance</p>
+                        <p className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400 uppercase">{t('awaiting acceptance', 'en attente d\'acceptation')}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -463,20 +465,20 @@ export default function Team({ workspaceId }: TeamProps) {
                 {reviewPosts.length === 0 && !reviewsLoading && (
                   <div className="py-20 text-center border-4 border-dashed border-zinc-100 dark:border-zinc-800">
                     <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4 opacity-50" />
-                    <p className="font-black uppercase text-zinc-300 dark:text-zinc-700 text-2xl">All_Clear_No_Pending_Reviews</p>
+                    <p className="font-black uppercase text-zinc-300 dark:text-zinc-700 text-2xl">{t('All Clear — No Pending Reviews', 'Tout est bon — Aucune révision en attente')}</p>
                   </div>
                 )}
                 {reviewPosts.map((post: any) => (
                   <div key={post.id} className="border-4 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col sm:flex-row transition-all">
                     <div className="w-full sm:w-1/3 bg-zinc-100 dark:bg-zinc-950 p-4 border-b-4 sm:border-b-0 sm:border-r-4 border-black dark:border-white flex flex-col gap-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black uppercase bg-black text-white px-2 py-0.5">PREVIEW_ENGINE</span>
+                        <span className="text-[10px] font-black uppercase bg-black text-white px-2 py-0.5">{t('PREVIEW ENGINE', 'MOTEUR DE PRÉVISUALISATION')}</span>
                         <Eye size={14} className="text-zinc-400" />
                       </div>
                       {post.media?.length > 0 ? (
-                        <img src={post.media[0].media.url} className="w-full aspect-square object-cover border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000]" alt="Preview" />
+                        <img src={post.media[0].media.url} className="w-full aspect-square object-cover border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000]" alt={t('Preview', 'Aperçu')} />
                       ) : (
-                        <div className="w-full aspect-square border-2 border-dashed border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-zinc-400 text-[10px] font-bold uppercase">No_Media_Attached</div>
+                        <div className="w-full aspect-square border-2 border-dashed border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-zinc-400 text-[10px] font-bold uppercase">{t('No Media Attached', 'Aucun média joint')}</div>
                       )}
                       <div className="flex gap-1 flex-wrap mt-2">
                         {post.socialAccounts?.map((sa: any, i: number) => (
@@ -489,21 +491,21 @@ export default function Team({ workspaceId }: TeamProps) {
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-[#3C48F5] rounded-none border border-black"></div>
-                            <span className="font-black uppercase text-xs">Post_Review_Request</span>
+                            <span className="font-black uppercase text-xs">{t('Post Review Request', 'Demande de révision')}</span>
                           </div>
                           <span className="text-[10px] font-mono opacity-50 uppercase">{format(parseISO(post.createdAt), 'MMM d, HH:mm')}</span>
                         </div>
                         <p className="text-sm font-medium leading-relaxed italic border-l-4 border-zinc-200 dark:border-zinc-700 pl-4">{post.content}</p>
                         <div className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-500">
-                          <Clock size={12} /> Scheduled_For: {post.scheduledFor ? format(parseISO(post.scheduledFor), 'EEEE, MMMM d @ HH:mm') : 'IMMEDIATE'}
+                          <Clock size={12} /> {t('Scheduled For', 'Planifié pour')}: {post.scheduledFor ? format(parseISO(post.scheduledFor), 'EEEE, MMMM d @ HH:mm') : t('IMMEDIATE', 'IMMÉDIAT')}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4 mt-8">
                         <NeuButton onClick={() => rejectMutation.mutate(post.id)} variant="default" className="py-3 bg-red-50 hover:bg-red-100 text-red-600 border-red-500">
-                          <X size={16} strokeWidth={3} /> REJECT_DRAFT
+                          <X size={16} strokeWidth={3} /> {t('Reject', 'Rejeter')}
                         </NeuButton>
                         <NeuButton onClick={() => approveMutation.mutate(post.id)} variant="primary" className="py-3 bg-green-600 hover:bg-green-700 text-white border-green-900">
-                          <FileCheck size={16} strokeWidth={3} /> APPROVE_PUBLISH
+                          <FileCheck size={16} strokeWidth={3} /> {t('Approve & Publish', 'Approuver et publier')}
                         </NeuButton>
                       </div>
                     </div>
@@ -533,7 +535,7 @@ export default function Team({ workspaceId }: TeamProps) {
             <div className="flex flex-col items-center justify-center h-full py-12 text-gray-400 dark:text-zinc-600">
               <MessageSquare size={40} strokeWidth={1} className="mb-3 opacity-40" />
               <p className="text-xs font-black uppercase tracking-widest text-center">
-                Say hello to your team!
+                {t('Say hello to your team!', 'Dites bonjour à votre équipe !')}
               </p>
             </div>
           )}
@@ -571,7 +573,7 @@ export default function Team({ workspaceId }: TeamProps) {
                     <div className={cn("flex flex-col max-w-[210px]", isMine ? "items-end" : "items-start")}>
                       {!isGrouped && (
                         <span className={cn("text-[9px] font-black uppercase mb-0.5 text-gray-500 dark:text-zinc-400", isMine && "text-right")}>
-                          {isMine ? 'You' : getDisplayName(msg.sender)}
+                          {isMine ? t('You', 'Vous') : getDisplayName(msg.sender)}
                         </span>
                       )}
                       <div className={cn(
@@ -606,7 +608,7 @@ export default function Team({ workspaceId }: TeamProps) {
               onChange={e => setChatInput(e.target.value)}
               onKeyDown={handleChatKey}
               onFocus={() => setChatExpanded(true)}
-              placeholder="TYPE_MESSAGE..."
+              placeholder={t('Type a message...', 'Tapez un message...')}
               disabled={!channelId}
               className="flex-1 min-w-0 px-3 py-2.5 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-[#3C48F5] focus:shadow-[3px_3px_0px_0px_#3C48F5] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
             />

@@ -16,6 +16,7 @@ import {
   FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface QuickConnectSidebarProps {
   accounts: any[];
@@ -25,6 +26,7 @@ interface QuickConnectSidebarProps {
 }
 
 export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: QuickConnectSidebarProps) => {
+    const { t } = useLanguage();
     const router = useRouter();
     const queryClient = useQueryClient();
     const [telegramModal, setTelegramModal] = useState(false);
@@ -45,7 +47,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'telegram', Icon: FaTelegram, color: 'text-[#2AABEE]' },
         { id: 'discord', Icon: FaDiscord, color: 'text-[#5865F2]' },
         { id: 'twitch', Icon: FaTwitch, color: 'text-[#9146FF]', comingSoon: true },
-        { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white', comingSoon: true },
+        { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white' },
     ];
 
     const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
@@ -111,7 +113,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                         <button
                             onClick={() => router.push('/pricing')}
                             className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-[#3C48F5] shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
-                            title="Upgrade to add more nodes"
+                            title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
                             <Crown size={16} className="text-black" />
                         </button>
@@ -144,7 +146,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                                 onClick={() => pauseMutation.mutate(connected.id)}
                                                 disabled={pauseMutation.isPending}
                                                 className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 hover:bg-yellow-300 transition-colors cursor-pointer"
-                                                title={connected.isPaused ? "Resume queue" : "Pause queue"}
+                                                title={connected.isPaused ? t("Resume queue", "Reprendre la file") : t("Pause queue", "Mettre en pause")}
                                             >
                                                 {connected.isPaused
                                                     ? <Play size={10} className="text-black" strokeWidth={3} />
@@ -154,7 +156,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
                                                 className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white hover:bg-red-50 transition-colors cursor-pointer"
-                                                title="Disconnect"
+                                                title={t("Disconnect", "Déconnecter")}
                                             >
                                                 <Trash2 size={10} className="text-black" strokeWidth={3} />
                                             </button>
@@ -182,7 +184,9 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                                 ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
                                                 : "bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
                                         )}
-                                        title={(p as any).comingSoon ? `${p.id} — coming soon` : `Connect ${p.id}`}
+                                        title={(p as any).comingSoon
+                                            ? t(`${p.id} — coming soon`, `${p.id} — bientôt disponible`)
+                                            : t(`Connect ${p.id}`, `Connecter ${p.id}`)}
                                     >
                                         <p.Icon
                                             size={16}
@@ -196,7 +200,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                 </div>
             </div>
 
-            {/* 🔵 TELEGRAM LINK MODAL */}
+            {/* TELEGRAM LINK MODAL */}
             <AnimatePresence>
                 {telegramModal && telegramToken && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -208,13 +212,13 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                         >
                             <div className="bg-[#2AABEE] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
                                 <span className="font-black uppercase tracking-wider flex items-center gap-2">
-                                    <FaTelegram size={20} /> Connect_Telegram
+                                    <FaTelegram size={20} /> {t("Connect Telegram", "Connecter Telegram")}
                                 </span>
                                 <button onClick={() => setTelegramModal(false)}><X size={24} strokeWidth={3} /></button>
                             </div>
                             <div className="p-6 space-y-4">
                                 <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    1. Open Telegram and message
+                                    {t("1. Open Telegram and message", "1. Ouvrez Telegram et envoyez un message à")}
                                 </p>
                                 <a
                                     href="https://t.me/Eazy_Post_bot"
@@ -225,7 +229,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                     @Eazy_Post_bot
                                 </a>
                                 <p className="font-bold uppercase text-xs text-black dark:text-white">
-                                    2. Send this command (expires in 15 min):
+                                    {t("2. Send this command (expires in 15 min):", "2. Envoyez cette commande (expire dans 15 min):")}
                                 </p>
                                 <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white p-3">
                                     <code className="flex-1 font-mono text-sm text-black dark:text-white break-all">
@@ -234,19 +238,19 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                     <button
                                         onClick={copyCommand}
                                         className="flex-shrink-0 p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-                                        title="Copy"
+                                        title={t("Copy", "Copier")}
                                     >
                                         {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
                                     </button>
                                 </div>
                                 <p className="text-[10px] font-mono opacity-60 text-black dark:text-white">
-                                    The bot will confirm when your account is linked.
+                                    {t("The bot will confirm when your account is linked.", "Le bot confirmera lorsque votre compte sera lié.")}
                                 </p>
                                 <button
                                     onClick={() => { setTelegramModal(false); refreshData(); }}
                                     className="w-full py-3 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#555] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                 >
-                                    Done
+                                    {t("Done", "Terminé")}
                                 </button>
                             </div>
                         </motion.div>

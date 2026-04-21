@@ -171,7 +171,8 @@ export default function OnboardingGuide({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.25 }}
-          className="fixed bottom-6 left-6 z-40 w-[300px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
+          className="fixed bottom-6 z-40 w-[300px] max-h-[calc(100vh-10rem)] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
+          style={{ left: 'max(0.5rem, calc((100vw - min(100vw, 1664px)) / 2 + 2rem))' }}
         >
           {/* Header row */}
           <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-[#3C48F5]">
@@ -219,7 +220,7 @@ export default function OnboardingGuide({
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="divide-y-2 divide-black/10 dark:divide-white/10">
+                <div className="divide-y-2 divide-black/10 dark:divide-white/10 overflow-y-auto max-h-[50vh]">
                   {steps.map((step, i) => (
                     <motion.div
                       key={step.id}

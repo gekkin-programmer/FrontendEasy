@@ -25,6 +25,7 @@ import { PlatformContextBar } from './composer/PlatformContextBar';
 import { BroadcastPanel } from './composer/BroadcastPanel';
 import { PlatformSpecificPanels } from './composer/PlatformSpecificPanels';
 import { BROADCAST_IDS } from './composer/platformConfig';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';
@@ -93,6 +94,7 @@ const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; case 'tiktok': return <FaTiktok size={size} className="text-black dark:text-white" />; case 'youtube': case 'google': return <FaYoutube size={size} className="text-red-600" />; case 'discord': return <FaDiscord size={size} className="text-[#5865F2]" />; case 'telegram': return <FaTelegram size={size} className="text-[#26A5E4]" />; case 'whatsapp': return <FaWhatsapp size={size} className="text-[#25D366]" />; case 'snapchat': return <FaSnapchat size={size} className="text-yellow-400" />; case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
+  const { t } = useLanguage();
   const { data, isLoading } = useQuery({
     queryKey: ['smart-scheduling', workspaceId, platform],
     queryFn: () => api.get<any>(`/ai/smart-scheduling/suggestions?workspaceId=${workspaceId}&platform=${platform}`),
@@ -101,19 +103,19 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
   return (
     <div className="flex flex-col font-sans">
       <div className="bg-black dark:bg-white text-white dark:text-black p-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-        <Sparkles size={12} className="text-yellow-400" /> Best_Posting_Times
+        <Sparkles size={12} className="text-yellow-400" /> {t("Best Posting Times", "Meilleurs horaires de publication")}
       </div>
       <div className="p-4 space-y-3">
         {isLoading ? (
           <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 animate-pulse">
-            <RefreshCw size={12} className="animate-spin" /> ANALYZING_AUDIENCE_PATTERNS...
+            <RefreshCw size={12} className="animate-spin" /> {t("ANALYZING AUDIENCE PATTERNS...", "ANALYSE DES TENDANCES D'AUDIENCE...")}
           </div>
         ) : (
           <>
-            <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight mb-2">Based on your historical engagement and industry trends.</p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight mb-2">{t("Based on your historical engagement and industry trends.", "Basé sur votre engagement historique et les tendances du secteur.")}</p>
             {data?.suggestions?.map((s: any, i: number) => (
-              <button 
-                key={i} 
+              <button
+                key={i}
                 onClick={() => onSelect(s.hour)}
                 className="w-full flex items-center justify-between p-2 border-2 border-black dark:border-white hover:bg-yellow-100 dark:hover:bg-zinc-800 transition-all group"
               >
@@ -126,9 +128,9 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
                     "text-[8px] font-black uppercase px-1.5 py-0.5 border",
                     s.confidence === 'high' ? "bg-green-100 border-green-600 text-green-700" : "bg-blue-100 border-blue-600 text-blue-700"
                   )}>
-                    {s.confidence}_CONFIDENCE
+                    {s.confidence === 'high' ? t("HIGH CONFIDENCE", "HAUTE CONFIANCE") : t("MEDIUM CONFIDENCE", "CONFIANCE MOYENNE")}
                   </span>
-                  <span className="text-[10px] font-black text-[#3C48F5]">SELECT</span>
+                  <span className="text-[10px] font-black text-[#3C48F5]">{t("SELECT", "CHOISIR")}</span>
                 </div>
               </button>
             ))}
@@ -140,10 +142,12 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
 };
 
 export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange }: ComposerProps) {
+  const { t } = useLanguage();
+
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
-  
+
   // Populate from postToEdit
   useEffect(() => {
     if (postToEdit) {
@@ -157,7 +161,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     }
   }, [postToEdit]);
   const [category, setCategory] = useState('General');
-  
+
   // Media State
   const [localFiles, setLocalFiles] = useState<File[]>([]);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
@@ -165,13 +169,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
-  const [isLibraryOpen, setIsLibraryOpen] = useState(true); 
+  const [isLibraryOpen, setIsLibraryOpen] = useState(true);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false); // ➤ New State
-  
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   // AI Params
   const [aiContext, setAiContext] = useState("");
   const [aiTone, setAiTone] = useState(AI_TONES[0].id);
@@ -224,16 +228,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
 
-  // ➤ LOGIC: FETCH MEDIA LIBRARY 
+  // ➤ LOGIC: FETCH MEDIA LIBRARY
   const fetchLibrary = async () => {
     try {
         const res = await api.get<any>('/media');
         // Handle both { data: [...] } and direct [...] array responses
         const list = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
-        
+
         const formattedMedia = list.map((m: any) => ({
             id: m.id,
-            type: (m.mimeType?.includes('video') ? 'video' : 'image') as AssetType, 
+            type: (m.mimeType?.includes('video') ? 'video' : 'image') as AssetType,
             url: m.url,
             name: m.filename,
             parentId: null
@@ -251,12 +255,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       try {
           // Use api.post with headers
           const res = await api.post<any>('/media/upload', formData);
-          
-          await fetchLibrary(); 
+
+          await fetchLibrary();
           // Backend returns the created MediaLibrary object
-          return res.id || res.data?.id; 
-      } catch (e) { 
-          return null; 
+          return res.id || res.data?.id;
+      } catch (e) {
+          return null;
       }
   };
 
@@ -285,13 +289,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const handleAiGenerate = async () => {
     if (!aiContext.trim()) return;
     setIsAiGenerating(true);
-    
+
     try {
       const res = await api.post<any>('/ai/test-copywriting', {
         product: aiContext,
         tone: aiTone,
       });
-      
+
       const generatedContent = res.content || res.data?.content;
       const aiUsageCount = res.aiUsageCount || res.data?.aiUsageCount;
       if (!generatedContent) throw new Error("Empty response from AI");
@@ -299,7 +303,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       // Typewriter Effect
       const prefix = text ? "\n\n" : "";
       const textToType = prefix + generatedContent;
-      
+
       let charIndex = 0;
       const speed = 15; // ms per char
 
@@ -309,10 +313,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (charIndex === textToType.length) {
             clearInterval(intervalId);
             setIsAiGenerating(false);
-            setIsAiOpen(false); 
+            setIsAiOpen(false);
             setAiContext("");
 
-            // 🚀 FREEMIUM HOOK: AI USAGE TOAST
             if (aiUsageCount >= 8 && aiUsageCount < 10) {
               setTimeout(() => {}, 1000);
             }
@@ -346,7 +349,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         workspaceId,
       );
       setBroadcastText('');
-      toast.success('BROADCAST SENT');
+      toast.success(t('BROADCAST SENT', 'DIFFUSION ENVOYÉE'));
     } catch {
     } finally {
       setIsSubmitting(false);
@@ -389,7 +392,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         const finalMediaIds = [...selectedMediaIds];
         let finalContent = text;
 
-        // 🛍️ COMMERCE LOGIC: Generate One-Time Link
+        // Commerce Logic: Generate One-Time Link
         if (isSelling && price) {
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
@@ -441,12 +444,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* HEADER */}
         <div className="px-4 py-3 flex items-center justify-between bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black dark:bg-white text-white dark:text-black px-2 py-1">TARGETS:</span>
+            <span className="text-[10px] font-black uppercase tracking-widest mr-2 bg-black dark:bg-white text-white dark:text-black px-2 py-1">{t("TARGETS:", "CIBLES:")}</span>
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
                 return (
-                  <div key={acc.id} className="relative w-8 h-8 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]" title={isExpired ? 'Connection expired' : acc.username}>
+                  <div key={acc.id} className="relative w-8 h-8 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
                     <span className="text-xs font-black text-black dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
                     {acc.avatar && (
                       <img
@@ -470,7 +473,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">
-                <div className="bg-black dark:bg-white text-white dark:text-black p-2 text-[10px] font-mono uppercase">AVAILABLE NODES</div>
+                <div className="bg-black dark:bg-white text-white dark:text-black p-2 text-[10px] font-mono uppercase">{t("AVAILABLE NODES", "NŒUDS DISPONIBLES")}</div>
                 <div className="max-h-60 overflow-y-auto">
                   {accounts.map((acc) => {
                     const isExpired = acc.isActive === false;
@@ -478,7 +481,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     return (
                       <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 dark:border-zinc-800 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-yellow-50 dark:hover:bg-zinc-800 cursor-pointer")}>
                         <div className={cn("w-4 h-4 border-2 flex items-center justify-center", isExpired ? "border-red-500" : "border-black dark:border-white")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 bg-black dark:bg-white" />)}</div>
-                        <div className="flex-1"><div className={cn("text-xs font-bold uppercase text-black dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[8px] font-mono text-gray-500 dark:text-zinc-400">{acc.platform} {isExpired && "(EXPIRED)"}</div></div>
+                        <div className="flex-1"><div className={cn("text-xs font-bold uppercase text-black dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[8px] font-mono text-gray-500 dark:text-zinc-400">{acc.platform} {isExpired && `(${t("EXPIRED", "EXPIRÉ")})`}</div></div>
                         <PlatformIcon platform={acc.platform} size={14} />
                       </div>
                     );
@@ -490,10 +493,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
           <div className="flex gap-2">
              <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isAiOpen && "bg-zinc-200 dark:bg-zinc-700")}>
-                <Sparkles size={12} /> <span className="hidden sm:inline">AI_MAGIC</span>
+                <Sparkles size={12} /> <span className="hidden sm:inline">{t("AI MAGIC", "MAGIE IA")}</span>
              </button>
              <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isLibraryOpen && "bg-white dark:bg-white text-black shadow-none")}>
-                <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? 'CLOSE_LIB' : 'OPEN_LIB'}</span>
+                <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('CLOSE LIB', 'FERMER BIB') : t('OPEN LIB', 'OUVRIR BIB')}</span>
              </button>
           </div>
         </div>
@@ -511,14 +514,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-4 transition-colors">
                     <div className="flex flex-col sm:flex-row gap-4 mb-3">
                         <div className="flex-1">
-                            <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">WHAT_ARE_WE_SELLING?</label>
-                            <input value={aiContext} onChange={(e) => setAiContext(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-2 text-xs font-bold focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] text-black dark:text-white" placeholder="E.G. 50% OFF SNEAKERS IN DOUALA..." />
+                            <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">{t("WHAT ARE WE SELLING?", "QU'EST-CE QU'ON VEND?")}</label>
+                            <input value={aiContext} onChange={(e) => setAiContext(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-2 text-xs font-bold focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] text-black dark:text-white" placeholder={t("E.G. 50% OFF SNEAKERS IN DOUALA...", "EX. 50% DE RÉDUCTION SUR LES BASKETS À DOUALA...")} />
                         </div>
                         <div className="w-full sm:w-1/3">
-                            <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">VIBE_CHECK</label>
+                            <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">{t("VIBE CHECK", "AMBIANCE")}</label>
                             <div className="relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                                 <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 py-2 text-xs font-black uppercase appearance-none focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] text-black dark:text-white cursor-pointer pr-8 transition-all">
-                                    {AI_TONES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                    {AI_TONES.map(tone => <option key={tone.id} value={tone.id}>{tone.label}</option>)}
                                 </select>
                                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-black dark:text-white" />
                             </div>
@@ -527,7 +530,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     <div className="flex justify-end">
                         <NeuButton onClick={handleAiGenerate} disabled={isAiGenerating} className="bg-black dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black px-4 py-2 w-full sm:w-auto">
                             {isAiGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Wand2 className="w-3 h-3 mr-2" />}
-                            {isAiGenerating ? "WRITING..." : "GENERATE_COPY"}
+                            {isAiGenerating ? t("WRITING...", "RÉDACTION...") : t("GENERATE COPY", "GÉNÉRER LE TEXTE")}
                         </NeuButton>
                     </div>
                 </motion.div>
@@ -578,14 +581,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 {platformMode.postPlatforms.map(p => (
                   <span key={p.id} className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">{p.label}</span>
                 ))}
-                <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">POST</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">{t("POST", "PUBLICATION")}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setText(broadcastText)}
                 className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-black dark:border-white px-2 py-0.5 transition-colors"
               >
-                ↑ Sync from broadcast
+                {t("↑ Sync from broadcast", "↑ Sync depuis la diffusion")}
               </button>
             </div>
           </>
@@ -594,7 +597,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pb-6 bg-white dark:bg-zinc-900 transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="INPUT_CONTENT_STREAM..." className="min-h-[140px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[320px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -630,23 +633,23 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-dashed border-gray-300 dark:border-zinc-700 gap-4 transition-colors">
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
-              <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_IMG" />
-              <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip="UPLOAD_VID" />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? 'COMMERCE: ON' : 'COMMERCE: OFF'}</button>
+              <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
+              <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? t('COMMERCE: ON', 'COMMERCE: ACTIF') : t('COMMERCE: OFF', 'COMMERCE: INACTIF')}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                          {/* 🚀 AI SMART SCHEDULING BUTTON */}
+                          {/* AI SMART SCHEDULING BUTTON */}
                           <Popover>
                             <PopoverTrigger asChild>
                               <button className="px-3 py-2 bg-white hover:bg-zinc-100 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
-                                <Sparkles size={14} className="animate-pulse" /> AI_SCHEDULER
+                                <Sparkles size={14} className="animate-pulse" /> {t("AI SCHEDULER", "PLANIF IA")}
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="center" side="top">
-                              <AiSchedulerContent 
-                                workspaceId={workspaceId} 
-                                platform={accounts.find(a => selectedAccountIds.includes(a.id))?.platform || 'FACEBOOK'} 
+                              <AiSchedulerContent
+                                workspaceId={workspaceId}
+                                platform={accounts.find(a => selectedAccountIds.includes(a.id))?.platform || 'FACEBOOK'}
                                 onSelect={(hour) => {
                                   const newDate = date || new Date();
                                   newDate.setHours(hour);
@@ -656,36 +659,36 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                               />
                             </PopoverContent>
                           </Popover>
-            
-                          <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : 'NOW'}</NeuButton></PopoverTrigger>
+
+                          <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('NOW', 'MAINTENANT')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700")}><LayoutGrid size={14} /> PREVIEW</button>
-                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> REVIEW</button>
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> {t("REVIEW", "RÉVISION")}</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
-                      {postToEdit ? 'UPDATE' : (date ? 'SCHEDULE' : 'EXECUTE')}
+                      {postToEdit ? t('UPDATE', 'METTRE À JOUR') : (date ? t('SCHEDULE', 'PLANIFIER') : t('PUBLISH', 'PUBLIER'))}
                   </NeuButton>
               </div>
             </div>
           </div>
-          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="PRICE (e.g. 5000)" className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">MOMO_ACTIVE</div></motion.div>)}</AnimatePresence>
+          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t("PRICE (e.g. 5000)", "PRIX (ex. 5000)")} className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">{t("MOMO ACTIVE", "MOMO ACTIF")}</div></motion.div>)}</AnimatePresence>
         </div>
         )}
       </div>
-      
-      {/* 🟢 LIBRARY & MODALS */}
+
+      {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden flex flex-col transition-colors max-h-[420px]">
-            <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors flex-shrink-0"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> OS_ASSET_EXPLORER</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
+            <div className="px-4 py-2 border-b-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex justify-between items-center transition-colors flex-shrink-0"><span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 font-mono"><LayoutGrid size={14} /> {t("ASSET EXPLORER", "EXPLORATEUR DE MÉDIAS")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white rounded-none p-1 transition-colors border border-transparent hover:border-white dark:hover:border-zinc-700"><X size={14} /></button></div>
             <div className="p-4 bg-white dark:bg-zinc-900 overflow-y-auto flex-1">
                 <MediaGallery
                     hideUsage={false}
                     sections={[
-                        { id: 'post',         label: 'Attach to Post'  },
-                        { id: 'firstComment', label: 'First Comment'   },
-                        { id: 'broadcast',    label: 'Broadcast'       },
+                        { id: 'post',         label: t('Attach to Post', 'Joindre à la publication')  },
+                        { id: 'firstComment', label: t('First Comment', 'Premier commentaire')   },
+                        { id: 'broadcast',    label: t('Broadcast', 'Diffusion')       },
                     ]}
                     onUse={(asset, section) => {
                         if (section === 'post') {
@@ -702,32 +705,32 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         )}
       </AnimatePresence>
 
-      <NeuModal isOpen={showFolderModal} onClose={() => setShowFolderModal(false)} title="NEW_FOLDER">
-          <input value={inputFolderName} onChange={e => setInputFolderName(e.target.value)} className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-2 font-bold mb-4 text-black dark:text-white" placeholder="NAME" autoFocus />
-          <NeuButton onClick={() => { setLibraryData(p => [...p, { id: Date.now().toString(), type: 'folder', name: inputFolderName, parentId: currentFolderId }]); setInputFolderName(""); setShowFolderModal(false); }} className="w-full bg-black dark:bg-white text-white dark:text-black py-2">CREATE</NeuButton>
+      <NeuModal isOpen={showFolderModal} onClose={() => setShowFolderModal(false)} title={t("NEW FOLDER", "NOUVEAU DOSSIER")}>
+          <input value={inputFolderName} onChange={e => setInputFolderName(e.target.value)} className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-2 font-bold mb-4 text-black dark:text-white" placeholder={t("NAME", "NOM")} autoFocus />
+          <NeuButton onClick={() => { setLibraryData(p => [...p, { id: Date.now().toString(), type: 'folder', name: inputFolderName, parentId: currentFolderId }]); setInputFolderName(""); setShowFolderModal(false); }} className="w-full bg-black dark:bg-white text-white dark:text-black py-2">{t("CREATE", "CRÉER")}</NeuButton>
       </NeuModal>
-      <NeuModal isOpen={showTemplateModal} onClose={() => setShowTemplateModal(false)} title="NEW_TEMPLATE">
-          <input value={inputTemplateName} onChange={e => setInputTemplateName(e.target.value)} className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-2 font-bold mb-4 text-black dark:text-white" placeholder="TEMPLATE_NAME" autoFocus />
-          <div className="bg-gray-100 dark:bg-zinc-800 p-2 text-xs font-mono mb-4 border border-black dark:border-white max-h-20 overflow-y-auto text-black dark:text-white">{text || "NO CONTENT TO SAVE"}</div>
-          <NeuButton onClick={() => { setSavedTemplates(p => [...p, { id: Date.now(), title: inputTemplateName, content: text }]); setInputTemplateName(""); setShowTemplateModal(false); }} className="w-full bg-black dark:bg-white text-white dark:text-black py-2" disabled={!text}>SAVE</NeuButton>
+      <NeuModal isOpen={showTemplateModal} onClose={() => setShowTemplateModal(false)} title={t("NEW TEMPLATE", "NOUVEAU MODÈLE")}>
+          <input value={inputTemplateName} onChange={e => setInputTemplateName(e.target.value)} className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-900 p-2 font-bold mb-4 text-black dark:text-white" placeholder={t("TEMPLATE NAME", "NOM DU MODÈLE")} autoFocus />
+          <div className="bg-gray-100 dark:bg-zinc-800 p-2 text-xs font-mono mb-4 border border-black dark:border-white max-h-20 overflow-y-auto text-black dark:text-white">{text || t("NO CONTENT TO SAVE", "AUCUN CONTENU À ENREGISTRER")}</div>
+          <NeuButton onClick={() => { setSavedTemplates(p => [...p, { id: Date.now(), title: inputTemplateName, content: text }]); setInputTemplateName(""); setShowTemplateModal(false); }} className="w-full bg-black dark:bg-white text-white dark:text-black py-2" disabled={!text}>{t("SAVE", "ENREGISTRER")}</NeuButton>
       </NeuModal>
 
-      {/* 🚀 TEST 10: PREVIEW MODAL */}
+      {/* PREVIEW MODAL */}
       {isPreviewOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col font-sans text-black dark:text-white transition-colors">
                 <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
-                    <span className="font-black uppercase tracking-tighter text-xl">LIVE_PREVIEW_STREAM</span>
+                    <span className="font-black uppercase tracking-tighter text-xl">{t("LIVE PREVIEW", "APERÇU EN DIRECT")}</span>
                     <button onClick={() => setIsPreviewOpen(false)} className="hover:bg-black hover:text-white transition-colors p-1 border-2 border-transparent hover:border-black"><X size={24} strokeWidth={3}/></button>
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto p-8 bg-[#F0F2F5] dark:bg-zinc-950 transition-colors">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        
+
                         {/* 1. FACEBOOK PREVIEW */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'FACEBOOK') && (
                             <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK_FEED</span>
+                                <span className="text-[10px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">FACEBOOK FEED</span>
                                 <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
                                     <div className="flex items-center gap-2">
                                         <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
@@ -736,7 +739,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                             <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
                                         </div>
                                     </div>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || "Your content here..."}</p>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{text || t("Your content here...", "Votre contenu ici...")}</p>
                                     {mediaPreviews.length > 0 && (
                                         <div className={cn(
                                             "grid gap-1 rounded-md overflow-hidden border border-gray-100 dark:border-zinc-800",
@@ -748,7 +751,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                         </div>
                                     )}
                                     <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                        <span>Like</span><span>Comment</span><span>Share</span>
+                                        <span>{t("Like", "J'aime")}</span><span>{t("Comment", "Commenter")}</span><span>{t("Share", "Partager")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -757,7 +760,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         {/* 2. TWITTER PREVIEW */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && (a.platform === 'TWITTER' || a.platform === 'X')) && (
                             <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X_TIMELINE</span>
+                                <span className="text-[10px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">X TIMELINE</span>
                                 <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
                                     <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
                                     <div className="space-y-2 flex-1 min-w-0">
@@ -765,7 +768,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                             <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded"></div>
                                             <div className="h-3 w-16 bg-gray-100 dark:bg-zinc-900 rounded"></div>
                                         </div>
-                                        <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || "What's happening?")}</p>
+                                        <p className="text-sm leading-snug whitespace-pre-wrap">{text.length > 280 ? text.substring(0, 277) + '...' : (text || t("What's happening?", "Quoi de neuf?"))}</p>
                                         {mediaPreviews.length > 0 && (
                                             <div className={cn(
                                                 "grid gap-0.5 rounded-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 max-h-64",
@@ -787,7 +790,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         {/* 3. LINKEDIN PREVIEW */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'LINKEDIN') && (
                             <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN_NETWORK</span>
+                                <span className="text-[10px] font-black uppercase bg-[#0077B5] text-white px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">LINKEDIN NETWORK</span>
                                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
                                     <div className="flex items-center gap-2">
                                         <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
@@ -796,7 +799,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                             <div className="h-2 w-24 bg-gray-100 dark:bg-zinc-900 rounded mt-1"></div>
                                         </div>
                                     </div>
-                                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || "Share an update..."}</p>
+                                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{text || t("Share an update...", "Partager une mise à jour...")}</p>
                                     {mediaPreviews.length > 0 && (
                                         <div className="grid grid-cols-2 gap-1 rounded border border-gray-100 dark:border-zinc-800">
                                             {mediaPreviews.slice(0, 4).map((url, i) => (
@@ -805,16 +808,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                         </div>
                                     )}
                                     <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 flex gap-6 text-gray-500 dark:text-zinc-400 text-xs font-bold uppercase">
-                                        <span>Like</span><span>Comment</span><span>Repost</span>
+                                        <span>{t("Like", "J'aime")}</span><span>{t("Comment", "Commenter")}</span><span>{t("Repost", "Repartager")}</span>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* 4. TIKTOK PREVIEW (Simple placeholder) */}
+                        {/* 4. TIKTOK PREVIEW */}
                         {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK') && (
                             <div className="space-y-3">
-                                <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK_MOBILE</span>
+                                <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK MOBILE</span>
                                 <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
                                     {mediaPreviews.length > 0 && (
                                         <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
@@ -834,8 +837,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 </div>
 
                 <div className="p-6 border-t-4 border-black dark:border-white bg-white dark:bg-zinc-900 flex justify-end gap-4 transition-colors">
-                    <NeuButton variant="secondary" onClick={() => setIsPreviewOpen(false)} className="px-8 bg-white dark:bg-zinc-900 text-black dark:text-white">CLOSE</NeuButton>
-                    <NeuButton variant="primary" onClick={() => { setIsPreviewOpen(false); handleSubmit('execute'); }} className="px-8 bg-green-600 hover:bg-green-700 text-white">SATISFIED_PUBLISH</NeuButton>
+                    <NeuButton variant="secondary" onClick={() => setIsPreviewOpen(false)} className="px-8 bg-white dark:bg-zinc-900 text-black dark:text-white">{t("CLOSE", "FERMER")}</NeuButton>
+                    <NeuButton variant="primary" onClick={() => { setIsPreviewOpen(false); handleSubmit('execute'); }} className="px-8 bg-green-600 hover:bg-green-700 text-white">{t("PUBLISH NOW", "PUBLIER MAINTENANT")}</NeuButton>
                 </div>
             </motion.div>
         </div>

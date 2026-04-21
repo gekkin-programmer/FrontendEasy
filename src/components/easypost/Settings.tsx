@@ -9,6 +9,7 @@ import { api } from '@/src/lib/api';
 import ConnectAccounts from './ConnectAccounts';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
@@ -56,11 +57,11 @@ const NeuButton = ({ children, onClick, className = "", variant = "primary", dis
 const NeuInput = ({ label, type = "text", value, onChange, disabled, placeholder }: any) => (
     <div className="w-full">
         {label && <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">{label}</label>}
-        <input 
-            type={type} 
-            value={value} 
-            onChange={onChange} 
-            disabled={disabled} 
+        <input
+            type={type}
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
             placeholder={placeholder}
             className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all disabled:bg-zinc-200 dark:disabled:bg-zinc-900 disabled:text-gray-500 dark:disabled:text-zinc-600 placeholder:text-gray-400 dark:placeholder:text-zinc-600 text-black dark:text-white"
         />
@@ -87,18 +88,19 @@ function TabBtn({ tab, activeTab, setActiveTab }: { tab: { id: SettingsTab; labe
 
 // --- MAIN SETTINGS COMPONENT ---
 export default function Settings({ workspaceId, workspaceName }: { workspaceId: string, workspaceName?: string }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
 
   const ACCOUNT_TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'profile', label: 'Profile', icon: <FiUser size={15} /> },
-    { id: 'notifications', label: 'Notifications', icon: <FiBell size={15} /> },
-    { id: 'billing', label: 'Billing', icon: <FiCreditCard size={15} /> },
+    { id: 'profile', label: t('Profile', 'Profil'), icon: <FiUser size={15} /> },
+    { id: 'notifications', label: t('Notifications', 'Notifications'), icon: <FiBell size={15} /> },
+    { id: 'billing', label: t('Billing', 'Facturation'), icon: <FiCreditCard size={15} /> },
   ];
   const WORKSPACE_TABS: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'workspace', label: 'General', icon: <FiBriefcase size={15} /> },
-    { id: 'account', label: 'Connections', icon: <FiShield size={15} /> },
-    { id: 'storage', label: 'Storage', icon: <FiDatabase size={15} /> },
-    { id: 'team', label: 'Members', icon: <FiUsers size={15} /> },
+    { id: 'workspace', label: t('General', 'Général'), icon: <FiBriefcase size={15} /> },
+    { id: 'account', label: t('Connections', 'Connexions'), icon: <FiShield size={15} /> },
+    { id: 'storage', label: t('Storage', 'Stockage'), icon: <FiDatabase size={15} /> },
+    { id: 'team', label: t('Members', 'Membres'), icon: <FiUsers size={15} /> },
   ];
 
   const activeLabel = [...ACCOUNT_TABS, ...WORKSPACE_TABS].find(t => t.id === activeTab)?.label || '';
@@ -108,7 +110,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
       {/* Page Header */}
       <div className="mb-8 pb-6 border-b-2 border-black dark:border-white flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 tracking-widest mb-1">Settings</p>
+          <p className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 tracking-widest mb-1">{t('Settings', 'Paramètres')}</p>
           <h1 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">{activeLabel}</h1>
         </div>
         {workspaceName && (
@@ -122,13 +124,13 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
         {/* Sidebar */}
         <aside className="lg:w-56 flex-shrink-0 space-y-6">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">Account</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">{t('Account', 'Compte')}</p>
             <nav className="space-y-1">
               {ACCOUNT_TABS.map(tab => <TabBtn key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />)}
             </nav>
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">Workspace</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-2 px-1">{t('Workspace', 'Espace de travail')}</p>
             <nav className="space-y-1">
               {WORKSPACE_TABS.map(tab => <TabBtn key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />)}
             </nav>
@@ -152,6 +154,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
 
 // --- SUB-COMPONENT: WORKSPACE SETTINGS ---
 function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, initialName: string }) {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: initialName,
         description: '',
@@ -160,7 +163,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
     });
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    
+
     // Fetch details on mount
     useEffect(() => {
         const fetchDetails = async () => {
@@ -189,43 +192,43 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
         try {
             const data = await api.upload<any>('/media/upload', uploadFormData);
             const logoUrl = data.media?.url || data.url || data.secure_url;
-            setFormData(prev => ({ ...prev, logo: logoUrl })); 
-            toast.success("LOGO_UPLOADED");
-        } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { setUploading(false); }
+            setFormData(prev => ({ ...prev, logo: logoUrl }));
+            toast.success(t('Logo uploaded', 'Logo téléchargé'));
+        } catch (err: any) { toast.error(t('Upload error', 'Erreur de téléchargement')); } finally { setUploading(false); }
     };
 
     const handleUpdate = async () => {
-        if (!formData.name.trim()) return toast.error("NAME_REQUIRED");
+        if (!formData.name.trim()) return toast.error(t('Name is required', 'Le nom est requis'));
         setLoading(true);
         try {
             await api.patch(`/workspaces/${workspaceId}`, {
                 ...formData,
                 website: formData.website.trim() === "" ? undefined : formData.website
             });
-            toast.success("WORKSPACE_UPDATED");
-        } catch (e: any) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
+            toast.success(t('Workspace updated', 'Espace de travail mis à jour'));
+        } catch (e: any) { toast.error(t('Update failed', 'Échec de la mise à jour')); } finally { setLoading(false); }
     };
 
     const handleDelete = async () => {
-        if (!confirm("CONFIRM DELETION?")) return;
+        if (!confirm(t('Confirm deletion?', 'Confirmer la suppression ?'))) return;
         setLoading(true);
         try {
             await api.delete(`/workspaces/${workspaceId}`);
-            toast.success("WORKSPACE_DELETED");
-            window.location.href = '/dashboard'; 
-        } catch (e) { toast.error("DELETE_FAILED"); } finally { setLoading(false); }
+            toast.success(t('Workspace deleted', 'Espace de travail supprimé'));
+            window.location.href = '/dashboard';
+        } catch (e) { toast.error(t('Delete failed', 'Échec de la suppression')); } finally { setLoading(false); }
     };
 
     return (
         <div className="space-y-8">
-            <NeuCard title="Brand Settings" description="CONFIGURE YOUR WORKSPACE IDENTITY">
+            <NeuCard title={t('Brand Settings', 'Paramètres de marque')} description={t('CONFIGURE YOUR WORKSPACE IDENTITY', 'CONFIGUREZ L\'IDENTITÉ DE VOTRE ESPACE')}>
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-xs font-black uppercase mb-2 text-black dark:text-white">Workspace Logo</label>
+                        <label className="block text-xs font-black uppercase mb-2 text-black dark:text-white">{t('Workspace Logo', 'Logo de l\'espace')}</label>
                         <div className="flex items-start gap-6">
                             <div className="relative w-24 h-24 border-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800 shrink-0 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
                                 {formData.logo ? (
-                                    <img src={formData.logo} alt="Logo" className="w-full h-full object-cover" />
+                                    <img src={formData.logo} alt={t('Logo', 'Logo')} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-zinc-600"><FiImage size={24} /></div>
                                 )}
@@ -233,29 +236,29 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                             </div>
                             <div className="flex flex-col gap-2">
                                 <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
-                                <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}><FiUploadCloud /> UPLOAD_LOGO</NeuButton>
-                                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 max-w-[200px]">Max 2MB. Recommended 500x500.</p>
+                                <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}><FiUploadCloud /> {t('Upload Logo', 'Télécharger le logo')}</NeuButton>
+                                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 max-w-[200px]">{t('Max 2MB. Recommended 500x500.', 'Max 2 Mo. Recommandé 500x500.')}</p>
                             </div>
                         </div>
                     </div>
-                    <NeuInput label="Workspace Name" value={formData.name} onChange={(e:any) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Digital Agency" />
+                    <NeuInput label={t('Workspace Name', 'Nom de l\'espace')} value={formData.name} onChange={(e:any) => setFormData({...formData, name: e.target.value})} placeholder={t('e.g. Digital Agency', 'ex. Agence digitale')} />
                     <div>
-                        <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">Description</label>
-                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all min-h-[100px] resize-none placeholder:text-gray-400 dark:placeholder:text-zinc-600 text-black dark:text-white" placeholder="e.g. We help local businesses grow." />
+                        <label className="block text-xs font-black uppercase mb-1 text-black dark:text-white">{t('Description', 'Description')}</label>
+                        <textarea value={formData.description} onChange={(e:any) => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-mono text-sm focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all min-h-[100px] resize-none placeholder:text-gray-400 dark:placeholder:text-zinc-600 text-black dark:text-white" placeholder={t('e.g. We help local businesses grow.', 'ex. Nous aidons les entreprises locales à croître.')} />
                     </div>
                     <div className="relative">
-                        <NeuInput label="Website URL" value={formData.website} onChange={(e:any) => setFormData({...formData, website: e.target.value})} placeholder="https://easy.cm" />
+                        <NeuInput label={t('Website URL', 'URL du site web')} value={formData.website} onChange={(e:any) => setFormData({...formData, website: e.target.value})} placeholder="https://easy.cm" />
                         <div className="absolute top-7 right-3 text-gray-400 dark:text-zinc-600 pointer-events-none"><FiGlobe /></div>
                     </div>
                     <div className="flex justify-end pt-4 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
-                        <NeuButton onClick={handleUpdate} disabled={loading || uploading} icon={<FiSave />}>{loading ? 'SAVING...' : 'SAVE_CHANGES'}</NeuButton>
+                        <NeuButton onClick={handleUpdate} disabled={loading || uploading} icon={<FiSave />}>{loading ? t('Saving...', 'Sauvegarde...') : t('Save Changes', 'Enregistrer')}</NeuButton>
                     </div>
                 </div>
             </NeuCard>
-            <NeuCard title="Danger Zone" description="IRREVERSIBLE ACTIONS" className="border-red-500 dark:border-red-600">
+            <NeuCard title={t('Danger Zone', 'Zone dangereuse')} description={t('IRREVERSIBLE ACTIONS', 'ACTIONS IRRÉVERSIBLES')} className="border-red-500 dark:border-red-600">
                 <div className="flex justify-between items-center">
-                    <div><h4 className="font-black text-black dark:text-white uppercase">ARCHIVE WORKSPACE</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.</p></div>
-                    <NeuButton variant="secondary" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>DELETE</NeuButton>
+                    <div><h4 className="font-black text-black dark:text-white uppercase">{t('ARCHIVE WORKSPACE', 'ARCHIVER L\'ESPACE')}</h4><p className="text-xs text-gray-500 dark:text-zinc-400 font-mono">{t('THIS WILL HIDE THE WORKSPACE FROM YOUR LIST.', 'CELA MASQUERA L\'ESPACE DE VOTRE LISTE.')}</p></div>
+                    <NeuButton variant="secondary" onClick={handleDelete} disabled={loading} icon={<FiTrash2 />}>{t('Delete', 'Supprimer')}</NeuButton>
                 </div>
             </NeuCard>
         </div>
@@ -264,6 +267,7 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
 
 // --- SUB-COMPONENT: PROFILE SETTINGS ---
 function ProfileSettings() {
+  const { t } = useLanguage();
   const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', avatar: '' });
   const [loading, setLoading] = useState(false);
@@ -297,9 +301,9 @@ function ProfileSettings() {
       try {
           const data = await api.upload<any>('/media/upload', uploadFormData);
           const avatarUrl = data.media?.url || data.url || data.secure_url;
-          setFormData(prev => ({ ...prev, avatar: avatarUrl })); 
-          toast.success("AVATAR_UPLOADED");
-      } catch (err: any) { toast.error("UPLOAD_ERROR"); } finally { setUploading(false); }
+          setFormData(prev => ({ ...prev, avatar: avatarUrl }));
+          toast.success(t('Avatar uploaded', 'Avatar téléchargé'));
+      } catch (err: any) { toast.error(t('Upload error', 'Erreur de téléchargement')); } finally { setUploading(false); }
   };
 
   const handleSave = async () => {
@@ -308,13 +312,13 @@ function ProfileSettings() {
     setLoading(true);
     try {
         await api.patch(`/users/${userId}`, formData);
-        toast.success("PROFILE_UPDATED");
-    } catch (e) { toast.error("UPDATE_FAILED"); } finally { setLoading(false); }
+        toast.success(t('Profile updated', 'Profil mis à jour'));
+    } catch (e) { toast.error(t('Update failed', 'Échec de la mise à jour')); } finally { setLoading(false); }
   };
 
   if (!user) return (
     <div className="space-y-8 animate-pulse">
-      <NeuCard title="Public Profile">
+      <NeuCard title={t('Public Profile', 'Profil public')}>
         <div className="flex flex-col md:flex-row items-start gap-8">
           <div className="w-28 h-28 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white flex-shrink-0" />
           <div className="flex-1 space-y-4 w-full max-w-lg">
@@ -327,7 +331,7 @@ function ProfileSettings() {
           </div>
         </div>
       </NeuCard>
-      <NeuCard title="Account Security">
+      <NeuCard title={t('Account Security', 'Sécurité du compte')}>
         <div className="max-w-lg space-y-4">
           <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
           <div className="h-12 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
@@ -338,7 +342,7 @@ function ProfileSettings() {
 
   return (
     <div className="space-y-8">
-      <NeuCard title="Public Profile" description="VISIBLE TO TEAM MEMBERS">
+      <NeuCard title={t('Public Profile', 'Profil public')} description={t('VISIBLE TO TEAM MEMBERS', 'VISIBLE PAR LES MEMBRES DE L\'ÉQUIPE')}>
         <div className="flex flex-col md:flex-row items-start gap-8 transition-colors">
           <div className="flex-shrink-0 flex flex-col items-center gap-3">
             <div className="relative w-28 h-28 border-2 border-black dark:border-white bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-black dark:text-white text-4xl font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] overflow-hidden group transition-all">
@@ -346,25 +350,25 @@ function ProfileSettings() {
                {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin text-2xl" /></div>}
             </div>
             <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} className="hidden" accept="image/*" />
-            <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} className="text-[10px] py-1 px-2 h-auto" disabled={uploading}>CHANGE_PHOTO</NeuButton>
+            <NeuButton variant="secondary" onClick={() => fileInputRef.current?.click()} className="text-[10px] py-1 px-2 h-auto" disabled={uploading}>{t('Change Photo', 'Changer la photo')}</NeuButton>
           </div>
           <div className="flex-1 space-y-4 w-full max-w-lg">
              <div className="grid grid-cols-2 gap-4">
-                 <NeuInput label="First Name" value={formData.firstName} onChange={(e:any) => setFormData({...formData, firstName: e.target.value})} />
-                 <NeuInput label="Last Name" value={formData.lastName} onChange={(e:any) => setFormData({...formData, lastName: e.target.value})} />
+                 <NeuInput label={t('First Name', 'Prénom')} value={formData.firstName} onChange={(e:any) => setFormData({...formData, firstName: e.target.value})} />
+                 <NeuInput label={t('Last Name', 'Nom')} value={formData.lastName} onChange={(e:any) => setFormData({...formData, lastName: e.target.value})} />
              </div>
-             <NeuInput label="Phone Number" value={formData.phone} onChange={(e:any) => setFormData({...formData, phone: e.target.value})} placeholder="+237..." />
+             <NeuInput label={t('Phone Number', 'Numéro de téléphone')} value={formData.phone} onChange={(e:any) => setFormData({...formData, phone: e.target.value})} placeholder="+237..." />
           </div>
         </div>
         <div className="mt-8 flex justify-end pt-4 border-t-2 border-dashed border-gray-200 dark:border-zinc-700">
-            <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8" icon={<FiSave />}>{loading ? 'SAVING...' : 'SAVE_CHANGES'}</NeuButton>
+            <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8" icon={<FiSave />}>{loading ? t('Saving...', 'Sauvegarde...') : t('Save Changes', 'Enregistrer')}</NeuButton>
         </div>
       </NeuCard>
-      <NeuCard title="Account Security" description="USED FOR LOGIN & ALERTS">
+      <NeuCard title={t('Account Security', 'Sécurité du compte')} description={t('USED FOR LOGIN & ALERTS', 'UTILISÉ POUR LA CONNEXION ET LES ALERTES')}>
          <div className="max-w-lg space-y-4">
-             <NeuInput label="Email Address" value={formData.email} disabled type="email" />
+             <NeuInput label={t('Email Address', 'Adresse e-mail')} value={formData.email} disabled type="email" />
              <div className="flex items-center justify-between p-3 border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800 transition-colors">
-                 <div className="text-sm text-black dark:text-white uppercase"><p className="font-bold">Email Verified</p><p className="text-xs font-mono opacity-70">MANAGED_BY_PROVIDER</p></div>
+                 <div className="text-sm text-black dark:text-white uppercase"><p className="font-bold">{t('Email Verified', 'E-mail vérifié')}</p><p className="text-xs font-mono opacity-70">{t('MANAGED BY PROVIDER', 'GÉRÉ PAR LE FOURNISSEUR')}</p></div>
                  <div className="bg-black dark:bg-white text-white dark:text-black p-1 border-2 border-black dark:border-white transition-colors"><FiShield /></div>
              </div>
          </div>
@@ -396,6 +400,7 @@ function NotifRow({ label, desc, value, onToggle }: { label: string; desc: strin
 
 // --- SUB-COMPONENT: NOTIFICATIONS SETTINGS ---
 function NotificationsSettings() {
+  const { t } = useLanguage();
   const [prefs, setPrefs] = useState<NotifPrefs>({
     emailPostPublished: true, emailPostFailed: true, emailWeeklyReport: false,
     emailTeamInvite: true, pushNewComment: true, pushScheduleReminder: true, pushPlatformAlert: true,
@@ -408,29 +413,29 @@ function NotificationsSettings() {
     setSaving(true);
     await new Promise(r => setTimeout(r, 600));
     setSaving(false);
-    toast.success("NOTIFICATION_PREFS_SAVED");
+    toast.success(t('Notification preferences saved', 'Préférences de notification enregistrées'));
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <NeuCard title="Email Notifications" description="MESSAGES SENT TO YOUR REGISTERED EMAIL">
+      <NeuCard title={t('Email Notifications', 'Notifications par e-mail')} description={t('MESSAGES SENT TO YOUR REGISTERED EMAIL', 'MESSAGES ENVOYÉS À VOTRE E-MAIL ENREGISTRÉ')}>
         <div className="space-y-0">
-          <NotifRow label="Post Published" desc="When a scheduled post goes live" value={prefs.emailPostPublished} onToggle={() => toggle('emailPostPublished')} />
-          <NotifRow label="Post Failed" desc="When a post fails to publish" value={prefs.emailPostFailed} onToggle={() => toggle('emailPostFailed')} />
-          <NotifRow label="Weekly Report" desc="Summary of performance every Monday" value={prefs.emailWeeklyReport} onToggle={() => toggle('emailWeeklyReport')} />
-          <NotifRow label="Team Invite" desc="When someone joins your workspace" value={prefs.emailTeamInvite} onToggle={() => toggle('emailTeamInvite')} />
+          <NotifRow label={t('Post Published', 'Publication publiée')} desc={t('When a scheduled post goes live', 'Quand une publication programmée est mise en ligne')} value={prefs.emailPostPublished} onToggle={() => toggle('emailPostPublished')} />
+          <NotifRow label={t('Post Failed', 'Publication échouée')} desc={t('When a post fails to publish', 'Quand une publication échoue')} value={prefs.emailPostFailed} onToggle={() => toggle('emailPostFailed')} />
+          <NotifRow label={t('Weekly Report', 'Rapport hebdomadaire')} desc={t('Summary of performance every Monday', 'Résumé des performances chaque lundi')} value={prefs.emailWeeklyReport} onToggle={() => toggle('emailWeeklyReport')} />
+          <NotifRow label={t('Team Invite', 'Invitation d\'équipe')} desc={t('When someone joins your workspace', 'Quand quelqu\'un rejoint votre espace')} value={prefs.emailTeamInvite} onToggle={() => toggle('emailTeamInvite')} />
         </div>
       </NeuCard>
-      <NeuCard title="Push Notifications" description="IN-APP ALERTS">
+      <NeuCard title={t('Push Notifications', 'Notifications push')} description={t('IN-APP ALERTS', 'ALERTES DANS L\'APPLICATION')}>
         <div className="space-y-0">
-          <NotifRow label="New Comment" desc="When someone replies to your post" value={prefs.pushNewComment} onToggle={() => toggle('pushNewComment')} />
-          <NotifRow label="Schedule Reminder" desc="15 min before a scheduled post" value={prefs.pushScheduleReminder} onToggle={() => toggle('pushScheduleReminder')} />
-          <NotifRow label="Platform Alert" desc="OAuth expiry or platform errors" value={prefs.pushPlatformAlert} onToggle={() => toggle('pushPlatformAlert')} />
+          <NotifRow label={t('New Comment', 'Nouveau commentaire')} desc={t('When someone replies to your post', 'Quand quelqu\'un répond à votre publication')} value={prefs.pushNewComment} onToggle={() => toggle('pushNewComment')} />
+          <NotifRow label={t('Schedule Reminder', 'Rappel de planification')} desc={t('15 min before a scheduled post', '15 min avant une publication planifiée')} value={prefs.pushScheduleReminder} onToggle={() => toggle('pushScheduleReminder')} />
+          <NotifRow label={t('Platform Alert', 'Alerte plateforme')} desc={t('OAuth expiry or platform errors', 'Expiration OAuth ou erreurs de plateforme')} value={prefs.pushPlatformAlert} onToggle={() => toggle('pushPlatformAlert')} />
         </div>
       </NeuCard>
       <div className="flex justify-end">
         <NeuButton onClick={handleSave} disabled={saving} icon={<FiSave />}>
-          {saving ? 'SAVING...' : 'SAVE_PREFERENCES'}
+          {saving ? t('Saving...', 'Sauvegarde...') : t('Save Preferences', 'Enregistrer les préférences')}
         </NeuButton>
       </div>
     </div>
@@ -439,6 +444,7 @@ function NotificationsSettings() {
 
 // --- SUB-COMPONENT: MEMBERS SETTINGS ---
 function MembersSettings({ workspaceId }: { workspaceId: string }) {
+  const { t } = useLanguage();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -450,10 +456,10 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
   }, [workspaceId]);
 
   const ACTIVITY_LABELS: Record<string, string> = {
-    OWNER: 'Managing workspace',
-    ADMIN: 'Admin controls',
-    EDITOR: 'Editing content',
-    VIEWER: 'Viewing dashboard',
+    OWNER: t('Managing workspace', 'Gestion de l\'espace'),
+    ADMIN: t('Admin controls', 'Contrôles admin'),
+    EDITOR: t('Editing content', 'Modification du contenu'),
+    VIEWER: t('Viewing dashboard', 'Consultation du tableau de bord'),
   };
 
   const ROLE_COLOR: Record<string, string> = {
@@ -465,7 +471,7 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <NeuCard title="Workspace Members" description={`${members.length} MEMBER${members.length !== 1 ? 'S' : ''} IN THIS WORKSPACE`}>
+      <NeuCard title={t('Workspace Members', 'Membres de l\'espace')} description={`${members.length} ${t('MEMBER', 'MEMBRE')}${members.length !== 1 ? t('S', 'S') : ''} ${t('IN THIS WORKSPACE', 'DANS CET ESPACE')}`}>
         {loading ? (
           <div className="space-y-3 animate-pulse">
             {[0,1,2].map(i => (
@@ -482,13 +488,13 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
         ) : members.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-zinc-700">
             <FiUsers size={32} className="mx-auto mb-3 text-gray-300 dark:text-zinc-700" />
-            <p className="text-xs font-black uppercase text-gray-400">No_Members_Yet</p>
+            <p className="text-xs font-black uppercase text-gray-400">{t('No Members Yet', 'Aucun membre pour l\'instant')}</p>
           </div>
         ) : (
           <div className="space-y-2">
             {members.map((m: any) => {
               const initials = (m.user?.firstName?.[0] || '') + (m.user?.lastName?.[0] || '') || m.user?.email?.[0]?.toUpperCase() || '?';
-              const activity = ACTIVITY_LABELS[m.role] || 'Active';
+              const activity = ACTIVITY_LABELS[m.role] || t('Active', 'Actif');
               return (
                 <div key={m.id} className="flex items-center gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
                   <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-zinc-700 flex items-center justify-center font-black uppercase text-sm text-black dark:text-white flex-shrink-0">
@@ -498,7 +504,7 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black uppercase text-black dark:text-white truncate">
-                      {m.user?.firstName || ''} {m.user?.lastName || ''}{(!m.user?.firstName && !m.user?.lastName) ? (m.user?.email || 'Unknown') : ''}
+                      {m.user?.firstName || ''} {m.user?.lastName || ''}{(!m.user?.firstName && !m.user?.lastName) ? (m.user?.email || t('Unknown', 'Inconnu')) : ''}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
@@ -512,13 +518,13 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
                     {m.role !== 'OWNER' && (
                       <button
                         onClick={async () => {
-                          if (!confirm(`Remove ${m.user?.email}?`)) return;
+                          if (!confirm(`${t('Remove', 'Retirer')} ${m.user?.email}?`)) return;
                           await api.delete(`/workspace-members/${m.id}`);
                           setMembers(prev => prev.filter(x => x.id !== m.id));
-                          toast.success("MEMBER_REMOVED");
+                          toast.success(t('Member removed', 'Membre retiré'));
                         }}
                         className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
-                        title="Remove member"
+                        title={t('Remove member', 'Retirer le membre')}
                       >
                         <FiTrash2 size={12} />
                       </button>
@@ -544,6 +550,7 @@ const PLAN_LABEL: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', P
 
 // --- SUB-COMPONENT: STRIPE CARD FORM ---
 function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
+  const { t } = useLanguage();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -559,17 +566,17 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
         payment_method: { card: elements.getElement(CardElement)! },
       });
       if (result.error) {
-        toast.error(result.error.message || 'Card error');
+        toast.error(result.error.message || t('Card error', 'Erreur de carte'));
         return;
       }
       await api.post('/payments/methods/card/confirm', {
         stripePaymentMethodId: result.setupIntent!.payment_method,
       });
-      toast.success('Card saved');
+      toast.success(t('Card saved', 'Carte enregistrée'));
       qc.invalidateQueries({ queryKey: ['payment-methods'] });
       onSuccess();
     } catch {
-      toast.error('Failed to save card');
+      toast.error(t('Failed to save card', 'Échec de l\'enregistrement de la carte'));
     } finally {
       setLoading(false);
     }
@@ -593,10 +600,10 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
       </div>
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={onCancel} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all text-black dark:text-white">
-          Cancel
+          {t('Cancel', 'Annuler')}
         </button>
         <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 dark:hover:bg-gray-200 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
-          {loading ? <FiLoader className="animate-spin" /> : 'Save Card'}
+          {loading ? <FiLoader className="animate-spin" /> : t('Save Card', 'Enregistrer la carte')}
         </button>
       </div>
     </form>
@@ -605,6 +612,7 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
 
 // --- SUB-COMPONENT: ADD MOBILE MONEY MODAL ---
 function MobileMoneyModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
   const [msisdn, setMsisdn] = useState('');
   const [label, setLabel] = useState('');
   const [loading, setLoading] = useState(false);
@@ -621,11 +629,11 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
     setLoading(true);
     try {
       await api.post('/payments/methods/mobile-money', { msisdn, label: label || undefined });
-      toast.success('Number saved');
+      toast.success(t('Number saved', 'Numéro enregistré'));
       qc.invalidateQueries({ queryKey: ['payment-methods'] });
       onClose();
     } catch {
-      toast.error('Failed to save number');
+      toast.error(t('Failed to save number', 'Échec de l\'enregistrement du numéro'));
     } finally {
       setLoading(false);
     }
@@ -635,17 +643,17 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4">
       <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm">
         <div className="bg-black dark:bg-white text-white dark:text-black px-6 py-4 flex items-center justify-between border-b-4 border-black dark:border-white">
-          <span className="font-black uppercase tracking-wider text-sm">Add Mobile Money</span>
+          <span className="font-black uppercase tracking-wider text-sm">{t('Add Mobile Money', 'Ajouter Mobile Money')}</span>
           <button onClick={onClose}><FiX size={20} /></button>
         </div>
         <form onSubmit={handleSave} className="p-6 space-y-4">
           <div>
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Phone Number (with country code)</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Phone Number (with country code)', 'Numéro de téléphone (avec indicatif)')}</label>
             <input
               type="tel"
               value={msisdn}
               onChange={e => setMsisdn(e.target.value.replace(/\s/g, ''))}
-              placeholder="e.g. 237699123456"
+              placeholder={t('e.g. 237699123456', 'ex. 237699123456')}
               className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white px-3 py-2 font-mono text-sm focus:outline-none focus:ring-0"
               required
             />
@@ -655,25 +663,25 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
                   ? <Image src="/assets/MTNmoney.png" alt="MTN" width={48} height={20} className="object-contain" />
                   : <Image src="/assets/Orangemoney.png" alt="Orange" width={48} height={20} className="object-contain" />}
                 <span className="text-[10px] font-black uppercase text-green-600">
-                  {detected === 'MTN_MOMO_CMR' ? 'MTN MoMo detected' : 'Orange Money detected'}
+                  {detected === 'MTN_MOMO_CMR' ? t('MTN MoMo detected', 'MTN MoMo détecté') : t('Orange Money detected', 'Orange Money détecté')}
                 </span>
               </div>
             )}
           </div>
           <div>
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Label (optional)</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Label (optional)', 'Étiquette (optionnel)')}</label>
             <input
               type="text"
               value={label}
               onChange={e => setLabel(e.target.value)}
-              placeholder="e.g. Personal Orange"
+              placeholder={t('e.g. Personal Orange', 'ex. Orange personnel')}
               className="w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white px-3 py-2 font-mono text-sm focus:outline-none focus:ring-0"
             />
           </div>
           <div className="flex gap-2 justify-end pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all">Cancel</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all">{t('Cancel', 'Annuler')}</button>
             <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
-              {loading ? <FiLoader className="animate-spin" /> : 'Save'}
+              {loading ? <FiLoader className="animate-spin" /> : t('Save', 'Enregistrer')}
             </button>
           </div>
         </form>
@@ -684,6 +692,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
 
 // --- SUB-COMPONENT: PAYMENT METHODS CARD ---
 function PaymentMethodsCard() {
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showCardForm, setShowCardForm] = useState(false);
@@ -695,27 +704,27 @@ function PaymentMethodsCard() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/payments/methods/${id}`),
-    onSuccess: () => { toast.success('Removed'); qc.invalidateQueries({ queryKey: ['payment-methods'] }); },
-    onError: () => toast.error('Failed to remove'),
+    onSuccess: () => { toast.success(t('Removed', 'Supprimé')); qc.invalidateQueries({ queryKey: ['payment-methods'] }); },
+    onError: () => toast.error(t('Failed to remove', 'Échec de la suppression')),
   });
 
   const defaultMutation = useMutation({
     mutationFn: (id: string) => api.patch(`/payments/methods/${id}/default`, {}),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['payment-methods'] }),
-    onError: () => toast.error('Failed to update'),
+    onError: () => toast.error(t('Failed to update', 'Échec de la mise à jour')),
   });
 
   const stripeReady = !!stripePromise;
 
   return (
     <>
-      <NeuCard title="Payment Methods" description="YOUR SAVED PAYMENT OPTIONS">
+      <NeuCard title={t('Payment Methods', 'Méthodes de paiement')} description={t('YOUR SAVED PAYMENT OPTIONS', 'VOS OPTIONS DE PAIEMENT ENREGISTRÉES')}>
         {isLoading ? (
           <div className="flex items-center gap-2 text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase py-4">
-            <FiLoader className="animate-spin" /> Loading...
+            <FiLoader className="animate-spin" /> {t('Loading...', 'Chargement...')}
           </div>
         ) : methods.length === 0 ? (
-          <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">No payment method on file</p>
+          <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">{t('No payment method on file', 'Aucune méthode de paiement enregistrée')}</p>
         ) : (
           <div className="space-y-3 mb-5">
             {methods.map((m: any) => (
@@ -735,7 +744,7 @@ function PaymentMethodsCard() {
                     </div>
                   )}
                   {m.isDefault && (
-                    <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-[#3C48F5] text-white">DEFAULT</span>
+                    <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-[#3C48F5] text-white">{t('DEFAULT', 'PAR DÉFAUT')}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -743,15 +752,15 @@ function PaymentMethodsCard() {
                     <button
                       onClick={() => defaultMutation.mutate(m.id)}
                       className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                      title="Set as default"
+                      title={t('Set as default', 'Définir par défaut')}
                     >
                       <FiStar size={12} />
                     </button>
                   )}
                   <button
-                    onClick={() => { if (confirm(`Remove "${m.label}"?`)) deleteMutation.mutate(m.id); }}
+                    onClick={() => { if (confirm(`${t('Remove', 'Supprimer')} "${m.label}"?`)) deleteMutation.mutate(m.id); }}
                     className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                    title="Remove"
+                    title={t('Remove', 'Supprimer')}
                   >
                     <FiTrash2 size={12} />
                   </button>
@@ -767,29 +776,29 @@ function PaymentMethodsCard() {
             <button
               onClick={() => setShowMobileModal(true)}
               className="flex items-center gap-2 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
-              title="Add Orange Money"
+              title={t('Add Orange Money', 'Ajouter Orange Money')}
             >
               <Image src="/assets/Orangemoney.png" alt="Orange Money" width={110} height={46} className="object-contain block" />
             </button>
             <button
               onClick={() => setShowMobileModal(true)}
               className="flex items-center gap-2 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden"
-              title="Add MTN MoMo"
+              title={t('Add MTN MoMo', 'Ajouter MTN MoMo')}
             >
               <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={110} height={46} className="object-contain block" />
             </button>
             <button
-              onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info('Stripe not configured yet')}
+              onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info(t('Stripe not configured yet', 'Stripe n\'est pas encore configuré'))}
               className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
-              <FiCreditCard size={16} /> Add Visa/Card
+              <FiCreditCard size={16} /> {t('Add Visa/Card', 'Ajouter Visa/Carte')}
             </button>
           </div>
         )}
 
         {showCardForm && stripePromise && (
           <div className="mt-4 p-4 border-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 mb-3">Card Details</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 mb-3">{t('Card Details', 'Détails de la carte')}</p>
             <Elements stripe={stripePromise}>
               <StripeCardForm onSuccess={() => setShowCardForm(false)} onCancel={() => setShowCardForm(false)} />
             </Elements>
@@ -804,6 +813,7 @@ function PaymentMethodsCard() {
 
 // --- SUB-COMPONENT: BILLING SETTINGS ---
 function BillingSettings({ workspaceId }: { workspaceId: string }) {
+  const { t } = useLanguage();
   const { data: workspace } = useQuery({
     queryKey: ['workspace-billing', workspaceId],
     queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
@@ -838,36 +848,36 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
   const scheduledPostCount = (posts as any[]).filter((p: any) => p.status === 'SCHEDULED').length;
 
   const USAGE = [
-    { label: 'Scheduled Posts',  used: scheduledPostCount,              limit: limits.posts,     unit: 'posts'   },
-    { label: 'Social Accounts',  used: (accounts as any[]).length,      limit: limits.accounts,  unit: 'accounts'},
-    { label: 'Media Storage',    used: mediaUsageMB,                    limit: limits.storageMB, unit: 'MB'      },
-    { label: 'Team Members',     used: workspace?.currentMemberCount ?? 1, limit: limits.members,   unit: 'members' },
+    { label: t('Scheduled Posts', 'Publications programmées'),  used: scheduledPostCount,              limit: limits.posts,     unit: t('posts', 'publications')   },
+    { label: t('Social Accounts', 'Comptes sociaux'),  used: (accounts as any[]).length,      limit: limits.accounts,  unit: t('accounts', 'comptes')},
+    { label: t('Media Storage', 'Stockage média'),    used: mediaUsageMB,                    limit: limits.storageMB, unit: 'MB'      },
+    { label: t('Team Members', 'Membres de l\'équipe'),     used: workspace?.currentMemberCount ?? 1, limit: limits.members,   unit: t('members', 'membres') },
   ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Current Plan Banner */}
-      <NeuCard title="Subscription" description="YOUR CURRENT PLAN & BILLING CYCLE">
+      <NeuCard title={t('Subscription', 'Abonnement')} description={t('YOUR CURRENT PLAN & BILLING CYCLE', 'VOTRE PLAN ACTUEL ET CYCLE DE FACTURATION')}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <p className="text-2xl font-black uppercase text-black dark:text-white">{PLAN_LABEL[planType] ?? planType}</p>
-              <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white">Active</span>
+              <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white">{t('Active', 'Actif')}</span>
             </div>
             <p className="text-xs font-mono text-gray-500 dark:text-zinc-400">
-              {isFree ? 'No billing cycle · Upgrade anytime' : 'Monthly billing · Cancel anytime'}
+              {isFree ? t('No billing cycle · Upgrade anytime', 'Pas de cycle de facturation · Passez à niveau n\'importe quand') : t('Monthly billing · Cancel anytime', 'Facturation mensuelle · Annulez n\'importe quand')}
             </p>
           </div>
           {isFree && (
             <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
-              Upgrade_Plan
+              {t('Upgrade Plan', 'Améliorer le plan')}
             </NeuButton>
           )}
         </div>
       </NeuCard>
 
       {/* Usage Meters */}
-      <NeuCard title="Usage" description="CURRENT PERIOD CONSUMPTION">
+      <NeuCard title={t('Usage', 'Utilisation')} description={t('CURRENT PERIOD CONSUMPTION', 'CONSOMMATION DE LA PÉRIODE EN COURS')}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {USAGE.map((u) => {
             const pct = limits.posts === 99999 ? 0 : Math.min(Math.round((u.used / u.limit) * 100), 100);
@@ -892,12 +902,12 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
                 </div>
                 {isAtLimit && (
                   <div className="mt-1.5 flex items-center justify-between">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">LIMIT REACHED · ACTION BLOCKED</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">{t('LIMIT REACHED · ACTION BLOCKED', 'LIMITE ATTEINTE · ACTION BLOQUÉE')}</span>
                     <button
                       onClick={() => window.location.href = '/pricing'}
                       className="text-[9px] font-black uppercase tracking-widest text-[#3C48F5] hover:underline"
                     >
-                      Upgrade →
+                      {t('Upgrade →', 'Améliorer →')}
                     </button>
                   </div>
                 )}
@@ -911,22 +921,22 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
       <PaymentMethodsCard />
 
       {/* Invoice History */}
-      <NeuCard title="Invoice History" description="PAST TRANSACTIONS & RECEIPTS">
+      <NeuCard title={t('Invoice History', 'Historique des factures')} description={t('PAST TRANSACTIONS & RECEIPTS', 'TRANSACTIONS PASSÉES ET REÇUS')}>
         <div className="overflow-x-auto">
           <table className="w-full text-xs font-mono">
             <thead>
               <tr className="border-b-2 border-black dark:border-white">
-                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Date</th>
-                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Description</th>
-                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">Amount</th>
-                <th className="text-left py-2 font-black uppercase text-black dark:text-white">Status</th>
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">{t('Date', 'Date')}</th>
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">{t('Description', 'Description')}</th>
+                <th className="text-left py-2 pr-4 font-black uppercase text-black dark:text-white">{t('Amount', 'Montant')}</th>
+                <th className="text-left py-2 font-black uppercase text-black dark:text-white">{t('Status', 'Statut')}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td colSpan={4} className="py-10 text-center">
                   <FiCreditCard size={28} className="mx-auto mb-2 text-gray-200 dark:text-zinc-700" />
-                  <p className="text-[10px] font-black uppercase text-gray-300 dark:text-zinc-600">No_Invoices_Yet</p>
+                  <p className="text-[10px] font-black uppercase text-gray-300 dark:text-zinc-600">{t('No Invoices Yet', 'Aucune facture pour l\'instant')}</p>
                 </td>
               </tr>
             </tbody>

@@ -38,6 +38,7 @@ import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs
 
 // SOCKET
 import { SocketProvider, useSocket } from '@/src/context/SocketContext';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 import { 
   Popover,
@@ -355,6 +356,7 @@ export default function DashboardPage() {
 function DashboardContent() {
     const params = useParams();
     const router = useRouter();
+    const { t } = useLanguage();
     const searchParams = useSearchParams();
     const workspaceId = typeof params?.id === 'string' ? params.id : '';
     const queryClient = useQueryClient();
@@ -608,13 +610,13 @@ function DashboardContent() {
     if (currentWsLoading) return <SpinningLoader fullScreen={true} />;
     
     const navItems = [
-        { id: 'queue', label: 'Queue', icon: Layers }, 
-        { id: 'calendar', label: 'Calendar', icon: CalendarIcon }, 
-        { id: 'boards', label: 'Boards', icon: Layout }, 
-        { id: 'analytics', label: 'Analytics', icon: BarChart2 }, 
-        { id: 'engagement', label: 'Inbox', icon: MessageCircle }, 
-        { id: 'team', label: 'Team', icon: Users }, 
-        { id: 'settings', label: 'Config', icon: SettingsIcon }
+        { id: 'queue', label: t('Queue', 'File'), icon: Layers },
+        { id: 'calendar', label: t('Calendar', 'Calendrier'), icon: CalendarIcon },
+        { id: 'boards', label: t('Boards', 'Tableaux'), icon: Layout },
+        { id: 'analytics', label: t('Analytics', 'Analytique'), icon: BarChart2 },
+        { id: 'engagement', label: t('Inbox', 'Messages'), icon: MessageCircle },
+        { id: 'team', label: t('Team', 'Équipe'), icon: Users },
+        { id: 'settings', label: t('Config', 'Config'), icon: SettingsIcon }
     ];
 
     return (
@@ -642,7 +644,7 @@ function DashboardContent() {
                             <button 
                                 onClick={() => router.push('/')}
                                 className="p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-blue-50 dark:hover:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                                title="Back to Home"
+                                title={t("Back to Home", "Retour à l'accueil")}
                             >
                                 <Home size={20} strokeWidth={3} className="text-black dark:text-white" />
                             </button>
@@ -660,13 +662,13 @@ function DashboardContent() {
                             </div>
                         </div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-gray-100 dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-transparent transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-black dark:text-white bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-black dark:border-white transition-all"><Plus size={16} className="text-black dark:text-white"/> New Workspace</button></motion.div>)}</AnimatePresence>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-transparent transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-black dark:text-white bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-black dark:border-white transition-all"><Plus size={16} className="text-black dark:text-white"/> {t("New Workspace", "Nouvel Espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div ref={searchRef} className="relative flex items-center gap-2">
                             <NeuInput
-                                placeholder="SEARCH_DATABASE..."
+                                placeholder={t("Search...", "Rechercher...")}
                                 value={searchTerm}
                                 onChange={(e: any) => { setSearchTerm(e.target.value); setIsSearchOpen(true); }}
                                 onFocus={() => setIsSearchOpen(true)}
@@ -683,12 +685,12 @@ function DashboardContent() {
                             {isSearchOpen && searchTerm.trim() && (
                                 <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 overflow-hidden">
                                     {searchResults.posts.length === 0 && searchResults.accounts.length === 0 ? (
-                                        <div className="p-4 text-center text-xs font-black uppercase text-gray-400">No_Results_Found</div>
+                                        <div className="p-4 text-center text-xs font-black uppercase text-gray-400">{t("No results found", "Aucun résultat")}</div>
                                     ) : (
                                         <>
                                             {searchResults.posts.length > 0 && (
                                                 <div>
-                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Posts</div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">{t("Posts", "Publications")}</div>
                                                     {searchResults.posts.map((p: any) => (
                                                         <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 transition-colors">
                                                             <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-[#3C48F5]' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
@@ -700,7 +702,7 @@ function DashboardContent() {
                                             )}
                                             {searchResults.accounts.length > 0 && (
                                                 <div>
-                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">Accounts</div>
+                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">{t("Accounts", "Comptes")}</div>
                                                     {searchResults.accounts.map((a: any) => (
                                                         <button key={a.id} onClick={() => { setActiveTab('settings'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-3 transition-colors">
                                                             <div className="w-2 h-2 bg-green-500 flex-shrink-0" />
@@ -730,7 +732,7 @@ function DashboardContent() {
                             </PopoverTrigger>
                             <PopoverContent className="w-80 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
                                 <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white flex items-center justify-between">
-                                    <span>System_Feed</span>
+                                    <span>{t("Activity Feed", "Flux d'Activité")}</span>
                                     {notifications.length > 0 && <span className="text-[9px] opacity-60">{notifications.length} log{notifications.length !== 1 ? 's' : ''}</span>}
                                 </div>
                                 {notifications.length === 0 ? (
@@ -741,7 +743,7 @@ function DashboardContent() {
                                             </div>
                                         </div>
                                         <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
-                                            No events logged yet.
+                                            {t("No events logged yet.", "Aucun événement enregistré.")}
                                         </p>
                                     </div>
                                 ) : (
@@ -764,7 +766,7 @@ function DashboardContent() {
                                         onClick={clearNotifications}
                                         className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                                     >
-                                        Clear_Logs
+                                        {t("Clear Logs", "Effacer les Logs")}
                                     </button>
                                 </div>
                             </PopoverContent>
@@ -794,9 +796,9 @@ function DashboardContent() {
                                         <div className="mb-6 bg-yellow-400 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <AlertTriangle size={20} className="text-black" />
-                                                <span className="font-black uppercase text-sm italic text-black">Attention : {10 - currentWorkspace.currentPostCount} posts restants ce mois.</span>
+                                                <span className="font-black uppercase text-sm italic text-black">{t(`Warning: ${10 - currentWorkspace.currentPostCount} posts remaining this month.`, `Attention : ${10 - currentWorkspace.currentPostCount} publications restantes ce mois.`)}</span>
                                             </div>
-                                            <button onClick={() => router.push('/pricing')} className="bg-black text-white px-4 py-1 font-black text-xs uppercase border-2 border-black hover:bg-white hover:text-black transition-all">Upgrade Now</button>
+                                            <button onClick={() => router.push('/pricing')} className="bg-black text-white px-4 py-1 font-black text-xs uppercase border-2 border-black hover:bg-white hover:text-black transition-all">{t("Upgrade Now", "Passer à la version payante")}</button>
                                         </div>
                                     )}
 
@@ -806,20 +808,20 @@ function DashboardContent() {
                                                 {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
                                                     <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
-                                                        <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">Limite de Posts Atteinte !</h2>
+                                                        <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">{t("Post Limit Reached!", "Limite de Publications Atteinte !")}</h2>
                                                         <p className="max-w-md font-bold mb-8 opacity-80">
-                                                            🎉 Passez à STARTER pour seulement <span className="text-yellow-400">4,900 FCFA/mois</span><br/>
-                                                            → 100 posts, 5 comptes, 100 AI requests
+                                                            🎉 {t("Upgrade to STARTER for only", "Passez à STARTER pour seulement")} <span className="text-yellow-400">4,900 FCFA/{t("month", "mois")}</span><br/>
+                                                            → 100 {t("posts", "publications")}, 5 {t("accounts", "comptes")}, 100 AI requests
                                                         </p>
-                                                        <button 
+                                                        <button
                                                             onClick={() => router.push('/pricing')}
                                                             className="bg-[#3C48F5] text-white px-10 py-4 font-black uppercase text-xl border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
                                                         >
-                                                            Upgrade Maintenant - 7 gratuits
+                                                            {t("Upgrade Now — 7 days free", "Upgrade Maintenant — 7 jours gratuits")}
                                                         </button>
                                                     </div>
                                                 )}
-                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? 'Edit Content' : 'Create New Content'}</h2>
+                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
@@ -836,8 +838,8 @@ function DashboardContent() {
                                     {activeTab === 'calendar' && (
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center">
-                                                <h2 className="text-xl font-black uppercase text-black dark:text-white">Content Timeline</h2>
-                                                <NeuButton onClick={() => setActiveTab('queue')}>+ Quick Post</NeuButton>
+                                                <h2 className="text-xl font-black uppercase text-black dark:text-white">{t("Content Timeline", "Calendrier de Contenu")}</h2>
+                                                <NeuButton onClick={() => setActiveTab('queue')}>+ {t("Quick Post", "Publication Rapide")}</NeuButton>
                                             </div>
                                             <CalendarView 
                                                 workspaceId={workspaceId} 
@@ -870,9 +872,9 @@ function DashboardContent() {
                                     </motion.div>
                                 ) : (
                                     <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
-                                        <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">MENU</h3></div>
+                                        <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">{t("MENU", "MENU")}</h3></div>
                                         <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
-                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">SUBSCRIPTION</p><div className="flex justify-between items-end text-black dark:text-white"><span
+                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
   className={`text-xl font-black ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
@@ -884,7 +886,7 @@ function DashboardContent() {
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">MANAGE</button></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">{t("MANAGE", "GÉRER")}</button></div></div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -893,7 +895,7 @@ function DashboardContent() {
                 </div>
             </main>
 
-            <NeuModal title="CREATE_WORKSPACE" isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block text-black">Workspace Name</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder="E.G. DIGITAL_AGENCY_KENYA" autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">Cancel</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-[#3C48F6] text-white hover:bg-blue-700">Create</NeuButton></div></div></NeuModal>
+            <NeuModal title={t("CREATE WORKSPACE", "CRÉER UN ESPACE")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block text-black">{t("Workspace Name", "Nom de l'Espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("E.G. DIGITAL AGENCY", "EX : AGENCE DIGITALE")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-[#3C48F6] text-white hover:bg-blue-700">{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
             
             <FacebookPageSelector 
                 isOpen={isFbPageSelectorOpen} 
