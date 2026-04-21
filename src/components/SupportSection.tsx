@@ -14,10 +14,9 @@ const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
     rel={rel}
     className={`
       flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 font-black text-sm md:text-lg uppercase tracking-wider
-      border-4 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000]
-      hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] 
+      border-4 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000] rounded-xl
+      hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000]
       transition-all w-full sm:w-auto dark:shadow-white/5
-      ${color === 'primary' ? 'hover:bg-[#3C48F6] hover:text-white' : 'hover:bg-green-400'}
     `}
     aria-label={typeof children === 'string' ? children : 'Support Button'}
   >
