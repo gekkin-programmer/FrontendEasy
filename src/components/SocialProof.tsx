@@ -8,7 +8,7 @@ const logos = [
   "/logos/newDelices.png",
   "/logos/dibato.PNG",
   "/logos/MaxBurger.jpeg",
-  "/logos/BestCorp.PNG",
+  "/logos/BestCorp.png",
   "/logos/SN_SHOES.jpeg",
   "/logos/LaGeneraleDuBatiment.png",
   "/logos/Denilimport.jpeg",
