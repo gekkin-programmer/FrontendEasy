@@ -60,7 +60,7 @@ const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
-  <li className="flex items-center gap-4 p-4 border-2 border-black bg-white dark:bg-zinc-900 dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default">
+  <li className="flex items-center gap-4 p-4 border-2 border-black bg-white dark:bg-black dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none hover:bg-yellow-50 dark:hover:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default">
     <div className="flex-shrink-0">{icon}</div>
     <span className="text-black dark:text-white font-bold text-base md:text-lg leading-tight">{children}</span>
   </li>
@@ -282,7 +282,7 @@ const AnalyzeSection = () => {
               </h2>
             </div>
 
-            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-white/5">
+            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-black">
               {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
             </p>
 
