@@ -21,7 +21,7 @@ const logos = [
 const LogoGroup = () => (
   <div className="flex items-center justify-around min-w-full shrink-0 animate-marquee gap-16 px-8">
     {logos.map((src, i) => (
-      <div key={i} className="group relative flex items-center justify-center rounded-lg overflow-hidden">
+      <div key={i} className="group relative flex items-center justify-center rounded-2xl overflow-hidden bg-white/5 p-2 px-4 shadow-sm border border-transparent dark:border-white/5 transition-colors">
         <img
           src={src}
           alt={`Partner brand ${i}`}

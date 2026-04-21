@@ -20,7 +20,7 @@ const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProp
 );
 
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all cursor-default">
+  <div className="flex items-start gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all cursor-default">
     <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white">
       {icon}
     </div>
@@ -33,7 +33,7 @@ export default function PublishSection() {
 
   return (
     <section 
-      className="bg-[#E0E7FF] dark:bg-black border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
+      className="bg-[#E0E7FF] dark:bg-black border-b-4 border-black dark:border-black py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
       aria-label="Publishing Features"
     >
       
@@ -64,7 +64,7 @@ export default function PublishSection() {
         {/* RIGHT – COPY */}
         <div className="space-y-6 md:space-y-8 order-1 lg:order-2">
           <div>
-            <span className="inline-block px-3 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black bg-pink-400 text-black mb-4">
+            <span className="inline-block px-3 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black dark:border-white bg-pink-400 text-black dark:bg-black dark:text-white mb-4">
               {t("PUBLISH", "PUBLIER")}
             </span>
             <h2 className="text-4xl md:text-6xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">

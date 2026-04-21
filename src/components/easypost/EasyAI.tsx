@@ -134,7 +134,7 @@ export default function EasyAI() {
                 whileHover={{ scale: 1.1, rotate: -3 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] rounded-full group transition-all hover:bg-blue-50 dark:hover:bg-zinc-800"
+                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white dark:bg-black border-4 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] rounded-full group transition-all hover:bg-blue-50 dark:hover:bg-zinc-900"
                 aria-label="Open AI Chat"
             >
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">

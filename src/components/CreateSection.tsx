@@ -102,7 +102,7 @@ export default function CreateSection() {
 
   return (
     <section 
-      className="min-h-screen bg-blue-50 dark:bg-black border-b-4 border-black dark:border-white/5 p-4 sm:p-6 md:p-12 relative overflow-hidden font-sans"
+      className="min-h-screen bg-blue-50 dark:bg-black border-b-4 border-black dark:border-black p-4 sm:p-6 md:p-12 relative overflow-hidden font-sans"
       aria-label="Content Creation Features"
     >
       

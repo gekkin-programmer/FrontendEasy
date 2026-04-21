@@ -263,7 +263,7 @@ const AnalyzeSection = () => {
 
   return (
     <section 
-      className="bg-white dark:bg-black border-y-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
+      className="bg-white dark:bg-black border-y-4 border-black dark:border-black py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
       aria-label="Analytics Features"
     >
       <SectionBackground />

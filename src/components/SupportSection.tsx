@@ -29,7 +29,7 @@ export default function SupportSection() {
 
   return (
     <section 
-      className="bg-pink-100 dark:bg-black border-b-4 dark:border-white/5 border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
+      className="bg-pink-100 dark:bg-black border-b-4 dark:border-black border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
       aria-label="Customer Support"
     >
       
@@ -41,7 +41,7 @@ export default function SupportSection() {
       <div className="container mx-auto flex max-w-4xl flex-col items-center gap-6 md:gap-8 text-center relative z-10">
         
         {/* Top Label */}
-        <div className="bg-black dark:bg-white/5 text-white px-4 py-1 font-bold text-xs md:text-sm uppercase tracking-widest border-2 border-white dark:border-white/5 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+        <div className="bg-black dark:bg-black text-white px-4 py-1 font-bold text-xs md:text-sm uppercase tracking-widest border-2 border-white dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
           {t("24/7 SUPPORT", "SUPPORT 24/7")}
         </div>
 

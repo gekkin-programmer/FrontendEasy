@@ -108,7 +108,7 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-white/10 font-sans"
+      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-black font-sans"
       aria-label="Introduction"
     >
       
