@@ -11,13 +11,13 @@ const fadeLeft = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0 }
 
 // --- COMPONENTS ---
 const BrutalBadge = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-block px-4 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-white bg-transparent text-white transform -rotate-2">
+  <span className="inline-block px-4 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black dark:border-white bg-transparent text-black dark:text-white transform -rotate-2">
     {children}
   </span>
 );
 
 const FeatureTag = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-white border-2 border-white font-bold text-xs uppercase shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-white border-2 border-black dark:border-white font-bold text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
     {icon} <span>{text}</span>
   </div>
 );
@@ -32,7 +32,7 @@ export default function CollaborateSection() {
     >
       <SectionBackground />
       {/* Main Container Card */}
-      <div className="relative w-full bg-black border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
+      <div className="relative w-full bg-white dark:bg-black border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, black 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
@@ -46,7 +46,7 @@ export default function CollaborateSection() {
           <BrutalBadge>{t("Collaborate", "Collaborer")}</BrutalBadge>
 
           <motion.h2
-            className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[0.95] uppercase tracking-tighter"
+            className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-white leading-[0.95] uppercase tracking-tighter"
             variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 }}
           >
             {t("Create Better.", "Créer Mieux.")}<br/>
@@ -54,7 +54,7 @@ export default function CollaborateSection() {
           </motion.h2>
 
           <motion.p
-            className="text-lg md:text-xl font-bold text-white max-w-2xl mx-auto leading-snug px-2"
+            className="text-lg md:text-xl font-bold text-black dark:text-white max-w-2xl mx-auto leading-snug px-2"
             variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}
           >
             {t(
