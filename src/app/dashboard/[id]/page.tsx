@@ -531,6 +531,7 @@ function DashboardContent() {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
         const success = searchParams.get('success');
+        const error = searchParams.get('error');
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {
@@ -544,6 +545,26 @@ function DashboardContent() {
             window.history.replaceState(null, '', url.pathname);
             refetchAccounts();
             queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+        } else if (error) {
+            const oauthErrors: Record<string, [string, string]> = {
+                IG_NO_BUSINESS_ACCOUNT: [
+                    'Instagram requires a Business or Creator account linked to a Facebook Page. Go to Instagram → Settings → Account type to switch, then retry.',
+                    "Instagram nécessite un compte Professionnel ou Créateur lié à une Page Facebook. Allez sur Instagram → Paramètres → Type de compte pour changer, puis réessayez.",
+                ],
+                IG_API_ERROR: [
+                    'Instagram connection failed. Please try again.',
+                    'La connexion Instagram a échoué. Veuillez réessayer.',
+                ],
+                OAUTH_SESSION_LOST: [
+                    'Connection session expired. Please try again.',
+                    'La session de connexion a expiré. Veuillez réessayer.',
+                ],
+            };
+            const [en, fr] = oauthErrors[error] ?? [error, error];
+            setTimeout(() => addNotification('error', t(en, fr)), 0);
+            const url = new URL(window.location.href);
+            url.searchParams.delete('error');
+            window.history.replaceState(null, '', url.pathname);
         }
     }, [searchParams, queryClient, workspaceId, refetchAccounts]);
 
