@@ -63,7 +63,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 function TikTokPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
     return (
-        <div className="relative bg-black overflow-hidden" style={{ height: 380 }}>
+        <div className="relative bg-black overflow-hidden" style={{ height: 520 }}>
             {media[0]
                 ? <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
                 : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-black" />

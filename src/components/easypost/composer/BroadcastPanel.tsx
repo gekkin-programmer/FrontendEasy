@@ -207,7 +207,7 @@ export function BroadcastPanel({
         <button
           type="button"
           onClick={onBroadcast}
-          disabled={isSubmitting || isOver || text.trim().length === 0}
+          disabled={isSubmitting}
           className="flex items-center gap-2 px-5 py-2 border-2 border-black font-black text-xs uppercase text-white shadow-[4px_4px_0px_0px_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ backgroundColor: primaryColor }}
         >

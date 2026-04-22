@@ -108,7 +108,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         <>
             <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
                 {/* Header row */}
-                <div className="flex items-center gap-2 w-full justify-center mb-1">
+                <div className="flex items-center gap-2 w-full justify-center mb-1 bg-black -mx-2 -mt-4 px-2 pt-3 pb-2">
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
