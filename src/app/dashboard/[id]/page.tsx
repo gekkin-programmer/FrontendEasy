@@ -318,46 +318,22 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                 </div>
             )}
 
-            {/* Platform UI render — phone frame mockup */}
-            <div className="flex justify-center py-4 px-3 bg-zinc-100 dark:bg-zinc-950">
+            {/* Platform UI render */}
+            <div className="overflow-hidden">
                 {!current ? (
-                    <div className="h-72 w-full flex items-center justify-center text-[11px] text-gray-400 dark:text-zinc-500 font-mono text-center px-6 leading-relaxed">
+                    <div className="h-72 flex items-center justify-center text-[11px] text-gray-400 dark:text-zinc-500 font-mono text-center px-6 leading-relaxed bg-gray-50 dark:bg-zinc-950">
                         No accounts selected.<br />Add targets in the composer.
                     </div>
+                ) : current.platform === 'TIKTOK' ? (
+                    <TikTokPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'INSTAGRAM' ? (
+                    <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
+                    <TwitterPreview text={text} media={mediaPreviews} account={current.account} />
+                ) : current.platform === 'LINKEDIN' ? (
+                    <LinkedInPreview text={text} media={mediaPreviews} account={current.account} />
                 ) : (
-                    /* Phone shell */
-                    <div className="relative mx-auto" style={{ width: 220 }}>
-                        {/* Outer phone body */}
-                        <div className="relative bg-zinc-900 dark:bg-zinc-800 rounded-[2rem] border-4 border-black shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#333] p-1.5 pb-3">
-                            {/* Notch */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-4 bg-black rounded-b-xl z-20 flex items-center justify-center gap-1">
-                                <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                                <div className="w-5 h-1.5 rounded-full bg-zinc-800 border border-zinc-700" />
-                            </div>
-                            {/* Side buttons */}
-                            <div className="absolute -right-[6px] top-16 w-1 h-8 bg-zinc-700 rounded-r-sm" />
-                            <div className="absolute -left-[6px] top-12 w-1 h-6 bg-zinc-700 rounded-l-sm" />
-                            <div className="absolute -left-[6px] top-20 w-1 h-6 bg-zinc-700 rounded-l-sm" />
-                            {/* Screen bezel */}
-                            <div className="overflow-hidden rounded-[1.5rem] border-2 border-zinc-700">
-                                {current.platform === 'TIKTOK' ? (
-                                    <TikTokPreview text={text} media={mediaPreviews} account={current.account} />
-                                ) : current.platform === 'INSTAGRAM' ? (
-                                    <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
-                                ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
-                                    <TwitterPreview text={text} media={mediaPreviews} account={current.account} />
-                                ) : current.platform === 'LINKEDIN' ? (
-                                    <LinkedInPreview text={text} media={mediaPreviews} account={current.account} />
-                                ) : (
-                                    <GenericFeedPreview text={text} media={mediaPreviews} account={current.account} platform={current.platform} />
-                                )}
-                            </div>
-                            {/* Home indicator */}
-                            <div className="flex justify-center mt-2">
-                                <div className="w-12 h-1 bg-zinc-600 rounded-full" />
-                            </div>
-                        </div>
-                    </div>
+                    <GenericFeedPreview text={text} media={mediaPreviews} account={current.account} platform={current.platform} />
                 )}
             </div>
         </div>
