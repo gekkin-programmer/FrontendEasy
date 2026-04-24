@@ -31,6 +31,8 @@ jobs:
     env:
       NEXT_PUBLIC_API_URL: https://backend-eazypost.mbokofit.com
       NEXT_PUBLIC_APP_URL: https://eazypost.cm
+      NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: phc_sfHAxeZDRp84KG8Hcd4c6bgZhrfjvzv46W3EAjjub2yQ
+      NEXT_PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
 
     steps:
       - name: Checkout
@@ -97,6 +99,8 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=https://backend-eazypost.mbokofit.com
             NEXT_PUBLIC_APP_URL=https://eazypost.cm
+            NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_sfHAxeZDRp84KG8Hcd4c6bgZhrfjvzv46W3EAjjub2yQ
+            NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
           # GitHub Actions layer cache — makes repeat builds ~3x faster
           cache-from: type=gha
           cache-to: type=gha,mode=max
