@@ -91,7 +91,7 @@ export default function CollaborateSection() {
           <img
             src="/assets/Team.gif"
             alt="Team collaboration preview"
-            className="w-full border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]"
+            className="w-full rounded-xl border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]"
           />
         </motion.div>
 

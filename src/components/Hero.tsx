@@ -20,6 +20,20 @@ interface IconConfig {
   rot: number;
 }
 
+// --- ANIMATION VARIANTS ---
+const heroContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.05 } },
+};
+
+const heroItem = {
+  hidden: { opacity: 0, y: 28, filter: 'blur(8px)' },
+  visible: {
+    opacity: 1, y: 0, filter: 'blur(0px)',
+    transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] },
+  },
+};
+
 // --- ICON CONFIGURATION ---
 const icons: IconConfig[] = [
   // Left Side
@@ -138,11 +152,11 @@ const Hero: React.FC = () => {
       ))}
 
       {/* 4. MAIN CONTENT */}
-      <div className="relative z-10 container mx-auto px-4 text-center max-w-7xl">
+      <motion.div variants={heroContainer} initial="hidden" animate="visible" className="relative z-10 container mx-auto px-4 text-center max-w-7xl">
         
         {/* Headline - Typography Scaled for Mobile */}
-        <motion.h1 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        <motion.h1
+            variants={heroItem}
             className="text-4xl sm:text-6xl md:text-8xl font-black text-black dark:text-gray-100 leading-[0.95] tracking-tighter mb-6 md:mb-8 relative z-20"
         >
             {t("YOUR SOCIAL MEDIA", "VOTRE ESPACE")}
@@ -154,17 +168,16 @@ const Hero: React.FC = () => {
         </motion.h1>
 
         {/* Subheadline */}
-        <div className="relative inline-block max-w-2xl mx-auto mb-8 md:mb-12">
-            <motion.p 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+        <motion.div variants={heroItem} className="relative inline-block max-w-2xl mx-auto mb-8 md:mb-12">
+            <p
                 className="text-lg md:text-2xl text-gray-700 dark:text-gray-300 font-medium leading-relaxed px-2"
             >
                 {t(
                     "Stop juggling apps. Plan, schedule, and automate your content across Facebook, TikTok, LinkedIn and more in one place.",
                     "Arrêtez de jongler. Planifiez, programmez et automatisez votre contenu sur Facebook, TikTok , LinkedIn et autres au même endroit."
                 )}
-            </motion.p>
-            
+            </p>
+
             {/* Analytics illustration (Hidden on Mobile) */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -176,11 +189,11 @@ const Hero: React.FC = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/assets/undraw_analytics.png" alt="" width={140} height={105} className="opacity-70 dark:opacity-40" />
             </motion.div>
-        </div>
+        </motion.div>
 
         {/* CTA Buttons - Vertical stack on mobile, horizontal on desktop */}
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+        <motion.div
+            variants={heroItem}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
             <div className="relative group w-full sm:w-auto">
@@ -198,7 +211,7 @@ const Hero: React.FC = () => {
             </Link>
         </motion.div>
 
-      </div>
+      </motion.div>
     </section>
   );
 };

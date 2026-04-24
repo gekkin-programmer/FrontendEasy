@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, Wand2, Bell, CheckCircle } from "lucide-react";
 import { useLanguage } from '../context/LanguageContext';
 import SectionBackground from './SectionBackground';
@@ -33,7 +34,7 @@ export default function PublishSection() {
 
   return (
     <section 
-      className="bg-[#E0E7FF] dark:bg-black border-b-4 border-black dark:border-black py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
+      className="bg-white dark:bg-black border-b-4 border-black dark:border-black py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
       aria-label="Publishing Features"
     >
       
@@ -45,7 +46,13 @@ export default function PublishSection() {
       <div className="container mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-7xl relative z-10">
         
         {/* LEFT – VISUAL (The Browser Window) */}
-        <div className="relative order-2 lg:order-1">
+        <motion.div
+          className="relative order-2 lg:order-1"
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+        >
             {/* Illustration Card */}
             <HardCard className="rounded-xl overflow-hidden p-0 bg-white">
                 <img
@@ -59,10 +66,16 @@ export default function PublishSection() {
             <div className="absolute -top-4 -right-2 md:-top-6 md:-right-10 bg-[#3C48F5] text-white font-black px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm border-4 border-black shadow-[4px_4px_0px_0px_#000] rotate-6 transform z-20">
                 AUTO-POST
             </div>
-        </div>
+        </motion.div>
 
         {/* RIGHT – COPY */}
-        <div className="space-y-6 md:space-y-8 order-1 lg:order-2">
+        <motion.div
+          className="space-y-6 md:space-y-8 order-1 lg:order-2"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
+        >
           <div>
             <span className="inline-block px-3 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black dark:border-white bg-pink-400 text-black dark:bg-black dark:text-white mb-4">
               {t("PUBLISH", "PUBLIER")}
@@ -102,7 +115,7 @@ export default function PublishSection() {
               <CheckCircle strokeWidth={3} />
             </button>
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>
