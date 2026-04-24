@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
 import {
   FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter,
@@ -21,12 +21,12 @@ interface IconConfig {
 }
 
 // --- ANIMATION VARIANTS ---
-const heroContainer = {
+const heroContainer: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.15, delayChildren: 0.05 } },
 };
 
-const heroItem = {
+const heroItem: Variants = {
   hidden: { opacity: 0, y: 28, filter: 'blur(8px)' },
   visible: {
     opacity: 1, y: 0, filter: 'blur(0px)',

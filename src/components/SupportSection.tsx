@@ -2,14 +2,19 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { FaArrowRight, FaWhatsapp, FaHeadset } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext';
 import SectionBackground from './SectionBackground';
 
-const revealItem = {
+const revealItem: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
+const staggerContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
 // --- COMPONENTS ---
@@ -46,7 +51,7 @@ export default function SupportSection() {
 
       <motion.div
         className="container mx-auto flex max-w-4xl flex-col items-center gap-6 md:gap-8 text-center relative z-10"
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+        variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
