@@ -51,7 +51,7 @@ export default function PublishSection() {
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
         >
             {/* Illustration Card */}
             <HardCard className="rounded-xl overflow-hidden p-0 bg-white">
@@ -74,7 +74,7 @@ export default function PublishSection() {
           initial={{ opacity: 0, x: 40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
         >
           <div>
             <span className="inline-block px-3 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black dark:border-white bg-pink-400 text-black dark:bg-black dark:text-white mb-4">
