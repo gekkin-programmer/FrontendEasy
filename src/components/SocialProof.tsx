@@ -45,7 +45,7 @@ const SocialProof = () => {
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
             <h1 className="text-[20vw] font-black uppercase text-black dark:text-white whitespace-nowrap leading-none">
-                EASY POST
+                EAZYPOST
             </h1>
         </div>
 
@@ -62,7 +62,7 @@ const SocialProof = () => {
                 </div>
 
                 {/* Marquee Section */}
-                <div className="md:w-3/4 w-full overflow-hidden relative mask-linear">
+                <div className="md:w-3/4 w-full overflow-hidden relative mask-linear rounded-xl">
                     {/* The Wrapper holding TWO tracks */}
                     <div className="flex w-full">
                         <LogoGroup />

@@ -21,7 +21,7 @@ const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProp
 );
 
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border-2 border-black dark:border-white bg-white dark:bg-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all cursor-default">
+  <div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-black hover:translate-x-1 hover:translate-y-1 transition-all cursor-default">
     <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white">
       {icon}
     </div>
@@ -62,10 +62,6 @@ export default function PublishSection() {
                 />
             </HardCard>
 
-            {/* Floating Sticker */}
-            <div className="absolute -top-4 -right-2 md:-top-6 md:-right-10 bg-[#3C48F5] text-white font-black px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm border-4 border-black shadow-[4px_4px_0px_0px_#000] rotate-6 transform z-20">
-                AUTO-POST
-            </div>
         </motion.div>
 
         {/* RIGHT – COPY */}

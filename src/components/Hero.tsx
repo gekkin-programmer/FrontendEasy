@@ -183,7 +183,7 @@ const Hero: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
-                className="absolute -right-28 -bottom-2 hidden xl:block pointer-events-none z-0"
+                className="absolute -right-28 -bottom-2 hidden xl:block pointer-events-none z-20"
                 aria-hidden="true"
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
