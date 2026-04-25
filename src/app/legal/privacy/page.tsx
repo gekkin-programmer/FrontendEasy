@@ -36,7 +36,7 @@ export default function PrivacyPage() {
           </section>
 
           {/* ─── Google API Services — required by Google verification ─── */}
-          <section className="border border-blue-800 bg-blue-950/30 rounded-xl p-6">
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
             <h2 className="text-xl font-semibold text-white mb-4">
               3. Google API Services &amp; User Data
             </h2>
