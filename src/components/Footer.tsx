@@ -18,29 +18,29 @@ const Footer: React.FC = () => {
     {
       title: t('Product', 'Produit'),
       links: [
-        { label: t('Publishing', 'Publication'), href: '#' },
-        { label: t('Analytics', 'Analytique'), href: '#' },
-        { label: t('AI Assistant', 'Assistant IA'), href: '#' },
+        { label: t('Publishing', 'Publication'), href: '/pricing' },
+        { label: t('Analytics', 'Analytique'), href: '/pricing' },
+        { label: t('AI Assistant', 'Assistant IA'), href: '/pricing' },
         { label: t('Pricing', 'Tarifs'), href: '/pricing' },
       ],
     },
     {
       title: t('Resources', 'Ressources'),
       links: [
-        { label: t('Blog', 'Blog'), href: '#' },
+        { label: t('Blog', 'Blog'), href: '/about' },
         { label: t('Community', 'Communauté'), href: '/community' },
-        { label: t('Creator Fund', 'Fonds Créateur'), href: '/creator-fund' },
+        { label: t('Creator Fund', 'Fonds Créateur'), href: '/pricing' },
         { label: t('Help Center', "Centre d'aide"), href: '/help' },
-        { label: t('Contact', 'Contact'), href: '#' },
+        { label: t('Contact', 'Contact'), href: '/about' },
       ],
     },
     {
       title: t('Company', 'Entreprise'),
       links: [
         { label: t('About Us', 'À propos'), href: '/about' },
-        { label: t('Careers', 'Carrières'), href: '#' },
-        { label: t('Partners', 'Partenaires'), href: '#' },
-        { label: t('Press', 'Presse'), href: '#' },
+        { label: t('Careers', 'Carrières'), href: '/about' },
+        { label: t('Partners', 'Partenaires'), href: '/about' },
+        { label: t('Press', 'Presse'), href: '/about' },
       ],
     },
     {
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-white dark:bg-black text-black dark:text-white border-t-4 border-black dark:border-white/10 font-sans transition-colors">
+    <footer className="bg-black text-white border-t-4 border-white/10 font-sans">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
                 alt="EazyPost Logo"
               />
             </Link>
-            <p className="text-lg font-medium text-gray-600 dark:text-zinc-500 max-w-sm leading-relaxed uppercase">
+            <p className="text-lg font-medium text-white/60 max-w-sm leading-relaxed uppercase">
               {t(
                 'One platform. Every platform. Built for African creators.',
                 'Une plateforme. Toutes les plateformes. Faite pour les créateurs africains.'
@@ -90,8 +90,8 @@ const Footer: React.FC = () => {
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-black dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
-                        hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border-2 border-zinc-700 bg-black text-white
+                        hover:bg-white hover:text-black transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-bold text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
+                      className="text-sm font-bold text-white/70 hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
                     >
                       {link.label}
                     </Link>
@@ -124,8 +124,8 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t-2 border-gray-200 dark:border-zinc-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm font-mono text-gray-500 dark:text-zinc-600 uppercase">
+        <div className="border-t-2 border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm font-mono text-white/40 uppercase">
             &copy; {new Date().getFullYear()} EAZYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
         </div>
