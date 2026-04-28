@@ -17,12 +17,13 @@ const NeuBadge = ({ children, className }: any) => (
   </span>
 );
 
-const NeuButton = ({ onClick, children, className, disabled }: any) => (
-  <button 
-    onClick={onClick} 
+const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
+  <button
+    onClick={onClick}
     disabled={disabled}
+    title={title}
     className={cn(
-      "p-2 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-yellow-400 dark:hover:bg-zinc-700 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-yellow-400 dark:hover:bg-zinc-600 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -95,7 +96,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#3C48F6]/10 dark:bg-[#3C48F6] text-[#3C48F5] dark:text-white border-[#3C48F5] dark:border-white";
+        case 'SCHEDULED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
         case 'PUBLISHED': return "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white";
         case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
         default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
@@ -210,20 +211,20 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          <NeuButton 
+          <NeuButton
             disabled={post.status === 'PUBLISHED'}
-            onClick={(e: any) => { 
-              e.stopPropagation(); 
+            onClick={(e: any) => {
+              e.stopPropagation();
               if (post.status === 'PUBLISHED') return toast.error("CANNOT_EDIT_PUBLISHED");
-              onEdit?.(); 
+              onEdit?.();
             }}
             title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
           >
-            <Edit2 size={14} className={post.status === 'PUBLISHED' ? 'opacity-30' : ''} />
+            <Edit2 size={14} className={cn('text-[#3C48F5]', post.status === 'PUBLISHED' && 'opacity-30')} />
           </NeuButton>
 
-          <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
-            <Trash2 size={14} />
+          <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }} title="Delete Post">
+            <Trash2 size={14} className="text-red-500" />
           </NeuButton>
         </div>
       </div>

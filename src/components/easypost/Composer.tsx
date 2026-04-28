@@ -153,11 +153,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (postToEdit) {
       setText(postToEdit.content || '');
       setDate(postToEdit.scheduledFor ? new Date(postToEdit.scheduledFor) : undefined);
-      if (postToEdit.mediaUrls) setMediaPreviews(postToEdit.mediaUrls);
+      if (postToEdit.mediaUrls) {
+        setMediaPreviews(postToEdit.mediaUrls);
+        setMediaTypes(postToEdit.mediaUrls.map((url: string) =>
+          /\.(mp4|webm|ogg|mov|avi|mkv|m4v)(\?|$|#)/i.test(url) ? 'video' : 'image'
+        ));
+      }
       if (postToEdit.socialAccountIds) setSelectedAccountIds(postToEdit.socialAccountIds);
     } else {
       // Reset if null (e.g. cancelled edit)
-      setText(''); setDate(undefined); setMediaPreviews([]);
+      setText(''); setDate(undefined); setMediaPreviews([]); setMediaTypes([]);
     }
   }, [postToEdit]);
   const [category, setCategory] = useState('General');
@@ -166,6 +171,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [localFiles, setLocalFiles] = useState<File[]>([]);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [mediaTypes, setMediaTypes] = useState<('image' | 'video')[]>([]);
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
@@ -269,7 +275,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (selected.length > 0) {
       setLocalFiles(prev => [...prev, ...selected]);
       const newPreviews = selected.map(file => URL.createObjectURL(file));
+      const newTypes = selected.map(file => file.type.startsWith('video/') ? 'video' : 'image') as ('image' | 'video')[];
       setMediaPreviews(prev => [...prev, ...newPreviews]);
+      setMediaTypes(prev => [...prev, ...newTypes]);
     }
   };
 
@@ -277,12 +285,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       if (!selectedMediaIds.includes(item.id)) {
           setSelectedMediaIds(prev => [...prev, item.id]);
           setMediaPreviews(prev => [...prev, item.url || '']);
+          setMediaTypes(prev => [...prev, item.type === 'video' ? 'video' : 'image']);
       }
   };
 
   const removeMedia = (index: number) => {
       setMediaPreviews(prev => prev.filter((_, i) => i !== index));
-      // Also remove from localFiles or selectedMediaIds if necessary (simplified for MVP)
+      setMediaTypes(prev => prev.filter((_, i) => i !== index));
   };
 
   // ➤ LOGIC: AI GENERATION
@@ -422,7 +431,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         await onSchedule(
             finalContent,
-            action === 'queue' ? date || new Date() : undefined,
+            action === 'queue' ? (date || new Date()) : new Date(),
             finalMediaIds,
             status,
             targets,
@@ -431,7 +440,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             Object.keys(platformMeta).length > 0 ? platformMeta : undefined,
         );
 
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setMediaTypes([]); setPrice(""); setIsSelling(false);
         setSubmitAttempted(false);
     } catch { } finally { setIsSubmitting(false); }
   };
@@ -468,7 +477,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-yellow-100 dark:hover:bg-zinc-700 active:bg-zinc-200 dark:active:bg-zinc-600 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-yellow-300 dark:hover:bg-zinc-600 active:bg-yellow-400 dark:active:bg-zinc-500 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
                   <Plus size={14} strokeWidth={3} className="text-black dark:text-white" />
                 </button>
               </PopoverTrigger>
@@ -590,13 +599,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pt-5 pb-6 bg-white dark:bg-zinc-900 transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[480px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[280px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {mediaPreviews.map((url, idx) => (
                 <div key={idx} className="relative aspect-square border-2 border-black dark:border-white group bg-gray-100 dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                  <img src={url} className="w-full h-full object-cover" alt="" />
+                  {mediaTypes[idx] === 'video' ? (
+                    <video src={url} className="w-full h-full object-cover" muted playsInline />
+                  ) : (
+                    <img src={url} className="w-full h-full object-cover" alt="" />
+                  )}
                   <button onClick={() => removeMedia(idx)} className="absolute top-1 right-1 bg-red-600 border-2 border-black dark:border-white text-white p-0.5 hover:bg-red-700 transition-colors shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] opacity-0 group-hover:opacity-100"><X size={12} strokeWidth={3} /></button>
                 </div>
               ))}
