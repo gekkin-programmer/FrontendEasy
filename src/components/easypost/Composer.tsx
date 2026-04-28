@@ -234,6 +234,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
 
+  // Auto-expand the single platform panel when only one panel-eligible platform is selected
+  useEffect(() => {
+    const ids = platformMode.postPlatforms.map((p) => p.id);
+    const panels: string[] = [];
+    if (ids.includes('youtube')) panels.push('youtube');
+    if (ids.includes('pinterest')) panels.push('pinterest');
+    if (ids.includes('linkedin')) panels.push('linkedin');
+    if (ids.includes('instagram') || ids.includes('tiktok')) panels.push('igtk');
+    setExpandedPanels(panels.length === 1 ? new Set(panels) : new Set());
+  }, [selectedAccountIds]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ➤ LOGIC: FETCH MEDIA LIBRARY
   const fetchLibrary = async () => {
     try {
@@ -698,7 +709,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     ]}
                     onUse={(asset, section) => {
                         if (section === 'post') {
-                            handleSelectFromLibrary({ id: asset.id, type: asset.type || 'image', url: asset.url, name: asset.name, parentId: asset.folderId || null });
+                            const mediaType: AssetType = (asset.mimeType?.startsWith('video/') || asset.type === 'video') ? 'video' : 'image';
+                            handleSelectFromLibrary({ id: asset.id, type: mediaType, url: asset.url, name: asset.name, parentId: asset.folderId || null });
                             setIsLibraryOpen(false);
                         } else if (section === 'firstComment') {
                             setFirstComment(prev => (prev ? prev + '\n' : '') + asset.url);

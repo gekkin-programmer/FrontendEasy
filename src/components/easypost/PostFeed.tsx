@@ -258,7 +258,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           </NeuButton>
 
           <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }} title="Delete Post">
-            <Trash2 size={14} className="text-red-500" />
+            <Trash2 size={14} className="text-black dark:text-white" />
           </NeuButton>
         </div>
       </div>
