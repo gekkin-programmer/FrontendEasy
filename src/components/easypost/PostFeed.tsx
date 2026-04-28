@@ -159,7 +159,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         {post.media && post.media.length > 0 && (
           <div className="shrink-0 flex flex-col gap-1.5">
             <div className={cn(
-              "grid gap-1 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
+              "grid gap-1 relative overflow-hidden shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
               post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
             )}>
               {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (

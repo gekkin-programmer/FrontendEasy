@@ -697,7 +697,7 @@ function DashboardContent() {
                             />
                             <button
                                 onClick={() => setIsSearchOpen(v => !v)}
-                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white rounded-lg hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-colors"
                             >
                                 <Search size={18} />
                             </button>
