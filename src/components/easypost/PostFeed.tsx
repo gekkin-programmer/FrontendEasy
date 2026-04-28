@@ -23,7 +23,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-yellow-400 dark:hover:bg-zinc-600 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -32,14 +32,22 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
 );
 
 // --- TYPES ---
+interface PostMediaItem {
+  id: string;
+  order: number;
+  media: { id: string; url: string; filename: string; mimeType: string; };
+}
+
 interface Post {
   id: string;
   content: string;
   status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'FAILED';
   scheduledFor?: string;
-  socialAccounts?: any[]; 
-  mediaUrls?: string[];
+  socialAccounts?: any[];
+  media?: PostMediaItem[];
   errorMessage?: string;
+  title?: string;
+  description?: string;
 }
 
 interface Account {
@@ -148,19 +156,45 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       </div>
 
       <div className={cn("flex gap-3", draggable && "pl-4")}>
-        {post.mediaUrls && post.mediaUrls.length > 0 && (
-           <div className={cn(
-             "grid gap-1 shrink-0 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
-             post.mediaUrls.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
-           )}>
-             {post.mediaUrls.slice(0, 4).map((url: string, i: number) => (
-               <img key={i} src={url} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" />
-             ))}
-           </div>
+        {post.media && post.media.length > 0 && (
+          <div className="shrink-0 flex flex-col gap-1.5">
+            <div className={cn(
+              "grid gap-1 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
+              post.media.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
+            )}>
+              {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
+                pm.media.mimeType?.startsWith('video/') ? (
+                  <video key={i} src={pm.media.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" muted playsInline />
+                ) : (
+                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" />
+                )
+              ))}
+            </div>
+            <div className="space-y-0.5 max-w-[96px]">
+              {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
+                <div key={i} className="flex items-center gap-1 min-w-0">
+                  <span className={cn(
+                    "text-[6px] font-black px-0.5 border border-black dark:border-white flex-shrink-0",
+                    pm.media.mimeType?.startsWith('video/') ? "bg-black text-white dark:bg-white dark:text-black" : "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
+                  )}>
+                    {pm.media.mimeType?.startsWith('video/') ? 'VID' : 'IMG'}
+                  </span>
+                  <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500 truncate">{pm.media.filename}</span>
+                </div>
+              ))}
+              {post.media.length > 2 && (
+                <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500">+{post.media.length - 2} more</span>
+              )}
+            </div>
+          </div>
         )}
-        <p className="text-sm font-medium text-black dark:text-white line-clamp-2 flex-1 leading-relaxed border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
-          {post.content}
-        </p>
+        <div className="flex-1 min-w-0 space-y-1">
+          {post.title && <h4 className="font-bold text-sm text-black dark:text-white uppercase truncate">{post.title}</h4>}
+          <p className="text-sm font-medium text-black dark:text-white line-clamp-2 leading-relaxed border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
+            {post.content}
+          </p>
+          {post.description && <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-2 mt-1 italic">{post.description}</p>}
+        </div>
       </div>
 
       {post.status === 'FAILED' && post.errorMessage && (
@@ -182,12 +216,12 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         
         <div className="flex gap-1">
           {post.status === 'FAILED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
               title="Retry Publication"
-              className="bg-red-100 dark:bg-red-900/20 hover:bg-red-300 dark:hover:bg-red-800 text-red-700 dark:text-red-400"
+              className="bg-red-100 dark:bg-red-900/30 hover:bg-red-400 dark:hover:bg-red-700 text-red-700 dark:text-red-300"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={14} className="text-red-700 dark:text-red-300" />
             </NeuButton>
           )}
 
