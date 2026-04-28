@@ -160,17 +160,17 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           <div className="shrink-0 flex flex-col gap-1.5">
             <div className={cn(
               "grid gap-1 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
-              post.media.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
+              post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
             )}>
               {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
                 pm.media.mimeType?.startsWith('video/') ? (
-                  <video key={i} src={pm.media.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" muted playsInline />
+                  <video key={i} src={pm.media.url} className="w-full h-full object-cover border border-black dark:border-white" muted playsInline />
                 ) : (
-                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" />
+                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover border border-black dark:border-white" />
                 )
               ))}
             </div>
-            <div className="space-y-0.5 max-w-[96px]">
+            <div className="space-y-0.5 max-w-[128px]">
               {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
                 <div key={i} className="flex items-center gap-1 min-w-0">
                   <span className={cn(

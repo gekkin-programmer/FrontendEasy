@@ -142,7 +142,7 @@ export default function MediaGallery({
   };
 
   return (
-    <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col gap-4 font-sans text-black dark:text-white transition-colors">
 
       {/* OS Toolbar */}
       <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
@@ -240,7 +240,8 @@ export default function MediaGallery({
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,image/gif" multiple />
 
-      {/* Explorer Grid */}
+      {/* Explorer Grid — independently scrollable */}
+      <div className="overflow-y-auto scrollbar-hide min-h-[160px]">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
              <>
@@ -307,7 +308,7 @@ export default function MediaGallery({
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-[#3C48F5] transition-colors"
+                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors rounded-sm"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
@@ -322,7 +323,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-yellow-300 transition-colors"
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-sm"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
@@ -346,6 +347,7 @@ export default function MediaGallery({
                  {t("Folder is empty", "Le dossier est vide")}
              </div>
          )}
+      </div>
       </div>
     </div>
   )

@@ -699,6 +699,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     onUse={(asset, section) => {
                         if (section === 'post') {
                             handleSelectFromLibrary({ id: asset.id, type: asset.type || 'image', url: asset.url, name: asset.name, parentId: asset.folderId || null });
+                            setIsLibraryOpen(false);
                         } else if (section === 'firstComment') {
                             setFirstComment(prev => (prev ? prev + '\n' : '') + asset.url);
                         } else if (section === 'broadcast') {
