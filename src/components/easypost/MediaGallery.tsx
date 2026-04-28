@@ -285,7 +285,16 @@ export default function MediaGallery({
                         key={asset.id}
                         className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
                     >
-                        <img src={asset.url} className="w-full h-full object-cover" />
+                        {asset.mimeType?.startsWith('video/') ? (
+                            <video src={asset.url} className="w-full h-full object-cover" muted playsInline />
+                        ) : (
+                            <img src={asset.url} className="w-full h-full object-cover" alt="" />
+                        )}
+                        {asset.mimeType?.startsWith('video/') && (
+                            <div className="absolute top-1 left-1 bg-black/80 text-white text-[8px] font-black px-1.5 py-0.5 pointer-events-none tracking-widest">
+                                VIDEO
+                            </div>
+                        )}
 
                         <div
                             className={cn(

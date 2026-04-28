@@ -263,8 +263,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           const res = await api.post<any>('/media/upload', formData);
 
           await fetchLibrary();
-          // Backend returns the created MediaLibrary object
-          return res.id || res.data?.id;
+          // Backend returns { message, media: { id, ... } }
+          return res.id || res.media?.id || res.data?.id || res.data?.media?.id;
       } catch (e) {
           return null;
       }

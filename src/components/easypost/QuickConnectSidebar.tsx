@@ -118,7 +118,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                             <Crown size={16} className="text-black dark:text-white" />
                         </button>
                     )}
-                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black">
+                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black hover:bg-zinc-700 transition-colors">
                         <LinkIcon size={14} className="text-white" />
                     </div>
                 </div>
