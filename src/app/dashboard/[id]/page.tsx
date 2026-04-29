@@ -825,7 +825,7 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px]">
+                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-tl-lg">
                                                 {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
                                                     <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
                                                         <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
@@ -895,7 +895,7 @@ function DashboardContent() {
                                     <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
                                         <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">{t("MENU", "MENU")}</h3></div>
                                         <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
-                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
+                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-black dark:text-white mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
   className={`text-xl font-black ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
