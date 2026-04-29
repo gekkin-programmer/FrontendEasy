@@ -813,15 +813,6 @@ function DashboardContent() {
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                                    {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 8 && currentWorkspace.currentPostCount < 10 && (
-                                        <div className="mb-6 bg-yellow-400 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <AlertTriangle size={20} className="text-black" />
-                                                <span className="font-black uppercase text-sm italic text-black">{t(`Warning: ${10 - currentWorkspace.currentPostCount} posts remaining this month.`, `Attention : ${10 - currentWorkspace.currentPostCount} publications restantes ce mois.`)}</span>
-                                            </div>
-                                            <button onClick={() => router.push('/pricing')} className="bg-black text-white px-4 py-1 font-black text-xs uppercase border-2 border-black hover:bg-white hover:text-black transition-all">{t("Upgrade Now", "Passer à la version payante")}</button>
-                                        </div>
-                                    )}
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">

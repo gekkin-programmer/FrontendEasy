@@ -254,7 +254,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             }}
             title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
           >
-            <Edit2 size={14} className={cn('text-[#3C48F5]', post.status === 'PUBLISHED' && 'opacity-30')} />
+            <Edit2 size={14} className={cn('text-black dark:text-white', post.status === 'PUBLISHED' && 'opacity-30')} />
           </NeuButton>
 
           <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }} title="Delete Post">
