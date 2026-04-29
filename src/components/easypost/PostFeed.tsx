@@ -106,7 +106,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
     switch (status) {
         case 'SCHEDULED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
         case 'PUBLISHED': return "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white";
-        case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
+        case 'FAILED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
         default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
     }
   };
@@ -226,22 +226,22 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           )}
 
           {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
               title="Publish Now"
-              className="bg-green-100 dark:bg-green-900/20 hover:bg-green-300 dark:hover:bg-green-800"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <Send size={14} className="text-green-700 dark:text-green-400" />
+              <Send size={14} className="text-black dark:text-white" />
             </NeuButton>
           )}
 
           {isQueued && post.status === 'SCHEDULED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
               title="Cancel Schedule"
-              className="bg-yellow-100 dark:bg-yellow-900/20 hover:bg-yellow-300 dark:hover:bg-yellow-800"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <Clock size={14} className="text-yellow-700 dark:text-yellow-400" />
+              <Clock size={14} className="text-black dark:text-white" />
             </NeuButton>
           )}
 

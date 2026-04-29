@@ -610,7 +610,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-6 pt-5 pb-6 bg-white dark:bg-zinc-900 transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[280px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[120px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -839,7 +839,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                 <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK MOBILE</span>
                                 <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
                                     {mediaPreviews.length > 0 && (
-                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                                        mediaTypes[0] === 'video'
+                                          ? <video src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" autoPlay muted loop playsInline />
+                                          : <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
                                     )}
                                     <div className="relative z-10 space-y-2 text-white">
                                         <p className="text-sm font-bold">@yourusername</p>
