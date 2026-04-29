@@ -89,9 +89,7 @@ function TikTokPreview({ text, media, mediaTypes, account, tiktokHashtags }: { t
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FE2C55] rounded-full flex items-center justify-center">
                         <Plus size={9} className="text-white" strokeWidth={3} />
                     </div>
-                    <div className="absolute -bottom-0.5 -right-1.5 w-4 h-4 bg-black rounded-full border border-white/30 flex items-center justify-center">
-                        <FaTiktok size={8} className="text-white" />
-                    </div>
+                    <FaTiktok size={10} className="text-white absolute -bottom-0.5 -right-1" />
                 </div>
                 {[Heart, MessageCircle, Bookmark, Share2].map((Icon, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
@@ -107,7 +105,7 @@ function TikTokPreview({ text, media, mediaTypes, account, tiktokHashtags }: { t
                 {hashtagTokens.length > 0 && (
                     <div className="flex flex-wrap gap-x-1 mt-0.5">
                         {hashtagTokens.map((tag, i) => (
-                            <span key={i} className="text-[#20D5EC] text-[10px] font-semibold">{tag}</span>
+                            <span key={i} className="text-white text-[10px] font-semibold">{tag}</span>
                         ))}
                     </div>
                 )}
