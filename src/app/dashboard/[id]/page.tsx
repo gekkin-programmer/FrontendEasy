@@ -742,8 +742,8 @@ function DashboardContent() {
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
                         <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
-                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
-                                    <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
+                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all">
+                                    <Bell size={20} className="text-black dark:text-white" />
                                     {unreadCount > 0 && (
                                         <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
                                             {unreadCount > 9 ? '9+' : unreadCount}
@@ -878,6 +878,8 @@ function DashboardContent() {
       ? 'text-[#3C48F5]'
       : currentWorkspace.owner.planType === 'PRO'
       ? 'text-[#3C48F5] drop-shadow-[0_0_10px_rgba(60,72,245,0.85)] animate-pulse'
+      : currentWorkspace.owner.planType === 'PROFESSIONAL'
+      ? 'animate-rainbow-rtl'
       : currentWorkspace.owner.planType === 'ENTERPRISE'
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'

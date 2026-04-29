@@ -23,7 +23,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -121,7 +121,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       draggable={draggable}
       onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff]",
+        "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] rounded-lg",
         draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50 dark:hover:bg-zinc-800" : ""
       )}
     >
@@ -205,9 +205,9 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       )}
 
       <div className={cn("mt-4 pt-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
-        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500 dark:text-zinc-400">
-           {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
-           <span>
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-black dark:text-white">
+           {isQueued ? <CalendarCheck className="w-3.5 h-3.5 text-black dark:text-white" /> : <Edit2 className="w-3.5 h-3.5 text-black dark:text-white" />}
+           <span className="text-black dark:text-white">
              {post.scheduledFor 
                ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
                : 'NO_DATE_SET'}
@@ -219,9 +219,9 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
               title="Retry Publication"
-              className="bg-red-100 dark:bg-red-900/30 hover:bg-red-400 dark:hover:bg-red-700 text-red-700 dark:text-red-300"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <RefreshCw size={14} className="text-red-700 dark:text-red-300" />
+              <RefreshCw size={14} className="text-black" />
             </NeuButton>
           )}
 
@@ -245,17 +245,14 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          <NeuButton
-            disabled={post.status === 'PUBLISHED'}
-            onClick={(e: any) => {
-              e.stopPropagation();
-              if (post.status === 'PUBLISHED') return toast.error("CANNOT_EDIT_PUBLISHED");
-              onEdit?.();
-            }}
-            title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
-          >
-            <Edit2 size={14} className={cn('text-black dark:text-white', post.status === 'PUBLISHED' && 'opacity-30')} />
-          </NeuButton>
+          {post.status !== 'PUBLISHED' && (
+            <NeuButton
+              onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
+              title="Edit Post"
+            >
+              <Edit2 size={14} className="text-black dark:text-white" />
+            </NeuButton>
+          )}
 
           <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }} title="Delete Post">
             <Trash2 size={14} className="text-black dark:text-white" />
