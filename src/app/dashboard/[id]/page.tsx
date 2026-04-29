@@ -817,22 +817,6 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-tl-lg">
-                                                {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
-                                                    <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
-                                                        <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
-                                                        <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">{t("Post Limit Reached!", "Limite de Publications Atteinte !")}</h2>
-                                                        <p className="max-w-md font-bold mb-8 opacity-80">
-                                                            🎉 {t("Upgrade to STARTER for only", "Passez à STARTER pour seulement")} <span className="text-yellow-400">4,900 FCFA/{t("month", "mois")}</span><br/>
-                                                            → 100 {t("posts", "publications")}, 5 {t("accounts", "comptes")}, 100 AI requests
-                                                        </p>
-                                                        <button
-                                                            onClick={() => router.push('/pricing')}
-                                                            className="bg-[#3C48F5] text-white px-10 py-4 font-black uppercase text-xl border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-                                                        >
-                                                            {t("Upgrade Now — 7 days free", "Upgrade Maintenant — 7 jours gratuits")}
-                                                        </button>
-                                                    </div>
-                                                )}
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
