@@ -18,6 +18,7 @@ import {
   AlertTriangle, Crown, MessageCircle, Layout,
   Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
 } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
 import Composer from '@/src/components/easypost/Composer';
@@ -51,7 +52,7 @@ import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
-interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; }
+interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string; }
 
 const PLATFORM_COLORS: Record<string, string> = {
     INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
@@ -61,8 +62,11 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 // ─── Platform-specific preview renderers ───────────────────────────────────
 
-function TikTokPreview({ text, media, mediaTypes, account }: { text: string; media: string[]; mediaTypes: ('image' | 'video')[]; account: any }) {
+function TikTokPreview({ text, media, mediaTypes, account, tiktokHashtags }: { text: string; media: string[]; mediaTypes: ('image' | 'video')[]; account: any; tiktokHashtags?: string }) {
     const isVideo = mediaTypes[0] === 'video';
+    const hashtagTokens = tiktokHashtags
+        ? tiktokHashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`)
+        : [];
     return (
         <div className="relative bg-black overflow-hidden" style={{ height: 520 }}>
             {media[0]
@@ -85,6 +89,9 @@ function TikTokPreview({ text, media, mediaTypes, account }: { text: string; med
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FE2C55] rounded-full flex items-center justify-center">
                         <Plus size={9} className="text-white" strokeWidth={3} />
                     </div>
+                    <div className="absolute -bottom-0.5 -right-1.5 w-4 h-4 bg-black rounded-full border border-white/30 flex items-center justify-center">
+                        <FaTiktok size={8} className="text-white" />
+                    </div>
                 </div>
                 {[Heart, MessageCircle, Bookmark, Share2].map((Icon, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
@@ -93,16 +100,18 @@ function TikTokPreview({ text, media, mediaTypes, account }: { text: string; med
                     </div>
                 ))}
             </div>
-            {/* Bottom: username + caption + sound */}
+            {/* Bottom: username + caption + hashtags + sound */}
             <div className="absolute bottom-0 left-0 right-12 p-3 z-20">
-                {media[0] && (
-                    <span className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded mb-1">
-                        {isVideo ? '🎬 Video' : '📷 Photo'}
-                    </span>
-                )}
                 <div className="text-white text-[11px] font-bold">@{account?.username || 'creator'}</div>
                 <div className="text-white/90 text-[10px] line-clamp-2 mt-0.5">{text || 'Your caption here…'}</div>
-                <div className="flex items-center gap-1 mt-2">
+                {hashtagTokens.length > 0 && (
+                    <div className="flex flex-wrap gap-x-1 mt-0.5">
+                        {hashtagTokens.map((tag, i) => (
+                            <span key={i} className="text-[#20D5EC] text-[10px] font-semibold">{tag}</span>
+                        ))}
+                    </div>
+                )}
+                <div className="flex items-center gap-1 mt-1.5">
                     <Music size={10} className="text-white" />
                     <span className="text-white/70 text-[9px]">Original sound</span>
                 </div>
@@ -276,7 +285,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
 
     const safeIdx = Math.min(platformIdx, Math.max(0, platformAccounts.length - 1));
     const current = platformAccounts[safeIdx] ?? null;
-    const { text, mediaPreviews, mediaTypes = [] } = previewData;
+    const { text, mediaPreviews, mediaTypes = [], tiktokHashtags } = previewData;
 
     return (
         <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
@@ -328,7 +337,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                         No accounts selected.<br />Add targets in the composer.
                     </div>
                 ) : current.platform === 'TIKTOK' ? (
-                    <TikTokPreview text={text} media={mediaPreviews} mediaTypes={mediaTypes} account={current.account} />
+                    <TikTokPreview text={text} media={mediaPreviews} mediaTypes={mediaTypes} account={current.account} tiktokHashtags={tiktokHashtags} />
                 ) : current.platform === 'INSTAGRAM' ? (
                     <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
                 ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
@@ -374,7 +383,7 @@ function DashboardContent() {
 
     // Composer preview panel state
     const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], mediaTypes: [], selectedAccountIds: [] });
+    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], mediaTypes: [], selectedAccountIds: [], tiktokHashtags: '' });
     const [previewPlatformIdx, setPreviewPlatformIdx] = useState(0);
     
     // OAUTH STATES

@@ -38,7 +38,7 @@ interface ComposerProps {
   postToEdit?: any;
   isPreviewActive?: boolean;
   onPreviewToggle?: () => void;
-  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[] }) => void;
+  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string }) => void;
   onSchedule: (
     content: string,
     date?: Date,
@@ -208,6 +208,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [pinBoard, setPinBoard] = useState('');
   const [liArticleMode, setLiArticleMode] = useState(false);
   const [firstComment, setFirstComment] = useState('');
+  const [tiktokHashtags, setTiktokHashtags] = useState('');
   const [altText, setAltText] = useState('');
   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -228,8 +229,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const previewDataChangeRef = useRef(onPreviewDataChange);
   previewDataChangeRef.current = onPreviewDataChange;
   useEffect(() => {
-    previewDataChangeRef.current?.({ text, mediaPreviews, mediaTypes, selectedAccountIds });
-  }, [text, mediaPreviews, mediaTypes, selectedAccountIds]);
+    previewDataChangeRef.current?.({ text, mediaPreviews, mediaTypes, selectedAccountIds, tiktokHashtags });
+  }, [text, mediaPreviews, mediaTypes, selectedAccountIds, tiktokHashtags]);
 
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
@@ -438,6 +439,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
         if (liArticleMode) platformMeta.linkedin = { articleMode: true };
         if (firstComment) platformMeta.firstComment = firstComment;
+        if (tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
         if (altText) platformMeta.altText = altText;
 
         await onSchedule(
@@ -645,6 +647,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             pinBoard={pinBoard} setPinBoard={setPinBoard}
             liArticleMode={liArticleMode} setLiArticleMode={setLiArticleMode}
             firstComment={firstComment} setFirstComment={setFirstComment}
+            tiktokHashtags={tiktokHashtags} setTiktokHashtags={setTiktokHashtags}
             altText={altText} setAltText={setAltText}
           />
 
