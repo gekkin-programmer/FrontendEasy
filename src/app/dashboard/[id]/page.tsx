@@ -51,7 +51,7 @@ import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
-interface PreviewData { text: string; mediaPreviews: string[]; selectedAccountIds: string[]; }
+interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; }
 
 const PLATFORM_COLORS: Record<string, string> = {
     INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
@@ -61,11 +61,14 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 // ─── Platform-specific preview renderers ───────────────────────────────────
 
-function TikTokPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+function TikTokPreview({ text, media, mediaTypes, account }: { text: string; media: string[]; mediaTypes: ('image' | 'video')[]; account: any }) {
+    const isVideo = mediaTypes[0] === 'video';
     return (
         <div className="relative bg-black overflow-hidden" style={{ height: 520 }}>
             {media[0]
-                ? <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
+                ? isVideo
+                    ? <video src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-90" autoPlay muted loop playsInline />
+                    : <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
                 : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-black" />
             }
             {/* Following | For You */}
@@ -94,7 +97,7 @@ function TikTokPreview({ text, media, account }: { text: string; media: string[]
             <div className="absolute bottom-0 left-0 right-12 p-3 z-20">
                 {media[0] && (
                     <span className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded mb-1">
-                        📷 Photo
+                        {isVideo ? '🎬 Video' : '📷 Photo'}
                     </span>
                 )}
                 <div className="text-white text-[11px] font-bold">@{account?.username || 'creator'}</div>
@@ -273,7 +276,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
 
     const safeIdx = Math.min(platformIdx, Math.max(0, platformAccounts.length - 1));
     const current = platformAccounts[safeIdx] ?? null;
-    const { text, mediaPreviews } = previewData;
+    const { text, mediaPreviews, mediaTypes = [] } = previewData;
 
     return (
         <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
@@ -325,7 +328,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                         No accounts selected.<br />Add targets in the composer.
                     </div>
                 ) : current.platform === 'TIKTOK' ? (
-                    <TikTokPreview text={text} media={mediaPreviews} account={current.account} />
+                    <TikTokPreview text={text} media={mediaPreviews} mediaTypes={mediaTypes} account={current.account} />
                 ) : current.platform === 'INSTAGRAM' ? (
                     <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
                 ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
@@ -371,7 +374,7 @@ function DashboardContent() {
 
     // Composer preview panel state
     const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], selectedAccountIds: [] });
+    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], mediaTypes: [], selectedAccountIds: [] });
     const [previewPlatformIdx, setPreviewPlatformIdx] = useState(0);
     
     // OAUTH STATES

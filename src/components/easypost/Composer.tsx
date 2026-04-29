@@ -38,7 +38,7 @@ interface ComposerProps {
   postToEdit?: any;
   isPreviewActive?: boolean;
   onPreviewToggle?: () => void;
-  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; selectedAccountIds: string[] }) => void;
+  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[] }) => void;
   onSchedule: (
     content: string,
     date?: Date,
@@ -228,8 +228,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const previewDataChangeRef = useRef(onPreviewDataChange);
   previewDataChangeRef.current = onPreviewDataChange;
   useEffect(() => {
-    previewDataChangeRef.current?.({ text, mediaPreviews, selectedAccountIds });
-  }, [text, mediaPreviews, selectedAccountIds]);
+    previewDataChangeRef.current?.({ text, mediaPreviews, mediaTypes, selectedAccountIds });
+  }, [text, mediaPreviews, mediaTypes, selectedAccountIds]);
 
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
