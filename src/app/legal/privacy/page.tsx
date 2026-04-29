@@ -122,6 +122,71 @@ export default function PrivacyPage() {
           </section>
           {/* ─────────────────────────────────────────────────────────── */}
 
+          {/* ─── TikTok API — required by TikTok developer review ─── */}
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              3b. TikTok API &amp; User Data
+            </h2>
+            <p className="mb-4">
+              EazyPost integrates with the TikTok Content Posting API to allow you to schedule and publish videos to your TikTok account. The following describes exactly how we interact with TikTok user data. Our use of TikTok APIs complies with the{' '}
+              <a
+                href="https://developers.tiktok.com/doc/tiktok-api-developer-policy"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                TikTok API Developer Policy
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.tiktok.com/legal/page/row/privacy-policy/en"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                TikTok&apos;s Privacy Policy
+              </a>.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
+                <p>When you connect your TikTok account, we request the following OAuth 2.0 scopes:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">user.info.basic</strong> — your TikTok Open ID and display name, used to identify your connected account in EazyPost.</li>
+                  <li><strong className="text-gray-100">video.list</strong> — read-only access to your public video list, used solely to display your connected account&apos;s activity.</li>
+                  <li><strong className="text-gray-100">video.publish</strong> — allows EazyPost to upload and publish videos to TikTok on your behalf, exclusively when you schedule or manually trigger a post.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>We retrieve your TikTok <strong className="text-gray-100">Open ID</strong> and <strong className="text-gray-100">display name</strong> to label your connected account inside EazyPost.</li>
+                  <li>We store your TikTok <strong className="text-gray-100">OAuth access token</strong> (encrypted at rest) to authenticate publishing requests on your behalf.</li>
+                  <li>Video files and captions you schedule are transmitted directly to TikTok&apos;s servers via the Content Posting API and are <strong className="text-gray-100">not</strong> permanently stored by EazyPost after publishing.</li>
+                  <li>TikTok user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Sharing</h3>
+                <p>
+                  TikTok user data is not shared with any third party outside of the TikTok API itself. Video content you publish is transmitted to TikTok as instructed by you. No TikTok data reaches our AI content-generation providers (OpenAI, DeepSeek, Groq).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your TikTok account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in TikTok under{' '}
+                  <em>Settings &amp; Privacy → Security → Manage Account Access</em>. Upon disconnection, your stored TikTok access token is deleted from our database immediately.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">4. How We Use Your Data</h2>
             <p>We use your information for the following legitimate business purposes:</p>

@@ -27,9 +27,39 @@ export default function TermsPage() {
             <p>You agree NOT to use the platform to:</p>
             <ul className="list-disc pl-5 space-y-2 mt-2">
               <li>Upload illegal, harmful, or offensive content.</li>
-              <li>Violate the Terms of Service of supported platforms (Facebook, Instagram, LinkedIn, Twitter/X).</li>
+              <li>Violate the Terms of Service of supported platforms (Facebook, Instagram, LinkedIn, Twitter/X, TikTok, YouTube, Threads).</li>
               <li>Attempt to reverse engineer or hack the EazyPost infrastructure.</li>
               <li>Spam or harass other users.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-white mb-3">3a. TikTok Platform Terms</h2>
+            <p>
+              When you connect your TikTok account and publish content through EazyPost, you additionally agree to comply with{' '}
+              <a
+                href="https://www.tiktok.com/legal/page/row/terms-of-service/en"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                TikTok&apos;s Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.tiktok.com/legal/page/row/community-guidelines/en"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                TikTok&apos;s Community Guidelines
+              </a>. By using TikTok publishing features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the rightful owner of, or have full rights to publish, any video content you submit to TikTok via EazyPost.</li>
+              <li>EazyPost accesses your TikTok account using the <strong className="text-gray-100">video.publish</strong> and <strong className="text-gray-100">user.info.basic</strong> scopes solely to post content you explicitly authorize.</li>
+              <li>You may revoke EazyPost&apos;s access to your TikTok account at any time through TikTok&apos;s app settings under <em>Settings &amp; Privacy → Security → Manage Account Access</em>.</li>
+              <li>EazyPost is not affiliated with, endorsed by, or sponsored by TikTok or ByteDance Ltd.</li>
             </ul>
           </section>
 
