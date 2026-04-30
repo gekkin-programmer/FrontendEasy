@@ -42,6 +42,12 @@ export class FacebookConnectStrategy extends PassportStrategy(
     });
   }
 
+  // Force Facebook to re-show the full consent screen (including page selection)
+  // so users always grant pages_show_list + pages_manage_posts on reconnect.
+  authorizationParams(_options: any): any {
+    return { auth_type: 'rerequest' };
+  }
+
   async validate(
     req: any,
     accessToken: string,

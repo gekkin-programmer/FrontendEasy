@@ -135,9 +135,10 @@ export class SocialAccountsService {
         },
       );
       const pages: any[] = pagesRes.data.data || [];
-      this.logger.debug(`Found ${pages.length} Facebook Pages`);
+      this.logger.log(`FB pages found: ${pages.length} — ${JSON.stringify(pages.map((p: any) => p.name))}`);
 
       if (pages.length === 0) {
+        this.logger.error('FB_NO_PAGE: token has no pages_show_list grant or user has no Pages');
         throw new NotFoundException(
           'FB_NO_PAGE: Aucune Facebook Page trouvée. Créez une Page Facebook pour continuer.',
         );
