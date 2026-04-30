@@ -209,7 +209,7 @@ describe('SocialAccountsService - MVP Tests', () => {
       const result = await service.getFacebookPages('user-token');
 
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        expect.stringContaining('graph.facebook.com/me/accounts'),
+        expect.stringContaining('graph.facebook.com/v19.0/me/accounts'),
       );
       expect(result).toEqual(mockPages.data);
     });

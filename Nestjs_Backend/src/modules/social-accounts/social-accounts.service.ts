@@ -165,33 +165,6 @@ export class SocialAccountsService {
     }
   }
 
-  async getFacebookPages(userToken: string): Promise<any[]> {
-    try {
-      const res = await axios.get(
-        `https://graph.facebook.com/v19.0/me/accounts?fields=id,name,picture{url},access_token&access_token=${userToken}`,
-      );
-      return res.data.data || [];
-    } catch (e) {
-      const errorDetail = e.response?.data?.error?.message || e.message;
-      this.logger.error('FB Graph Error:', { error: errorDetail });
-      throw new UnauthorizedException(`Failed to fetch Facebook pages: ${errorDetail}`);
-    }
-  }
-
-  async linkPageAccount(
-    userId: string,
-    pageData: { pageId: string; pageName: string; pageAccessToken: string; workspaceId?: string },
-  ) {
-    return this.upsertAccount({
-      userId,
-      workspaceId: pageData.workspaceId,
-      platform: 'FACEBOOK',
-      platformUserId: pageData.pageId,
-      name: pageData.pageName,
-      accessToken: pageData.pageAccessToken,
-    });
-  }
-
   async handleLinkedinCallback(data: any) {
     this.logger.log(`Handling LinkedIn callback for user ${data.userId}`);
     try {
@@ -662,24 +635,26 @@ export class SocialAccountsService {
   // ➤ FACEBOOK SPECIFIC (Pages Logic)
   // =================================================================
 
-  async getFacebookPages(userAccessToken: string) {
+  async getFacebookPages(userAccessToken: string): Promise<any[]> {
     try {
       const res = await axios.get(
-        `https://graph.facebook.com/me/accounts?access_token=${userAccessToken}`,
+        `https://graph.facebook.com/v19.0/me/accounts?fields=id,name,picture{url},access_token&access_token=${userAccessToken}`,
       );
-      return res.data.data;
+      return res.data.data || [];
     } catch (error) {
-      this.logger.error('FB Graph Error:', error.response?.data || error);
-      throw new UnauthorizedException('Failed to fetch Facebook Pages');
+      const errorDetail = error.response?.data?.error?.message || error.message;
+      this.logger.error('FB Graph Error:', { error: errorDetail });
+      throw new UnauthorizedException(`Failed to fetch Facebook pages: ${errorDetail}`);
     }
   }
 
   async linkPageAccount(
     userId: string,
-    pageData: { pageId: string; pageName: string; pageAccessToken: string },
+    pageData: { pageId: string; pageName: string; pageAccessToken: string; workspaceId?: string },
   ) {
     return this.upsertAccount({
       userId,
+      workspaceId: pageData.workspaceId,
       platform: 'FACEBOOK',
       platformUserId: pageData.pageId,
       name: pageData.pageName,
