@@ -35,7 +35,7 @@ describe('SocialAccountsService - MVP Tests', () => {
   };
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    jest.resetAllMocks(); // clears calls AND queued Once implementations
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SocialAccountsService,
@@ -60,15 +60,42 @@ describe('SocialAccountsService - MVP Tests', () => {
       platformUserId: 'fb-user-123',
       name: 'FB User',
       avatar: 'fb-avatar-url',
-      accessToken: 'fb-access-token',
+      accessToken: 'fb-short-token',
       refreshToken: 'fb-refresh-token',
     };
 
-    it('should handle Facebook callback and store access token', async () => {
+    const mockPage = {
+      id: 'page-123',
+      name: 'L&L Store',
+      picture: { data: { url: 'page-avatar-url' } },
+      access_token: 'page-token-123',
+    };
+
+    const setupFacebookMocks = () => {
+      process.env.FACEBOOK_APP_ID = 'test-app-id';
+      process.env.FACEBOOK_APP_SECRET = 'test-app-secret';
+      // 1st call: token exchange → long-lived user token
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { access_token: 'fb-long-lived-token' },
+      } as any);
+      // 2nd call: /me/accounts → list of pages
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { data: [mockPage] },
+      } as any);
+    };
+
+    afterEach(() => {
+      delete process.env.FACEBOOK_APP_ID;
+      delete process.env.FACEBOOK_APP_SECRET;
+    });
+
+    it('should handle Facebook callback and store page token', async () => {
+      setupFacebookMocks();
       mockPrismaService.socialAccount.upsert.mockResolvedValue({
         id: 'acc-123',
-        ...callbackData,
         platform: 'FACEBOOK',
+        platformUserId: mockPage.id,
+        accessToken: mockPage.access_token,
       });
 
       const result = await service.handleFacebookCallback(callbackData);
@@ -79,11 +106,11 @@ describe('SocialAccountsService - MVP Tests', () => {
             workspaceId_platform_platformUserId: {
               workspaceId: callbackData.workspaceId,
               platform: 'FACEBOOK',
-              platformUserId: callbackData.platformUserId,
+              platformUserId: mockPage.id,
             },
           }),
           update: expect.objectContaining({
-            accessToken: callbackData.accessToken,
+            accessToken: mockPage.access_token,
           }),
         }),
       );
@@ -92,11 +119,28 @@ describe('SocialAccountsService - MVP Tests', () => {
     });
 
     it('should prevent duplicate account connections by using upsert', async () => {
+      setupFacebookMocks();
       mockPrismaService.socialAccount.upsert.mockResolvedValue({
         id: 'existing-acc',
+        platform: 'FACEBOOK',
       });
       await service.handleFacebookCallback(callbackData);
       expect(prisma.socialAccount.upsert).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw NotFoundException when no Facebook Pages found', async () => {
+      // Token exchange succeeds
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { access_token: 'fb-long-lived-token' },
+      } as any);
+      // Pages call returns empty list
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { data: [] },
+      } as any);
+
+      await expect(service.handleFacebookCallback(callbackData)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
