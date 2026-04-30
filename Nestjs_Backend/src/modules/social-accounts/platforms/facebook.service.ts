@@ -73,7 +73,27 @@ export class FacebookService implements ISocialPlatform {
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
-    return refreshToken;
+    // refreshToken holds the long-lived user token (60 days).
+    // Exchange it for a fresh one; then re-derive the page token via /me/accounts.
+    const appId = this.configService.get<string>('FACEBOOK_APP_ID') ?? '';
+    const appSecret = this.configService.get<string>('FACEBOOK_APP_SECRET') ?? '';
+
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.GRAPH_URL}/oauth/access_token`, {
+        params: {
+          grant_type: 'fb_exchange_token',
+          client_id: appId,
+          client_secret: appSecret,
+          fb_exchange_token: refreshToken,
+        },
+      }),
+    );
+
+    if (!data?.access_token) {
+      throw new Error(`Facebook token refresh failed: ${JSON.stringify(data)}`);
+    }
+
+    return data.access_token as string;
   }
 
   // --- HELPERS ---

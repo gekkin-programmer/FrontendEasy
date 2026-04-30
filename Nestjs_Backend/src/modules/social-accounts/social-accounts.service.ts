@@ -22,38 +22,52 @@ export class SocialAccountsService {
     @InjectQueue('social-sync') private syncQueue: Queue,
   ) {}
 
-  // ➤ TOKEN REFRESH TASK (Test 6)
+  // ➤ TOKEN REFRESH TASK — runs nightly, refreshes expired Google (YouTube) tokens
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async refreshTokenTask() {
-    this.logger.log('🔄 Checking for tokens needing refresh...');
-    const sevenDaysFromNow = new Date();
-    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    this.logger.log('Checking for expired Google tokens to refresh...');
 
-    const accountsToRefresh = await this.prisma.socialAccount.findMany({
+    const accounts = await this.prisma.socialAccount.findMany({
       where: {
         isActive: true,
+        platform: 'YOUTUBE',
         refreshToken: { not: null },
-        tokenExpiresAt: { lte: sevenDaysFromNow },
       },
     });
 
-    for (const account of accountsToRefresh) {
+    let refreshed = 0;
+    for (const account of accounts) {
       try {
-        this.logger.log(
-          `Refreshing ${account.platform} token for @${account.username}`,
-        );
-        // Platform specific refresh logic (Simplified for MVP)
-        // ... call OAuth provider refresh endpoint ...
+        const params = new URLSearchParams({
+          client_id: process.env.GOOGLE_CLIENT_ID ?? '',
+          client_secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+          refresh_token: account.refreshToken as string,
+          grant_type: 'refresh_token',
+        });
 
-        // Mock update for now
+        const res = await axios.post(
+          'https://oauth2.googleapis.com/token',
+          params.toString(),
+          { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+        );
+
         await this.prisma.socialAccount.update({
           where: { id: account.id },
-          data: { updatedAt: new Date() }, // Simulate token update
+          data: { accessToken: res.data.access_token, isActive: true },
         });
+
+        this.logger.log(`Refreshed token for YOUTUBE @${account.username}`);
+        refreshed++;
       } catch (e) {
-        this.logger.error(`Refresh failed for ${account.platform}`, e.message);
+        this.logger.error(`Token refresh failed for YOUTUBE @${account.username}: ${e.message}`);
+        await this.prisma.socialAccount.update({
+          where: { id: account.id },
+          data: { isActive: false },
+        });
       }
     }
+
+    this.logger.log(`Token refresh complete: ${refreshed}/${accounts.length} YouTube accounts refreshed`);
   }
 
   // ➤ Toggle queue pause for a social account
@@ -82,16 +96,73 @@ export class SocialAccountsService {
   // =================================================================
 
   async handleFacebookCallback(data: any) {
-    return this.upsertAccount({
-      userId: data.userId,
-      workspaceId: data.workspaceId,
-      platform: 'FACEBOOK',
-      platformUserId: data.platformUserId, // Flattened
-      name: data.name,
-      avatar: data.avatar,
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-    });
+    try {
+      this.logger.log(`Starting Facebook Page link for user ${data.userId}`);
+
+      // 1. Exchange short-lived user token for long-lived token (60 days)
+      const appId = process.env.FACEBOOK_APP_ID;
+      const appSecret = process.env.FACEBOOK_APP_SECRET;
+      let userToken: string = data.accessToken;
+
+      if (appId && appSecret) {
+        try {
+          const tokenRes = await axios.get(
+            'https://graph.facebook.com/v19.0/oauth/access_token',
+            {
+              params: {
+                grant_type: 'fb_exchange_token',
+                client_id: appId,
+                client_secret: appSecret,
+                fb_exchange_token: userToken,
+              },
+            },
+          );
+          userToken = tokenRes.data.access_token || userToken;
+          this.logger.log('Facebook: exchanged for long-lived user token');
+        } catch (e) {
+          this.logger.warn(`Facebook token exchange failed: ${e.message} — using short-lived token`);
+        }
+      }
+
+      // 2. Fetch pages with page-scoped access tokens
+      const pagesRes = await axios.get(
+        'https://graph.facebook.com/v19.0/me/accounts',
+        {
+          params: {
+            fields: 'id,name,picture{url},access_token',
+            access_token: userToken,
+          },
+        },
+      );
+      const pages: any[] = pagesRes.data.data || [];
+      this.logger.debug(`Found ${pages.length} Facebook Pages`);
+
+      if (pages.length === 0) {
+        throw new NotFoundException(
+          'FB_NO_PAGE: Aucune Facebook Page trouvée. Créez une Page Facebook pour continuer.',
+        );
+      }
+
+      // 3. Auto-select first page (MVP)
+      const page = pages[0];
+      this.logger.log(`Linking Facebook Page: ${page.id} (${page.name})`);
+
+      return this.upsertAccount({
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+        platform: 'FACEBOOK',
+        platformUserId: page.id,
+        name: page.name,
+        avatar: page.picture?.data?.url ?? data.avatar,
+        accessToken: page.access_token, // Page-scoped token (permanent)
+        refreshToken: userToken,         // Long-lived user token (for re-derivation)
+      });
+    } catch (e) {
+      if (e instanceof NotFoundException) throw e;
+      const errorDetail = e.response?.data?.error?.message || e.message;
+      this.logger.error('Facebook Page Link Failed', { error: errorDetail, data: e.response?.data });
+      throw new UnauthorizedException(`Facebook connection failed: ${errorDetail}`);
+    }
   }
 
   async handleLinkedinCallback(data: any) {
@@ -236,9 +307,7 @@ export class SocialAccountsService {
         this.logger.warn(
           `No Instagram Business Account linked to any Facebook Page for user ${data.userId}`,
         );
-        throw new NotFoundException(
-          'No Instagram Business Account found. Ensure your IG Business account is linked to a Facebook Page.',
-        );
+        throw new NotFoundException('IG_NO_BUSINESS_ACCOUNT');
       }
 
       const igId = pageWithIg.instagram_business_account.id;
@@ -261,12 +330,13 @@ export class SocialAccountsService {
         refreshToken: data.refreshToken,
       });
     } catch (e) {
+      if (e instanceof NotFoundException) throw e;
       const errorDetail = e.response?.data?.error?.message || e.message;
       this.logger.error('Instagram Link Failed', {
         error: errorDetail,
         data: e.response?.data,
       });
-      throw new UnauthorizedException(`Instagram link failed: ${errorDetail}`);
+      throw new UnauthorizedException('IG_API_ERROR');
     }
   }
 
@@ -374,6 +444,46 @@ export class SocialAccountsService {
         this.logger.log(`IG DM event: ${JSON.stringify(msg)}`);
       }
     }
+
+    return { status: 'ok' };
+  }
+
+  // =================================================================
+  // ➤ TIKTOK WEBHOOK
+  // =================================================================
+
+  async handleTikTokWebhook(body: any) {
+    const event: string = body?.event ?? '';
+    const videoId: string = body?.video_id ?? '';
+    const publishId: string = body?.publish_id ?? '';
+
+    this.logger.log(`TikTok webhook raw: ${JSON.stringify(body)}`);
+    this.logger.log(`TikTok webhook: event=${event} video_id=${videoId} publish_id=${publishId}`);
+
+    const statusMap: Record<string, string> = {
+      'video.publish.complete': 'PUBLISHED',
+      'video.upload.complete': 'PUBLISHED',
+      'post.publish.inbox_delivered': 'PUBLISHED',
+      'video.publish.failed': 'FAILED',
+      'video.upload.failed': 'FAILED',
+    };
+
+    const newStatus = statusMap[event];
+    if (!newStatus) return { status: 'ok' };
+
+    // Match by video_id (direct post) or publish_id (inbox delivery)
+    const where = videoId
+      ? { platformPostId: videoId }
+      : publishId
+        ? { platformPostId: publishId }
+        : null;
+
+    if (!where) return { status: 'ok' };
+
+    await this.prisma.postSocialAccount.updateMany({
+      where,
+      data: { status: newStatus as any },
+    });
 
     return { status: 'ok' };
   }
