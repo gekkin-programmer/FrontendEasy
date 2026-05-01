@@ -65,7 +65,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
                 {dayLabel && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{dayLabel}</span>}
             </div>
             {postCount > 0 && (
-                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-yellow-300 text-black shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-white text-black shadow-[2px_2px_0px_0px_#000]">
                     {postCount}_NODES
                 </span>
             )}
@@ -217,14 +217,17 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
             p.status
           ];
       });
-      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.body.appendChild(document.createElement("a"));
-      link.href = encodedUri;
+      const csv = [headers, ...rows].map(e => e.join(",")).join("\n");
+      const blob = new Blob(["﻿" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
       link.download = `calendar_export_${format(new Date(), 'yyyy_MM_dd')}.csv`;
+      document.body.appendChild(link);
       link.click();
-      link.remove();
-      
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       trackAction('calendar_export', { workspaceId, postCount: posts.length });
       toast.success(t("EXPORT_GENERATED", "EXPORT_GÉNÉRÉ"));
   };
@@ -249,7 +252,6 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
                 </h2>
-                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_{t("VIEW", "VUE")} // {t("ENGINE_READY", "MOTEUR_PRÊT")}</p>
             </div>
         </div>
 
@@ -261,7 +263,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:bg-white/20 hover:text-yellow-300"
+                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:bg-white/20 hover:text-white"
                     )}
                   >
                       {v}
@@ -270,13 +272,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
-            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
+            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
+            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-white/80 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
