@@ -38,6 +38,16 @@ export const SocketProvider = ({ children, workspaceId }: { children: React.Reac
       }
     });
 
+    newSocket.on('connect_error', (err) => {
+      const msg = err.message?.toLowerCase() ?? '';
+      if (msg.includes('jwt') || msg.includes('expired') || msg.includes('unauthorized')) {
+        newSocket.disconnect();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+    });
+
     newSocket.on('disconnect', () => {
       console.log('📡 [WS] Disconnected');
       setIsConnected(false);
