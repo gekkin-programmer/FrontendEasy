@@ -127,10 +127,10 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                         <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
+                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:border-red-500 transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
-                                                <Trash2 size={10} className="text-black" strokeWidth={3} />
+                                                <Trash2 size={10} className="text-red-500" strokeWidth={3} />
                                             </button>
                                         </div>
 

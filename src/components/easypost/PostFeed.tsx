@@ -204,7 +204,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
       )}
 
-      <div className={cn("mt-4 pt-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
+      <div className={cn("mt-4 py-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
         <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-black dark:text-white">
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5 text-black dark:text-white" /> : <Edit2 className="w-3.5 h-3.5 text-black dark:text-white" />}
            <span className="text-black dark:text-white">
