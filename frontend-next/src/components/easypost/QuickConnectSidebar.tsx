@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
-  FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaRedditAlien, FaSnapchat, FaTelegram,
+  FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaMedium, FaSnapchat, FaTelegram,
   FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,7 +42,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'youtube', Icon: FaYoutube, color: 'text-[#FF0000]' },
         { id: 'pinterest', Icon: FaPinterestP, color: 'text-[#BD081C]' },
         { id: 'whatsapp', Icon: FaWhatsapp, color: 'text-[#25D366]' },
-        { id: 'reddit', Icon: FaRedditAlien, color: 'text-[#FF4500]' },
+        { id: 'medium', Icon: FaMedium, color: 'text-black dark:text-white' },
         { id: 'snapchat', Icon: FaSnapchat, color: 'text-[#FFFC00]' },
         { id: 'telegram', Icon: FaTelegram, color: 'text-[#2AABEE]' },
         { id: 'discord', Icon: FaDiscord, color: 'text-[#5865F2]' },
@@ -108,17 +108,17 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         <>
             <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
                 {/* Header row */}
-                <div className="flex items-center gap-2 w-full justify-center mb-1">
+                <div className="flex items-center gap-2 w-full justify-center mb-1 bg-black -mx-2 mt-1 px-2 pt-3 pb-2">
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-[#3C48F5] shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-yellow-300 dark:hover:bg-zinc-600 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                             title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
-                            <Crown size={16} className="text-black" />
+                            <Crown size={16} className="text-black dark:text-white" />
                         </button>
                     )}
-                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black">
+                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black hover:bg-zinc-700 transition-colors">
                         <LinkIcon size={14} className="text-white" />
                     </div>
                 </div>
@@ -155,10 +155,10 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                             </button>
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-white hover:bg-red-50 transition-colors cursor-pointer"
+                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
-                                                <Trash2 size={10} className="text-black" strokeWidth={3} />
+                                                <Trash2 size={10} className="text-black group-hover:text-white" strokeWidth={3} />
                                             </button>
                                         </div>
 
