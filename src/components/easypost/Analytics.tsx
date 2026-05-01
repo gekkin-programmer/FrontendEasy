@@ -493,6 +493,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
 }
 
 function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
+    const { t } = useLanguage();
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['post-analytics', postId],
         queryFn: async () => {
@@ -552,7 +553,7 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
             <div className="p-6 border-b-2 border-black dark:border-white flex items-start gap-6 bg-gray-50 dark:bg-zinc-800 transition-colors">
                 <div className="w-24 h-24 bg-white dark:bg-zinc-700 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] flex-shrink-0 overflow-hidden relative group flex items-center justify-center transition-all">
                     {hasMedia ? (
-                        <img src={post.mediaUrls[0]} className="w-full h-full object-cover" alt="Post media" />
+                        <img src={post.mediaUrls[0]} className="w-full h-full object-cover" alt="Post media" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
                         <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#fbbf24,#fbbf24_10px,#f59e0b_10px,#f59e0b_20px)] flex items-center justify-center">
                             <span className="bg-white dark:bg-zinc-800 border-2 border-black dark:border-white px-2 py-1 font-black text-xs uppercase text-black dark:text-white">TEXT</span>

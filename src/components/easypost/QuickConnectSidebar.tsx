@@ -8,7 +8,7 @@ import { api } from '@/src/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, X, Copy, CheckCheck, Pause, Play
+  Link as LinkIcon, Trash2, Check, Crown, X, Copy, CheckCheck
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
@@ -89,20 +89,6 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         onError: () => {},
     });
 
-    const pauseMutation = useMutation({
-        mutationFn: (id: string) => api.patch(`/social-accounts/${id}/pause`, {}),
-        onMutate: (id) => {
-            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
-                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
-            );
-        },
-        onSuccess: () => refreshData(),
-        onError: (_, id) => {
-            queryClient.setQueryData(['social-accounts', workspaceId], (old: any[]) =>
-                old?.map(a => a.id === id ? { ...a, isPaused: !a.isPaused } : a) ?? old
-            );
-        },
-    });
 
     return (
         <>
@@ -132,47 +118,27 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                             <div key={p.id} className="relative group flex-shrink-0">
                                 {connected ? (
                                     <>
-                                        {/* Base layer: platform icon, dimmed when paused */}
-                                        <button className={cn(
-                                            "w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-default transition-colors",
-                                            connected.isPaused ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-gray-50 dark:bg-zinc-800"
-                                        )}>
-                                            <p.Icon size={16} className={cn(connected.isPaused ? "text-yellow-500" : "text-gray-400 dark:text-zinc-500")} />
+                                        {/* Base layer: platform icon */}
+                                        <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-default transition-colors bg-gray-50 dark:bg-zinc-800">
+                                            <p.Icon size={16} className={cn(p.color, "opacity-60")} />
                                         </button>
 
-                                        {/* Hover overlay: two mini buttons — pause/play + disconnect */}
+                                        {/* Hover overlay: disconnect only */}
                                         <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
                                             <button
-                                                onClick={() => pauseMutation.mutate(connected.id)}
-                                                disabled={pauseMutation.isPending}
-                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-yellow-400 hover:bg-yellow-300 transition-colors cursor-pointer"
-                                                title={connected.isPaused ? t("Resume queue", "Reprendre la file") : t("Pause queue", "Mettre en pause")}
-                                            >
-                                                {connected.isPaused
-                                                    ? <Play size={10} className="text-black" strokeWidth={3} />
-                                                    : <Pause size={10} className="text-black" strokeWidth={3} />
-                                                }
-                                            </button>
-                                            <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="flex-1 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
+                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
-                                                <Trash2 size={10} className="text-black group-hover:text-white" strokeWidth={3} />
+                                                <Trash2 size={10} className="text-black" strokeWidth={3} />
                                             </button>
                                         </div>
 
-                                        {/* Status dot: yellow when paused, green when active */}
+                                        {/* Status dot: always green */}
                                         <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                            {connected.isPaused ? (
-                                                <div className="w-3.5 h-3.5 bg-yellow-400 border-2 border-black dark:border-white flex items-center justify-center">
-                                                    <Pause size={7} strokeWidth={4} className="text-black" />
-                                                </div>
-                                            ) : (
-                                                <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
-                                                    <Check size={8} strokeWidth={4} />
-                                                </div>
-                                            )}
+                                            <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
+                                                <Check size={8} strokeWidth={4} />
+                                            </div>
                                         </div>
                                     </>
                                 ) : (
