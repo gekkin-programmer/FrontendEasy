@@ -218,7 +218,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {post.status === 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
-              title={t("Repost", "Republier")}
+              title="Repost"
               className="bg-white hover:bg-white border-black hover:border-black"
             >
               <RefreshCw size={14} className="text-black dark:text-white" />
