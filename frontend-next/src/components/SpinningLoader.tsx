@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface LoaderProps {
@@ -10,41 +9,21 @@ interface LoaderProps {
 }
 
 export default function SpinningLoader({ fullScreen = true, size = 50 }: LoaderProps) {
-  
   const content = (
-    <div 
-      className="relative flex items-center justify-center"
-      role="status"
-      aria-label="Loading"
-    >
-      {/* 1. The Spinning E */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ 
-          repeat: Infinity, 
-          duration: 1, // Slightly faster for snappier feel
-          ease: "linear" 
-        }}
-        className="relative z-10"
-        style={{ width: size, height: size }}
-      >
-        <Image 
-          src="/assets/WiggleLogo.png" 
-          alt="" // Alt empty as it's decorative in this context (status role handles it)
+    <div className="flex flex-col items-center gap-4" role="status" aria-label="Loading">
+      <div className="relative" style={{ width: size, height: size }}>
+        <Image
+          src="/assets/WiggleLogo.png"
+          alt=""
           fill
           className="object-contain"
           priority
           sizes={`${size}px`}
         />
-      </motion.div>
-
-      {/* 2. Simplified Pulse (No Blur for Performance) */}
-      <motion.div 
-        className="absolute rounded-full border-2 border-[#3C48F6]/20"
-        style={{ width: size + 10, height: size + 10 }}
-        animate={{ scale: [0.8, 1.2], opacity: [0.5, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
-      />
+      </div>
+      <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
+        By Best-Corp
+      </p>
     </div>
   );
 

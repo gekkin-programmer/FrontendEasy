@@ -18,6 +18,7 @@ import {
   AlertTriangle, Crown, MessageCircle, Layout,
   Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
 } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
 import Composer from '@/src/components/easypost/Composer';
@@ -51,7 +52,7 @@ import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
-interface PreviewData { text: string; mediaPreviews: string[]; selectedAccountIds: string[]; }
+interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string; }
 
 const PLATFORM_COLORS: Record<string, string> = {
     INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
@@ -61,11 +62,17 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 // ─── Platform-specific preview renderers ───────────────────────────────────
 
-function TikTokPreview({ text, media, account }: { text: string; media: string[]; account: any }) {
+function TikTokPreview({ text, media, mediaTypes, account, tiktokHashtags }: { text: string; media: string[]; mediaTypes: ('image' | 'video')[]; account: any; tiktokHashtags?: string }) {
+    const isVideo = mediaTypes[0] === 'video';
+    const hashtagTokens = tiktokHashtags
+        ? tiktokHashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`)
+        : [];
     return (
-        <div className="relative bg-black overflow-hidden" style={{ height: 380 }}>
+        <div className="relative bg-black overflow-hidden" style={{ height: 520 }}>
             {media[0]
-                ? <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
+                ? isVideo
+                    ? <video src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-90" autoPlay muted loop playsInline />
+                    : <img src={media[0]} className="absolute inset-0 w-full h-full object-cover opacity-70" alt="" />
                 : <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-black" />
             }
             {/* Following | For You */}
@@ -82,6 +89,7 @@ function TikTokPreview({ text, media, account }: { text: string; media: string[]
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FE2C55] rounded-full flex items-center justify-center">
                         <Plus size={9} className="text-white" strokeWidth={3} />
                     </div>
+                    <FaTiktok size={10} className="text-white absolute -bottom-0.5 -right-1" />
                 </div>
                 {[Heart, MessageCircle, Bookmark, Share2].map((Icon, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
@@ -90,16 +98,18 @@ function TikTokPreview({ text, media, account }: { text: string; media: string[]
                     </div>
                 ))}
             </div>
-            {/* Bottom: username + caption + sound */}
+            {/* Bottom: username + caption + hashtags + sound */}
             <div className="absolute bottom-0 left-0 right-12 p-3 z-20">
-                {media[0] && (
-                    <span className="inline-flex items-center gap-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded mb-1">
-                        📷 Photo
-                    </span>
-                )}
                 <div className="text-white text-[11px] font-bold">@{account?.username || 'creator'}</div>
                 <div className="text-white/90 text-[10px] line-clamp-2 mt-0.5">{text || 'Your caption here…'}</div>
-                <div className="flex items-center gap-1 mt-2">
+                {hashtagTokens.length > 0 && (
+                    <div className="flex flex-wrap gap-x-1 mt-0.5">
+                        {hashtagTokens.map((tag, i) => (
+                            <span key={i} className="text-white text-[10px] font-semibold">{tag}</span>
+                        ))}
+                    </div>
+                )}
+                <div className="flex items-center gap-1 mt-1.5">
                     <Music size={10} className="text-white" />
                     <span className="text-white/70 text-[9px]">Original sound</span>
                 </div>
@@ -273,7 +283,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
 
     const safeIdx = Math.min(platformIdx, Math.max(0, platformAccounts.length - 1));
     const current = platformAccounts[safeIdx] ?? null;
-    const { text, mediaPreviews } = previewData;
+    const { text, mediaPreviews, mediaTypes = [], tiktokHashtags } = previewData;
 
     return (
         <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
@@ -318,14 +328,14 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                 </div>
             )}
 
-            {/* Platform UI render — no phone frame, just the app interface */}
+            {/* Platform UI render */}
             <div className="overflow-hidden">
                 {!current ? (
                     <div className="h-72 flex items-center justify-center text-[11px] text-gray-400 dark:text-zinc-500 font-mono text-center px-6 leading-relaxed bg-gray-50 dark:bg-zinc-950">
                         No accounts selected.<br />Add targets in the composer.
                     </div>
                 ) : current.platform === 'TIKTOK' ? (
-                    <TikTokPreview text={text} media={mediaPreviews} account={current.account} />
+                    <TikTokPreview text={text} media={mediaPreviews} mediaTypes={mediaTypes} account={current.account} tiktokHashtags={tiktokHashtags} />
                 ) : current.platform === 'INSTAGRAM' ? (
                     <InstagramPreview text={text} media={mediaPreviews} account={current.account} />
                 ) : current.platform === 'TWITTER' || current.platform === 'X' ? (
@@ -371,7 +381,7 @@ function DashboardContent() {
 
     // Composer preview panel state
     const [isPreviewMode, setIsPreviewMode] = useState(false);
-    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], selectedAccountIds: [] });
+    const [previewData, setPreviewData] = useState<PreviewData>({ text: '', mediaPreviews: [], mediaTypes: [], selectedAccountIds: [], tiktokHashtags: '' });
     const [previewPlatformIdx, setPreviewPlatformIdx] = useState(0);
     
     // OAUTH STATES
@@ -531,6 +541,7 @@ function DashboardContent() {
         const selectionMode = searchParams.get('social_selection');
         const connected = searchParams.get('social_connected');
         const success = searchParams.get('success');
+        const error = searchParams.get('error');
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {
@@ -544,6 +555,26 @@ function DashboardContent() {
             window.history.replaceState(null, '', url.pathname);
             refetchAccounts();
             queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+        } else if (error) {
+            const oauthErrors: Record<string, [string, string]> = {
+                IG_NO_BUSINESS_ACCOUNT: [
+                    'Instagram requires a Business or Creator account linked to a Facebook Page. Go to Instagram → Settings → Account type to switch, then retry.',
+                    "Instagram nécessite un compte Professionnel ou Créateur lié à une Page Facebook. Allez sur Instagram → Paramètres → Type de compte pour changer, puis réessayez.",
+                ],
+                IG_API_ERROR: [
+                    'Instagram connection failed. Please try again.',
+                    'La connexion Instagram a échoué. Veuillez réessayer.',
+                ],
+                OAUTH_SESSION_LOST: [
+                    'Connection session expired. Please try again.',
+                    'La session de connexion a expiré. Veuillez réessayer.',
+                ],
+            };
+            const [en, fr] = oauthErrors[error] ?? [error, error];
+            setTimeout(() => addNotification('error', t(en, fr)), 0);
+            const url = new URL(window.location.href);
+            url.searchParams.delete('error');
+            window.history.replaceState(null, '', url.pathname);
         }
     }, [searchParams, queryClient, workspaceId, refetchAccounts]);
 
@@ -676,7 +707,7 @@ function DashboardContent() {
                             />
                             <button
                                 onClick={() => setIsSearchOpen(v => !v)}
-                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white rounded-lg hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-colors"
                             >
                                 <Search size={18} />
                             </button>
@@ -721,8 +752,8 @@ function DashboardContent() {
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
                         <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
-                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all group">
-                                    <Bell size={20} className="text-black dark:text-white group-hover:rotate-12 transition-transform" />
+                                <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all">
+                                    <Bell size={20} className="text-black dark:text-white" />
                                     {unreadCount > 0 && (
                                         <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
                                             {unreadCount > 9 ? '9+' : unreadCount}
@@ -792,35 +823,10 @@ function DashboardContent() {
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                                    {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 8 && currentWorkspace.currentPostCount < 10 && (
-                                        <div className="mb-6 bg-yellow-400 border-4 border-black p-4 shadow-[8px_8px_0px_0px_#000] flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <AlertTriangle size={20} className="text-black" />
-                                                <span className="font-black uppercase text-sm italic text-black">{t(`Warning: ${10 - currentWorkspace.currentPostCount} posts remaining this month.`, `Attention : ${10 - currentWorkspace.currentPostCount} publications restantes ce mois.`)}</span>
-                                            </div>
-                                            <button onClick={() => router.push('/pricing')} className="bg-black text-white px-4 py-1 font-black text-xs uppercase border-2 border-black hover:bg-white hover:text-black transition-all">{t("Upgrade Now", "Passer à la version payante")}</button>
-                                        </div>
-                                    )}
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden">
-                                                {currentWorkspace?.owner?.planType === 'FREE' && currentWorkspace.currentPostCount >= 10 && (
-                                                    <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
-                                                        <Crown size={64} className="text-yellow-400 mb-6 animate-bounce" />
-                                                        <h2 className="text-3xl font-black uppercase mb-4 tracking-tighter">{t("Post Limit Reached!", "Limite de Publications Atteinte !")}</h2>
-                                                        <p className="max-w-md font-bold mb-8 opacity-80">
-                                                            🎉 {t("Upgrade to STARTER for only", "Passez à STARTER pour seulement")} <span className="text-yellow-400">4,900 FCFA/{t("month", "mois")}</span><br/>
-                                                            → 100 {t("posts", "publications")}, 5 {t("accounts", "comptes")}, 100 AI requests
-                                                        </p>
-                                                        <button
-                                                            onClick={() => router.push('/pricing')}
-                                                            className="bg-[#3C48F5] text-white px-10 py-4 font-black uppercase text-xl border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-                                                        >
-                                                            {t("Upgrade Now — 7 days free", "Upgrade Maintenant — 7 jours gratuits")}
-                                                        </button>
-                                                    </div>
-                                                )}
+                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-tl-lg">
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
@@ -851,8 +857,8 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900"><Analytics /></NeuCard>}
-                                    {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900"><EngagementWithTabs /></NeuCard>}
+                                    {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-zinc-900 min-h-[600px]"><Analytics /></NeuCard>}
+                                    {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-zinc-900 min-h-[600px]"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <Team workspaceId={workspaceId} />}
                                     {activeTab === 'settings' && <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></div>}
                                 </motion.div>
@@ -873,8 +879,8 @@ function DashboardContent() {
                                 ) : (
                                     <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
                                         <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">{t("MENU", "MENU")}</h3></div>
-                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
-                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-gray-500 mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
+                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-white dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+                                        <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-black dark:text-white mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
   className={`text-xl font-black ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
@@ -882,6 +888,8 @@ function DashboardContent() {
       ? 'text-[#3C48F5]'
       : currentWorkspace.owner.planType === 'PRO'
       ? 'text-[#3C48F5] drop-shadow-[0_0_10px_rgba(60,72,245,0.85)] animate-pulse'
+      : currentWorkspace.owner.planType === 'PROFESSIONAL'
+      ? 'animate-rainbow-rtl'
       : currentWorkspace.owner.planType === 'ENTERPRISE'
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'

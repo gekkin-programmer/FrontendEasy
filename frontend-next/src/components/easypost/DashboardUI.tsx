@@ -3,16 +3,20 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const NeuButton = ({ children, onClick, active, className = "", disabled = false }: any) => (
-  <button 
-    onClick={onClick} 
-    disabled={disabled} 
-    className={`relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black ${
-      active 
-        ? 'bg-[#3C48F5] text-white translate-x-[2px] translate-y-[2px] shadow-none' 
-        : 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
-    } ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''} ${className}`}
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={cn(
+      'relative px-4 py-2 font-black text-xs uppercase tracking-wider transition-all duration-150 border-2 border-black',
+      active
+        ? 'bg-[#3C48F5] text-white translate-x-[2px] translate-y-[2px] shadow-none'
+        : 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
+      disabled ? 'opacity-50 cursor-not-allowed grayscale' : '',
+      className
+    )}
   >
     {children}
   </button>

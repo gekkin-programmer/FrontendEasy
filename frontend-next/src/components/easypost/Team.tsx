@@ -610,12 +610,12 @@ export default function Team({ workspaceId }: TeamProps) {
               onFocus={() => setChatExpanded(true)}
               placeholder={t('Type a message...', 'Tapez un message...')}
               disabled={!channelId}
-              className="flex-1 min-w-0 px-3 py-2.5 bg-gray-100 dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-[#3C48F5] focus:shadow-[3px_3px_0px_0px_#3C48F5] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
+              className="flex-1 min-w-0 px-3 py-2.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-[#3C48F5] focus:shadow-[3px_3px_0px_0px_#3C48F5] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
             />
             <button
               onClick={sendChatMessage}
               disabled={!chatInput.trim() || !channelId}
-              className="flex-shrink-0 px-3 py-2.5 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-yellow-400 hover:text-black hover:border-yellow-400 active:bg-yellow-500 active:translate-y-[1px] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="flex-shrink-0 px-3 py-2.5 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white hover:bg-black/80 hover:border-black active:translate-y-[1px] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               <Send size={16} strokeWidth={2.5} />
             </button>
