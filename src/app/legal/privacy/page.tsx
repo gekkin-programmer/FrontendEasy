@@ -5,7 +5,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-[#000000] py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-[#000000] p-8 md:p-12 rounded-2xl border border-gray-700">
         <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-        <p className="text-sm text-gray-400 mb-8">Last Updated: April 25, 2026</p>
+        <p className="text-sm text-gray-400 mb-8">Last Updated: May 1, 2026</p>
 
         <div className="space-y-8 text-gray-300 leading-relaxed">
 
@@ -181,6 +181,80 @@ export default function PrivacyPage() {
                 <p>
                   You can disconnect your TikTok account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in TikTok under{' '}
                   <em>Settings &amp; Privacy → Security → Manage Account Access</em>. Upon disconnection, your stored TikTok access token is deleted from our database immediately.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
+          {/* ─── Snapchat Login Kit — required by Snap Kit developer review ─── */}
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              3c. Snapchat Login Kit &amp; User Data
+            </h2>
+            <p className="mb-4">
+              EazyPost integrates with Snapchat&apos;s Login Kit (OAuth 2.0) to allow you to connect your Snapchat account to your EazyPost workspace. Our use of Snapchat APIs complies with the{' '}
+              <a
+                href="https://snap.com/en-US/terms/snap-kit"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snap Kit Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.snap.com/en-US/privacy/privacy-policy"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snapchat&apos;s Privacy Policy
+              </a>.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
+                <p>When you connect your Snapchat account, we request the following Login Kit permissions:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">user.display_name</strong> — your Snapchat display name, used to label your connected account inside EazyPost.</li>
+                  <li><strong className="text-gray-100">user.bitmoji.avatar</strong> — your Bitmoji avatar image URL, used as a profile picture for your connected Snapchat account in the EazyPost dashboard.</li>
+                </ul>
+                <p className="mt-2">
+                  We do not request access to your Snaps, Stories, contacts, location, or any other Snapchat data beyond the identity information listed above.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>We retrieve your Snapchat <strong className="text-gray-100">display name</strong> and <strong className="text-gray-100">external ID</strong> to identify your connected account.</li>
+                  <li>Your Bitmoji avatar URL is stored to display a recognizable account icon in the EazyPost dashboard.</li>
+                  <li>We store your Snapchat <strong className="text-gray-100">OAuth access token</strong> (encrypted at rest) to maintain the connection on your behalf.</li>
+                  <li>Snapchat user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Sharing</h3>
+                <p>
+                  Snapchat user data (display name, external ID, Bitmoji avatar URL, and access token) is stored exclusively in our database (Neon PostgreSQL). It is not shared with any other third party, including our AI content-generation providers (OpenAI, DeepSeek, Groq).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Content &amp; Publishing</h3>
+                <p>
+                  EazyPost may use your connected Snapchat account to publish content (images, videos, captions) to Snapchat on your behalf, exclusively when you schedule or manually trigger a post. Content is transmitted directly to Snapchat&apos;s servers via their official APIs and is not permanently stored by EazyPost after publishing.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your Snapchat account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in Snapchat under{' '}
+                  <em>Settings → Privacy Controls → Connected Apps</em>. Upon disconnection, your stored Snapchat access token is deleted from our database immediately.
                 </p>
               </div>
             </div>
