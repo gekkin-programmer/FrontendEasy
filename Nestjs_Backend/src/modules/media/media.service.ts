@@ -2,13 +2,16 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CloudinaryService } from '../../modules/providers/cloudinary.service';
+import { GcsService } from '../../modules/providers/gcs.service';
 import { PlanType } from '@prisma/client';
 
 @Injectable()
 export class MediaService {
+  private readonly logger = new Logger(MediaService.name);
   private readonly STORAGE_LIMITS = {
     [PlanType.FREE]: 100 * 1024 * 1024,
     [PlanType.STARTER]: 500 * 1024 * 1024,
@@ -19,7 +22,7 @@ export class MediaService {
 
   constructor(
     private prisma: PrismaService,
-    private cloudinary: CloudinaryService,
+    private gcs: GcsService,
   ) {}
 
   private async getWorkspace(userId: string) {
@@ -85,7 +88,7 @@ export class MediaService {
       );
     }
 
-    const cloudResult = await this.cloudinary.uploadFile(file);
+    const cloudResult = await this.gcs.uploadFile(file);
 
     const media = await this.prisma.mediaLibrary.create({
       data: {
@@ -135,5 +138,30 @@ export class MediaService {
       _sum: { size: true },
     });
     return aggregate._sum.size || 0;
+  }
+
+  // Runs daily at 03:00 — refreshes GCS signed URLs (7-day TTL, daily renewal = 6-day buffer)
+  @Cron('0 3 * * *')
+  async refreshGcsSignedUrls() {
+    const assets = await this.prisma.mediaLibrary.findMany({
+      where: { url: { contains: 'X-Goog-Algorithm' } },
+      select: { id: true, url: true },
+    });
+
+    if (assets.length === 0) return;
+
+    let refreshed = 0;
+    for (const asset of assets) {
+      const newUrl = await this.gcs.refreshSignedUrl(asset.url);
+      if (newUrl) {
+        await this.prisma.mediaLibrary.update({
+          where: { id: asset.id },
+          data: { url: newUrl },
+        });
+        refreshed++;
+      }
+    }
+
+    this.logger.log(`GCS signed URL refresh: ${refreshed}/${assets.length} renewed`);
   }
 }
