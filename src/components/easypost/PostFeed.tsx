@@ -98,7 +98,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 };
 
 // 🟢 SINGLE POST CARD COMPONENT
-const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, isQueued, draggable, onDragStart }: any) => {
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, isQueued, draggable, onDragStart }: any) => {
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
 
@@ -215,6 +215,16 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
         
         <div className="flex gap-1">
+          {post.status === 'PUBLISHED' && (
+            <NeuButton
+              onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
+              title={t("Repost", "Republier")}
+              className="bg-white hover:bg-white border-black hover:border-black"
+            >
+              <RefreshCw size={14} className="text-black dark:text-white" />
+            </NeuButton>
+          )}
+
           {post.status === 'FAILED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
@@ -286,6 +296,18 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     }
   };
 
+  const repostPost = async (postId: string) => {
+    try {
+      toast.loading(t("Reposting...", "Republication en cours..."));
+      await api.post(`/posts/${postId}/repost?workspaceId=${workspaceId}`, {});
+      toast.dismiss();
+      toast.success(t("Reposted!", "Republié !"));
+    } catch (e) {
+      toast.dismiss();
+      toast.error(t("Repost failed", "Échec de la republication"));
+    }
+  };
+
   const publishPost = async (postId: string) => {
     try {
         toast.loading(t("Publishing...", "Publication en cours..."));
@@ -353,13 +375,14 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && drafts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
+              <PostCard
+                key={post.id}
+                post={post}
                 onDelete={() => deletePost(post.id)}
                 onEdit={() => onEdit?.(post)}
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
+                onRepost={() => repostPost(post.id)}
                 draggable={true}
                 onDragStart={(e: any) => handleDragStart(e, post.id)}
               />
@@ -383,14 +406,15 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && queued.map((post) => (
-              <PostCard 
-                key={post.id} 
+              <PostCard
+                key={post.id}
                 post={post}
                 onDelete={() => deletePost(post.id)}
                 onEdit={() => onEdit?.(post)}
                 onCancelSchedule={() => cancelSchedule(post.id)}
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
+                onRepost={() => repostPost(post.id)}
                 isQueued
               />
             ))}
