@@ -64,6 +64,53 @@ export default function TermsPage() {
           </section>
 
           <section>
+            <h2 className="text-xl font-semibold text-white mb-3">3b. Meta Platform Terms</h2>
+            <p>
+              When you connect your Facebook Page, Instagram Business account, or WhatsApp Business number and use EazyPost to publish content or send messages through those accounts, you additionally agree to comply with{' '}
+              <a
+                href="https://developers.facebook.com/terms/"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Meta&apos;s Platform Terms
+              </a>,{' '}
+              <a
+                href="https://www.facebook.com/policies"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Facebook&apos;s Terms of Service
+              </a>,{' '}
+              <a
+                href="https://help.instagram.com/581066165581870"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagram&apos;s Terms of Use
+              </a>, and{' '}
+              <a
+                href="https://www.whatsapp.com/legal/business-terms/"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp Business Terms of Service
+              </a>. By using Meta-connected features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the authorized administrator of any Facebook Page, Instagram Business account, or WhatsApp Business number you connect to EazyPost.</li>
+              <li>EazyPost accesses your Meta accounts using only the OAuth permissions you explicitly grant during the connection flow (Facebook Login and/or Instagram Business Login).</li>
+              <li>You are solely responsible for ensuring that content you publish through EazyPost complies with Meta&apos;s Community Standards, advertising policies, and applicable laws.</li>
+              <li>EazyPost uses Meta Webhooks to receive real-time updates about your connected accounts solely to power features you have enabled (e.g., comment notifications, message delivery receipts).</li>
+              <li>You may revoke EazyPost&apos;s access to your Meta accounts at any time through the EazyPost dashboard or directly in Facebook under <em>Settings &amp; Privacy → Settings → Apps and Websites</em>.</li>
+              <li>EazyPost is an independent service and is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc.</li>
+            </ul>
+          </section>
+
+          <section>
             <h2 className="text-xl font-semibold text-white mb-3">4. Account Termination</h2>
             <p>
               We may suspend or terminate your account immediately, without prior notice, if you breach these Terms. Upon termination, your right to use the Service will cease immediately.

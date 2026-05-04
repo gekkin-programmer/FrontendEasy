@@ -5,7 +5,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-[#000000] py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-[#000000] p-8 md:p-12 rounded-2xl border border-gray-700">
         <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-        <p className="text-sm text-gray-400 mb-8">Last Updated: April 25, 2026</p>
+        <p className="text-sm text-gray-400 mb-8">Last Updated: May 1, 2026</p>
 
         <div className="space-y-8 text-gray-300 leading-relaxed">
 
@@ -181,6 +181,178 @@ export default function PrivacyPage() {
                 <p>
                   You can disconnect your TikTok account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in TikTok under{' '}
                   <em>Settings &amp; Privacy → Security → Manage Account Access</em>. Upon disconnection, your stored TikTok access token is deleted from our database immediately.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
+          {/* ─── Snapchat Login Kit — required by Snap Kit developer review ─── */}
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              3c. Snapchat Login Kit &amp; User Data
+            </h2>
+            <p className="mb-4">
+              EazyPost integrates with Snapchat&apos;s Login Kit (OAuth 2.0) to allow you to connect your Snapchat account to your EazyPost workspace. Our use of Snapchat APIs complies with the{' '}
+              <a
+                href="https://snap.com/en-US/terms/snap-kit"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snap Kit Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.snap.com/en-US/privacy/privacy-policy"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snapchat&apos;s Privacy Policy
+              </a>.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
+                <p>When you connect your Snapchat account, we request the following Login Kit permissions:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">user.display_name</strong> — your Snapchat display name, used to label your connected account inside EazyPost.</li>
+                  <li><strong className="text-gray-100">user.bitmoji.avatar</strong> — your Bitmoji avatar image URL, used as a profile picture for your connected Snapchat account in the EazyPost dashboard.</li>
+                </ul>
+                <p className="mt-2">
+                  We do not request access to your Snaps, Stories, contacts, location, or any other Snapchat data beyond the identity information listed above.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>We retrieve your Snapchat <strong className="text-gray-100">display name</strong> and <strong className="text-gray-100">external ID</strong> to identify your connected account.</li>
+                  <li>Your Bitmoji avatar URL is stored to display a recognizable account icon in the EazyPost dashboard.</li>
+                  <li>We store your Snapchat <strong className="text-gray-100">OAuth access token</strong> (encrypted at rest) to maintain the connection on your behalf.</li>
+                  <li>Snapchat user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Sharing</h3>
+                <p>
+                  Snapchat user data (display name, external ID, Bitmoji avatar URL, and access token) is stored exclusively in our database (Neon PostgreSQL). It is not shared with any other third party, including our AI content-generation providers (OpenAI, DeepSeek, Groq).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Content &amp; Publishing</h3>
+                <p>
+                  EazyPost may use your connected Snapchat account to publish content (images, videos, captions) to Snapchat on your behalf, exclusively when you schedule or manually trigger a post. Content is transmitted directly to Snapchat&apos;s servers via their official APIs and is not permanently stored by EazyPost after publishing.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your Snapchat account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in Snapchat under{' '}
+                  <em>Settings → Privacy Controls → Connected Apps</em>. Upon disconnection, your stored Snapchat access token is deleted from our database immediately.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
+          {/* ─── Meta Platform APIs — required by Meta app review ─── */}
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              3d. Meta Platform APIs &amp; User Data
+            </h2>
+            <p className="mb-4">
+              EazyPost integrates with Meta&apos;s platform APIs — including Facebook Login, the Instagram Graph API, the WhatsApp Business API, and Meta Webhooks — to allow you to connect and publish content to your Facebook Pages, Instagram Business accounts, and WhatsApp Business number. Our use of Meta APIs complies with{' '}
+              <a
+                href="https://developers.facebook.com/terms/"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Meta&apos;s Platform Terms
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.facebook.com/privacy/policy/"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Meta&apos;s Privacy Policy
+              </a>.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Facebook Login — Scopes Requested</h3>
+                <p>When you connect your Facebook account, we request the following permissions:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">email</strong> — your Facebook email address, used to identify your account.</li>
+                  <li><strong className="text-gray-100">public_profile</strong> — your name and profile picture, used to label your connected account in EazyPost.</li>
+                  <li><strong className="text-gray-100">pages_show_list</strong> — the list of Facebook Pages you manage, so you can select which Page to connect.</li>
+                  <li><strong className="text-gray-100">pages_read_engagement</strong> — read-only access to Page engagement data (likes, comments, reach) for analytics.</li>
+                  <li><strong className="text-gray-100">pages_manage_posts</strong> — allows EazyPost to create and schedule posts to your Facebook Page on your behalf.</li>
+                  <li><strong className="text-gray-100">pages_read_user_content</strong> — read-only access to content on your Page (comments, posts by visitors) for moderation and analytics.</li>
+                  <li><strong className="text-gray-100">instagram_basic</strong> — basic access to your linked Instagram Business account.</li>
+                  <li><strong className="text-gray-100">instagram_content_publish</strong> — allows EazyPost to publish photos, videos, and Reels to your Instagram account on your behalf.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Instagram Business Login — Scopes Requested</h3>
+                <p>When you connect your Instagram Business account directly, we request:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">instagram_business_basic</strong> — your Instagram Business profile (ID, username, profile picture).</li>
+                  <li><strong className="text-gray-100">instagram_business_content_publish</strong> — allows EazyPost to publish posts, Reels, and Stories to your Instagram account on your behalf.</li>
+                  <li><strong className="text-gray-100">instagram_business_manage_comments</strong> — allows reading and responding to comments on your posts for moderation.</li>
+                  <li><strong className="text-gray-100">instagram_business_manage_insights</strong> — read-only access to account and post-level analytics (reach, impressions, engagement).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">WhatsApp Business API</h3>
+                <p>When you connect your WhatsApp Business number, we request:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">whatsapp_business_management</strong> — manage your WhatsApp Business account settings and phone number registration.</li>
+                  <li><strong className="text-gray-100">whatsapp_business_messaging</strong> — send and receive messages via your WhatsApp Business number on your behalf, exclusively when triggered by you through EazyPost.</li>
+                </ul>
+                <p className="mt-2">WhatsApp messages are transmitted directly to Meta&apos;s servers and are not stored by EazyPost beyond what is necessary to display sent/received status in the dashboard.</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Meta Webhooks</h3>
+                <p>
+                  EazyPost subscribes to Meta Webhooks to receive real-time notifications about activity on your connected Facebook Pages and Instagram accounts (e.g., new comments, message deliveries). Webhook payloads are verified using a cryptographic secret token to ensure they originate from Meta. We process only the events relevant to features you have enabled and do not store raw webhook payloads beyond 24 hours.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Usage</h3>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>Meta OAuth tokens (access tokens) are stored encrypted in our database solely to authenticate publishing and analytics requests on your behalf.</li>
+                  <li>Page IDs and Instagram Business account IDs are stored to identify which accounts are connected to your EazyPost workspace.</li>
+                  <li>Media files (images, videos) you schedule are transmitted to Meta&apos;s servers when your post is published and are not permanently stored by EazyPost after successful delivery.</li>
+                  <li>Meta user data is <strong className="text-gray-100">never</strong> used to train AI or machine-learning models, shared with advertisers, or sold to third parties.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Sharing</h3>
+                <p>
+                  Meta user data (tokens, Page IDs, profile information) is stored in our Neon PostgreSQL database. It is not shared with any third party outside of the Meta APIs themselves, including our AI content-generation providers (OpenAI, DeepSeek, Groq).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your Facebook, Instagram, or WhatsApp account at any time from the EazyPost dashboard (Connected Accounts page). You may also revoke access directly via Facebook under{' '}
+                  <em>Settings &amp; Privacy → Settings → Apps and Websites</em>. Upon disconnection, your stored Meta access tokens are deleted from our database immediately.
                 </p>
               </div>
             </div>
