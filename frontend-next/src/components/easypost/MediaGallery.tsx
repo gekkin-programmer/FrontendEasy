@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -142,10 +143,10 @@ export default function MediaGallery({
   };
 
   return (
-    <div className="space-y-6 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col gap-4 font-sans text-black dark:text-white transition-colors">
 
       {/* OS Toolbar */}
-      <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
+      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
@@ -240,14 +241,15 @@ export default function MediaGallery({
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,image/gif" multiple />
 
-      {/* Explorer Grid */}
+      {/* Explorer Grid — independently scrollable */}
+      <div className="overflow-y-auto scrollbar-hide min-h-[160px]">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                   <div className="w-full aspect-square bg-gray-200 dark:bg-zinc-700 animate-pulse" />
-                   <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                 <div key={i} className="flex flex-col items-center gap-2 p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                   <Skeleton className="w-full aspect-square" />
+                   <Skeleton className="h-2.5 w-3/4" />
                  </div>
                ))}
              </>
@@ -285,7 +287,16 @@ export default function MediaGallery({
                         key={asset.id}
                         className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
                     >
-                        <img src={asset.url} className="w-full h-full object-cover" />
+                        {asset.mimeType?.startsWith('video/') ? (
+                            <video src={asset.url} className="w-full h-full object-cover" muted playsInline />
+                        ) : (
+                            <img src={asset.url} className="w-full h-full object-cover" alt="" />
+                        )}
+                        {asset.mimeType?.startsWith('video/') && (
+                            <div className="absolute top-1 left-1 bg-black/80 text-white text-[8px] font-black px-1.5 py-0.5 pointer-events-none tracking-widest">
+                                VIDEO
+                            </div>
+                        )}
 
                         <div
                             className={cn(
@@ -298,7 +309,7 @@ export default function MediaGallery({
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-[#3C48F5] transition-colors"
+                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors rounded-sm"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
@@ -313,7 +324,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-yellow-300 transition-colors"
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-sm"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
@@ -337,6 +348,7 @@ export default function MediaGallery({
                  {t("Folder is empty", "Le dossier est vide")}
              </div>
          )}
+      </div>
       </div>
     </div>
   )

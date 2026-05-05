@@ -203,8 +203,8 @@ export default function Navbar() {
                         transition={{ duration: 0.15 }}
                         className="absolute top-12 left-1/2 -translate-x-1/2 pt-4 w-[600px] z-50"
                     >
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-white/10 p-6 grid grid-cols-2 gap-8 relative">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-zinc-900 border-t-2 border-l-2 border-black dark:border-white/10 rotate-45"></div>
+                        <div className="bg-white dark:bg-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-white/20 p-6 grid grid-cols-2 gap-8 relative">
+                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-black border-t-2 border-l-2 border-black dark:border-white/20 rotate-45"></div>
                             {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
                                 <div key={idx}>
                                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">{getTranslatedText(col.heading)}</h4>
@@ -256,7 +256,7 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isProfileOpen && (
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-full right-0 pt-2 w-56">
-                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl border-2 border-black dark:border-white/10 p-2 overflow-hidden">
+                                <div className="bg-white dark:bg-black rounded-lg shadow-xl border-2 border-black dark:border-white/20 p-2 overflow-hidden">
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Signed in as</p>
                                         <p className="text-xs font-bold text-black dark:text-white truncate">{user?.email}</p>

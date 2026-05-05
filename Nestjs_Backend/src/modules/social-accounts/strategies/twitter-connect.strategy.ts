@@ -27,7 +27,6 @@ export class TwitterConnectStrategy extends PassportStrategy(
       callbackURL:
         configService.get<string>('TWITTER_CALLBACK_URL') ||
         `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/twitter`,
-      // Minimal scopes — DM scopes trigger X's suspicious-login detector
       scope: ['tweet.read', 'tweet.write', 'users.read', 'offline.access'],
       scopeSeparator: ' ',
       pkce: true,
@@ -41,61 +40,54 @@ export class TwitterConnectStrategy extends PassportStrategy(
 
   /**
    * Appends extra query-params to the X authorization URL.
-   * force_login=false  → reuse existing X browser session instead of prompting
-   *                       for credentials again, which reduces the "suspicious
-   *                       login" block that X triggers on repeated OAuth flows.
+   * force_login=false → reuse existing X browser session to reduce
+   * the "suspicious login" block that X triggers on repeated OAuth flows.
    */
-  authorizationParams(options: Record<string, unknown>): Record<string, unknown> {
+  authorizationParams(
+    options: Record<string, unknown>,
+  ): Record<string, unknown> {
     return {
       ...options,
       force_login: 'false',
     };
   }
 
+  /**
+   * NestJS PassportStrategy wrapper calls this.validate(...params) and then
+   * calls done(null, returnValue) with whatever this method returns.
+   * Do NOT call done() directly — just return the payload or throw on error.
+   */
   async validate(
     req: any,
     accessToken: string,
     refreshToken: string,
-    results: any,
-    done: Function,
-  ) {
+    _results: any,
+  ): Promise<any> {
     try {
-      this.logger.log('🔹 Twitter OAuth 2.0 (Manual) Triggered');
+      this.logger.log('🔹 Twitter OAuth 2.0 Triggered');
 
-      // 1. Manually fetch user profile from X API v2
       const { data: profileData } = await axios.get(
         'https://api.twitter.com/2/users/me?user.fields=profile_image_url,verified',
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
       const profile = profileData.data;
-      this.logger.debug(`🔹 Twitter Profile Data: ${JSON.stringify(profile)}`);
+      this.logger.debug(`🔹 Twitter Profile: ${JSON.stringify(profile)}`);
 
-      // 2. Retrieve metadata from session (cookie-session)
       const meta = req.session?.oauthMetadata;
       if (!meta) {
-        this.logger.error('❌ Twitter Strategy: No metadata found in session');
-        return done(
-          new Error('Session lost: Missing workspace metadata'),
-          false,
-        );
+        throw new Error('Session lost: Missing workspace metadata');
       }
 
       const { workspaceId, token: jwtToken } = meta;
-
-      let userId;
-      if (jwtToken) {
-        const user = await this.authService.validateUserByToken(jwtToken);
-        userId = user?.id;
-      }
+      const user = await this.authService.validateUserByToken(jwtToken);
+      const userId = user?.id;
 
       if (!userId) {
-        return done(new Error('User session lost during Twitter OAuth'), false);
+        throw new Error('User session lost during Twitter OAuth');
       }
 
-      const payload = {
+      return {
         platform: 'TWITTER',
         platformUserId: profile.id,
         name: profile.username || profile.name || 'Twitter User',
@@ -105,14 +97,12 @@ export class TwitterConnectStrategy extends PassportStrategy(
         workspaceId,
         userId,
       };
-
-      done(null, payload);
     } catch (error) {
       const errorMsg = error.response?.data
         ? JSON.stringify(error.response.data)
         : error.message;
       this.logger.error(`Twitter OAuth Validation Failed: ${errorMsg}`);
-      done(error, false);
+      throw error;
     }
   }
 }

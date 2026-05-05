@@ -27,7 +27,7 @@ export class TikTokConnectStrategy extends PassportStrategy(
       callbackURL:
         configService.get<string>('TIKTOK_CALLBACK_URL') ||
         `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/tiktok`,
-      scope: ['user.info.basic', 'video.list'],
+      scope: ['user.info.basic', 'user.info.profile', 'user.info.stats', 'video.publish', 'video.upload'],
       scopeSeparator: ',',
       state: true,
       passReqToCallback: true,
@@ -41,9 +41,12 @@ export class TikTokConnectStrategy extends PassportStrategy(
   }
 
   // ➤ CRITICAL: TikTok V2 requires 'client_key' instead of 'client_id' in the URL
+  // force_auth=true ensures TikTok shows the consent screen even if the user
+  // previously authorized, so new scopes (e.g. video.publish) are always granted.
   authorizationParams(_options: any): any {
     return {
       client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY'),
+      force_auth: 'true',
     };
   }
 
@@ -59,56 +62,37 @@ export class TikTokConnectStrategy extends PassportStrategy(
     req: any,
     accessToken: string,
     refreshToken: string,
-    results: any,
-    done: Function,
-  ) {
+    _results: any,
+  ): Promise<any> {
     try {
       this.logger.log('🔹 TikTok OIDC Flow (Manual) Triggered');
 
-      // 1. Manually fetch profile using authorized fields ONLY
-      // In Sandbox mode, we request the bare minimum to ensure authorization passes
       const profileRes = await axios.get(
         'https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url',
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
       const profile = profileRes.data?.data?.user;
-
       if (!profile) {
-        this.logger.error(
-          '❌ TikTok Strategy: Failed to extract user profile from response',
-          profileRes.data,
-        );
-        return done(new Error('Could not retrieve TikTok profile'), false);
+        throw new Error('Could not retrieve TikTok profile');
       }
 
       this.logger.debug(`🔹 TikTok Profile Data: ${JSON.stringify(profile)}`);
 
-      // 2. Retrieve metadata from session
       const meta = req.session?.oauthMetadata;
       if (!meta) {
-        this.logger.error('❌ TikTok Strategy: No metadata found in session');
-        return done(
-          new Error('Session lost: Missing workspace metadata'),
-          false,
-        );
+        throw new Error('Session lost: Missing workspace metadata');
       }
 
       const { workspaceId, token: jwtToken } = meta;
-
-      let userId;
-      if (jwtToken) {
-        const user = await this.authService.validateUserByToken(jwtToken);
-        userId = user?.id;
-      }
+      const user = await this.authService.validateUserByToken(jwtToken);
+      const userId = user?.id;
 
       if (!userId) {
-        return done(new Error('User session lost during TikTok OAuth'), false);
+        throw new Error('User session lost during TikTok OAuth');
       }
 
-      const payload = {
+      return {
         platform: 'TIKTOK',
         platformUserId: profile.open_id,
         name: profile.display_name || 'TikTok User',
@@ -118,14 +102,12 @@ export class TikTokConnectStrategy extends PassportStrategy(
         accessToken,
         refreshToken,
       };
-
-      done(null, payload);
     } catch (error) {
       const errorMsg = error.response?.data
         ? JSON.stringify(error.response.data)
         : error.message;
       this.logger.error(`TikTok OIDC Validation Failed: ${errorMsg}`);
-      done(error, false);
+      throw error;
     }
   }
 }

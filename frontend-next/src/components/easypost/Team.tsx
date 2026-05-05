@@ -36,16 +36,18 @@ const NeuButton = ({ children, onClick, className = "", variant = "default", dis
   );
 };
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 const SkeletonMemberRow = () => (
-  <div className="p-4 border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-between bg-white animate-pulse">
+  <div className="p-4 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] flex items-center justify-between bg-white dark:bg-zinc-900">
     <div className="flex items-center gap-4">
-      <div className="w-10 h-10 bg-gray-200 border-2 border-black flex-shrink-0" />
+      <Skeleton className="w-10 h-10 border-2 border-black dark:border-white flex-shrink-0" />
       <div className="space-y-2">
-        <div className="h-3 w-36 bg-gray-200 rounded-sm" />
-        <div className="h-2 w-52 bg-gray-100 rounded-sm" />
+        <Skeleton className="h-3 w-36" />
+        <Skeleton className="h-2 w-52" />
       </div>
     </div>
-    <div className="h-6 w-16 bg-gray-200" />
+    <Skeleton className="h-6 w-16" />
   </div>
 );
 

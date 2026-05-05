@@ -27,6 +27,6 @@ pnpm build
 if ($LASTEXITCODE -ne 0) { throw "pnpm build failed" }
 
 git add -A
-git commit -m "fix(docker): inject dummy env vars for Prisma generate to fix Dokploy deployment"
+git commit -m "feat(auth): add threads connect auth strategy and posting capability"
 git push backend-easy dev
 if ($LASTEXITCODE -ne 0) { throw "git push failed" }

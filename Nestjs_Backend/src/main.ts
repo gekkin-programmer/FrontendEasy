@@ -11,30 +11,29 @@ import { json, urlencoded, type Express } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
-import helmet from 'helmet'; // Added for security headers
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  // Trust proxy for Render/Vercel (corrects req.protocol)
+  // Trust proxy for Render/Vercel
   (app.getHttpAdapter().getInstance() as Express).set('trust proxy', 1);
 
   // Use Pino Logger
   app.useLogger(app.get(Logger));
 
   // ── Security & parsing ────────────────────────────────────────────────
-  app.use(helmet()); // Security headers (XSS, clickjacking, etc.)
-
+  app.use(helmet()); // Security headers
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
 
-  // Cookie parser with secure secret from env (fallback only for local dev)
+  // Cookie parser with secure secret from env
   app.use(
     cookieParser(process.env.COOKIE_SECRET || 'dev-cookie-secret-CHANGE-ME'),
   );
 
-  // Stateless session support for OAuth 2.0 State/PKCE
+  // Stateless support for OAuth 2.0 State/PKCE
   app.use(
     cookieSession({
       name: 'session',
@@ -47,7 +46,7 @@ async function bootstrap() {
 
   // Global API prefix – all endpoints become /api/...
   app.setGlobalPrefix('api', {
-    // Optional: keep root health check if needed for Render monitoring
+    // keep root health check if needed for Render monitoring
     // exclude: ['/health'],
   });
 
@@ -78,16 +77,16 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposedHeaders: ['X-Total-Count'], // useful for pagination
-    maxAge: 86400, // 24 hours – reduces preflight requests
+    maxAge: 86400, // 24 hours
   });
 
   // ── Swagger / API Documentation ───────────────────────────────────────
   const config = new DocumentBuilder()
     .setTitle('EasyPost API')
     .setDescription(
-      'The Digital Marketing Engine for Africa – Social Content & Team Productivity',
+      'The Digital Marketing Engine for Africa  Social Content & Team Productivity',
     )
-    .setVersion('2.0') // bumped version to reflect v2 of the product
+    .setVersion('2.0')
     .addBearerAuth()
     .addServer(
       process.env.API_URL || 'https://easypostv2.onrender.com',
@@ -111,7 +110,7 @@ async function bootstrap() {
       tagsSorter: 'alpha',
       operationsSorter: 'alpha',
     },
-    customCss: '.swagger-ui .topbar { display: none }', // optional: hide topbar
+    customCss: '.swagger-ui .topbar { display: none }',
   });
 
   // ── Start server ──────────────────────────────────────────────────────
@@ -120,9 +119,9 @@ async function bootstrap() {
 
   await app.listen(port, host);
 
-  console.log(`🚀 EasyPost API running on http://${host}:${port}`);
-  console.log(`📚 Swagger UI:     http://${host}:${port}/api-docs`);
-  console.log(`🔥 Health check:   http://${host}:${port}/api/health`);
+  console.log(` EasyPost API running on http://${host}:${port}`);
+  console.log(` Swagger UI:     http://${host}:${port}/api-docs`);
+  console.log(` Health check:   http://${host}:${port}/api/health`);
   console.log(`Env: ${process.env.NODE_ENV || 'unknown'}`);
 }
 

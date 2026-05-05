@@ -11,6 +11,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
     return {
       session: false,
       scope: ['email', 'profile'],
+      prompt: 'select_account',
     };
   }
 }

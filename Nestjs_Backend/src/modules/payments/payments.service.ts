@@ -4,7 +4,9 @@ import {
   NotFoundException,
   UnauthorizedException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -14,10 +16,11 @@ const StripeLib: new (key: string) => any = require('stripe');
 
 @Injectable()
 export class PaymentsService {
+  private readonly logger = new Logger(PaymentsService.name);
   private readonly pawaPayBaseUrl: string;
   private readonly pawaPayToken: string;
   private readonly pawaPayWebhookSecret: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   private readonly stripe: any;
 
   constructor(
@@ -66,12 +69,14 @@ export class PaymentsService {
   ) {
     const provider = this.getCorrespondent(data.msisdn);
     const label =
-      data.label ||
-      (provider === 'MTN_MOMO_CMR' ? 'MTN MoMo' : 'Orange Money');
+      data.label || (provider === 'MTN_MOMO_CMR' ? 'MTN MoMo' : 'Orange Money');
 
     // Limit: 5 saved methods per user
-    const count = await this.prisma.savedPaymentMethod.count({ where: { userId } });
-    if (count >= 5) throw new BadRequestException('Maximum 5 saved payment methods allowed');
+    const count = await this.prisma.savedPaymentMethod.count({
+      where: { userId },
+    });
+    if (count >= 5)
+      throw new BadRequestException('Maximum 5 saved payment methods allowed');
 
     const isFirst = count === 0;
 
@@ -102,7 +107,7 @@ export class PaymentsService {
     }
 
     // Get or create Stripe customer
-    let user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, stripeCustomerId: true },
     });
@@ -138,11 +143,16 @@ export class PaymentsService {
     }
 
     // Retrieve PM from Stripe to get card details
-    const pm = await this.stripe.paymentMethods.retrieve(data.stripePaymentMethodId);
+    const pm = await this.stripe.paymentMethods.retrieve(
+      data.stripePaymentMethodId,
+    );
     if (!pm.card) throw new BadRequestException('Not a card payment method');
 
-    const count = await this.prisma.savedPaymentMethod.count({ where: { userId } });
-    if (count >= 5) throw new BadRequestException('Maximum 5 saved payment methods allowed');
+    const count = await this.prisma.savedPaymentMethod.count({
+      where: { userId },
+    });
+    if (count >= 5)
+      throw new BadRequestException('Maximum 5 saved payment methods allowed');
 
     const isFirst = count === 0;
 
@@ -150,7 +160,8 @@ export class PaymentsService {
       data: {
         userId,
         type: 'CARD',
-        label: data.label || `${pm.card.brand.toUpperCase()} ····${pm.card.last4}`,
+        label:
+          data.label || `${pm.card.brand.toUpperCase()} ····${pm.card.last4}`,
         stripePaymentMethodId: data.stripePaymentMethodId,
         last4: pm.card.last4,
         brand: pm.card.brand,
@@ -214,7 +225,9 @@ export class PaymentsService {
 
     // If card: detach from Stripe
     if (method.stripePaymentMethodId && this.stripe) {
-      await this.stripe.paymentMethods.detach(method.stripePaymentMethodId).catch(() => {});
+      await this.stripe.paymentMethods
+        .detach(method.stripePaymentMethodId)
+        .catch(() => {});
     }
 
     await this.prisma.savedPaymentMethod.delete({ where: { id: methodId } });
@@ -242,7 +255,10 @@ export class PaymentsService {
       const saved = await this.prisma.savedPaymentMethod.findFirst({
         where: { id: data.savedMethodId, userId, type: 'MOBILE_MONEY' },
       });
-      if (!saved?.msisdn) throw new BadRequestException('Saved method not found or has no MSISDN');
+      if (!saved?.msisdn)
+        throw new BadRequestException(
+          'Saved method not found or has no MSISDN',
+        );
       phone = saved.msisdn;
     }
 
@@ -290,18 +306,23 @@ export class PaymentsService {
           where: { id: depositId },
           data: { status: 'FAILED' },
         });
-        const reason = response.data.rejectionReason?.rejectionCode || 'REJECTED';
+        const reason =
+          response.data.rejectionReason?.rejectionCode || 'REJECTED';
         throw new InternalServerErrorException(`PawaPay rejected: ${reason}`);
       }
 
       return {
         transactionId: transaction.id,
         pawaPayStatus: response.data.status,
-        message: 'Payment initiated. Please check your phone for the PIN prompt.',
+        message:
+          'Payment initiated. Please check your phone for the PIN prompt.',
       };
     } catch (error) {
       const pawaPayError = error.response?.data;
-      console.error('PawaPay Error:', JSON.stringify(pawaPayError || error.message));
+      console.error(
+        'PawaPay Error:',
+        JSON.stringify(pawaPayError || error.message),
+      );
       await this.prisma.transaction.update({
         where: { id: depositId },
         data: { status: 'FAILED' },
@@ -314,7 +335,9 @@ export class PaymentsService {
     }
   }
 
-  async getStatus(transactionId: string): Promise<{ status: string; failureCode?: string }> {
+  async getStatus(
+    transactionId: string,
+  ): Promise<{ status: string; failureCode?: string }> {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id: transactionId },
       select: { status: true, metadata: true },
@@ -336,9 +359,57 @@ export class PaymentsService {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PAWAPAY POLLING FALLBACK
+  // Runs every minute to catch transactions where the webhook never arrived.
+  // Only checks transactions older than 2 minutes so we don't race the webhook.
+  // ─────────────────────────────────────────────────────────────────────────────
+  @Cron(CronExpression.EVERY_MINUTE)
+  async pollPendingTransactions() {
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+    const pending = await this.prisma.transaction.findMany({
+      where: {
+        status: 'PENDING',
+        provider: 'PAWAPAY',
+        createdAt: { lte: twoMinutesAgo },
+      },
+      take: 20,
+    });
+
+    if (pending.length === 0) return;
+    this.logger.log(`Polling PawaPay for ${pending.length} pending transaction(s)`);
+
+    for (const tx of pending) {
+      try {
+        const res = await axios.get(
+          `${this.pawaPayBaseUrl}/deposits/${tx.id}`,
+          {
+            headers: { Authorization: `Bearer ${this.pawaPayToken}` },
+            timeout: 10_000,
+          },
+        );
+        const deposit = Array.isArray(res.data) ? res.data[0] : res.data;
+        const status: string = deposit?.status;
+
+        if (status === 'COMPLETED' || status === 'FAILED' || status === 'REJECTED') {
+          this.logger.log(`PawaPay poll: transaction ${tx.id} → ${status}`);
+          await this.handleWebhook({
+            depositId: tx.id,
+            status,
+            failureReason: deposit?.failureReason,
+          });
+        }
+      } catch (err) {
+        this.logger.error(`PawaPay poll error for ${tx.id}: ${err.message}`);
+      }
+    }
+  }
+
   async handleWebhook(payload: any) {
     const { depositId, status } = payload;
-    const transaction = await this.prisma.transaction.findUnique({ where: { id: depositId } });
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: depositId },
+    });
     if (!transaction) return;
 
     if (status === 'COMPLETED') {
@@ -361,7 +432,11 @@ export class PaymentsService {
         where: { id: depositId },
         data: {
           status: 'FAILED',
-          metadata: { ...(transaction.metadata as object), failureCode, failureMessage },
+          metadata: {
+            ...(transaction.metadata as object),
+            failureCode,
+            failureMessage,
+          },
         },
       });
     }

@@ -2,12 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PostsService } from './posts.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AppEventsGateway } from '../app-events/app-events.gateway';
+import { PublisherService } from './publishing/publisher.service';
 import { PostStatus } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
 
 const mockAppEventsGateway = {
   sendToWorkspace: jest.fn(),
   sendToUser: jest.fn(),
+};
+
+const mockPublisherService = {
+  publishPost: jest.fn(),
+  deleteFromPlatform: jest.fn(),
 };
 
 const mockPrismaService = {
@@ -18,6 +24,9 @@ const mockPrismaService = {
     findFirst: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+  },
+  socialAccount: {
+    findMany: jest.fn().mockResolvedValue([{ id: 'acc-1' }]),
   },
   workspace: {
     update: jest.fn(),
@@ -36,6 +45,7 @@ describe('PostsService - MVP Tests', () => {
         PostsService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: AppEventsGateway, useValue: mockAppEventsGateway },
+        { provide: PublisherService, useValue: mockPublisherService },
       ],
     }).compile();
 
@@ -166,6 +176,7 @@ describe('PostsService - MVP Tests', () => {
       mockPrismaService.post.findFirst.mockResolvedValue({
         id: 'p1',
         status: PostStatus.DRAFT,
+        socialAccounts: [],
       });
       await service.remove('p1', 'ws-1');
       expect(prisma.post.delete).toHaveBeenCalledWith({ where: { id: 'p1' } });
@@ -175,6 +186,7 @@ describe('PostsService - MVP Tests', () => {
       mockPrismaService.post.findFirst.mockResolvedValue({
         id: 'p1',
         status: PostStatus.PUBLISHED,
+        socialAccounts: [],
       });
       mockPrismaService.post.delete.mockResolvedValue({ id: 'p1' });
       await service.remove('p1', 'ws-1');

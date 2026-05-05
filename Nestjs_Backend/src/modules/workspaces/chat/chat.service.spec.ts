@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { AppEventsGateway } from '../../app-events/app-events.gateway';
 
 describe('ChatService', () => {
   let service: ChatService;
@@ -10,6 +11,10 @@ describe('ChatService', () => {
     module = await Test.createTestingModule({
       providers: [
         ChatService,
+        {
+          provide: AppEventsGateway,
+          useValue: { server: { to: jest.fn().mockReturnThis(), emit: jest.fn() } },
+        },
         {
           provide: PrismaService,
           useValue: {
@@ -21,6 +26,9 @@ describe('ChatService', () => {
             chatMessage: {
               create: jest.fn(),
               findMany: jest.fn(),
+            },
+            workspace: {
+              findFirst: jest.fn(),
             },
             workspaceMember: {
               findUnique: jest.fn(),
@@ -43,9 +51,9 @@ describe('ChatService', () => {
     const dto = { name: 'General', description: 'General channel' };
 
     const prisma = module.get<PrismaService>(PrismaService);
-    (prisma.workspaceMember.findUnique as jest.Mock).mockResolvedValue({
-      workspaceId,
-      userId,
+    (prisma.workspace.findFirst as jest.Mock).mockResolvedValue({
+      id: workspaceId,
+      ownerId: userId,
     });
     (prisma.chatChannel.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.chatChannel.create as jest.Mock).mockResolvedValue({

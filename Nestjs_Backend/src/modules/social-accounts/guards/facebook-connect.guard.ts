@@ -23,7 +23,8 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
     return (await super.canActivate(context)) as boolean;
   }
 
-  getAuthenticateOptions(_context: ExecutionContext) {
+  getAuthenticateOptions(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
     return {
       scope: [
         'email',
@@ -34,6 +35,8 @@ export class FacebookConnectGuard extends AuthGuard('facebook') {
         'instagram_basic',
         'instagram_content_publish',
       ],
+      // reauth=true skips auth_type:rerequest so Facebook shows full fresh consent
+      reauth: req.query.reauth === 'true',
     };
   }
 }

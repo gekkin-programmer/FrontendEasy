@@ -8,11 +8,11 @@ const logos = [
   "/logos/newDelices.png",
   "/logos/dibato.PNG",
   "/logos/MaxBurger.jpeg",
+  "/logos/BestCorp.png",
   "/logos/SN_SHOES.jpeg",
   "/logos/LaGeneraleDuBatiment.png",
   "/logos/Denilimport.jpeg",
   "/logos/BookHub.jpeg",
-  "/logos/dibato.PNG",
   "/logos/YXNGERAKODE.jpeg",
   "/logos/PBD.jpg",
   "/logos/lemessager.PNG",
@@ -21,7 +21,7 @@ const logos = [
 const LogoGroup = () => (
   <div className="flex items-center justify-around min-w-full shrink-0 animate-marquee gap-16 px-8">
     {logos.map((src, i) => (
-      <div key={i} className="group relative flex items-center justify-center">
+      <div key={i} className="group relative flex items-center justify-center rounded-2xl overflow-hidden bg-white/5 p-2 px-4 shadow-sm border border-transparent dark:border-white/5 transition-colors">
         <img
           src={src}
           alt={`Partner brand ${i}`}
@@ -40,12 +40,12 @@ const SocialProof = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative py-16 bg-white dark:bg-[#0a0a0a] border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
+    <section className="relative py-16 bg-white dark:bg-black border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
         <SectionBackground />
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
             <h1 className="text-[20vw] font-black uppercase text-black dark:text-white whitespace-nowrap leading-none">
-                EASY POST
+                EAZYPOST
             </h1>
         </div>
 
@@ -62,7 +62,7 @@ const SocialProof = () => {
                 </div>
 
                 {/* Marquee Section */}
-                <div className="md:w-3/4 w-full overflow-hidden relative mask-linear">
+                <div className="md:w-3/4 w-full overflow-hidden relative mask-linear rounded-xl">
                     {/* The Wrapper holding TWO tracks */}
                     <div className="flex w-full">
                         <LogoGroup />

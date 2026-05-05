@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MediaService } from './media.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CloudinaryService } from '../../modules/providers/cloudinary.service';
+import { GcsService } from '../../modules/providers/gcs.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PlanType } from '@prisma/client';
 
 describe('MediaService - MVP Tests', () => {
   let service: MediaService;
   let prisma: PrismaService;
-  let cloudinary: CloudinaryService;
+  let gcs: GcsService;
 
   const mockPrismaService = {
     workspace: {
@@ -33,7 +33,7 @@ describe('MediaService - MVP Tests', () => {
     },
   };
 
-  const mockCloudinaryService = {
+  const mockGcsService = {
     uploadFile: jest.fn(),
   };
 
@@ -43,13 +43,13 @@ describe('MediaService - MVP Tests', () => {
       providers: [
         MediaService,
         { provide: PrismaService, useValue: mockPrismaService },
-        { provide: CloudinaryService, useValue: mockCloudinaryService },
+        { provide: GcsService, useValue: mockGcsService },
       ],
     }).compile();
 
     service = module.get<MediaService>(MediaService);
     prisma = module.get<PrismaService>(PrismaService);
-    cloudinary = module.get<CloudinaryService>(CloudinaryService);
+    gcs = module.get<GcsService>(GcsService);
   });
 
   it('should be defined', () => {
@@ -73,7 +73,7 @@ describe('MediaService - MVP Tests', () => {
       mockPrismaService.mediaLibrary.aggregate.mockResolvedValue({
         _sum: { size: 0 },
       });
-      mockCloudinaryService.uploadFile.mockResolvedValue({
+      mockGcsService.uploadFile.mockResolvedValue({
         secure_url: 'http://cloud.url',
       });
       mockPrismaService.mediaLibrary.create.mockResolvedValue({
@@ -83,7 +83,7 @@ describe('MediaService - MVP Tests', () => {
 
       const result = await service.processUpload(mockFile, userId);
 
-      expect(cloudinary.uploadFile).toHaveBeenCalledWith(mockFile);
+      expect(gcs.uploadFile).toHaveBeenCalledWith(mockFile);
       expect(prisma.mediaLibrary.create).toHaveBeenCalled();
       expect(result.media.url).toBe('http://cloud.url');
     });

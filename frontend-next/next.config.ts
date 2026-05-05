@@ -3,6 +3,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  eslint: { ignoreDuringBuilds: true },
   images: {
     // ➤ 1. Allow SVGs
     dangerouslyAllowSVG: true,

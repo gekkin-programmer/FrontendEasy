@@ -122,21 +122,29 @@ export class SocialAccountsController {
   @Get('callback/facebook')
   @UseGuards(FacebookConnectGuard)
   async facebookCallback(@Req() req, @Res() res: Response) {
-    if (req.user.platform === 'WHATSAPP') {
-      await this.socialAccountsService.handleWhatsappCallback(req.user);
-    } else if (req.user.platform === 'INSTAGRAM') {
-      await this.socialAccountsService.handleInstagramCallback(req.user);
-    } else {
-      await this.socialAccountsService.handleFacebookCallback(req.user);
+    try {
+      if (req.user.platform === 'WHATSAPP') {
+        await this.socialAccountsService.handleWhatsappCallback(req.user);
+      } else if (req.user.platform === 'INSTAGRAM') {
+        await this.socialAccountsService.handleInstagramCallback(req.user);
+      } else {
+        await this.socialAccountsService.handleFacebookCallback(req.user);
+      }
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
     }
-    this.redirectHome(res, req.user.workspaceId);
   }
 
   @Get('callback/instagram-business')
   @UseGuards(InstagramBusinessConnectGuard)
   async instagramBusinessCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleInstagramBusinessCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleInstagramBusinessCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -155,8 +163,12 @@ export class SocialAccountsController {
   @Get('callback/linkedin')
   @UseGuards(LinkedInConnectGuard)
   async linkedinCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleLinkedinCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleLinkedinCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -175,8 +187,12 @@ export class SocialAccountsController {
   @Get('callback/twitter')
   @UseGuards(TwitterConnectGuard)
   async twitterCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleTwitterCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleTwitterCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -195,8 +211,12 @@ export class SocialAccountsController {
   @Get('callback/youtube')
   @UseGuards(YoutubeConnectGuard)
   async youtubeCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleYoutubeCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleYoutubeCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -215,8 +235,12 @@ export class SocialAccountsController {
   @Get('callback/whatsapp')
   @UseGuards(WhatsappConnectGuard)
   async whatsappCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleWhatsappCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleWhatsappCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -235,8 +259,12 @@ export class SocialAccountsController {
   @Get('callback/tiktok')
   @UseGuards(TikTokConnectGuard)
   async tiktokCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleTikTokCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleTikTokCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -259,8 +287,12 @@ export class SocialAccountsController {
   @Get('callback/snapchat')
   @UseGuards(SnapchatConnectGuard)
   async snapchatCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleSnapchatCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleSnapchatCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -279,8 +311,12 @@ export class SocialAccountsController {
   @Get('callback/pinterest')
   @UseGuards(PinterestConnectGuard)
   async pinterestCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handlePinterestCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handlePinterestCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -299,8 +335,12 @@ export class SocialAccountsController {
   @Get('callback/discord')
   @UseGuards(DiscordConnectGuard)
   async discordCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleDiscordCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleDiscordCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -319,8 +359,12 @@ export class SocialAccountsController {
   @Get('callback/threads')
   @UseGuards(ThreadsConnectGuard)
   async threadsCallback(@Req() req, @Res() res: Response) {
-    await this.socialAccountsService.handleThreadsCallback(req.user);
-    this.redirectHome(res, req.user.workspaceId);
+    try {
+      await this.socialAccountsService.handleThreadsCallback(req.user);
+      this.redirectHome(res, req.user.workspaceId);
+    } catch (e) {
+      this.redirectError(res, req.user.workspaceId, e.message);
+    }
   }
 
   // =================================================================
@@ -335,6 +379,24 @@ export class SocialAccountsController {
   // =================================================================
   // 12. WEBHOOKS
   // =================================================================
+
+  @Get('webhook/tiktok')
+  @Public()
+  @ApiOperation({ summary: 'TikTok webhook verification (GET challenge)' })
+  verifyTikTokWebhook(@Query('challenge') challenge: string, @Res() res: Response) {
+    if (challenge) {
+      return res.status(200).send(challenge);
+    }
+    return res.status(200).send('OK');
+  }
+
+  @Post('webhook/tiktok')
+  @Public()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'TikTok webhook event handler' })
+  handleTikTokWebhook(@Body() body: any) {
+    return this.socialAccountsService.handleTikTokWebhook(body);
+  }
 
   @Get('webhook/instagram')
   @Public()
@@ -365,8 +427,16 @@ export class SocialAccountsController {
 
   private redirectHome(res: Response, workspaceId: string) {
     const frontend = process.env.FRONTEND_URL || 'http://localhost:3001';
-    // Redirect to the specific workspace dashboard to refresh data
     res.redirect(`${frontend}/dashboard/${workspaceId}?success=true`);
+  }
+
+  private redirectError(res: Response, workspaceId: string, message: string) {
+    const frontend = process.env.FRONTEND_URL || 'http://localhost:3001';
+    // Extract clean error code (messages are formatted as "CODE: description")
+    const errorCode = message.split(':')[0].trim();
+    res.redirect(
+      `${frontend}/dashboard/${workspaceId}?error=${encodeURIComponent(errorCode)}`,
+    );
   }
 
   private comingSoon(res: Response, platform: string) {

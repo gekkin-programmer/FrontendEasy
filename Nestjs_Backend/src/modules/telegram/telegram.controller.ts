@@ -36,10 +36,18 @@ export class TelegramController {
   @Post('link-token')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Generate a Telegram link token for the current user' })
-  async generateLinkToken(@Req() req: any, @Body() body: { workspaceId?: string }) {
+  @ApiOperation({
+    summary: 'Generate a Telegram link token for the current user',
+  })
+  async generateLinkToken(
+    @Req() req: any,
+    @Body() body: { workspaceId?: string },
+  ) {
     const userId = req.user.sub || req.user.id;
-    const token = await this.telegramService.generateLinkToken(userId, body.workspaceId);
+    const token = await this.telegramService.generateLinkToken(
+      userId,
+      body.workspaceId,
+    );
     return { token, expiresInMinutes: 15 };
   }
 
@@ -50,9 +58,13 @@ export class TelegramController {
   @Get('setup-webhook')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Register webhook URL with Telegram (admin action)' })
+  @ApiOperation({
+    summary: 'Register webhook URL with Telegram (admin action)',
+  })
   async setupWebhook(@Req() _req: any) {
-    const backendUrl = (process.env.BACKEND_URL || 'https://backend-eazypost.mbokofit.com').replace(/\/$/, '');
+    const backendUrl = (
+      process.env.BACKEND_URL || 'https://backend-eazypost.mbokofit.com'
+    ).replace(/\/$/, '');
     const webhookUrl = `${backendUrl}/api/telegram/webhook`;
     await this.telegramService.setWebhook(webhookUrl);
     return { webhookUrl, status: 'registered' };

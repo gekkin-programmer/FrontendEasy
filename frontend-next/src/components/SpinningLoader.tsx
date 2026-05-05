@@ -10,7 +10,7 @@ interface LoaderProps {
 
 export default function SpinningLoader({ fullScreen = true, size = 50 }: LoaderProps) {
   const content = (
-    <div className="flex flex-col items-center gap-4" role="status" aria-label="Loading">
+    <div className="flex items-center justify-center" role="status" aria-label="Loading">
       <div className="relative" style={{ width: size, height: size }}>
         <Image
           src="/assets/WiggleLogo.png"
@@ -21,9 +21,6 @@ export default function SpinningLoader({ fullScreen = true, size = 50 }: LoaderP
           sizes={`${size}px`}
         />
       </div>
-      <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
-        By Best-Corp
-      </p>
     </div>
   );
 

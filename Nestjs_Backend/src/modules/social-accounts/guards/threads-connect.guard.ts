@@ -14,10 +14,7 @@ export class ThreadsConnectGuard extends AuthGuard('threads') {
 
     if (!isCallback && workspaceId && token) {
       req.session.oauthMetadata = { workspaceId, token };
-      await new Promise<void>((resolve, reject) =>
-        req.session.save((err: any) => (err ? reject(err) : resolve()))
-      );
-      this.logger.log(`[Threads] session saved — workspaceId=${workspaceId as string} sessionId=${req.sessionID}`);
+      this.logger.log(`[Threads] session set — workspaceId=${workspaceId as string}`);
     }
 
     if (isCallback) {

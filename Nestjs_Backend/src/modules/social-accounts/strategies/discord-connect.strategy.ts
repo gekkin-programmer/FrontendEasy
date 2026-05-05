@@ -19,8 +19,7 @@ export class DiscordConnectStrategy extends PassportStrategy(
     super({
       authorizationURL: 'https://discord.com/oauth2/authorize',
       tokenURL: 'https://discord.com/api/oauth2/token',
-      clientID:
-        configService.get<string>('DISCORD_CLIENT_ID') || 'placeholder',
+      clientID: configService.get<string>('DISCORD_CLIENT_ID') || 'placeholder',
       clientSecret:
         configService.get<string>('DISCORD_CLIENT_SECRET') || 'placeholder',
       callbackURL:
@@ -53,7 +52,10 @@ export class DiscordConnectStrategy extends PassportStrategy(
       const meta = req.session?.oauthMetadata;
       if (!meta) {
         this.logger.error('❌ Discord Strategy: No metadata in session');
-        return done(new Error('Session lost: Missing workspace metadata'), false);
+        return done(
+          new Error('Session lost: Missing workspace metadata'),
+          false,
+        );
       }
 
       const { workspaceId, token: jwtToken } = meta;

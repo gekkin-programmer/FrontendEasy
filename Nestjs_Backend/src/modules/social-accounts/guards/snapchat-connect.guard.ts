@@ -14,10 +14,8 @@ export class SnapchatConnectGuard extends AuthGuard('snapchat') {
     return (await super.canActivate(context)) as boolean;
   }
 
-  handleRequest(err, user, info) {
+  handleRequest(err: any, user: any, _info: any) {
     if (err || !user) {
-      console.error('❌ Snapchat Auth Failed:', err);
-      console.error('❌ Passport Info:', info);
       throw err || new Error('Snapchat Authentication failed');
     }
     return user;

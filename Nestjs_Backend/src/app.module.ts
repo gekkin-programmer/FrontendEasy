@@ -10,7 +10,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { MediaModule } from './modules/media/media.module';
 import { AssistantModule } from './modules/assisstant/assistant.module';
 import { PaymentsModule } from './modules/payments/payments.module';
-import { CloudinaryModule } from './modules/providers/cloudinary.module';
+import { GcsModule } from './modules/providers/gcs.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { MembersModule } from './modules/workspaces/members/members.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
@@ -56,7 +56,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
     AssistantModule,
     MediaModule,
     PaymentsModule,
-    CloudinaryModule,
+    GcsModule,
     WorkspacesModule,
     MembersModule,
     SocialAccountsModule,

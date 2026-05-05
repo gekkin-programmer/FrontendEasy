@@ -129,8 +129,13 @@ export class PostsController {
 
   @Post(':id/approve')
   @ApiOperation({ summary: 'Manager Approval' })
-  approve(@Param('id') id: string, @Req() req) {
-    return this.postsService.approve(id, req.user.sub);
+  async approve(@Param('id') id: string, @Req() req) {
+    const result = await this.postsService.approve(id, req.user.sub);
+    // No scheduled date → publish immediately instead of waiting for cron
+    if (!result.scheduledFor) {
+      await this.publisherService.publishPost(id);
+    }
+    return result;
   }
 
   @Post(':id/cancel-schedule')
@@ -145,6 +150,18 @@ export class PostsController {
     // Ensure post belongs to workspace
     await this.postsService.findOne(id, targetWorkspaceId);
     return this.postsService.cancelSchedule(id);
+  }
+
+  @Post(':id/repost')
+  @ApiOperation({ summary: 'Clone a published post and publish immediately' })
+  async repost(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId: string,
+    @Req() req: any,
+  ) {
+    const targetWorkspaceId =
+      workspaceId || (await this.getWorkspaceId(req.user.sub));
+    return this.postsService.repost(id, req.user.sub, targetWorkspaceId);
   }
 
   @Post(':id/publish')

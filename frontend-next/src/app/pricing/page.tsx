@@ -18,8 +18,7 @@ export default function PricingPage() {
       return;
     }
     if (plan.name === 'Enterprise') {
-      // eslint-disable-next-line react-hooks/immutability
-      window.location.href = 'mailto:sales@easypost.io';
+      router.push('/about#contact');
       return;
     }
     const params = new URLSearchParams({
@@ -142,11 +141,11 @@ export default function PricingPage() {
           </motion.div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
             {t('Dominate the', 'Dominez le')}<br />
-            <span className="text-black dark:text-transparent dark:text-stroke-white italic">
+            <span className="text-black dark:text-[#3C48F6] italic">
               {t('Market.', 'Marché.')}
             </span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-bold mb-12">
+          <p className="text-xl text-gray-600 dark:text-white max-w-2xl mx-auto font-bold mb-12">
             {t(
               'Plans adapted to every stage of your growth. Pay in FCFA via Mobile Money or Credit Card.',
               'Des plans adaptés à chaque étape de votre croissance. Payez en FCFA via Mobile Money ou Carte Bancaire.'
@@ -195,10 +194,10 @@ function PricingCard({ plan, onSelect }: any) {
           ? 'shadow-[12px_12px_0px_0px_#3C48F5]'
           : 'shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff]'
       } ${
-        plan.name === 'Free'    ? 'bg-zinc-50 dark:bg-zinc-800' :
+        plan.name === 'Free'    ? 'bg-zinc-50 dark:bg-black' :
         plan.name === 'Starter' ? 'bg-[#3C48F5]' :
-        plan.name === 'PRO'     ? 'bg-white dark:bg-zinc-800' :
-                                  'bg-white dark:bg-zinc-800'
+        plan.name === 'PRO'     ? 'bg-white dark:bg-black' :
+                                  'bg-white dark:bg-black'
       }`}
     >
       {plan.popular && (
@@ -248,8 +247,8 @@ function PricingCard({ plan, onSelect }: any) {
           plan.name === 'Starter'
             ? 'bg-white text-black border-black shadow-[4px_4px_0px_0px_#000]'
             : plan.name === 'PRO'
-            ? 'bg-white dark:bg-[#3C48F5] text-black dark:text-white border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]'
-            : 'bg-transparent text-black dark:text-white border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#3C48F5]'
+            ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]'
+            : 'bg-transparent dark:bg-black text-black dark:text-white border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#3C48F5]'
         }`}
       >
         {plan.cta}

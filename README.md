@@ -60,14 +60,14 @@ graph TD
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-- **✅ Multi-Platform Scheduling**: Post to Facebook, Instagram, LinkedIn, X, and TikTok.
-- **✅ Kanban Workspace**: Visualize your content pipeline from idea to published.
-- **✅ AI Smart Scheduling**: ML-powered suggestions for the best time to publish.
-- **✅ Content Preview**: Live preview of how your posts will look on every platform.
-- **✅ Media Library**: Centralized asset management with folder support.
-- **✅ Convert to Post**: One-click sync from Kanban cards to social media drafts.
+- ** Multi-Platform Scheduling**: Post to Facebook, Instagram, LinkedIn, X, and TikTok.
+- ** Kanban Workspace**: Visualize your content pipeline from idea to published.
+- ** AI Smart Scheduling**: ML-powered suggestions for the best time to publish.
+- ** Content Preview**: Live preview of how your posts will look on every platform.
+- ** Media Library**: Centralized asset management with folder support.
+- ** Convert to Post**: One-click sync from Kanban cards to social media drafts.
 
 ---
 
@@ -127,4 +127,4 @@ The application will be running at `http://localhost:3001`.
 
 ##  License
 
-© 2026 EasyPost. All rights reserved.
+© 2026 EazyPost. All rights reserved.

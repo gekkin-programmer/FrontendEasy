@@ -170,19 +170,31 @@ export class TelegramService implements OnModuleInit {
       });
 
       if (!pending) {
-        await this.sendMessage(chatId, '❌ Invalid or expired token. Please generate a new one from your EazyPost dashboard.');
+        await this.sendMessage(
+          chatId,
+          '❌ Invalid or expired token. Please generate a new one from your EazyPost dashboard.',
+        );
         return;
       }
 
       if (new Date() > pending.expiresAt) {
-        await this.prisma.telegramLinkToken.delete({ where: { token: linkToken } });
-        await this.sendMessage(chatId, '❌ This token has expired. Please generate a new one.');
+        await this.prisma.telegramLinkToken.delete({
+          where: { token: linkToken },
+        });
+        await this.sendMessage(
+          chatId,
+          '❌ This token has expired. Please generate a new one.',
+        );
         return;
       }
 
-      const workspaceId = pending.workspaceId || pending.user.ownedWorkspaces[0]?.id;
+      const workspaceId =
+        pending.workspaceId || pending.user.ownedWorkspaces[0]?.id;
       if (!workspaceId) {
-        await this.sendMessage(chatId, '❌ No workspace found for your account.');
+        await this.sendMessage(
+          chatId,
+          '❌ No workspace found for your account.',
+        );
         return;
       }
 
@@ -233,7 +245,9 @@ export class TelegramService implements OnModuleInit {
       }
 
       // Clean up the used token
-      await this.prisma.telegramLinkToken.delete({ where: { token: linkToken } });
+      await this.prisma.telegramLinkToken.delete({
+        where: { token: linkToken },
+      });
 
       await this.sendMessage(
         chatId,
@@ -243,7 +257,10 @@ export class TelegramService implements OnModuleInit {
       );
     } catch (e) {
       this.logger.error('linkAccount error', e.message);
-      await this.sendMessage(chatId, '❌ Something went wrong. Please try again.');
+      await this.sendMessage(
+        chatId,
+        '❌ Something went wrong. Please try again.',
+      );
     }
   }
 
@@ -254,7 +271,10 @@ export class TelegramService implements OnModuleInit {
     });
 
     if (!account) {
-      await this.sendMessage(chatId, '❌ This Telegram is not linked to any EazyPost account.\n\nSend /link <token> to connect.');
+      await this.sendMessage(
+        chatId,
+        '❌ This Telegram is not linked to any EazyPost account.\n\nSend /link <token> to connect.',
+      );
       return;
     }
 
@@ -276,14 +296,20 @@ export class TelegramService implements OnModuleInit {
     }
 
     await this.prisma.socialAccount.delete({ where: { id: deleted.id } });
-    await this.sendMessage(chatId, '✅ Your Telegram has been disconnected from EazyPost.');
+    await this.sendMessage(
+      chatId,
+      '✅ Your Telegram has been disconnected from EazyPost.',
+    );
   }
 
   // =================================================================
   // LINK TOKEN GENERATION (called from API)
   // =================================================================
 
-  async generateLinkToken(userId: string, workspaceId?: string): Promise<string> {
+  async generateLinkToken(
+    userId: string,
+    workspaceId?: string,
+  ): Promise<string> {
     const token = Math.random().toString(36).slice(2, 10).toUpperCase();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 
@@ -291,7 +317,12 @@ export class TelegramService implements OnModuleInit {
     await this.prisma.telegramLinkToken.deleteMany({ where: { userId } });
 
     await this.prisma.telegramLinkToken.create({
-      data: { token, userId, expiresAt, ...(workspaceId ? { workspaceId } : {}) },
+      data: {
+        token,
+        userId,
+        expiresAt,
+        ...(workspaceId ? { workspaceId } : {}),
+      },
     });
 
     return token;

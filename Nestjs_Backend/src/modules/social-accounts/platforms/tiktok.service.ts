@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { PrismaService } from '../../../prisma/prisma.service';
 import {
   ISocialPlatform,
   NormalizedSocialPost,
@@ -11,61 +13,75 @@ export class TiktokService implements ISocialPlatform {
   private readonly logger = new Logger(TiktokService.name);
   private readonly BASE_URL = 'https://open.tiktokapis.com/v2';
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
 
+  // video.list scope is not in the approved TikTok app scopes.
+  // We fall back to EazyPost-published videos tracked in our own DB.
   async getHistory(
-    accessToken: string,
-    _openId: string,
-    _since?: Date,
+    _accessToken: string,
+    openId: string,
+    since?: Date,
   ): Promise<NormalizedSocialPost[]> {
-    try {
-      // Fetching user's videos
-      const url = `${this.BASE_URL}/video/list/`;
-      const { data } = await firstValueFrom(
-        this.httpService.post(
-          url,
-          {
-            fields: [
-              'id',
-              'title',
-              'video_description',
-              'cover_image_url',
-              'share_url',
-              'create_time',
-              'like_count',
-              'comment_count',
-              'share_count',
-              'view_count',
-            ],
-          },
-          { headers: { Authorization: `Bearer ${accessToken}` } },
-        ),
-      );
+    const account = await this.prisma.socialAccount.findFirst({
+      where: { platformUserId: openId, platform: 'TIKTOK' },
+      select: { id: true },
+    });
+    if (!account) return [];
 
-      if (!data || !data.data || !data.data.videos) return [];
+    const links = await this.prisma.postSocialAccount.findMany({
+      where: {
+        socialAccountId: account.id,
+        platformPostId: { not: null },
+        status: 'PUBLISHED',
+        ...(since ? { publishedAt: { gte: since } } : {}),
+      },
+      include: { post: true },
+      orderBy: { publishedAt: 'desc' },
+      take: 50,
+    });
 
-      return data.data.videos.map((v: any) => ({
-        externalId: v.id,
-        content: v.video_description || v.title || '',
-        mediaUrls: [v.cover_image_url].filter(Boolean),
-        publishedAt: new Date(v.create_time * 1000),
-        permalink: v.share_url,
+    return links
+      .filter((l) => l.platformPostId && l.publishedAt)
+      .map((l) => ({
+        externalId: l.platformPostId!,
+        content: l.post.content,
+        mediaUrls: l.post.mediaUrls as string[],
+        publishedAt: l.publishedAt!,
+        permalink: l.platformPostUrl ?? undefined,
         engagement: {
-          likes: v.like_count || 0,
-          comments: v.comment_count || 0,
-          shares: v.share_count || 0,
-          views: v.view_count || 0,
+          likes: l.likes,
+          comments: l.comments,
+          shares: l.shares,
+          views: l.views,
         },
-        metadata: { raw: v },
+        metadata: {},
       }));
-    } catch (error) {
-      this.logger.error(`TikTok API Error: ${error.message}`);
-      return [];
-    }
   }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
-    // TikTok requires standard OAuth2 refresh
-    return refreshToken;
+    const params = new URLSearchParams({
+      client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY') ?? '',
+      client_secret: this.configService.get<string>('TIKTOK_CLIENT_SECRET') ?? '',
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    });
+
+    const { data } = await firstValueFrom(
+      this.httpService.post(
+        `${this.BASE_URL}/oauth/token/`,
+        params.toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+      ),
+    );
+
+    if (!data?.access_token) {
+      throw new Error(`TikTok token refresh failed: ${JSON.stringify(data)}`);
+    }
+
+    return data.access_token as string;
   }
 }

@@ -19,8 +19,7 @@ export class PinterestConnectStrategy extends PassportStrategy(
     super({
       authorizationURL: 'https://www.pinterest.com/oauth/',
       tokenURL: 'https://api.pinterest.com/v5/oauth/token',
-      clientID:
-        configService.get<string>('PINTEREST_APP_ID') || 'placeholder',
+      clientID: configService.get<string>('PINTEREST_APP_ID') || 'placeholder',
       clientSecret:
         configService.get<string>('PINTEREST_APP_SECRET') || 'placeholder',
       callbackURL:
@@ -53,7 +52,10 @@ export class PinterestConnectStrategy extends PassportStrategy(
       const meta = req.session?.oauthMetadata;
       if (!meta) {
         this.logger.error('❌ Pinterest Strategy: No metadata in session');
-        return done(new Error('Session lost: Missing workspace metadata'), false);
+        return done(
+          new Error('Session lost: Missing workspace metadata'),
+          false,
+        );
       }
 
       const { workspaceId, token: jwtToken } = meta;
@@ -65,7 +67,10 @@ export class PinterestConnectStrategy extends PassportStrategy(
       }
 
       if (!userId) {
-        return done(new Error('User session lost during Pinterest OAuth'), false);
+        return done(
+          new Error('User session lost during Pinterest OAuth'),
+          false,
+        );
       }
 
       done(null, {

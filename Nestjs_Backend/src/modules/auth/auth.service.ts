@@ -85,11 +85,27 @@ export class AuthService {
   // 2. EMAIL REGISTER
   // ==========================================
   async register(dto: RegisterDto) {
+    // 1. Verify OTP first — reject unverified registrations
+    const otpRecord = await this.prisma.otpVerification.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (
+      !otpRecord ||
+      otpRecord.code !== dto.code ||
+      otpRecord.expiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired verification code.');
+    }
+
+    // 2. Check for existing account
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
     if (existingUser) {
-      throw new BadRequestException('Email already in use');
+      throw new BadRequestException(
+        'An account with this email already exists.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -103,10 +119,11 @@ export class AuthService {
         provider: 'email',
         emailVerified: true,
         accountType: 'PERSONAL',
-        role: this.getRoleForEmail(dto.email), // ➤ AUTO PROMOTION ON REGISTER
+        role: this.getRoleForEmail(dto.email),
       },
     });
 
+    // 3. Consume the OTP so it can't be reused
     await this.prisma.otpVerification.delete({ where: { email: dto.email } });
     await this.createDefaultWorkspace(user);
 
@@ -287,6 +304,57 @@ export class AuthService {
 
     await this.prisma.otpVerification.delete({ where: { phone } });
     return this.startSession(user);
+  }
+
+  // ==========================================
+  // 6. FORGOT / RESET PASSWORD
+  // ==========================================
+
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    // Always return the same message to prevent email enumeration
+    if (!user || !user.password) {
+      return { message: 'If that email exists, a reset link has been sent.' };
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const exp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordResetToken: token, passwordResetTokenExp: exp },
+    });
+
+    await this.emailService.sendPasswordReset(email, token);
+    return { message: 'If that email exists, a reset link has been sent.' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { passwordResetToken: token },
+    });
+
+    if (
+      !user ||
+      !user.passwordResetTokenExp ||
+      user.passwordResetTokenExp < new Date()
+    ) {
+      throw new BadRequestException('Reset link is invalid or has expired.');
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashed,
+        passwordResetToken: null,
+        passwordResetTokenExp: null,
+      },
+    });
+
+    return { message: 'Password updated successfully.' };
   }
 
   async generateTokens(user: any) {

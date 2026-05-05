@@ -491,6 +491,7 @@ model SocialAccount {
 
   isActive        Boolean @default(true)
   autoPublish     Boolean @default(false)
+  isPaused        Boolean @default(false)
   defaultHashtags String?
 
   createdById String
@@ -691,6 +692,8 @@ model Post {
 
   externalReviews ExternalReview[]
   comments        PostComment[]
+
+  platformMeta Json?
 
   errorMessage String?
   retryCount   Int     @default(0)

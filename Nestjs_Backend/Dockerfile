@@ -34,6 +34,10 @@ RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Allow CI to pass more heap via --build-arg NODE_OPTIONS (default: 2 GB)
+ARG NODE_OPTIONS=--max-old-space-size=2048
+ENV NODE_OPTIONS=${NODE_OPTIONS}
+
 # Build the NestJS application
 RUN corepack enable pnpm && pnpm run build
 

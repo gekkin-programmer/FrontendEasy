@@ -1,8 +1,10 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
+import axios from 'axios';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { FacebookService } from '../platforms/facebook.service';
+import { TiktokService } from '../platforms/tiktok.service';
 import { SocialPlatform } from '../../../common/enums/social-platform.enum';
 import { PostStatus } from '../../../common/enums/post-status.enum';
 import { NormalizedSocialPost } from '../interfaces/social-platform.interface';
@@ -23,6 +25,7 @@ export class SocialSyncProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly facebookService: FacebookService,
+    private readonly tiktokService: TiktokService,
     private readonly emailService: EmailService,
   ) {
     super();
@@ -52,6 +55,12 @@ export class SocialSyncProcessor extends WorkerHost {
             accessToken,
             externalId,
           );
+          break;
+        case SocialPlatform.YOUTUBE:
+          posts = await this.fetchYouTubeHistory(accessToken);
+          break;
+        case SocialPlatform.TIKTOK:
+          posts = await this.tiktokService.getHistory(accessToken, externalId);
           break;
         default:
           this.logger.warn(`Platform ${platform} sync not implemented yet.`);
@@ -156,5 +165,50 @@ export class SocialSyncProcessor extends WorkerHost {
       this.logger.error(`[Job ${job.id}] Sync failed: ${error.message}`);
       throw error;
     }
+  }
+
+  private async fetchYouTubeHistory(accessToken: string): Promise<NormalizedSocialPost[]> {
+    const headers = { Authorization: `Bearer ${accessToken}` };
+    const YT = 'https://www.googleapis.com/youtube/v3';
+
+    // 1. Get the channel's uploads playlist ID
+    const channelRes = await axios.get(`${YT}/channels`, {
+      headers,
+      params: { part: 'contentDetails', mine: true },
+    });
+    const uploadsPlaylistId: string | undefined =
+      channelRes.data?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+    if (!uploadsPlaylistId) return [];
+
+    // 2. Fetch up to 50 video IDs from the uploads playlist
+    const playlistRes = await axios.get(`${YT}/playlistItems`, {
+      headers,
+      params: { part: 'contentDetails', playlistId: uploadsPlaylistId, maxResults: 50 },
+    });
+    const videoIds: string[] = (playlistRes.data?.items || [])
+      .map((item: any) => item.contentDetails?.videoId as string)
+      .filter(Boolean);
+    if (videoIds.length === 0) return [];
+
+    // 3. Batch-fetch snippet + statistics for all video IDs
+    const videosRes = await axios.get(`${YT}/videos`, {
+      headers,
+      params: { part: 'snippet,statistics', id: videoIds.join(',') },
+    });
+
+    return (videosRes.data?.items || []).map((video: any): NormalizedSocialPost => ({
+      externalId: video.id as string,
+      content: (video.snippet?.description as string) || '',
+      mediaUrls: [`https://www.youtube.com/watch?v=${video.id}`],
+      publishedAt: new Date(video.snippet?.publishedAt as string),
+      permalink: `https://www.youtube.com/watch?v=${video.id}`,
+      engagement: {
+        likes: parseInt((video.statistics?.likeCount as string) || '0', 10),
+        comments: parseInt((video.statistics?.commentCount as string) || '0', 10),
+        shares: 0,
+        views: parseInt((video.statistics?.viewCount as string) || '0', 10),
+      },
+      metadata: { raw: video },
+    }));
   }
 }

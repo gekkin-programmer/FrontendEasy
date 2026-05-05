@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Ip,
 } from '@nestjs/common';
+import { createHmac } from 'crypto';
 // ➤ FIX: Add 'type' keyword here for Express interfaces
 import type { Response, Request } from 'express';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -198,5 +199,64 @@ export class AuthController {
   @ApiOperation({ summary: 'Send verification code to email' })
   async sendEmailOtp(@Body() body: { email: string }) {
     return this.authService.sendEmailOtp(body.email);
+  }
+
+  // ==========================================
+  // 5. PASSWORD RESET
+  // ==========================================
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request a password reset email' })
+  async forgotPassword(@Body() body: { email: string }) {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Set a new password using the reset token' })
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  // ==========================================
+  // 6. META DATA DELETION CALLBACK
+  // ==========================================
+
+  @Post('facebook/data-deletion')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Meta signed data deletion callback' })
+  async facebookDataDeletion(@Body() body: Record<string, string>, @Req() req: Request) {
+    const appSecret = this.configService.get<string>('FACEBOOK_APP_SECRET') || '';
+    const signedRequest = body.signed_request ?? (req.body as Record<string, string>)?.signed_request;
+
+    if (!signedRequest) {
+      return { status: 'error', message: 'Missing signed_request' };
+    }
+
+    try {
+      const [encodedSig, payload] = signedRequest.split('.');
+
+      const b64decode = (s: string) =>
+        Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+
+      const sig = b64decode(encodedSig);
+      const data = JSON.parse(b64decode(payload).toString('utf-8')) as { user_id?: string };
+
+      const expected = createHmac('sha256', appSecret).update(payload).digest();
+      if (!sig.equals(expected)) {
+        return { status: 'error', message: 'Invalid signature' };
+      }
+
+      const confirmationCode = `del_${data.user_id ?? 'unknown'}_${Date.now()}`;
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://eazypost.cm';
+
+      return {
+        url: `${frontendUrl}/legal/data-deletion?code=${confirmationCode}`,
+        confirmation_code: confirmationCode,
+      };
+    } catch {
+      return { status: 'error', message: 'Failed to process deletion request' };
+    }
   }
 }

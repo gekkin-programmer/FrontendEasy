@@ -561,6 +561,22 @@ function DashboardContent() {
                     'Instagram requires a Business or Creator account linked to a Facebook Page. Go to Instagram → Settings → Account type to switch, then retry.',
                     "Instagram nécessite un compte Professionnel ou Créateur lié à une Page Facebook. Allez sur Instagram → Paramètres → Type de compte pour changer, puis réessayez.",
                 ],
+                IG_NO_FACEBOOK_PAGE: [
+                    'Please connect your Facebook Page first, then reconnect Instagram.',
+                    "Veuillez d'abord connecter votre Page Facebook, puis reconnecter Instagram.",
+                ],
+                FB_NO_PAGE: [
+                    'No Facebook Pages found — your app permissions have been reset. Please click Connect Facebook again and make sure to grant access to your Page on the consent screen.',
+                    "Aucune Page Facebook trouvée — les permissions ont été réinitialisées. Cliquez à nouveau sur Connecter Facebook et accordez l'accès à votre Page sur l'écran de consentement.",
+                ],
+                FB_PERMISSION_DENIED: [
+                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow EazyPost to manage your Page.',
+                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser EazyPost à gérer votre Page.",
+                ],
+                FB_NO_PAGES_EXISTS: [
+                    'No Facebook Pages found on your account. To connect Facebook, you need a Facebook Page (not a personal profile). Create one at facebook.com/pages/create, then try again.',
+                    "Aucune Page Facebook trouvée sur votre compte. Pour connecter Facebook, vous avez besoin d'une Page Facebook (pas d'un profil personnel). Créez-en une sur facebook.com/pages/create, puis réessayez.",
+                ],
                 IG_API_ERROR: [
                     'Instagram connection failed. Please try again.',
                     'La connexion Instagram a échoué. Veuillez réessayer.',
@@ -614,7 +630,10 @@ function DashboardContent() {
     };
 
     const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
-        const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        const raw = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        // Strip IDs that are no longer in the current workspace's account list (stale Composer state)
+        const validAccountIds = new Set(accounts.map((a: any) => a.id));
+        const targets = raw.filter((id: string) => validAccountIds.has(id));
         if (targets.length === 0) return;
         upsertPostMutation.mutate({
             id: postId,
@@ -826,7 +845,7 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-tl-lg">
+                                            <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-t-lg">
                                                 <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}

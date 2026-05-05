@@ -118,6 +118,15 @@ export class PublisherService {
                 mediaMimeType,
               );
               break;
+            case 'INSTAGRAM':
+              platformPostId = await this.postToInstagram(
+                account.accessToken,
+                account.platformUserId,
+                formattedContent,
+                mediaUrl,
+                mediaMimeType,
+              );
+              break;
             case 'THREADS':
               platformPostId = await this.postToThreads(
                 account.accessToken,
@@ -274,7 +283,83 @@ export class PublisherService {
   }
 
   // =================================================================
-  // 2. LINKEDIN (UGC API — image + video)
+  // 2. INSTAGRAM (Graph API — image or video via 2-step container flow)
+  // =================================================================
+  private async postToInstagram(
+    pageToken: string,
+    igUserId: string,
+    caption: string,
+    mediaUrl?: string,
+    mimeType?: string,
+  ) {
+    if (!mediaUrl) throw new Error('Instagram requires an image or video.');
+
+    const isVideo = mimeType?.startsWith('video/');
+    const isReel = isVideo; // treat all videos as Reels (most supported format)
+
+    // Step 1: Create media container
+    const containerParams: Record<string, string> = {
+      caption,
+      access_token: pageToken,
+    };
+
+    if (isReel) {
+      containerParams.media_type = 'REELS';
+      containerParams.video_url = mediaUrl;
+      containerParams.share_to_feed = 'true';
+    } else {
+      containerParams.image_url = mediaUrl;
+    }
+
+    const containerRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${igUserId}/media`,
+      null,
+      { params: containerParams, timeout: 60_000 },
+    );
+
+    const containerId: string = containerRes.data?.id;
+    if (!containerId) {
+      throw new Error(`Instagram media container creation failed: ${JSON.stringify(containerRes.data)}`);
+    }
+
+    // Step 2: For videos, poll until container is ready (FINISHED)
+    if (isReel) {
+      const maxAttempts = 30; // 30 × 5s = 150s max
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const statusRes = await axios.get(
+          `https://graph.facebook.com/v19.0/${containerId}`,
+          { params: { fields: 'status_code', access_token: pageToken }, timeout: 10_000 },
+        );
+        const statusCode: string = statusRes.data?.status_code;
+        this.logger.log(`Instagram container ${containerId} status: ${statusCode}`);
+        if (statusCode === 'FINISHED') break;
+        if (statusCode === 'ERROR') {
+          throw new Error(`Instagram video processing failed for container ${containerId}`);
+        }
+        if (i === maxAttempts - 1) {
+          throw new Error('Instagram video processing timed out after 150s');
+        }
+      }
+    }
+
+    // Step 3: Publish the container
+    const publishRes = await axios.post(
+      `https://graph.facebook.com/v19.0/${igUserId}/media_publish`,
+      null,
+      { params: { creation_id: containerId, access_token: pageToken }, timeout: 30_000 },
+    );
+
+    const postId: string = publishRes.data?.id;
+    if (!postId) {
+      throw new Error(`Instagram publish returned no post ID: ${JSON.stringify(publishRes.data)}`);
+    }
+
+    return postId;
+  }
+
+  // =================================================================
+  // 3. LINKEDIN (UGC API — image + video)
   // =================================================================
   private async postToLinkedIn(
     token: string,
@@ -694,5 +779,76 @@ export class PublisherService {
         isRead: false,
       },
     });
+  }
+
+  // =================================================================
+  // PLATFORM DELETE
+  // =================================================================
+  async deleteFromPlatform(
+    platform: string,
+    platformPostId: string,
+    accessToken: string,
+  ): Promise<void> {
+    try {
+      switch (platform) {
+        case 'FACEBOOK':
+        case 'INSTAGRAM':
+          await axios.delete(`https://graph.facebook.com/v19.0/${platformPostId}`, {
+            params: { access_token: accessToken },
+          });
+          break;
+        case 'LINKEDIN':
+          await axios.delete(
+            `https://api.linkedin.com/v2/ugcPosts/${encodeURIComponent(platformPostId)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'X-Restli-Protocol-Version': '2.0.0',
+              },
+            },
+          );
+          break;
+        case 'TIKTOK':
+          await axios.post(
+            'https://open.tiktokapis.com/v2/video/delete/',
+            { video_id: platformPostId },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+            },
+          );
+          break;
+        case 'YOUTUBE':
+          await axios.delete('https://www.googleapis.com/youtube/v3/videos', {
+            params: { id: platformPostId },
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          break;
+        case 'THREADS':
+          await axios.delete(
+            `https://graph.threads.net/v1.0/${platformPostId}`,
+            { params: { access_token: accessToken } },
+          );
+          break;
+        case 'TWITTER':
+          await axios.delete(
+            `https://api.twitter.com/2/tweets/${platformPostId}`,
+            { headers: { Authorization: `Bearer ${accessToken}` } },
+          );
+          break;
+        default:
+          this.logger.warn(`Platform delete not supported: ${platform}`);
+      }
+      this.logger.log(`Deleted ${platform} post ${platformPostId}`);
+    } catch (error) {
+      const msg =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        error.message;
+      this.logger.warn(`Could not delete ${platform} post ${platformPostId}: ${msg}`);
+      // Don't rethrow — always proceed with DB deletion
+    }
   }
 }

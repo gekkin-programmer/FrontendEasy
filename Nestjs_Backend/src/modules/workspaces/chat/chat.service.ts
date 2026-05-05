@@ -6,10 +6,14 @@ import {
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateChannelDto, CreateMessageDto } from './dto/create-message.dto';
 import { ChatMessageType } from '@prisma/client';
+import { AppEventsGateway } from '../../app-events/app-events.gateway';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private appEventsGateway: AppEventsGateway,
+  ) {}
 
   // ➤ 1. Create a Channel
   async createChannel(
@@ -21,24 +25,13 @@ export class ChatService {
 
     const name = dto.name.toLowerCase().replace(/\s/g, '-');
 
-    // Check if exists first to avoid error
     const existing = await this.prisma.chatChannel.findUnique({
-      where: {
-        workspaceId_name: {
-          workspaceId,
-          name,
-        },
-      },
+      where: { workspaceId_name: { workspaceId, name } },
     });
-
     if (existing) return existing;
 
     return this.prisma.chatChannel.create({
-      data: {
-        workspaceId,
-        name,
-        description: dto.description,
-      },
+      data: { workspaceId, name, description: dto.description },
     });
   }
 
@@ -60,7 +53,7 @@ export class ChatService {
 
     await this.verifyMembership(channel.workspaceId, userId);
 
-    return this.prisma.chatMessage.create({
+    const message = await this.prisma.chatMessage.create({
       data: {
         channelId,
         senderId: userId,
@@ -69,9 +62,19 @@ export class ChatService {
         attachmentUrl: dto.attachmentUrl,
       },
       include: {
-        sender: { select: { id: true, firstName: true, avatar: true } },
+        sender: {
+          select: { id: true, firstName: true, lastName: true, avatar: true, email: true },
+        },
       },
     });
+
+    // Broadcast to all workspace members in real-time
+    this.appEventsGateway.sendToWorkspace(channel.workspaceId, 'chat_message', {
+      ...message,
+      channelId,
+    });
+
+    return message;
   }
 
   // ➤ 4. Get Message History
@@ -85,20 +88,28 @@ export class ChatService {
 
     return this.prisma.chatMessage.findMany({
       where: { channelId },
-      take: 50, // Limit to last 50 messages
-      orderBy: { createdAt: 'asc' }, // Oldest first (like Slack)
+      take: 100,
+      orderBy: { createdAt: 'asc' },
       include: {
-        sender: { select: { id: true, firstName: true, avatar: true } },
+        sender: {
+          select: { id: true, firstName: true, lastName: true, avatar: true, email: true },
+        },
       },
     });
   }
 
-  // Helper
+  // Helper — accepts workspace owner OR workspace member
   private async verifyMembership(workspaceId: string, userId: string) {
-    const member = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } },
+    const workspace = await this.prisma.workspace.findFirst({
+      where: {
+        id: workspaceId,
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+        ],
+      },
     });
-    if (!member)
+    if (!workspace)
       throw new ForbiddenException('You are not a member of this workspace');
   }
 }

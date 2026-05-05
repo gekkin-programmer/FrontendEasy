@@ -36,63 +36,44 @@ export class LinkedInConnectStrategy extends PassportStrategy(
     req: any,
     accessToken: string,
     refreshToken: string,
-    results: any,
-    done: Function,
-  ) {
+    _results: any,
+  ): Promise<any> {
     try {
-      this.logger.log('🔹 LinkedIn OIDC Flow (Manual) Triggered');
+      this.logger.log('🔹 LinkedIn OIDC Flow Triggered');
 
-      // 1. Manually fetch profile using OIDC userinfo endpoint
-      // This bypasses any legacy library defaults
       const { data: profile } = await axios.get(
         'https://api.linkedin.com/v2/userinfo',
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
-      this.logger.debug(`🔹 LinkedIn Profile Data: ${JSON.stringify(profile)}`);
+      this.logger.debug(`🔹 LinkedIn Profile: ${JSON.stringify(profile)}`);
 
-      // 2. Retrieve metadata from session (cookie-session)
       const meta = req.session?.oauthMetadata;
       if (!meta) {
-        this.logger.error('❌ LinkedIn Strategy: No metadata found in session');
-        return done(
-          new Error('Session lost: Missing workspace metadata'),
-          false,
-        );
+        throw new Error('Session lost: Missing workspace metadata');
       }
 
       const { workspaceId, token: jwtToken } = meta;
-
-      let userId;
-      if (jwtToken) {
-        const user = await this.authService.validateUserByToken(jwtToken);
-        userId = user?.id;
-      }
+      const user = await this.authService.validateUserByToken(jwtToken);
+      const userId = user?.id;
 
       if (!userId) {
-        return done(
-          new Error('User session lost during LinkedIn OAuth'),
-          false,
-        );
+        throw new Error('User session lost during LinkedIn OAuth');
       }
 
-      const payload = {
+      return {
         platform: 'LINKEDIN',
-        platformUserId: profile.sub, // OIDC standard
+        platformUserId: profile.sub,
         name: profile.name || 'LinkedIn User',
-        avatar: profile.picture, // OIDC standard
+        avatar: profile.picture,
         accessToken,
         refreshToken,
         workspaceId,
         userId,
       };
-
-      done(null, payload);
     } catch (error) {
-      this.logger.error(`LinkedIn OIDC Validation Failed: ${error.message}`);
-      done(error, false);
+      this.logger.error(`LinkedIn OAuth Validation Failed: ${error.message}`);
+      throw error;
     }
   }
 }

@@ -27,6 +27,7 @@ import { FacebookService } from './platforms/facebook.service';
 import { InstagramService } from './platforms/instagram.service';
 import { TwitterService } from './platforms/twitter.service';
 import { LinkedinService } from './platforms/linkedin.service';
+import { TiktokService } from './platforms/tiktok.service';
 import { SocialSyncProcessor } from './workers/social-sync.processor';
 
 @Module({
@@ -79,6 +80,7 @@ import { SocialSyncProcessor } from './workers/social-sync.processor';
     InstagramService,
     TwitterService,
     LinkedinService,
+    TiktokService,
     SocialSyncProcessor,
   ],
   exports: [SocialAccountsService],

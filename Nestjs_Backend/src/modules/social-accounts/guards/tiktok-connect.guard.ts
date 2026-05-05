@@ -26,8 +26,14 @@ export class TikTokConnectGuard extends AuthGuard('tiktok-connect') {
 
   getAuthenticateOptions(_context: ExecutionContext) {
     return {
-      scope: ['user.info.basic', 'video.list'],
-      scopeSeparator: ',', // ➤ TikTok standard is comma
+      scope: [
+        'user.info.basic',
+        'user.info.profile',
+        'user.info.stats',
+        'video.publish',
+        'video.upload',
+      ],
+      scopeSeparator: ',',
     };
   }
 

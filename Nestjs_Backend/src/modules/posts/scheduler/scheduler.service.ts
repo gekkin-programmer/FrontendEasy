@@ -73,6 +73,16 @@ export class SchedulerService {
     });
   }
 
+  // ➤ 5. MONTHLY POST COUNT RESET — runs at 00:00 on the 1st of every month (UTC)
+  @Cron('0 0 1 * *')
+  async resetMonthlyPostCounts() {
+    this.logger.log('Resetting monthly post counts for all workspaces...');
+    const result = await this.prisma.workspace.updateMany({
+      data: { currentPostCount: 0 },
+    });
+    this.logger.log(`Reset post counts for ${result.count} workspaces`);
+  }
+
   // Run every 60 seconds
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCron() {

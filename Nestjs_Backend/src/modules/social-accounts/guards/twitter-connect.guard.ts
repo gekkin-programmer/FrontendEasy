@@ -1,34 +1,32 @@
-// src/modules/social-accounts/guards/twitter-connect.guard.ts
-
-import { Injectable, ExecutionContext } from '@nestjs/common';
+import { Injectable, Logger, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
+  private readonly logger = new Logger(TwitterConnectGuard.name);
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const { workspaceId, token } = req.query;
 
-    // Save metadata to session cookie (consistent with LinkedIn)
     if (req.session && workspaceId && token) {
       req.session.oauthMetadata = { workspaceId, token };
-      console.log('🔹 Twitter Guard: Metadata saved to session');
-    }
-
-    if (!workspaceId && req.session?.oauthMetadata) {
-      console.log(
-        '🔹 Twitter Guard: Continuing with existing session metadata',
-      );
+      this.logger.log('Twitter Guard: session metadata saved');
+    } else if (!workspaceId && req.session?.oauthMetadata) {
+      this.logger.log('Twitter Guard: resuming from existing session metadata');
     }
 
     return (await super.canActivate(context)) as boolean;
   }
 
-  handleRequest(err, user, info) {
-    if (err || !user) {
-      console.error('❌ Twitter Auth Failed:', err);
-      console.error('❌ Passport Info:', info);
-      throw err || new Error('Twitter Authentication failed');
+  handleRequest(err: any, user: any, info: any) {
+    if (err) {
+      this.logger.error(`Twitter Auth error: ${err.message}`);
+      throw err;
+    }
+    if (!user) {
+      this.logger.error(`Twitter Auth failed — no user. Info: ${JSON.stringify(info)}`);
+      throw new UnauthorizedException('Twitter authentication failed');
     }
     return user;
   }

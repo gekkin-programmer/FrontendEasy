@@ -67,7 +67,7 @@ const ConnectSection = () => {
 
       <div className="container mx-auto max-w-6xl text-center">
         
-        <div className="inline-block bg-black dark:bg-white/10 text-white font-black text-sm md:text-lg px-4 py-1 md:px-6 md:py-2 border-4 border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] mb-6 md:mb-8 uppercase tracking-widest">
+        <div className="inline-block bg-black text-white font-black text-sm md:text-lg px-4 py-1 md:px-6 md:py-2 border-4 border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] mb-6 md:mb-8 uppercase tracking-widest">
             {t("Integrations", "Intégrations")}
         </div>
 

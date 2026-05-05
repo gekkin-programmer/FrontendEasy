@@ -46,10 +46,14 @@ export class SnapchatConnectStrategy extends PassportStrategy(
     try {
       this.logger.log('🔹 Snapchat OAuth 2.0 Triggered');
 
-      const { data: profile } = await axios.get(
+      const { data: profile } = await axios.post(
         'https://kit.snapchat.com/v1/me',
+        { query: '{ me { externalId displayName bitmoji { avatar } } }' },
         {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
         },
       );
 
@@ -59,7 +63,10 @@ export class SnapchatConnectStrategy extends PassportStrategy(
       const meta = req.session?.oauthMetadata;
       if (!meta) {
         this.logger.error('❌ Snapchat Strategy: No metadata in session');
-        return done(new Error('Session lost: Missing workspace metadata'), false);
+        return done(
+          new Error('Session lost: Missing workspace metadata'),
+          false,
+        );
       }
 
       const { workspaceId, token: jwtToken } = meta;
@@ -71,7 +78,10 @@ export class SnapchatConnectStrategy extends PassportStrategy(
       }
 
       if (!userId) {
-        return done(new Error('User session lost during Snapchat OAuth'), false);
+        return done(
+          new Error('User session lost during Snapchat OAuth'),
+          false,
+        );
       }
 
       done(null, {

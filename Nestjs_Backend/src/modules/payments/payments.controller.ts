@@ -40,7 +40,9 @@ export class PaymentsController {
   }
 
   @Post('methods/card/setup-intent')
-  @ApiOperation({ summary: 'Create a Stripe SetupIntent to collect card details' })
+  @ApiOperation({
+    summary: 'Create a Stripe SetupIntent to collect card details',
+  })
   createSetupIntent(@Req() req) {
     return this.paymentsService.createStripeSetupIntent(req.user.sub);
   }
@@ -93,7 +95,9 @@ export class PaymentsController {
 
   @Post('webhook/pawapay')
   @Public()
-  @ApiOperation({ summary: 'Webhook handler for PawaPay deposit notifications' })
+  @ApiOperation({
+    summary: 'Webhook handler for PawaPay deposit notifications',
+  })
   handleWebhook(
     @Headers('authorization') authHeader: string,
     @Body() body: any,

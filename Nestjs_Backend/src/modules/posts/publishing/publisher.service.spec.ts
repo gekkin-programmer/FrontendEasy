@@ -72,6 +72,7 @@ describe('PublishingService - MVP Tests', () => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         expect.stringContaining('graph.facebook.com'),
         expect.objectContaining({ message: mockPost.content }),
+        expect.anything(),
       );
       expect(mockPrismaService.postSocialAccount.update).toHaveBeenCalledWith(
         expect.objectContaining({

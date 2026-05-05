@@ -53,13 +53,6 @@ export class SubscriptionGuard implements CanActivate {
           '🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> 100 posts, 5 comptes, 100 AI requests',
         );
       }
-
-      // SOCIAL ACCOUNT LIMIT: 2
-      if (workspace.currentSocialAccountCount >= 2) {
-        throw new ForbiddenException(
-          '🎉 Passez à STARTER pour seulement 4,900 FCFA/mois -> Ajoutez TikTok & LinkedIn (5 comptes)',
-        );
-      }
     }
 
     return true;
