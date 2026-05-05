@@ -561,6 +561,10 @@ function DashboardContent() {
                     'Instagram requires a Business or Creator account linked to a Facebook Page. Go to Instagram → Settings → Account type to switch, then retry.',
                     "Instagram nécessite un compte Professionnel ou Créateur lié à une Page Facebook. Allez sur Instagram → Paramètres → Type de compte pour changer, puis réessayez.",
                 ],
+                IG_NO_FACEBOOK_PAGE: [
+                    'Please connect your Facebook Page first, then reconnect Instagram.',
+                    'Veuillez d\'abord connecter votre Page Facebook, puis reconnecter Instagram.',
+                ],
                 IG_API_ERROR: [
                     'Instagram connection failed. Please try again.',
                     'La connexion Instagram a échoué. Veuillez réessayer.',
