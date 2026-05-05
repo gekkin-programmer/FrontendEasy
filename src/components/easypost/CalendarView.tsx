@@ -80,8 +80,8 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
                 {dayLabel && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{dayLabel}</span>}
             </div>
             {postCount > 0 && (
-                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-white text-black shadow-[2px_2px_0px_0px_#000]">
-                    {postCount}_NODES
+                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                    {postCount}
                 </span>
             )}
         </div>
@@ -182,19 +182,21 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   });
 
   const rescheduleMutation = useMutation({
-    mutationFn: ({ id, date }: { id: string, date: string }) => 
+    mutationFn: ({ id, date }: { id: string, date: string }) =>
         api.patch(`/posts/${id}`, { scheduledFor: date }),
     onSuccess: () => {
         trackAction('calendar_drag_drop', { workspaceId });
+    },
+    onSettled: () => {
         queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
-    onError: () => toast.error(t("RESCHEDULE_FAILED", "REPLANIFICATION_ÉCHOUÉE"))
+    onError: () => toast.error(t("Reschedule failed", "Échec de la replanification"))
   });
 
   const days = eachDayOfInterval({ start, end });
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6, delay: 100, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -278,7 +280,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:bg-white/20 hover:text-white"
+                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "text-white hover:bg-yellow-400 hover:text-black"
                     )}
                   >
                       {v}
@@ -287,13 +289,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
-            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
+            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
+            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-white/80 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
