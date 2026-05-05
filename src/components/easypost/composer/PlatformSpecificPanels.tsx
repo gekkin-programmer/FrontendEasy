@@ -29,6 +29,7 @@ interface PlatformSpecificPanelsProps {
   liArticleMode: boolean; setLiArticleMode: (v: boolean) => void;
   // Instagram / TikTok
   firstComment: string; setFirstComment: (v: string) => void;
+  tiktokHashtags: string; setTiktokHashtags: (v: string) => void;
   altText: string; setAltText: (v: string) => void;
 }
 
@@ -80,13 +81,16 @@ export function PlatformSpecificPanels({
   pinBoard, setPinBoard,
   liArticleMode, setLiArticleMode,
   firstComment, setFirstComment,
+  tiktokHashtags, setTiktokHashtags,
   altText, setAltText,
 }: PlatformSpecificPanelsProps) {
   const ids = platformMode.postPlatforms.map((p) => p.id);
   const hasYT = ids.includes('youtube');
   const hasPin = ids.includes('pinterest');
   const hasLI = ids.includes('linkedin');
-  const hasIGTK = ids.includes('instagram') || ids.includes('tiktok');
+  const hasIG = ids.includes('instagram');
+  const hasTK = ids.includes('tiktok');
+  const hasIGTK = hasIG || hasTK;
 
   // Tag chip input helpers — declared before early return to satisfy Rules of Hooks
   const [tagInput, setTagInput] = React.useState('');
@@ -236,26 +240,45 @@ export function PlatformSpecificPanels({
         <>
           <PanelHeader
             id="igtk"
-            platform={ids.includes('instagram') ? 'instagram' : 'tiktok'}
-            label={`${ids.includes('instagram') ? 'Instagram' : ''}${ids.includes('instagram') && ids.includes('tiktok') ? ' + ' : ''}${ids.includes('tiktok') ? 'TikTok' : ''} Options`}
+            platform={hasIG ? 'instagram' : 'tiktok'}
+            label={`${hasIG ? 'Instagram' : ''}${hasIG && hasTK ? ' + ' : ''}${hasTK ? 'TikTok' : ''} Options`}
             expanded={expandedPanels.has('igtk')}
             onToggle={() => onTogglePanel('igtk')}
           />
           {expandedPanels.has('igtk') && (
             <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
-              <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  First Comment (hashtags)
-                </label>
-                <textarea
-                  value={firstComment}
-                  onChange={(e) => setFirstComment(e.target.value)}
-                  placeholder="#africantech #startup #cameroon"
-                  rows={2}
-                  className={`${inputCls} resize-none`}
-                />
-                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200</p>
-              </div>
+              {/* First Comment — Instagram only */}
+              {hasIG && (
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                    First Comment
+                  </label>
+                  <textarea
+                    value={firstComment}
+                    onChange={(e) => setFirstComment(e.target.value)}
+                    placeholder="Appears instantly in the comments section"
+                    rows={2}
+                    className={`${inputCls} resize-none`}
+                  />
+                  <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — posted as a comment, not in caption</p>
+                </div>
+              )}
+              {/* TikTok Hashtags — TikTok only */}
+              {hasTK && (
+                <div>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                    TikTok Hashtags
+                  </label>
+                  <textarea
+                    value={tiktokHashtags}
+                    onChange={(e) => setTiktokHashtags(e.target.value)}
+                    placeholder="#africantech #startup #cameroon"
+                    rows={2}
+                    className={`${inputCls} resize-none`}
+                  />
+                  <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{tiktokHashtags.length}/2200 — appended below caption in the video</p>
+                </div>
+              )}
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Alt Text (accessibility)</label>
                 <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Describe this image for screen readers" className={inputCls} />

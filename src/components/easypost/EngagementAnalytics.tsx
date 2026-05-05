@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import SpinningLoader from '../SpinningLoader';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/src/context/LanguageContext';
 
 // --- CONFIG ---
@@ -71,7 +71,53 @@ export default function EngagementAnalytics() {
 
   const handleDownload = () => toast.success(t("Report queued for generation", "Rapport mis en file de génération"));
 
-  if (isLoading) return <SpinningLoader fullScreen={false} />;
+  if (isLoading) return (
+    <div className="max-w-6xl mx-auto space-y-8 p-2">
+      {/* Header */}
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <Skeleton className="h-7 w-52" />
+        <div className="flex gap-2">
+          {['7D', '30D', '90D'].map((_, i) => (
+            <Skeleton key={i} className="h-8 w-12 border-2 border-black dark:border-white" />
+          ))}
+          <Skeleton className="h-8 w-28 border-2 border-black dark:border-white" />
+        </div>
+      </div>
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] p-4 space-y-3">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-10 w-16" />
+            <Skeleton className="h-5 w-14" />
+          </div>
+        ))}
+      </div>
+      {/* Chart area */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] p-4">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <div className="flex items-end gap-2 h-32">
+            {[...Array(7)].map((_, i) => (
+              <Skeleton key={i} className="flex-1" style={{ height: `${40 + (i * 13) % 60}%` }} />
+            ))}
+          </div>
+        </div>
+        <div className="border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] p-4 space-y-4">
+          <Skeleton className="h-5 w-28 mb-2" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <Skeleton className="h-5 w-10" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const stats = data || { kpi: [], platforms: [], volume: [] };
 

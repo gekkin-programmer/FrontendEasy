@@ -20,10 +20,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, type Icon as LucideIcon
 } from "lucide-react";
-// --- SKELETON LOADERS ---
-const SkeletonBlock = ({ className }: { className?: string }) => (
-  <div className={cn("animate-pulse bg-gray-200 dark:bg-zinc-800", className)} />
-);
+import { Skeleton } from '@/components/ui/skeleton';
 
 function AnalyticsGridSkeleton() {
   return (
@@ -32,12 +29,12 @@ function AnalyticsGridSkeleton() {
         {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]">
             <div className="p-4 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
-              <SkeletonBlock className="h-5 w-32 rounded" />
+              <Skeleton className="h-5 w-32 rounded" />
             </div>
             <div className="p-4 space-y-3">
-              <SkeletonBlock className="h-10 w-24 rounded" />
-              <SkeletonBlock className="h-3 w-full rounded" />
-              <SkeletonBlock className="h-3 w-3/4 rounded" />
+              <Skeleton className="h-10 w-24 rounded" />
+              <Skeleton className="h-3 w-full rounded" />
+              <Skeleton className="h-3 w-3/4 rounded" />
             </div>
           </div>
         ))}
@@ -52,28 +49,28 @@ function LiveStreamSkeleton() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
-            <SkeletonBlock className="h-3 w-20 mx-auto mb-2 rounded" />
-            <SkeletonBlock className="h-10 w-16 mx-auto rounded" />
+            <Skeleton className="h-3 w-20 mx-auto mb-2 rounded" />
+            <Skeleton className="h-10 w-16 mx-auto rounded" />
           </div>
         ))}
       </div>
       <div className="flex flex-col md:flex-row gap-8 flex-1 pb-20 overflow-hidden">
         <div className="w-full md:w-[380px] flex flex-col border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0">
           <div className="p-4 border-b-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800">
-            <SkeletonBlock className="h-8 w-full rounded mb-3" />
-            <SkeletonBlock className="h-8 w-full rounded" />
+            <Skeleton className="h-8 w-full rounded mb-3" />
+            <Skeleton className="h-8 w-full rounded" />
           </div>
           <div className="flex-1 p-2 space-y-2">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="p-3 border-b border-gray-100 dark:border-zinc-800 space-y-2">
-                <SkeletonBlock className="h-3 w-3/4 rounded" />
-                <SkeletonBlock className="h-3 w-1/2 rounded" />
+                <Skeleton className="h-3 w-3/4 rounded" />
+                <Skeleton className="h-3 w-1/2 rounded" />
               </div>
             ))}
           </div>
         </div>
         <div className="flex-1 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex items-center justify-center">
-          <SkeletonBlock className="w-20 h-20 rounded" />
+          <Skeleton className="w-20 h-20 rounded" />
         </div>
       </div>
     </div>
@@ -83,13 +80,13 @@ function LiveStreamSkeleton() {
 function PostDetailSkeleton() {
   return (
     <div className="flex-1 p-6 space-y-4">
-      <SkeletonBlock className="h-6 w-48 rounded" />
-      <SkeletonBlock className="h-24 w-full rounded" />
+      <Skeleton className="h-6 w-48 rounded" />
+      <Skeleton className="h-24 w-full rounded" />
       <div className="grid grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="border-2 border-black dark:border-white p-3">
-            <SkeletonBlock className="h-3 w-16 mb-2 rounded" />
-            <SkeletonBlock className="h-8 w-20 rounded" />
+            <Skeleton className="h-3 w-16 mb-2 rounded" />
+            <Skeleton className="h-8 w-20 rounded" />
           </div>
         ))}
       </div>

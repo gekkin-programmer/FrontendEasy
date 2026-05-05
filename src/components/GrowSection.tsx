@@ -29,6 +29,7 @@ const creatorsData: CreatorData[] = [
 const businessesData: CreatorData[] = [
   { imgSrc: '/assets/PBD.jpg', name: 'PBD', followers: '8.2K', platform: 'Facebook', platformIcon: <FaFacebookF size={14}/>, iconBgClass: 'bg-[#1877F2]' },
   { imgSrc: '/assets/meetormatch.jpg', name: 'MeetOrMatch', followers: '15.7K', platform: 'Pinterest', platformIcon: <FaPinterestP size={14}/>, iconBgClass: 'bg-[#E60023]' },
+  { imgSrc: '/logos/BestCorp.png', name: 'Bestcorp', followers: '12.1K', platform: 'YouTube', platformIcon: <FaYoutube size={14}/>, iconBgClass: 'bg-[#FF0000]' },
   { imgSrc: '/assets/logo.JFN.png', name: 'JFN High Tech', followers: '25.3K', platform: 'Instagram', platformIcon: <FaInstagram size={14}/>, iconBgClass: 'bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600' },
 ];
 
@@ -121,7 +122,7 @@ const GrowSection = () => {
 
   return (
     <section 
-      className="bg-[#E6E6E6] dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
+      className="bg-white dark:bg-black border-b-4 border-black dark:border-black py-12 md:py-24 px-4 font-sans overflow-hidden pattern-grid relative"
       aria-label="Growth Success Stories"
     >
       <SectionBackground />

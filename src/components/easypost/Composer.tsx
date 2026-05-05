@@ -38,7 +38,7 @@ interface ComposerProps {
   postToEdit?: any;
   isPreviewActive?: boolean;
   onPreviewToggle?: () => void;
-  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; selectedAccountIds: string[] }) => void;
+  onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string }) => void;
   onSchedule: (
     content: string,
     date?: Date,
@@ -90,7 +90,7 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
     <span className="text-[10px] font-bold uppercase text-center bg-white dark:bg-zinc-900 px-1 border border-black dark:border-white max-w-full truncate w-full font-mono text-black dark:text-white">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-blue-50 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white"><Icon size={18} strokeWidth={2.5} /></button>);
+const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-black dark:text-white"><Icon size={18} strokeWidth={2.5} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; case 'tiktok': return <FaTiktok size={size} className="text-black dark:text-white" />; case 'youtube': case 'google': return <FaYoutube size={size} className="text-red-600" />; case 'discord': return <FaDiscord size={size} className="text-[#5865F2]" />; case 'telegram': return <FaTelegram size={size} className="text-[#26A5E4]" />; case 'whatsapp': return <FaWhatsapp size={size} className="text-[#25D366]" />; case 'snapchat': return <FaSnapchat size={size} className="text-yellow-400" />; case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
@@ -153,11 +153,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (postToEdit) {
       setText(postToEdit.content || '');
       setDate(postToEdit.scheduledFor ? new Date(postToEdit.scheduledFor) : undefined);
-      if (postToEdit.mediaUrls) setMediaPreviews(postToEdit.mediaUrls);
+      if (postToEdit.mediaUrls) {
+        setMediaPreviews(postToEdit.mediaUrls);
+        setMediaTypes(postToEdit.mediaUrls.map((url: string) =>
+          /\.(mp4|webm|ogg|mov|avi|mkv|m4v)(\?|$|#)/i.test(url) ? 'video' : 'image'
+        ));
+      }
       if (postToEdit.socialAccountIds) setSelectedAccountIds(postToEdit.socialAccountIds);
     } else {
       // Reset if null (e.g. cancelled edit)
-      setText(''); setDate(undefined); setMediaPreviews([]);
+      setText(''); setDate(undefined); setMediaPreviews([]); setMediaTypes([]);
     }
   }, [postToEdit]);
   const [category, setCategory] = useState('General');
@@ -166,6 +171,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [localFiles, setLocalFiles] = useState<File[]>([]);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [mediaTypes, setMediaTypes] = useState<('image' | 'video')[]>([]);
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   // UI State
@@ -202,6 +208,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [pinBoard, setPinBoard] = useState('');
   const [liArticleMode, setLiArticleMode] = useState(false);
   const [firstComment, setFirstComment] = useState('');
+  const [tiktokHashtags, setTiktokHashtags] = useState('');
   const [altText, setAltText] = useState('');
   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -222,11 +229,22 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const previewDataChangeRef = useRef(onPreviewDataChange);
   previewDataChangeRef.current = onPreviewDataChange;
   useEffect(() => {
-    previewDataChangeRef.current?.({ text, mediaPreviews, selectedAccountIds });
-  }, [text, mediaPreviews, selectedAccountIds]);
+    previewDataChangeRef.current?.({ text, mediaPreviews, mediaTypes, selectedAccountIds, tiktokHashtags });
+  }, [text, mediaPreviews, mediaTypes, selectedAccountIds, tiktokHashtags]);
 
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
+
+  // Auto-expand the single platform panel when only one panel-eligible platform is selected
+  useEffect(() => {
+    const ids = platformMode.postPlatforms.map((p) => p.id);
+    const panels: string[] = [];
+    if (ids.includes('youtube')) panels.push('youtube');
+    if (ids.includes('pinterest')) panels.push('pinterest');
+    if (ids.includes('linkedin')) panels.push('linkedin');
+    if (ids.includes('instagram') || ids.includes('tiktok')) panels.push('igtk');
+    setExpandedPanels(panels.length === 1 ? new Set(panels) : new Set());
+  }, [selectedAccountIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ➤ LOGIC: FETCH MEDIA LIBRARY
   const fetchLibrary = async () => {
@@ -257,8 +275,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           const res = await api.post<any>('/media/upload', formData);
 
           await fetchLibrary();
-          // Backend returns the created MediaLibrary object
-          return res.id || res.data?.id;
+          // Backend returns { message, media: { id, ... } }
+          return res.id || res.media?.id || res.data?.id || res.data?.media?.id;
       } catch (e) {
           return null;
       }
@@ -269,7 +287,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (selected.length > 0) {
       setLocalFiles(prev => [...prev, ...selected]);
       const newPreviews = selected.map(file => URL.createObjectURL(file));
+      const newTypes = selected.map(file => file.type.startsWith('video/') ? 'video' : 'image') as ('image' | 'video')[];
       setMediaPreviews(prev => [...prev, ...newPreviews]);
+      setMediaTypes(prev => [...prev, ...newTypes]);
     }
   };
 
@@ -277,12 +297,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       if (!selectedMediaIds.includes(item.id)) {
           setSelectedMediaIds(prev => [...prev, item.id]);
           setMediaPreviews(prev => [...prev, item.url || '']);
+          setMediaTypes(prev => [...prev, item.type === 'video' ? 'video' : 'image']);
       }
   };
 
   const removeMedia = (index: number) => {
       setMediaPreviews(prev => prev.filter((_, i) => i !== index));
-      // Also remove from localFiles or selectedMediaIds if necessary (simplified for MVP)
+      setMediaTypes(prev => prev.filter((_, i) => i !== index));
   };
 
   // ➤ LOGIC: AI GENERATION
@@ -418,11 +439,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
         if (liArticleMode) platformMeta.linkedin = { articleMode: true };
         if (firstComment) platformMeta.firstComment = firstComment;
+        if (tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
         if (altText) platformMeta.altText = altText;
 
         await onSchedule(
             finalContent,
-            action === 'queue' ? date || new Date() : undefined,
+            action === 'queue' ? (date || new Date()) : new Date(),
             finalMediaIds,
             status,
             targets,
@@ -431,7 +453,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             Object.keys(platformMeta).length > 0 ? platformMeta : undefined,
         );
 
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setPrice(""); setIsSelling(false);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setMediaTypes([]); setPrice(""); setIsSelling(false);
         setSubmitAttempted(false);
     } catch { } finally { setIsSubmitting(false); }
   };
@@ -468,7 +490,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
             <Popover>
               <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
+                <button className={cn("w-8 h-8 flex-shrink-0 border-2 border-dashed border-black dark:border-white hover:bg-gray-100 dark:hover:bg-zinc-800 active:bg-gray-200 dark:active:bg-zinc-700 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-zinc-900")}>
                   <Plus size={14} strokeWidth={3} className="text-black dark:text-white" />
                 </button>
               </PopoverTrigger>
@@ -583,27 +605,24 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 ))}
                 <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">{t("POST", "PUBLICATION")}</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setText(broadcastText)}
-                className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white border border-black dark:border-white px-2 py-0.5 transition-colors"
-              >
-                {t("↑ Sync from broadcast", "↑ Sync depuis la diffusion")}
-              </button>
             </div>
           </>
         )}
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="px-6 pb-6 bg-white dark:bg-zinc-900 transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[320px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
+        <div className="px-6 pt-5 pb-6 bg-white dark:bg-zinc-900 transition-colors">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[120px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-gray-300 dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed font-mono text-black dark:text-white" />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {mediaPreviews.map((url, idx) => (
                 <div key={idx} className="relative aspect-square border-2 border-black dark:border-white group bg-gray-100 dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                  <img src={url} className="w-full h-full object-cover" alt="" />
+                  {mediaTypes[idx] === 'video' ? (
+                    <video src={url} className="w-full h-full object-cover" muted playsInline />
+                  ) : (
+                    <img src={url} className="w-full h-full object-cover" alt="" />
+                  )}
                   <button onClick={() => removeMedia(idx)} className="absolute top-1 right-1 bg-red-600 border-2 border-black dark:border-white text-white p-0.5 hover:bg-red-700 transition-colors shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] opacity-0 group-hover:opacity-100"><X size={12} strokeWidth={3} /></button>
                 </div>
               ))}
@@ -628,14 +647,15 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             pinBoard={pinBoard} setPinBoard={setPinBoard}
             liArticleMode={liArticleMode} setLiArticleMode={setLiArticleMode}
             firstComment={firstComment} setFirstComment={setFirstComment}
+            tiktokHashtags={tiktokHashtags} setTiktokHashtags={setTiktokHashtags}
             altText={altText} setAltText={setAltText}
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-dashed border-gray-300 dark:border-zinc-700 gap-4 transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-black dark:border-white gap-4 transition-colors">
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000]", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800")}><ShoppingBag size={12} /> {isSelling ? t('COMMERCE: ON', 'COMMERCE: ACTIF') : t('COMMERCE: OFF', 'COMMERCE: INACTIF')}</button>
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white")}><ShoppingBag size={12} /> {isSelling ? t('COMMERCE: ON', 'COMMERCE: ACTIF') : t('COMMERCE: OFF', 'COMMERCE: INACTIF')}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
@@ -660,11 +680,11 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                             </PopoverContent>
                           </Popover>
 
-                          <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('NOW', 'MAINTENANT')}</NeuButton></PopoverTrigger>
+                          <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-700 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('NOW', 'MAINTENANT')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
-                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> {t("REVIEW", "RÉVISION")}</button>
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> {t("REVIEW", "RÉVISION")}</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('UPDATE', 'METTRE À JOUR') : (date ? t('SCHEDULE', 'PLANIFIER') : t('PUBLISH', 'PUBLIER'))}
@@ -692,7 +712,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     ]}
                     onUse={(asset, section) => {
                         if (section === 'post') {
-                            handleSelectFromLibrary({ id: asset.id, type: asset.type || 'image', url: asset.url, name: asset.name, parentId: asset.folderId || null });
+                            const mediaType: AssetType = (asset.mimeType?.startsWith('video/') || asset.type === 'video') ? 'video' : 'image';
+                            handleSelectFromLibrary({ id: asset.id, type: mediaType, url: asset.url, name: asset.name, parentId: asset.folderId || null });
+                            setIsLibraryOpen(false);
                         } else if (section === 'firstComment') {
                             setFirstComment(prev => (prev ? prev + '\n' : '') + asset.url);
                         } else if (section === 'broadcast') {
@@ -820,7 +842,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                 <span className="text-[10px] font-black uppercase bg-black text-[#ff0050] px-2 py-0.5 border border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">TIKTOK MOBILE</span>
                                 <div className="bg-black rounded-3xl border-4 border-zinc-800 aspect-[9/16] relative overflow-hidden flex flex-col justify-end p-4">
                                     {mediaPreviews.length > 0 && (
-                                        <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                                        mediaTypes[0] === 'video'
+                                          ? <video src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" autoPlay muted loop playsInline />
+                                          : <img src={mediaPreviews[0]} className="absolute inset-0 w-full h-full object-cover opacity-80" />
                                     )}
                                     <div className="relative z-10 space-y-2 text-white">
                                         <p className="text-sm font-bold">@yourusername</p>

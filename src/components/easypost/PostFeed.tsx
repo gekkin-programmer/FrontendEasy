@@ -17,12 +17,13 @@ const NeuBadge = ({ children, className }: any) => (
   </span>
 );
 
-const NeuButton = ({ onClick, children, className, disabled }: any) => (
-  <button 
-    onClick={onClick} 
+const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
+  <button
+    onClick={onClick}
     disabled={disabled}
+    title={title}
     className={cn(
-      "p-2 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-yellow-400 dark:hover:bg-zinc-700 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -31,14 +32,22 @@ const NeuButton = ({ onClick, children, className, disabled }: any) => (
 );
 
 // --- TYPES ---
+interface PostMediaItem {
+  id: string;
+  order: number;
+  media: { id: string; url: string; filename: string; mimeType: string; };
+}
+
 interface Post {
   id: string;
   content: string;
   status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'FAILED';
   scheduledFor?: string;
-  socialAccounts?: any[]; 
-  mediaUrls?: string[];
+  socialAccounts?: any[];
+  media?: PostMediaItem[];
   errorMessage?: string;
+  title?: string;
+  description?: string;
 }
 
 interface Account {
@@ -56,21 +65,23 @@ interface PostFeedProps {
   isLoading?: boolean;
 }
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] animate-pulse">
+  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+        <Skeleton className="w-8 h-8 border-2 border-black dark:border-white" />
         <div className="space-y-1">
-          <div className="h-2.5 w-24 bg-gray-200 dark:bg-zinc-700" />
-          <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-800" />
+          <Skeleton className="h-2.5 w-24" />
+          <Skeleton className="h-2 w-16" />
         </div>
       </div>
-      <div className="h-5 w-16 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+      <Skeleton className="h-5 w-16 border-2 border-black dark:border-white" />
     </div>
-    <div className="space-y-2 border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
-      <div className="h-3 w-full bg-gray-200 dark:bg-zinc-700" />
-      <div className="h-3 w-4/5 bg-gray-200 dark:bg-zinc-700" />
+    <div className="space-y-2 pl-3 border-l-2 border-gray-200 dark:border-zinc-700">
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-4/5" />
     </div>
   </div>
 );
@@ -89,15 +100,15 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 };
 
 // 🟢 SINGLE POST CARD COMPONENT
-const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, isQueued, draggable, onDragStart }: any) => {
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, isQueued, draggable, onDragStart }: any) => {
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#3C48F6]/10 dark:bg-[#3C48F6] text-[#3C48F5] dark:text-white border-[#3C48F5] dark:border-white";
+        case 'SCHEDULED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
         case 'PUBLISHED': return "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white";
-        case 'FAILED': return "bg-red-100 dark:bg-red-500 text-red-700 dark:text-white border-red-500 dark:border-black";
+        case 'FAILED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
         default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
     }
   };
@@ -112,7 +123,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       draggable={draggable}
       onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff]",
+        "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] rounded-lg",
         draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50 dark:hover:bg-zinc-800" : ""
       )}
     >
@@ -147,19 +158,45 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       </div>
 
       <div className={cn("flex gap-3", draggable && "pl-4")}>
-        {post.mediaUrls && post.mediaUrls.length > 0 && (
-           <div className={cn(
-             "grid gap-1 shrink-0 relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
-             post.mediaUrls.length === 1 ? "w-16 h-16 grid-cols-1" : "w-24 h-24 grid-cols-2"
-           )}>
-             {post.mediaUrls.slice(0, 4).map((url: string, i: number) => (
-               <img key={i} src={url} alt="Post Media" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-black dark:border-white" />
-             ))}
-           </div>
+        {post.media && post.media.length > 0 && (
+          <div className="shrink-0 flex flex-col gap-1.5">
+            <div className={cn(
+              "grid gap-1 relative overflow-hidden shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
+              post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
+            )}>
+              {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
+                pm.media.mimeType?.startsWith('video/') ? (
+                  <video key={i} src={pm.media.url} className="w-full h-full object-cover border border-black dark:border-white" muted playsInline />
+                ) : (
+                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover border border-black dark:border-white" />
+                )
+              ))}
+            </div>
+            <div className="space-y-0.5 max-w-[128px]">
+              {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
+                <div key={i} className="flex items-center gap-1 min-w-0">
+                  <span className={cn(
+                    "text-[6px] font-black px-0.5 border border-black dark:border-white flex-shrink-0",
+                    pm.media.mimeType?.startsWith('video/') ? "bg-black text-white dark:bg-white dark:text-black" : "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
+                  )}>
+                    {pm.media.mimeType?.startsWith('video/') ? 'VID' : 'IMG'}
+                  </span>
+                  <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500 truncate">{pm.media.filename}</span>
+                </div>
+              ))}
+              {post.media.length > 2 && (
+                <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500">+{post.media.length - 2} more</span>
+              )}
+            </div>
+          </div>
         )}
-        <p className="text-sm font-medium text-black dark:text-white line-clamp-2 flex-1 leading-relaxed border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
-          {post.content}
-        </p>
+        <div className="flex-1 min-w-0 space-y-1">
+          {post.title && <h4 className="font-bold text-sm text-black dark:text-white uppercase truncate">{post.title}</h4>}
+          <p className="text-sm font-medium text-black dark:text-white line-clamp-2 leading-relaxed border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
+            {post.content}
+          </p>
+          {post.description && <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-2 mt-1 italic">{post.description}</p>}
+        </div>
       </div>
 
       {post.status === 'FAILED' && post.errorMessage && (
@@ -169,10 +206,10 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
       )}
 
-      <div className={cn("mt-4 pt-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
-        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500 dark:text-zinc-400">
-           {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
-           <span>
+      <div className={cn("mt-4 py-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-black dark:text-white">
+           {isQueued ? <CalendarCheck className="w-3.5 h-3.5 text-black dark:text-white" /> : <Edit2 className="w-3.5 h-3.5 text-black dark:text-white" />}
+           <span className="text-black dark:text-white">
              {post.scheduledFor 
                ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
                : 'NO_DATE_SET'}
@@ -180,50 +217,61 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
         
         <div className="flex gap-1">
+          {post.status === 'PUBLISHED' && (
+            <NeuButton
+              onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
+              title="Repost"
+              className="bg-white hover:bg-white border-black hover:border-black"
+            >
+              <RefreshCw size={14} className="text-black dark:text-white" />
+            </NeuButton>
+          )}
+
           {post.status === 'FAILED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
               title="Retry Publication"
-              className="bg-red-100 dark:bg-red-900/20 hover:bg-red-300 dark:hover:bg-red-800 text-red-700 dark:text-red-400"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={14} className="text-black" />
             </NeuButton>
           )}
 
           {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
               title="Publish Now"
-              className="bg-green-100 dark:bg-green-900/20 hover:bg-green-300 dark:hover:bg-green-800"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <Send size={14} className="text-green-700 dark:text-green-400" />
+              <Send size={14} className="text-black dark:text-white" />
             </NeuButton>
           )}
 
           {isQueued && post.status === 'SCHEDULED' && (
-            <NeuButton 
+            <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
               title="Cancel Schedule"
-              className="bg-yellow-100 dark:bg-yellow-900/20 hover:bg-yellow-300 dark:hover:bg-yellow-800"
+              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <Clock size={14} className="text-yellow-700 dark:text-yellow-400" />
+              <Clock size={14} className="text-black dark:text-white" />
             </NeuButton>
           )}
 
-          <NeuButton 
-            disabled={post.status === 'PUBLISHED'}
-            onClick={(e: any) => { 
-              e.stopPropagation(); 
-              if (post.status === 'PUBLISHED') return toast.error("CANNOT_EDIT_PUBLISHED");
-              onEdit?.(); 
-            }}
-            title={post.status === 'PUBLISHED' ? "Cannot edit published post" : "Edit Post"}
-          >
-            <Edit2 size={14} className={post.status === 'PUBLISHED' ? 'opacity-30' : ''} />
-          </NeuButton>
+          {post.status !== 'PUBLISHED' && (
+            <NeuButton
+              onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
+              title="Edit Post"
+            >
+              <Edit2 size={14} className="text-black dark:text-white" />
+            </NeuButton>
+          )}
 
-          <NeuButton onClick={(e: any) => { e.stopPropagation(); onDelete(); }}>
-            <Trash2 size={14} />
+          <NeuButton
+            onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
+            title="Delete Post"
+            className="group/del hover:bg-red-500 hover:border-red-500 dark:hover:border-red-500 hover:shadow-[2px_2px_0px_0px_#991b1b]"
+          >
+            <Trash2 size={14} className="text-black dark:text-white group-hover/del:text-white" />
           </NeuButton>
         </div>
       </div>
@@ -237,9 +285,10 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   const deletePost = async (postId: string) => {
+    if (!window.confirm(t("Delete this post from all connected platforms?", "Supprimer ce post de toutes les plateformes connectées ?"))) return;
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
-        toast.success(t("Post deleted", "Publication supprimée"));
+        toast.success(t("Post deleted from all platforms", "Publication supprimée de toutes les plateformes"));
     } catch (e) {
         toast.error(t("Failed to delete", "Échec de la suppression"));
     }
@@ -251,6 +300,18 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         toast.success(t("Schedule cancelled", "Planification annulée"));
     } catch (e) {
         toast.error(t("Cancellation failed", "Échec de l'annulation"));
+    }
+  };
+
+  const repostPost = async (postId: string) => {
+    try {
+      toast.loading(t("Reposting...", "Republication en cours..."));
+      await api.post(`/posts/${postId}/repost?workspaceId=${workspaceId}`, {});
+      toast.dismiss();
+      toast.success(t("Reposted!", "Republié !"));
+    } catch (e) {
+      toast.dismiss();
+      toast.error(t("Repost failed", "Échec de la republication"));
     }
   };
 
@@ -321,13 +382,14 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && drafts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
+              <PostCard
+                key={post.id}
+                post={post}
                 onDelete={() => deletePost(post.id)}
                 onEdit={() => onEdit?.(post)}
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
+                onRepost={() => repostPost(post.id)}
                 draggable={true}
                 onDragStart={(e: any) => handleDragStart(e, post.id)}
               />
@@ -351,14 +413,15 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && queued.map((post) => (
-              <PostCard 
-                key={post.id} 
+              <PostCard
+                key={post.id}
                 post={post}
                 onDelete={() => deletePost(post.id)}
                 onEdit={() => onEdit?.(post)}
                 onCancelSchedule={() => cancelSchedule(post.id)}
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
+                onRepost={() => repostPost(post.id)}
                 isQueued
               />
             ))}

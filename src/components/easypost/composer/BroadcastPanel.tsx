@@ -78,8 +78,7 @@ export function BroadcastPanel({
     <div className={asLane ? '' : 'space-y-0'}>
       {/* Lane header */}
       <div
-        className="flex items-center gap-2 px-4 py-2 border-b-2 border-black dark:border-white"
-        style={{ backgroundColor: primaryColor + '18' }}
+        className="flex items-center gap-2 px-4 py-2 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900"
       >
         <div className="flex items-center gap-1">
           {broadcastPlatforms.map((p) => (
@@ -103,7 +102,7 @@ export function BroadcastPanel({
                 insertMarkdown(textareaRef.current, action.before, action.after, setText);
               }
             }}
-            className={`w-7 h-7 flex items-center justify-center border-2 border-black dark:border-white text-[11px] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all ${action.className}`}
+            className={`w-7 h-7 flex items-center justify-center border-2 border-black dark:border-white text-[11px] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:bg-zinc-800 dark:active:bg-zinc-200 active:text-white dark:active:text-black transition-all ${action.className}`}
           >
             {action.label}
           </button>
@@ -124,8 +123,8 @@ export function BroadcastPanel({
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Write your broadcast message... (Markdown supported)"
-        rows={5}
-        className="w-full px-4 py-3 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-mono text-sm resize-none focus:outline-none placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+        rows={10}
+        className="w-full px-4 py-3 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-mono text-sm resize-none focus:outline-none placeholder:text-gray-400 dark:placeholder:text-zinc-600 min-h-[240px]"
       />
 
       {/* Char progress bar */}
@@ -189,21 +188,26 @@ export function BroadcastPanel({
 
         {/* Inline time picker when schedule is selected */}
         {!sendNow && (
-          <input
-            type="datetime-local"
-            value={scheduledTime ? scheduledTime.toISOString().slice(0, 16) : ''}
-            onChange={(e) =>
-              setScheduledTime(e.target.value ? new Date(e.target.value) : undefined)
-            }
-            className="border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white px-2 py-1 text-[10px] font-mono focus:outline-none"
-          />
+          <div className="flex items-center gap-0 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+            <div className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-black uppercase px-2 py-2 border-r-2 border-black dark:border-white whitespace-nowrap select-none">
+              SCHEDULE
+            </div>
+            <input
+              type="datetime-local"
+              value={scheduledTime ? scheduledTime.toISOString().slice(0, 16) : ''}
+              onChange={(e) =>
+                setScheduledTime(e.target.value ? new Date(e.target.value) : undefined)
+              }
+              className="bg-white dark:bg-zinc-900 text-black dark:text-white px-2 py-1.5 text-[10px] font-mono font-bold focus:outline-none focus:bg-yellow-50 dark:focus:bg-zinc-800 transition-colors"
+            />
+          </div>
         )}
 
         {/* BROADCAST CTA */}
         <button
           type="button"
           onClick={onBroadcast}
-          disabled={isSubmitting || isOver || text.trim().length === 0}
+          disabled={isSubmitting}
           className="flex items-center gap-2 px-5 py-2 border-2 border-black font-black text-xs uppercase text-white shadow-[4px_4px_0px_0px_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ backgroundColor: primaryColor }}
         >

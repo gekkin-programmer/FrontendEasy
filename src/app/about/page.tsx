@@ -12,7 +12,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 
 
 const inputClass =
-  'w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white/20 px-4 py-3 font-bold text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-[#3C48F6] dark:focus:border-[#3C48F6] transition-colors uppercase';
+  'w-full bg-white dark:bg-black border-2 border-black dark:border-white/20 px-4 py-3 font-bold text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-[#3C48F6] dark:focus:border-[#3C48F6] transition-colors uppercase';
 
 export default function AboutPage() {
   const { t } = useLanguage();
@@ -102,13 +102,13 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 font-sans">
+    <div className="min-h-screen bg-white dark:bg-black font-sans">
       <Navbar />
 
       {/* Hero */}
-      <section className="border-b-4 border-black dark:border-white/10 bg-white dark:bg-zinc-950 py-20 md:py-32 px-4 text-center relative overflow-hidden">
+      <section className="border-b-4 border-black dark:border-white/10 bg-white dark:bg-black py-20 md:py-32 px-4 text-center relative overflow-hidden">
         <div className="absolute top-6 left-6 w-10 h-10 bg-[#3C48F6] border-4 border-black dark:border-white/20 rotate-12 hidden md:block" />
-        <div className="absolute bottom-6 right-10 w-16 h-16 bg-[#3C48F6]/20 border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
+        <div className="absolute bottom-6 right-10 w-16 h-16 bg-[#3C48F6] border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest mb-6">
             {t('THE TEAM BEHIND EASYPOST', "L'ÉQUIPE DERRIÈRE EASYPOST")}
@@ -129,7 +129,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team Grid */}
-      <section className="py-16 md:py-24 px-4 border-b-4 border-black dark:border-white/10 bg-white dark:bg-zinc-950">
+      <section className="py-16 md:py-24 px-4 border-b-4 border-black dark:border-white/10 bg-white dark:bg-black">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-black dark:text-white mb-12 text-center">
             {t('WHO WE ARE', 'QUI NOUS SOMMES')}
@@ -138,7 +138,7 @@ export default function AboutPage() {
             {team.map((member, i) => (
               <div
                 key={i}
-                className="border-4 border-black dark:border-white/20 bg-white dark:bg-zinc-900 shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all flex flex-col"
+                className="border-4 border-black dark:border-white/20 bg-white dark:bg-black shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all flex flex-col"
               >
                 <div className="relative h-48 w-full border-b-4 border-black dark:border-white/20 overflow-hidden">
                   <Image
@@ -173,7 +173,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-16 md:py-24 px-4 border-b-4 border-black dark:border-white/10 bg-zinc-50 dark:bg-zinc-950">
+      <section className="py-16 md:py-24 px-4 border-b-4 border-black dark:border-white/10 bg-zinc-50 dark:bg-black">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-black dark:text-white mb-4 text-center">
             {t('WHAT WE STAND FOR', 'NOS VALEURS')}
@@ -205,7 +205,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 px-4 text-center bg-white dark:bg-zinc-950 border-t-4 border-black dark:border-white/10">
+      <section className="py-16 md:py-24 px-4 text-center bg-white dark:bg-black border-t-4 border-black dark:border-white/10">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-black uppercase text-black dark:text-white leading-tight mb-6">
             {t('WANT TO JOIN', 'ENVIE DE REJOINDRE')}<br />
@@ -238,7 +238,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className="overflow-hidden"
               >
-                <div className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white/20 shadow-[8px_8px_0px_0px_#000] dark:shadow-none text-left p-6 md:p-8">
+                <div className="bg-white dark:bg-black border-4 border-black dark:border-white/20 shadow-[8px_8px_0px_0px_#000] dark:shadow-none text-left p-6 md:p-8">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-black dark:border-white/10">
                     <div>
                       <h3 className="font-black text-xl uppercase text-black dark:text-white tracking-tight">
@@ -357,7 +357,7 @@ export default function AboutPage() {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="w-full border-2 border-dashed border-black dark:border-white/20 hover:border-[#3C48F6] dark:hover:border-[#3C48F6] bg-white dark:bg-zinc-900 px-4 py-4 flex items-center justify-center gap-3 transition-colors group"
+                          className="w-full border-2 border-dashed border-black dark:border-white/20 hover:border-[#3C48F6] dark:hover:border-[#3C48F6] bg-white dark:bg-black px-4 py-4 flex items-center justify-center gap-3 transition-colors group"
                         >
                           <Upload size={18} className="text-gray-400 group-hover:text-[#3C48F6] transition-colors" />
                           <span className="text-xs font-black uppercase text-gray-500 dark:text-zinc-500 group-hover:text-[#3C48F6] transition-colors">

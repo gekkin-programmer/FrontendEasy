@@ -9,7 +9,8 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Loader2, GripVertical, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
   DndContext,
@@ -34,6 +35,20 @@ const ICONS: Record<string, any> = {
   FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram,
   LINKEDIN: FaLinkedinIn, TIKTOK: FaTiktok, YOUTUBE: FaYoutube, WHATSAPP: FaWhatsapp
 };
+
+function CalendarSkeleton() {
+  return (
+    <div className="grid grid-cols-7 bg-black dark:bg-white gap-[2px]">
+      {[...Array(35)].map((_, i) => (
+        <div key={i} className="min-h-[100px] p-2 bg-white dark:bg-zinc-900 space-y-2">
+          <Skeleton className="h-5 w-5" />
+          {i % 3 === 0 && <Skeleton className="h-8 w-full" />}
+          {i % 5 === 0 && <Skeleton className="h-8 w-full" />}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type ViewType = 'month' | 'week' | 'day';
 
@@ -294,7 +309,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       )}
 
       {isLoading ? (
-        <div className="h-96 flex items-center justify-center bg-white dark:bg-zinc-900"><Loader2 className="w-12 h-12 animate-spin text-[#3C48F5]" /></div>
+        <CalendarSkeleton />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className={cn(

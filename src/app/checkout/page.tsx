@@ -98,7 +98,7 @@ function CheckoutContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto pt-32 pb-20 px-4">
+    <div className="max-w-6xl mx-auto pt-32 pb-20 px-4">
       <button 
         onClick={() => router.back()}
         className="flex items-center gap-2 font-black uppercase text-xs mb-8 hover:text-[#3C48F5] transition-colors"
@@ -146,7 +146,7 @@ function CheckoutContent() {
                     <h2 className="text-2xl font-black uppercase border-b-4 border-black dark:border-white pb-4">{t('Payment Info', 'Infos de Paiement')}</h2>
 
                     <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">{t('Operator', 'Opérateur')}</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-white">{t('Operator', 'Opérateur')}</label>
                         <div className="grid grid-cols-2 gap-4">
                             <OperatorBtn
                                 active={operator === 'MTN_MOMO_CMR'}
@@ -166,7 +166,7 @@ function CheckoutContent() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">{t('Phone Number', 'Numéro de Téléphone')}</label>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-white">{t('Phone Number', 'Numéro de Téléphone')}</label>
                         <div className="relative">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-gray-400">+237</div>
                             <input 
