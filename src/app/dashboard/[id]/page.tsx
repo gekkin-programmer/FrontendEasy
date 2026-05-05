@@ -563,7 +563,11 @@ function DashboardContent() {
                 ],
                 IG_NO_FACEBOOK_PAGE: [
                     'Please connect your Facebook Page first, then reconnect Instagram.',
-                    'Veuillez d\'abord connecter votre Page Facebook, puis reconnecter Instagram.',
+                    "Veuillez d'abord connecter votre Page Facebook, puis reconnecter Instagram.",
+                ],
+                FB_NO_PAGE: [
+                    'No Facebook Pages found. Go to Settings → Social Accounts → Connect Facebook and grant access to your Page. If it keeps failing, click "Reconnect (fresh)" next to Facebook.',
+                    "Aucune Page Facebook trouvée. Allez dans Paramètres → Comptes sociaux → Connecter Facebook et accordez l'accès à votre Page. Si ça échoue encore, cliquez sur \"Reconnecter (nouveau)\" à côté de Facebook.",
                 ],
                 IG_API_ERROR: [
                     'Instagram connection failed. Please try again.',
