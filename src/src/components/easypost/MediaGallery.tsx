@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -246,9 +247,9 @@ export default function MediaGallery({
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                   <div className="w-full aspect-square bg-gray-200 dark:bg-zinc-700 animate-pulse" />
-                   <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                 <div key={i} className="flex flex-col items-center gap-2 p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                   <Skeleton className="w-full aspect-square" />
+                   <Skeleton className="h-2.5 w-3/4" />
                  </div>
                ))}
              </>
