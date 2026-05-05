@@ -138,7 +138,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
           <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{t("Workspace Boards", "Tableaux de l'Espace")}</h2>
           <p className="text-sm font-bold text-gray-500 uppercase">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
         </div>
-        <NeuButton onClick={() => setIsCreateBoardOpen(true)} className="bg-[#3C48F5] text-white">
+        <NeuButton onClick={() => setIsCreateBoardOpen(true)}>
           <Plus size={20} className="mr-2" /> {t("NEW_BOARD", "NOUVEAU_TABLEAU")}
         </NeuButton>
       </div>
@@ -149,7 +149,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
           <h3 className="text-xl font-black uppercase text-gray-400">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
           <button
             onClick={() => setIsCreateBoardOpen(true)}
-            className="mt-4 text-[#3C48F5] font-black uppercase underline hover:no-underline"
+            className="mt-4 text-black dark:text-white font-black uppercase underline hover:no-underline"
           >
             {t("Create your first board", "Créer votre premier tableau")}
           </button>
