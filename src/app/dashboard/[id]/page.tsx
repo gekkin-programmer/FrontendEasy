@@ -614,7 +614,10 @@ function DashboardContent() {
     };
 
     const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
-        const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        const raw = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        // Strip IDs that are no longer in the current workspace's account list (stale Composer state)
+        const validAccountIds = new Set(accounts.map((a: any) => a.id));
+        const targets = raw.filter((id: string) => validAccountIds.has(id));
         if (targets.length === 0) return;
         upsertPostMutation.mutate({
             id: postId,
