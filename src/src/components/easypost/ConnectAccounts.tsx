@@ -160,13 +160,14 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     onError: () => toast.error(t("Disconnection failed", "Échec de la déconnexion"))
   });
 
-  const handleConnect = (platform: string, oauth: boolean) => {
+  const handleConnect = (platform: string, oauth: boolean, reauth = false) => {
     if (!oauth) {
       if (platform === 'telegram') setShowTelegramModal(true);
       return;
     }
     const freshToken = getCookie('accessToken');
-    window.location.assign(`${API_URL}/social-accounts/connect/${platform}?token=${freshToken}&workspaceId=${workspaceId}`);
+    const reauthParam = reauth ? '&reauth=true' : '';
+    window.location.assign(`${API_URL}/social-accounts/connect/${platform}?token=${freshToken}&workspaceId=${workspaceId}${reauthParam}`);
   };
 
   const handleForceRefresh = () => {
@@ -312,12 +313,22 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                         {t("Force Reboot", "Forcer le redémarrage")}
                     </button>
                 ) : isConnected ? (
+                  <>
                     <button
                         onClick={() => { if(confirm(t("Terminate stream connection?", "Terminer la connexion?"))) disconnectMutation.mutate(connectedAccount.id) }}
                         className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
                     >
                         <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
                     </button>
+                    {platform.oauth && (
+                      <button
+                          onClick={() => handleConnect(platform.id, platform.oauth, true)}
+                          className="w-full py-2 border-2 border-dashed border-black dark:border-white font-black text-[10px] uppercase text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                      >
+                          {t("Reconnect (fresh consent)", "Reconnecter (nouveau consentement)")}
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}

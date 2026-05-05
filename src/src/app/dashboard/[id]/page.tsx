@@ -561,6 +561,22 @@ function DashboardContent() {
                     'Instagram requires a Business or Creator account linked to a Facebook Page. Go to Instagram → Settings → Account type to switch, then retry.',
                     "Instagram nécessite un compte Professionnel ou Créateur lié à une Page Facebook. Allez sur Instagram → Paramètres → Type de compte pour changer, puis réessayez.",
                 ],
+                IG_NO_FACEBOOK_PAGE: [
+                    'Please connect your Facebook Page first, then reconnect Instagram.',
+                    "Veuillez d'abord connecter votre Page Facebook, puis reconnecter Instagram.",
+                ],
+                FB_NO_PAGE: [
+                    'No Facebook Pages found — your app permissions have been reset. Please click Connect Facebook again and make sure to grant access to your Page on the consent screen.',
+                    "Aucune Page Facebook trouvée — les permissions ont été réinitialisées. Cliquez à nouveau sur Connecter Facebook et accordez l'accès à votre Page sur l'écran de consentement.",
+                ],
+                FB_PERMISSION_DENIED: [
+                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow EazyPost to manage your Page.',
+                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser EazyPost à gérer votre Page.",
+                ],
+                FB_NO_PAGES_EXISTS: [
+                    'No Facebook Pages found on your account. To connect Facebook, you need a Facebook Page (not a personal profile). Create one at facebook.com/pages/create, then try again.',
+                    "Aucune Page Facebook trouvée sur votre compte. Pour connecter Facebook, vous avez besoin d'une Page Facebook (pas d'un profil personnel). Créez-en une sur facebook.com/pages/create, puis réessayez.",
+                ],
                 IG_API_ERROR: [
                     'Instagram connection failed. Please try again.',
                     'La connexion Instagram a échoué. Veuillez réessayer.',
@@ -614,7 +630,10 @@ function DashboardContent() {
     };
 
     const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
-        const targets = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        const raw = selectedAccountIds && selectedAccountIds.length > 0 ? selectedAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
+        // Strip IDs that are no longer in the current workspace's account list (stale Composer state)
+        const validAccountIds = new Set(accounts.map((a: any) => a.id));
+        const targets = raw.filter((id: string) => validAccountIds.has(id));
         if (targets.length === 0) return;
         upsertPostMutation.mutate({
             id: postId,
@@ -879,7 +898,7 @@ function DashboardContent() {
                                 ) : (
                                     <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
                                         <div className="p-4 bg-white dark:bg-zinc-900 text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">{t("MENU", "MENU")}</h3></div>
-                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-white dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
                                         <div className="mt-8 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-black dark:text-white mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
   className={`text-xl font-black ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
