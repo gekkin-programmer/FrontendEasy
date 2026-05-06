@@ -178,7 +178,8 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')],
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&start=${format(start, 'yyyy-MM-dd')}&end=${format(end, 'yyyy-MM-dd')}`),
-    enabled: !!workspaceId
+    enabled: !!workspaceId,
+    gcTime: 0,
   });
 
   const rescheduleMutation = useMutation({
@@ -280,7 +281,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "text-white hover:bg-yellow-400 hover:text-black"
+                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "text-white hover:bg-white/20"
                     )}
                   >
                       {v}
@@ -289,13 +290,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
-            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
+            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
+            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-white/80 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-white/80 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
