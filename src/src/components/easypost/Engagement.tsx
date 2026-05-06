@@ -50,6 +50,7 @@ export default function Engagement() {
   // 🟢 1. FETCH ENGAGEMENT
   const { data: engagements = [], isLoading } = useQuery({
     queryKey: ['engagement', workspaceId],
+    gcTime: 0,
     queryFn: async () => {
         const res: any = await api.get(`/engagement?workspaceId=${workspaceId}`);
         return res.data || [];

@@ -40,6 +40,7 @@ export default function MediaGallery({
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
     queryKey: ['media', currentFolderId],
+    gcTime: 0,
     queryFn: async () => {
         const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
         return api.get<{ folders: any[], assets: any[] }>(url);
@@ -52,6 +53,7 @@ export default function MediaGallery({
   // 2. Fetch Storage Usage
   const { data: usage = 0 } = useQuery({
     queryKey: ['media-usage'],
+    gcTime: 0,
     queryFn: async () => {
         const res = await api.get<number>('/media/usage');
         return typeof res === 'number' ? res : (res as any).data || 0;

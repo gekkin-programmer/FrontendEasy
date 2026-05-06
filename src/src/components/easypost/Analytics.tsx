@@ -188,46 +188,54 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
     // 1. Account Health
     const healthQuery = useQuery({
         queryKey: ['insights-health', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/health?workspaceId=${workspaceId}`) as any).data
     });
 
     // 2. Growth Forecast
     const forecastQuery = useQuery({
         queryKey: ['insights-forecast', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/forecast?workspaceId=${workspaceId}`) as any).data
     });
 
     // 3. Best Time
     const bestTimeQuery = useQuery({
         queryKey: ['insights-best-time', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/best-time?workspaceId=${workspaceId}`) as any).data
     });
 
     // 4. Content Mix
     const contentMixQuery = useQuery({
         queryKey: ['insights-content-mix', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/content-mix?workspaceId=${workspaceId}`) as any).data
     });
 
     // 5. Smart Copy & Hashtags
     const smartCopyQuery = useQuery({
         queryKey: ['insights-smart-copy', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/smart-copy?workspaceId=${workspaceId}`) as any).data
     });
     const hashtagsQuery = useQuery({
         queryKey: ['insights-hashtags', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/hashtags?workspaceId=${workspaceId}`) as any).data
     });
 
     // 6. Activity Timeline
     const timelineQuery = useQuery({
         queryKey: ['insights-timeline', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/timeline?workspaceId=${workspaceId}`) as any).data
     });
 
     // 7. Platform Comparison (reuse accounts analytics)
     const platformQuery = useQuery({
         queryKey: ['analytics-accounts', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS`) as any).data
     });
 
@@ -392,6 +400,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     // 🟢 1. FETCH OVERVIEW STATS
     const { data: overview = { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 } } = useQuery({
         queryKey: ['analytics-overview', workspaceId],
+        gcTime: 0,
         queryFn: async () => {
             const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
             return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
@@ -400,6 +409,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
 
     const { data: posts = [], isLoading, refetch } = useQuery({
         queryKey: ['analytics-posts', workspaceId],
+        gcTime: 0,
         queryFn: async () => {
             const res: any = await api.get(`/posts?workspaceId=${workspaceId}&limit=50&status=PUBLISHED`);
             const payload = res.data || res;
@@ -493,8 +503,9 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
     const { t } = useLanguage();
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['post-analytics', postId],
+        gcTime: 0,
         queryFn: async () => {
-            try { const res: any = await api.get(`/posts/${postId}`); return res.data || res; } 
+            try { const res: any = await api.get(`/posts/${postId}`); return res.data || res; }
             catch (err) { console.error("Fetch Detail Error:", err); return null; }
         },
     });

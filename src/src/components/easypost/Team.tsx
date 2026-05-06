@@ -79,23 +79,27 @@ export default function Team({ workspaceId }: TeamProps) {
   // ── QUERIES ───────────────────────────────────────────────────────────
   const { data: workspace } = useQuery({
     queryKey: ['workspace', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
     enabled: !!workspaceId,
   });
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
+    gcTime: 0,
     queryFn: () => api.get<any>('/auth/profile').then(res => res?.data || res),
   });
 
   const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery({
     queryKey: ['team-members', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`).then(res => res || []),
     enabled: !!workspaceId,
   });
 
   const { data: reviewPosts = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery({
     queryKey: ['review-posts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&status=REVIEW`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     enabled: !!workspaceId && activeTab === 'approvals',
   });

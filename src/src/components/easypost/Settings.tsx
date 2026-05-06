@@ -700,6 +700,7 @@ function PaymentMethodsCard() {
 
   const { data: methods = [], isLoading } = useQuery<any[]>({
     queryKey: ['payment-methods'],
+    gcTime: 0,
     queryFn: () => api.get<any[]>('/payments/methods').then(r => Array.isArray(r) ? r : (r as any)?.data || []),
   });
 
@@ -825,24 +826,28 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
   const { data: workspace } = useQuery({
     queryKey: ['workspace-billing', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
     staleTime: 30_000,
   });
 
   const { data: accounts = [] } = useQuery({
     queryKey: ['social-accounts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     staleTime: 30_000,
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['posts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     staleTime: 30_000,
   });
 
   const { data: mediaUsageMB = 0 } = useQuery({
     queryKey: ['media-usage'],
+    gcTime: 0,
     queryFn: async () => {
       const res = await api.get<number>('/media/usage');
       return typeof res === 'number' ? res : (res as any).data || 0;

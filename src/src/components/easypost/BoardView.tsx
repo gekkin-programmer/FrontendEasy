@@ -102,6 +102,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   // Fetch Boards
   const { data: boards = [], isLoading } = useQuery({
     queryKey: ['boards', workspaceId],
+    gcTime: 0,
     queryFn: () => boardApi.getBoards(workspaceId),
   });
 
@@ -243,6 +244,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
+    gcTime: 0,
     queryFn: () => boardApi.getBoardDetails(boardId),
   });
 
