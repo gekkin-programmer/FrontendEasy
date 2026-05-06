@@ -866,9 +866,13 @@ function DashboardContent() {
                                                 <h2 className="text-xl font-black uppercase text-black dark:text-white">{t("Content Timeline", "Calendrier de Contenu")}</h2>
                                                 <NeuButton onClick={() => setActiveTab('queue')}>+ {t("Quick Post", "Publication Rapide")}</NeuButton>
                                             </div>
-                                            <CalendarView 
-                                                workspaceId={workspaceId} 
+                                            <CalendarView
+                                                workspaceId={workspaceId}
                                                 onPostClick={(post) => {
+                                                    if (post.status === 'PUBLISHED') {
+                                                        toast.info(t('Published posts cannot be edited', 'Les publications publiées ne peuvent pas être modifiées'));
+                                                        return;
+                                                    }
                                                     setEditingPost(post);
                                                     setActiveTab('queue');
                                                 }}

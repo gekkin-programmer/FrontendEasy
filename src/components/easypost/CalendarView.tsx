@@ -9,7 +9,8 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Loader2, GripVertical, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Calendar as CalendarIcon, Pencil } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
   DndContext,
@@ -34,6 +35,20 @@ const ICONS: Record<string, any> = {
   FACEBOOK: FaFacebookF, TWITTER: FaTwitter, INSTAGRAM: FaInstagram,
   LINKEDIN: FaLinkedinIn, TIKTOK: FaTiktok, YOUTUBE: FaYoutube, WHATSAPP: FaWhatsapp
 };
+
+function CalendarSkeleton() {
+  return (
+    <div className="grid grid-cols-7 bg-black dark:bg-white gap-[2px]">
+      {[...Array(35)].map((_, i) => (
+        <div key={i} className="min-h-[100px] p-2 bg-white dark:bg-zinc-900 space-y-2">
+          <Skeleton className="h-5 w-5" />
+          {i % 3 === 0 && <Skeleton className="h-8 w-full" />}
+          {i % 5 === 0 && <Skeleton className="h-8 w-full" />}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type ViewType = 'month' | 'week' | 'day';
 
@@ -65,8 +80,8 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
                 {dayLabel && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{dayLabel}</span>}
             </div>
             {postCount > 0 && (
-                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-yellow-300 text-black shadow-[2px_2px_0px_0px_#000]">
-                    {postCount}_NODES
+                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                    {postCount}
                 </span>
             )}
         </div>
@@ -100,17 +115,15 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
       className={cn(
-          "group relative flex items-center gap-1.5 p-1.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-[10px] font-black cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-600 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none",
+          "group relative flex items-center gap-1.5 p-1.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-[10px] font-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
           viewType === 'day' ? "p-3 text-xs" : ""
       )}
-      onClick={() => onClick(post)}
     >
-      <div {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white shrink-0">
         <GripVertical size={viewType === 'day' ? 14 : 10} />
       </div>
-      
+
       <div className="flex -space-x-1 overflow-hidden shrink-0">
         {socialAccounts.map((sa: any, idx: number) => {
             const platform = sa.socialAccount?.platform || sa.platform || 'FACEBOOK';
@@ -125,6 +138,15 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
 
       <span className="truncate flex-1 uppercase tracking-tighter ml-1">{post.content || t('No Content', 'Aucun Contenu')}</span>
 
+      {post.status !== 'PUBLISHED' && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onClick(post); }}
+          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-[#3C48F5] dark:hover:text-[#3C48F5] transition-opacity shrink-0"
+        >
+          <Pencil size={viewType === 'day' ? 12 : 8} />
+        </button>
+      )}
+
       <div className="hidden group-hover:block absolute bottom-full left-0 w-48 bg-black text-white p-2 text-[10px] z-[100] mb-2 border-2 border-white shadow-[4px_4px_0px_0px_#000]">
           <p className="line-clamp-3 font-bold">{post.content}</p>
           <div className="flex flex-col mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase gap-1">
@@ -136,6 +158,12 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
                 <span>{t('Time:', 'Heure:')}</span>
                 <span>{post.scheduledFor ? format(parseISO(post.scheduledFor), 'HH:mm') : 'N/A'}</span>
               </div>
+              {post.status === 'PUBLISHED' && (
+                <div className="flex justify-between text-green-400">
+                  <span>STATUS</span>
+                  <span>PUBLISHED</span>
+                </div>
+              )}
           </div>
       </div>
     </div>
@@ -163,23 +191,27 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')],
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&start=${format(start, 'yyyy-MM-dd')}&end=${format(end, 'yyyy-MM-dd')}`),
-    enabled: !!workspaceId
+    enabled: !!workspaceId,
+    gcTime: 0,
   });
 
   const rescheduleMutation = useMutation({
-    mutationFn: ({ id, date }: { id: string, date: string }) => 
+    mutationFn: ({ id, date }: { id: string, date: string }) =>
         api.patch(`/posts/${id}`, { scheduledFor: date }),
     onSuccess: () => {
         trackAction('calendar_drag_drop', { workspaceId });
-        queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
-    onError: () => toast.error(t("RESCHEDULE_FAILED", "REPLANIFICATION_ÉCHOUÉE"))
+    onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+    },
+    onError: () => toast.error(t("Reschedule failed", "Échec de la replanification"))
   });
 
   const days = eachDayOfInterval({ start, end });
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6, delay: 100, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -190,7 +222,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
     const postId = active.id;
     const targetDateStr = over.id;
 
-    if (postId && targetDateStr) {
+    if (postId && targetDateStr && /^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
         const post = posts.find(p => p.id === postId);
         if (!post) return;
 
@@ -217,14 +249,17 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
             p.status
           ];
       });
-      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.body.appendChild(document.createElement("a"));
-      link.href = encodedUri;
+      const csv = [headers, ...rows].map(e => e.join(",")).join("\n");
+      const blob = new Blob(["﻿" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
       link.download = `calendar_export_${format(new Date(), 'yyyy_MM_dd')}.csv`;
+      document.body.appendChild(link);
       link.click();
-      link.remove();
-      
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       trackAction('calendar_export', { workspaceId, postCount: posts.length });
       toast.success(t("EXPORT_GENERATED", "EXPORT_GÉNÉRÉ"));
   };
@@ -238,7 +273,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   };
 
   return (
-    <div className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] transition-all overflow-hidden">
+    <div className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] transition-all overflow-hidden rounded-t-2xl">
       
       <div className="flex flex-col lg:flex-row items-center justify-between p-6 border-b-4 border-black dark:border-white bg-[#3C48F5] text-white gap-6">
         <div className="flex items-center gap-4">
@@ -249,7 +284,6 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
                 </h2>
-                <p className="font-mono text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">{viewType}_{t("VIEW", "VUE")} {t("ENGINE_READY", "MOTEUR_PRÊT")}</p>
             </div>
         </div>
 
@@ -261,7 +295,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "hover:bg-white/20 hover:text-yellow-300"
+                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "text-white/70"
                     )}
                   >
                       {v}
@@ -270,13 +304,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
-            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black hover:bg-yellow-400 transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
+            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
+            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] hover:bg-yellow-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
@@ -292,7 +326,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       )}
 
       {isLoading ? (
-        <div className="h-96 flex items-center justify-center bg-white dark:bg-zinc-900"><Loader2 className="w-12 h-12 animate-spin text-[#3C48F5]" /></div>
+        <CalendarSkeleton />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className={cn(
