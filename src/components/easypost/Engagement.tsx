@@ -220,7 +220,7 @@ export default function Engagement() {
             <div
               key={e._id}
               onClick={() => setActiveId(e._id)}
-              className={`p-4 cursor-pointer border-b-2 border-black dark:border-white transition-all group relative hover:bg-yellow-50 dark:hover:bg-zinc-800
+              className={`p-4 cursor-pointer border-b-2 border-black dark:border-white transition-all group relative hover:bg-zinc-50 dark:hover:bg-zinc-800
                 ${activeId === e._id ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
             >
               {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-2 bg-yellow-400 dark:bg-yellow-600 border-r-2 border-black dark:border-white" />}
@@ -356,7 +356,7 @@ export default function Engagement() {
                             <button
                                 onClick={handleReply}
                                 disabled={!replyText || replyMutation.isPending}
-                                className="bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase px-6 py-2 border-2 border-transparent hover:bg-yellow-400 hover:text-black hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,0)] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff]"
+                                className="bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase px-6 py-2 border-2 border-black dark:border-white hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
                             >
                                 <FiSend size={14} strokeWidth={3} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
                             </button>
@@ -381,7 +381,7 @@ export default function Engagement() {
 
 // --- SUB COMPONENTS ---
 const FilterBadge = ({ label, active, count, onClick, icon }: any) => (
-    <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all flex items-center gap-2 ${active ? 'bg-black dark:bg-white text-white dark:text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800'}`}>
+    <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all flex items-center gap-2 ${active ? 'bg-black dark:bg-white text-white dark:text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
         {icon && <span>{icon}</span>}
         {label}
         {count !== undefined && <span className={`px-1.5 py-0.5 text-[10px] border border-current ${active ? 'bg-white dark:bg-zinc-900 text-black dark:text-white' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{count}</span>}
@@ -389,7 +389,7 @@ const FilterBadge = ({ label, active, count, onClick, icon }: any) => (
 );
 
 const ActionButton = ({ icon, tooltip, onClick, variant = 'default' }: any) => (
-    <button onClick={onClick} className={`p-2 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none ${variant === 'danger' ? 'bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white' : 'bg-white dark:bg-zinc-900 hover:bg-yellow-200 dark:hover:bg-zinc-800 text-black dark:text-white'}`} title={tooltip}>
+    <button onClick={onClick} className={`p-2 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none ${variant === 'danger' ? 'bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white' : 'bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-black dark:text-white'}`} title={tooltip}>
         {React.cloneElement(icon as React.ReactElement<any>, { size: 16, strokeWidth: 2.5 })}
     </button>
 );
