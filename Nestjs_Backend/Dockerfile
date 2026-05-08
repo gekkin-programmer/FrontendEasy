@@ -12,7 +12,7 @@ COPY prisma ./prisma/
 # Install all dependencies (including devDependencies for build)
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
+    npm install -g pnpm@10 && pnpm install --frozen-lockfile; \
   elif [ -f yarn.lock ]; then \
     yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then \
@@ -39,7 +39,7 @@ ARG NODE_OPTIONS=--max-old-space-size=2048
 ENV NODE_OPTIONS=${NODE_OPTIONS}
 
 # Build the NestJS application
-RUN corepack enable pnpm && pnpm run build
+RUN npm install -g pnpm@10 && pnpm run build
 
 # ── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
