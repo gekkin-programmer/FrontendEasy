@@ -80,20 +80,26 @@ export class CanvaService {
     const clientSecret = this.config.get<string>('CANVA_CLIENT_SECRET');
     const redirectUri = this.config.get<string>('CANVA_REDIRECT_URI');
 
+    // Canva requires Basic auth — client credentials must NOT be in the body
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code,
       redirect_uri: redirectUri!,
       code_verifier: codeVerifier,
-      client_id: clientId!,
-      client_secret: clientSecret!,
     });
 
     const { data } = await firstValueFrom(
       this.http.post<{ access_token: string; refresh_token: string; expires_in: number; token_type: string }>(
         CANVA_TOKEN,
         body.toString(),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${basicAuth}`,
+          },
+        },
       ),
     );
 
@@ -152,19 +158,23 @@ export class CanvaService {
 
     const clientId = this.config.get<string>('CANVA_CLIENT_ID');
     const clientSecret = this.config.get<string>('CANVA_CLIENT_SECRET');
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: conn.refreshToken,
-      client_id: clientId!,
-      client_secret: clientSecret!,
     });
 
     const { data } = await firstValueFrom(
       this.http.post<{ access_token: string; refresh_token?: string; expires_in: number }>(
         CANVA_TOKEN,
         body.toString(),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${basicAuth}`,
+          },
+        },
       ),
     );
 
