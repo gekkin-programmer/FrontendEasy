@@ -86,7 +86,7 @@ const ConnectSection = () => {
         </div>
 
         <div className="mt-12 md:mt-16">
-            <p className="text-sm md:text-lg font-bold text-gray-500 uppercase tracking-widest">
+            <p className="text-sm md:text-lg font-bold text-gray-500 dark:text-white uppercase tracking-widest">
                 & {t("more coming soon", "plus à venir")}
             </p>
         </div>

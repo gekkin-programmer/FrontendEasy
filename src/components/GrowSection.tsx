@@ -159,7 +159,7 @@ const GrowSection = () => {
           </div>
 
           {/* Right cards (8 cols) */}
-          <div className="lg:col-span-7 w-full overflow-hidden">
+          <div className="lg:col-span-7 w-full overflow-hidden rounded-xl">
             {/* Folder Tabs (Horizontal Scroll for Mobile) */}
             <div className="flex items-end pl-2 md:pl-4 border-b-4 border-black overflow-x-auto scrollbar-hide w-full pb-[2px]">
                 <div className="flex space-x-1 md:space-x-0 min-w-max">
@@ -178,7 +178,7 @@ const GrowSection = () => {
             {/* The Folder Content */}
             <div className="bg-[#3C48F5] border-4 border-t-0 border-black dark:border-white/5 p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
                 <div className="flex justify-between items-center mb-4 md:mb-8 border-b-2 border-black pb-4">
-                    <h3 className="font-black text-lg md:text-2xl text-black uppercase truncate">COMMUNITY.EXE</h3>
+                    <h3 className="font-black text-lg md:text-2xl text-black dark:text-white uppercase truncate">COMMUNITY.EXE</h3>
                     <div className="flex gap-2 flex-shrink-0">
                         <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-white border-2 border-black rounded-full"></div>
                         <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-black border-2 border-black rounded-full"></div>
