@@ -4,8 +4,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud, FiEdit2
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2
 } from 'react-icons/fi';
+import { SiCanva, SiDropbox } from 'react-icons/si';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -252,14 +253,14 @@ export default function MediaGallery({
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
-                  <FiDownloadCloud /> Canva
+                  <SiCanva size={13} /> Canva
               </button>
               <button
                 onClick={() => toast.info(t("Dropbox Import — Coming Soon", "Import Dropbox — Bientôt disponible"))}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
-                  <FiDownloadCloud /> Dropbox
+                  <SiDropbox size={13} /> Dropbox
               </button>
           </div>
       </div>
