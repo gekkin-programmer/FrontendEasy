@@ -45,8 +45,11 @@ export default function MediaGallery({
     } else if (canvaParam === 'returned') {
       toast.success(t('Back from Canva — import your design below', 'Retour depuis Canva — importez votre design'));
       setCanvaModalOpen(true);
+    } else if (canvaParam === 'error') {
+      const errMsg = params.get('canva_error') ?? 'Authorization failed';
+      toast.error(t(`Canva: ${errMsg}`, `Canva : ${errMsg}`));
     }
-    if (canvaParam === 'connected' || canvaParam === 'returned') {
+    if (canvaParam === 'connected' || canvaParam === 'returned' || canvaParam === 'error') {
       const url = new URL(window.location.href);
       url.searchParams.delete('canva');
       window.history.replaceState({}, '', url.toString());

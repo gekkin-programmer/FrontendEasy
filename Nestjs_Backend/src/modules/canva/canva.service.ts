@@ -124,6 +124,12 @@ export class CanvaService {
     return { workspaceId };
   }
 
+  consumeState(state: string): string | null {
+    const entry = pkceStore.get(state);
+    pkceStore.delete(state);
+    return entry?.workspaceId ?? null;
+  }
+
   async disconnect(workspaceId: string): Promise<void> {
     await this.prisma.canvaConnection.deleteMany({ where: { workspaceId } });
   }

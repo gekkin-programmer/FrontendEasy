@@ -24,11 +24,19 @@ export class CanvaController {
   async handleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
+    @Query('error') oauthError: string,
+    @Query('error_description') errorDesc: string,
     @Res() res: Response,
   ) {
-    const { workspaceId } = await this.canva.handleCallback(code, state);
-    // Redirect back to frontend — MediaGallery detects the ?canva=connected param
     const frontendUrl = process.env.FRONTEND_URL || 'https://eazypost.cm';
+
+    if (oauthError) {
+      const workspaceId = this.canva.consumeState(state);
+      const base = workspaceId ? `${frontendUrl}/dashboard/${workspaceId}` : frontendUrl;
+      return res.redirect(`${base}?canva=error&canva_error=${encodeURIComponent(errorDesc || oauthError)}`);
+    }
+
+    const { workspaceId } = await this.canva.handleCallback(code, state);
     res.redirect(`${frontendUrl}/dashboard/${workspaceId}?canva=connected`);
   }
 
