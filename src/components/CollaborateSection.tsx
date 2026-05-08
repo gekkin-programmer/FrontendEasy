@@ -50,7 +50,7 @@ export default function CollaborateSection() {
             variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 }}
           >
             {t("Create Better.", "Créer Mieux.")}<br/>
-            <span className="text-[#3C48F5] drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">Together.</span>
+            <span className="text-[#3C48F5] drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">{t("Together.", "Ensemble.")}</span>
           </motion.h2>
 
           <motion.p

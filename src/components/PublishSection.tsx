@@ -21,8 +21,8 @@ const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProp
 );
 
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-black hover:translate-x-1 hover:translate-y-1 transition-all cursor-default">
-    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white">
+  <div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 transition-all cursor-default">
+    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] dark:bg-[#5566FF] border-2 border-black dark:border-white flex items-center justify-center text-white">
       {icon}
     </div>
     <p className="text-sm sm:text-base font-bold text-black dark:text-white leading-tight pt-1">{text}</p>
@@ -106,7 +106,7 @@ export default function PublishSection() {
           </div>
 
           <div className="pt-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black text-lg border-4 border-transparent hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black dark:hover:border-white transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
+            <button className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black text-lg border-4 border-black dark:border-white hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black dark:hover:border-white transition-all shadow-[8px_8px_0px_0px_#3C48F6] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.4)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider">
               {t("Start Publishing", "Commencer")}
               <CheckCircle strokeWidth={3} />
             </button>
