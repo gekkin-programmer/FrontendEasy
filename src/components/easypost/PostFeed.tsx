@@ -65,21 +65,23 @@ interface PostFeedProps {
   isLoading?: boolean;
 }
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] animate-pulse">
+  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+        <Skeleton className="w-8 h-8 border-2 border-black dark:border-white" />
         <div className="space-y-1">
-          <div className="h-2.5 w-24 bg-gray-200 dark:bg-zinc-700" />
-          <div className="h-2 w-16 bg-gray-100 dark:bg-zinc-800" />
+          <Skeleton className="h-2.5 w-24" />
+          <Skeleton className="h-2 w-16" />
         </div>
       </div>
-      <div className="h-5 w-16 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+      <Skeleton className="h-5 w-16 border-2 border-black dark:border-white" />
     </div>
-    <div className="space-y-2 border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
-      <div className="h-3 w-full bg-gray-200 dark:bg-zinc-700" />
-      <div className="h-3 w-4/5 bg-gray-200 dark:bg-zinc-700" />
+    <div className="space-y-2 pl-3 border-l-2 border-gray-200 dark:border-zinc-700">
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-4/5" />
     </div>
   </div>
 );
@@ -99,6 +101,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 
 // 🟢 SINGLE POST CARD COMPONENT
 const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, isQueued, draggable, onDragStart }: any) => {
+  const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
 
@@ -264,13 +267,13 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          <NeuButton
+          <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
             title="Delete Post"
-            className="group/del hover:bg-red-500 hover:border-red-500 dark:hover:border-red-500 hover:shadow-[2px_2px_0px_0px_#991b1b]"
+            className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:border-red-600 hover:text-white hover:shadow-[2px_2px_0px_0px_#991b1b] dark:hover:bg-red-500 dark:hover:border-red-600 dark:hover:text-white transition-all"
           >
-            <Trash2 size={14} className="text-black dark:text-white group-hover/del:text-white" />
-          </NeuButton>
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
     </motion.div>
@@ -283,7 +286,6 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   const deletePost = async (postId: string) => {
-    if (!window.confirm(t("Delete this post from all connected platforms?", "Supprimer ce post de toutes les plateformes connectées ?"))) return;
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
         toast.success(t("Post deleted from all platforms", "Publication supprimée de toutes les plateformes"));

@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -39,6 +40,7 @@ export default function MediaGallery({
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
     queryKey: ['media', currentFolderId],
+    gcTime: 0,
     queryFn: async () => {
         const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
         return api.get<{ folders: any[], assets: any[] }>(url);
@@ -51,6 +53,7 @@ export default function MediaGallery({
   // 2. Fetch Storage Usage
   const { data: usage = 0 } = useQuery({
     queryKey: ['media-usage'],
+    gcTime: 0,
     queryFn: async () => {
         const res = await api.get<number>('/media/usage');
         return typeof res === 'number' ? res : (res as any).data || 0;
@@ -182,14 +185,14 @@ export default function MediaGallery({
               </button>
               <button
                 onClick={() => toast.info(t("Canva Import — Coming Soon", "Import Canva — Bientôt disponible"))}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#3C48F5] hover:bg-blue-700 text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
                   <FiDownloadCloud /> Canva
               </button>
               <button
                 onClick={() => toast.info(t("Dropbox Import — Coming Soon", "Import Dropbox — Bientôt disponible"))}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#3C48F5] hover:bg-blue-700 text-white border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
                   <FiDownloadCloud /> Dropbox
@@ -206,7 +209,7 @@ export default function MediaGallery({
                     <span>{formatSize(usage)} / 100MB</span>
                 </div>
                 <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
-                    <div className="h-full bg-[#3C48F5]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+                    <div className="h-full bg-black dark:bg-white" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
                 </div>
             </div>
           )}
@@ -246,9 +249,9 @@ export default function MediaGallery({
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                   <div className="w-full aspect-square bg-gray-200 dark:bg-zinc-700 animate-pulse" />
-                   <div className="h-2 w-3/4 bg-gray-200 dark:bg-zinc-700 animate-pulse" />
+                 <div key={i} className="flex flex-col items-center gap-2 p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                   <Skeleton className="w-full aspect-square" />
+                   <Skeleton className="h-2.5 w-3/4" />
                  </div>
                ))}
              </>
