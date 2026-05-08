@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud, FiEdit2
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,7 @@ export default function MediaGallery({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
+  const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
@@ -68,6 +69,28 @@ export default function MediaGallery({
       }
     } catch {
       toast.error(t('Could not connect to Canva', 'Impossible de connecter Canva'));
+    }
+  };
+
+  const editInCanva = async (asset: any) => {
+    if (!workspaceId) return;
+    setCanvaUploading(asset.id);
+    try {
+      const statusRes = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
+      const connected = statusRes?.data?.connected ?? statusRes?.connected;
+      if (!connected) {
+        const authRes = await (api as any).get(`/canva/auth?workspaceId=${workspaceId}`);
+        window.location.href = authRes?.data?.url ?? authRes?.url;
+        return;
+      }
+      const res = await api.post<any>('/canva/edit-asset', { workspaceId, assetId: asset.id });
+      const editUrl = (res as any)?.editUrl ?? (res as any)?.data?.editUrl;
+      window.open(editUrl, '_blank', 'noopener,noreferrer');
+      toast.success(t('Asset sent to Canva — edit and return when done', 'Asset envoyé à Canva'));
+    } catch {
+      toast.error(t('Could not open in Canva', "Impossible d'ouvrir dans Canva"));
+    } finally {
+      setCanvaUploading(null);
     }
   };
 
@@ -343,16 +366,39 @@ export default function MediaGallery({
 
                         <div
                             className={cn(
-                                "absolute inset-0 transition-opacity flex flex-col justify-end p-2",
-                                sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                "absolute inset-0 transition-opacity flex flex-col justify-between p-1.5",
+                                sectionMenuFor === asset.id ? "opacity-100 bg-black/40" : "opacity-0 group-hover:opacity-100 group-hover:bg-black/40"
                             )}
                         >
+                            {/* Top row: Edit in Canva + Delete */}
+                            <div className="flex justify-end gap-1">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
+                                    disabled={canvaUploading === asset.id}
+                                    title={t('Edit in Canva', 'Modifier dans Canva')}
+                                    className="p-1.5 bg-white dark:bg-zinc-900 text-black dark:text-white border border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-[1px_1px_0px_0px_#000] dark:shadow-[1px_1px_0px_0px_#fff]"
+                                >
+                                    {canvaUploading === asset.id
+                                        ? <FiLoader size={10} className="animate-spin" />
+                                        : <FiEdit2 size={10} />
+                                    }
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); if (confirm(t('Delete asset?', 'Supprimer ce média ?'))) deleteAssetMutation.mutate(asset.id); }}
+                                    title={t('Delete', 'Supprimer')}
+                                    className="p-1.5 bg-red-500 text-white border border-black dark:border-white hover:bg-red-600 transition-colors shadow-[1px_1px_0px_0px_#000] dark:shadow-[1px_1px_0px_0px_#fff]"
+                                >
+                                    <FiTrash2 size={10} />
+                                </button>
+                            </div>
+
+                            {/* Bottom: Use / section selector */}
                             {onUse && sectionMenuFor === asset.id ? (
-                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1 mb-1">
+                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1">
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors rounded-sm"
+                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
@@ -367,7 +413,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-sm"
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
