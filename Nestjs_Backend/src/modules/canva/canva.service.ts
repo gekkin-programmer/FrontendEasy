@@ -75,7 +75,7 @@ export class CanvaService {
     }
     pkceStore.delete(state);
 
-    const { codeVerifier, workspaceId, userId } = entry;
+    const { codeVerifier, workspaceId, userId: _userId } = entry;
     const clientId = this.config.get<string>('CANVA_CLIENT_ID');
     const clientSecret = this.config.get<string>('CANVA_CLIENT_SECRET');
     const redirectUri = this.config.get<string>('CANVA_REDIRECT_URI');

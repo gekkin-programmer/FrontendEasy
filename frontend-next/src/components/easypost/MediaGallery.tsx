@@ -390,7 +390,6 @@ export default function MediaGallery({
          )}
       </div>
       </div>
-      </div>
 
       {canvaModalOpen && workspaceId && (
         <CanvaImportModal
