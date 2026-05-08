@@ -494,7 +494,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         alt=""
                       />
                     )}
-                    <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 p-[1px] border border-black dark:border-white z-10"><PlatformIcon platform={acc.platform} size={10} /></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-zinc-900 border border-black dark:border-white z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
                     {isExpired && <div className="absolute inset-0 bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
                   </div>
                 );
