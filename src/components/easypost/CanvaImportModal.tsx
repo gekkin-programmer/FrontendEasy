@@ -26,7 +26,6 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   const [designs, setDesigns] = useState<any[]>([]);
   const [assets, setAssets] = useState<any[]>([]);
   const [designsContinuation, setDesignsContinuation] = useState<string | undefined>();
-  const [assetsContinuation, setAssetsContinuation] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState<string | null>(null);
   const [selectedDesign, setSelectedDesign] = useState<any | null>(null);
@@ -63,16 +62,14 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   const loadAssets = useCallback(async (reset = false) => {
     setLoading(true);
     try {
-      const cont = reset ? undefined : assetsContinuation;
-      const res = await api.get<any>(`/canva/assets?workspaceId=${workspaceId}${cont ? `&continuation=${cont}` : ''}`);
+      const res = await api.get<any>(`/canva/assets?workspaceId=${workspaceId}`);
       setAssets(prev => reset ? (res.assets ?? []) : [...prev, ...(res.assets ?? [])]);
-      setAssetsContinuation(res.continuation);
     } catch {
       toast.error(t('Failed to load Canva assets', 'Impossible de charger les assets Canva'));
     } finally {
       setLoading(false);
     }
-  }, [workspaceId, assetsContinuation]);
+  }, [workspaceId]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -137,20 +134,6 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
       ? `${window.location.origin}/dashboard/${workspaceId}?canva=returned`
       : `https://eazypost.cm/dashboard/${workspaceId}?canva=returned`;
     return `https://www.canva.com/design/${designId}/edit?return_url=${encodeURIComponent(returnUrl)}`;
-  };
-
-  // Asset import
-  const importAsset = async (assetId: string) => {
-    setImporting(assetId);
-    try {
-      await api.post('/canva/assets/import', { workspaceId, assetId });
-      toast.success(t('Asset imported to media library!', 'Asset importé dans la médiathèque !'));
-      onImported();
-    } catch {
-      toast.error(t('Failed to import asset', "Impossible d'importer l'asset"));
-    } finally {
-      setImporting(null);
-    }
   };
 
   if (!isOpen) return null;
@@ -299,6 +282,9 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
 
           {tab === 'assets' && (
             <div className="space-y-3">
+              <p className="text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400">
+                {t('Previously imported from Canva', 'Importés depuis Canva')}
+              </p>
               {loading && assets.length === 0 ? (
                 <div className="grid grid-cols-4 gap-3">
                   {[...Array(8)].map((_, i) => (
@@ -307,40 +293,24 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                 </div>
               ) : assets.length === 0 ? (
                 <div className="py-16 text-center text-xs font-black uppercase text-gray-400 dark:text-zinc-600">
-                  {t('No assets found', 'Aucun asset trouvé')}
+                  {t('No imported assets yet — use the Designs tab to import', 'Aucun asset importé — utilisez l\'onglet Designs')}
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-3">
-                  {assets.map(a => (
+                  {assets.map((a: any) => (
                     <div key={a.id} className="group relative aspect-square bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white overflow-hidden shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                      {a.thumbnail?.url
-                        ? <img src={a.thumbnail.url} alt="" className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center text-zinc-400"><ImageIcon size={20} /></div>
+                      {a.mimeType?.startsWith('video')
+                        ? <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-zinc-400"><Film size={20} /><span className="text-[9px] font-bold uppercase">{a.filename?.split('.').pop()}</span></div>
+                        : <img src={a.url} alt={a.filename} className="w-full h-full object-cover" />
                       }
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                        <button
-                          onClick={() => importAsset(a.id)}
-                          disabled={importing === a.id}
-                          className="opacity-0 group-hover:opacity-100 bg-white text-black border-2 border-black px-2 py-1 text-[9px] font-black uppercase hover:bg-zinc-100 transition-all"
-                        >
-                          {importing === a.id
-                            ? <RefreshCw size={10} className="animate-spin" />
-                            : <><Check size={10} className="inline mr-1" />{t('Import', 'Importer')}</>
-                          }
-                        </button>
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex items-end justify-center pb-2">
+                        <span className="opacity-0 group-hover:opacity-100 text-white text-[8px] font-black uppercase px-1 truncate max-w-full">
+                          <Check size={8} className="inline mr-0.5" />{t('In library', 'Dans la médiathèque')}
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
-              {assetsContinuation && (
-                <button
-                  onClick={() => loadAssets(false)}
-                  disabled={loading}
-                  className="w-full py-2 border-2 border-dashed border-black dark:border-white text-[10px] font-black uppercase hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
-                >
-                  {t('Load more', 'Charger plus')}
-                </button>
               )}
             </div>
           )}
