@@ -379,6 +379,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
   // Commerce State
   const [price, setPrice] = useState("");
+  const [productName, setProductName] = useState("");
+
+  // Smart scheduling availability — only show AI SCHEDULER button when data exists
+  const selectedPlatform = accounts.find(a => selectedAccountIds.includes(a.id))?.platform ?? 'FACEBOOK';
+  const { data: schedulingHints } = useQuery({
+    queryKey: ['smart-scheduling', workspaceId, selectedPlatform],
+    queryFn: () => api.get<any>(`/ai/smart-scheduling/suggestions?workspaceId=${workspaceId}&platform=${selectedPlatform}`),
+    enabled: selectedAccountIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+  const hasSchedulingData = (schedulingHints?.suggestions?.length ?? 0) > 0;
 
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
@@ -413,10 +424,11 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         const finalMediaIds = [...selectedMediaIds];
         let finalContent = text;
 
-        // Commerce Logic: Generate One-Time Link
+        // Commerce Logic: Generate One-Time Payment Link
         if (isSelling && price) {
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const commerceLink = `\n\n📦 Buy now for ${price} XAF:\nhttps://easypost.me/pay/${shortId}`;
+            const label = productName || t("Buy now", "Acheter maintenant");
+            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\nhttps://eazypost.cm/pay/${shortId}`;
             finalContent += commerceLink;
         }
 
@@ -659,7 +671,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                          {/* AI SMART SCHEDULING BUTTON */}
+                          {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
+                          {hasSchedulingData && (
                           <Popover>
                             <PopoverTrigger asChild>
                               <button className="px-3 py-2 bg-white hover:bg-zinc-100 text-black font-black text-[10px] border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase">
@@ -669,7 +682,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                             <PopoverContent className="w-64 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="center" side="top">
                               <AiSchedulerContent
                                 workspaceId={workspaceId}
-                                platform={accounts.find(a => selectedAccountIds.includes(a.id))?.platform || 'FACEBOOK'}
+                                platform={selectedPlatform}
                                 onSelect={(hour) => {
                                   const newDate = date || new Date();
                                   newDate.setHours(hour);
@@ -679,6 +692,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                               />
                             </PopoverContent>
                           </Popover>
+                          )}
 
                           <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-700 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('NOW', 'MAINTENANT')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-yellow-50 dark:bg-yellow-900/10 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
@@ -692,7 +706,48 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               </div>
             </div>
           </div>
-          <AnimatePresence>{isSelling && (<motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} className="flex gap-0 items-center overflow-hidden transition-all"><div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-3 py-2 border-y-2 border-l-2 border-black dark:border-white">XAF</div><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t("PRICE (e.g. 5000)", "PRIX (ex. 5000)")} className="bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white w-full outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono" /><div className="text-[10px] bg-green-200 dark:bg-green-900 text-black dark:text-white px-2 py-2 border-y-2 border-r-2 border-black dark:border-white font-black uppercase whitespace-nowrap">{t("MOMO ACTIVE", "MOMO ACTIF")}</div></motion.div>)}</AnimatePresence>
+          <AnimatePresence>
+            {isSelling && (
+              <motion.div
+                initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                animate={{ height: 'auto', opacity: 1, marginTop: 12 }}
+                exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                className="overflow-hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"
+              >
+                <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1.5 flex items-center gap-2">
+                  <ShoppingBag size={12} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">{t("Payment Link", "Lien de paiement")}</span>
+                  <span className="ml-auto text-[9px] font-mono bg-green-400 text-black px-1.5 py-0.5">{t("MOMO ACTIVE", "MOMO ACTIF")}</span>
+                </div>
+                <div className="bg-white dark:bg-zinc-900 p-3 flex flex-col gap-2">
+                  <input
+                    type="text"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder={t("Product name (e.g. Design Pack)", "Nom du produit (ex. Design Pack)")}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800 border-2 border-black dark:border-white px-3 py-1.5 text-xs font-mono text-black dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+                  />
+                  <div className="flex gap-0">
+                    <div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-black px-3 py-2 border-2 border-black dark:border-white border-r-0 whitespace-nowrap">XAF</div>
+                    <input
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder={t("Price (e.g. 5000)", "Prix (ex. 5000)")}
+                      className="flex-1 bg-white dark:bg-zinc-900 text-sm font-bold text-black dark:text-white outline-none px-3 py-2 border-2 border-black dark:border-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:font-normal font-mono"
+                    />
+                  </div>
+                  {price && (
+                    <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border border-black/20 dark:border-white/20 px-3 py-1.5">
+                      <span className="text-[9px] font-black uppercase text-gray-400 dark:text-zinc-500 whitespace-nowrap">{t("LINK PREVIEW", "APERÇU")}</span>
+                      <span className="text-[9px] font-mono text-[#3C48F5] dark:text-blue-400 truncate">https://eazypost.cm/pay/XXXXXX</span>
+                    </div>
+                  )}
+                  <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500">{t("A unique payment link will be appended to your post. Customers pay via Mobile Money.", "Un lien de paiement unique sera joint à votre post. Les clients paient via Mobile Money.")}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         )}
       </div>
