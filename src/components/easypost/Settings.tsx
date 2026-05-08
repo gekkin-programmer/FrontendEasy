@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/src/lib/api';
 import ConnectAccounts from './ConnectAccounts';
 import { loadStripe } from '@stripe/stripe-js';
@@ -142,7 +143,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
           {activeTab === 'profile' && <ProfileSettings />}
           {activeTab === 'workspace' && <WorkspaceSettings workspaceId={workspaceId} initialName={workspaceName || ''} />}
           {activeTab === 'account' && <div className="animate-in fade-in duration-300"><ConnectAccounts workspaceId={workspaceId} /></div>}
-          {activeTab === 'storage' && <div className="animate-in fade-in duration-300"><MediaGallery /></div>}
+          {activeTab === 'storage' && <div className="animate-in fade-in duration-300"><MediaGallery workspaceId={workspaceId} /></div>}
           {activeTab === 'notifications' && <NotificationsSettings />}
           {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
           {activeTab === 'billing' && <BillingSettings workspaceId={workspaceId} />}
@@ -317,24 +318,24 @@ function ProfileSettings() {
   };
 
   if (!user) return (
-    <div className="space-y-8 animate-pulse">
+    <div className="space-y-8">
       <NeuCard title={t('Public Profile', 'Profil public')}>
         <div className="flex flex-col md:flex-row items-start gap-8">
-          <div className="w-28 h-28 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white flex-shrink-0" />
+          <Skeleton className="w-28 h-28 border-2 border-black dark:border-white flex-shrink-0" />
           <div className="flex-1 space-y-4 w-full max-w-lg">
             <div className="grid grid-cols-2 gap-4">
-              <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
-              <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+              <Skeleton className="h-10 border-2 border-black dark:border-white" />
+              <Skeleton className="h-10 border-2 border-black dark:border-white" />
             </div>
-            <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
-            <div className="h-10 w-1/2 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white ml-auto" />
+            <Skeleton className="h-10 border-2 border-black dark:border-white" />
+            <Skeleton className="h-10 w-1/2 border-2 border-black dark:border-white ml-auto" />
           </div>
         </div>
       </NeuCard>
       <NeuCard title={t('Account Security', 'Sécurité du compte')}>
         <div className="max-w-lg space-y-4">
-          <div className="h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
-          <div className="h-12 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white" />
+          <Skeleton className="h-10 border-2 border-black dark:border-white" />
+          <Skeleton className="h-12 border-2 border-black dark:border-white" />
         </div>
       </NeuCard>
     </div>
@@ -473,15 +474,15 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
     <div className="space-y-8 animate-in fade-in duration-300">
       <NeuCard title={t('Workspace Members', 'Membres de l\'espace')} description={`${members.length} ${t('MEMBER', 'MEMBRE')}${members.length !== 1 ? t('S', 'S') : ''} ${t('IN THIS WORKSPACE', 'DANS CET ESPACE')}`}>
         {loading ? (
-          <div className="space-y-3 animate-pulse">
+          <div className="space-y-3">
             {[0,1,2].map(i => (
               <div key={i} className="flex items-center gap-4 p-4 border-2 border-black dark:border-white">
-                <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-700 border-2 border-black dark:border-white flex-shrink-0" />
+                <Skeleton className="w-10 h-10 border-2 border-black dark:border-white flex-shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-700" />
-                  <div className="h-2 w-48 bg-gray-100 dark:bg-zinc-800" />
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-2 w-48" />
                 </div>
-                <div className="h-6 w-16 bg-gray-200 dark:bg-zinc-700" />
+                <Skeleton className="h-6 w-16" />
               </div>
             ))}
           </div>
@@ -699,6 +700,7 @@ function PaymentMethodsCard() {
 
   const { data: methods = [], isLoading } = useQuery<any[]>({
     queryKey: ['payment-methods'],
+    gcTime: 0,
     queryFn: () => api.get<any[]>('/payments/methods').then(r => Array.isArray(r) ? r : (r as any)?.data || []),
   });
 
@@ -720,8 +722,16 @@ function PaymentMethodsCard() {
     <>
       <NeuCard title={t('Payment Methods', 'Méthodes de paiement')} description={t('YOUR SAVED PAYMENT OPTIONS', 'VOS OPTIONS DE PAIEMENT ENREGISTRÉES')}>
         {isLoading ? (
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase py-4">
-            <FiLoader className="animate-spin" /> {t('Loading...', 'Chargement...')}
+          <div className="space-y-3 py-2">
+            {[0, 1].map(i => (
+              <div key={i} className="flex items-center justify-between p-3 border-2 border-black dark:border-white">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-10 h-6" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <Skeleton className="h-8 w-20 border-2 border-black dark:border-white" />
+              </div>
+            ))}
           </div>
         ) : methods.length === 0 ? (
           <p className="text-xs font-mono text-gray-400 dark:text-zinc-500 uppercase mb-4">{t('No payment method on file', 'Aucune méthode de paiement enregistrée')}</p>
@@ -816,24 +826,28 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
   const { data: workspace } = useQuery({
     queryKey: ['workspace-billing', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
     staleTime: 30_000,
   });
 
   const { data: accounts = [] } = useQuery({
     queryKey: ['social-accounts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     staleTime: 30_000,
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['posts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     staleTime: 30_000,
   });
 
   const { data: mediaUsageMB = 0 } = useQuery({
     queryKey: ['media-usage'],
+    gcTime: 0,
     queryFn: async () => {
       const res = await api.get<number>('/media/usage');
       return typeof res === 'number' ? res : (res as any).data || 0;
