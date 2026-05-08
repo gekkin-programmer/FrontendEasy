@@ -9,7 +9,7 @@ ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --prefer-frozen-lockfile; \
+    npm install -g pnpm@10 && pnpm install --prefer-frozen-lockfile; \
   elif [ -f yarn.lock ]; then \
     yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then \
@@ -39,7 +39,7 @@ ENV SENTRY_UPLOAD_SOURCEMAPS=false
 # Build runs on GitHub Actions (7 GB RAM) — 4 GB heap is safe
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN corepack enable pnpm && pnpm run build
+RUN npm install -g pnpm@10 && pnpm run build
 
 # ── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
