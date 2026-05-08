@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   Query,
-  Req,
   Res,
   UseGuards,
   HttpCode,
@@ -23,9 +22,7 @@ export class WhatsAppController {
 
   @Post('connect')
   @UseGuards(JwtAuthGuard)
-  async connect(
-    @Body() body: { workspaceId: string; code: string },
-  ) {
+  async connect(@Body() body: { workspaceId: string; code: string }) {
     return this.whatsapp.connectFromEmbeddedSignup(body.workspaceId, body.code);
   }
 
@@ -91,10 +88,7 @@ export class WhatsAppController {
   @Post('inbox/:id/read')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  markRead(
-    @Param('id') id: string,
-    @Body() body: { workspaceId: string },
-  ) {
+  markRead(@Param('id') id: string, @Body() body: { workspaceId: string }) {
     return this.whatsapp.markRead(body.workspaceId, id);
   }
 }

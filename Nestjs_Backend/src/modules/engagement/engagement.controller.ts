@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { EngagementService } from './engagement.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentWorkspace } from '../../common/decorators/current-workspace.decorator';
