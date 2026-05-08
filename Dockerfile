@@ -9,7 +9,7 @@ ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 RUN \
   if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --prefer-frozen-lockfile; \
+    npm install -g pnpm@10 && pnpm install --prefer-frozen-lockfile; \
   elif [ -f yarn.lock ]; then \
     yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then \
@@ -29,12 +29,8 @@ COPY . .
 # Build-time env vars (NEXT_PUBLIC_* are inlined at build time)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_APP_URL
-ARG NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
-ARG NEXT_PUBLIC_POSTHOG_HOST
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-ENV NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=${NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN}
-ENV NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST}
 
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -43,7 +39,7 @@ ENV SENTRY_UPLOAD_SOURCEMAPS=false
 # Build runs on GitHub Actions (7 GB RAM) — 4 GB heap is safe
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN corepack enable pnpm && pnpm run build
+RUN npm install -g pnpm@10 && pnpm run build
 
 # ── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
