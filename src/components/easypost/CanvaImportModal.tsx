@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight } from 'lucide-react';
+import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -132,6 +132,13 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
     return () => clearInterval(interval);
   }, [pollingJobId, workspaceId, selectedDesign, exportFormat]);
 
+  const canvaEditUrl = (designId: string) => {
+    const returnUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/dashboard/${workspaceId}?canva=returned`
+      : `https://eazypost.cm/dashboard/${workspaceId}?canva=returned`;
+    return `https://www.canva.com/design/${designId}/edit?return_url=${encodeURIComponent(returnUrl)}`;
+  };
+
   // Asset import
   const importAsset = async (assetId: string) => {
     setImporting(assetId);
@@ -246,19 +253,32 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                   ) : (
                     <div className="grid grid-cols-3 gap-3">
                       {designs.map(d => (
-                        <button
+                        <div
                           key={d.id}
-                          onClick={() => setSelectedDesign(d)}
                           className="group relative aspect-video bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white hover:border-[#3C48F5] overflow-hidden transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                         >
                           {d.thumbnail?.url
                             ? <img src={d.thumbnail.url} alt="" className="w-full h-full object-cover" />
                             : <div className="w-full h-full flex items-center justify-center text-zinc-400"><ImageIcon size={24} /></div>
                           }
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                            <span className="opacity-0 group-hover:opacity-100 text-white text-[10px] font-black uppercase">Select</span>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex flex-col items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => setSelectedDesign(d)}
+                              className="opacity-0 group-hover:opacity-100 bg-white text-black border-2 border-black px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-zinc-100 transition-all"
+                            >
+                              <Download size={9} />{t('Import', 'Importer')}
+                            </button>
+                            <a
+                              href={canvaEditUrl(d.id)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={e => e.stopPropagation()}
+                              className="opacity-0 group-hover:opacity-100 bg-[#3C48F5] text-white border-2 border-[#3C48F5] px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-[#2d38d4] transition-all"
+                            >
+                              <ExternalLink size={9} />{t('Edit in Canva', 'Éditer dans Canva')}
+                            </a>
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   )}
