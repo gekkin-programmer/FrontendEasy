@@ -75,16 +75,16 @@ export class SocialSyncProcessor extends WorkerHost {
       // We iterate and check PostSocialAccount instead.
 
       for (const post of posts) {
-        // 1. Check if this specific Facebook post is already linked in our DB
+        // 1. Check if this specific post is already linked in our DB
         const existingLink = await this.prisma.postSocialAccount.findFirst({
-          where: {
-            socialAccountId: socialAccountId,
-            platformPostId: post.externalId,
-          },
+          where: { socialAccountId, platformPostId: post.externalId },
+          select: { id: true, postId: true },
         });
 
+        let postId: string;
+
         if (existingLink) {
-          // A. UPDATE: Post exists, just update metrics on the relation
+          // A. UPDATE: metrics on the relation
           await this.prisma.postSocialAccount.update({
             where: { id: existingLink.id },
             data: {
@@ -92,28 +92,24 @@ export class SocialSyncProcessor extends WorkerHost {
               comments: post.engagement.comments,
               shares: post.engagement.shares,
               views: post.engagement.views,
-              // Update URL if changed
               platformPostUrl: post.permalink,
             },
           });
+          postId = existingLink.postId;
         } else {
-          // B. CREATE: New Post + New Relation
-          await this.prisma.post.create({
+          // B. CREATE: new Post + relation
+          const created = await this.prisma.post.create({
             data: {
               workspaceId: account.workspaceId,
               createdById: account.createdById,
-              content: post.content || '', // Handle empty content (image only posts)
-              mediaUrls: post.mediaUrls, // Legacy support or migrate to MediaLibrary later
+              content: post.content || '',
+              mediaUrls: post.mediaUrls,
               status: PostStatus.PUBLISHED,
               publishedAt: new Date(post.publishedAt),
-
-              // Optional: link directly to account for simplified queries
-              socialAccountId: socialAccountId,
-
-              // Create the relation to store Platform ID and Metrics
+              socialAccountId,
               socialAccounts: {
                 create: {
-                  socialAccountId: socialAccountId,
+                  socialAccountId,
                   platformPostId: post.externalId,
                   platformPostUrl: post.permalink,
                   status: PostStatus.PUBLISHED,
@@ -125,6 +121,27 @@ export class SocialSyncProcessor extends WorkerHost {
                 },
               },
             },
+          });
+          postId = created.id;
+        }
+
+        // C. Upsert inline comments into PostComment
+        for (const c of post.comments ?? []) {
+          if (!c.externalId) continue;
+          await this.prisma.postComment.upsert({
+            where: { externalId: c.externalId },
+            create: {
+              postId,
+              externalId: c.externalId,
+              content: c.content,
+              authorName: c.authorName,
+              authorId: c.authorId,
+              platform,
+              publishedAt: c.publishedAt,
+              isReply: false,
+              status: 'unread',
+            },
+            update: { content: c.content },
           });
         }
       }
@@ -196,19 +213,55 @@ export class SocialSyncProcessor extends WorkerHost {
       params: { part: 'snippet,statistics', id: videoIds.join(',') },
     });
 
-    return (videosRes.data?.items || []).map((video: any): NormalizedSocialPost => ({
-      externalId: video.id as string,
-      content: (video.snippet?.description as string) || '',
-      mediaUrls: [`https://www.youtube.com/watch?v=${video.id}`],
-      publishedAt: new Date(video.snippet?.publishedAt as string),
-      permalink: `https://www.youtube.com/watch?v=${video.id}`,
-      engagement: {
-        likes: parseInt((video.statistics?.likeCount as string) || '0', 10),
-        comments: parseInt((video.statistics?.commentCount as string) || '0', 10),
-        shares: 0,
-        views: parseInt((video.statistics?.viewCount as string) || '0', 10),
-      },
-      metadata: { raw: video },
-    }));
+    const videoItems: any[] = videosRes.data?.items || [];
+
+    // Fetch top-level comment threads for each video (YouTube Data API v3)
+    // Note: comments update with ~30-60 min delay from YouTube's CDN cache
+    const withComments = await Promise.all(
+      videoItems.map(async (video: any): Promise<NormalizedSocialPost> => {
+        let comments: NormalizedSocialPost['comments'] = [];
+        try {
+          const cRes = await axios.get(`${YT}/commentThreads`, {
+            headers,
+            params: {
+              part: 'snippet',
+              videoId: video.id,
+              maxResults: 50,
+              order: 'time',
+            },
+          });
+          comments = (cRes.data?.items || []).map((item: any) => {
+            const s = item.snippet?.topLevelComment?.snippet ?? {};
+            return {
+              externalId: item.id as string,
+              content: (s.textDisplay as string) || '',
+              authorName: (s.authorDisplayName as string) || 'YouTube User',
+              authorId: s.authorChannelId?.value as string | undefined,
+              publishedAt: new Date(s.publishedAt as string),
+            };
+          });
+        } catch {
+          // commentThreads disabled by creator or quota — skip silently
+        }
+
+        return {
+          externalId: video.id as string,
+          content: (video.snippet?.description as string) || '',
+          mediaUrls: [`https://www.youtube.com/watch?v=${video.id}`],
+          publishedAt: new Date(video.snippet?.publishedAt as string),
+          permalink: `https://www.youtube.com/watch?v=${video.id}`,
+          engagement: {
+            likes: parseInt((video.statistics?.likeCount as string) || '0', 10),
+            comments: parseInt((video.statistics?.commentCount as string) || '0', 10),
+            shares: 0,
+            views: parseInt((video.statistics?.viewCount as string) || '0', 10),
+          },
+          comments,
+          metadata: { raw: video },
+        };
+      }),
+    );
+
+    return withComments;
   }
 }

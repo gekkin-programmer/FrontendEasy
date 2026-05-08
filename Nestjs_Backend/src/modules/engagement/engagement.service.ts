@@ -1,48 +1,50 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FacebookService } from '../social-accounts/platforms/facebook.service';
+import { InstagramService } from '../social-accounts/platforms/instagram.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class EngagementService {
+  private readonly logger = new Logger(EngagementService.name);
+  private readonly YT = 'https://www.googleapis.com/youtube/v3';
+
   constructor(
     private prisma: PrismaService,
     private facebookService: FacebookService,
+    private instagramService: InstagramService,
+    private http: HttpService,
   ) {}
 
-  // 1. GET UNIFIED INBOX
+  // ─── 1. UNIFIED INBOX ────────────────────────────────────────────────────────
+
   async findAll(workspaceId: string) {
     const [comments, inboxConversations] = await Promise.all([
       this.prisma.postComment.findMany({
-        where: {
-          post: { workspaceId },
-          isReply: false,
-        },
+        where: { post: { workspaceId }, isReply: false },
         include: { post: true },
         orderBy: { publishedAt: 'desc' },
+        take: 200,
       }),
       this.prisma.inboxConversation.findMany({
         where: { workspaceId },
         orderBy: { lastMessageAt: 'desc' },
-        include: {
-          messages: {
-            orderBy: { sentAt: 'desc' },
-            take: 1,
-          },
-        },
+        include: { messages: { orderBy: { sentAt: 'desc' }, take: 1 } },
       }),
     ]);
 
     const commentItems = comments.map((c) => ({
       _id: c.id,
       type: 'comment' as const,
-      authorName: c.authorName,
-      authorHandle: 'Facebook User',
-      authorAvatar: null,
+      authorName: c.authorName ?? 'User',
+      authorHandle: null,
+      authorAvatar: c.authorAvatar ?? null,
       platform: (c.platform?.toLowerCase() ?? 'facebook') as string,
       content: c.content,
       receivedAt: c.publishedAt,
       status: c.status,
-      sentiment: c.sentiment || 'neutral',
+      sentiment: (c.sentiment as string) || 'neutral',
       externalId: c.externalId,
       postId: c.postId,
     }));
@@ -69,35 +71,35 @@ export class EngagementService {
     );
   }
 
-  // 2. REPLY (handles both comments and DM conversations)
+  // ─── 2. REPLY ─────────────────────────────────────────────────────────────────
+
   async reply(id: string, text: string, workspaceId: string) {
-    // Check if it's a DM conversation first
+    // Check DM conversation first
     const conv = await this.prisma.inboxConversation.findFirst({
       where: { id, workspaceId },
     });
-
     if (conv) {
-      // DM replies route through the dedicated WhatsApp endpoint — return a redirect hint
       return { success: false, redirect: `/whatsapp/inbox/${conv.id}/send` };
     }
 
-    // Fall back to comment reply
     const comment = await this.prisma.postComment.findUnique({
       where: { id },
       include: { post: { include: { socialAccount: true } } },
     });
-
     if (!comment) throw new NotFoundException('Comment not found');
 
     const account = comment.post.socialAccount;
     if (!account) throw new NotFoundException('Linked account not found');
 
-    if (comment.platform === 'FACEBOOK' && comment.externalId) {
-      await this.facebookService.replyToComment(
-        account.accessToken,
-        comment.externalId,
-        text,
-      );
+    if (comment.externalId) {
+      if (comment.platform === 'FACEBOOK') {
+        await this.facebookService.replyToComment(account.accessToken, comment.externalId, text);
+      } else if (comment.platform === 'INSTAGRAM') {
+        await this.instagramService.replyToComment(account.accessToken, comment.externalId, text);
+      } else if (comment.platform === 'YOUTUBE') {
+        await this.replyToYouTubeComment(account.accessToken, comment.externalId, text);
+      }
+      // TikTok: comment.list + reply requires approved commercial content scope
     }
 
     await this.prisma.postComment.create({
@@ -122,12 +124,171 @@ export class EngagementService {
     return { success: true };
   }
 
-  // 3. STATUS UPDATE
+  // ─── 3. STATUS UPDATE ────────────────────────────────────────────────────────
+
   async updateStatus(id: string, status: string) {
     const conv = await this.prisma.inboxConversation.findUnique({ where: { id } });
-    if (conv) {
-      return this.prisma.inboxConversation.update({ where: { id }, data: { status } });
-    }
+    if (conv) return this.prisma.inboxConversation.update({ where: { id }, data: { status } });
     return this.prisma.postComment.update({ where: { id }, data: { status } });
+  }
+
+  // ─── 4. ON-DEMAND COMMENT SYNC ───────────────────────────────────────────────
+  // Fetches fresh comments from all connected platforms and upserts to PostComment.
+
+  async syncComments(workspaceId: string): Promise<{ synced: number }> {
+    const accounts = await this.prisma.socialAccount.findMany({
+      where: { workspaceId, isActive: true, platform: { in: ['FACEBOOK', 'INSTAGRAM', 'YOUTUBE'] } },
+      include: {
+        posts: {
+          where: { status: 'PUBLISHED' },
+          include: { socialAccounts: true },
+          take: 20,
+          orderBy: { publishedAt: 'desc' },
+        },
+      },
+    });
+
+    let synced = 0;
+
+    for (const account of accounts) {
+      try {
+        if (account.platform === 'FACEBOOK') {
+          synced += await this.syncFacebookComments(account);
+        } else if (account.platform === 'INSTAGRAM') {
+          synced += await this.syncInstagramComments(account);
+        } else if (account.platform === 'YOUTUBE') {
+          synced += await this.syncYouTubeComments(account);
+        }
+      } catch (err: any) {
+        this.logger.warn(`Comment sync failed for ${account.platform} ${account.id}: ${err?.message}`);
+      }
+    }
+
+    return { synced };
+  }
+
+  private async syncFacebookComments(account: any): Promise<number> {
+    let count = 0;
+    for (const post of account.posts) {
+      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
+      if (!psa?.platformPostId) continue;
+
+      try {
+        const url = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,message,created_time,from&access_token=${account.accessToken}&limit=25`;
+        const { data } = await firstValueFrom(this.http.get(url));
+        for (const c of data?.data ?? []) {
+          await this.prisma.postComment.upsert({
+            where: { externalId: c.id },
+            create: {
+              postId: post.id,
+              externalId: c.id,
+              content: c.message ?? '',
+              authorName: c.from?.name ?? 'Facebook User',
+              authorId: c.from?.id,
+              platform: 'FACEBOOK',
+              publishedAt: new Date(c.created_time),
+              isReply: false,
+              status: 'unread',
+            },
+            update: { content: c.message ?? '' },
+          });
+          count++;
+        }
+      } catch { /* skip this post */ }
+    }
+    return count;
+  }
+
+  private async syncInstagramComments(account: any): Promise<number> {
+    let count = 0;
+    for (const post of account.posts) {
+      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
+      if (!psa?.platformPostId) continue;
+
+      try {
+        const url = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,text,timestamp,from&access_token=${account.accessToken}&limit=25`;
+        const { data } = await firstValueFrom(this.http.get(url));
+        for (const c of data?.data ?? []) {
+          await this.prisma.postComment.upsert({
+            where: { externalId: c.id },
+            create: {
+              postId: post.id,
+              externalId: c.id,
+              content: c.text ?? '',
+              authorName: c.from?.username ?? 'Instagram User',
+              authorId: c.from?.id,
+              platform: 'INSTAGRAM',
+              publishedAt: new Date(c.timestamp),
+              isReply: false,
+              status: 'unread',
+            },
+            update: { content: c.text ?? '' },
+          });
+          count++;
+        }
+      } catch { /* skip this post */ }
+    }
+    return count;
+  }
+
+  private async syncYouTubeComments(account: any): Promise<number> {
+    let count = 0;
+    const headers = { Authorization: `Bearer ${account.accessToken}` };
+
+    for (const post of account.posts) {
+      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
+      if (!psa?.platformPostId) continue;
+
+      // Extract videoId from platformPostId or URL
+      const videoId = psa.platformPostId.replace('https://www.youtube.com/watch?v=', '');
+
+      try {
+        const { data } = await firstValueFrom(
+          this.http.get(`${this.YT}/commentThreads`, {
+            headers,
+            params: { part: 'snippet', videoId, maxResults: 50, order: 'time' },
+          }),
+        );
+        for (const item of data?.items ?? []) {
+          const s = item.snippet?.topLevelComment?.snippet ?? {};
+          const externalId = item.id as string;
+          await this.prisma.postComment.upsert({
+            where: { externalId },
+            create: {
+              postId: post.id,
+              externalId,
+              content: (s.textDisplay as string) || '',
+              authorName: (s.authorDisplayName as string) || 'YouTube User',
+              authorId: s.authorChannelId?.value as string | undefined,
+              platform: 'YOUTUBE',
+              publishedAt: new Date(s.publishedAt as string),
+              isReply: false,
+              status: 'unread',
+            },
+            update: { content: (s.textDisplay as string) || '' },
+          });
+          count++;
+        }
+      } catch { /* comment disabled or quota */ }
+    }
+    return count;
+  }
+
+  private async replyToYouTubeComment(accessToken: string, commentId: string, text: string) {
+    await firstValueFrom(
+      this.http.post(
+        `${this.YT}/comments`,
+        {
+          snippet: {
+            parentId: commentId,
+            textOriginal: text,
+          },
+        },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          params: { part: 'snippet' },
+        },
+      ),
+    );
   }
 }

@@ -9,12 +9,12 @@ import { useLanguage } from '@/src/context/LanguageContext';
 
 // Icons
 import {
-  FiMessageCircle, FiFilter, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
-  FiSend, FiSmile, FiArchive, FiTrash2, FiUser,
-  FiExternalLink, FiRefreshCw, FiZap
+  FiMessageCircle, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
+  FiSend, FiSmile, FiArchive,
+  FiRefreshCw, FiChevronLeft, FiChevronRight, FiLoader
 } from 'react-icons/fi';
 import {
-  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok, FaWhatsapp
+  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok, FaWhatsapp, FaYoutube
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -27,8 +27,17 @@ const PLATFORM_ICONS: any = {
   facebook: <FaFacebook className="text-blue-600" />,
   linkedin: <FaLinkedin className="text-blue-700" />,
   tiktok: <FaTiktok className="text-black" />,
+  youtube: <FaYoutube className="text-red-600" />,
   whatsapp: <FaWhatsapp className="text-green-600" />,
 };
+
+const PLATFORM_FILTERS = [
+  { id: 'facebook', label: 'FB', icon: <FaFacebook size={10} className="text-blue-600" /> },
+  { id: 'instagram', label: 'IG', icon: <FaInstagram size={10} /> },
+  { id: 'tiktok', label: 'TT', icon: <FaTiktok size={10} /> },
+  { id: 'youtube', label: 'YT', icon: <FaYoutube size={10} className="text-red-600" /> },
+  { id: 'whatsapp', label: 'WA', icon: <FaWhatsapp size={10} className="text-green-600" /> },
+];
 
 const SENTIMENT_STYLES: any = {
   positive: 'bg-green-100 text-black border-2 border-black',
@@ -48,6 +57,7 @@ export default function Engagement() {
   const [replyText, setReplyText] = useState('');
   const [filter, setFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
+  const [syncing, setSyncing] = useState(false);
 
   // 🟢 1. FETCH ENGAGEMENT
   const { data: engagements = [], isLoading } = useQuery({
@@ -68,13 +78,18 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/reply`, { text });
       }
     },
-    onSuccess: () => {
-        toast.success(t('Reply sent successfully', 'Réponse envoyée avec succès'));
+    onSuccess: (_, vars) => {
+        toast.success(t('Reply sent', 'Réponse envoyée'));
         setReplyText('');
         queryClient.setQueryData(['engagement', workspaceId], (old: any[]) =>
-            old.map((e: any) => e._id === activeId ? { ...e, status: 'replied' } : e)
+            old.map((e: any) => e._id === vars.id ? { ...e, status: 'replied' } : e)
         );
-        queryClient.invalidateQueries({ queryKey: ['engagement', workspaceId] });
+        // Auto-advance to next item
+        setActiveId((prev) => {
+          const list: any[] = queryClient.getQueryData(['engagement', workspaceId]) ?? [];
+          const idx = list.findIndex((e: any) => e._id === prev);
+          return list[idx + 1]?._id ?? prev;
+        });
     },
     onError: () => toast.error(t('Failed to send reply', 'Échec de l\'envoi de la réponse'))
   });
@@ -101,6 +116,30 @@ export default function Engagement() {
       return notArchived;
   });
 
+  const activeIndex = filteredEngagements.findIndex((e: any) => e._id === activeId);
+  const hasPrev = activeIndex > 0;
+  const hasNext = activeIndex >= 0 && activeIndex < filteredEngagements.length - 1;
+
+  const goNext = () => {
+    if (hasNext) { setActiveId(filteredEngagements[activeIndex + 1]._id); setReplyText(''); }
+  };
+  const goPrev = () => {
+    if (hasPrev) { setActiveId(filteredEngagements[activeIndex - 1]._id); setReplyText(''); }
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await api.post(`/engagement/sync?workspaceId=${workspaceId}`, {});
+      queryClient.invalidateQueries({ queryKey: ['engagement', workspaceId] });
+      toast.success(t('Comments refreshed', 'Commentaires actualisés'));
+    } catch {
+      toast.error(t('Sync failed', 'Échec de la synchronisation'));
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleReply = () => {
       if (!activeId || !replyText) return;
       replyMutation.mutate({
@@ -123,7 +162,12 @@ export default function Engagement() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
             <div className="flex gap-2">
-                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement']})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title={t('Refresh', 'Actualiser')}><FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} /></button>
+                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title={t('Refresh', 'Actualiser')}>
+                  <FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+                </button>
+                <button onClick={() => void handleSync()} disabled={syncing} className="p-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:opacity-80 active:translate-y-[2px] transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
+                  {syncing ? <FiLoader size={16} className="animate-spin" /> : <span className="text-[10px] font-black">SYNC</span>}
+                </button>
             </div>
           </div>
           <div className="relative">
@@ -135,9 +179,18 @@ export default function Engagement() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
-             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => setFilter('unread')} />
-             <FilterBadge label="WhatsApp" active={platformFilter === 'whatsapp'} onClick={() => { setFilter('all'); setPlatformFilter(platformFilter === 'whatsapp' ? 'all' : 'whatsapp'); }} icon={<FaWhatsapp size={10} />} />
+             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all' && platformFilter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
+             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => { setFilter('unread'); setPlatformFilter('all'); }} />
+             {PLATFORM_FILTERS.map(pf => (
+               <FilterBadge
+                 key={pf.id}
+                 label={pf.label}
+                 icon={pf.icon}
+                 active={platformFilter === pf.id}
+                 count={engagements.filter((e: any) => e.platform === pf.id).length || undefined}
+                 onClick={() => { setFilter('all'); setPlatformFilter(platformFilter === pf.id ? 'all' : pf.id); }}
+               />
+             ))}
           </div>
         </div>
 
@@ -240,7 +293,26 @@ export default function Engagement() {
                     <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark Read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
                     <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
                     <div className="w-0.5 h-6 bg-black dark:bg-white mx-2" />
-                    <ActionButton icon={<FiMoreHorizontal />} />
+                    {/* Prev / Next navigation */}
+                    <span className="text-[10px] font-mono text-gray-400 dark:text-zinc-500 select-none">
+                      {activeIndex + 1}/{filteredEngagements.length}
+                    </span>
+                    <button
+                      onClick={goPrev}
+                      disabled={!hasPrev}
+                      className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                      title={t('Previous', 'Précédent')}
+                    >
+                      <FiChevronLeft size={16} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      onClick={goNext}
+                      disabled={!hasNext}
+                      className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                      title={t('Next', 'Suivant')}
+                    >
+                      <FiChevronRight size={16} strokeWidth={2.5} />
+                    </button>
                 </div>
              </div>
 
