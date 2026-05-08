@@ -424,6 +424,21 @@ function DashboardContent() {
         try { localStorage.removeItem(`eazypost_notifs_${workspaceId}`); } catch {}
     }, [workspaceId]);
 
+    // Load Meta FB SDK for WhatsApp Embedded Signup
+    useEffect(() => {
+        if (typeof window === 'undefined' || (window as any).FB) return;
+        const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID;
+        if (!metaAppId) return;
+        (window as any).fbAsyncInit = function () {
+            (window as any).FB.init({ appId: metaAppId, autoLogAppEvents: true, xfbml: true, version: 'v21.0' });
+        };
+        const script = document.createElement('script');
+        script.src = 'https://connect.facebook.net/en_US/sdk.js';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }, []);
+
     // Close search dropdown on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {

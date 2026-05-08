@@ -14,7 +14,7 @@ import {
   FiExternalLink, FiRefreshCw, FiZap
 } from 'react-icons/fi';
 import {
-  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok
+  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok, FaWhatsapp
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ const PLATFORM_ICONS: any = {
   facebook: <FaFacebook className="text-blue-600" />,
   linkedin: <FaLinkedin className="text-blue-700" />,
   tiktok: <FaTiktok className="text-black" />,
+  whatsapp: <FaWhatsapp className="text-green-600" />,
 };
 
 const SENTIMENT_STYLES: any = {
@@ -46,6 +47,7 @@ export default function Engagement() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [filter, setFilter] = useState('all');
+  const [platformFilter, setPlatformFilter] = useState('all');
 
   // 🟢 1. FETCH ENGAGEMENT
   const { data: engagements = [], isLoading } = useQuery({
@@ -57,18 +59,22 @@ export default function Engagement() {
     }
   });
 
-  // 🟢 2. REPLY MUTATION
+  // 🟢 2. REPLY MUTATION (routes to WhatsApp or engagement endpoint based on type)
   const replyMutation = useMutation({
-    mutationFn: async ({ id, text }: { id: string, text: string }) => {
+    mutationFn: async ({ id, text, type, platform, conversationId }: { id: string; text: string; type?: string; platform?: string; conversationId?: string }) => {
+      if (type === 'dm' && platform === 'whatsapp' && conversationId) {
+        await api.post(`/whatsapp/inbox/${conversationId}/send`, { workspaceId, text });
+      } else {
         await api.post(`/engagement/${id}/reply`, { text });
+      }
     },
     onSuccess: () => {
         toast.success(t('Reply sent successfully', 'Réponse envoyée avec succès'));
         setReplyText('');
-        // Update local state immediately (Optimistic-ish)
         queryClient.setQueryData(['engagement', workspaceId], (old: any[]) =>
             old.map((e: any) => e._id === activeId ? { ...e, status: 'replied' } : e)
         );
+        queryClient.invalidateQueries({ queryKey: ['engagement', workspaceId] });
     },
     onError: () => toast.error(t('Failed to send reply', 'Échec de l\'envoi de la réponse'))
   });
@@ -88,14 +94,22 @@ export default function Engagement() {
   // DERIVED STATE
   const activeEngagement = engagements.find((e: any) => e._id === activeId);
   const filteredEngagements = engagements.filter((e: any) => {
-      if (filter === 'unread') return e.status === 'unread';
+      if (filter === 'unread') return e.status === 'unread' || (e.unreadCount ?? 0) > 0;
       if (filter === 'archived') return e.status === 'archived';
-      return e.status !== 'archived'; // Default hides archived
+      const notArchived = e.status !== 'archived';
+      if (platformFilter !== 'all') return notArchived && e.platform === platformFilter;
+      return notArchived;
   });
 
   const handleReply = () => {
       if (!activeId || !replyText) return;
-      replyMutation.mutate({ id: activeId, text: replyText });
+      replyMutation.mutate({
+        id: activeId,
+        text: replyText,
+        type: activeEngagement?.type,
+        platform: activeEngagement?.platform,
+        conversationId: activeEngagement?.conversationId,
+      });
   };
 
   return (
@@ -121,8 +135,9 @@ export default function Engagement() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all'} onClick={() => setFilter('all')} />
-             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread').length} onClick={() => setFilter('unread')} />
+             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
+             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => setFilter('unread')} />
+             <FilterBadge label="WhatsApp" active={platformFilter === 'whatsapp'} onClick={() => { setFilter('all'); setPlatformFilter(platformFilter === 'whatsapp' ? 'all' : 'whatsapp'); }} icon={<FaWhatsapp size={10} />} />
           </div>
         </div>
 
@@ -178,7 +193,17 @@ export default function Engagement() {
                     <p className={`text-xs line-clamp-2 ${activeId === e._id ? 'text-gray-200 dark:text-zinc-700' : 'text-gray-800 dark:text-zinc-300'}`}>
                         {e.content}
                     </p>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                         {e.type === 'dm' && (
+                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-white">
+                                 DM
+                             </span>
+                         )}
+                         {(e.unreadCount ?? 0) > 0 && (
+                             <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-black bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white min-w-[20px]">
+                                 {e.unreadCount}
+                             </span>
+                         )}
                          {e.status === 'replied' && (
                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-green-400 text-black border-2 border-black">
                                  <FiCheck size={10} strokeWidth={4} /> {t('REPLIED', 'RÉPONDU')}
@@ -283,8 +308,9 @@ export default function Engagement() {
 }
 
 // --- SUB COMPONENTS ---
-const FilterBadge = ({ label, active, count, onClick }: any) => (
+const FilterBadge = ({ label, active, count, onClick, icon }: any) => (
     <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all flex items-center gap-2 ${active ? 'bg-black dark:bg-white text-white dark:text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800'}`}>
+        {icon && <span>{icon}</span>}
         {label}
         {count !== undefined && <span className={`px-1.5 py-0.5 text-[10px] border border-current ${active ? 'bg-white dark:bg-zinc-900 text-black dark:text-white' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{count}</span>}
     </button>
