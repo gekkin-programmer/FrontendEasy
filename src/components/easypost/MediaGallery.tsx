@@ -377,7 +377,7 @@ export default function MediaGallery({
                                     onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
                                     disabled={canvaUploading === asset.id}
                                     title={t('Edit in Canva', 'Modifier dans Canva')}
-                                    className="p-1.5 bg-white text-black border border-black hover:bg-zinc-100 transition-colors shadow-[1px_1px_0px_0px_#000]"
+                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
                                 >
                                     {canvaUploading === asset.id
                                         ? <FiLoader size={10} className="animate-spin" />
@@ -387,7 +387,7 @@ export default function MediaGallery({
                                 <button
                                     onClick={(e) => { e.stopPropagation(); if (confirm(t('Delete asset?', 'Supprimer ce média ?'))) deleteAssetMutation.mutate(asset.id); }}
                                     title={t('Delete', 'Supprimer')}
-                                    className="p-1.5 bg-white text-black border border-black hover:bg-red-500 hover:text-white transition-colors shadow-[1px_1px_0px_0px_#000]"
+                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
                                 >
                                     <FiTrash2 size={10} />
                                 </button>
