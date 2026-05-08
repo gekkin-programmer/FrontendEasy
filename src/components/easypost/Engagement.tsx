@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -18,6 +18,7 @@ import {
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // --- CONFIGS ---
 const PLATFORM_ICONS: any = {
@@ -32,7 +33,7 @@ const SENTIMENT_STYLES: any = {
   positive: 'bg-green-100 text-black border-2 border-black',
   negative: 'bg-red-100 text-black border-2 border-black',
   neutral: 'bg-gray-100 text-black border-2 border-black',
-  question: 'bg-blue-100 text-black border-2 border-black',
+  question: 'bg-zinc-100 text-black border-2 border-black',
 };
 
 export default function Engagement() {
@@ -49,6 +50,7 @@ export default function Engagement() {
   // 🟢 1. FETCH ENGAGEMENT
   const { data: engagements = [], isLoading } = useQuery({
     queryKey: ['engagement', workspaceId],
+    gcTime: 0,
     queryFn: async () => {
         const res: any = await api.get(`/engagement?workspaceId=${workspaceId}`);
         return res.data || [];
@@ -126,10 +128,27 @@ export default function Engagement() {
 
         {/* List */}
         <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 transition-colors">
-          {filteredEngagements.length === 0 && (
+          {isLoading && (
+            <div className="divide-y-2 divide-black dark:divide-white">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex items-start gap-3 p-4">
+                  <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between">
+                      <Skeleton className="h-3 w-28" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-3/4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {!isLoading && filteredEngagements.length === 0 && (
              <div className="p-8 text-center text-gray-400 dark:text-zinc-500 text-sm font-mono border-b-2 border-dashed border-gray-300 dark:border-zinc-700">{t('No messages found', 'Aucun message trouvé')}</div>
           )}
-          {filteredEngagements.map((e: any) => (
+          {!isLoading && filteredEngagements.map((e: any) => (
             <div
               key={e._id}
               onClick={() => setActiveId(e._id)}

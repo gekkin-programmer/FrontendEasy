@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,31 +13,28 @@ import {
 } from 'lucide-react';
 import { NeuButton, NeuCard, NeuInput, NeuModal } from './DashboardUI';
 import { cn } from '@/lib/utils';
-// --- SKELETON LOADERS ---
-const SkeletonBlock = ({ className }: { className?: string }) => (
-  <div className={`animate-pulse bg-gray-200 dark:bg-zinc-800 ${className ?? ''}`} />
-);
+import { Skeleton } from '@/components/ui/skeleton';
 
 function BoardsListSkeleton() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div className="space-y-2">
-          <SkeletonBlock className="h-7 w-48 rounded" />
-          <SkeletonBlock className="h-4 w-32 rounded" />
+          <Skeleton className="h-7 w-48 rounded" />
+          <Skeleton className="h-4 w-32 rounded" />
         </div>
-        <SkeletonBlock className="h-10 w-32 rounded" />
+        <Skeleton className="h-10 w-32 rounded" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-4 space-y-3">
-            <div className="h-2 w-full bg-blue-200 dark:bg-blue-900/40" />
-            <SkeletonBlock className="h-5 w-36 rounded mt-2" />
-            <SkeletonBlock className="h-3 w-full rounded" />
-            <SkeletonBlock className="h-3 w-2/3 rounded" />
+            <div className="h-2 w-full bg-zinc-200 dark:bg-zinc-800" />
+            <Skeleton className="h-5 w-36 rounded mt-2" />
+            <Skeleton className="h-3 w-full rounded" />
+            <Skeleton className="h-3 w-2/3 rounded" />
             <div className="flex justify-between pt-3 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
-              <SkeletonBlock className="h-5 w-20 rounded" />
-              <SkeletonBlock className="h-5 w-5 rounded" />
+              <Skeleton className="h-5 w-20 rounded" />
+              <Skeleton className="h-5 w-5 rounded" />
             </div>
           </div>
         ))}
@@ -52,13 +49,13 @@ function KanbanSkeleton() {
       {[...Array(3)].map((_, col) => (
         <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
           <div className="p-3 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
-            <SkeletonBlock className="h-5 w-24 rounded" />
+            <Skeleton className="h-5 w-24 rounded" />
           </div>
           <div className="p-3 space-y-3">
             {[...Array(col + 2)].map((_, card) => (
               <div key={card} className="bg-gray-50 dark:bg-zinc-800 border-2 border-black dark:border-white p-3 space-y-2">
-                <SkeletonBlock className="h-4 w-full rounded" />
-                <SkeletonBlock className="h-3 w-2/3 rounded" />
+                <Skeleton className="h-4 w-full rounded" />
+                <Skeleton className="h-3 w-2/3 rounded" />
               </div>
             ))}
           </div>
@@ -105,6 +102,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   // Fetch Boards
   const { data: boards = [], isLoading } = useQuery({
     queryKey: ['boards', workspaceId],
+    gcTime: 0,
     queryFn: () => boardApi.getBoards(workspaceId),
   });
 
@@ -141,7 +139,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
           <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{t("Workspace Boards", "Tableaux de l'Espace")}</h2>
           <p className="text-sm font-bold text-gray-500 uppercase">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
         </div>
-        <NeuButton onClick={() => setIsCreateBoardOpen(true)} className="bg-[#3C48F5] text-white">
+        <NeuButton onClick={() => setIsCreateBoardOpen(true)}>
           <Plus size={20} className="mr-2" /> {t("NEW_BOARD", "NOUVEAU_TABLEAU")}
         </NeuButton>
       </div>
@@ -152,7 +150,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
           <h3 className="text-xl font-black uppercase text-gray-400">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
           <button
             onClick={() => setIsCreateBoardOpen(true)}
-            className="mt-4 text-[#3C48F5] font-black uppercase underline hover:no-underline"
+            className="mt-4 text-black dark:text-white font-black uppercase underline hover:no-underline"
           >
             {t("Create your first board", "Créer votre premier tableau")}
           </button>
@@ -166,13 +164,13 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
               onClick={() => setSelectedBoardId(board.id)}
               className="cursor-pointer"
             >
-              <NeuCard className="h-full hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors group relative overflow-hidden">
+              <NeuCard className="h-full hover:border-black dark:border-white hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors group relative overflow-hidden">
                 <div 
                   className="absolute top-0 left-0 right-0 h-2" 
-                  style={{ backgroundColor: board.color || '#3C48F5' }}
+                  style={{ backgroundColor: board.color || '#000000' }}
                 />
                 <div className="pt-4">
-                  <h3 className="text-lg font-black uppercase mb-2 group-hover:text-[#3C48F5]">{board.name}</h3>
+                  <h3 className="text-lg font-black uppercase mb-2 group-hover:text-black dark:text-white">{board.name}</h3>
                   <p className="text-sm text-gray-500 line-clamp-2 mb-4">{board.description || t('No description provided', 'Aucune description fournie')}</p>
                   
                   <div className="flex items-center justify-between mt-auto pt-4 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
@@ -208,7 +206,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
             <NeuButton onClick={() => setIsCreateBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
             <NeuButton
               onClick={() => createBoardMutation.mutate(newBoardName)}
-              className="bg-[#3C48F5] text-white"
+              className="bg-black dark:bg-white text-white dark:text-black"
             >
               {t("CREATE_BOARD", "CRÉER_TABLEAU")}
             </NeuButton>
@@ -246,6 +244,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
+    gcTime: 0,
     queryFn: () => boardApi.getBoardDetails(boardId),
   });
 
@@ -397,7 +396,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
               />
             ))}
             
-            <button className="flex-shrink-0 w-80 h-16 border-4 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center gap-2 hover:border-[#3C48F5] hover:text-[#3C48F5] transition-all group">
+            <button className="flex-shrink-0 w-80 h-16 border-4 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center gap-2 hover:border-black dark:border-white hover:text-black dark:text-white transition-all group">
               <Plus size={20} />
               <span className="font-black uppercase text-sm">{t("Add Column", "Ajouter Colonne")}</span>
             </button>
@@ -423,7 +422,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
             <NeuButton onClick={() => setIsEditBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
             <NeuButton
               onClick={() => updateBoardMutation.mutate(editBoardName)}
-              className="bg-[#3C48F5] text-white"
+              className="bg-black dark:bg-white text-white dark:text-black"
             >
               {t("UPDATE", "METTRE_À_JOUR")}
             </NeuButton>
@@ -498,7 +497,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
             <NeuButton onClick={() => setIsCreateCardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
             <NeuButton
               onClick={() => createCardMutation.mutate({ columnId: targetColumnId!, title: newCardTitle })}
-              className="bg-[#3C48F5] text-white"
+              className="bg-black dark:bg-white text-white dark:text-black"
               disabled={!newCardTitle.trim()}
             >
               {t("CREATE", "CRÉER")}
@@ -612,7 +611,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
     switch (p) {
       case 'URGENT': return 'bg-red-500';
       case 'HIGH': return 'bg-orange-500';
-      case 'MEDIUM': return 'bg-blue-500';
+      case 'MEDIUM': return 'bg-zinc-1000';
       default: return 'bg-gray-500';
     }
   };
@@ -625,7 +624,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
     >
       <NeuCard 
         onClick={onClick}
-        className="p-3 cursor-pointer hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+        className="p-3 cursor-pointer hover:border-black dark:border-white hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
       >
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -716,18 +715,18 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
     >
       {isLoading ? (
         <div className="p-8 space-y-4">
-          <SkeletonBlock className="h-7 w-48 rounded" />
-          <SkeletonBlock className="h-3 w-32 rounded" />
+          <Skeleton className="h-7 w-48 rounded" />
+          <Skeleton className="h-3 w-32 rounded" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
             <div className="md:col-span-2 space-y-4">
-              <SkeletonBlock className="h-24 w-full rounded" />
-              <SkeletonBlock className="h-10 w-full rounded" />
+              <Skeleton className="h-24 w-full rounded" />
+              <Skeleton className="h-10 w-full rounded" />
             </div>
             <div className="space-y-3">
-              <SkeletonBlock className="h-5 w-20 rounded" />
-              <SkeletonBlock className="h-8 w-full rounded" />
-              <SkeletonBlock className="h-5 w-24 rounded" />
-              <SkeletonBlock className="h-8 w-full rounded" />
+              <Skeleton className="h-5 w-20 rounded" />
+              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-5 w-24 rounded" />
+              <Skeleton className="h-8 w-full rounded" />
             </div>
           </div>
         </div>
@@ -804,7 +803,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
                   <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">Priority</h4>
                   <span className={`px-2 py-0.5 font-black text-[10px] uppercase text-white ${
                     card.priority === 'URGENT' ? 'bg-red-500' : 
-                    card.priority === 'HIGH' ? 'bg-orange-500' : 'bg-blue-500'
+                    card.priority === 'HIGH' ? 'bg-orange-500' : 'bg-zinc-1000'
                   }`}>
                     {card.priority}
                   </span>
@@ -825,7 +824,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
                <h4 className="font-black uppercase text-xs">Actions</h4>
                <NeuButton 
                  onClick={() => convertMutation.mutate()} 
-                 className="w-full bg-[#3C48F5] text-white flex justify-center items-center gap-2"
+                 className="w-full bg-black dark:bg-white text-white dark:text-black flex justify-center items-center gap-2"
                  disabled={!!card.postId}
                >
                  <ArrowRight size={16}/> {card.postId ? 'SYNCED_TO_FEED' : 'CONVERT_TO_POST'}
@@ -842,7 +841,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
                <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                   {card.activities?.slice(0, 5).map(a => (
                     <div key={a.id} className="text-[10px] flex gap-2">
-                       <span className="font-black uppercase text-[#3C48F5]">{a.user.firstName}</span>
+                       <span className="font-black uppercase text-black dark:text-white">{a.user.firstName}</span>
                        <span className="italic">{a.action}</span>
                     </div>
                   ))}

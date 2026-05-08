@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -59,7 +59,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#3C48F5] p-8 space-y-6">
+      <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] p-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b-4 border-black dark:border-white pb-4">
           <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
               </div>
               <button
                 onClick={copy}
-                className="px-4 border-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                className="px-4 border-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-black dark:bg-white hover:border-black dark:border-white transition-colors"
               >
                 {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
               </button>
@@ -220,7 +220,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         </div>
 
         {/* SESSION DEBUG PANEL */}
-        <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5] flex flex-col gap-1 min-w-[180px]">
+        <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] flex flex-col gap-1 min-w-[180px]">
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tighter border-b border-black/20 dark:border-white/20 pb-1 mb-1">
                 <span>{t("Session Sync", "Sync Session")}</span>
                 <span className={cn(tokenStatus === t("Valid", "Valide") ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
@@ -247,7 +247,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 isExpired
                     ? 'bg-red-500 text-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]'
                     : isConnected
-                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#3C48F5]'
+                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#000]'
                         : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
               )}
             >
@@ -332,7 +332,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}
-                    className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     <Plus size={16} className="inline mr-2" strokeWidth={4} /> {t("Connect", "Connecter")}
                   </button>

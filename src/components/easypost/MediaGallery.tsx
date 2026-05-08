@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -308,7 +308,7 @@ export default function MediaGallery({
                         onDoubleClick={() => enterFolder(folder)}
                         className="group cursor-pointer flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all relative"
                     >
-                        <div className="text-[#3C48F5] dark:text-blue-400 group-hover:scale-110 transition-transform">
+                        <div className="text-black dark:text-white dark:text-blue-400 group-hover:scale-110 transition-transform">
                             <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
                         </div>
                         <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>

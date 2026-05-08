@@ -237,7 +237,7 @@ function LinkedInPreview({ text, media, account }: { text: string; media: string
 }
 
 function GenericFeedPreview({ text, media, account, platform }: { text: string; media: string[]; account: any; platform: string }) {
-    const color = PLATFORM_COLORS[platform] ?? '#3C48F5';
+    const color = PLATFORM_COLORS[platform] ?? '#000000';
     return (
         <div className="bg-white overflow-y-auto" style={{ maxHeight: 400 }}>
             <div className="flex items-center gap-2 p-3 border-b border-gray-100">
@@ -288,7 +288,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
     return (
         <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-3 py-2 bg-[#3C48F5] border-b-2 border-black dark:border-white">
+            <div className="flex items-center justify-between px-3 py-2 bg-black dark:bg-white border-b-2 border-black dark:border-white">
                 <span className="font-black text-[10px] uppercase tracking-widest text-white">
                     {current ? `${current.platform} Preview` : 'Live Preview'}
                 </span>
@@ -301,7 +301,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
             {platformAccounts.length > 0 && (
                 <div className="flex gap-2 px-3 py-2 bg-white dark:bg-zinc-900 border-b-2 border-black dark:border-white overflow-x-auto scrollbar-hide">
                     {platformAccounts.map((item, i) => {
-                        const color = PLATFORM_COLORS[item.platform] ?? '#3C48F5';
+                        const color = PLATFORM_COLORS[item.platform] ?? '#000000';
                         return (
                             <button
                                 key={item.platform}
@@ -310,7 +310,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                                 className={cn(
                                     "relative w-8 h-8 rounded-full flex-shrink-0 overflow-hidden transition-all",
                                     i === safeIdx
-                                        ? "ring-2 ring-offset-1 ring-[#3C48F5] shadow-[2px_2px_0px_0px_#3C48F5]"
+                                        ? "ring-2 ring-offset-1 ring-black dark:ring-white shadow-[2px_2px_0px_0px_#000]"
                                         : "ring-1 ring-gray-300 dark:ring-zinc-600 hover:ring-black dark:hover:ring-white opacity-60 hover:opacity-100"
                                 )}
                             >
@@ -682,7 +682,7 @@ function DashboardContent() {
             {/* Mobile Sidebar */}
             <AnimatePresence>
                 {isSidebarOpen && (
-                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-black border-r-4 border-black dark:border-white flex flex-col z-50 shadow-[10px_0px_0px_0px_rgba(0,0,0,0.2)]"><div className="p-6 border-b-2 border-black dark:border-white flex justify-between items-center bg-[#3C48F5] text-white"><span className="font-black text-xl uppercase">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-red-500 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-3">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
+                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-black border-r-4 border-black dark:border-white flex flex-col z-50 shadow-[10px_0px_0px_0px_rgba(0,0,0,0.2)]"><div className="p-6 border-b-2 border-black dark:border-white flex justify-between items-center bg-black dark:bg-white text-white"><span className="font-black text-xl uppercase">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-red-500 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-3">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
                 )}
             </AnimatePresence>
 
@@ -693,7 +693,7 @@ function DashboardContent() {
                         <div className="flex items-center gap-4">
                             <button 
                                 onClick={() => router.push('/')}
-                                className="p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-blue-50 dark:hover:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                className="p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                 title={t("Back to Home", "Retour à l'accueil")}
                             >
                                 <Home size={20} strokeWidth={3} className="text-black dark:text-white" />
@@ -743,7 +743,7 @@ function DashboardContent() {
                                                     <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">{t("Posts", "Publications")}</div>
                                                     {searchResults.posts.map((p: any) => (
                                                         <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 transition-colors">
-                                                            <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-[#3C48F5]' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
+                                                            <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-black dark:bg-white' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
                                                             <span className="text-xs font-bold truncate text-black dark:text-white">{p.content?.substring(0, 60)}...</span>
                                                             <span className="text-[9px] font-black uppercase text-gray-400 ml-auto flex-shrink-0">{p.status}</span>
                                                         </button>
@@ -774,7 +774,7 @@ function DashboardContent() {
                                 <button className="relative p-2.5 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all">
                                     <Bell size={20} className="text-black dark:text-white" />
                                     {unreadCount > 0 && (
-                                        <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-[#3C48F5] border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
+                                        <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </div>
                                     )}
@@ -800,7 +800,7 @@ function DashboardContent() {
                                     <div className="max-h-72 overflow-y-auto divide-y divide-black/10 dark:divide-white/10">
                                         {notifications.map(n => (
                                             <div key={n.id} className="flex items-start gap-3 px-3 py-2.5">
-                                                <div className={`mt-0.5 w-2 h-2 flex-shrink-0 rounded-none ${n.type === 'success' ? 'bg-green-500' : n.type === 'error' ? 'bg-red-500' : 'bg-[#3C48F5]'}`} />
+                                                <div className={`mt-0.5 w-2 h-2 flex-shrink-0 rounded-none ${n.type === 'success' ? 'bg-green-500' : n.type === 'error' ? 'bg-red-500' : 'bg-black dark:bg-white'}`} />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[11px] font-bold text-black dark:text-white leading-tight">{n.message}</p>
                                                     <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-0.5">
@@ -846,7 +846,7 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <NeuCard className="bg-white dark:bg-zinc-900 relative overflow-hidden min-h-[520px] rounded-t-lg">
-                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-[#3C48F5] border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
+                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-black dark:bg-white border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
@@ -908,16 +908,16 @@ function DashboardContent() {
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
       : currentWorkspace.owner.planType === 'STARTER'
-      ? 'text-[#3C48F5]'
+      ? 'text-black dark:text-white'
       : currentWorkspace.owner.planType === 'PRO'
-      ? 'text-[#3C48F5] drop-shadow-[0_0_10px_rgba(60,72,245,0.85)] animate-pulse'
+      ? 'text-black dark:text-white  animate-pulse'
       : currentWorkspace.owner.planType === 'PROFESSIONAL'
       ? 'animate-rainbow-rtl'
       : currentWorkspace.owner.planType === 'ENTERPRISE'
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-[#3C48F5] uppercase">{t("MANAGE", "GÉRER")}</button></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-black dark:text-white uppercase">{t("MANAGE", "GÉRER")}</button></div></div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -926,7 +926,7 @@ function DashboardContent() {
                 </div>
             </main>
 
-            <NeuModal title={t("CREATE WORKSPACE", "CRÉER UN ESPACE")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block text-black">{t("Workspace Name", "Nom de l'Espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("E.G. DIGITAL AGENCY", "EX : AGENCE DIGITALE")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-[#3C48F6] text-white hover:bg-blue-700">{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
+            <NeuModal title={t("CREATE WORKSPACE", "CRÉER UN ESPACE")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block text-black">{t("Workspace Name", "Nom de l'Espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("E.G. DIGITAL AGENCY", "EX : AGENCE DIGITALE")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100">{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
             
             <FacebookPageSelector 
                 isOpen={isFbPageSelectorOpen} 

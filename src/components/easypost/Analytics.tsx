@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useParams } from "next/navigation";
@@ -20,10 +20,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, type Icon as LucideIcon
 } from "lucide-react";
-// --- SKELETON LOADERS ---
-const SkeletonBlock = ({ className }: { className?: string }) => (
-  <div className={cn("animate-pulse bg-gray-200 dark:bg-zinc-800", className)} />
-);
+import { Skeleton } from '@/components/ui/skeleton';
 
 function AnalyticsGridSkeleton() {
   return (
@@ -32,12 +29,12 @@ function AnalyticsGridSkeleton() {
         {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]">
             <div className="p-4 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
-              <SkeletonBlock className="h-5 w-32 rounded" />
+              <Skeleton className="h-5 w-32 rounded" />
             </div>
             <div className="p-4 space-y-3">
-              <SkeletonBlock className="h-10 w-24 rounded" />
-              <SkeletonBlock className="h-3 w-full rounded" />
-              <SkeletonBlock className="h-3 w-3/4 rounded" />
+              <Skeleton className="h-10 w-24 rounded" />
+              <Skeleton className="h-3 w-full rounded" />
+              <Skeleton className="h-3 w-3/4 rounded" />
             </div>
           </div>
         ))}
@@ -52,28 +49,28 @@ function LiveStreamSkeleton() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="border-4 border-black dark:border-white p-4 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
-            <SkeletonBlock className="h-3 w-20 mx-auto mb-2 rounded" />
-            <SkeletonBlock className="h-10 w-16 mx-auto rounded" />
+            <Skeleton className="h-3 w-20 mx-auto mb-2 rounded" />
+            <Skeleton className="h-10 w-16 mx-auto rounded" />
           </div>
         ))}
       </div>
       <div className="flex flex-col md:flex-row gap-8 flex-1 pb-20 overflow-hidden">
         <div className="w-full md:w-[380px] flex flex-col border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0">
           <div className="p-4 border-b-2 border-black dark:border-white bg-gray-100 dark:bg-zinc-800">
-            <SkeletonBlock className="h-8 w-full rounded mb-3" />
-            <SkeletonBlock className="h-8 w-full rounded" />
+            <Skeleton className="h-8 w-full rounded mb-3" />
+            <Skeleton className="h-8 w-full rounded" />
           </div>
           <div className="flex-1 p-2 space-y-2">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="p-3 border-b border-gray-100 dark:border-zinc-800 space-y-2">
-                <SkeletonBlock className="h-3 w-3/4 rounded" />
-                <SkeletonBlock className="h-3 w-1/2 rounded" />
+                <Skeleton className="h-3 w-3/4 rounded" />
+                <Skeleton className="h-3 w-1/2 rounded" />
               </div>
             ))}
           </div>
         </div>
         <div className="flex-1 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex items-center justify-center">
-          <SkeletonBlock className="w-20 h-20 rounded" />
+          <Skeleton className="w-20 h-20 rounded" />
         </div>
       </div>
     </div>
@@ -83,13 +80,13 @@ function LiveStreamSkeleton() {
 function PostDetailSkeleton() {
   return (
     <div className="flex-1 p-6 space-y-4">
-      <SkeletonBlock className="h-6 w-48 rounded" />
-      <SkeletonBlock className="h-24 w-full rounded" />
+      <Skeleton className="h-6 w-48 rounded" />
+      <Skeleton className="h-24 w-full rounded" />
       <div className="grid grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="border-2 border-black dark:border-white p-3">
-            <SkeletonBlock className="h-3 w-16 mb-2 rounded" />
-            <SkeletonBlock className="h-8 w-20 rounded" />
+            <Skeleton className="h-3 w-16 mb-2 rounded" />
+            <Skeleton className="h-8 w-20 rounded" />
           </div>
         ))}
       </div>
@@ -127,7 +124,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2 text-sm font-black uppercase transition-all border-2 border-black dark:border-white", 
-      active ? "bg-[#3C48F6] text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-zinc-700", 
+      active ? "bg-black dark:bg-white text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-zinc-700", 
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -162,7 +159,7 @@ export default function Analytics() {
     <div className="flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-500 gap-8 font-sans text-black dark:text-white transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
-        <div className="border-l-4 border-[#3C48F5] pl-4">
+        <div className="border-l-4 border-black dark:border-white pl-4">
            <h2 className="text-3xl font-black uppercase tracking-tighter">{t("Analytics_Hub", "Hub_Analytique")}</h2>
            <p className="text-sm font-mono font-bold text-gray-500 dark:text-zinc-400">{t("REAL_TIME_PERFORMANCE_TRACKING", "SUIVI_PERFORMANCE_EN_TEMPS_RÉEL")}</p>
         </div>
@@ -191,46 +188,54 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
     // 1. Account Health
     const healthQuery = useQuery({
         queryKey: ['insights-health', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/health?workspaceId=${workspaceId}`) as any).data
     });
 
     // 2. Growth Forecast
     const forecastQuery = useQuery({
         queryKey: ['insights-forecast', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/forecast?workspaceId=${workspaceId}`) as any).data
     });
 
     // 3. Best Time
     const bestTimeQuery = useQuery({
         queryKey: ['insights-best-time', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/best-time?workspaceId=${workspaceId}`) as any).data
     });
 
     // 4. Content Mix
     const contentMixQuery = useQuery({
         queryKey: ['insights-content-mix', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/content-mix?workspaceId=${workspaceId}`) as any).data
     });
 
     // 5. Smart Copy & Hashtags
     const smartCopyQuery = useQuery({
         queryKey: ['insights-smart-copy', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/smart-copy?workspaceId=${workspaceId}`) as any).data
     });
     const hashtagsQuery = useQuery({
         queryKey: ['insights-hashtags', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/hashtags?workspaceId=${workspaceId}`) as any).data
     });
 
     // 6. Activity Timeline
     const timelineQuery = useQuery({
         queryKey: ['insights-timeline', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics/insights/timeline?workspaceId=${workspaceId}`) as any).data
     });
 
     // 7. Platform Comparison (reuse accounts analytics)
     const platformQuery = useQuery({
         queryKey: ['analytics-accounts', workspaceId],
+        gcTime: 0,
         queryFn: async () => (await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS`) as any).data
     });
 
@@ -246,13 +251,13 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 
-                <NeuCard title={t("Account_Health", "Santé_Compte")} icon={Activity} className="bg-blue-50 dark:bg-blue-900/10">
+                <NeuCard title={t("Account_Health", "Santé_Compte")} icon={Activity} className="bg-zinc-100 dark:bg-zinc-900/50">
                     <div className="flex items-end justify-between mb-4">
                         <div>
                             <span className="text-5xl font-black text-black dark:text-white">{health.healthScore}</span>
                             <span className="text-xl font-bold text-gray-400 dark:text-zinc-500">/100</span>
                         </div>
-                        <span className="bg-[#3C48F5] text-white px-3 py-1 font-bold uppercase text-xs mb-2">{health.consistencyStatus}</span>
+                        <span className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 font-bold uppercase text-xs mb-2">{health.consistencyStatus}</span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-zinc-800 h-4 border-2 border-black dark:border-white">
                         <div className="bg-blue-600 h-full transition-all duration-1000" style={{ width: `${health.healthScore}%` }}></div>
@@ -307,7 +312,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                 <XAxis dataKey="date" hide />
                                 <YAxis tick={{fontSize: 10, fontWeight: 'bold', fill: 'currentColor'}} />
                                 <Tooltip contentStyle={{ borderRadius: '0px', border: '2px solid currentColor', backgroundColor: 'var(--tw-bg-opacity)' }} />
-                                <Area type="monotone" dataKey="count" stroke="#3C48F6" fill="#3C48F6" fillOpacity={0.1} strokeWidth={3} />
+                                <Area type="monotone" dataKey="count" stroke="#000000" fill="#000000" fillOpacity={0.1} strokeWidth={3} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -359,7 +364,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                         {smartCopyQuery.data?.map((item: any, i: number) => (
                             <span
                                 key={i}
-                                className="px-2 py-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-xs uppercase hover:bg-blue-300 dark:hover:bg-blue-700 transition-colors cursor-default"
+                                className="px-2 py-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-xs uppercase hover:bg-blue-300 dark:hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors cursor-default"
                                 style={{ fontSize: Math.max(10, 10 + (item.impactScore / 2)) + 'px' }}
                             >
                                 {item.word}
@@ -395,6 +400,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     // 🟢 1. FETCH OVERVIEW STATS
     const { data: overview = { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 } } = useQuery({
         queryKey: ['analytics-overview', workspaceId],
+        gcTime: 0,
         queryFn: async () => {
             const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
             return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
@@ -403,6 +409,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
 
     const { data: posts = [], isLoading, refetch } = useQuery({
         queryKey: ['analytics-posts', workspaceId],
+        gcTime: 0,
         queryFn: async () => {
             const res: any = await api.get(`/posts?workspaceId=${workspaceId}&limit=50&status=PUBLISHED`);
             const payload = res.data || res;
@@ -452,7 +459,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
             <div className="flex flex-col md:flex-row gap-8 h-full pb-20 overflow-hidden">
                 {/* Left Panel */}
             <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0 h-full transition-colors">
-                <div className="p-4 border-b-2 border-black dark:border-white bg-[#3C48F5]">
+                <div className="p-4 border-b-2 border-black dark:border-white bg-black dark:bg-white">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-black text-lg uppercase text-white">{t("Live_STREAM", "FLUX_EN_DIRECT")}</h3>
                         <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-white text-black border-2 border-black px-2 py-1 text-[10px] font-bold uppercase hover:bg-zinc-100 disabled:opacity-50 flex items-center gap-1 transition-all shadow-[2px_2px_0px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
@@ -462,7 +469,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                     </div>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-zinc-400 w-4 h-4" strokeWidth={3} />
-                        <input type="text" placeholder={t("SEARCH_POSTS...", "CHERCHER_PUBLICATIONS...")} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:bg-blue-50 dark:focus:bg-zinc-700 focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] transition-all uppercase text-black dark:text-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                        <input type="text" placeholder={t("SEARCH_POSTS...", "CHERCHER_PUBLICATIONS...")} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:bg-zinc-50 dark:focus:bg-zinc-700 focus:shadow-[2px_2px_0px_0px_#000] dark:focus:shadow-[2px_2px_0px_0px_#fff] transition-all uppercase text-black dark:text-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-0 bg-white dark:bg-zinc-900 transition-colors">
@@ -496,8 +503,9 @@ function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
     const { t } = useLanguage();
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['post-analytics', postId],
+        gcTime: 0,
         queryFn: async () => {
-            try { const res: any = await api.get(`/posts/${postId}`); return res.data || res; } 
+            try { const res: any = await api.get(`/posts/${postId}`); return res.data || res; }
             catch (err) { console.error("Fetch Detail Error:", err); return null; }
         },
     });
@@ -576,11 +584,11 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x-2 divide-black dark:divide-white border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
-                <BigStatBox label={t("Likes", "J'aime")} value={metrics.likes} icon={ThumbsUp} color="bg-blue-100 dark:bg-blue-900/30" />
+                <BigStatBox label={t("Likes", "J'aime")} value={metrics.likes} icon={ThumbsUp} color="bg-zinc-100 dark:bg-zinc-800" />
                 <BigStatBox label={t("Comments", "Commentaires")} value={metrics.comments} icon={MessageCircle} color="bg-green-100 dark:bg-green-900/30" />
                 <BigStatBox label={t("Actual Reach", "Portée Réelle")} value={reachDisplay} icon={Eye} color="bg-purple-100 dark:bg-purple-900/30" />
                 
-                <div className="p-6 flex flex-col justify-center items-center text-center bg-blue-50 dark:bg-blue-900/10 transition-colors">
+                <div className="p-6 flex flex-col justify-center items-center text-center bg-zinc-50 dark:bg-zinc-900/50 transition-colors">
                     <span className="text-xs font-black uppercase tracking-wider mb-1 text-black dark:text-white">{t("Eng._Rate", "Taux_Eng.")}</span>
                     <span className="text-3xl font-black text-black dark:text-white tabular-nums">{engagementRate}</span>
                     {!hasReachData && metrics.likes > 0 && (
@@ -610,7 +618,7 @@ function PostAnalyticsDetail({ post }: { post: AnalyticsPost }) {
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="currentColor" opacity={0.1} />
                                 <XAxis type="number" hide />
                                 <YAxis dataKey="name" type="category" tick={{fontSize: 12, fill: 'currentColor', fontWeight: 'bold'}} width={80} axisLine={false} tickLine={false} />
-                                <Tooltip cursor={{fill: '#3C48F5', opacity: 0.1}} contentStyle={{ backgroundColor: 'var(--tw-bg-opacity)', borderRadius: '0px', border: '2px solid currentColor', boxShadow: '4px 4px 0px 0px currentColor', fontWeight: 'bold', textTransform: 'uppercase' }} />
+                                <Tooltip cursor={{fill: '#000000', opacity: 0.1}} contentStyle={{ backgroundColor: 'var(--tw-bg-opacity)', borderRadius: '0px', border: '2px solid currentColor', boxShadow: '4px 4px 0px 0px currentColor', fontWeight: 'bold', textTransform: 'uppercase' }} />
                                 <Bar dataKey="value" barSize={32} radius={[0, 4, 4, 0]}>
                                     {chartData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.fill} stroke="currentColor" strokeWidth={2} />

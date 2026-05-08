@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -65,8 +65,8 @@ const AI_TONES = [
 const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
   const baseStyles = "relative font-black text-xs uppercase tracking-wide transition-all duration-150 border-2 border-black disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
   const variants = {
-    default: "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
-    primary: `bg-[#3C48F5] text-white hover:bg-blue-700 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`,
+    default: "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+    primary: `bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`,
     ghost: "bg-transparent border-transparent hover:bg-gray-100 dark:hover:bg-zinc-800 shadow-none hover:shadow-none translate-0"
   };
   return <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.default, className)} {...props}>{children}</button>;
@@ -77,7 +77,7 @@ const NeuModal = ({ title, isOpen, onClose, children }: { title: string, isOpen:
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden">
-                <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
+                <div className="bg-black dark:bg-white text-white dark:text-black p-4 border-b-4 border-black dark:border-white flex justify-between items-center"><span className="font-black uppercase tracking-wider">{title}</span><button onClick={onClose}><X size={24} strokeWidth={3}/></button></div>
                 <div className="p-6 text-black dark:text-white">{children}</div>
             </motion.div>
         </div>
@@ -85,7 +85,7 @@ const NeuModal = ({ title, isOpen, onClose, children }: { title: string, isOpen:
 };
 
 const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) => (
-  <div onClick={onClick} className="group cursor-pointer flex flex-col items-center gap-2 p-2 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors">
+  <div onClick={onClick} className="group cursor-pointer flex flex-col items-center gap-2 p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
     <div className="relative w-16 h-12"><div className="absolute top-0 left-0 w-6 h-3 bg-gray-800 dark:bg-zinc-700 border-2 border-black dark:border-white rounded-t-sm z-0"></div><div className="absolute bottom-0 w-full h-10 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] z-10 group-hover:bg-blue-400 transition-colors flex items-center justify-center"><div className="w-8 h-0.5 bg-black/10 dark:bg-white/10"></div></div></div>
     <span className="text-[10px] font-bold uppercase text-center bg-white dark:bg-zinc-900 px-1 border border-black dark:border-white max-w-full truncate w-full font-mono text-black dark:text-white">{name}</span>
   </div>
@@ -126,11 +126,11 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     "text-[8px] font-black uppercase px-1.5 py-0.5 border",
-                    s.confidence === 'high' ? "bg-green-100 border-green-600 text-green-700" : "bg-blue-100 border-blue-600 text-blue-700"
+                    s.confidence === 'high' ? "bg-green-100 border-green-600 text-green-700" : "bg-zinc-100 border-blue-600 text-blue-700"
                   )}>
                     {s.confidence === 'high' ? t("HIGH CONFIDENCE", "HAUTE CONFIANCE") : t("MEDIUM CONFIDENCE", "CONFIANCE MOYENNE")}
                   </span>
-                  <span className="text-[10px] font-black text-[#3C48F5]">{t("SELECT", "CHOISIR")}</span>
+                  <span className="text-[10px] font-black text-black dark:text-white">{t("SELECT", "CHOISIR")}</span>
                 </div>
               </button>
             ))}
@@ -554,7 +554,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         <div className="w-full sm:w-1/3">
                             <label className="text-[10px] font-bold uppercase mb-1 block text-black dark:text-white">{t("VIBE CHECK", "AMBIANCE")}</label>
                             <div className="relative shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 py-2 text-xs font-black uppercase appearance-none focus:outline-none focus:shadow-[4px_4px_0px_0px_#3C48F5] text-black dark:text-white cursor-pointer pr-8 transition-all">
+                                <select value={aiTone} onChange={(e) => setAiTone(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 py-2 text-xs font-black uppercase appearance-none focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] text-black dark:text-white cursor-pointer pr-8 transition-all">
                                     {AI_TONES.map(tone => <option key={tone.id} value={tone.id}>{tone.label}</option>)}
                                 </select>
                                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-black dark:text-white" />
@@ -667,8 +667,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 bg-white dark:bg-zinc-900 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none", isSelling ? "bg-[#3C48F5] text-white" : "bg-white dark:bg-zinc-900 text-black dark:text-white")}><ShoppingBag size={12} /> {isSelling ? t('COMMERCE: ON', 'COMMERCE: ACTIF') : t('COMMERCE: OFF', 'COMMERCE: INACTIF')}</button>
-              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-blue-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-[#3C48F5] text-white')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase transition-all border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none", isSelling ? "bg-black dark:bg-white text-white dark:text-black" : "bg-white dark:bg-zinc-900 text-black dark:text-white")}><ShoppingBag size={12} /> {isSelling ? t('COMMERCE: ON', 'COMMERCE: ACTIF') : t('COMMERCE: OFF', 'COMMERCE: INACTIF')}</button>
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-4 py-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none whitespace-nowrap text-black dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] rounded-none" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 transition flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 last:border-0 font-bold uppercase text-black dark:text-white', category === cat && 'bg-black dark:bg-white text-white dark:text-black')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                           {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
@@ -697,9 +697,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           <Popover><PopoverTrigger asChild><NeuButton className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-700 text-black dark:text-white px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('NOW', 'MAINTENANT')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="rounded-none bg-white dark:bg-zinc-900 p-3 text-black dark:text-white" /><div className="p-3 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900 flex items-center gap-2"><Clock size={16} className="text-black dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-bold text-black dark:text-white border-b-2 border-black/20 dark:border-white/20 focus:border-black dark:focus:border-white" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-[#3C48F5] text-white shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-black dark:bg-white text-white dark:text-black shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-zinc-800 text-black dark:text-white")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> {t("REVIEW", "RÉVISION")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-[#3C48F6] text-white hover:bg-blue-700 px-4">
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('UPDATE', 'METTRE À JOUR') : (date ? t('SCHEDULE', 'PLANIFIER') : t('PUBLISH', 'PUBLIER'))}
                   </NeuButton>
@@ -740,7 +740,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                   {price && (
                     <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border border-black/20 dark:border-white/20 px-3 py-1.5">
                       <span className="text-[9px] font-black uppercase text-gray-400 dark:text-zinc-500 whitespace-nowrap">{t("LINK PREVIEW", "APERÇU")}</span>
-                      <span className="text-[9px] font-mono text-[#3C48F5] dark:text-blue-400 truncate">https://eazypost.cm/pay/XXXXXX</span>
+                      <span className="text-[9px] font-mono text-black dark:text-white dark:text-blue-400 truncate">https://eazypost.cm/pay/XXXXXX</span>
                     </div>
                   )}
                   <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500">{t("A unique payment link will be appended to your post. Customers pay via Mobile Money.", "Un lien de paiement unique sera joint à votre post. Les clients paient via Mobile Money.")}</p>
@@ -797,7 +797,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       {isPreviewOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col font-sans text-black dark:text-white transition-colors">
-                <div className="bg-[#3C48F5] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
+                <div className="bg-black dark:bg-white text-white dark:text-black p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
                     <span className="font-black uppercase tracking-tighter text-xl">{t("LIVE PREVIEW", "APERÇU EN DIRECT")}</span>
                     <button onClick={() => setIsPreviewOpen(false)} className="hover:bg-black hover:text-white transition-colors p-1 border-2 border-transparent hover:border-black"><X size={24} strokeWidth={3}/></button>
                 </div>

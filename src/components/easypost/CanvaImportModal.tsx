@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -165,7 +165,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
               className={cn(
                 'flex-1 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all',
                 tab === t
-                  ? 'bg-[#3C48F5] text-white'
+                  ? 'bg-black dark:bg-white text-white dark:text-black'
                   : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
               )}
             >
@@ -214,7 +214,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                   <button
                     onClick={startExport}
                     disabled={!!importing}
-                    className="w-full bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white py-2.5 font-black uppercase text-xs hover:bg-zinc-800 dark:hover:bg-zinc-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all shadow-[4px_4px_0px_0px_#3C48F5] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                    className="w-full bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white py-2.5 font-black uppercase text-xs hover:bg-zinc-800 dark:hover:bg-zinc-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
                   >
                     {importing ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
                     {importing ? t('Exporting…', 'Export en cours…') : t('Export & Import to Library', 'Exporter vers la médiathèque')}
@@ -238,7 +238,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                       {designs.map(d => (
                         <div
                           key={d.id}
-                          className="group relative aspect-video bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white hover:border-[#3C48F5] overflow-hidden transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                          className="group relative aspect-video bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white hover:border-black dark:border-white overflow-hidden transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                         >
                           {d.thumbnail?.url
                             ? <img src={d.thumbnail.url} alt="" className="w-full h-full object-cover" />
@@ -256,7 +256,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={e => e.stopPropagation()}
-                              className="opacity-0 group-hover:opacity-100 bg-[#3C48F5] text-white border-2 border-[#3C48F5] px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-[#2d38d4] transition-all"
+                              className="opacity-0 group-hover:opacity-100 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all"
                             >
                               <ExternalLink size={9} />{t('Edit in Canva', 'Éditer dans Canva')}
                             </a>
