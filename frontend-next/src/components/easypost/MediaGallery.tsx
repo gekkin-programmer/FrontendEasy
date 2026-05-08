@@ -34,14 +34,19 @@ export default function MediaGallery({
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
 
-  // Detect ?canva=connected redirect from OAuth callback
+  // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('canva') === 'connected') {
+    const canvaParam = params.get('canva');
+    if (canvaParam === 'connected') {
       toast.success(t('Canva connected!', 'Canva connecté !'));
       setCanvaModalOpen(true);
-      // Remove the param without a full reload
+    } else if (canvaParam === 'returned') {
+      toast.success(t('Back from Canva — import your design below', 'Retour depuis Canva — importez votre design'));
+      setCanvaModalOpen(true);
+    }
+    if (canvaParam === 'connected' || canvaParam === 'returned') {
       const url = new URL(window.location.href);
       url.searchParams.delete('canva');
       window.history.replaceState({}, '', url.toString());
