@@ -103,24 +103,23 @@ export class CanvaService {
       ),
     );
 
-    // Get Canva user ID
-    const meRes = await firstValueFrom(
-      this.http.get<{ user: { id: string } }>(`${CANVA_BASE}/users/me`, {
-        headers: { Authorization: `Bearer ${data.access_token}` },
-      }),
-    );
+    // Extract Canva user ID from the JWT access token's `sub` claim — no extra API call needed
+    const tokenPayload = JSON.parse(
+      Buffer.from(data.access_token.split('.')[1], 'base64url').toString(),
+    ) as { sub: string };
+    const canvaUserId = tokenPayload.sub;
 
     await this.prisma.canvaConnection.upsert({
       where: { workspaceId },
       create: {
         workspaceId,
-        canvaUserId: meRes.data.user.id,
+        canvaUserId,
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
         expiresAt: new Date(Date.now() + data.expires_in * 1000),
       },
       update: {
-        canvaUserId: meRes.data.user.id,
+        canvaUserId,
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
         expiresAt: new Date(Date.now() + data.expires_in * 1000),
