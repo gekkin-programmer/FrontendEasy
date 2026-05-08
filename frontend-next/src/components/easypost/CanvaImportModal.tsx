@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
 import { useLanguage } from '@/src/context/LanguageContext';
+import { useSocket } from '@/src/context/SocketContext';
 import { cn } from '@/lib/utils';
 
 type Tab = 'designs' | 'assets';
@@ -20,6 +21,7 @@ interface CanvaImportModalProps {
 
 export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImported }: CanvaImportModalProps) {
   const { t } = useLanguage();
+  const { socket } = useSocket();
   const [tab, setTab] = useState<Tab>('designs');
   const [designs, setDesigns] = useState<any[]>([]);
   const [assets, setAssets] = useState<any[]>([]);
@@ -30,6 +32,19 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   const [selectedDesign, setSelectedDesign] = useState<any | null>(null);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('jpg');
   const [pollingJobId, setPollingJobId] = useState<string | null>(null);
+
+  // Real-time: Canva collaboration events pushed from backend webhook
+  useEffect(() => {
+    if (!socket || !isOpen) return;
+    const handler = (data: { type: string; designId?: string }) => {
+      toast.info(t(`Canva update: ${data.type}`, `Canva: ${data.type}`));
+      onImported(); // refresh media library
+      if (tab === 'designs') loadDesigns(true);
+      else loadAssets(true);
+    };
+    socket.on('canva:event', handler);
+    return () => { socket.off('canva:event', handler); };
+  }, [socket, isOpen, tab]);
 
   const loadDesigns = useCallback(async (reset = false) => {
     setLoading(true);
