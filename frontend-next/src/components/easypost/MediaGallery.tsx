@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
@@ -13,6 +13,7 @@ import { api } from '@/src/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useLanguage } from '@/src/context/LanguageContext';
+import CanvaImportModal from './CanvaImportModal';
 
 interface Section { id: string; label: string; }
 
@@ -20,15 +21,47 @@ export default function MediaGallery({
   hideUsage = false,
   onUse,
   sections = [],
+  workspaceId,
 }: {
   hideUsage?: boolean;
   onUse?: (asset: any, sectionId: string) => void;
   sections?: Section[];
+  workspaceId?: string;
 }) {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
+  const [canvaModalOpen, setCanvaModalOpen] = useState(false);
+
+  // Detect ?canva=connected redirect from OAuth callback
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('canva') === 'connected') {
+      toast.success(t('Canva connected!', 'Canva connecté !'));
+      setCanvaModalOpen(true);
+      // Remove the param without a full reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete('canva');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  const handleCanvaClick = async () => {
+    if (!workspaceId) { toast.error('No workspace'); return; }
+    try {
+      const { data } = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
+      if (data?.connected) {
+        setCanvaModalOpen(true);
+      } else {
+        const authRes = await (api as any).get(`/canva/auth?workspaceId=${workspaceId}`);
+        window.location.href = authRes.data?.url ?? authRes.url;
+      }
+    } catch {
+      toast.error(t('Could not connect to Canva', 'Impossible de connecter Canva'));
+    }
+  };
 
   // Navigation State
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
@@ -184,7 +217,7 @@ export default function MediaGallery({
                     : t("Upload Asset", "Télécharger un média")}
               </button>
               <button
-                onClick={() => toast.info(t("Canva Import — Coming Soon", "Import Canva — Bientôt disponible"))}
+                onClick={handleCanvaClick}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
@@ -352,6 +385,19 @@ export default function MediaGallery({
          )}
       </div>
       </div>
+      </div>
+
+      {canvaModalOpen && workspaceId && (
+        <CanvaImportModal
+          isOpen={canvaModalOpen}
+          onClose={() => setCanvaModalOpen(false)}
+          workspaceId={workspaceId}
+          onImported={() => {
+            queryClient.invalidateQueries({ queryKey: ['media'] });
+            setCanvaModalOpen(false);
+          }}
+        />
+      )}
     </div>
   )
 }

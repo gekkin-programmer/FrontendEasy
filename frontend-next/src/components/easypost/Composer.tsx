@@ -760,6 +760,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <div className="p-4 bg-white dark:bg-zinc-900 overflow-y-auto flex-1">
                 <MediaGallery
                     hideUsage={false}
+                    workspaceId={workspaceId}
                     sections={[
                         { id: 'post',         label: t('Attach to Post', 'Joindre à la publication')  },
                         { id: 'firstComment', label: t('First Comment', 'Premier commentaire')   },

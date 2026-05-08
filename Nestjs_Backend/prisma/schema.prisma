@@ -397,6 +397,8 @@ model Workspace {
 
   documents Document[]
 
+  canvaConnection  CanvaConnection?
+
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
   currentPostCount          Int @default(0)
@@ -407,6 +409,22 @@ model Workspace {
   updatedAt DateTime @updatedAt
 
   @@map("workspaces")
+}
+
+model CanvaConnection {
+  id          String    @id @default(cuid())
+  workspaceId String    @unique
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  canvaUserId  String
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("canva_connections")
 }
 
 model WorkspaceMember {
