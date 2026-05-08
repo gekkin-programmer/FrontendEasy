@@ -368,7 +368,7 @@ export default function MediaGallery({
                         <div
                             className={cn(
                                 "absolute inset-0 transition-opacity flex flex-col justify-between p-1.5",
-                                sectionMenuFor === asset.id ? "opacity-100 bg-black/40" : "opacity-0 group-hover:opacity-100 group-hover:bg-black/40"
+                                sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
                             {/* Top row: Edit in Canva + Delete */}
@@ -377,7 +377,7 @@ export default function MediaGallery({
                                     onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
                                     disabled={canvaUploading === asset.id}
                                     title={t('Edit in Canva', 'Modifier dans Canva')}
-                                    className="p-1.5 bg-white dark:bg-zinc-900 text-black dark:text-white border border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-[1px_1px_0px_0px_#000] dark:shadow-[1px_1px_0px_0px_#fff]"
+                                    className="p-1.5 bg-white text-black border border-black hover:bg-zinc-100 transition-colors shadow-[1px_1px_0px_0px_#000]"
                                 >
                                     {canvaUploading === asset.id
                                         ? <FiLoader size={10} className="animate-spin" />
@@ -387,7 +387,7 @@ export default function MediaGallery({
                                 <button
                                     onClick={(e) => { e.stopPropagation(); if (confirm(t('Delete asset?', 'Supprimer ce média ?'))) deleteAssetMutation.mutate(asset.id); }}
                                     title={t('Delete', 'Supprimer')}
-                                    className="p-1.5 bg-red-500 text-white border border-black dark:border-white hover:bg-red-600 transition-colors shadow-[1px_1px_0px_0px_#000] dark:shadow-[1px_1px_0px_0px_#fff]"
+                                    className="p-1.5 bg-white text-black border border-black hover:bg-red-500 hover:text-white transition-colors shadow-[1px_1px_0px_0px_#000]"
                                 >
                                     <FiTrash2 size={10} />
                                 </button>
@@ -414,7 +414,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors"
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-lg"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
