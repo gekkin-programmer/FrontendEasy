@@ -22,21 +22,31 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // --- CONFIGS ---
 const PLATFORM_ICONS: any = {
-  twitter: <FaTwitter className="text-black" />,
-  instagram: <FaInstagram className="text-black" />,
-  facebook: <FaFacebook className="text-blue-600" />,
-  linkedin: <FaLinkedin className="text-blue-700" />,
-  tiktok: <FaTiktok className="text-black" />,
-  youtube: <FaYoutube className="text-red-600" />,
-  whatsapp: <FaWhatsapp className="text-green-600" />,
+  twitter:   <FaTwitter className="text-white" />,
+  instagram: <FaInstagram className="text-white" />,
+  facebook:  <FaFacebook className="text-white" />,
+  linkedin:  <FaLinkedin className="text-white" />,
+  tiktok:    <FaTiktok className="text-white" />,
+  youtube:   <FaYoutube className="text-white" />,
+  whatsapp:  <FaWhatsapp className="text-white" />,
+};
+
+const PLATFORM_BADGE_BG: Record<string, string> = {
+  facebook:  'bg-[#1877F2]',
+  instagram: 'bg-[#E4405F]',
+  tiktok:    'bg-black',
+  youtube:   'bg-[#FF0000]',
+  twitter:   'bg-black',
+  linkedin:  'bg-[#0077B5]',
+  whatsapp:  'bg-[#25D366]',
 };
 
 const PLATFORM_FILTERS = [
-  { id: 'facebook', label: 'FB', icon: <FaFacebook size={10} className="text-blue-600" /> },
-  { id: 'instagram', label: 'IG', icon: <FaInstagram size={10} /> },
-  { id: 'tiktok', label: 'TT', icon: <FaTiktok size={10} /> },
-  { id: 'youtube', label: 'YT', icon: <FaYoutube size={10} className="text-red-600" /> },
-  { id: 'whatsapp', label: 'WA', icon: <FaWhatsapp size={10} className="text-green-600" /> },
+  { id: 'facebook',  label: 'FB', icon: <FaFacebook  size={10} className="text-[#1877F2]" /> },
+  { id: 'instagram', label: 'IG', icon: <FaInstagram size={10} className="text-[#E4405F]" /> },
+  { id: 'tiktok',    label: 'TT', icon: <FaTiktok    size={10} /> },
+  { id: 'youtube',   label: 'YT', icon: <FaYoutube   size={10} className="text-[#FF0000]" /> },
+  { id: 'whatsapp',  label: 'WA', icon: <FaWhatsapp  size={10} className="text-[#25D366]" /> },
 ];
 
 const SENTIMENT_STYLES: any = {
@@ -230,8 +240,8 @@ export default function Engagement() {
                         ${activeId === e._id ? 'bg-white dark:bg-zinc-800 text-black dark:text-white' : 'bg-gray-100 dark:bg-zinc-800 text-black dark:text-white'}`}>
                         {e.authorAvatar ? <img src={e.authorAvatar} alt="" /> : e.authorName.charAt(0)}
                     </div>
-                    <div className="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 p-0.5 border-2 border-black dark:border-white z-10">
-                        <span className="text-xs">{PLATFORM_ICONS[e.platform.toLowerCase()] || <FiMessageCircle/>}</span>
+                    <div className={`absolute -bottom-1 -right-1 p-0.5 border-2 border-black dark:border-white z-10 ${PLATFORM_BADGE_BG[e.platform.toLowerCase()] ?? 'bg-white dark:bg-zinc-900'}`}>
+                        <span className="text-xs [&>svg]:text-white">{PLATFORM_ICONS[e.platform.toLowerCase()] || <FiMessageCircle className="text-white" />}</span>
                     </div>
                  </div>
                  <div className="flex-1 min-w-0">
