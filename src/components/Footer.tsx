@@ -63,11 +63,11 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-black text-white border-t-4 border-white/10 font-sans">
+    <footer className="bg-[#F4F4F0] dark:bg-black text-black dark:text-white border-t-4 border-black/10 dark:border-white/10 font-sans">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
-          
+
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3">
@@ -77,21 +77,21 @@ const Footer: React.FC = () => {
                 alt="EazyPost Logo"
               />
             </Link>
-            <p className="text-lg font-medium text-white/60 max-w-sm leading-relaxed uppercase">
+            <p className="text-lg font-medium text-black/60 dark:text-white/60 max-w-sm leading-relaxed uppercase">
               {t(
                 'One platform. Every platform. Built for African creators.',
                 'Une plateforme. Toutes les plateformes. Faite pour les créateurs africains.'
               )}
             </p>
-            
+
             <div className="flex gap-4">
                 {socialLinks.map((link) => (
                 <a
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-zinc-700 bg-black text-white
-                        hover:bg-white hover:text-black transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
+                        hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-bold text-white/70 hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
+                      className="text-sm font-bold text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline decoration-2 decoration-[#3C48F6] underline-offset-4 transition-all uppercase"
                     >
                       {link.label}
                     </Link>
@@ -124,8 +124,8 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t-2 border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm font-mono text-white/40 uppercase">
+        <div className="border-t-2 border-black/10 dark:border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm font-mono text-black/40 dark:text-white/40 uppercase">
             &copy; {new Date().getFullYear()} EAZYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>
         </div>
