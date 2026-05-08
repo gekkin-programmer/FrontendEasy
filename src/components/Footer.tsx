@@ -55,11 +55,11 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'hover:text-[#E1306C]' },
-    { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'hover:text-[#1877F2]' },
-    { name: 'Twitter', Icon: FaTwitter, href: '#', className: 'hover:text-[#1DA1F2]' },
-    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', className: 'hover:text-[#0A66C2]' },
-    { name: 'YouTube', Icon: FaYoutube, href: '#', className: 'hover:text-[#FF0000]' },
+    { name: 'Instagram', Icon: FaInstagram, href: '#', className: 'hover:text-[#E1306C] dark:hover:text-[#E1306C]' },
+    { name: 'Facebook', Icon: FaFacebookF, href: '#', className: 'hover:text-[#1877F2] dark:hover:text-[#1877F2]' },
+    { name: 'Twitter', Icon: FaTwitter, href: '#', className: 'hover:text-[#1DA1F2] dark:hover:text-[#1DA1F2]' },
+    { name: 'LinkedIn', Icon: FaLinkedinIn, href: '#', className: 'hover:text-[#0A66C2] dark:hover:text-[#0A66C2]' },
+    { name: 'YouTube', Icon: FaYoutube, href: '#', className: 'hover:text-[#FF0000] dark:hover:text-[#FF0000]' },
   ];
 
   return (
@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
                 alt="EazyPost Logo"
               />
             </Link>
-            <p className="text-lg font-medium text-black/60 dark:text-white/60 max-w-sm leading-relaxed uppercase">
+            <p className="text-lg font-medium text-black/60 dark:text-white max-w-sm leading-relaxed uppercase">
               {t(
                 'One platform. Every platform. Built for African creators.',
                 'Une plateforme. Toutes les plateformes. Faite pour les créateurs africains.'
@@ -90,8 +90,8 @@ const Footer: React.FC = () => {
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
-                        hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-black dark:text-white
+                        hover:bg-black dark:hover:bg-zinc-700 dark:hover:border-zinc-500 transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
