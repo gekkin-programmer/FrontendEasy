@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { api } from '@/src/lib/api';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram, FaThreads
 } from 'react-icons/fa6';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle, ShieldCheck, Zap, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
 import SpinningLoader from '../SpinningLoader';
@@ -59,7 +60,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#3C48F5] p-8 space-y-6">
+      <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] p-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b-4 border-black dark:border-white pb-4">
           <div className="flex items-center gap-3">
@@ -108,7 +109,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
               </div>
               <button
                 onClick={copy}
-                className="px-4 border-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-[#3C48F5] hover:border-[#3C48F5] transition-colors"
+                className="px-4 border-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:bg-black dark:bg-white hover:border-black dark:border-white transition-colors"
               >
                 {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
               </button>
@@ -129,6 +130,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [waConnecting, setWaConnecting] = useState(false);
   const token = getCookie('accessToken');
   let tokenStatus = t("Unknown", "Inconnu");
   let tokenExpiry = null;
@@ -150,6 +152,62 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         return Array.isArray(res) ? res : (res.data || []);
     },
   });
+
+  const { data: waStatus } = useQuery({
+    queryKey: ['whatsapp-status', workspaceId],
+    queryFn: async () => {
+      const res: any = await api.get(`/whatsapp/status?workspaceId=${workspaceId}`);
+      return res.data ?? res;
+    },
+  });
+
+  const waDisconnectMutation = useMutation({
+    mutationFn: () => api.delete(`/whatsapp/disconnect?workspaceId=${workspaceId}`),
+    onSuccess: () => {
+      toast.success(t('WhatsApp disconnected', 'WhatsApp déconnecté'));
+      queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+    },
+  });
+
+  const connectWhatsApp = () => {
+    setWaConnecting(true);
+    // Meta Embedded Signup — launches the FB SDK dialog
+    if (typeof window === 'undefined' || !(window as any).FB) {
+      toast.error(t('Meta SDK not loaded — please refresh', 'SDK Meta non chargé — actualisez la page'));
+      setWaConnecting(false);
+      return;
+    }
+    (window as any).FB.login(
+      async (response: any) => {
+        if (response.authResponse?.code) {
+          try {
+            const res: any = await api.post('/whatsapp/connect', {
+              workspaceId,
+              code: response.authResponse.code,
+            });
+            const data = res.data ?? res;
+            toast.success(t(`WhatsApp connected: ${data.phoneNumber}`, `WhatsApp connecté: ${data.phoneNumber}`));
+            queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+          } catch {
+            toast.error(t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
+          }
+        } else {
+          toast.error(t('WhatsApp connection cancelled', 'Connexion WhatsApp annulée'));
+        }
+        setWaConnecting(false);
+      },
+      {
+        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID || '',
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: '',
+          sessionInfoVersion: '3',
+        },
+      },
+    );
+  };
 
   const disconnectMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
@@ -220,7 +278,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         </div>
 
         {/* SESSION DEBUG PANEL */}
-        <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#3C48F5] flex flex-col gap-1 min-w-[180px]">
+        <div className="bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white p-4 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] flex flex-col gap-1 min-w-[180px]">
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tighter border-b border-black/20 dark:border-white/20 pb-1 mb-1">
                 <span>{t("Session Sync", "Sync Session")}</span>
                 <span className={cn(tokenStatus === t("Valid", "Valide") ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
@@ -247,7 +305,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 isExpired
                     ? 'bg-red-500 text-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]'
                     : isConnected
-                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#3C48F5]'
+                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#000]'
                         : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
               )}
             >
@@ -332,7 +390,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}
-                    className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     <Plus size={16} className="inline mr-2" strokeWidth={4} /> {t("Connect", "Connecter")}
                   </button>
@@ -342,6 +400,78 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
           );
         })}
       </div>
+
+      {/* ─── Business Messaging ─────────────────────────────────────────────── */}
+      <div className="border-t-8 border-black dark:border-white pt-10 space-y-6">
+        <div className="space-y-1">
+          <h3 className="text-2xl font-black uppercase tracking-tighter italic">{t("Business Messaging", "Messagerie Business")}</h3>
+          <p className="font-mono text-xs font-bold opacity-50 uppercase tracking-widest">{t("Direct messaging channels", "Canaux de messagerie directe")}</p>
+        </div>
+
+        {/* WhatsApp Card */}
+        <div className={cn(
+          "relative flex flex-col p-8 border-4 border-black dark:border-white transition-all duration-300 max-w-sm",
+          waStatus?.connected
+            ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#000]'
+            : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
+        )}>
+          {/* Identity */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className={cn(
+              "w-16 h-16 flex items-center justify-center border-4 transition-all duration-500",
+              waStatus?.connected ? 'bg-black dark:bg-white border-black dark:border-white scale-110' : 'bg-white dark:bg-black border-black dark:border-white'
+            )}>
+              <FaWhatsapp size={32} className={cn("transition-colors", waStatus?.connected ? "text-white dark:text-black" : "text-black dark:text-white")} />
+            </div>
+            <div>
+              <h3 className="font-black text-2xl uppercase tracking-tighter leading-none">WhatsApp</h3>
+              <p className="text-[10px] font-mono font-bold uppercase opacity-50 mt-1">
+                {waStatus?.connected ? t("Business API", "API Business") : t("Not connected", "Non connecté")}
+              </p>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 space-y-4">
+            {waStatus?.connected ? (
+              <div className="space-y-3">
+                <div className="px-3 py-2 border-2 border-black dark:border-white font-mono text-xs font-bold bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white truncate">
+                  {waStatus.phoneNumber}
+                </div>
+                {waStatus.displayName && (
+                  <p className="text-[10px] font-mono uppercase font-black text-gray-400">{waStatus.displayName}</p>
+                )}
+              </div>
+            ) : (
+              <div className="h-16 flex items-center border-2 border-dashed border-black dark:border-white px-4">
+                <p className="text-[10px] font-mono font-black uppercase text-gray-400">{t("Connect your WhatsApp Business Account", "Connectez votre compte WhatsApp Business")}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="mt-10 flex flex-col gap-3">
+            {waStatus?.connected ? (
+              <button
+                onClick={() => { if (confirm(t("Disconnect WhatsApp?", "Déconnecter WhatsApp?"))) waDisconnectMutation.mutate(); }}
+                className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
+              >
+                <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
+              </button>
+            ) : (
+              <button
+                onClick={connectWhatsApp}
+                disabled={waConnecting}
+                className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+              >
+                {waConnecting ? <Loader2 size={16} className="inline animate-spin mr-2" /> : <FaWhatsapp size={16} className="inline mr-2" />}
+                {waConnecting ? t('Connecting...', 'Connexion...') : t('Connect via Meta', 'Connecter via Meta')}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
     </div>
     </>
   );

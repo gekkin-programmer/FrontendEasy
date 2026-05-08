@@ -10,5 +10,6 @@ import { HttpModule } from '@nestjs/axios';
   imports: [PrismaModule, SocialAccountsModule, HttpModule],
   controllers: [EngagementController],
   providers: [EngagementService, FacebookService],
+  exports: [EngagementService],
 })
 export class EngagementModule {}

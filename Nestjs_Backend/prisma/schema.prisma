@@ -397,7 +397,9 @@ model Workspace {
 
   documents Document[]
 
-  canvaConnection  CanvaConnection?
+  canvaConnection     CanvaConnection?
+  whatsAppConnection  WhatsAppConnection?
+  inboxConversations  InboxConversation[]
 
   currentMemberCount        Int @default(1)
   currentSocialAccountCount Int @default(0)
@@ -425,6 +427,84 @@ model CanvaConnection {
   updatedAt DateTime @updatedAt
 
   @@map("canva_connections")
+}
+
+model WhatsAppConnection {
+  id          String    @id @default(cuid())
+  workspaceId String    @unique
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  wabaId          String
+  phoneNumberId   String
+  phoneNumber     String
+  displayName     String?
+  accessToken     String  @db.Text
+  tokenExpiresAt  DateTime?
+
+  webhookVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("whatsapp_connections")
+}
+
+// ─── Unified Inbox ──────────────────────────────────────────────────────────
+
+enum InboxPlatform {
+  WHATSAPP
+  INSTAGRAM_DM
+  FACEBOOK_DM
+}
+
+enum InboxMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model InboxConversation {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  platform       InboxPlatform
+  externalId     String        // WhatsApp: waId, IG: thread id, FB: thread id
+  participantName String?
+  participantId   String?      // platform user id
+  participantAvatar String?
+
+  lastMessageAt DateTime @default(now())
+  unreadCount   Int      @default(0)
+  status        String   @default("open")
+
+  messages InboxMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, platform, externalId])
+  @@index([workspaceId, lastMessageAt])
+  @@map("inbox_conversations")
+}
+
+model InboxMessage {
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   InboxConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  externalId  String?  @unique
+  direction   InboxMessageDirection
+  content     String   @db.Text
+  mediaUrl    String?
+  mediaType   String?
+
+  sentAt    DateTime @default(now())
+  readAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, sentAt])
+  @@map("inbox_messages")
 }
 
 model WorkspaceMember {

@@ -27,6 +27,7 @@ import { AppEventsModule } from './modules/app-events/app-events.module';
 import { BoardsModule } from './modules/boards/boards.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { CanvaModule } from './modules/canva/canva.module';
+import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { CanvaModule } from './modules/canva/canva.module';
     BoardsModule,
     TelegramModule,
     CanvaModule,
+    WhatsAppModule,
   ],
   controllers: [AppController],
   providers: [AppService],
