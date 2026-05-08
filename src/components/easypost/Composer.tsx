@@ -526,9 +526,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsAiOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isAiOpen && "bg-zinc-200 dark:bg-zinc-700")}>
-                <Sparkles size={12} /> <span className="hidden sm:inline">{t("AI MAGIC", "MAGIE IA")}</span>
-             </button>
              <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1 font-bold text-[10px] uppercase border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700", isLibraryOpen && "bg-white dark:bg-white text-black shadow-none")}>
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('CLOSE LIB', 'FERMER BIB') : t('OPEN LIB', 'OUVRIR BIB')}</span>
              </button>
@@ -712,12 +709,11 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 initial={{ height: 0, opacity: 0, marginTop: 0 }}
                 animate={{ height: 'auto', opacity: 1, marginTop: 12 }}
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                className="overflow-hidden border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"
+                className="overflow-hidden rounded-xl border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"
               >
                 <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1.5 flex items-center gap-2">
                   <ShoppingBag size={12} />
                   <span className="text-[10px] font-black uppercase tracking-widest">{t("Payment Link", "Lien de paiement")}</span>
-                  <span className="ml-auto text-[9px] font-mono bg-green-400 text-black px-1.5 py-0.5">{t("MOMO ACTIVE", "MOMO ACTIF")}</span>
                 </div>
                 <div className="bg-white dark:bg-zinc-900 p-3 flex flex-col gap-2">
                   <input
