@@ -1,8 +1,8 @@
 import {
   Controller, Get, Post, Delete, Query, Body,
-  Req, Res, UseGuards, HttpCode,
+  Req, Res, UseGuards, HttpCode, Headers, UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { CanvaService } from './canva.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CanvaExportDto, CanvaImportAssetDto } from './dto/canva.dto';
@@ -85,6 +85,27 @@ export class CanvaController {
       body.filename,
       body.folderId,
     );
+  }
+
+  // ─── Webhook (no JWT — verified by HMAC signature) ─────────────────────────
+
+  @Post('webhook')
+  @HttpCode(200)
+  async handleWebhook(
+    @Headers('x-canva-timestamp') timestamp: string,
+    @Headers('x-canva-signature') signature: string,
+    @Req() req: any,
+    @Body() body: any,
+  ) {
+    if (!timestamp || !signature) {
+      throw new UnauthorizedException('Missing webhook headers');
+    }
+    const rawBody = req.rawBody;
+    if (!rawBody || !this.canva.verifyWebhookSignature(rawBody, timestamp, signature)) {
+      throw new UnauthorizedException('Invalid webhook signature');
+    }
+    await this.canva.handleWebhookEvent(body);
+    return { received: true };
   }
 
   // ─── Assets API ────────────────────────────────────────────────────────────

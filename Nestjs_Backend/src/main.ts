@@ -15,7 +15,7 @@ import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, { bufferLogs: true, rawBody: true });
 
   // Trust proxy for Render/Vercel
   (app.getHttpAdapter().getInstance() as Express).set('trust proxy', 1);

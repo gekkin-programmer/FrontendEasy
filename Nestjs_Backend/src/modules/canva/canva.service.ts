@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../../prisma/prisma.service';
 import { GcsService } from '../providers/gcs.service';
+import { AppEventsGateway } from '../app-events/app-events.gateway';
 import { firstValueFrom } from 'rxjs';
 import * as crypto from 'crypto';
 
@@ -29,6 +30,7 @@ export class CanvaService {
     private http: HttpService,
     private config: ConfigService,
     private gcs: GcsService,
+    private events: AppEventsGateway,
   ) {}
 
   // ─── OAuth ──────────────────────────────────────────────────────────────────
@@ -280,6 +282,38 @@ export class CanvaService {
     const filename = `canva_${asset.name || asset.id}.${ext}`;
 
     return this.downloadAndSave(workspaceId, userId, asset.url, filename, folderId);
+  }
+
+  // ─── Webhook ────────────────────────────────────────────────────────────────
+
+  verifyWebhookSignature(rawBody: Buffer, timestamp: string, signature: string): boolean {
+    const secret = this.config.get<string>('CANVA_WEBHOOK_SECRET');
+    if (!secret) return false;
+    const message = `${timestamp}.${rawBody.toString()}`;
+    const expected = crypto.createHmac('sha256', secret).update(message).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  }
+
+  async handleWebhookEvent(payload: any): Promise<void> {
+    const eventType: string = payload?.type ?? '';
+    const designId: string = payload?.design?.id ?? payload?.data?.design?.id ?? '';
+    const workspaceId = await this.resolveWorkspaceFromCanvaUser(payload?.user?.id);
+
+    this.logger.log(`Canva webhook: ${eventType} design=${designId} workspace=${workspaceId ?? 'unknown'}`);
+
+    if (workspaceId) {
+      this.events.sendToWorkspace(workspaceId, 'canva:event', {
+        type: eventType,
+        designId,
+        payload,
+      });
+    }
+  }
+
+  private async resolveWorkspaceFromCanvaUser(canvaUserId?: string): Promise<string | null> {
+    if (!canvaUserId) return null;
+    const conn = await this.prisma.canvaConnection.findFirst({ where: { canvaUserId } });
+    return conn?.workspaceId ?? null;
   }
 
   // ─── Shared helper ──────────────────────────────────────────────────────────
