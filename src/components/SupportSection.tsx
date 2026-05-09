@@ -25,7 +25,7 @@ const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
     rel={rel}
     className={`
       flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 font-black text-sm md:text-lg uppercase tracking-wider
-      border-4 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000] rounded-xl
+      border-4 border-black dark:border-white bg-white text-black shadow-[6px_6px_0px_0px_#000] rounded-xl
       hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000]
       transition-all w-full sm:w-auto dark:shadow-white/5
     `}
@@ -46,7 +46,7 @@ export default function SupportSection() {
       
       <SectionBackground />
       {/* Decorative Elements (CSS Only for perf) */}
-      <div className="absolute top-10 left-10 w-12 h-12 md:w-16 md:h-16 bg-blue-100 border-4 border-black rounded-full animate-bounce-slow hidden md:block pointer-events-none"></div>
+      <div className="absolute top-10 left-10 w-12 h-12 md:w-16 md:h-16 bg-blue-100 border-4 border-black dark:border-white rounded-full animate-bounce-slow hidden md:block pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-16 h-16 md:w-24 md:h-24 bg-[#3C48F6] border-4 border-black rotate-12 hidden md:block pointer-events-none"></div>
 
       <motion.div
@@ -65,18 +65,18 @@ export default function SupportSection() {
         {/* Main Heading */}
         <motion.h2 variants={revealItem} className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.9] tracking-tighter uppercase">
           {t("HUMAN SUPPORT,", "SUPPORT HUMAIN,")}<br/>
-          <span className="text-white text-stroke-black bg-black px-2 mt-2 inline-block">WORLDWIDE.</span>
+          <span className="text-white dark:text-black text-stroke-black bg-black dark:bg-white px-2 mt-2 inline-block">WORLDWIDE.</span>
         </motion.h2>
 
         {/* Illustration (Icon Cluster) */}
         <motion.div variants={revealItem} className="flex justify-center -space-x-4 my-4">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-black bg-white overflow-hidden shadow-[4px_4px_0px_0px_#000] hover:-translate-y-2 transition-transform relative">
-                    <Image 
-                      src={`https://i.pravatar.cc/150?img=${i + 20}`} 
-                      alt="Support Agent" 
+                <div key={i} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-black bg-white overflow-hidden shadow-[4px_4px_0px_0px_#000] relative">
+                    <Image
+                      src={`https://i.pravatar.cc/150?img=${i + 20}`}
+                      alt="Support Agent"
                       fill
-                      className="object-cover grayscale hover:grayscale-0"
+                      className="object-cover"
                       sizes="64px"
                     />
                 </div>
@@ -87,7 +87,7 @@ export default function SupportSection() {
         </motion.div>
 
         {/* First Paragraph */}
-        <motion.p variants={revealItem} className="text-lg md:text-xl font-bold text-gray-900 leading-snug max-w-2xl bg-white border-4 border-black p-4 md:p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-white/5">
+        <motion.p variants={revealItem} className="text-lg md:text-xl font-bold text-gray-900 leading-snug max-w-2xl bg-white border-4 border-black dark:border-white p-4 md:p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-white/5">
           {t(
             "Our global Customer Advocacy team is spread across time zones to make sure help is always nearby. No bots, just real people who care.",
             "Notre équipe mondiale est répartie sur plusieurs fuseaux horaires pour s'assurer que l'aide est toujours à portée de main. Pas de bots, juste de vraies personnes."
@@ -107,7 +107,7 @@ export default function SupportSection() {
         {/* Final Link */}
         <motion.a variants={revealItem}
           href="/about"
-          className="group mt-4 md:mt-8 inline-flex items-center gap-2 font-black text-black dark:text-gray-300 text-base md:text-lg border-b-4 border-transparent hover:border-black transition-all"
+          className="group mt-4 md:mt-8 inline-flex items-center gap-2 font-black text-black dark:text-white text-base md:text-lg border-b-4 border-transparent hover:border-black dark:hover:border-white transition-all"
         >
           {t("MEET THE TEAM", "RENCONTREZ L'ÉQUIPE")}
           <FaArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
