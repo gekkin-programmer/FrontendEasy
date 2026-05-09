@@ -122,7 +122,7 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-black font-sans"
+      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-black font-sans"
       aria-label="Introduction"
     >
       
@@ -197,9 +197,9 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
             <div className="relative group w-full sm:w-auto">
-                <Link href="/signup" className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
+                <a href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api').replace(/\/api$/, '')}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
                 {/* Button decoration */}
                 <div className="absolute inset-0 bg-[#3C48F6] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                 
