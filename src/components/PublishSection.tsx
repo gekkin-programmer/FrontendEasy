@@ -107,7 +107,7 @@ export default function PublishSection() {
 
           <div className="pt-4">
             <a
-              href={`${(process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api').replace(/\/api$/, '')}/auth/google`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`}
               className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black text-lg border-4 border-black dark:border-white hover:bg-white dark:hover:bg-gray-200 hover:text-black hover:border-black dark:hover:border-white transition-all shadow-[8px_8px_0px_0px_#3C48F6] dark:shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 uppercase tracking-wider"
             >
               {t("Start Publishing", "Commencer")}
