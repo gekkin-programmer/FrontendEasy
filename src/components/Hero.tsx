@@ -122,26 +122,44 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-black font-sans"
+      className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-black pt-16 md:pt-24 pb-20 font-sans"
       aria-label="Introduction"
     >
       
-      {/* 1. TEXTURE: Noise (Local CSS/Base64 to improve LCP speed vs external URL) */}
-     {/* 1. TEXTURE: Noise (Base64 - No file needed) */}
-<div 
-  className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
-  style={{ 
-    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")` 
-  }}
-/>
-
-      {/* 2. BACKGROUND GRID */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none opacity-30" 
+      {/* 1. TEXTURE: Noise */}
+      <div
+        className="absolute inset-0 z-0 opacity-30 dark:opacity-[0.08] pointer-events-none mix-blend-multiply dark:mix-blend-screen"
         style={{
-            backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-            backgroundSize: "40px 40px", // Smaller grid on mobile looks better
-            maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)"
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      {/* 2a. BACKGROUND GRID — light mode */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-30 dark:hidden"
+        style={{
+          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* 2b. BACKGROUND GRID — dark mode (white lines + brand glow) */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.12] hidden dark:block"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)",
+        }}
+        aria-hidden="true"
+      />
+      {/* Brand radial glow — dark mode only */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none hidden dark:block"
+        style={{
+          background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(60,72,245,0.18) 0%, transparent 70%)",
         }}
         aria-hidden="true"
       />
