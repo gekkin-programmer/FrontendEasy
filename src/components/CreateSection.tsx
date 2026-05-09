@@ -115,19 +115,19 @@ export default function CreateSection() {
           <BrutalBadge color="bg-[#3C48F6]">{t("CREATE","CREER")}</BrutalBadge>
           
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">
-            {t("TURN","TRANSFORMER")}<span className="text-white bg-black dark:bg-white/5 px-2 mx-1">{t("IDEAS","VOS IDEES")}</span><br/>
+            {t("TURN","TRANSFORMER")}<span className="text-white dark:text-black bg-black dark:bg-white px-2 mx-1">{t("IDEAS","VOS IDEES")}</span><br/>
             {t("INTO","EN")} <span className="text-[#3C48F6]">{t("VIRAL","CONTENU")}</span><br/>
             {t("CONTENT.","VIRAUX.")}
           </h1>
 
-          <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-8 border-[#3C48F6] dark:border-white pl-6 leading-snug">
+          <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-8 border-black dark:border-white pl-6 leading-snug">
             {t(
               "Whether you’re flying solo or working with a team, EasyPost has all the features to help you create, organize, and repurpose your content.",
               "Que vous travailliez seul ou en équipe, EasyPost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
             )}
           </p>
 
-          <a href="/signup" className="w-full sm:w-auto inline-flex justify-center items-center gap-3 bg-white dark:bg-gray-200 text-black font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
+          <a href="/signup" className="w-full sm:w-auto inline-flex justify-center items-center gap-3 bg-white dark:bg-gray-200 text-black font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
             {t('START CREATING', 'COMMENCEZ')} <ArrowRight strokeWidth={3} />
           </a>
 
@@ -150,7 +150,7 @@ export default function CreateSection() {
           <SectionBackground />
           
           {/* AI Box (Floating) */}
-          <BrutalCard className="w-full max-w-md mx-auto bg-white dark:bg-black dark:border-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] p-6 rotate-1 hover:rotate-0 transition-transform relative z-10">
+          <BrutalCard className="w-full max-w-md mx-auto bg-white dark:bg-black dark:border-white dark:shadow-[6px_6px_0px_0px_#fff] p-6 rotate-1 hover:rotate-0 transition-transform relative z-10">
              <div className="flex items-center justify-between mb-4 border-b-4 border-black dark:border-white pb-2">
                 <div className="flex items-center gap-2">
                     <div className="p-1"><Sparkles className="text-black-400 w-5 h-5" /></div>
@@ -162,7 +162,7 @@ export default function CreateSection() {
                 </div>
              </div>
              
-             <div className="bg-gray-100 border-2 border-black p-4 font-mono text-sm min-h-[80px] mb-4">
+             <div className="bg-gray-100 border-2 border-black dark:border-white p-4 font-mono text-sm min-h-[80px] mb-4">
                 <span className="text-[#3C48F6] font-bold">{">"}</span>{" "}
                 <span className="text-black font-bold">
                     {prompt}
@@ -176,7 +176,7 @@ export default function CreateSection() {
           </BrutalCard>
 
           {/* Kanban Board (Stacked on Mobile) */}
-          <div className="bg-white border-4 border-black p-4 shadow-[12px_12px_0px_0px_#000]">
+          <div className="bg-white border-4 border-black dark:border-white p-4 shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff]">
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Column title="TO DO" cards={todoCards} color="bg-red-50" />
                 <Column title="DRAFT" cards={draftCards} color="bg-blue-50" />
