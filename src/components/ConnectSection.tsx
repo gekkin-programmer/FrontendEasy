@@ -57,7 +57,7 @@ const ConnectSection = () => {
 
   return (
     <section 
-      className="bg-gray-50 dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 font-sans relative overflow-hidden"
+      className="bg-gray-50 dark:bg-black/90 border-b-4 border-black dark:border-white py-16 md:py-20 px-4 font-sans relative overflow-hidden"
       aria-label="Integrations"
     >
       

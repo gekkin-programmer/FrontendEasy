@@ -73,7 +73,7 @@ const CreatorCard = ({ imgSrc, name, followers, platform, platformIcon, iconBgCl
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="bg-white border-4 border-black p-3 md:p-4 flex flex-col items-center text-center shadow-[6px_6px_0px_0px_#000] md:shadow-[8px_8px_0px_0px_#000] relative group hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-300"
+      className="bg-white border-4 border-black dark:border-white p-3 md:p-4 flex flex-col items-center text-center shadow-[6px_6px_0px_0px_#000] md:shadow-[8px_8px_0px_0px_#000] relative group hover:-translate-y-2 hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-300"
     >
       {/* Tape Effect */}
       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 md:w-16 h-4 md:h-6 bg-blue-200/80 rotate-2 border-l border-r border-white/50"></div>

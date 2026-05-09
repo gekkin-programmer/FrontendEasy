@@ -22,17 +22,16 @@ export default function Home() {
     <>
       <Navbar />
       <Hero />
-      <SocialProof />
-      
-      <StatsSection />
       <PublishSection />
       <CreateSection />
-      
+
       <CollaborateSection />
       <AnalyzeSection />
 
       <ConnectSection />
       <GrowSection />
+      <SocialProof />
+      <StatsSection />
       <SupportSection />
       <Footer />
       
