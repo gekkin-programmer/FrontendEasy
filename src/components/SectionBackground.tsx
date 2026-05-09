@@ -32,14 +32,6 @@ export default function SectionBackground() {
         aria-hidden="true"
       />
 
-      {/* Brand glow — dark mode only */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none hidden dark:block"
-        style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(60,72,245,0.12) 0%, transparent 70%)',
-        }}
-        aria-hidden="true"
-      />
     </>
   );
 }
