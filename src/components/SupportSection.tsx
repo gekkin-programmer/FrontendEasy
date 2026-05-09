@@ -25,7 +25,7 @@ const BrutalButton = ({ children, icon, color, href, target, rel }: any) => (
     rel={rel}
     className={`
       flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 font-black text-sm md:text-lg uppercase tracking-wider
-      border-4 border-black dark:border-white bg-white text-black shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] rounded-xl
+      border-4 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] rounded-xl
       hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff]
       transition-all w-full sm:w-auto
     `}
@@ -58,7 +58,7 @@ export default function SupportSection() {
       >
         
         {/* Top Label */}
-        <motion.div variants={revealItem} className="bg-black dark:bg-black text-white px-4 py-1 font-bold text-xs md:text-sm uppercase tracking-widest border-2 border-white dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+        <motion.div variants={revealItem} className="bg-black dark:bg-white text-white dark:text-black px-4 py-1 font-bold text-xs md:text-sm uppercase tracking-widest border-2 border-white dark:border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
           {t("24/7 SUPPORT", "SUPPORT 24/7")}
         </motion.div>
 
@@ -71,7 +71,7 @@ export default function SupportSection() {
         {/* Illustration (Icon Cluster) */}
         <motion.div variants={revealItem} className="flex justify-center -space-x-4 my-4">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-black bg-white overflow-hidden shadow-[4px_4px_0px_0px_#000] relative">
+                <div key={i} className="w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-black bg-white overflow-hidden shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] relative">
                     <Image
                       src={`https://i.pravatar.cc/150?img=${i + 20}`}
                       alt="Support Agent"
@@ -87,7 +87,7 @@ export default function SupportSection() {
         </motion.div>
 
         {/* First Paragraph */}
-        <motion.p variants={revealItem} className="text-lg md:text-xl font-bold text-gray-900 leading-snug max-w-2xl bg-white border-4 border-black dark:border-white p-4 md:p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-white/5">
+        <motion.p variants={revealItem} className="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-snug max-w-2xl bg-white dark:bg-black border-4 border-black dark:border-white p-4 md:p-6 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]">
           {t(
             "Our global Customer Advocacy team is spread across time zones to make sure help is always nearby. No bots, just real people who care.",
             "Notre équipe mondiale est répartie sur plusieurs fuseaux horaires pour s'assurer que l'aide est toujours à portée de main. Pas de bots, juste de vraies personnes."
