@@ -140,7 +140,7 @@ const Hero: React.FC = () => {
         style={{
           backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)",
+          maskImage: "radial-gradient(ellipse at 50% 70%, black 30%, transparent 75%)",
         }}
         aria-hidden="true"
       />
@@ -151,7 +151,7 @@ const Hero: React.FC = () => {
         style={{
           backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)",
+          maskImage: "radial-gradient(ellipse at 50% 70%, black 30%, transparent 75%)",
         }}
         aria-hidden="true"
       />

@@ -146,18 +146,19 @@ export default function CreateSection() {
         </div>
 
         {/* Right – AI + Kanban */}
-        <div className="relative mt-8 lg:mt-0 space-y-10">
+        <div className="relative mt-8 lg:mt-0 space-y-10 overflow-hidden">
+          <SectionBackground />
           
           {/* AI Box (Floating) */}
-          <BrutalCard className="w-full max-w-md mx-auto bg-white dark:bg-zinc-900 dark:border-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] p-6 rotate-1 hover:rotate-0 transition-transform">
-             <div className="flex items-center justify-between mb-4 border-b-4 border-black pb-2">
+          <BrutalCard className="w-full max-w-md mx-auto bg-white dark:bg-black dark:border-white dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.2)] p-6 rotate-1 hover:rotate-0 transition-transform relative z-10">
+             <div className="flex items-center justify-between mb-4 border-b-4 border-black dark:border-white pb-2">
                 <div className="flex items-center gap-2">
                     <div className="p-1"><Sparkles className="text-black-400 w-5 h-5" /></div>
-                    <h3 className="font-black text-xl text-black uppercase">Easy AI</h3>
+                    <h3 className="font-black text-xl text-black dark:text-white uppercase">Easy AI</h3>
                 </div>
                 <div className="flex gap-1">
-                    <div className="w-3 h-3 bg-black rounded-full"></div>
-                    <div className="w-3 h-3 bg-black rounded-full"></div>
+                    <div className="w-3 h-3 bg-black dark:bg-white rounded-full"></div>
+                    <div className="w-3 h-3 bg-black dark:bg-white rounded-full"></div>
                 </div>
              </div>
              
@@ -169,7 +170,7 @@ export default function CreateSection() {
                 <span className="animate-pulse w-2 h-4 bg-black inline-block align-middle ml-1"></span>
              </div>
 
-             <button className="w-full bg-[#3C48F6] dark:bg-[#5566FF] text-white font-black py-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
+             <button className="w-full bg-[#3C48F6] dark:bg-[#5566FF] text-white font-black py-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
                 <PenTool size={18} /> {t("GENERATE MAGIC", "GENERER VOS TEXTES")}
              </button>
           </BrutalCard>
