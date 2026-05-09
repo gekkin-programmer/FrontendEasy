@@ -57,8 +57,8 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
 );
 
 const ChecklistItem = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start gap-3 md:gap-4 p-2 hover:bg-blue-50 transition-colors border-2 border-transparent hover:border-black cursor-default">
-    <div className="bg-black text-white p-1 border-2 border-black flex-shrink-0 shadow-[2px_2px_0px_0px_#000]">
+  <li className="flex items-start gap-3 md:gap-4 p-2 rounded-full hover:bg-blue-50 transition-colors border-2 border-transparent hover:border-black cursor-default">
+    <div className="bg-black text-white p-1 border-2 border-black flex-shrink-0 rounded-full shadow-[2px_2px_0px_0px_#000]">
       <FaCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
     </div>
     <span className="text-black font-bold text-sm md:text-lg leading-tight">{children}</span>
@@ -107,9 +107,9 @@ const GrowSection = () => {
   const [activeTab, setActiveTab] = useState('Creators');
 
   const tabs = [
-    { key: 'creators', label: 'Creators' },
-    { key: 'smallBusinesses', label: 'Small businesses' },
-    { key: 'agencies', label: 'Agencies' },
+    { key: 'Creators', en: 'Creators', fr: 'Créateurs' },
+    { key: 'Small businesses', en: 'Small businesses', fr: 'Petites entreprises' },
+    { key: 'Agencies', en: 'Agencies', fr: 'Agences' },
   ];
 
   const tabContent: { [key: string]: CreatorData[] } = {
@@ -164,12 +164,12 @@ const GrowSection = () => {
             <div className="flex items-end pl-2 md:pl-4 border-b-4 border-black overflow-x-auto scrollbar-hide w-full pb-[2px]">
                 <div className="flex space-x-1 md:space-x-0 min-w-max">
                     {tabs.map((tab) => (
-                        <FolderTab 
-                            key={tab.key} 
-                            isActive={tab.label === activeTab} 
-                            onClick={() => setActiveTab(tab.label)}
+                        <FolderTab
+                            key={tab.key}
+                            isActive={tab.key === activeTab}
+                            onClick={() => setActiveTab(tab.key)}
                         >
-                            {t(tab.key, tab.label)}
+                            {t(tab.en, tab.fr)}
                         </FolderTab>
                     ))}
                 </div>

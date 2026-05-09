@@ -21,7 +21,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor }) => {
         href="#"
         className="
           flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
-          bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700
+          bg-white dark:bg-black border-2 border-black dark:border-zinc-700
           shadow-[4px_4px_0px_0px_#000] dark:shadow-none
           hover:-translate-y-2 hover:border-[#3C48F5] dark:hover:border-white hover:shadow-[0_8px_24px_rgba(60,72,245,0.35)] dark:hover:shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition-all duration-200
         "

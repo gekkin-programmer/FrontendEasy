@@ -90,8 +90,8 @@ const Footer: React.FC = () => {
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-black dark:text-white
-                        hover:bg-black dark:hover:bg-zinc-700 dark:hover:border-zinc-500 transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
+                        hover:bg-black dark:hover:bg-zinc-900 dark:hover:border-zinc-500 transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
