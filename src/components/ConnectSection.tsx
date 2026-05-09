@@ -23,7 +23,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor }) => {
           flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
           bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700
           shadow-[4px_4px_0px_0px_#000] dark:shadow-none
-          hover:translate-x-1 hover:translate-y-1 hover:shadow-none hover:bg-gray-50 dark:hover:bg-zinc-800 dark:hover:border-zinc-500 transition-all duration-200
+          hover:-translate-y-2 hover:border-[#3C48F5] dark:hover:border-white hover:shadow-[0_8px_24px_rgba(60,72,245,0.35)] dark:hover:shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition-all duration-200
         "
         aria-label={name}
       >

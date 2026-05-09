@@ -196,37 +196,71 @@ export default function Navbar() {
                 
                 <AnimatePresence>
                   {item.hasDropdown && hoveredDropdown === getTranslatedText(item.label) && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }} 
-                        animate={{ opacity: 1, y: 0, scale: 1 }} 
-                        exit={{ opacity: 0, y: 5, scale: 0.98 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-12 left-1/2 -translate-x-1/2 pt-4 w-[600px] z-50"
+                    <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="absolute top-14 left-1/2 -translate-x-1/2 z-50"
+                        style={{ width: item.dropdownContent?.type === 'mega' ? 600 : 320 }}
                     >
-                        <div className="bg-white dark:bg-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-white/20 p-6 grid grid-cols-2 gap-8 relative">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-black border-t-2 border-l-2 border-black dark:border-white/20 rotate-45"></div>
-                            {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
-                                <div key={idx}>
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">{getTranslatedText(col.heading)}</h4>
-                                    <div className="space-y-4">
-                                        {col.links.map(link => (
-                                            <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-blue-50 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-white dark:border-white group-hover:border-black dark:group-hover:border-white transition-all"><link.Icon size={14}/></div>
-                                                <div>
-                                                    <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] dark:group-hover:text-white transition-colors">{getTranslatedText(link.label)}</div>
-                                                    <div className="text-[10px] text-gray-500 font-medium">{getTranslatedText(link.description!)}</div>
-                                                </div>
-                                            </Link>
+                        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.12)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)] border border-gray-200/70 dark:border-white/8 overflow-hidden">
+                            {item.dropdownContent?.type === 'mega' && (
+                                <div className="flex">
+                                    {/* Left — feature links */}
+                                    <div className="flex-1 p-5 grid grid-cols-2 gap-x-6 gap-y-1">
+                                        {item.dropdownContent.columns.map((col, idx) => (
+                                            <div key={idx}>
+                                                <p className="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-3 px-2">
+                                                    {getTranslatedText(col.heading)}
+                                                </p>
+                                                {col.links.map(link => (
+                                                    <Link key={getTranslatedText(link.label)} href={link.href}
+                                                        className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
+                                                        <div className="w-9 h-9 rounded-xl bg-[#3C48F5]/8 dark:bg-[#3C48F5]/15 flex items-center justify-center text-[#3C48F5] flex-shrink-0 group-hover:bg-[#3C48F5] group-hover:text-white transition-all">
+                                                            <link.Icon size={15}/>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#3C48F5] dark:group-hover:text-[#7B87FF] transition-colors leading-tight">
+                                                                {getTranslatedText(link.label)}
+                                                            </div>
+                                                            <div className="text-[11px] text-gray-500 dark:text-zinc-400 leading-tight mt-0.5">
+                                                                {getTranslatedText(link.description!)}
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         ))}
                                     </div>
+                                    {/* Right — featured card */}
+                                    <div className="w-[180px] bg-gradient-to-br from-[#3C48F5] to-[#6366f1] p-5 flex flex-col justify-between flex-shrink-0">
+                                        <div>
+                                            <span className="inline-block text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded-full mb-3">
+                                                {getTranslatedText(item.dropdownContent.featured.label)}
+                                            </span>
+                                            <p className="text-white font-bold text-sm leading-snug">
+                                                {getTranslatedText(item.dropdownContent.featured.description)}
+                                            </p>
+                                        </div>
+                                        <Link href={item.dropdownContent.featured.href}
+                                            className="mt-4 inline-flex items-center gap-1 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wide transition-colors">
+                                            {t("Explore", "Explorer")} →
+                                        </Link>
+                                    </div>
                                 </div>
-                            ))}
+                            )}
                             {item.dropdownContent?.type === 'channels' && (
-                                <div className="col-span-2 grid grid-cols-2 gap-4">
+                                <div className="p-3 grid grid-cols-2 gap-1">
                                     {item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-black">
-                                            <c.Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                                            <span className="text-sm font-bold text-black dark:text-white">{getTranslatedText(c.label)}</span>
+                                        <Link key={getTranslatedText(c.label)} href={c.href}
+                                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                <c.Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#3C48F5] dark:group-hover:text-[#7B87FF] transition-colors">
+                                                {getTranslatedText(c.label)}
+                                            </span>
                                         </Link>
                                     ))}
                                 </div>
