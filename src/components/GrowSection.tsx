@@ -176,9 +176,9 @@ const GrowSection = () => {
             </div>
 
             {/* The Folder Content */}
-            <div className="bg-[#3C48F5] border-4 border-t-0 border-black dark:border-white/5 p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
+            <div className="bg-[#3C48F5] border-4 border-t-0 border-black dark:border-white p-4 md:p-8 min-h-[300px] md:min-h-[400px] shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
                 <div className="flex justify-between items-center mb-4 md:mb-8 border-b-2 border-black pb-4">
-                    <h3 className="font-black text-lg md:text-2xl text-black dark:text-white uppercase truncate">COMMUNITY.EXE</h3>
+                    <h3 className="font-black text-lg md:text-2xl text-white uppercase truncate">COMMUNITY.EXE</h3>
                     <div className="flex gap-2 flex-shrink-0">
                         <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-white border-2 border-black rounded-full"></div>
                         <div className="w-2.5 h-2.5 md:w-4 md:h-4 bg-black border-2 border-black rounded-full"></div>
