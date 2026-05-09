@@ -127,7 +127,7 @@ export default function CreateSection() {
             )}
           </p>
 
-          <a href="/signup" className="w-full sm:w-auto inline-flex justify-center items-center gap-3 bg-white dark:bg-gray-200 text-black font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
+          <a href="/signup" className="w-full sm:w-auto inline-flex justify-center items-center gap-3 bg-white dark:bg-black text-black dark:text-white font-black text-lg py-4 px-8 border-4 border-black shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all">
             {t('START CREATING', 'COMMENCEZ')} <ArrowRight strokeWidth={3} />
           </a>
 
@@ -170,7 +170,7 @@ export default function CreateSection() {
                 <span className="animate-pulse w-2 h-4 bg-black inline-block align-middle ml-1"></span>
              </div>
 
-             <button className="w-full bg-[#3C48F6] dark:bg-[#5566FF] text-white font-black py-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
+             <button className="w-full bg-[#3C48F6] text-white font-black py-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
                 <PenTool size={18} /> {t("GENERATE MAGIC", "GENERER VOS TEXTES")}
              </button>
           </BrutalCard>
