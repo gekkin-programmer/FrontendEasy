@@ -40,7 +40,7 @@ export default function SupportSection() {
 
   return (
     <section 
-      className="bg-white dark:bg-black border-b-4 dark:border-black border-black py-16 md:py-24 px-4 font-sans relative overflow-hidden"
+      className="bg-white dark:bg-black border-y-4 border-black dark:border-white py-16 md:py-24 px-4 font-sans relative overflow-hidden"
       aria-label="Customer Support"
     >
       

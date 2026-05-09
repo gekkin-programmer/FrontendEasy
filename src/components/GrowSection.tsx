@@ -61,7 +61,7 @@ const ChecklistItem = ({ children }: { children: React.ReactNode }) => (
     <div className="bg-black text-white p-1 border-2 border-black flex-shrink-0 rounded-full shadow-[2px_2px_0px_0px_#000]">
       <FaCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
     </div>
-    <span className="text-black font-bold text-sm md:text-lg leading-tight">{children}</span>
+    <span className="text-black dark:text-white font-bold text-sm md:text-lg leading-tight">{children}</span>
   </li>
 );
 
@@ -138,13 +138,13 @@ const GrowSection = () => {
         <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-start">
           
           {/* Left content (4 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 text-left bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000]">
-            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-black leading-[0.9] tracking-tighter uppercase">
+          <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 text-left bg-white dark:bg-black border-4 border-black dark:border-white p-6 md:p-8 shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] md:shadow-[12px_12px_0px_0px_#000] md:dark:shadow-[12px_12px_0px_0px_#fff]">
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-black dark:text-white leading-[0.9] tracking-tighter uppercase">
               {t("ZERO TO", "DE ZÉRO À")}<br/>
               <span className="text-[#3C48F6]">{t("ONE MILLION.", "UN MILLION.")}</span>
             </h2>
             
-            <p className="text-base md:text-xl font-bold text-gray-800 leading-snug">
+            <p className="text-base md:text-xl font-bold text-gray-800 dark:text-white leading-snug">
               {t(
                 "Whether you're just getting started or scaling to new heights, EasyPost gets your content in front of more people.",
                 "Que vous commenciez ou que vous passiez à la vitesse supérieure, EasyPost propulse votre contenu."
