@@ -21,8 +21,8 @@ const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProp
 );
 
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 transition-all cursor-default">
-    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] dark:bg-[#5566FF] border-2 border-black dark:border-white flex items-center justify-center text-white">
+  <div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-black hover:translate-x-1 hover:translate-y-1 transition-all cursor-default">
+    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] dark:bg-black border-2 border-black dark:border-white flex items-center justify-center text-white">
       {icon}
     </div>
     <p className="text-sm sm:text-base font-bold text-black dark:text-white leading-tight pt-1">{text}</p>
@@ -78,7 +78,7 @@ export default function PublishSection() {
             </span>
             <h2 className="text-4xl md:text-6xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">
               {t("The complete", "L'ensemble")} <br/>
-              <span className="text-[#3C48F6]">publishing</span> <br/>
+              <span className="text-[#3C48F6]">{t("publishing", "publication")}</span> <br/>
               {t("suite.", "complet.")}
             </h2>
           </div>

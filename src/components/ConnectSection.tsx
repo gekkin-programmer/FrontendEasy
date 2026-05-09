@@ -20,14 +20,15 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor }) => {
       <a
         href="#"
         className="
-          flex h-16 w-16 md:h-20 md:w-20 items-center justify-center 
-          bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000]
-          hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200
+          flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
+          bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700
+          shadow-[4px_4px_0px_0px_#000] dark:shadow-none
+          hover:translate-x-1 hover:translate-y-1 hover:shadow-none hover:bg-gray-50 dark:hover:bg-zinc-800 dark:hover:border-zinc-500 transition-all duration-200
         "
         aria-label={name}
       >
         {React.cloneElement(icon, {
-          className: `h-6 w-6 md:h-8 md:w-8 text-black transition-colors duration-300 ${hoverColor}`,
+          className: `h-6 w-6 md:h-8 md:w-8 text-black dark:text-white transition-colors duration-300 ${hoverColor}`,
         })}
       </a>
       
@@ -43,15 +44,15 @@ const ConnectSection = () => {
   const { t } = useLanguage();
 
   const socialIcons = [
-    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
-    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
-    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
-    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
-    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
-    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
-    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
-    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4]' },
+    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2] dark:group-hover:text-[#1877F2]' },
+    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C] dark:group-hover:text-[#E1306C]' },
+    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600 dark:group-hover:text-gray-300' },
+    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2] dark:group-hover:text-[#0A66C2]' },
+    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
+    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000] dark:group-hover:text-[#FF0000]' },
+    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
+    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023] dark:group-hover:text-[#E60023]' },
+    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4] dark:group-hover:text-[#4285F4]' },
   ];
 
   return (

@@ -47,8 +47,8 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
     className={`
       relative px-3 md:px-6 py-2 md:py-3 font-black text-[10px] md:text-sm uppercase tracking-wider border-t-4 border-l-4 border-r-4 border-black transition-all -mb-1 z-10 whitespace-nowrap flex-shrink-0
       ${isActive 
-        ? 'bg-[#3C48F5] text-white h-10 md:h-14 translate-y-0' 
-        : 'bg-gray-200 text-gray-500 h-8 md:h-12 translate-y-2 hover:bg-gray-100'
+        ? 'bg-[#3C48F5] text-white h-10 md:h-14 translate-y-0'
+        : 'bg-gray-200 text-black h-8 md:h-12 translate-y-2 hover:bg-gray-100'
       }
     `}
   >
