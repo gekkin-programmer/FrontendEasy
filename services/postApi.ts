@@ -1,7 +1,13 @@
 import { api } from '@/src/lib/api';
-import { Post } from '@/src/components/easypost/types' // Assuming types are here
 
-export const createPost = async (postData: any, file?: File | null) => {
+interface CreatePostData {
+  content: string;
+  status: string;
+  scheduledTime?: string;
+  channels: string[];
+}
+
+export const createPost = async (postData: CreatePostData, file?: File | null) => {
   const formData = new FormData();
 
   // 1. Append simple text fields
@@ -25,6 +31,6 @@ export const createPost = async (postData: any, file?: File | null) => {
   }
 
   // 4. Send to Backend
-  const response = await api.post<any>('/posts', formData);
+  const response = await api.post<unknown>('/posts', formData);
   return response;
 };

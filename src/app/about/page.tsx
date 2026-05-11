@@ -5,7 +5,6 @@ import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
 import { FaLinkedinIn, FaTwitter, FaGithub } from 'react-icons/fa';
 import { ArrowRight, ChevronDown, Upload, Send, X } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/src/context/LanguageContext';

@@ -68,7 +68,7 @@ export interface CardComment {
 export interface CardActivity {
   id: string;
   action: string;
-  details: any;
+  details: Record<string, unknown>;
   createdAt: string;
   user: {
     id: string;
@@ -105,13 +105,13 @@ export const boardApi = {
     api.delete(`/boards/columns/${columnId}`),
 
   // CARDS
-  createCard: (columnId: string, data: any) => 
+  createCard: (columnId: string, data: Record<string, unknown>) =>
     api.post<Card>(`/boards/columns/${columnId}/cards`, data),
 
-  getCardDetails: (cardId: string) => 
+  getCardDetails: (cardId: string) =>
     api.get<Card>(`/boards/cards/${cardId}`),
 
-  updateCard: (cardId: string, data: any) => 
+  updateCard: (cardId: string, data: Record<string, unknown>) =>
     api.patch<Card>(`/boards/cards/${cardId}`, data),
 
   moveCard: (cardId: string, data: { columnId: string; order: number }) => 
@@ -120,6 +120,6 @@ export const boardApi = {
   addComment: (cardId: string, content: string) => 
     api.post<CardComment>(`/boards/cards/${cardId}/comments`, { content }),
 
-  convertToPost: (cardId: string) => 
-    api.post<any>(`/boards/cards/${cardId}/convert-to-post`, {}),
+  convertToPost: (cardId: string) =>
+    api.post<unknown>(`/boards/cards/${cardId}/convert-to-post`, {}),
 };
