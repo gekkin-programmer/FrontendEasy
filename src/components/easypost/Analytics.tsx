@@ -20,6 +20,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, Share2, ExternalLink, type Icon as LucideIcon
 } from "lucide-react";
+import { PlatformIcon } from '@/src/components/easypost/composer/PlatformIcon';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function AnalyticsGridSkeleton() {
@@ -124,7 +125,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2 text-sm font-black uppercase transition-all border-2 border-black dark:border-white", 
-      active ? "bg-black dark:bg-white text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-yellow-400/20",
+      active ? "bg-black dark:bg-white text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -156,7 +157,7 @@ export default function Analytics() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-500 gap-8 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col h-[calc(100vh-80px)] animate-in fade-in duration-500 gap-8 font-sans text-black dark:text-white transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
         <div className="border-l-4 border-black dark:border-white pl-4">
@@ -474,7 +475,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
 
             <div className="flex flex-col md:flex-row gap-8 h-full pb-20 overflow-hidden">
                 {/* Left Panel */}
-            <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0 h-full transition-colors">
+            <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0 h-full transition-colors rounded-tl-2xl rounded-tr-2xl overflow-hidden">
                 <div className="p-4 border-b-2 border-black dark:border-white bg-black dark:bg-white">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-black text-lg uppercase text-white">{t("Live_STREAM", "FLUX_EN_DIRECT")}</h3>
@@ -501,7 +502,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                 </div>
             </div>
             {/* Right Panel */}
-            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] h-full overflow-hidden transition-colors">
+            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] h-full overflow-hidden transition-colors rounded-tl-2xl rounded-tr-2xl">
                 {selectedPostId ? <PostAnalyticsDetailWrapper postId={selectedPostId} workspaceId={workspaceId} /> : (
                     <div className="flex-1 flex flex-col items-center justify-center text-black dark:text-white bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] dark:opacity-80 transition-all">
                         <div className="w-20 h-20 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white flex items-center justify-center mb-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all"><TrendingUp size={40} strokeWidth={1.5} /></div>
@@ -551,7 +552,7 @@ function PostListCard({ post, engagement, isSelected, onClick }: { post: Analyti
     const { t } = useLanguage();
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
-        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-yellow-900/20">
+        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-800">
             <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || t("No text content", "Aucun contenu textuel")}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>
@@ -602,7 +603,7 @@ function PostAnalyticsDetail({ post }: { post: any }) {
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="bg-green-500 text-white px-2 py-0.5 text-xs font-black uppercase border-2 border-black dark:border-white">PUBLISHED</span>
+                        <span className="bg-green-500 dark:bg-black text-white px-2 py-0.5 text-xs font-black uppercase border-2 border-black dark:border-white">PUBLISHED</span>
                         <span className="text-xs font-mono font-bold text-gray-500 dark:text-zinc-400 uppercase">
                             {post.publishedAt ? formatDistanceToNow(new Date(post.publishedAt)) + t(' ago', ' il y a') : ''}
                         </span>
@@ -629,10 +630,10 @@ function PostAnalyticsDetail({ post }: { post: any }) {
 
             {/* ── Stats Grid (5 boxes) ── */}
             <div className="grid grid-cols-5 gap-0 divide-x-2 divide-black dark:divide-white border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
-                <BigStatBox label={t("Likes", "J'aime")} value={metrics.likes} icon={ThumbsUp} color="bg-blue-50 dark:bg-blue-900/20" />
-                <BigStatBox label={t("Comments", "Commentaires")} value={metrics.comments} icon={MessageCircle} color="bg-green-50 dark:bg-green-900/20" />
-                <BigStatBox label={t("Shares", "Partages")} value={metrics.shares} icon={Share2} color="bg-purple-50 dark:bg-purple-900/20" />
-                <BigStatBox label={t("Reach", "Portée")} value={metrics.views} icon={Eye} color="bg-orange-50 dark:bg-orange-900/20" />
+                <BigStatBox label={t("Likes", "J'aime")} value={metrics.likes} icon={ThumbsUp} />
+                <BigStatBox label={t("Comments", "Commentaires")} value={metrics.comments} icon={MessageCircle} />
+                <BigStatBox label={t("Shares", "Partages")} value={metrics.shares} icon={Share2} />
+                <BigStatBox label={t("Reach", "Portée")} value={metrics.views} icon={Eye} />
                 <div className="p-4 flex flex-col items-center justify-center text-center bg-zinc-50 dark:bg-zinc-900/50 transition-colors">
                     <Sparkles className="w-4 h-4 mb-1 text-black dark:text-white" />
                     <span className="text-2xl font-black text-black dark:text-white tabular-nums">{engagementRate}</span>
@@ -650,12 +651,11 @@ function PostAnalyticsDetail({ post }: { post: any }) {
                     <div className="divide-y divide-dashed divide-gray-100 dark:divide-zinc-800">
                         {platformAccounts.map((psa: any) => {
                             const platform = psa.socialAccount?.platform ?? psa.platform ?? '?';
-                            const color = PLATFORM_COLORS[platform] ?? '#666';
                             const total = (psa.likes || 0) + (psa.comments || 0) + (psa.shares || 0);
                             const er = psa.views > 0 ? ((total / psa.views) * 100).toFixed(1) + '%' : '—';
                             return (
                                 <div key={psa.id} className="px-5 py-3 flex items-center gap-4 text-xs font-mono text-black dark:text-white">
-                                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                                    <PlatformIcon platform={platform.toLowerCase()} size={14} />
                                     <span className="font-black uppercase w-24 truncate">{platform}</span>
                                     <div className="flex gap-4 flex-1 flex-wrap">
                                         <span><Heart size={10} className="inline mr-1" />{psa.likes || 0}</span>
