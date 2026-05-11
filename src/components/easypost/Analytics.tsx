@@ -432,7 +432,10 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
         mutationFn: async () => {
             const accountsRes: any = await api.get(`/workspaces/${workspaceId}/social-accounts`);
             const accounts = Array.isArray(accountsRes) ? accountsRes : accountsRes.data;
-            if (accounts.length > 0) { await api.post(`/social-accounts/${accounts[0].id}/sync`, {}); }
+            // Queue sync jobs for every connected account (not just the first one)
+            await Promise.all(accounts.map((acc: any) => api.post(`/social-accounts/${acc.id}/sync`, {})));
+            // Also trigger direct comment sync so the inbox is updated immediately
+            await api.post(`/engagement/sync?workspaceId=${workspaceId}`, {});
         },
         onSuccess: () => {
             setTimeout(() => {
