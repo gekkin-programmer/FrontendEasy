@@ -69,6 +69,7 @@ export default function Navbar() {
   const isDark = theme === 'dark';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -153,10 +154,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-200 border-b
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b
       ${scrolled
-        ? "bg-white dark:bg-black border-black/10 dark:border-white/10 shadow-[0_1px_0_rgba(0,0,0,0.06)] dark:shadow-[0_1px_0_rgba(255,255,255,0.06)] py-2"
-        : "bg-white/80 dark:bg-black/80 backdrop-blur-md border-black/5 dark:border-white/5 py-4"
+        ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-black/10 dark:border-white/10 shadow-sm py-2"
+        : "bg-transparent border-transparent py-4"
       }`}
       aria-label="Main Navigation"
     >
@@ -164,112 +165,109 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-14 md:h-16">
 
           {/* LOGO */}
-          <Link href="/" className="flex items-center gap-2 z-50 mr-8 flex-shrink-0" aria-label="EazyPost Home">
-            <div className="relative w-7 h-7 md:w-8 md:h-8 flex-shrink-0">
-                <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" fill className="object-contain" priority />
+          <Link href="/" className="flex items-center gap-2 z-50 mr-8 flex-shrink-0" aria-label="EasyPost Home">
+            <div className="relative w-8 h-8 md:w-10 md:h-10">
+                <Image src="/assets/WiggleLogo.png" alt="Logo" fill className="object-contain" priority />
             </div>
-            <span className="text-lg md:text-xl font-black text-black dark:text-white tracking-tighter select-none">EazyPost</span>
+            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">azyPost.</span>
           </Link>
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-            {/* ... Desktop menu links ... */}
-            {navLinks.map((item) => (
-              <div 
-                key={item.id || item.href} 
-                className="relative h-16 flex items-center group"
-                onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} 
-                onMouseLeave={() => setHoveredDropdown(null)}
-              >
-                <Link
-                  href={item.href || "#"}
-                  className={`flex items-center gap-1 text-sm font-semibold tracking-wide transition-colors px-1 py-0.5 ${
-                    hoveredDropdown === getTranslatedText(item.label)
-                      ? "text-[#3C48F6] dark:text-[#7B87FF]"
-                      : "text-black/80 dark:text-white/80 hover:text-black dark:hover:text-white"
-                  }`}
-                  onClick={(e) => item.hasDropdown && e.preventDefault()}
+            {navLinks.map((item) => {
+              const label = getTranslatedText(item.label);
+              const isOpen = openDropdown === label;
+              return (
+              <div key={item.id || item.href} className="relative h-16 flex items-center">
+                <button
+                  className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${isOpen ? "text-[#3C48F6]" : "text-black dark:text-white"}`}
+                  onClick={() => {
+                    if (!item.hasDropdown) { router.push(item.href || "#"); return; }
+                    setOpenDropdown(isOpen ? null : label);
+                  }}
                 >
-                  {getTranslatedText(item.label)}
-                  {item.hasDropdown && <FaChevronDown className={`w-2.5 h-2.5 transition-transform duration-200 ${hoveredDropdown === getTranslatedText(item.label) ? "rotate-180" : ""}`} />}
-                </Link>
-                
+                  {label}
+                  {item.hasDropdown && <FaChevronDown className={`w-2.5 h-2.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />}
+                </button>
+
                 <AnimatePresence>
-                  {item.hasDropdown && hoveredDropdown === getTranslatedText(item.label) && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
-                        transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute top-14 left-1/2 -translate-x-1/2 z-50"
-                        style={{ width: item.dropdownContent?.type === 'mega' ? 600 : 320 }}
-                    >
-                        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.12)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)] border border-gray-200/70 dark:border-white/8 overflow-hidden">
-                            {item.dropdownContent?.type === 'mega' && (
-                                <div className="flex">
-                                    {/* Left — feature links */}
-                                    <div className="flex-1 p-5 grid grid-cols-2 gap-x-6 gap-y-1">
-                                        {item.dropdownContent.columns.map((col, idx) => (
-                                            <div key={idx}>
-                                                <p className="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-3 px-2">
-                                                    {getTranslatedText(col.heading)}
-                                                </p>
-                                                {col.links.map(link => (
-                                                    <Link key={getTranslatedText(link.label)} href={link.href}
-                                                        className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
-                                                        <div className="w-9 h-9 rounded-xl bg-[#3C48F5]/8 dark:bg-[#3C48F5]/15 flex items-center justify-center text-[#3C48F5] flex-shrink-0 group-hover:bg-[#3C48F5] group-hover:text-white transition-all">
-                                                            <link.Icon size={15}/>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#3C48F5] dark:group-hover:text-[#7B87FF] transition-colors leading-tight">
-                                                                {getTranslatedText(link.label)}
-                                                            </div>
-                                                            <div className="text-[11px] text-gray-500 dark:text-zinc-400 leading-tight mt-0.5">
-                                                                {getTranslatedText(link.description!)}
-                                                            </div>
-                                                        </div>
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {/* Right — featured card */}
-                                    <div className="w-[180px] bg-gradient-to-br from-[#3C48F5] to-[#6366f1] p-5 flex flex-col justify-between flex-shrink-0">
-                                        <div>
-                                            <span className="inline-block text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded-full mb-3">
-                                                {getTranslatedText(item.dropdownContent.featured.label)}
-                                            </span>
-                                            <p className="text-white font-bold text-sm leading-snug">
-                                                {getTranslatedText(item.dropdownContent.featured.description)}
-                                            </p>
+                  {item.hasDropdown && isOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50"
+                        style={{ width: item.dropdownContent?.type === 'mega' ? 620 : 280 }}
+                      >
+                        {/* caret */}
+                        <div className="absolute -top-[7px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white dark:bg-zinc-900 border-l border-t border-gray-200 dark:border-zinc-700 rotate-45" />
+
+                        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-xl overflow-hidden">
+                          {item.dropdownContent?.type === 'mega' && (
+                            <div className="flex">
+                              <div className="flex-1 p-4 grid grid-cols-2 gap-x-2 gap-y-0.5">
+                                {item.dropdownContent.columns.map((col, idx) => (
+                                  <div key={idx}>
+                                    <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-2 px-3 pt-2">
+                                      {getTranslatedText(col.heading)}
+                                    </p>
+                                    {col.links.map(link => (
+                                      <Link key={getTranslatedText(link.label)} href={link.href}
+                                        onClick={() => setOpenDropdown(null)}
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group">
+                                        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-500 dark:text-zinc-400 flex-shrink-0 group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
+                                          <link.Icon size={14} />
                                         </div>
-                                        <Link href={item.dropdownContent.featured.href}
-                                            className="mt-4 inline-flex items-center gap-1 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wide transition-colors">
-                                            {t("Explore", "Explorer")} →
-                                        </Link>
-                                    </div>
-                                </div>
-                            )}
-                            {item.dropdownContent?.type === 'channels' && (
-                                <div className="p-3 grid grid-cols-2 gap-1">
-                                    {item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href}
-                                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
-                                                <c.Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#3C48F5] dark:group-hover:text-[#7B87FF] transition-colors">
-                                                {getTranslatedText(c.label)}
-                                            </span>
-                                        </Link>
+                                        <div>
+                                          <div className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{getTranslatedText(link.label)}</div>
+                                          <div className="text-[11px] text-gray-500 dark:text-zinc-400 leading-tight mt-0.5">{getTranslatedText(link.description!)}</div>
+                                        </div>
+                                      </Link>
                                     ))}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="w-[160px] bg-[#3C48F5] p-5 flex flex-col justify-between flex-shrink-0">
+                                <div>
+                                  <span className="inline-block text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/15 px-2 py-0.5 rounded-full mb-3">
+                                    {getTranslatedText(item.dropdownContent.featured.label)}
+                                  </span>
+                                  <p className="text-white font-semibold text-sm leading-snug">
+                                    {getTranslatedText(item.dropdownContent.featured.description)}
+                                  </p>
                                 </div>
-                            )}
+                                <Link href={item.dropdownContent.featured.href} onClick={() => setOpenDropdown(null)}
+                                  className="mt-4 inline-flex items-center gap-1 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wide transition-colors">
+                                  {t("Explore", "Explorer")} →
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                          {item.dropdownContent?.type === 'channels' && (
+                            <div className="p-2 grid grid-cols-2 gap-0.5">
+                              {item.dropdownContent.channels.map(c => (
+                                <Link key={getTranslatedText(c.label)} href={c.href}
+                                  onClick={() => setOpenDropdown(null)}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group">
+                                  <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                                    <c.Icon className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                                  </div>
+                                  <span className="text-sm font-semibold text-gray-900 dark:text-white">{getTranslatedText(c.label)}</span>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                    </motion.div>
+                      </motion.div>
+                    </>
                   )}
                 </AnimatePresence>
               </div>
+              );
+            })
             ))}
           </div>
 
@@ -305,8 +303,8 @@ export default function Navbar() {
                 </div>
             ) : (
                 <div className="flex items-center gap-3">
-                    <Link href="/login" className="text-sm font-semibold text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white transition-colors">{t("Log in", "Connexion")}</Link>
-                    <Link href="/signup" className="px-5 py-2 bg-[#3C48F5] hover:bg-[#2f3cd4] text-white font-bold text-sm rounded-full transition-all shadow-sm">{t("Start Free", "Gratuit")}</Link>
+                    <Link href="/login" className="text-sm font-bold text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-200 transition-colors uppercase">{t("Log in", "Connexion")}</Link>
+                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-sm border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">{t("Start Free", "Gratuit")}</Link>
                 </div>
             )}
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>
