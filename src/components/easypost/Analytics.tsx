@@ -124,7 +124,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2 text-sm font-black uppercase transition-all border-2 border-black dark:border-white", 
-      active ? "bg-black dark:bg-white text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-zinc-700", 
+      active ? "bg-black dark:bg-white text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-400 dark:hover:bg-yellow-400/20",
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -486,7 +486,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
             </div>
             {/* Right Panel */}
             <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] h-full overflow-hidden transition-colors">
-                {selectedPostId ? <PostAnalyticsDetailWrapper postId={selectedPostId} /> : (
+                {selectedPostId ? <PostAnalyticsDetailWrapper postId={selectedPostId} workspaceId={workspaceId} /> : (
                     <div className="flex-1 flex flex-col items-center justify-center text-black dark:text-white bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] dark:opacity-80 transition-all">
                         <div className="w-20 h-20 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white flex items-center justify-center mb-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all"><TrendingUp size={40} strokeWidth={1.5} /></div>
                         <p className="font-black text-xl uppercase tracking-tight">{t("Select_A_Post", "Sélectionner_Une_Publication")}</p>
@@ -499,13 +499,22 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     );
 }
 
-function PostAnalyticsDetailWrapper({ postId }: { postId: string }) {
+function PostAnalyticsDetailWrapper({ postId, workspaceId }: { postId: string; workspaceId: string }) {
     const { t } = useLanguage();
     const { data: post, isLoading, error } = useQuery({
         queryKey: ['post-analytics', postId],
         gcTime: 0,
         queryFn: async () => {
-            try { const res: any = await api.get(`/posts/${postId}`); return res.data || res; }
+            try {
+                const res: any = await api.get(`/posts/${postId}?workspaceId=${workspaceId}`);
+                const raw = res.data || res;
+                // Normalize Prisma shape → AnalyticsPost shape
+                return {
+                    ...raw,
+                    mediaUrls: raw.media?.map((pm: any) => pm.media?.url).filter(Boolean) ?? [],
+                    metrics: raw.metrics ?? { likes: 0, comments: 0, shares: 0, views: 0 },
+                };
+            }
             catch (err) { console.error("Fetch Detail Error:", err); return null; }
         },
     });
@@ -519,7 +528,7 @@ function PostListCard({ post, engagement, isSelected, onClick }: { post: Analyti
     const { t } = useLanguage();
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
-        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-zinc-800">
+        <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-yellow-900/20">
             <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || t("No text content", "Aucun contenu textuel")}</p>
             <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>
