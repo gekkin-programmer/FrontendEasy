@@ -31,44 +31,26 @@ This repository contains the **Next.js frontend** (App Router). The NestJS backe
 
 <table>
 <tr>
-<td width="50%">
+<td width="100%">
 
 **Landing Page**
-<img src="public/assets/Homepage.PNG" alt="EazyPost homepage" />
-
-</td>
-<td width="50%">
-
-**Dashboard — Dark Mode**
-<img src="public/assets/Darkmode.PNG" alt="EazyPost dashboard dark mode" />
+<img src="public/assets/LandingPage.png" alt="EazyPost landing page" />
 
 </td>
 </tr>
 <tr>
-<td width="50%">
+<td width="100%">
 
-**Analytics & Insights**
-<img src="public/assets/Insights.PNG" alt="EazyPost analytics" />
-
-</td>
-<td width="50%">
-
-**Content Board (Kanban)**
-<img src="public/assets/CreateKanban.PNG" alt="EazyPost Kanban board" />
+**Dashboard**
+<img src="public/assets/Dashboard.png" alt="EazyPost dashboard" />
 
 </td>
 </tr>
 <tr>
-<td width="50%">
-
-**Pricing**
-<img src="public/assets/Pricing.PNG" alt="EazyPost pricing" />
-
-</td>
-<td width="50%">
+<td width="100%">
 
 **Login**
-<img src="public/assets/Login.PNG" alt="EazyPost login" />
+<img src="public/assets/LoginEazyPost.png" alt="EazyPost login" />
 
 </td>
 </tr>

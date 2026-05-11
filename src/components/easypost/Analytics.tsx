@@ -157,7 +157,7 @@ export default function Analytics() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] animate-in fade-in duration-500 gap-8 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col h-[calc(100vh-32px)] animate-in fade-in duration-500 gap-4 font-sans text-black dark:text-white transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
         <div className="border-l-4 border-black dark:border-white pl-4">
@@ -451,7 +451,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     if(isLoading) return <LiveStreamSkeleton />;
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-8 transition-colors">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-4 transition-colors">
             
             {/* 🟢 OVERVIEW CARDS */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
@@ -473,7 +473,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8 h-full pb-20 overflow-hidden">
+            <div className="flex flex-col md:flex-row gap-8 flex-1 overflow-hidden">
                 {/* Left Panel */}
             <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] flex-shrink-0 h-full transition-colors rounded-tl-2xl rounded-tr-2xl overflow-hidden">
                 <div className="p-4 border-b-2 border-black dark:border-white bg-black dark:bg-white">
@@ -603,7 +603,7 @@ function PostAnalyticsDetail({ post }: { post: any }) {
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="bg-green-500 dark:bg-black text-white px-2 py-0.5 text-xs font-black uppercase border-2 border-black dark:border-white">PUBLISHED</span>
+                        <span className="bg-black text-white px-2 py-0.5 text-xs font-black uppercase border-2 border-black dark:border-white">PUBLISHED</span>
                         <span className="text-xs font-mono font-bold text-gray-500 dark:text-zinc-400 uppercase">
                             {post.publishedAt ? formatDistanceToNow(new Date(post.publishedAt)) + t(' ago', ' il y a') : ''}
                         </span>
