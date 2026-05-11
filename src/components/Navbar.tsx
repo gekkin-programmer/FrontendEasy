@@ -267,8 +267,7 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
               );
-            })
-            ))}
+            })}
           </div>
 
           {/* RIGHT ACTIONS (Desktop) */}
