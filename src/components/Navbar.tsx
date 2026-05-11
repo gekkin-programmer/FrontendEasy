@@ -152,11 +152,11 @@ export default function Navbar() {
   if (!showNavbar) return null;
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b 
-      ${scrolled 
-        ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-black/10 dark:border-white/10 shadow-sm py-2" 
-        : "bg-transparent border-transparent py-4"
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-200 border-b
+      ${scrolled
+        ? "bg-white dark:bg-black border-black/10 dark:border-white/10 shadow-[0_1px_0_rgba(0,0,0,0.06)] dark:shadow-[0_1px_0_rgba(255,255,255,0.06)] py-2"
+        : "bg-white/80 dark:bg-black/80 backdrop-blur-md border-black/5 dark:border-white/5 py-4"
       }`}
       aria-label="Main Navigation"
     >
@@ -164,11 +164,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-14 md:h-16">
 
           {/* LOGO */}
-          <Link href="/" className="flex items-center gap-2 z-50 mr-8 flex-shrink-0" aria-label="EasyPost Home">
-            <div className="relative w-8 h-8 md:w-10 md:h-10">
-                <Image src="/assets/WiggleLogo.png" alt="Logo" fill className="object-contain" priority />
+          <Link href="/" className="flex items-center gap-2 z-50 mr-8 flex-shrink-0" aria-label="EazyPost Home">
+            <div className="relative w-7 h-7 md:w-8 md:h-8 flex-shrink-0">
+                <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" fill className="object-contain" priority />
             </div>
-            <span className="text-xl md:text-2xl font-black text-black dark:text-white tracking-tighter">azyPost.</span>
+            <span className="text-lg md:text-xl font-black text-black dark:text-white tracking-tighter select-none">EazyPost</span>
           </Link>
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
@@ -181,12 +181,12 @@ export default function Navbar() {
                 onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} 
                 onMouseLeave={() => setHoveredDropdown(null)}
               >
-                <Link 
-                  href={item.href || "#"} 
-                  className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${
-                    hoveredDropdown === getTranslatedText(item.label) 
-                      ? "text-[#3C48F6]" 
-                      : "text-black dark:text-white"
+                <Link
+                  href={item.href || "#"}
+                  className={`flex items-center gap-1 text-sm font-semibold tracking-wide transition-colors px-1 py-0.5 ${
+                    hoveredDropdown === getTranslatedText(item.label)
+                      ? "text-[#3C48F6] dark:text-[#7B87FF]"
+                      : "text-black/80 dark:text-white/80 hover:text-black dark:hover:text-white"
                   }`}
                   onClick={(e) => item.hasDropdown && e.preventDefault()}
                 >
@@ -305,8 +305,8 @@ export default function Navbar() {
                 </div>
             ) : (
                 <div className="flex items-center gap-3">
-                    <Link href="/login" className="text-sm font-bold text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-200 transition-colors uppercase">{t("Log in", "Connexion")}</Link>
-                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-sm border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">{t("Start Free", "Gratuit")}</Link>
+                    <Link href="/login" className="text-sm font-semibold text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white transition-colors">{t("Log in", "Connexion")}</Link>
+                    <Link href="/signup" className="px-5 py-2 bg-[#3C48F5] hover:bg-[#2f3cd4] text-white font-bold text-sm rounded-full transition-all shadow-sm">{t("Start Free", "Gratuit")}</Link>
                 </div>
             )}
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>

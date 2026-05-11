@@ -553,8 +553,8 @@ function PostListCard({ post, engagement, isSelected, onClick }: { post: Analyti
     const hasMedia = post.mediaUrls && post.mediaUrls.length > 0;
     return (
         <div onClick={onClick} className="p-4 cursor-pointer transition-all duration-150 relative border-b-2 border-black dark:border-white group bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-800">
-            <p className={cn("text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase", isSelected ? "text-gray-200 dark:text-zinc-700 pl-3" : "text-black dark:text-white transition-colors")}>{post.content || t("No text content", "Aucun contenu textuel")}</p>
-            <div className={cn("flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed transition-colors", isSelected ? "border-gray-700 dark:border-zinc-300 text-gray-400 dark:text-zinc-500 pl-3" : "border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400")}>
+            <p className="text-sm font-bold line-clamp-2 mb-3 leading-snug uppercase text-black dark:text-white">{post.content || t("No text content", "Aucun contenu textuel")}</p>
+            <div className="flex items-center gap-4 text-xs font-mono pt-2 border-t-2 border-dashed border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 transition-colors">
                 <div className="flex items-center gap-1.5"><Heart size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.likes || 0}</span></div>
                 <div className="flex items-center gap-1.5"><MessageCircle size={12} className="text-black dark:text-white" /><span className="font-bold">{post.metrics?.comments || 0}</span></div>
             </div>
@@ -622,7 +622,7 @@ function PostAnalyticsDetail({ post }: { post: any }) {
 
             {/* ── Sync notice ── */}
             {needsSync && (
-                <div className="mx-4 mt-3 px-3 py-2 border-2 border-dashed border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 text-xs font-bold uppercase text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
+                <div className="mx-4 mt-3 px-3 py-2 border-2 border-dashed border-black dark:border-yellow-500 bg-gray-50 dark:bg-yellow-900/20 text-xs font-bold uppercase text-black dark:text-yellow-400 flex items-center gap-2">
                     <RefreshCw size={12} />
                     {t("Hit SYNC NOW to load real metrics from the platform.", "Cliquez SYNC MAINTENANT pour charger les vraies métriques.")}
                 </div>
