@@ -117,7 +117,7 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
               <button
                 key={i}
                 onClick={() => onSelect(s.hour)}
-                className="w-full flex items-center justify-between p-2 border-2 border-black dark:border-white hover:bg-yellow-100 dark:hover:bg-zinc-800 transition-all group"
+                className="w-full flex items-center justify-between p-2 border-2 border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all group"
               >
                 <div className="flex items-center gap-2">
                   <Clock size={14} className="text-gray-400 group-hover:text-black dark:group-hover:text-white" />
@@ -208,8 +208,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [pinBoard, setPinBoard] = useState('');
   const [liArticleMode, setLiArticleMode] = useState(false);
   const [firstComment, setFirstComment] = useState('');
-  const [tiktokHashtags, setTiktokHashtags] = useState('');
   const [altText, setAltText] = useState('');
+  // TikTok compliance fields (Direct Post API UX requirements)
+  const [tiktokTitle, setTiktokTitle] = useState('');
+  const [tiktokPrivacyLevel, setTiktokPrivacyLevel] = useState('');
+  const [tiktokAllowComment, setTiktokAllowComment] = useState(false);
+  const [tiktokDuet, setTiktokDuet] = useState(false);
+  const [tiktokStitch, setTiktokStitch] = useState(false);
+  const [tiktokDisclosure, setTiktokDisclosure] = useState(false);
+  const [tiktokYourBrand, setTiktokYourBrand] = useState(false);
+  const [tiktokBrandContent, setTiktokBrandContent] = useState(false);
+  const [tiktokHashtags, setTiktokHashtags] = useState('');
   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -242,7 +251,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (ids.includes('youtube')) panels.push('youtube');
     if (ids.includes('pinterest')) panels.push('pinterest');
     if (ids.includes('linkedin')) panels.push('linkedin');
-    if (ids.includes('instagram') || ids.includes('tiktok')) panels.push('igtk');
+    if (ids.includes('instagram')) panels.push('instagram');
+    if (ids.includes('tiktok')) panels.push('tiktok');
     setExpandedPanels(panels.length === 1 ? new Set(panels) : new Set());
   }, [selectedAccountIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -381,6 +391,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   const [price, setPrice] = useState("");
   const [productName, setProductName] = useState("");
 
+  // TikTok derived values
+  const tiktokAccount = accounts.find(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK');
+  const tiktokCreatorNickname = tiktokAccount?.username as string | undefined;
+  const tiktokHasVideo = mediaTypes.some(t => t === 'video');
+  const hasTikTokInPost = platformMode.postPlatforms.some(p => p.id === 'tiktok');
+  const tiktokDisclosureInvalid = hasTikTokInPost && tiktokDisclosure && !tiktokYourBrand && !tiktokBrandContent;
+
   // Smart scheduling availability — only show AI SCHEDULER button when data exists
   const selectedPlatform = accounts.find(a => selectedAccountIds.includes(a.id))?.platform ?? 'FACEBOOK';
   const { data: schedulingHints } = useQuery({
@@ -401,6 +418,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     if (platformMode.requiresTitle && !ytTitle) {
       setExpandedPanels(prev => new Set([...prev, 'youtube']));
       return;
+    }
+
+    // TikTok required field validation
+    if (hasTikTokInPost) {
+      if (!tiktokTitle || !tiktokPrivacyLevel || tiktokDisclosureInvalid) {
+        setExpandedPanels(prev => new Set([...prev, 'tiktok']));
+        return;
+      }
     }
 
     // Past Date Validation
@@ -451,7 +476,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
         if (liArticleMode) platformMeta.linkedin = { articleMode: true };
         if (firstComment) platformMeta.firstComment = firstComment;
-        if (tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
+        if (hasTikTokInPost) platformMeta.tiktok = {
+          title: tiktokTitle,
+          privacyLevel: tiktokPrivacyLevel,
+          allowComment: tiktokAllowComment,
+          duet: tiktokDuet,
+          stitch: tiktokStitch,
+          disclosure: tiktokDisclosure,
+          yourBrand: tiktokDisclosure ? tiktokYourBrand : false,
+          brandContent: tiktokDisclosure ? tiktokBrandContent : false,
+          hashtags: tiktokHashtags || undefined,
+        };
+        if (!hasTikTokInPost && tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
         if (altText) platformMeta.altText = altText;
 
         await onSchedule(
@@ -466,6 +502,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         );
 
         setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setMediaTypes([]); setPrice(""); setIsSelling(false);
+        setTiktokTitle(''); setTiktokPrivacyLevel(''); setTiktokAllowComment(false); setTiktokDuet(false); setTiktokStitch(false);
+        setTiktokDisclosure(false); setTiktokYourBrand(false); setTiktokBrandContent(false); setTiktokHashtags('');
         setSubmitAttempted(false);
     } catch { } finally { setIsSubmitting(false); }
   };
@@ -513,7 +551,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                     const isExpired = acc.isActive === false;
                     const isSelected = selectedAccountIds.includes(acc.id);
                     return (
-                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 dark:border-zinc-800 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-yellow-50 dark:hover:bg-zinc-800 cursor-pointer")}>
+                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-gray-100 dark:border-zinc-800 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer")}>
                         <div className={cn("w-4 h-4 border-2 flex items-center justify-center", isExpired ? "border-red-500" : "border-black dark:border-white")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 bg-black dark:bg-white" />)}</div>
                         <div className="flex-1"><div className={cn("text-xs font-bold uppercase text-black dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[8px] font-mono text-gray-500 dark:text-zinc-400">{acc.platform} {isExpired && `(${t("EXPIRED", "EXPIRÉ")})`}</div></div>
                         <PlatformIcon platform={acc.platform} size={14} />
@@ -656,8 +694,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             pinBoard={pinBoard} setPinBoard={setPinBoard}
             liArticleMode={liArticleMode} setLiArticleMode={setLiArticleMode}
             firstComment={firstComment} setFirstComment={setFirstComment}
-            tiktokHashtags={tiktokHashtags} setTiktokHashtags={setTiktokHashtags}
             altText={altText} setAltText={setAltText}
+            tiktokCreatorNickname={tiktokCreatorNickname}
+            tiktokTitle={tiktokTitle} setTiktokTitle={setTiktokTitle}
+            tiktokPrivacyLevel={tiktokPrivacyLevel} setTiktokPrivacyLevel={setTiktokPrivacyLevel}
+            tiktokAllowComment={tiktokAllowComment} setTiktokAllowComment={setTiktokAllowComment}
+            tiktokDuet={tiktokDuet} setTiktokDuet={setTiktokDuet}
+            tiktokStitch={tiktokStitch} setTiktokStitch={setTiktokStitch}
+            tiktokDisclosure={tiktokDisclosure} setTiktokDisclosure={setTiktokDisclosure}
+            tiktokYourBrand={tiktokYourBrand} setTiktokYourBrand={setTiktokYourBrand}
+            tiktokBrandContent={tiktokBrandContent} setTiktokBrandContent={setTiktokBrandContent}
+            tiktokHashtags={tiktokHashtags} setTiktokHashtags={setTiktokHashtags}
+            tiktokHasVideo={tiktokHasVideo}
           />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t-2 border-black dark:border-white gap-4 transition-colors">
@@ -696,7 +744,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               <div className="flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase", isPreviewActive ? "bg-black dark:bg-white text-white dark:text-black shadow-none translate-x-[1px] translate-y-[1px]" : "bg-white dark:bg-black text-black dark:text-white")}><LayoutGrid size={14} /> {t("PREVIEW", "APERÇU")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-black text-black dark:text-white font-bold text-[10px] border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1 uppercase"><FileCheck size={14} /> {t("REVIEW", "RÉVISION")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting} className="bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100 px-4">
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} className="bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100 px-4">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('UPDATE', 'METTRE À JOUR') : (date ? t('SCHEDULE', 'PLANIFIER') : t('PUBLISH', 'PUBLIER'))}
                   </NeuButton>
