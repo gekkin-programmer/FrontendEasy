@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,7 @@ import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTrian
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/src/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
 import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
 import { useLanguage } from '@/src/context/LanguageContext';
 
@@ -101,6 +102,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 
 // 🟢 SINGLE POST CARD COMPONENT
 const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, isQueued, draggable, onDragStart }: any) => {
+  const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
 
@@ -124,7 +126,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       onDragStart={onDragStart as any}
       className={cn(
         "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] rounded-lg",
-        draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50 dark:hover:bg-zinc-800" : ""
+        draggable ? "cursor-grab active:cursor-grabbing hover:bg-zinc-50 dark:hover:bg-zinc-800" : ""
       )}
     >
       {draggable && (
@@ -266,13 +268,13 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          <NeuButton
+          <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
             title="Delete Post"
-            className="group/del hover:bg-red-500 hover:border-red-500 dark:hover:border-red-500 hover:shadow-[2px_2px_0px_0px_#991b1b]"
+            className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:border-red-600 hover:text-white hover:shadow-[2px_2px_0px_0px_#991b1b] dark:hover:bg-red-500 dark:hover:border-red-600 dark:hover:text-white transition-all"
           >
-            <Trash2 size={14} className="text-black dark:text-white group-hover/del:text-white" />
-          </NeuButton>
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
     </motion.div>
@@ -281,14 +283,17 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
 export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false }: PostFeedProps) {
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   const deletePost = async (postId: string) => {
-    if (!window.confirm(t("Delete this post from all connected platforms?", "Supprimer ce post de toutes les plateformes connectées ?"))) return;
+    if (!confirm(t("Delete this post?", "Supprimer cette publication ?"))) return;
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
-        toast.success(t("Post deleted from all platforms", "Publication supprimée de toutes les plateformes"));
+        toast.success(t("Post deleted", "Publication supprimée"));
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
     } catch (e) {
         toast.error(t("Failed to delete", "Échec de la suppression"));
     }
