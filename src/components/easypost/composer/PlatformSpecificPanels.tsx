@@ -27,10 +27,21 @@ interface PlatformSpecificPanelsProps {
   pinBoard: string; setPinBoard: (v: string) => void;
   // LinkedIn
   liArticleMode: boolean; setLiArticleMode: (v: boolean) => void;
-  // Instagram / TikTok
+  // Instagram
   firstComment: string; setFirstComment: (v: string) => void;
-  tiktokHashtags: string; setTiktokHashtags: (v: string) => void;
   altText: string; setAltText: (v: string) => void;
+  // TikTok
+  tiktokCreatorNickname?: string;
+  tiktokTitle: string; setTiktokTitle: (v: string) => void;
+  tiktokPrivacyLevel: string; setTiktokPrivacyLevel: (v: string) => void;
+  tiktokAllowComment: boolean; setTiktokAllowComment: (v: boolean) => void;
+  tiktokDuet: boolean; setTiktokDuet: (v: boolean) => void;
+  tiktokStitch: boolean; setTiktokStitch: (v: boolean) => void;
+  tiktokDisclosure: boolean; setTiktokDisclosure: (v: boolean) => void;
+  tiktokYourBrand: boolean; setTiktokYourBrand: (v: boolean) => void;
+  tiktokBrandContent: boolean; setTiktokBrandContent: (v: boolean) => void;
+  tiktokHashtags: string; setTiktokHashtags: (v: string) => void;
+  tiktokHasVideo: boolean;
 }
 
 function PanelHeader({
@@ -81,8 +92,18 @@ export function PlatformSpecificPanels({
   pinBoard, setPinBoard,
   liArticleMode, setLiArticleMode,
   firstComment, setFirstComment,
-  tiktokHashtags, setTiktokHashtags,
   altText, setAltText,
+  tiktokCreatorNickname,
+  tiktokTitle, setTiktokTitle,
+  tiktokPrivacyLevel, setTiktokPrivacyLevel,
+  tiktokAllowComment, setTiktokAllowComment,
+  tiktokDuet, setTiktokDuet,
+  tiktokStitch, setTiktokStitch,
+  tiktokDisclosure, setTiktokDisclosure,
+  tiktokYourBrand, setTiktokYourBrand,
+  tiktokBrandContent, setTiktokBrandContent,
+  tiktokHashtags, setTiktokHashtags,
+  tiktokHasVideo,
 }: PlatformSpecificPanelsProps) {
   const ids = platformMode.postPlatforms.map((p) => p.id);
   const hasYT = ids.includes('youtube');
@@ -90,7 +111,6 @@ export function PlatformSpecificPanels({
   const hasLI = ids.includes('linkedin');
   const hasIG = ids.includes('instagram');
   const hasTK = ids.includes('tiktok');
-  const hasIGTK = hasIG || hasTK;
 
   // Tag chip input helpers — declared before early return to satisfy Rules of Hooks
   const [tagInput, setTagInput] = React.useState('');
@@ -100,7 +120,9 @@ export function PlatformSpecificPanels({
     setTagInput('');
   };
 
-  if (!hasYT && !hasPin && !hasLI && !hasIGTK) return null;
+  if (!hasYT && !hasPin && !hasLI && !hasIG && !hasTK) return null;
+
+  const tiktokDisclosureInvalid = hasTK && tiktokDisclosure && !tiktokYourBrand && !tiktokBrandContent;
 
   return (
     <div>
@@ -235,53 +257,268 @@ export function PlatformSpecificPanels({
         </>
       )}
 
-      {/* ── Instagram / TikTok ──────────────────────────────────────── */}
-      {hasIGTK && (
+      {/* ── Instagram ───────────────────────────────────────────────── */}
+      {hasIG && (
         <>
           <PanelHeader
-            id="igtk"
-            platform={hasIG ? 'instagram' : 'tiktok'}
-            label={`${hasIG ? 'Instagram' : ''}${hasIG && hasTK ? ' + ' : ''}${hasTK ? 'TikTok' : ''} Options`}
-            expanded={expandedPanels.has('igtk')}
-            onToggle={() => onTogglePanel('igtk')}
+            id="instagram" platform="instagram" label="Instagram Options"
+            expanded={expandedPanels.has('instagram')}
+            onToggle={() => onTogglePanel('instagram')}
           />
-          {expandedPanels.has('igtk') && (
+          {expandedPanels.has('instagram') && (
             <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
-              {/* First Comment — Instagram only */}
-              {hasIG && (
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                    First Comment
-                  </label>
-                  <textarea
-                    value={firstComment}
-                    onChange={(e) => setFirstComment(e.target.value)}
-                    placeholder="Appears instantly in the comments section"
-                    rows={2}
-                    className={`${inputCls} resize-none`}
-                  />
-                  <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — posted as a comment, not in caption</p>
-                </div>
-              )}
-              {/* TikTok Hashtags — TikTok only */}
-              {hasTK && (
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                    TikTok Hashtags
-                  </label>
-                  <textarea
-                    value={tiktokHashtags}
-                    onChange={(e) => setTiktokHashtags(e.target.value)}
-                    placeholder="#africantech #startup #cameroon"
-                    rows={2}
-                    className={`${inputCls} resize-none`}
-                  />
-                  <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{tiktokHashtags.length}/2200 — appended below caption in the video</p>
-                </div>
-              )}
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                  First Comment
+                </label>
+                <textarea
+                  value={firstComment}
+                  onChange={(e) => setFirstComment(e.target.value)}
+                  placeholder="Appears instantly in the comments section"
+                  rows={2}
+                  className={`${inputCls} resize-none`}
+                />
+                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — posted as a comment, not in caption</p>
+              </div>
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Alt Text (accessibility)</label>
                 <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Describe this image for screen readers" className={inputCls} />
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── TikTok ──────────────────────────────────────────────────── */}
+      {hasTK && (
+        <>
+          <PanelHeader
+            id="tiktok" platform="tiktok" label="TikTok Settings"
+            badge={
+              (submitAttempted && (!tiktokTitle || !tiktokPrivacyLevel)) || tiktokDisclosureInvalid
+                ? 'Required fields'
+                : undefined
+            }
+            expanded={expandedPanels.has('tiktok')}
+            onToggle={() => onTogglePanel('tiktok')}
+          />
+          {expandedPanels.has('tiktok') && (
+            <div className="px-4 py-4 space-y-4 bg-white dark:bg-zinc-900">
+
+              {/* Point 1: Creator Info */}
+              {tiktokCreatorNickname && (
+                <div className="flex items-center gap-2 px-3 py-2 border-2 border-black/20 dark:border-white/20 bg-zinc-50 dark:bg-zinc-800">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400">Posting as:</span>
+                  <span className="text-[10px] font-black text-black dark:text-white">@{tiktokCreatorNickname}</span>
+                </div>
+              )}
+
+              {/* Point 2: Post Title */}
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                  Post Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={tiktokTitle}
+                  onChange={e => setTiktokTitle(e.target.value)}
+                  placeholder="Describe your video..."
+                  className={`${inputCls} ${submitAttempted && !tiktokTitle ? 'border-red-600' : ''}`}
+                />
+                {submitAttempted && !tiktokTitle && (
+                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">Title is required for TikTok</p>
+                )}
+              </div>
+
+              {/* Point 2: Privacy Status */}
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                  Privacy Status <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={tiktokPrivacyLevel}
+                  onChange={e => setTiktokPrivacyLevel(e.target.value)}
+                  className={`${inputCls} ${submitAttempted && !tiktokPrivacyLevel ? 'border-red-600' : ''}`}
+                >
+                  <option value="">Select privacy...</option>
+                  <option value="PUBLIC_TO_EVERYONE">Everyone</option>
+                  <option value="MUTUAL_FOLLOW_FRIENDS">Friends</option>
+                  <option value="FOLLOWER_OF_CREATOR">Followers</option>
+                  {!tiktokBrandContent && <option value="SELF_ONLY">Only me</option>}
+                </select>
+                {submitAttempted && !tiktokPrivacyLevel && (
+                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">Privacy is required for TikTok</p>
+                )}
+              </div>
+
+              {/* Point 2: Interaction Settings */}
+              <div className="space-y-2">
+                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block">
+                  Interaction Settings
+                </span>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={tiktokAllowComment}
+                    onChange={e => setTiktokAllowComment(e.target.checked)}
+                    className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                  />
+                  <span className="text-[10px] font-black text-black dark:text-white">Allow Comment</span>
+                </label>
+                {tiktokHasVideo && (
+                  <>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={tiktokDuet}
+                        onChange={e => setTiktokDuet(e.target.checked)}
+                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                      />
+                      <span className="text-[10px] font-black text-black dark:text-white">Duet</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={tiktokStitch}
+                        onChange={e => setTiktokStitch(e.target.checked)}
+                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                      />
+                      <span className="text-[10px] font-black text-black dark:text-white">Stitch</span>
+                    </label>
+                  </>
+                )}
+              </div>
+
+              {/* Point 2: Music Usage Declaration */}
+              <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 leading-relaxed">
+                By posting, you agree to TikTok&apos;s{' '}
+                <a
+                  href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                >
+                  Music Usage Confirmation
+                </a>
+              </p>
+
+              {/* Point 3: Content Disclosure Setting */}
+              <div className="border-2 border-black dark:border-white p-3 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1">
+                    <span className="text-[10px] font-black uppercase text-black dark:text-white block">
+                      Content Disclosure Setting
+                    </span>
+                    <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                      Indicate if content promotes yourself, a brand, product, or service
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={tiktokDisclosure}
+                    onClick={() => setTiktokDisclosure(!tiktokDisclosure)}
+                    className={`relative flex-shrink-0 w-10 h-5 border-2 border-black dark:border-white transition-colors ${
+                      tiktokDisclosure ? 'bg-black dark:bg-white' : 'bg-white dark:bg-black'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 w-3 h-3 border border-black dark:border-white transition-all ${
+                        tiktokDisclosure
+                          ? 'right-0.5 bg-white dark:bg-black'
+                          : 'left-0.5 bg-black dark:bg-white'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {tiktokDisclosure && (
+                  <div className="space-y-2 pt-2 border-t-2 border-black/10 dark:border-white/10">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={tiktokYourBrand}
+                        onChange={e => setTiktokYourBrand(e.target.checked)}
+                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                      />
+                      <span className="text-[10px] font-black text-black dark:text-white">Your brand</span>
+                    </label>
+                    <label
+                      className={`flex items-center gap-2 select-none ${
+                        tiktokPrivacyLevel === 'SELF_ONLY' ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
+                      }`}
+                      title={tiktokPrivacyLevel === 'SELF_ONLY' ? 'Branded content visibility cannot be set to private' : ''}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={tiktokBrandContent}
+                        disabled={tiktokPrivacyLevel === 'SELF_ONLY'}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setTiktokBrandContent(checked);
+                          if (checked && tiktokPrivacyLevel === 'SELF_ONLY') setTiktokPrivacyLevel('');
+                        }}
+                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer disabled:cursor-not-allowed"
+                      />
+                      <span className="text-[10px] font-black text-black dark:text-white">Branded content</span>
+                    </label>
+
+                    {(tiktokYourBrand || tiktokBrandContent) ? (
+                      <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 italic">
+                        {tiktokBrandContent
+                          ? "Your photo/video will be labeled as 'Paid partnership'"
+                          : "Your photo/video will be labeled as 'Promotional content'"}
+                      </p>
+                    ) : (
+                      <p className="text-[9px] font-black uppercase text-red-500">
+                        Select at least one option above to continue
+                      </p>
+                    )}
+
+                    {tiktokBrandContent && (
+                      <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 leading-relaxed">
+                        By posting, you agree to TikTok&apos;s{' '}
+                        <a
+                          href="https://www.tiktok.com/legal/page/global/bc-policy/en"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                        >
+                          Branded Content Policy
+                        </a>
+                        {' '}and{' '}
+                        <a
+                          href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                        >
+                          Music Usage Confirmation
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Point 5: Post-publish processing notice */}
+              <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 italic leading-relaxed">
+                After you finish publishing your content, it may take a few minutes for the content to process and be visible on their profile.
+              </p>
+
+              {/* Hashtags */}
+              <div>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                  Hashtags
+                </label>
+                <textarea
+                  value={tiktokHashtags}
+                  onChange={e => setTiktokHashtags(e.target.value)}
+                  placeholder="#africantech #startup #cameroon"
+                  rows={2}
+                  className={`${inputCls} resize-none`}
+                />
+                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{tiktokHashtags.length}/2200 — appended below caption</p>
               </div>
             </div>
           )}
