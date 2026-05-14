@@ -35,6 +35,7 @@ export default function MediaGallery({
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{type: 'asset'|'folder', id: string} | null>(null);
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
@@ -336,12 +337,19 @@ export default function MediaGallery({
                             <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
                         </div>
                         <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); if(confirm(t("Delete folder?", "Supprimer le dossier?"))) deleteFolderMutation.mutate(folder.id); }}
-                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
-                        >
-                            <FiTrash2 size={10} />
-                        </button>
+                        {deleteConfirm?.id === folder.id ? (
+                            <div className="absolute top-1 right-1 flex gap-0.5 z-10">
+                                <button onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-red-500 text-white border border-black text-[8px] font-black uppercase">{t('Del', 'Sup')}</button>
+                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-white text-black border border-black text-[8px] font-black">✕</button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'folder', id: folder.id}); }}
+                                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
+                            >
+                                <FiTrash2 size={10} />
+                            </button>
+                        )}
                     </motion.div>
                 ))}
 
@@ -384,13 +392,20 @@ export default function MediaGallery({
                                         : <FiEdit2 size={10} />
                                     }
                                 </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); if (confirm(t('Delete asset?', 'Supprimer ce média ?'))) deleteAssetMutation.mutate(asset.id); }}
-                                    title={t('Delete', 'Supprimer')}
-                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
-                                >
-                                    <FiTrash2 size={10} />
-                                </button>
+                                {deleteConfirm?.id === asset.id ? (
+                                    <>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="p-1.5 bg-red-500 text-white border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black uppercase">{t('Del?', 'Sup?')}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black">✕</button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'asset', id: asset.id}); }}
+                                        title={t('Delete', 'Supprimer')}
+                                        className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                    >
+                                        <FiTrash2 size={10} />
+                                    </button>
+                                )}
                             </div>
 
                             {/* Bottom: Use / section selector */}
