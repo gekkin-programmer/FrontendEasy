@@ -11,13 +11,13 @@ const fadeLeft = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0 }
 
 // --- COMPONENTS ---
 const BrutalBadge = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-block px-4 py-1 font-black text-xs md:text-sm uppercase tracking-widest border-2 border-black dark:border-white bg-transparent text-black dark:text-white transform -rotate-2">
+  <span className="inline-block px-4 py-1 font-black text-xs md:text-sm uppercase tracking-widest rounded-full bg-gray-100 dark:bg-zinc-800 text-black dark:text-white">
     {children}
   </span>
 );
 
 const FeatureTag = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-white border-2 border-black dark:border-white font-bold text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
+  <div className="flex items-center gap-2 px-3 py-1.5 text-black bg-white border border-gray-100 dark:border-zinc-700 rounded-full font-bold text-xs uppercase shadow-sm">
     {icon} <span>{text}</span>
   </div>
 );
@@ -32,7 +32,7 @@ export default function CollaborateSection() {
     >
       <SectionBackground />
       {/* Main Container Card */}
-      <div className="relative w-full bg-white dark:bg-black border-4 border-black dark:border-white/5 shadow-[8px_8px_0px_0px_#000] md:shadow-[12px_12px_0px_0px_#000] p-6 md:p-16 overflow-hidden rounded-sm">
+      <div className="relative w-full bg-white dark:bg-black border border-gray-100 dark:border-zinc-800 shadow-xl p-6 md:p-16 overflow-hidden rounded-3xl">
         
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, black 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
@@ -50,7 +50,7 @@ export default function CollaborateSection() {
             variants={fadeUp} transition={{ duration: 0.6, delay: 0.1 }}
           >
             {t("Create Better.", "Créer Mieux.")}<br/>
-            <span className="text-[#3C48F5] drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">{t("Together.", "Ensemble.")}</span>
+            <span className="text-[#3C48F5]">{t("Together.", "Ensemble.")}</span>
           </motion.h2>
 
           <motion.p
@@ -75,7 +75,7 @@ export default function CollaborateSection() {
           <motion.div className="pt-4" variants={fadeUp} transition={{ duration: 0.6, delay: 0.4 }}>
             <a
               href="/signup"
-              className="inline-flex items-center gap-3 bg-white text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 md:px-10 border-4 border-white hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] transition-all shadow-[6px_6px_0px_0px_#3C48F5] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-sm"
+              className="inline-flex items-center gap-3 bg-white text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 md:px-10 border border-gray-200 hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] transition-all shadow-sm hover:shadow-lg rounded-xl"
             >
               {t("START COLLABORATING", "COMMENCER")} <FiArrowRight strokeWidth={3} />
             </a>
@@ -91,7 +91,7 @@ export default function CollaborateSection() {
           <img
             src="/assets/Team.gif"
             alt="Team collaboration preview"
-            className="w-full rounded-xl border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]"
+            className="w-full rounded-xl border border-gray-100 dark:border-zinc-800 shadow-lg"
           />
         </motion.div>
 

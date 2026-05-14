@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-[#F4F4F0] dark:bg-black text-black dark:text-white border-t-4 border-black/10 dark:border-white/10 font-sans">
+    <footer className="bg-white dark:bg-black text-black dark:text-white border-t border-gray-100 dark:border-white/10 font-sans">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
@@ -90,8 +90,8 @@ const Footer: React.FC = () => {
                     key={link.name}
                     href={link.href}
                     className={`
-                        w-10 h-10 flex items-center justify-center border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-black dark:text-white
-                        hover:bg-black dark:hover:bg-zinc-900 dark:hover:border-zinc-500 transition-all ${link.className}
+                        w-10 h-10 flex items-center justify-center border border-gray-100 dark:border-zinc-800 rounded-xl bg-white dark:bg-black text-black dark:text-white
+                        hover:bg-gray-50 dark:hover:bg-zinc-900 transition-all ${link.className}
                     `}
                 >
                     <span className="sr-only">{link.name}</span>
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t-2 border-black/10 dark:border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-gray-100 dark:border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm font-mono text-black/40 dark:text-white/40 uppercase">
             &copy; {new Date().getFullYear()} EAZYPOST INC. {t('ALL RIGHTS RESERVED.', 'TOUS DROITS RÉSERVÉS.')}
           </p>

@@ -276,8 +276,8 @@ export default function Navbar() {
                 <div className="w-24 h-9 bg-gray-200 animate-pulse rounded-full" />
             ) : isAuthenticated ? (
                 <div className="relative z-50" onMouseEnter={() => setIsProfileOpen(true)} onMouseLeave={() => setIsProfileOpen(false)}>
-                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white dark:bg-black border-2 border-black dark:border-white/20 rounded-full hover:bg-gray-50 transition-all">
-                        <div className="w-7 h-7 rounded-full bg-[#3C48F5] text-white flex items-center justify-center font-bold text-xs border border-black overflow-hidden">
+                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-full hover:bg-gray-50 transition-all">
+                        <div className="w-7 h-7 rounded-full bg-[#3C48F5] text-white flex items-center justify-center font-bold text-xs border border-white/20 overflow-hidden">
                             {user?.avatar ? <Image src={user.avatar} alt="User" width={28} height={28} className="object-cover" /> : (user?.firstName?.charAt(0) || 'U')}
                         </div>
                         <span className="text-xs font-bold text-black dark:text-white max-w-[80px] truncate">
@@ -287,7 +287,7 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isProfileOpen && (
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-full right-0 pt-2 w-56">
-                                <div className="bg-white dark:bg-black rounded-lg shadow-xl border-2 border-black dark:border-white/20 p-2 overflow-hidden">
+                                <div className="bg-white dark:bg-black rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700 p-2 overflow-hidden">
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Signed in as</p>
                                         <p className="text-xs font-bold text-black dark:text-white truncate">{user?.email}</p>
@@ -303,7 +303,7 @@ export default function Navbar() {
             ) : (
                 <div className="flex items-center gap-3">
                     <Link href="/login" className="text-sm font-bold text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-200 transition-colors uppercase">{t("Log in", "Connexion")}</Link>
-                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-sm border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">{t("Start Free", "Gratuit")}</Link>
+                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-xl shadow-sm hover:shadow-md transition-shadow">{t("Start Free", "Gratuit")}</Link>
                 </div>
             )}
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>
@@ -316,7 +316,7 @@ export default function Navbar() {
           {/* MOBILE TOGGLE (Visible on Mobile) */}
           <div className="lg:hidden flex items-center gap-4">
              {isAuthenticated && (
-                 <Link href="/dashboard" className="w-8 h-8 rounded-full bg-yellow-400 border border-black flex items-center justify-center font-bold text-xs text-black">
+                 <Link href="/dashboard" className="w-8 h-8 rounded-full bg-yellow-400 border border-white/50 flex items-center justify-center font-bold text-xs text-black">
                     {user?.firstName?.charAt(0) || <FaUser />}
                  </Link>
              )}
@@ -392,15 +392,15 @@ export default function Navbar() {
              <div className="p-6 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/50 flex-shrink-0 safe-pb">
                 {!isAuthenticated ? (
                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm border-2 border-black dark:border-white font-bold text-black dark:text-white uppercase text-sm">{t("Log In", "Connexion")}</Link>
-                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm bg-black dark:bg-white text-white dark:text-black font-bold uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">{t("Sign Up", "Inscription")}</Link>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl border border-gray-200 dark:border-white/20 font-bold text-black dark:text-white text-sm">{t("Log In", "Connexion")}</Link>
+                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-sm shadow-sm">{t("Sign Up", "Inscription")}</Link>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-black uppercase text-sm shadow-[4px_4px_0px_0px_#000] border-2 border-black">
+                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-black text-sm rounded-xl shadow-sm">
                             <FaChartBar /> {t("Dashboard", "Tableau de bord")}
                         </Link>
-                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold uppercase text-sm border-2 border-red-200 hover:bg-red-50 transition-colors">
+                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold text-sm border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
                             <FaSignOutAlt /> {t("Sign Out", "Déconnexion")}
                         </button>
                     </div>

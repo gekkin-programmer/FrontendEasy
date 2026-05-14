@@ -83,10 +83,10 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     <div className="w-8 h-3 bg-blue-100/80 absolute -top-1.5 z-20 rotate-[-5deg] backdrop-blur-sm border border-white/20 shadow-sm" />
     
     {/* The Sticker Card */}
-    <div 
-        className="bg-white dark:bg-white p-3 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
+    <div
+        className="bg-white dark:bg-white p-3 border border-gray-200 dark:border-zinc-700 shadow-sm"
         style={{
-            borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" 
+            borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px"
         }}
     >
         <Icon className="w-5 h-5 md:w-6 md:h-6 opacity-90" style={{ color }} />
@@ -207,7 +207,7 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
             <div className="relative group w-full sm:w-auto">
-                <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
+                <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center gap-2">
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </a>
                 {/* Button decoration */}
@@ -216,7 +216,7 @@ const Hero: React.FC = () => {
                 <ScribbleArrow />
             </div>
 
-            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border-2 border-black dark:border-white/20 hover:bg-black/5 transition-colors rounded-sm flex items-center gap-2">
+            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border border-gray-200 dark:border-white/10 hover:bg-black/5 transition-colors rounded-xl flex items-center gap-2">
                 {t("View Pricing", "Voir les Tarifs")}
             </Link>
         </motion.div>
