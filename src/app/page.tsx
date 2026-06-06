@@ -5,7 +5,7 @@ import React from 'react';
 export default function Home() {
   return (
     <div style={styles.container}>
-      {/* The Canva Video Element covering the right half */}
+      {/* The Canva Video Element on the left */}
       <video 
         autoPlay 
         loop 
@@ -29,18 +29,18 @@ export default function Home() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    padding: '0px 64px',
     width: '100%',
     minHeight: '100vh',
     background: '#FFFFFF',
     overflow: 'hidden',
   },
   video: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '50vw',
-    height: '100vh',
+    width: 'clamp(350px, 45vw, 700px)',
+    height: 'clamp(350px, 45vw, 700px)',
     objectFit: 'cover',
   }
 };
