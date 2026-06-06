@@ -58,7 +58,7 @@ export default function Home() {
           <div style={styles.form}>
             <input 
               type="email" 
-              placeholder="Placeholder" 
+              placeholder="Email us" 
               style={styles.input} 
             />
             <button 
@@ -66,7 +66,7 @@ export default function Home() {
               onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
               onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
             >
-              Button
+              Email us
             </button>
           </div>
           <p style={styles.terms}>
@@ -194,7 +194,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flex: '1 1 200px',
     height: '48px',
     background: '#FFFFFF',
-    border: '1px solid #000000',
+    border: '1px solid #D1D5DB',
     borderRadius: '5px',
     fontFamily: "'Roboto', sans-serif",
     fontWeight: 400,
@@ -230,8 +230,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#1E1E1E',
   },
   imageBox: {
-    width: 'clamp(300px, 35vw, 500px)',
-    height: 'clamp(300px, 35vw, 500px)',
+    width: 'clamp(350px, 45vw, 700px)',
+    height: 'clamp(350px, 45vw, 700px)',
     background: 'url(/Update.gif)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
