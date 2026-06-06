@@ -36,7 +36,7 @@ export default function Home() {
         <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
         
         <p style={styles.subheading}>
-          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que cela arrive très bientôt. Restez dans le coin et revenez le 27 juin.")}
+          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Quelques ajustements sont en cours pour optimiser votre expérience sur notre plateforme. Nous travaillons activement à vous proposer une interface plus fluide et performante. Restez connectés, nous revenons vers vous le 27 juin.")}
         </p>
       </div>
       
@@ -122,9 +122,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   subheading: {
     fontFamily: "'Rubik', sans-serif",
     fontWeight: 500,
-    fontSize: 'clamp(18px, 2.2vw, 32px)',
+    fontSize: 'clamp(16px, 1.8vw, 24px)',
     lineHeight: '1.2',
     color: '#000000',
-    maxWidth: '730px',
+    maxWidth: '600px',
   }
 };
