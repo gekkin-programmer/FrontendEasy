@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -92,13 +92,13 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     return (
         <>
-            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
+            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
                 {/* Header row */}
                 <div className="flex items-center gap-2 w-full justify-center mb-1 bg-black -mx-2 mt-1 px-2 pt-3 pb-2">
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-yellow-300 dark:hover:bg-zinc-600 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-700 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                             title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
                             <Crown size={16} className="text-black dark:text-white" />
@@ -127,7 +127,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                         <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:border-red-500 transition-colors cursor-pointer"
+                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:border-red-500 transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
                                                 <Trash2 size={10} className="text-red-500" strokeWidth={3} />
@@ -148,7 +148,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                             "group w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-pointer transition-all",
                                             (p as any).comingSoon
                                                 ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
-                                                : "bg-white dark:bg-zinc-900 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
+                                                : "bg-white dark:bg-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
                                         )}
                                         title={(p as any).comingSoon
                                             ? t(`${p.id} — coming soon`, `${p.id} — bientôt disponible`)
@@ -174,7 +174,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden"
+                            className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden"
                         >
                             <div className="bg-[#2AABEE] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
                                 <span className="font-black uppercase tracking-wider flex items-center gap-2">

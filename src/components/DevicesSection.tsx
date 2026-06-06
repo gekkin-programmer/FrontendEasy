@@ -25,14 +25,14 @@ export default function DevicesSection() {
 
   return (
     <section
-      className="bg-zinc-50 dark:bg-zinc-950 border-y-4 border-black dark:border-white/10 py-16 md:py-24 px-4 overflow-hidden font-sans"
+      className="bg-zinc-50 dark:bg-zinc-950 border-y border-gray-100 dark:border-white/10 py-16 md:py-24 px-4 overflow-hidden font-sans"
       aria-label="Multi-device support"
     >
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
         <div className="text-center mb-14">
-          <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest mb-5">
+          <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest rounded-full mb-5">
             {t('ANY DEVICE. ANYWHERE.', 'N\'IMPORTE OÙ. N\'IMPORTE QUAND.')}
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-white uppercase leading-[0.9] tracking-tighter mb-5">
@@ -80,7 +80,7 @@ export default function DevicesSection() {
           {features.map((f, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 border-4 border-black dark:border-white/20 bg-white dark:bg-zinc-900 px-6 py-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-none font-black text-sm uppercase text-black dark:text-white"
+              className="flex items-center gap-3 border border-gray-200 dark:border-white/20 bg-white dark:bg-zinc-900 px-6 py-3 shadow-sm rounded-xl font-black text-sm uppercase text-black dark:text-white"
             >
               <span className="text-[#3C48F6]">{f.icon}</span>
               {f.label}

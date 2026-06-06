@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -120,7 +120,7 @@ const MOCK_CONVERSATION: Conversation = {
 const PLATFORM_CONFIG = {
   twitter: { icon: FaTwitter, color: 'text-sky-500', bg: 'bg-sky-50', name: 'Twitter' },
   instagram: { icon: FaInstagram, color: 'text-pink-500', bg: 'bg-pink-50', name: 'Instagram' },
-  facebook: { icon: FaFacebook, color: 'text-blue-600', bg: 'bg-blue-50', name: 'Facebook' },
+  facebook: { icon: FaFacebook, color: 'text-blue-600', bg: 'bg-zinc-100', name: 'Facebook' },
 };
 
 interface ConversationThreadProps {
@@ -290,7 +290,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                   message.isInternal 
                     ? 'bg-yellow-50 dark:bg-yellow-900/20 border-dashed' 
                     : message.sender === 'team' 
-                      ? 'bg-[#3C48F6] text-white' 
+                      ? 'bg-black dark:bg-white text-white' 
                       : 'bg-white dark:bg-zinc-800 text-black dark:text-white'
                 }`}>
                   {/* Team Author Info */}
@@ -365,8 +365,8 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             onClick={() => setIsInternalNote(false)}
             className={`px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase transition-all ${
               !isInternalNote 
-                ? 'bg-[#3C48F6] text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
-                : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-blue-50'
+                ? 'bg-black dark:bg-white text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
+                : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100'
             }`}
           >
             <FiSend size={12} className="inline mr-2" strokeWidth={3} />

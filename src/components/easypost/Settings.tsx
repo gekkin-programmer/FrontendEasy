@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -77,7 +77,7 @@ function TabBtn({ tab, activeTab, setActiveTab }: { tab: { id: SettingsTab; labe
       className={cn(
         "w-full flex items-center gap-3 px-3 py-2.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all duration-150",
         activeTab === tab.id
-          ? "bg-[#3C48F5] text-white border-[#3C48F5] shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]"
+          ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]"
           : "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:translate-x-0.5"
       )}
     >
@@ -392,7 +392,7 @@ function NotifRow({ label, desc, value, onToggle }: { label: string; desc: strin
       </div>
       <button onClick={onToggle} className="flex-shrink-0 ml-4">
         {value
-          ? <FiToggleRight size={28} className="text-[#3C48F5]" />
+          ? <FiToggleRight size={28} className="text-black dark:text-white" />
           : <FiToggleLeft size={28} className="text-gray-300 dark:text-zinc-600" />}
       </button>
     </div>
@@ -464,7 +464,7 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
   };
 
   const ROLE_COLOR: Record<string, string> = {
-    OWNER: 'bg-[#3C48F5] text-white',
+    OWNER: 'bg-black dark:bg-white text-white dark:text-black',
     ADMIN: 'bg-black dark:bg-white text-white dark:text-black',
     EDITOR: 'bg-yellow-400 text-black',
     VIEWER: 'bg-gray-100 dark:bg-zinc-700 text-black dark:text-white',
@@ -603,7 +603,7 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
         <button type="button" onClick={onCancel} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all text-black dark:text-white">
           {t('Cancel', 'Annuler')}
         </button>
-        <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 dark:hover:bg-gray-200 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+        <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase shadow-[4px_4px_0px_0px_#000] hover:bg-zinc-800 dark:hover:bg-gray-200 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
           {loading ? <FiLoader className="animate-spin" /> : t('Save Card', 'Enregistrer la carte')}
         </button>
       </div>
@@ -681,7 +681,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex gap-2 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase text-black dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all">{t('Cancel', 'Annuler')}</button>
-            <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#3C48F5] hover:bg-zinc-800 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
+            <button type="submit" disabled={loading} className="px-4 py-2 border-2 border-black bg-black text-white text-xs font-black uppercase shadow-[4px_4px_0px_0px_#000] hover:bg-zinc-800 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50">
               {loading ? <FiLoader className="animate-spin" /> : t('Save', 'Enregistrer')}
             </button>
           </div>
@@ -754,14 +754,14 @@ function PaymentMethodsCard() {
                     </div>
                   )}
                   {m.isDefault && (
-                    <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-[#3C48F5] text-white">{t('DEFAULT', 'PAR DÉFAUT')}</span>
+                    <span className="px-2 py-0.5 text-[9px] font-black uppercase border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black">{t('DEFAULT', 'PAR DÉFAUT')}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   {!m.isDefault && (
                     <button
                       onClick={() => defaultMutation.mutate(m.id)}
-                      className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+                      className="p-1.5 border-2 border-black dark:border-white text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-black dark:bg-white hover:text-white hover:border-black dark:border-white hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
                       title={t('Set as default', 'Définir par défaut')}
                     >
                       <FiStar size={12} />
@@ -799,7 +799,7 @@ function PaymentMethodsCard() {
             </button>
             <button
               onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info(t('Stripe not configured yet', 'Stripe n\'est pas encore configuré'))}
-              className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="flex items-center gap-2 px-4 py-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-black text-xs uppercase shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-black dark:bg-white hover:text-white hover:border-black dark:border-white hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
               <FiCreditCard size={16} /> {t('Add Visa/Card', 'Ajouter Visa/Carte')}
             </button>
@@ -910,7 +910,7 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
                 </div>
                 <div className={cn("h-3 border-2 overflow-hidden", isAtLimit ? "border-red-500" : "border-black dark:border-white bg-gray-100 dark:bg-zinc-800")}>
                   <div
-                    className={cn("h-full transition-all", isAtLimit ? "bg-red-500" : isNearLimit ? "bg-orange-400" : "bg-[#3C48F5]")}
+                    className={cn("h-full transition-all", isAtLimit ? "bg-red-500" : isNearLimit ? "bg-orange-400" : "bg-black dark:bg-white")}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -919,7 +919,7 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
                     <span className="text-[9px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">{t('LIMIT REACHED · ACTION BLOCKED', 'LIMITE ATTEINTE · ACTION BLOQUÉE')}</span>
                     <button
                       onClick={() => window.location.href = '/pricing'}
-                      className="text-[9px] font-black uppercase tracking-widest text-[#3C48F5] hover:underline"
+                      className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white hover:underline"
                     >
                       {t('Upgrade →', 'Améliorer →')}
                     </button>

@@ -20,14 +20,15 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, icon, hoverColor }) => {
       <a
         href="#"
         className="
-          flex h-16 w-16 md:h-20 md:w-20 items-center justify-center 
-          bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000]
-          hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200
+          flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
+          bg-white dark:bg-black border border-gray-200 dark:border-zinc-700
+          shadow-sm rounded-xl
+          hover:-translate-y-2 hover:border-[#3C48F5] dark:hover:border-white hover:shadow-[0_8px_24px_rgba(60,72,245,0.35)] dark:hover:shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition-all duration-200
         "
         aria-label={name}
       >
         {React.cloneElement(icon, {
-          className: `h-6 w-6 md:h-8 md:w-8 text-black transition-colors duration-300 ${hoverColor}`,
+          className: `h-6 w-6 md:h-8 md:w-8 text-black dark:text-white transition-colors duration-300 ${hoverColor}`,
         })}
       </a>
       
@@ -43,31 +44,28 @@ const ConnectSection = () => {
   const { t } = useLanguage();
 
   const socialIcons = [
-    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2]' },
-    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C]' },
-    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600' },
-    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2]' },
-    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black' },
-    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000]' },
-    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black' },
-    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023]' },
-    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4]' },
+    { id: 'facebook', name: 'Facebook', icon: <FaFacebookF />, hoverColor: 'group-hover:text-[#1877F2] dark:group-hover:text-[#1877F2]' },
+    { id: 'instagram', name: 'Instagram', icon: <FaInstagram />, hoverColor: 'group-hover:text-[#E1306C] dark:group-hover:text-[#E1306C]' },
+    { id: 'x', name: 'X (Twitter)', icon: <FaXTwitter />, hoverColor: 'group-hover:text-gray-600 dark:group-hover:text-gray-300' },
+    { id: 'linkedin', name: 'LinkedIn', icon: <FaLinkedinIn />, hoverColor: 'group-hover:text-[#0A66C2] dark:group-hover:text-[#0A66C2]' },
+    { id: 'tiktok', name: 'TikTok', icon: <FaTiktok />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
+    { id: 'youtube', name: 'YouTube', icon: <FaYoutube />, hoverColor: 'group-hover:text-[#FF0000] dark:group-hover:text-[#FF0000]' },
+    { id: 'threads', name: 'Threads', icon: <SiThreads />, hoverColor: 'group-hover:text-black dark:group-hover:text-white' },
+    { id: 'pinterest', name: 'Pinterest', icon: <FaPinterestP />, hoverColor: 'group-hover:text-[#E60023] dark:group-hover:text-[#E60023]' },
+    { id: 'google', name: 'Google', icon: <SiGoogle />, hoverColor: 'group-hover:text-[#4285F4] dark:group-hover:text-[#4285F4]' },
   ];
 
   return (
     <section 
-      className="bg-gray-50 dark:bg-black/90 border-b-4 border-black dark:border-white/5 py-16 md:py-20 px-4 font-sans relative overflow-hidden"
+      className="bg-gray-50 dark:bg-black/90 border-b border-gray-100 dark:border-zinc-800 py-16 md:py-20 px-4 font-sans relative overflow-hidden"
       aria-label="Integrations"
     >
       
       <SectionBackground />
-      {/* Decorative Bars */}
-      <div className="absolute top-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-full h-2 md:h-4 bg-black pointer-events-none"></div>
 
       <div className="container mx-auto max-w-6xl text-center">
         
-        <div className="inline-block bg-black text-white font-black text-sm md:text-lg px-4 py-1 md:px-6 md:py-2 border-4 border-transparent shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] mb-6 md:mb-8 uppercase tracking-widest">
+        <div className="inline-block bg-black dark:bg-white text-white dark:text-black font-black text-sm md:text-lg px-4 py-1 md:px-6 md:py-2 rounded-full shadow-sm mb-6 md:mb-8 uppercase tracking-widest">
             {t("Integrations", "Intégrations")}
         </div>
 
@@ -86,7 +84,7 @@ const ConnectSection = () => {
         </div>
 
         <div className="mt-12 md:mt-16">
-            <p className="text-sm md:text-lg font-bold text-gray-500 uppercase tracking-widest">
+            <p className="text-sm md:text-lg font-bold text-black dark:text-white uppercase tracking-widest">
                 & {t("more coming soon", "plus à venir")}
             </p>
         </div>

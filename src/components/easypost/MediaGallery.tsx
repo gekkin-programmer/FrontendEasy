@@ -1,11 +1,12 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiDownloadCloud
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2
 } from 'react-icons/fi';
+import { SiCanva, SiDropbox } from 'react-icons/si';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,6 +34,8 @@ export default function MediaGallery({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
+  const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{type: 'asset'|'folder', id: string} | null>(null);
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
@@ -68,6 +71,28 @@ export default function MediaGallery({
       }
     } catch {
       toast.error(t('Could not connect to Canva', 'Impossible de connecter Canva'));
+    }
+  };
+
+  const editInCanva = async (asset: any) => {
+    if (!workspaceId) return;
+    setCanvaUploading(asset.id);
+    try {
+      const statusRes = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
+      const connected = statusRes?.data?.connected ?? statusRes?.connected;
+      if (!connected) {
+        const authRes = await (api as any).get(`/canva/auth?workspaceId=${workspaceId}`);
+        window.location.href = authRes?.data?.url ?? authRes?.url;
+        return;
+      }
+      const res = await api.post<any>('/canva/edit-asset', { workspaceId, assetId: asset.id });
+      const editUrl = (res as any)?.editUrl ?? (res as any)?.data?.editUrl;
+      window.open(editUrl, '_blank', 'noopener,noreferrer');
+      toast.success(t('Asset sent to Canva — edit and return when done', 'Asset envoyé à Canva'));
+    } catch {
+      toast.error(t('Could not open in Canva', "Impossible d'ouvrir dans Canva"));
+    } finally {
+      setCanvaUploading(null);
     }
   };
 
@@ -229,14 +254,14 @@ export default function MediaGallery({
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
-                  <FiDownloadCloud /> Canva
+                  <SiCanva size={13} /> Canva
               </button>
               <button
                 onClick={() => toast.info(t("Dropbox Import — Coming Soon", "Import Dropbox — Bientôt disponible"))}
                 className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
-                  <FiDownloadCloud /> Dropbox
+                  <SiDropbox size={13} /> Dropbox
               </button>
           </div>
       </div>
@@ -308,16 +333,23 @@ export default function MediaGallery({
                         onDoubleClick={() => enterFolder(folder)}
                         className="group cursor-pointer flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all relative"
                     >
-                        <div className="text-[#3C48F5] dark:text-blue-400 group-hover:scale-110 transition-transform">
+                        <div className="text-black dark:text-white dark:text-blue-400 group-hover:scale-110 transition-transform">
                             <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
                         </div>
                         <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); if(confirm(t("Delete folder?", "Supprimer le dossier?"))) deleteFolderMutation.mutate(folder.id); }}
-                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
-                        >
-                            <FiTrash2 size={10} />
-                        </button>
+                        {deleteConfirm?.id === folder.id ? (
+                            <div className="absolute top-1 right-1 flex gap-0.5 z-10">
+                                <button onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-red-500 text-white border border-black text-[8px] font-black uppercase">{t('Del', 'Sup')}</button>
+                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-white text-black border border-black text-[8px] font-black">✕</button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'folder', id: folder.id}); }}
+                                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
+                            >
+                                <FiTrash2 size={10} />
+                            </button>
+                        )}
                     </motion.div>
                 ))}
 
@@ -343,16 +375,46 @@ export default function MediaGallery({
 
                         <div
                             className={cn(
-                                "absolute inset-0 transition-opacity flex flex-col justify-end p-2",
+                                "absolute inset-0 transition-opacity flex flex-col justify-between p-1.5",
                                 sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
+                            {/* Top row: Edit in Canva + Delete */}
+                            <div className="flex justify-end gap-1">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
+                                    disabled={canvaUploading === asset.id}
+                                    title={t('Edit in Canva', 'Modifier dans Canva')}
+                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                >
+                                    {canvaUploading === asset.id
+                                        ? <FiLoader size={10} className="animate-spin" />
+                                        : <FiEdit2 size={10} />
+                                    }
+                                </button>
+                                {deleteConfirm?.id === asset.id ? (
+                                    <>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="p-1.5 bg-red-500 text-white border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black uppercase">{t('Del?', 'Sup?')}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black">✕</button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'asset', id: asset.id}); }}
+                                        title={t('Delete', 'Supprimer')}
+                                        className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                    >
+                                        <FiTrash2 size={10} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Bottom: Use / section selector */}
                             {onUse && sectionMenuFor === asset.id ? (
-                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1 mb-1">
+                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1">
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors rounded-sm"
+                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
@@ -367,7 +429,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-sm"
+                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-lg"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
