@@ -133,7 +133,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'absolute',
     bottom: '32px',
     right: '64px',
-    height: '96px',
+    height: '144px',
     width: 'auto',
   },
   heading: {
