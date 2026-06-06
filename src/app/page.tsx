@@ -12,8 +12,8 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // Target date: June 15, 2026
-    const targetDate = new Date('2026-06-15T00:00:00').getTime();
+    // 72 hours from now
+    const targetDate = new Date().getTime() + (72 * 60 * 60 * 1000);
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -58,22 +58,6 @@ export default function Home() {
         <div style={styles.countdown}>
           {formatTime(timeLeft.hours)} : {formatTime(timeLeft.minutes)} : {formatTime(timeLeft.seconds)}
         </div>
-
-        <button 
-          style={styles.button}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = '#3C48F6';
-            e.currentTarget.style.color = '#FCE7E8';
-            e.currentTarget.style.transform = 'scale(1.02)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = '#FCE7E8';
-            e.currentTarget.style.color = '#3C48F6';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          Stay in Touch
-        </button>
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -103,8 +87,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '64px',
   },
   video: {
-    width: 'clamp(350px, 45vw, 700px)',
-    height: 'clamp(350px, 45vw, 700px)',
+    width: 'clamp(400px, 50vw, 850px)',
+    height: 'clamp(400px, 50vw, 850px)',
     objectFit: 'cover',
     flexShrink: 0,
     borderRadius: '16px',
@@ -141,24 +125,5 @@ const styles: { [key: string]: React.CSSProperties } = {
     lineHeight: '1.1',
     color: '#FCE7E8',
     WebkitTextStroke: '3px #3C48F6',
-  },
-  button: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '16px 30px',
-    width: '100%',
-    maxWidth: '501px',
-    height: '98px',
-    background: '#FCE7E8',
-    border: '3px solid #3C48F6',
-    borderRadius: '30px',
-    fontFamily: "'Rubik', sans-serif",
-    fontWeight: 500,
-    fontSize: '32px',
-    color: '#3C48F6',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
   }
 };
