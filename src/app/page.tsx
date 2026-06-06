@@ -63,8 +63,14 @@ export default function Home() {
             />
             <button 
               style={styles.button}
-              onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
-              onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#FFFFFF';
+                e.currentTarget.style.color = '#3C48F6';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#3C48F6';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
             >
               Email us
             </button>
@@ -147,14 +153,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'flex-start',
   },
   countdownNumber: {
-    fontWeight: 700,
+    fontWeight: 900,
     fontSize: 'clamp(32px, 5vw, 48px)',
     color: '#1E1E1E',
     lineHeight: '100%',
     fontVariantNumeric: 'tabular-nums',
   },
   countdownLabel: {
-    fontWeight: 400,
+    fontWeight: 700,
     fontSize: '16px',
     color: '#1E1E1E',
     marginTop: '8px',
@@ -162,7 +168,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     letterSpacing: '1px',
   },
   countdownSeparator: {
-    fontWeight: 700,
+    fontWeight: 900,
     fontSize: 'clamp(32px, 5vw, 48px)',
     color: '#1E1E1E',
     lineHeight: '90%',
