@@ -83,8 +83,16 @@ export default function Home() {
         </div>
       </div>
       
-      {/* The new GIF element */}
-      <div style={styles.imageBox} />
+      {/* The Canva Video Element */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        style={styles.imageBox}
+      >
+        <source src="/coming-soon.mp4" type="video/mp4" />
+      </video>
       
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -242,10 +250,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   imageBox: {
     width: 'clamp(350px, 45vw, 700px)',
     height: 'clamp(350px, 45vw, 700px)',
-    background: 'url(/Update.gif)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    objectFit: 'cover',
     flex: 'none',
     order: 1,
     flexGrow: 0,
