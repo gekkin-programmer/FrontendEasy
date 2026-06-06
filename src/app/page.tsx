@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Home() {
+  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,
     minutes: 0,
@@ -49,15 +51,31 @@ export default function Home() {
 
       {/* Text Content on the Right */}
       <div style={styles.contentColumn}>
-        <h1 style={styles.heading}>Looking for something ?</h1>
+        <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
         
         <p style={styles.subheading}>
-          It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 15.
+          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 15.", "Ce n'est pas encore là, mais nous vous ferons savoir que cela arrive très bientôt. Restez dans le coin et revenez le 15 juin.")}
         </p>
 
         <div style={styles.countdown}>
           {formatTime(timeLeft.hours)} : {formatTime(timeLeft.minutes)} : {formatTime(timeLeft.seconds)}
         </div>
+
+        <button 
+          style={styles.button}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#3C48F6';
+            e.currentTarget.style.color = '#FCE7E8';
+            e.currentTarget.style.transform = 'scale(1.02)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = '#FCE7E8';
+            e.currentTarget.style.color = '#3C48F6';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          {t("Stay in Touch", "Restez en contact")}
+        </button>
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
