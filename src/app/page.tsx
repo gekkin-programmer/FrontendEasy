@@ -133,7 +133,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'absolute',
     bottom: '32px',
     right: '64px',
-    height: '48px',
+    height: '96px',
     width: 'auto',
   },
   heading: {
@@ -157,7 +157,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 700,
     fontSize: 'clamp(48px, 6vw, 96px)',
     lineHeight: '1.1',
-    color: '#FCE7E8',
-    WebkitTextStroke: '3px #3C48F6',
+    color: '#3C48F6',
   }
 };
