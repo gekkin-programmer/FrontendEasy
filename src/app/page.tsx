@@ -74,6 +74,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     objectFit: 'cover',
     flexShrink: 0,
     borderRadius: '16px',
+    marginTop: '-64px',
   },
   contentColumn: {
     display: 'flex',
