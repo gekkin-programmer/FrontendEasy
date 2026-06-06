@@ -66,10 +66,12 @@ export default function Home() {
               onMouseOver={(e) => {
                 e.currentTarget.style.background = '#FFFFFF';
                 e.currentTarget.style.color = '#3C48F6';
+                e.currentTarget.style.transform = 'scale(1.05)';
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.background = '#3C48F6';
                 e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               Email us
@@ -153,7 +155,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'flex-start',
   },
   countdownNumber: {
-    fontWeight: 900,
+    fontFamily: "'Rubik One', sans-serif",
+    fontWeight: 400,
     fontSize: 'clamp(32px, 5vw, 48px)',
     color: '#1E1E1E',
     lineHeight: '100%',
@@ -168,7 +171,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     letterSpacing: '1px',
   },
   countdownSeparator: {
-    fontWeight: 900,
+    fontFamily: "'Rubik One', sans-serif",
+    fontWeight: 400,
     fontSize: 'clamp(32px, 5vw, 48px)',
     color: '#1E1E1E',
     lineHeight: '90%',
@@ -225,7 +229,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '16px',
     color: '#FFFFFF',
     cursor: 'pointer',
-    transition: 'opacity 0.2s',
+    transition: 'all 0.3s ease',
   },
   terms: {
     margin: 0,
