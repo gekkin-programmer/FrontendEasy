@@ -1,4 +1,9 @@
-import { Injectable, Logger, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
@@ -25,7 +30,9 @@ export class TwitterConnectGuard extends AuthGuard('twitter-oauth2') {
       throw err;
     }
     if (!user) {
-      this.logger.error(`Twitter Auth failed — no user. Info: ${JSON.stringify(info)}`);
+      this.logger.error(
+        `Twitter Auth failed — no user. Info: ${JSON.stringify(info)}`,
+      );
       throw new UnauthorizedException('Twitter authentication failed');
     }
     return user;

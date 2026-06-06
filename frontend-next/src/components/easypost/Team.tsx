@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
@@ -24,7 +24,7 @@ const NeuButton = ({ children, onClick, className = "", variant = "default", dis
 
   const variants = {
     default: "bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] dark:hover:shadow-[1px_1px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
-    primary: "bg-[#3C48F6] text-white hover:bg-blue-700 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+    primary: "bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
     ghost: "bg-transparent border-transparent hover:bg-gray-100 dark:hover:bg-zinc-800 shadow-none hover:shadow-none",
     danger: "bg-red-500 text-white hover:bg-red-600 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px]",
   };
@@ -79,23 +79,27 @@ export default function Team({ workspaceId }: TeamProps) {
   // ── QUERIES ───────────────────────────────────────────────────────────
   const { data: workspace } = useQuery({
     queryKey: ['workspace', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
     enabled: !!workspaceId,
   });
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
+    gcTime: 0,
     queryFn: () => api.get<any>('/auth/profile').then(res => res?.data || res),
   });
 
   const { data: members = [], isLoading: membersLoading, refetch: refetchMembers } = useQuery({
     queryKey: ['team-members', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`).then(res => res || []),
     enabled: !!workspaceId,
   });
 
   const { data: reviewPosts = [], isLoading: reviewsLoading, refetch: refetchReviews } = useQuery({
     queryKey: ['review-posts', workspaceId],
+    gcTime: 0,
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&status=REVIEW`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
     enabled: !!workspaceId && activeTab === 'approvals',
   });
@@ -303,7 +307,7 @@ export default function Team({ workspaceId }: TeamProps) {
                   </span>
                 )}
                 {workspace?.owner?.planType && (
-                  <span className="bg-[#3C48F5] text-white text-[9px] font-black px-2 py-0.5 uppercase border border-black">
+                  <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-black px-2 py-0.5 uppercase border border-black">
                     {workspace.owner.planType}
                   </span>
                 )}
@@ -323,7 +327,7 @@ export default function Team({ workspaceId }: TeamProps) {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                 placeholder={t('Team member email', 'E-mail du membre')}
-                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:border-[#3C48F5] focus:bg-[#EEF0FF] dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#3C48F5] transition-all uppercase text-black dark:text-white"
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold placeholder:text-gray-400 focus:outline-none focus:border-black dark:border-white focus:bg-[#EEF0FF] dark:focus:bg-zinc-700 focus:shadow-[4px_4px_0px_0px_#000] transition-all uppercase text-black dark:text-white"
               />
             </div>
 
@@ -335,7 +339,7 @@ export default function Team({ workspaceId }: TeamProps) {
                 className={cn(
                   "w-full flex items-center pl-10 pr-4 py-3 border-2 border-black dark:border-white font-black text-sm uppercase transition-all text-left text-black dark:text-white",
                   isRoleOpen
-                    ? "bg-[#3C48F5] text-white border-[#3C48F5] shadow-none translate-x-[4px] translate-y-[4px]"
+                    ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-none translate-x-[4px] translate-y-[4px]"
                     : "bg-white dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:bg-yellow-100 dark:hover:bg-zinc-700 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none active:bg-yellow-200 dark:active:bg-zinc-600"
                 )}
               >
@@ -354,7 +358,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       className={cn(
                         "w-full text-left px-4 py-3 font-black text-sm uppercase transition-colors border-b border-black/10 dark:border-white/10 last:border-b-0",
                         role === r
-                          ? "bg-[#3C48F5] text-white"
+                          ? "bg-black dark:bg-white text-white dark:text-black"
                           : "text-black dark:text-white hover:bg-yellow-50 dark:hover:bg-zinc-700"
                       )}
                     >
@@ -388,7 +392,7 @@ export default function Team({ workspaceId }: TeamProps) {
             </button>
             <button
               onClick={() => setActiveTab('approvals')}
-              className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'approvals' ? 'bg-blue-500 text-white active:bg-blue-700' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600'}`}
+              className={`px-6 py-4 text-[10px] font-black uppercase transition-all flex items-center gap-2 border-r-2 border-black dark:border-white ${activeTab === 'approvals' ? 'bg-black dark:bg-white text-white dark:text-black active:bg-zinc-800' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-700 active:bg-gray-200 dark:active:bg-zinc-600'}`}
             >
               {t('Waiting Approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 text-[8px] font-mono ${activeTab === 'approvals' ? 'bg-white text-black' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{reviewPosts.length}</span>
             </button>
@@ -492,7 +496,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       <div className="space-y-4">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 bg-[#3C48F5] rounded-none border border-black"></div>
+                            <div className="w-6 h-6 bg-black dark:bg-white rounded-none border border-black"></div>
                             <span className="font-black uppercase text-xs">{t('Post Review Request', 'Demande de révision')}</span>
                           </div>
                           <span className="text-[10px] font-mono opacity-50 uppercase">{format(parseISO(post.createdAt), 'MMM d, HH:mm')}</span>
@@ -561,7 +565,7 @@ export default function Team({ workspaceId }: TeamProps) {
                     {!isGrouped ? (
                       <div className={cn(
                         "w-7 h-7 flex-shrink-0 border-2 border-black dark:border-white flex items-center justify-center text-[10px] font-black overflow-hidden",
-                        isMine ? "bg-[#3C48F5] text-white" : "bg-gray-100 dark:bg-zinc-700 text-black dark:text-white"
+                        isMine ? "bg-black dark:bg-white text-white dark:text-black" : "bg-gray-100 dark:bg-zinc-700 text-black dark:text-white"
                       )}>
                         {msg.sender?.avatar
                           ? <img src={msg.sender.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
@@ -581,7 +585,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       <div className={cn(
                         "px-3 py-2 text-[12px] leading-relaxed border-2 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] break-words",
                         isMine
-                          ? "bg-[#3C48F5] text-white border-[#2a34c4]"
+                          ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
                           : "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white",
                         msg.id.startsWith('opt_') && "opacity-60"
                       )}>
@@ -612,7 +616,7 @@ export default function Team({ workspaceId }: TeamProps) {
               onFocus={() => setChatExpanded(true)}
               placeholder={t('Type a message...', 'Tapez un message...')}
               disabled={!channelId}
-              className="flex-1 min-w-0 px-3 py-2.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-[#3C48F5] focus:shadow-[3px_3px_0px_0px_#3C48F5] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
+              className="flex-1 min-w-0 px-3 py-2.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white font-bold text-sm focus:outline-none focus:bg-white dark:focus:bg-zinc-700 focus:border-black dark:border-white focus:shadow-[3px_3px_0px_0px_#000] transition-all placeholder:text-gray-400 uppercase text-black dark:text-white"
             />
             <button
               onClick={sendChatMessage}

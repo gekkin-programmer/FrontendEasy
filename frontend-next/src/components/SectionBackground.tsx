@@ -5,13 +5,14 @@ export default function SectionBackground() {
     <>
       {/* Noise texture */}
       <div
-        className="absolute inset-0 z-0 opacity-30 pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
+        className="absolute inset-0 z-0 opacity-30 dark:opacity-[0.08] pointer-events-none mix-blend-multiply dark:mix-blend-screen"
         style={{ backgroundImage: NOISE_SVG }}
         aria-hidden="true"
       />
-      {/* Grid lines */}
+
+      {/* Grid — light mode (black lines) */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.12]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.12] dark:hidden"
         style={{
           backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
@@ -19,6 +20,18 @@ export default function SectionBackground() {
         }}
         aria-hidden="true"
       />
+
+      {/* Grid — dark mode (white lines) */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.10] hidden dark:block"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
+        }}
+        aria-hidden="true"
+      />
+
     </>
   );
 }

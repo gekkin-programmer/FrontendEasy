@@ -27,7 +27,13 @@ export class TikTokConnectStrategy extends PassportStrategy(
       callbackURL:
         configService.get<string>('TIKTOK_CALLBACK_URL') ||
         `${configService.get<string>('API_URL') || 'https://easypostv2.onrender.com'}/api/social-accounts/callback/tiktok`,
-      scope: ['user.info.basic', 'user.info.profile', 'user.info.stats', 'video.publish', 'video.upload'],
+      scope: [
+        'user.info.basic',
+        'user.info.profile',
+        'user.info.stats',
+        'video.publish',
+        'video.upload',
+      ],
       scopeSeparator: ',',
       state: true,
       passReqToCallback: true,

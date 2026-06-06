@@ -63,7 +63,13 @@ export class ChatService {
       },
       include: {
         sender: {
-          select: { id: true, firstName: true, lastName: true, avatar: true, email: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            email: true,
+          },
         },
       },
     });
@@ -92,7 +98,13 @@ export class ChatService {
       orderBy: { createdAt: 'asc' },
       include: {
         sender: {
-          select: { id: true, firstName: true, lastName: true, avatar: true, email: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            email: true,
+          },
         },
       },
     });
@@ -103,10 +115,7 @@ export class ChatService {
     const workspace = await this.prisma.workspace.findFirst({
       where: {
         id: workspaceId,
-        OR: [
-          { ownerId: userId },
-          { members: { some: { userId } } },
-        ],
+        OR: [{ ownerId: userId }, { members: { some: { userId } } }],
       },
     });
     if (!workspace)

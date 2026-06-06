@@ -13,7 +13,9 @@ describe('ChatService', () => {
         ChatService,
         {
           provide: AppEventsGateway,
-          useValue: { server: { to: jest.fn().mockReturnThis(), emit: jest.fn() } },
+          useValue: {
+            server: { to: jest.fn().mockReturnThis(), emit: jest.fn() },
+          },
         },
         {
           provide: PrismaService,

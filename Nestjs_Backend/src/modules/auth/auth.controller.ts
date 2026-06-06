@@ -226,9 +226,15 @@ export class AuthController {
   @Post('facebook/data-deletion')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Meta signed data deletion callback' })
-  async facebookDataDeletion(@Body() body: Record<string, string>, @Req() req: Request) {
-    const appSecret = this.configService.get<string>('FACEBOOK_APP_SECRET') || '';
-    const signedRequest = body.signed_request ?? (req.body as Record<string, string>)?.signed_request;
+  async facebookDataDeletion(
+    @Body() body: Record<string, string>,
+    @Req() req: Request,
+  ) {
+    const appSecret =
+      this.configService.get<string>('FACEBOOK_APP_SECRET') || '';
+    const signedRequest =
+      body.signed_request ??
+      (req.body as Record<string, string>)?.signed_request;
 
     if (!signedRequest) {
       return { status: 'error', message: 'Missing signed_request' };
@@ -241,7 +247,9 @@ export class AuthController {
         Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 
       const sig = b64decode(encodedSig);
-      const data = JSON.parse(b64decode(payload).toString('utf-8')) as { user_id?: string };
+      const data = JSON.parse(b64decode(payload).toString('utf-8')) as {
+        user_id?: string;
+      };
 
       const expected = createHmac('sha256', appSecret).update(payload).digest();
       if (!sig.equals(expected)) {
@@ -249,7 +257,8 @@ export class AuthController {
       }
 
       const confirmationCode = `del_${data.user_id ?? 'unknown'}_${Date.now()}`;
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://eazypost.cm';
+      const frontendUrl =
+        this.configService.get<string>('FRONTEND_URL') || 'https://eazypost.cm';
 
       return {
         url: `${frontendUrl}/legal/data-deletion?code=${confirmationCode}`,

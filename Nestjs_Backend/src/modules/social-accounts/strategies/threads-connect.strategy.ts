@@ -6,7 +6,10 @@ import { AuthService } from '../../auth/auth.service';
 import axios from 'axios';
 
 @Injectable()
-export class ThreadsConnectStrategy extends PassportStrategy(Strategy, 'threads') {
+export class ThreadsConnectStrategy extends PassportStrategy(
+  Strategy,
+  'threads',
+) {
   private readonly logger = new Logger(ThreadsConnectStrategy.name);
 
   constructor(
@@ -16,8 +19,14 @@ export class ThreadsConnectStrategy extends PassportStrategy(Strategy, 'threads'
     super({
       authorizationURL: 'https://threads.net/oauth/authorize',
       tokenURL: 'https://graph.threads.net/oauth/access_token',
-      clientID: configService.get<string>('THREADS_APP_ID') || configService.get<string>('FACEBOOK_APP_ID') || 'threads_id_fallback',
-      clientSecret: configService.get<string>('THREADS_APP_SECRET') || configService.get<string>('FACEBOOK_APP_SECRET') || 'threads_secret_fallback',
+      clientID:
+        configService.get<string>('THREADS_APP_ID') ||
+        configService.get<string>('FACEBOOK_APP_ID') ||
+        'threads_id_fallback',
+      clientSecret:
+        configService.get<string>('THREADS_APP_SECRET') ||
+        configService.get<string>('FACEBOOK_APP_SECRET') ||
+        'threads_secret_fallback',
       callbackURL: `${configService.get<string>('API_URL') || 'https://backend-eazypost.mbokofit.com'}/api/social-accounts/callback/threads`,
       scope: ['threads_basic', 'threads_content_publish'],
       state: true,

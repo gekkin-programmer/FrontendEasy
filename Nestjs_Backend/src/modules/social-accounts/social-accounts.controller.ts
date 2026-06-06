@@ -140,7 +140,9 @@ export class SocialAccountsController {
   @UseGuards(InstagramBusinessConnectGuard)
   async instagramBusinessCallback(@Req() req, @Res() res: Response) {
     try {
-      await this.socialAccountsService.handleInstagramBusinessCallback(req.user);
+      await this.socialAccountsService.handleInstagramBusinessCallback(
+        req.user,
+      );
       this.redirectHome(res, req.user.workspaceId);
     } catch (e) {
       this.redirectError(res, req.user.workspaceId, e.message);
@@ -383,7 +385,10 @@ export class SocialAccountsController {
   @Get('webhook/tiktok')
   @Public()
   @ApiOperation({ summary: 'TikTok webhook verification (GET challenge)' })
-  verifyTikTokWebhook(@Query('challenge') challenge: string, @Res() res: Response) {
+  verifyTikTokWebhook(
+    @Query('challenge') challenge: string,
+    @Res() res: Response,
+  ) {
     if (challenge) {
       return res.status(200).send(challenge);
     }

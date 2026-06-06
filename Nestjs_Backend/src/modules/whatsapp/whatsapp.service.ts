@@ -30,8 +30,12 @@ export class WhatsAppService {
     workspaceId: string,
     code: string,
   ): Promise<{ phoneNumber: string; displayName: string }> {
-    const appId = this.config.get<string>('META_APP_ID') ?? this.config.get<string>('FACEBOOK_APP_ID');
-    const appSecret = this.config.get<string>('META_APP_SECRET') ?? this.config.get<string>('FACEBOOK_APP_SECRET');
+    const appId =
+      this.config.get<string>('META_APP_ID') ??
+      this.config.get<string>('FACEBOOK_APP_ID');
+    const appSecret =
+      this.config.get<string>('META_APP_SECRET') ??
+      this.config.get<string>('FACEBOOK_APP_SECRET');
 
     // Exchange short-lived code for system user access token
     const tokenRes = await firstValueFrom(
@@ -58,7 +62,8 @@ export class WhatsAppService {
     );
 
     const business = wabaRes.data.data[0];
-    if (!business) throw new BadRequestException('No Meta Business found for this account');
+    if (!business)
+      throw new BadRequestException('No Meta Business found for this account');
 
     // Get WABAs under this business
     const wabaListRes = await firstValueFrom(
@@ -69,20 +74,25 @@ export class WhatsAppService {
     );
 
     const waba = wabaListRes.data.data[0];
-    if (!waba) throw new BadRequestException('No WhatsApp Business Account found');
+    if (!waba)
+      throw new BadRequestException('No WhatsApp Business Account found');
 
     // Get phone numbers under this WABA
     const phoneRes = await firstValueFrom(
       this.http.get<{
-        data: Array<{ id: string; display_phone_number: string; verified_name: string }>;
-      }>(
-        `${GRAPH_BASE}/${waba.id}/phone_numbers`,
-        { params: { access_token: userToken } },
-      ),
+        data: Array<{
+          id: string;
+          display_phone_number: string;
+          verified_name: string;
+        }>;
+      }>(`${GRAPH_BASE}/${waba.id}/phone_numbers`, {
+        params: { access_token: userToken },
+      }),
     );
 
     const phone = phoneRes.data.data[0];
-    if (!phone) throw new BadRequestException('No phone number found for this WABA');
+    if (!phone)
+      throw new BadRequestException('No phone number found for this WABA');
 
     await this.prisma.whatsAppConnection.upsert({
       where: { workspaceId },
@@ -103,7 +113,10 @@ export class WhatsAppService {
       },
     });
 
-    return { phoneNumber: phone.display_phone_number, displayName: phone.verified_name };
+    return {
+      phoneNumber: phone.display_phone_number,
+      displayName: phone.verified_name,
+    };
   }
 
   async disconnect(workspaceId: string): Promise<void> {
@@ -111,7 +124,9 @@ export class WhatsAppService {
   }
 
   async getStatus(workspaceId: string) {
-    const conn = await this.prisma.whatsAppConnection.findUnique({ where: { workspaceId } });
+    const conn = await this.prisma.whatsAppConnection.findUnique({
+      where: { workspaceId },
+    });
     if (!conn) return { connected: false };
     return {
       connected: true,
@@ -121,8 +136,11 @@ export class WhatsAppService {
   }
 
   private async getConnection(workspaceId: string) {
-    const conn = await this.prisma.whatsAppConnection.findUnique({ where: { workspaceId } });
-    if (!conn) throw new NotFoundException('WhatsApp not connected for this workspace');
+    const conn = await this.prisma.whatsAppConnection.findUnique({
+      where: { workspaceId },
+    });
+    if (!conn)
+      throw new NotFoundException('WhatsApp not connected for this workspace');
     return conn;
   }
 
@@ -189,9 +207,20 @@ export class WhatsAppService {
         });
       }
 
-      const content = msg.text?.body ?? msg.image?.caption ?? msg.document?.caption ?? '[media]';
-      const mediaUrl = msg.image?.link ?? msg.document?.link ?? msg.video?.link ?? null;
-      const mediaType = msg.image ? 'image' : msg.document ? 'document' : msg.video ? 'video' : null;
+      const content =
+        msg.text?.body ??
+        msg.image?.caption ??
+        msg.document?.caption ??
+        '[media]';
+      const mediaUrl =
+        msg.image?.link ?? msg.document?.link ?? msg.video?.link ?? null;
+      const mediaType = msg.image
+        ? 'image'
+        : msg.document
+          ? 'document'
+          : msg.video
+            ? 'video'
+            : null;
 
       await this.prisma.inboxMessage.upsert({
         where: { externalId: msg.id },
@@ -227,7 +256,9 @@ export class WhatsAppService {
     });
     if (!conversation) throw new NotFoundException('Conversation not found');
     if (conversation.platform !== 'WHATSAPP') {
-      throw new BadRequestException('This conversation is not a WhatsApp thread');
+      throw new BadRequestException(
+        'This conversation is not a WhatsApp thread',
+      );
     }
 
     await firstValueFrom(

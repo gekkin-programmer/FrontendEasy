@@ -1,6 +1,16 @@
 import {
-  Controller, Get, Post, Delete, Query, Body,
-  Req, Res, UseGuards, HttpCode, Headers, UnauthorizedException,
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Query,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  HttpCode,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { CanvaService } from './canva.service';
@@ -32,8 +42,12 @@ export class CanvaController {
 
     if (oauthError) {
       const workspaceId = this.canva.consumeState(state);
-      const base = workspaceId ? `${frontendUrl}/dashboard/${workspaceId}` : frontendUrl;
-      return res.redirect(`${base}?canva=error&canva_error=${encodeURIComponent(errorDesc || oauthError)}`);
+      const base = workspaceId
+        ? `${frontendUrl}/dashboard/${workspaceId}`
+        : frontendUrl;
+      return res.redirect(
+        `${base}?canva=error&canva_error=${encodeURIComponent(errorDesc || oauthError)}`,
+      );
     }
 
     const { workspaceId } = await this.canva.handleCallback(code, state);
@@ -68,7 +82,11 @@ export class CanvaController {
   @Post('export')
   @UseGuards(JwtAuthGuard)
   createExport(@Body() dto: CanvaExportDto) {
-    return this.canva.createExportJob(dto.workspaceId, dto.designId, dto.format);
+    return this.canva.createExportJob(
+      dto.workspaceId,
+      dto.designId,
+      dto.format,
+    );
   }
 
   @Get('export/status')
@@ -83,7 +101,13 @@ export class CanvaController {
   @Post('export/save')
   @UseGuards(JwtAuthGuard)
   saveExportToLibrary(
-    @Body() body: { workspaceId: string; jobId: string; filename: string; folderId?: string },
+    @Body()
+    body: {
+      workspaceId: string;
+      jobId: string;
+      filename: string;
+      folderId?: string;
+    },
     @Req() req: any,
   ) {
     return this.canva.importExportedDesign(
@@ -109,11 +133,26 @@ export class CanvaController {
       throw new UnauthorizedException('Missing webhook headers');
     }
     const rawBody = req.rawBody;
-    if (!rawBody || !this.canva.verifyWebhookSignature(rawBody, timestamp, signature)) {
+    if (
+      !rawBody ||
+      !this.canva.verifyWebhookSignature(rawBody, timestamp, signature)
+    ) {
       throw new UnauthorizedException('Invalid webhook signature');
     }
     await this.canva.handleWebhookEvent(body);
     return { received: true };
+  }
+
+  // ─── Edit asset in Canva ──────────────────────────────────────────────────
+
+  @Post('edit-asset')
+  @UseGuards(JwtAuthGuard)
+  async editAsset(@Body() body: { workspaceId: string; assetId: string }) {
+    const editUrl = await this.canva.uploadToCanvaAndGetEditUrl(
+      body.workspaceId,
+      body.assetId,
+    );
+    return { editUrl };
   }
 
   // ─── Assets API ────────────────────────────────────────────────────────────

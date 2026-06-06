@@ -59,7 +59,9 @@ export class SocialAccountsService {
         this.logger.log(`Refreshed token for YOUTUBE @${account.username}`);
         refreshed++;
       } catch (e) {
-        this.logger.error(`Token refresh failed for YOUTUBE @${account.username}: ${e.message}`);
+        this.logger.error(
+          `Token refresh failed for YOUTUBE @${account.username}: ${e.message}`,
+        );
         await this.prisma.socialAccount.update({
           where: { id: account.id },
           data: { isActive: false },
@@ -67,7 +69,9 @@ export class SocialAccountsService {
       }
     }
 
-    this.logger.log(`Token refresh complete: ${refreshed}/${accounts.length} YouTube accounts refreshed`);
+    this.logger.log(
+      `Token refresh complete: ${refreshed}/${accounts.length} YouTube accounts refreshed`,
+    );
   }
 
   // ➤ Toggle queue pause for a social account
@@ -120,7 +124,9 @@ export class SocialAccountsService {
           userToken = tokenRes.data.access_token || userToken;
           this.logger.log('Facebook: exchanged for long-lived user token');
         } catch (e) {
-          this.logger.warn(`Facebook token exchange failed: ${e.message} — using short-lived token`);
+          this.logger.warn(
+            `Facebook token exchange failed: ${e.message} — using short-lived token`,
+          );
         }
       }
 
@@ -146,29 +152,46 @@ export class SocialAccountsService {
         // the recovery path is different for each case.
         let pagesPermissionGranted = false;
         try {
-          const permRes = await axios.get('https://graph.facebook.com/v19.0/me/permissions', {
-            params: { access_token: userToken },
-          });
-          const perms: Array<{ permission: string; status: string }> = permRes.data.data || [];
-          const pagesGrant = perms.find((p) => p.permission === 'pages_show_list');
+          const permRes = await axios.get(
+            'https://graph.facebook.com/v19.0/me/permissions',
+            {
+              params: { access_token: userToken },
+            },
+          );
+          const perms: Array<{ permission: string; status: string }> =
+            permRes.data.data || [];
+          const pagesGrant = perms.find(
+            (p) => p.permission === 'pages_show_list',
+          );
           pagesPermissionGranted = pagesGrant?.status === 'granted';
           this.logger.log(
             `FB permissions check: pages_show_list=${pagesGrant?.status ?? 'missing'} — all: ${JSON.stringify(perms.map((p) => `${p.permission}:${p.status}`))}`,
           );
         } catch (permErr) {
-          this.logger.warn(`Could not fetch FB permissions: ${permErr.message}`);
+          this.logger.warn(
+            `Could not fetch FB permissions: ${permErr.message}`,
+          );
         }
 
         if (!pagesPermissionGranted) {
           // User declined pages_show_list — revoke so next consent shows fresh dialog
-          this.logger.error('FB_PERMISSION_DENIED: user declined pages_show_list grant');
+          this.logger.error(
+            'FB_PERMISSION_DENIED: user declined pages_show_list grant',
+          );
           try {
-            await axios.delete('https://graph.facebook.com/v19.0/me/permissions', {
-              params: { access_token: userToken },
-            });
-            this.logger.log('Revoked Facebook app permissions — next connect will show full consent');
+            await axios.delete(
+              'https://graph.facebook.com/v19.0/me/permissions',
+              {
+                params: { access_token: userToken },
+              },
+            );
+            this.logger.log(
+              'Revoked Facebook app permissions — next connect will show full consent',
+            );
           } catch (revokeErr) {
-            this.logger.warn(`Could not revoke FB permissions: ${revokeErr.message}`);
+            this.logger.warn(
+              `Could not revoke FB permissions: ${revokeErr.message}`,
+            );
           }
           throw new NotFoundException('FB_PERMISSION_DENIED');
         }
@@ -181,21 +204,29 @@ export class SocialAccountsService {
           'FB_NO_PAGES_EXISTS: /me/accounts empty — trying Business Portfolio API fallback',
         );
         try {
-          const bizRes = await axios.get('https://graph.facebook.com/v19.0/me/businesses', {
-            params: {
-              fields: 'id,name,owned_pages{id,name,access_token,picture{url}}',
-              limit: 100,
-              access_token: userToken,
+          const bizRes = await axios.get(
+            'https://graph.facebook.com/v19.0/me/businesses',
+            {
+              params: {
+                fields:
+                  'id,name,owned_pages{id,name,access_token,picture{url}}',
+                limit: 100,
+                access_token: userToken,
+              },
             },
-          });
+          );
           const businesses: any[] = bizRes.data.data || [];
-          this.logger.log(`FB businesses found: ${businesses.length} — ${JSON.stringify(businesses.map((b: any) => b.name))}`);
+          this.logger.log(
+            `FB businesses found: ${businesses.length} — ${JSON.stringify(businesses.map((b: any) => b.name))}`,
+          );
 
           for (const biz of businesses) {
             const bizPages: any[] = biz.owned_pages?.data || [];
             if (bizPages.length > 0) {
               const page = bizPages[0];
-              this.logger.log(`Found Business Portfolio page: ${page.id} (${page.name})`);
+              this.logger.log(
+                `Found Business Portfolio page: ${page.id} (${page.name})`,
+              );
               return this.upsertAccount({
                 userId: data.userId,
                 workspaceId: data.workspaceId,
@@ -208,9 +239,13 @@ export class SocialAccountsService {
               });
             }
           }
-          this.logger.warn('Business Portfolio API: no pages found in any business');
+          this.logger.warn(
+            'Business Portfolio API: no pages found in any business',
+          );
         } catch (bizErr) {
-          this.logger.warn(`Business Portfolio API failed: ${(bizErr as any).response?.data?.error?.message ?? (bizErr as any).message}`);
+          this.logger.warn(
+            `Business Portfolio API failed: ${bizErr.response?.data?.error?.message ?? bizErr.message}`,
+          );
         }
 
         // Fallback 3: try to fetch the page token directly using the page ID
@@ -218,19 +253,28 @@ export class SocialAccountsService {
         // Works for Business Portfolio pages when /me/accounts and /me/businesses fail.
         // GET /{page_id}?fields=access_token works as long as the user has pages_show_list
         // and is an admin of the page, regardless of portfolio ownership.
-        const knownPageIds: string[] = (process.env.FB_KNOWN_PAGE_IDS ?? '').split(',').filter(Boolean);
+        const knownPageIds: string[] = (process.env.FB_KNOWN_PAGE_IDS ?? '')
+          .split(',')
+          .filter(Boolean);
         for (const knownPageId of knownPageIds) {
           try {
-            this.logger.log(`FB direct page fetch: trying known page ID ${knownPageId}`);
-            const directRes = await axios.get(`https://graph.facebook.com/v19.0/${knownPageId}`, {
-              params: {
-                fields: 'id,name,access_token,picture{url}',
-                access_token: userToken,
+            this.logger.log(
+              `FB direct page fetch: trying known page ID ${knownPageId}`,
+            );
+            const directRes = await axios.get(
+              `https://graph.facebook.com/v19.0/${knownPageId}`,
+              {
+                params: {
+                  fields: 'id,name,access_token,picture{url}',
+                  access_token: userToken,
+                },
               },
-            });
+            );
             const directPage = directRes.data;
             if (directPage?.access_token) {
-              this.logger.log(`FB direct page fetch succeeded: ${directPage.id} (${directPage.name})`);
+              this.logger.log(
+                `FB direct page fetch succeeded: ${directPage.id} (${directPage.name})`,
+              );
               return this.upsertAccount({
                 userId: data.userId,
                 workspaceId: data.workspaceId,
@@ -243,18 +287,27 @@ export class SocialAccountsService {
               });
             }
           } catch (directErr) {
-            this.logger.warn(`FB direct page fetch for ${knownPageId} failed: ${(directErr as any).response?.data?.error?.message ?? (directErr as any).message}`);
+            this.logger.warn(
+              `FB direct page fetch for ${knownPageId} failed: ${directErr.response?.data?.error?.message ?? directErr.message}`,
+            );
           }
         }
 
         // Still nothing — revoke so the next OAuth shows a fresh consent dialog
         try {
-          await axios.delete('https://graph.facebook.com/v19.0/me/permissions', {
-            params: { access_token: userToken },
-          });
-          this.logger.log('FB app revoked — next connect will show full consent with page selection');
+          await axios.delete(
+            'https://graph.facebook.com/v19.0/me/permissions',
+            {
+              params: { access_token: userToken },
+            },
+          );
+          this.logger.log(
+            'FB app revoked — next connect will show full consent with page selection',
+          );
         } catch (revokeErr) {
-          this.logger.warn(`Could not revoke FB permissions: ${(revokeErr as any).message}`);
+          this.logger.warn(
+            `Could not revoke FB permissions: ${revokeErr.message}`,
+          );
         }
         throw new NotFoundException('FB_NO_PAGES_EXISTS');
       }
@@ -271,13 +324,18 @@ export class SocialAccountsService {
         name: page.name,
         avatar: page.picture?.data?.url ?? data.avatar,
         accessToken: page.access_token, // Page-scoped token (permanent)
-        refreshToken: userToken,         // Long-lived user token (for re-derivation)
+        refreshToken: userToken, // Long-lived user token (for re-derivation)
       });
     } catch (e) {
       if (e instanceof NotFoundException) throw e;
       const errorDetail = e.response?.data?.error?.message || e.message;
-      this.logger.error('Facebook Page Link Failed', { error: errorDetail, data: e.response?.data });
-      throw new UnauthorizedException(`Facebook connection failed: ${errorDetail}`);
+      this.logger.error('Facebook Page Link Failed', {
+        error: errorDetail,
+        data: e.response?.data,
+      });
+      throw new UnauthorizedException(
+        `Facebook connection failed: ${errorDetail}`,
+      );
     }
   }
 
@@ -419,7 +477,9 @@ export class SocialAccountsService {
         const pageId = storedFb.platformUserId;
         const pageToken = storedFb.accessToken;
 
-        this.logger.log(`Querying IG Business Account via page token for page ${pageId} (${storedFb.username})`);
+        this.logger.log(
+          `Querying IG Business Account via page token for page ${pageId} (${storedFb.username})`,
+        );
 
         try {
           const pageRes = await axios.get(
@@ -450,10 +510,15 @@ export class SocialAccountsService {
               },
             );
             const igData = igRes.data;
-            this.logger.log(`Found Instagram Business Account: @${igData.username} (${igId})`);
+            this.logger.log(
+              `Found Instagram Business Account: @${igData.username} (${igId})`,
+            );
 
-            const resolvedWorkspaceId = data.workspaceId || storedFb.workspaceId;
-            this.logger.log(`Instagram will be saved to workspace ${resolvedWorkspaceId}`);
+            const resolvedWorkspaceId =
+              data.workspaceId || storedFb.workspaceId;
+            this.logger.log(
+              `Instagram will be saved to workspace ${resolvedWorkspaceId}`,
+            );
 
             return this.upsertAccount({
               userId: data.userId,
@@ -468,7 +533,9 @@ export class SocialAccountsService {
           }
 
           // Page exists but has no linked Instagram Business Account
-          this.logger.warn(`${pageId} has no instagram_business_account — falling through to fresh token scan`);
+          this.logger.warn(
+            `${pageId} has no instagram_business_account — falling through to fresh token scan`,
+          );
         } catch (pageErr) {
           // FB error code 100 means the ID is a user profile, not a page (field doesn't exist on users).
           // Fall through to the fresh-token /me/accounts scan below.
@@ -482,29 +549,46 @@ export class SocialAccountsService {
       // Fallback: scan /me/accounts with the fresh token from this OAuth callback.
       // Works when the stored FB account is a user-profile (no page token) or when
       // the page query above yielded nothing.
-      this.logger.log('IG fallback: scanning /me/accounts with fresh IG OAuth token');
-      const freshPagesRes = await axios.get('https://graph.facebook.com/v19.0/me/accounts', {
-        params: {
-          fields: 'id,name,instagram_business_account',
-          limit: 100,
-          access_token: data.accessToken, // fresh short-lived token from this OAuth
+      this.logger.log(
+        'IG fallback: scanning /me/accounts with fresh IG OAuth token',
+      );
+      const freshPagesRes = await axios.get(
+        'https://graph.facebook.com/v19.0/me/accounts',
+        {
+          params: {
+            fields: 'id,name,instagram_business_account',
+            limit: 100,
+            access_token: data.accessToken, // fresh short-lived token from this OAuth
+          },
         },
-      });
+      );
       const freshPages: any[] = freshPagesRes.data.data || [];
       this.logger.log(`IG /me/accounts scan: found ${freshPages.length} pages`);
 
-      const pageWithIg = freshPages.find((p: any) => p.instagram_business_account?.id);
+      const pageWithIg = freshPages.find(
+        (p: any) => p.instagram_business_account?.id,
+      );
       if (!pageWithIg) {
-        this.logger.warn(`No page with instagram_business_account found for user ${data.userId}`);
+        this.logger.warn(
+          `No page with instagram_business_account found for user ${data.userId}`,
+        );
         throw new NotFoundException('IG_NO_BUSINESS_ACCOUNT');
       }
 
       const igId = pageWithIg.instagram_business_account.id;
-      const igRes = await axios.get(`https://graph.facebook.com/v19.0/${igId}`, {
-        params: { fields: 'id,username,profile_picture_url', access_token: data.accessToken },
-      });
+      const igRes = await axios.get(
+        `https://graph.facebook.com/v19.0/${igId}`,
+        {
+          params: {
+            fields: 'id,username,profile_picture_url',
+            access_token: data.accessToken,
+          },
+        },
+      );
       const igData = igRes.data;
-      this.logger.log(`IG fallback found: @${igData.username} (${igId}) via page ${pageWithIg.name}`);
+      this.logger.log(
+        `IG fallback found: @${igData.username} (${igId}) via page ${pageWithIg.name}`,
+      );
 
       return this.upsertAccount({
         userId: data.userId,
@@ -645,7 +729,9 @@ export class SocialAccountsService {
     const publishId: string = body?.publish_id ?? '';
 
     this.logger.log(`TikTok webhook raw: ${JSON.stringify(body)}`);
-    this.logger.log(`TikTok webhook: event=${event} video_id=${videoId} publish_id=${publishId}`);
+    this.logger.log(
+      `TikTok webhook: event=${event} video_id=${videoId} publish_id=${publishId}`,
+    );
 
     const statusMap: Record<string, string> = {
       'video.publish.complete': 'PUBLISHED',
@@ -862,13 +948,20 @@ export class SocialAccountsService {
     } catch (error) {
       const errorDetail = error.response?.data?.error?.message || error.message;
       this.logger.error('FB Graph Error:', { error: errorDetail });
-      throw new UnauthorizedException(`Failed to fetch Facebook pages: ${errorDetail}`);
+      throw new UnauthorizedException(
+        `Failed to fetch Facebook pages: ${errorDetail}`,
+      );
     }
   }
 
   async linkPageAccount(
     userId: string,
-    pageData: { pageId: string; pageName: string; pageAccessToken: string; workspaceId?: string },
+    pageData: {
+      pageId: string;
+      pageName: string;
+      pageAccessToken: string;
+      workspaceId?: string;
+    },
   ) {
     return this.upsertAccount({
       userId,

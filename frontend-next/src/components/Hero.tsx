@@ -83,10 +83,10 @@ const WabiSabiIcon = ({ Icon, pos, color, delay, rot }: IconConfig) => (
     <div className="w-8 h-3 bg-blue-100/80 absolute -top-1.5 z-20 rotate-[-5deg] backdrop-blur-sm border border-white/20 shadow-sm" />
     
     {/* The Sticker Card */}
-    <div 
-        className="bg-white dark:bg-white p-3 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
+    <div
+        className="bg-white dark:bg-white p-3 border border-gray-200 dark:border-zinc-700 shadow-sm"
         style={{
-            borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" 
+            borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px"
         }}
     >
         <Icon className="w-5 h-5 md:w-6 md:h-6 opacity-90" style={{ color }} />
@@ -122,26 +122,36 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-[#F9F9F7] dark:bg-black pt-16 md:pt-24 pb-20 border-b-4 border-black dark:border-black font-sans"
+      className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-black pt-16 md:pt-24 pb-20 font-sans"
       aria-label="Introduction"
     >
       
-      {/* 1. TEXTURE: Noise (Local CSS/Base64 to improve LCP speed vs external URL) */}
-     {/* 1. TEXTURE: Noise (Base64 - No file needed) */}
-<div 
-  className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
-  style={{ 
-    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")` 
-  }}
-/>
-
-      {/* 2. BACKGROUND GRID */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none opacity-30" 
+      {/* 1. TEXTURE: Noise */}
+      <div
+        className="absolute inset-0 z-0 opacity-30 dark:opacity-[0.08] pointer-events-none mix-blend-multiply dark:mix-blend-screen"
         style={{
-            backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-            backgroundSize: "40px 40px", // Smaller grid on mobile looks better
-            maskImage: "radial-gradient(circle at center, black 30%, transparent 80%)"
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      {/* 2a. BACKGROUND GRID — light mode */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-30 dark:hidden"
+        style={{
+          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          maskImage: "radial-gradient(ellipse at 50% 70%, black 30%, transparent 75%)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* 2b. BACKGROUND GRID — dark mode (white lines + brand glow) */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.12] hidden dark:block"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          maskImage: "radial-gradient(ellipse at 50% 70%, black 30%, transparent 75%)",
         }}
         aria-hidden="true"
       />
@@ -197,16 +207,16 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
             <div className="relative group w-full sm:w-auto">
-                <Link href="/signup" className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-sm border-2 border-transparent hover:border-black dark:hover:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2">
+                <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center gap-2">
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
                 {/* Button decoration */}
                 <div className="absolute inset-0 bg-[#3C48F6] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                 
                 <ScribbleArrow />
             </div>
 
-            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border-2 border-black dark:border-white/20 hover:bg-black/5 transition-colors rounded-sm flex items-center gap-2">
+            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border border-gray-200 dark:border-white/10 hover:bg-black/5 transition-colors rounded-xl flex items-center gap-2">
                 {t("View Pricing", "Voir les Tarifs")}
             </Link>
         </motion.div>

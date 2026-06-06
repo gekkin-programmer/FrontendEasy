@@ -377,7 +377,9 @@ export class PaymentsService {
     });
 
     if (pending.length === 0) return;
-    this.logger.log(`Polling PawaPay for ${pending.length} pending transaction(s)`);
+    this.logger.log(
+      `Polling PawaPay for ${pending.length} pending transaction(s)`,
+    );
 
     for (const tx of pending) {
       try {
@@ -391,7 +393,11 @@ export class PaymentsService {
         const deposit = Array.isArray(res.data) ? res.data[0] : res.data;
         const status: string = deposit?.status;
 
-        if (status === 'COMPLETED' || status === 'FAILED' || status === 'REJECTED') {
+        if (
+          status === 'COMPLETED' ||
+          status === 'FAILED' ||
+          status === 'REJECTED'
+        ) {
           this.logger.log(`PawaPay poll: transaction ${tx.id} → ${status}`);
           await this.handleWebhook({
             depositId: tx.id,

@@ -40,7 +40,7 @@ export class EngagementService {
       authorName: c.authorName ?? 'User',
       authorHandle: null,
       authorAvatar: c.authorAvatar ?? null,
-      platform: (c.platform?.toLowerCase() ?? 'facebook') as string,
+      platform: c.platform?.toLowerCase() ?? 'facebook',
       content: c.content,
       receivedAt: c.publishedAt,
       status: c.status,
@@ -67,7 +67,8 @@ export class EngagementService {
     }));
 
     return [...inboxItems, ...commentItems].sort(
-      (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime(),
+      (a, b) =>
+        new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime(),
     );
   }
 
@@ -93,11 +94,23 @@ export class EngagementService {
 
     if (comment.externalId) {
       if (comment.platform === 'FACEBOOK') {
-        await this.facebookService.replyToComment(account.accessToken, comment.externalId, text);
+        await this.facebookService.replyToComment(
+          account.accessToken,
+          comment.externalId,
+          text,
+        );
       } else if (comment.platform === 'INSTAGRAM') {
-        await this.instagramService.replyToComment(account.accessToken, comment.externalId, text);
+        await this.instagramService.replyToComment(
+          account.accessToken,
+          comment.externalId,
+          text,
+        );
       } else if (comment.platform === 'YOUTUBE') {
-        await this.replyToYouTubeComment(account.accessToken, comment.externalId, text);
+        await this.replyToYouTubeComment(
+          account.accessToken,
+          comment.externalId,
+          text,
+        );
       }
       // TikTok: comment.list + reply requires approved commercial content scope
     }
@@ -127,8 +140,14 @@ export class EngagementService {
   // ─── 3. STATUS UPDATE ────────────────────────────────────────────────────────
 
   async updateStatus(id: string, status: string) {
-    const conv = await this.prisma.inboxConversation.findUnique({ where: { id } });
-    if (conv) return this.prisma.inboxConversation.update({ where: { id }, data: { status } });
+    const conv = await this.prisma.inboxConversation.findUnique({
+      where: { id },
+    });
+    if (conv)
+      return this.prisma.inboxConversation.update({
+        where: { id },
+        data: { status },
+      });
     return this.prisma.postComment.update({ where: { id }, data: { status } });
   }
 
@@ -137,14 +156,10 @@ export class EngagementService {
 
   async syncComments(workspaceId: string): Promise<{ synced: number }> {
     const accounts = await this.prisma.socialAccount.findMany({
-      where: { workspaceId, isActive: true, platform: { in: ['FACEBOOK', 'INSTAGRAM', 'YOUTUBE'] } },
-      include: {
-        posts: {
-          where: { status: 'PUBLISHED' },
-          include: { socialAccounts: true },
-          take: 20,
-          orderBy: { publishedAt: 'desc' },
-        },
+      where: {
+        workspaceId,
+        isActive: true,
+        platform: { in: ['FACEBOOK', 'INSTAGRAM', 'YOUTUBE'] },
       },
     });
 
@@ -160,7 +175,9 @@ export class EngagementService {
           synced += await this.syncYouTubeComments(account);
         }
       } catch (err: any) {
-        this.logger.warn(`Comment sync failed for ${account.platform} ${account.id}: ${err?.message}`);
+        this.logger.warn(
+          `Comment sync failed for ${account.platform} ${account.id}: ${err?.message}`,
+        );
       }
     }
 
@@ -169,18 +186,36 @@ export class EngagementService {
 
   private async syncFacebookComments(account: any): Promise<number> {
     let count = 0;
-    for (const post of account.posts) {
-      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
-      if (!psa?.platformPostId) continue;
+    const psas = await this.prisma.postSocialAccount.findMany({
+      where: { socialAccountId: account.id, platformPostId: { not: null } },
+      take: 20,
+      orderBy: { publishedAt: 'desc' },
+    });
 
+    for (const psa of psas) {
       try {
-        const url = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,message,created_time,from&access_token=${account.accessToken}&limit=25`;
-        const { data } = await firstValueFrom(this.http.get(url));
+        // Update engagement metrics
+        const metricsUrl = `https://graph.facebook.com/v19.0/${psa.platformPostId}?fields=reactions.summary(true),comments.summary(true),shares&access_token=${account.accessToken}`;
+        const { data: metrics } = await firstValueFrom(
+          this.http.get(metricsUrl),
+        );
+        await this.prisma.postSocialAccount.update({
+          where: { id: psa.id },
+          data: {
+            likes: metrics?.reactions?.summary?.total_count ?? psa.likes,
+            comments: metrics?.comments?.summary?.total_count ?? psa.comments,
+            shares: metrics?.shares?.count ?? psa.shares,
+          },
+        });
+
+        // Fetch and upsert comments
+        const commentsUrl = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,message,created_time,from&access_token=${account.accessToken}&limit=25`;
+        const { data } = await firstValueFrom(this.http.get(commentsUrl));
         for (const c of data?.data ?? []) {
           await this.prisma.postComment.upsert({
             where: { externalId: c.id },
             create: {
-              postId: post.id,
+              postId: psa.postId,
               externalId: c.id,
               content: c.message ?? '',
               authorName: c.from?.name ?? 'Facebook User',
@@ -194,25 +229,44 @@ export class EngagementService {
           });
           count++;
         }
-      } catch { /* skip this post */ }
+      } catch {
+        /* skip this post */
+      }
     }
     return count;
   }
 
   private async syncInstagramComments(account: any): Promise<number> {
     let count = 0;
-    for (const post of account.posts) {
-      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
-      if (!psa?.platformPostId) continue;
+    const psas = await this.prisma.postSocialAccount.findMany({
+      where: { socialAccountId: account.id, platformPostId: { not: null } },
+      take: 20,
+      orderBy: { publishedAt: 'desc' },
+    });
 
+    for (const psa of psas) {
       try {
-        const url = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,text,timestamp,from&access_token=${account.accessToken}&limit=25`;
-        const { data } = await firstValueFrom(this.http.get(url));
+        // Update engagement metrics
+        const metricsUrl = `https://graph.facebook.com/v19.0/${psa.platformPostId}?fields=like_count,comments_count&access_token=${account.accessToken}`;
+        const { data: metrics } = await firstValueFrom(
+          this.http.get(metricsUrl),
+        );
+        await this.prisma.postSocialAccount.update({
+          where: { id: psa.id },
+          data: {
+            likes: metrics?.like_count ?? psa.likes,
+            comments: metrics?.comments_count ?? psa.comments,
+          },
+        });
+
+        // Fetch and upsert comments
+        const commentsUrl = `https://graph.facebook.com/v19.0/${psa.platformPostId}/comments?fields=id,text,timestamp,from&access_token=${account.accessToken}&limit=25`;
+        const { data } = await firstValueFrom(this.http.get(commentsUrl));
         for (const c of data?.data ?? []) {
           await this.prisma.postComment.upsert({
             where: { externalId: c.id },
             create: {
-              postId: post.id,
+              postId: psa.postId,
               externalId: c.id,
               content: c.text ?? '',
               authorName: c.from?.username ?? 'Instagram User',
@@ -226,7 +280,9 @@ export class EngagementService {
           });
           count++;
         }
-      } catch { /* skip this post */ }
+      } catch {
+        /* skip this post */
+      }
     }
     return count;
   }
@@ -234,13 +290,17 @@ export class EngagementService {
   private async syncYouTubeComments(account: any): Promise<number> {
     let count = 0;
     const headers = { Authorization: `Bearer ${account.accessToken}` };
+    const psas = await this.prisma.postSocialAccount.findMany({
+      where: { socialAccountId: account.id, platformPostId: { not: null } },
+      take: 20,
+      orderBy: { publishedAt: 'desc' },
+    });
 
-    for (const post of account.posts) {
-      const psa = post.socialAccounts?.find((p: any) => p.socialAccountId === account.id);
-      if (!psa?.platformPostId) continue;
-
-      // Extract videoId from platformPostId or URL
-      const videoId = psa.platformPostId.replace('https://www.youtube.com/watch?v=', '');
+    for (const psa of psas) {
+      const videoId = psa.platformPostId!.replace(
+        'https://www.youtube.com/watch?v=',
+        '',
+      );
 
       try {
         const { data } = await firstValueFrom(
@@ -255,7 +315,7 @@ export class EngagementService {
           await this.prisma.postComment.upsert({
             where: { externalId },
             create: {
-              postId: post.id,
+              postId: psa.postId,
               externalId,
               content: (s.textDisplay as string) || '',
               authorName: (s.authorDisplayName as string) || 'YouTube User',
@@ -269,12 +329,18 @@ export class EngagementService {
           });
           count++;
         }
-      } catch { /* comment disabled or quota */ }
+      } catch {
+        /* comment disabled or quota */
+      }
     }
     return count;
   }
 
-  private async replyToYouTubeComment(accessToken: string, commentId: string, text: string) {
+  private async replyToYouTubeComment(
+    accessToken: string,
+    commentId: string,
+    text: string,
+  ) {
     await firstValueFrom(
       this.http.post(
         `${this.YT}/comments`,

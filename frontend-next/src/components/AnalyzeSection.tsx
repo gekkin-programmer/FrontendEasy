@@ -40,7 +40,7 @@ const AnimatedCounter = ({ value, duration = 1 }: { value: string | number; dura
 // --- NEUBRUTALIST COMPONENTS ---
 
 const HardCard = ({ children, className = "", color = "bg-white", rivets = false }: any) => (
-  <div className={`relative border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${color} ${className}`}>
+  <div className={`relative border border-gray-100 shadow-lg rounded-2xl ${color} ${className}`}>
     {rivets && (
       <>
         <div className="absolute top-1 left-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
@@ -54,15 +54,15 @@ const HardCard = ({ children, className = "", color = "bg-white", rivets = false
 );
 
 const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
-  <span className={`inline-block px-3 py-1 font-bold text-xs uppercase tracking-widest border-2 border-black ${color} text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+  <span className={`inline-block px-4 py-1 font-bold text-xs uppercase tracking-widest rounded-full ${color} text-white`}>
     {children}
   </span>
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
-  <li className="flex items-center gap-4 p-4 border-2 border-black bg-white dark:bg-black dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none hover:bg-yellow-50 dark:hover:bg-zinc-900 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default">
+  <li className="flex items-center gap-4 p-4 border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl shadow-sm">
     <div className="flex-shrink-0">{icon}</div>
-    <span className="text-black dark:text-white font-bold text-base md:text-lg leading-tight">{children}</span>
+    <span className="text-black font-bold text-base md:text-lg leading-tight">{children}</span>
   </li>
 );
 
@@ -169,13 +169,13 @@ const MainDashboardVisual = () => {
         </div>
 
         {/* Header */}
-        <div className="relative z-10 flex justify-between items-start mb-8 border-b-4 border-black pb-4 bg-white">
+        <div className="relative z-10 flex justify-between items-start mb-8 border-b border-gray-100 pb-4">
           <div>
             <h3 className="text-3xl font-black text-black uppercase italic leading-none">
               Weekly<br/>Growth
             </h3>
           </div>
-          <div className="w-12 h-12 bg-[#3C48F6] border-4 border-black flex items-center justify-center text-white text-xl shadow-[2px_2px_0px_0px_#000]">
+          <div className="w-12 h-12 bg-[#3C48F6] rounded-xl flex items-center justify-center text-white text-xl shadow-sm">
             <motion.div
                 key={`icon-${animationKey}`}
                 animate={{ rotate: [0, 90, 0] }}
@@ -218,7 +218,7 @@ const MainDashboardVisual = () => {
                     }}
                     className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#3C48F6] transition-colors"
                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-blue-100 border-2 border-black px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-[2px_2px_0px_0px_#000]">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-sm">
                         {h}%
                     </div>
                  </motion.div>
@@ -247,7 +247,7 @@ const StatBox = ({ label, value, color = "bg-gray-100", delay, animationKey }: a
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.3 }}
-    className={`${color} border-2 border-black p-1 py-2 shadow-[2px_2px_0px_0px_#000]`}
+    className={`${color} border border-gray-100 p-1 py-2 shadow-sm rounded-lg`}
   >
     <p className="text-[9px] font-bold uppercase tracking-wider opacity-80 font-mono">{label}</p>
     <p className="font-black text-lg leading-none mt-1 font-mono">
@@ -263,7 +263,7 @@ const AnalyzeSection = () => {
 
   return (
     <section 
-      className="bg-white dark:bg-black border-y-4 border-black dark:border-black py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
+      className="bg-white dark:bg-black border-y border-gray-100 dark:border-zinc-900 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
       aria-label="Analytics Features"
     >
       <SectionBackground />
@@ -282,7 +282,7 @@ const AnalyzeSection = () => {
               </h2>
             </div>
 
-            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 border-[#3C48F5] pl-6 py-2 bg-gray-50 dark:bg-black">
+            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-2 border-[#3C48F5] pl-6 py-2">
               {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
             </p>
 
@@ -301,7 +301,7 @@ const AnalyzeSection = () => {
             <div className="pt-6">
               <a
                   href="/signup"
-                  className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
+                  className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 rounded-xl shadow-md hover:shadow-lg transition-shadow group"
               >
                 <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
               </a>

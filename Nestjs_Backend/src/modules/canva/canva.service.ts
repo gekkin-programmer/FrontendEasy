@@ -19,7 +19,15 @@ const CANVA_TOKEN = 'https://api.canva.com/rest/v1/oauth/token';
 
 // PKCE state store: state → { codeVerifier, workspaceId, userId }
 // TTL: 10 minutes
-const pkceStore = new Map<string, { codeVerifier: string; workspaceId: string; userId: string; expiresAt: number }>();
+const pkceStore = new Map<
+  string,
+  {
+    codeVerifier: string;
+    workspaceId: string;
+    userId: string;
+    expiresAt: number;
+  }
+>();
 
 @Injectable()
 export class CanvaService {
@@ -40,7 +48,10 @@ export class CanvaService {
     const redirectUri = this.config.get<string>('CANVA_REDIRECT_URI');
 
     const codeVerifier = crypto.randomBytes(64).toString('base64url');
-    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
+    const codeChallenge = crypto
+      .createHash('sha256')
+      .update(codeVerifier)
+      .digest('base64url');
     const state = crypto.randomBytes(16).toString('hex');
 
     pkceStore.set(state, {
@@ -68,7 +79,10 @@ export class CanvaService {
     return `${CANVA_AUTH}?${params.toString()}`;
   }
 
-  async handleCallback(code: string, state: string): Promise<{ workspaceId: string }> {
+  async handleCallback(
+    code: string,
+    state: string,
+  ): Promise<{ workspaceId: string }> {
     const entry = pkceStore.get(state);
     if (!entry || entry.expiresAt < Date.now()) {
       throw new UnauthorizedException('Invalid or expired OAuth state');
@@ -81,7 +95,9 @@ export class CanvaService {
     const redirectUri = this.config.get<string>('CANVA_REDIRECT_URI');
 
     // Canva requires Basic auth — client credentials must NOT be in the body
-    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      'base64',
+    );
 
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -91,16 +107,17 @@ export class CanvaService {
     });
 
     const { data } = await firstValueFrom(
-      this.http.post<{ access_token: string; refresh_token: string; expires_in: number; token_type: string }>(
-        CANVA_TOKEN,
-        body.toString(),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${basicAuth}`,
-          },
+      this.http.post<{
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        token_type: string;
+      }>(CANVA_TOKEN, body.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${basicAuth}`,
         },
-      ),
+      }),
     );
 
     // Extract Canva user ID from the JWT access token's `sub` claim — no extra API call needed
@@ -146,18 +163,26 @@ export class CanvaService {
   // ─── Token management ───────────────────────────────────────────────────────
 
   private async getValidToken(workspaceId: string): Promise<string> {
-    const conn = await this.prisma.canvaConnection.findUnique({ where: { workspaceId } });
-    if (!conn) throw new NotFoundException('Canva not connected for this workspace');
+    const conn = await this.prisma.canvaConnection.findUnique({
+      where: { workspaceId },
+    });
+    if (!conn)
+      throw new NotFoundException('Canva not connected for this workspace');
 
     if (conn.expiresAt && conn.expiresAt > new Date(Date.now() + 60_000)) {
       return conn.accessToken;
     }
 
-    if (!conn.refreshToken) throw new UnauthorizedException('Canva token expired — reconnect required');
+    if (!conn.refreshToken)
+      throw new UnauthorizedException(
+        'Canva token expired — reconnect required',
+      );
 
     const clientId = this.config.get<string>('CANVA_CLIENT_ID');
     const clientSecret = this.config.get<string>('CANVA_CLIENT_SECRET');
-    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      'base64',
+    );
 
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
@@ -165,16 +190,16 @@ export class CanvaService {
     });
 
     const { data } = await firstValueFrom(
-      this.http.post<{ access_token: string; refresh_token?: string; expires_in: number }>(
-        CANVA_TOKEN,
-        body.toString(),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${basicAuth}`,
-          },
+      this.http.post<{
+        access_token: string;
+        refresh_token?: string;
+        expires_in: number;
+      }>(CANVA_TOKEN, body.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${basicAuth}`,
         },
-      ),
+      }),
     );
 
     await this.prisma.canvaConnection.update({
@@ -197,10 +222,13 @@ export class CanvaService {
     if (continuation) params['continuation'] = continuation;
 
     const { data } = await firstValueFrom(
-      this.http.get<{ items: any[]; continuation?: string }>(`${CANVA_BASE}/designs`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      }),
+      this.http.get<{ items: any[]; continuation?: string }>(
+        `${CANVA_BASE}/designs`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        },
+      ),
     );
 
     return { designs: data.items ?? [], continuation: data.continuation };
@@ -210,10 +238,10 @@ export class CanvaService {
     const token = await this.getValidToken(workspaceId);
 
     const formatMap: Record<string, object> = {
-      jpg: { type: 'jpg', quality: 'regular' },
+      jpg: { type: 'jpg', quality: 85 },
       png: { type: 'png' },
       gif: { type: 'gif' },
-      mp4: { type: 'mp4', quality: 'regular' },
+      mp4: { type: 'mp4', quality: 'horizontal_1080p' },
       pdf: { type: 'pdf', export_quality: 'regular' },
     };
 
@@ -252,28 +280,32 @@ export class CanvaService {
   ) {
     const job = await this.getExportJob(workspaceId, jobId);
     if (job.status !== 'success' || !job.urls?.length) {
-      throw new BadRequestException(`Export job not ready (status: ${job.status})`);
+      throw new BadRequestException(
+        `Export job not ready (status: ${job.status})`,
+      );
     }
 
     const fileUrl = job.urls[0];
-    return this.downloadAndSave(workspaceId, userId, fileUrl, filename, folderId);
+    return this.downloadAndSave(
+      workspaceId,
+      userId,
+      fileUrl,
+      filename,
+      folderId,
+    );
   }
 
   // ─── Assets API ─────────────────────────────────────────────────────────────
 
-  async listAssets(workspaceId: string, continuation?: string) {
-    const token = await this.getValidToken(workspaceId);
-    const params: Record<string, string> = { limit: '20' };
-    if (continuation) params['continuation'] = continuation;
-
-    const { data } = await firstValueFrom(
-      this.http.get<{ items: any[]; continuation?: string }>(`${CANVA_BASE}/assets`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      }),
-    );
-
-    return { assets: data.items ?? [], continuation: data.continuation };
+  async listAssets(workspaceId: string, _continuation?: string) {
+    // Canva has no bulk list endpoint for assets — only per-asset GET/update/delete.
+    // Return media library items that were imported from Canva for this workspace.
+    const items = await this.prisma.mediaLibrary.findMany({
+      where: { workspaceId, filename: { startsWith: 'canva_' } },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    return { assets: items, continuation: undefined };
   }
 
   async importAssetToLibrary(
@@ -286,35 +318,63 @@ export class CanvaService {
 
     // Fetch asset metadata + download URL
     const { data } = await firstValueFrom(
-      this.http.get<{ asset: { id: string; name: string; url: string; thumbnail?: { url: string }; media_type: string } }>(
-        `${CANVA_BASE}/assets/${assetId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      ),
+      this.http.get<{
+        asset: {
+          id: string;
+          name: string;
+          url: string;
+          thumbnail?: { url: string };
+          media_type: string;
+        };
+      }>(`${CANVA_BASE}/assets/${assetId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
     );
 
     const asset = data.asset;
     const ext = asset.media_type === 'video' ? 'mp4' : 'jpg';
     const filename = `canva_${asset.name || asset.id}.${ext}`;
 
-    return this.downloadAndSave(workspaceId, userId, asset.url, filename, folderId);
+    return this.downloadAndSave(
+      workspaceId,
+      userId,
+      asset.url,
+      filename,
+      folderId,
+    );
   }
 
   // ─── Webhook ────────────────────────────────────────────────────────────────
 
-  verifyWebhookSignature(rawBody: Buffer, timestamp: string, signature: string): boolean {
+  verifyWebhookSignature(
+    rawBody: Buffer,
+    timestamp: string,
+    signature: string,
+  ): boolean {
     const secret = this.config.get<string>('CANVA_WEBHOOK_SECRET');
     if (!secret) return false;
     const message = `${timestamp}.${rawBody.toString()}`;
-    const expected = crypto.createHmac('sha256', secret).update(message).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+    const expected = crypto
+      .createHmac('sha256', secret)
+      .update(message)
+      .digest('hex');
+    return crypto.timingSafeEqual(
+      Buffer.from(expected),
+      Buffer.from(signature),
+    );
   }
 
   async handleWebhookEvent(payload: any): Promise<void> {
     const eventType: string = payload?.type ?? '';
-    const designId: string = payload?.design?.id ?? payload?.data?.design?.id ?? '';
-    const workspaceId = await this.resolveWorkspaceFromCanvaUser(payload?.user?.id);
+    const designId: string =
+      payload?.design?.id ?? payload?.data?.design?.id ?? '';
+    const workspaceId = await this.resolveWorkspaceFromCanvaUser(
+      payload?.user?.id,
+    );
 
-    this.logger.log(`Canva webhook: ${eventType} design=${designId} workspace=${workspaceId ?? 'unknown'}`);
+    this.logger.log(
+      `Canva webhook: ${eventType} design=${designId} workspace=${workspaceId ?? 'unknown'}`,
+    );
 
     if (workspaceId) {
       this.events.sendToWorkspace(workspaceId, 'canva:event', {
@@ -325,10 +385,99 @@ export class CanvaService {
     }
   }
 
-  private async resolveWorkspaceFromCanvaUser(canvaUserId?: string): Promise<string | null> {
+  private async resolveWorkspaceFromCanvaUser(
+    canvaUserId?: string,
+  ): Promise<string | null> {
     if (!canvaUserId) return null;
-    const conn = await this.prisma.canvaConnection.findFirst({ where: { canvaUserId } });
+    const conn = await this.prisma.canvaConnection.findFirst({
+      where: { canvaUserId },
+    });
     return conn?.workspaceId ?? null;
+  }
+
+  // ─── Upload media asset to Canva for editing ────────────────────────────────
+
+  // Build multipart/form-data body without external packages
+  private buildMultipart(
+    nameBase64: string,
+    fileBuffer: Buffer,
+    mimeType: string,
+    filename: string,
+  ): { body: Buffer; contentType: string } {
+    const boundary = `----CanvaBoundary${crypto.randomBytes(16).toString('hex')}`;
+    const crlf = '\r\n';
+    const parts: Buffer[] = [
+      Buffer.from(
+        `--${boundary}${crlf}Content-Disposition: form-data; name="name_base64"${crlf}${crlf}${nameBase64}${crlf}`,
+      ),
+      Buffer.from(
+        `--${boundary}${crlf}Content-Disposition: form-data; name="asset_data"; filename="${filename}"${crlf}Content-Type: ${mimeType}${crlf}${crlf}`,
+      ),
+      fileBuffer,
+      Buffer.from(`${crlf}--${boundary}--${crlf}`),
+    ];
+    return {
+      body: Buffer.concat(parts),
+      contentType: `multipart/form-data; boundary=${boundary}`,
+    };
+  }
+
+  async uploadToCanvaAndGetEditUrl(
+    workspaceId: string,
+    mediaAssetId: string,
+  ): Promise<string> {
+    const token = await this.getValidToken(workspaceId);
+
+    const media = await this.prisma.mediaLibrary.findUnique({
+      where: { id: mediaAssetId },
+    });
+    if (!media) throw new NotFoundException('Asset not found');
+
+    // Download from GCS
+    this.logger.log(`edit-asset: downloading ${media.url}`);
+    const dlRes = await firstValueFrom(
+      this.http.get<ArrayBuffer>(media.url, { responseType: 'arraybuffer' }),
+    );
+    const buffer = Buffer.from(dlRes.data);
+    this.logger.log(
+      `edit-asset: downloaded ${buffer.length} bytes (${media.mimeType})`,
+    );
+
+    // Canva expects multipart/form-data with name_base64 + asset_data fields
+    const { body, contentType } = this.buildMultipart(
+      Buffer.from(media.filename).toString('base64'),
+      buffer,
+      media.mimeType || 'image/jpeg',
+      media.filename,
+    );
+
+    this.logger.log(
+      `edit-asset: uploading to Canva, body=${body.length} bytes`,
+    );
+    try {
+      const res = await firstValueFrom(
+        this.http.post(`${CANVA_BASE}/assets`, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': contentType,
+          },
+          maxBodyLength: Infinity,
+        }),
+      );
+      this.logger.log(
+        `edit-asset: Canva responded ${res.status} — ${JSON.stringify(res.data)}`,
+      );
+    } catch (err: any) {
+      this.logger.error(
+        `edit-asset: Canva upload failed — status=${err?.response?.status} body=${JSON.stringify(err?.response?.data)}`,
+      );
+      throw err;
+    }
+
+    const frontendUrl =
+      this.config.get<string>('FRONTEND_URL') || 'https://eazypost.cm';
+    const returnUrl = `${frontendUrl}/dashboard/${workspaceId}?canva=returned`;
+    return `https://www.canva.com/?return_url=${encodeURIComponent(returnUrl)}`;
   }
 
   // ─── Shared helper ──────────────────────────────────────────────────────────
@@ -345,7 +494,8 @@ export class CanvaService {
       this.http.get<Buffer>(remoteUrl, { responseType: 'arraybuffer' }),
     );
     const buffer = Buffer.from(response.data);
-    const contentType = (response.headers['content-type'] as string) || 'image/jpeg';
+    const contentType =
+      (response.headers['content-type'] as string) || 'image/jpeg';
 
     // Upload to GCS via existing service
     const gcsResult = await this.gcs.uploadFile({

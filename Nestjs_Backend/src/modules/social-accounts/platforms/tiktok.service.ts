@@ -65,7 +65,8 @@ export class TiktokService implements ISocialPlatform {
   async refreshAccessToken(refreshToken: string): Promise<string> {
     const params = new URLSearchParams({
       client_key: this.configService.get<string>('TIKTOK_CLIENT_KEY') ?? '',
-      client_secret: this.configService.get<string>('TIKTOK_CLIENT_SECRET') ?? '',
+      client_secret:
+        this.configService.get<string>('TIKTOK_CLIENT_SECRET') ?? '',
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
     });

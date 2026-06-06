@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -138,7 +138,7 @@ export default function EasyAI() {
             >
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                     <Image 
-                        src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F5`} 
+                        src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=000000`} 
                         alt="AI Avatar" 
                         fill
                         className="rounded-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 object-cover"
@@ -179,11 +179,11 @@ export default function EasyAI() {
                 )}
             >
                 {/* HEADER */}
-                <div className="flex items-center justify-between p-4 border-b-4 border-black dark:border-white bg-[#3C48F5]">
+                <div className="flex items-center justify-between p-4 border-b-4 border-black dark:border-white bg-black dark:bg-white">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10">
-                            <Image 
-                                src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F5`} 
+                            <Image
+                                src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=000000`}
                                 alt="Bot"
                                 fill
                                 className="rounded-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 object-cover"
@@ -191,10 +191,10 @@ export default function EasyAI() {
                             <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black dark:border-white rounded-full"></div>
                         </div>
                         <div>
-                            <h3 className="font-black text-white text-lg uppercase tracking-tight leading-none">
+                            <h3 className="font-black text-white dark:text-black text-lg uppercase tracking-tight leading-none">
                                 STEVE AI
                             </h3>
-                            <p className="text-[10px] font-bold text-white/80 uppercase tracking-widest">
+                            <p className="text-[10px] font-bold text-white/80 dark:text-black/70 uppercase tracking-widest">
                                 {isDashboard ? t("DIGITAL MARKETER", "MARKETEUR DIGITAL") : t("SUPPORT AGENT", "AGENT DE SUPPORT")}
                             </p>
                         </div>
@@ -209,12 +209,12 @@ export default function EasyAI() {
                 </div>
 
                 {/* MESSAGES AREA */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 bg-white dark:bg-zinc-900 bg-[radial-gradient(#00000015_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff10_1px,transparent_1px)] [background-size:16px_16px] transition-colors">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 bg-white dark:bg-zinc-900 [background-image:radial-gradient(#00000015_1px,transparent_1px)] dark:[background-image:radial-gradient(#ffffff10_1px,transparent_1px)] [background-size:16px_16px] transition-colors">
                     
                     {/* Empty State */}
                     {messages.length === 0 && (
                         <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-100">
-                            <div className="w-20 h-20 bg-[#3C48F5] border-4 border-black dark:border-white rounded-full flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+                            <div className="w-20 h-20 bg-black dark:bg-white border-4 border-black dark:border-white rounded-full flex items-center justify-center text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
                                 {isDashboard ? <Sparkles size={32} /> : <MessageCircle size={32} />}
                             </div>
                             <div>
@@ -239,7 +239,7 @@ export default function EasyAI() {
                             <div className="relative w-8 h-8 flex-shrink-0">
                                 <Image 
                                     src={msg.role === 'ai' 
-                                        ? `https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`
+                                        ? `https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=000000`
                                         : userAvatar
                                     }
                                     alt="Avatar"
@@ -251,7 +251,7 @@ export default function EasyAI() {
                             <div className={cn(
                                 "max-w-[85%] p-3 sm:p-4 text-sm font-bold border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all",
                                 msg.role === 'user' 
-                                    ? "bg-[#3C48F5] text-white rounded-2xl rounded-br-none" 
+                                    ? "bg-black dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none" 
                                     : "bg-white dark:bg-zinc-800 text-black dark:text-white rounded-2xl rounded-bl-none"
                             )}>
                                 {msg.role === 'ai' ? (
@@ -275,7 +275,7 @@ export default function EasyAI() {
                         <div className="flex gap-3 items-end">
                              <div className="relative w-8 h-8 flex-shrink-0">
                                 <Image 
-                                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`} 
+                                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=000000`} 
                                     alt="Bot"
                                     fill
                                     className="rounded-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 object-cover"
@@ -306,7 +306,7 @@ export default function EasyAI() {
                         <button 
                             onClick={() => handleSend()}
                             disabled={!query.trim() || isTyping}
-                            className="absolute right-2 p-2 bg-[#3C48F5] text-white rounded-lg border-2 border-black dark:border-white hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-[#3C48F5] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                            className="absolute right-2 p-2 bg-black dark:bg-white text-white dark:text-black rounded-lg border-2 border-black dark:border-white hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-black dark:bg-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                         >
                             {isTyping ? <Loader2 className="animate-spin" size={20} /> : <ArrowUp size={20} strokeWidth={3} />}
                         </button>

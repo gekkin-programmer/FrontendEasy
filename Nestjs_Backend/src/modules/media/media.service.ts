@@ -162,6 +162,8 @@ export class MediaService {
       }
     }
 
-    this.logger.log(`GCS signed URL refresh: ${refreshed}/${assets.length} renewed`);
+    this.logger.log(
+      `GCS signed URL refresh: ${refreshed}/${assets.length} renewed`,
+    );
   }
 }

@@ -69,6 +69,7 @@ export default function Navbar() {
   const isDark = theme === 'dark';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -152,10 +153,10 @@ export default function Navbar() {
   if (!showNavbar) return null;
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b 
-      ${scrolled 
-        ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-black/10 dark:border-white/10 shadow-sm py-2" 
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b
+      ${scrolled
+        ? "bg-white/90 dark:bg-black/90 backdrop-blur-md border-black/10 dark:border-white/10 shadow-sm py-2"
         : "bg-transparent border-transparent py-4"
       }`}
       aria-label="Main Navigation"
@@ -173,70 +174,100 @@ export default function Navbar() {
           
           {/* DESKTOP MENU (Hidden on Mobile) */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-            {/* ... Desktop menu links ... */}
-            {navLinks.map((item) => (
-              <div 
-                key={item.id || item.href} 
-                className="relative h-16 flex items-center group"
-                onMouseEnter={() => item.hasDropdown && setHoveredDropdown(getTranslatedText(item.label))} 
-                onMouseLeave={() => setHoveredDropdown(null)}
-              >
-                <Link 
-                  href={item.href || "#"} 
-                  className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${
-                    hoveredDropdown === getTranslatedText(item.label) 
-                      ? "text-[#3C48F6]" 
-                      : "text-black dark:text-white"
-                  }`}
-                  onClick={(e) => item.hasDropdown && e.preventDefault()}
+            {navLinks.map((item) => {
+              const label = getTranslatedText(item.label);
+              const isOpen = openDropdown === label;
+              return (
+              <div key={item.id || item.href} className="relative h-16 flex items-center">
+                <button
+                  className={`flex items-center gap-1 text-sm font-bold uppercase tracking-wide transition-colors ${isOpen ? "text-[#3C48F6]" : "text-black dark:text-white"}`}
+                  onClick={() => {
+                    if (!item.hasDropdown) { router.push(item.href || "#"); return; }
+                    setOpenDropdown(isOpen ? null : label);
+                  }}
                 >
-                  {getTranslatedText(item.label)}
-                  {item.hasDropdown && <FaChevronDown className={`w-2.5 h-2.5 transition-transform duration-200 ${hoveredDropdown === getTranslatedText(item.label) ? "rotate-180" : ""}`} />}
-                </Link>
-                
+                  {label}
+                  {item.hasDropdown && <FaChevronDown className={`w-2.5 h-2.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />}
+                </button>
+
                 <AnimatePresence>
-                  {item.hasDropdown && hoveredDropdown === getTranslatedText(item.label) && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }} 
-                        animate={{ opacity: 1, y: 0, scale: 1 }} 
-                        exit={{ opacity: 0, y: 5, scale: 0.98 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-12 left-1/2 -translate-x-1/2 pt-4 w-[600px] z-50"
-                    >
-                        <div className="bg-white dark:bg-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] border-2 border-black dark:border-white/20 p-6 grid grid-cols-2 gap-8 relative">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-black border-t-2 border-l-2 border-black dark:border-white/20 rotate-45"></div>
-                            {item.dropdownContent?.type === 'mega' && item.dropdownContent.columns.map((col, idx) => (
-                                <div key={idx}>
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-2">{getTranslatedText(col.heading)}</h4>
-                                    <div className="space-y-4">
-                                        {col.links.map(link => (
-                                            <Link key={getTranslatedText(link.label)} href={link.href} className="flex gap-3 items-start group">
-                                                <div className="p-2 bg-blue-50 dark:bg-white/10 rounded-md text-black dark:text-white border-2 border-white dark:border-white group-hover:border-black dark:group-hover:border-white transition-all"><link.Icon size={14}/></div>
-                                                <div>
-                                                    <div className="text-sm font-bold text-black dark:text-white group-hover:text-[#3C48F6] dark:group-hover:text-white transition-colors">{getTranslatedText(link.label)}</div>
-                                                    <div className="text-[10px] text-gray-500 font-medium">{getTranslatedText(link.description!)}</div>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            {item.dropdownContent?.type === 'channels' && (
-                                <div className="col-span-2 grid grid-cols-2 gap-4">
-                                    {item.dropdownContent.channels.map(c => (
-                                        <Link key={getTranslatedText(c.label)} href={c.href} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-black">
-                                            <c.Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                                            <span className="text-sm font-bold text-black dark:text-white">{getTranslatedText(c.label)}</span>
-                                        </Link>
+                  {item.hasDropdown && isOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50"
+                        style={{ width: item.dropdownContent?.type === 'mega' ? 620 : 280 }}
+                      >
+                        {/* caret */}
+                        <div className="absolute -top-[7px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white dark:bg-zinc-900 border-l border-t border-gray-200 dark:border-zinc-700 rotate-45" />
+
+                        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-xl overflow-hidden">
+                          {item.dropdownContent?.type === 'mega' && (
+                            <div className="flex">
+                              <div className="flex-1 p-4 grid grid-cols-2 gap-x-2 gap-y-0.5">
+                                {item.dropdownContent.columns.map((col, idx) => (
+                                  <div key={idx}>
+                                    <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-2 px-3 pt-2">
+                                      {getTranslatedText(col.heading)}
+                                    </p>
+                                    {col.links.map(link => (
+                                      <Link key={getTranslatedText(link.label)} href={link.href}
+                                        onClick={() => setOpenDropdown(null)}
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group">
+                                        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-500 dark:text-zinc-400 flex-shrink-0 group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
+                                          <link.Icon size={14} />
+                                        </div>
+                                        <div>
+                                          <div className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{getTranslatedText(link.label)}</div>
+                                          <div className="text-[11px] text-gray-500 dark:text-zinc-400 leading-tight mt-0.5">{getTranslatedText(link.description!)}</div>
+                                        </div>
+                                      </Link>
                                     ))}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="w-[160px] bg-[#3C48F5] p-5 flex flex-col justify-between flex-shrink-0">
+                                <div>
+                                  <span className="inline-block text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/15 px-2 py-0.5 rounded-full mb-3">
+                                    {getTranslatedText(item.dropdownContent.featured.label)}
+                                  </span>
+                                  <p className="text-white font-semibold text-sm leading-snug">
+                                    {getTranslatedText(item.dropdownContent.featured.description)}
+                                  </p>
                                 </div>
-                            )}
+                                <Link href={item.dropdownContent.featured.href} onClick={() => setOpenDropdown(null)}
+                                  className="mt-4 inline-flex items-center gap-1 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wide transition-colors">
+                                  {t("Explore", "Explorer")} →
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                          {item.dropdownContent?.type === 'channels' && (
+                            <div className="p-2 grid grid-cols-2 gap-0.5">
+                              {item.dropdownContent.channels.map(c => (
+                                <Link key={getTranslatedText(c.label)} href={c.href}
+                                  onClick={() => setOpenDropdown(null)}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group">
+                                  <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                                    <c.Icon className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                                  </div>
+                                  <span className="text-sm font-semibold text-gray-900 dark:text-white">{getTranslatedText(c.label)}</span>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                    </motion.div>
+                      </motion.div>
+                    </>
                   )}
                 </AnimatePresence>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* RIGHT ACTIONS (Desktop) */}
@@ -245,8 +276,8 @@ export default function Navbar() {
                 <div className="w-24 h-9 bg-gray-200 animate-pulse rounded-full" />
             ) : isAuthenticated ? (
                 <div className="relative z-50" onMouseEnter={() => setIsProfileOpen(true)} onMouseLeave={() => setIsProfileOpen(false)}>
-                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white dark:bg-black border-2 border-black dark:border-white/20 rounded-full hover:bg-gray-50 transition-all">
-                        <div className="w-7 h-7 rounded-full bg-[#3C48F5] text-white flex items-center justify-center font-bold text-xs border border-black overflow-hidden">
+                    <button className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-full hover:bg-gray-50 transition-all">
+                        <div className="w-7 h-7 rounded-full bg-[#3C48F5] text-white flex items-center justify-center font-bold text-xs border border-white/20 overflow-hidden">
                             {user?.avatar ? <Image src={user.avatar} alt="User" width={28} height={28} className="object-cover" /> : (user?.firstName?.charAt(0) || 'U')}
                         </div>
                         <span className="text-xs font-bold text-black dark:text-white max-w-[80px] truncate">
@@ -256,7 +287,7 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isProfileOpen && (
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute top-full right-0 pt-2 w-56">
-                                <div className="bg-white dark:bg-black rounded-lg shadow-xl border-2 border-black dark:border-white/20 p-2 overflow-hidden">
+                                <div className="bg-white dark:bg-black rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700 p-2 overflow-hidden">
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-white/10 mb-1">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Signed in as</p>
                                         <p className="text-xs font-bold text-black dark:text-white truncate">{user?.email}</p>
@@ -272,7 +303,7 @@ export default function Navbar() {
             ) : (
                 <div className="flex items-center gap-3">
                     <Link href="/login" className="text-sm font-bold text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-200 transition-colors uppercase">{t("Log in", "Connexion")}</Link>
-                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-sm border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">{t("Start Free", "Gratuit")}</Link>
+                    <Link href="/signup" className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-xl shadow-sm hover:shadow-md transition-shadow">{t("Start Free", "Gratuit")}</Link>
                 </div>
             )}
             <div className="h-6 w-px bg-gray-300 dark:bg-white/20 mx-1"></div>
@@ -285,7 +316,7 @@ export default function Navbar() {
           {/* MOBILE TOGGLE (Visible on Mobile) */}
           <div className="lg:hidden flex items-center gap-4">
              {isAuthenticated && (
-                 <Link href="/dashboard" className="w-8 h-8 rounded-full bg-yellow-400 border border-black flex items-center justify-center font-bold text-xs text-black">
+                 <Link href="/dashboard" className="w-8 h-8 rounded-full bg-yellow-400 border border-white/50 flex items-center justify-center font-bold text-xs text-black">
                     {user?.firstName?.charAt(0) || <FaUser />}
                  </Link>
              )}
@@ -361,15 +392,15 @@ export default function Navbar() {
              <div className="p-6 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/50 flex-shrink-0 safe-pb">
                 {!isAuthenticated ? (
                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm border-2 border-black dark:border-white font-bold text-black dark:text-white uppercase text-sm">{t("Log In", "Connexion")}</Link>
-                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-sm bg-black dark:bg-white text-white dark:text-black font-bold uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">{t("Sign Up", "Inscription")}</Link>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl border border-gray-200 dark:border-white/20 font-bold text-black dark:text-white text-sm">{t("Log In", "Connexion")}</Link>
+                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-center rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-sm shadow-sm">{t("Sign Up", "Inscription")}</Link>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-black uppercase text-sm shadow-[4px_4px_0px_0px_#000] border-2 border-black">
+                        <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-[#3C48F6] text-white font-black text-sm rounded-xl shadow-sm">
                             <FaChartBar /> {t("Dashboard", "Tableau de bord")}
                         </Link>
-                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold uppercase text-sm border-2 border-red-200 hover:bg-red-50 transition-colors">
+                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 text-red-600 font-bold text-sm border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
                             <FaSignOutAlt /> {t("Sign Out", "Déconnexion")}
                         </button>
                     </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -33,6 +33,7 @@ export default function EngagementAnalytics() {
   // 🟢 FETCH & TRANSFORM DATA
   const { data, isLoading } = useQuery({
     queryKey: ['analytics-dashboard', workspaceId, timeRange],
+    gcTime: 0,
     queryFn: async () => {
       // mapping '7d' -> 'WEEK', '30d' -> 'MONTH' for your DTO
       const periodMap: Record<string, string> = { '7d': 'WEEK', '30d': 'MONTH', '90d': 'YEAR' };

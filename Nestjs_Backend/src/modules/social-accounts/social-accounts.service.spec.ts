@@ -138,9 +138,9 @@ describe('SocialAccountsService - MVP Tests', () => {
         data: { data: [] },
       } as any);
 
-      await expect(service.handleFacebookCallback(callbackData)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.handleFacebookCallback(callbackData),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { FacebookService } from '../platforms/facebook.service';
+import { InstagramService } from '../platforms/instagram.service';
 import { TiktokService } from '../platforms/tiktok.service';
 import { SocialPlatform } from '../../../common/enums/social-platform.enum';
 import { PostStatus } from '../../../common/enums/post-status.enum';
@@ -25,6 +26,7 @@ export class SocialSyncProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly facebookService: FacebookService,
+    private readonly instagramService: InstagramService,
     private readonly tiktokService: TiktokService,
     private readonly emailService: EmailService,
   ) {
@@ -52,6 +54,12 @@ export class SocialSyncProcessor extends WorkerHost {
       switch (platform) {
         case SocialPlatform.FACEBOOK:
           posts = await this.facebookService.getHistory(
+            accessToken,
+            externalId,
+          );
+          break;
+        case SocialPlatform.INSTAGRAM:
+          posts = await this.instagramService.getHistory(
             accessToken,
             externalId,
           );
@@ -184,7 +192,9 @@ export class SocialSyncProcessor extends WorkerHost {
     }
   }
 
-  private async fetchYouTubeHistory(accessToken: string): Promise<NormalizedSocialPost[]> {
+  private async fetchYouTubeHistory(
+    accessToken: string,
+  ): Promise<NormalizedSocialPost[]> {
     const headers = { Authorization: `Bearer ${accessToken}` };
     const YT = 'https://www.googleapis.com/youtube/v3';
 
@@ -200,7 +210,11 @@ export class SocialSyncProcessor extends WorkerHost {
     // 2. Fetch up to 50 video IDs from the uploads playlist
     const playlistRes = await axios.get(`${YT}/playlistItems`, {
       headers,
-      params: { part: 'contentDetails', playlistId: uploadsPlaylistId, maxResults: 50 },
+      params: {
+        part: 'contentDetails',
+        playlistId: uploadsPlaylistId,
+        maxResults: 50,
+      },
     });
     const videoIds: string[] = (playlistRes.data?.items || [])
       .map((item: any) => item.contentDetails?.videoId as string)
@@ -252,7 +266,10 @@ export class SocialSyncProcessor extends WorkerHost {
           permalink: `https://www.youtube.com/watch?v=${video.id}`,
           engagement: {
             likes: parseInt((video.statistics?.likeCount as string) || '0', 10),
-            comments: parseInt((video.statistics?.commentCount as string) || '0', 10),
+            comments: parseInt(
+              (video.statistics?.commentCount as string) || '0',
+              10,
+            ),
             shares: 0,
             views: parseInt((video.statistics?.viewCount as string) || '0', 10),
           },

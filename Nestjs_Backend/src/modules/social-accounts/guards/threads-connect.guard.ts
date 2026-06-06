@@ -10,17 +10,25 @@ export class ThreadsConnectGuard extends AuthGuard('threads') {
     const { workspaceId, token } = req.query;
     const isCallback = req.path?.includes('/callback/');
 
-    this.logger.log(`[Threads] ${isCallback ? 'CALLBACK' : 'CONNECT'} — path=${req.path} sessionId=${req.sessionID ?? 'none'}`);
+    this.logger.log(
+      `[Threads] ${isCallback ? 'CALLBACK' : 'CONNECT'} — path=${req.path} sessionId=${req.sessionID ?? 'none'}`,
+    );
 
     if (!isCallback && workspaceId && token) {
       req.session.oauthMetadata = { workspaceId, token };
-      this.logger.log(`[Threads] session set — workspaceId=${workspaceId as string}`);
+      this.logger.log(
+        `[Threads] session set — workspaceId=${workspaceId as string}`,
+      );
     }
 
     if (isCallback) {
       const meta = req.session?.oauthMetadata;
-      this.logger.log(`[Threads] callback session meta: ${meta ? JSON.stringify(meta) : 'MISSING — session lost'}`);
-      this.logger.log(`[Threads] cookies: ${JSON.stringify(req.headers?.cookie ?? 'none')}`);
+      this.logger.log(
+        `[Threads] callback session meta: ${meta ? JSON.stringify(meta) : 'MISSING — session lost'}`,
+      );
+      this.logger.log(
+        `[Threads] cookies: ${JSON.stringify(req.headers?.cookie ?? 'none')}`,
+      );
     }
 
     return (await super.canActivate(context)) as boolean;

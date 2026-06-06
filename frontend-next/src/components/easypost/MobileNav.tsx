@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, Calendar, PenTool, BarChart3, Menu } from 'lucide-react';

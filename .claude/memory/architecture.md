@@ -1,4 +1,5 @@
-# Infrastructure & Git Deep Dive — EazyPost
+# Infrastructure & Architecture Overview (EazyPost)
+> **CRITICAL RULE**: NEVER push directly to the EasyPostV2 monorepo. All changes must be synced and pushed exclusively to the BackendEasy and FrontendEasy repositories via git worktrees.
 
 ## 1. System Architecture
 The application follows a reverse-proxy pattern using Nginx to route traffic between the Next.js frontend and NestJS backend.

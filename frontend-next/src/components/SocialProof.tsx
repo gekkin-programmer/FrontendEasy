@@ -21,7 +21,7 @@ const logos = [
 const LogoGroup = () => (
   <div className="flex items-center justify-around min-w-full shrink-0 animate-marquee gap-16 px-8">
     {logos.map((src, i) => (
-      <div key={i} className="group relative flex items-center justify-center rounded-2xl overflow-hidden bg-white/5 p-2 px-4 shadow-sm border border-transparent dark:border-white/5 transition-colors">
+      <div key={i} className="group relative flex items-center justify-center rounded-2xl overflow-hidden bg-white/5 dark:bg-transparent p-2 px-4 shadow-sm dark:shadow-none border border-transparent dark:border-transparent transition-colors">
         <img
           src={src}
           alt={`Partner brand ${i}`}
@@ -40,7 +40,7 @@ const SocialProof = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative py-16 bg-white dark:bg-black border-b-4 border-black dark:border-white transition-colors overflow-hidden select-none">
+    <section className="relative py-16 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 transition-colors overflow-hidden select-none">
         <SectionBackground />
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
@@ -55,9 +55,9 @@ const SocialProof = () => {
                 {/* Header Section */}
                 <div className="md:w-1/4 text-center md:text-left z-20 bg-white dark:bg-black md:bg-transparent p-2 transition-colors">
                     <h3 className="text-3xl font-black text-black dark:text-white uppercase leading-none tracking-tighter">
-                        {t("LES", "TRUSTED")} <span className="text-[#3C48F6]">{t("PME'S", "BY")}</span><br/>
-                        {t("NOUS FONT", "LOCAL")}<br/>
-                        {t("CONFIANCE", "BRANDS")}<br/>
+                        {t("TRUSTED", "LES")} <span className="text-[#3C48F6]">{t("BY", "PME'S")}</span><br/>
+                        {t("LOCAL", "NOUS FONT")}<br/>
+                        {t("BRANDS", "CONFIANCE")}<br/>
                     </h3>
                 </div>
 

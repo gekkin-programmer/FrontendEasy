@@ -28,7 +28,9 @@ export class PostsService {
     if (dto.scheduledFor) status = PostStatus.SCHEDULED;
 
     // Validate social account IDs before attempting the nested connect
-    this.logger.log(`Creating post for workspace ${workspaceId} with accounts: ${JSON.stringify(dto.socialAccountIds)}`);
+    this.logger.log(
+      `Creating post for workspace ${workspaceId} with accounts: ${JSON.stringify(dto.socialAccountIds)}`,
+    );
     const foundAccounts = await this.prisma.socialAccount.findMany({
       where: { id: { in: dto.socialAccountIds }, workspaceId },
       select: { id: true },
@@ -36,7 +38,9 @@ export class PostsService {
     if (foundAccounts.length !== dto.socialAccountIds.length) {
       const foundIds = new Set(foundAccounts.map((a) => a.id));
       const missing = dto.socialAccountIds.filter((id) => !foundIds.has(id));
-      this.logger.error(`Social accounts not found in workspace ${workspaceId}: ${JSON.stringify(missing)}`);
+      this.logger.error(
+        `Social accounts not found in workspace ${workspaceId}: ${JSON.stringify(missing)}`,
+      );
       throw new BadRequestException(
         `Social account(s) not found or do not belong to this workspace: ${missing.join(', ')}`,
       );
@@ -165,10 +169,13 @@ export class PostsService {
       throw new ForbiddenException('Cannot edit a published post');
     }
     if (
-      (post.status === PostStatus.SCHEDULED || post.status === 'PUBLISHING' as PostStatus) &&
+      (post.status === PostStatus.SCHEDULED ||
+        post.status === ('PUBLISHING' as PostStatus)) &&
       dto.status === PostStatus.DRAFT
     ) {
-      throw new ForbiddenException('Use the cancel-schedule endpoint to unschedule a post');
+      throw new ForbiddenException(
+        'Use the cancel-schedule endpoint to unschedule a post',
+      );
     }
 
     if (dto.mediaIds !== undefined) {
@@ -181,7 +188,9 @@ export class PostsService {
         content: dto.content,
         scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
         status: dto.status,
-        ...(dto.platformMeta !== undefined ? { platformMeta: dto.platformMeta } : {}),
+        ...(dto.platformMeta !== undefined
+          ? { platformMeta: dto.platformMeta }
+          : {}),
         ...(dto.mediaIds !== undefined && {
           media: {
             create: dto.mediaIds.map((mediaId, index) => ({
@@ -253,25 +262,30 @@ export class PostsService {
         status: PostStatus.DRAFT,
         workspaceId,
         createdById: userId,
-        ...(original.platformMeta ? { platformMeta: original.platformMeta as any } : {}),
+        ...(original.platformMeta
+          ? { platformMeta: original.platformMeta as any }
+          : {}),
         socialAccounts: {
           create: original.socialAccounts.map((sa) => ({
             socialAccount: { connect: { id: sa.socialAccountId } },
             status: PostStatus.DRAFT,
           })),
         },
-        media: original.media.length > 0
-          ? {
-              create: original.media.map((pm) => ({
-                media: { connect: { id: pm.mediaId } },
-                order: pm.order,
-              })),
-            }
-          : undefined,
+        media:
+          original.media.length > 0
+            ? {
+                create: original.media.map((pm) => ({
+                  media: { connect: { id: pm.mediaId } },
+                  order: pm.order,
+                })),
+              }
+            : undefined,
       },
       include: {
         socialAccounts: {
-          include: { socialAccount: { select: { platform: true, username: true } } },
+          include: {
+            socialAccount: { select: { platform: true, username: true } },
+          },
         },
         media: { include: { media: true } },
       },

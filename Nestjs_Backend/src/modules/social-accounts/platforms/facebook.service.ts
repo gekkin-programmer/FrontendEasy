@@ -76,7 +76,8 @@ export class FacebookService implements ISocialPlatform {
     // refreshToken holds the long-lived user token (60 days).
     // Exchange it for a fresh one; then re-derive the page token via /me/accounts.
     const appId = this.configService.get<string>('FACEBOOK_APP_ID') ?? '';
-    const appSecret = this.configService.get<string>('FACEBOOK_APP_SECRET') ?? '';
+    const appSecret =
+      this.configService.get<string>('FACEBOOK_APP_SECRET') ?? '';
 
     const { data } = await firstValueFrom(
       this.httpService.get(`${this.GRAPH_URL}/oauth/access_token`, {

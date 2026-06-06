@@ -110,7 +110,9 @@ export class PublisherService {
             case 'YOUTUBE':
               if (!mediaUrl) throw new Error('YouTube requires a video file.');
               if (!mediaMimeType?.startsWith('video/'))
-                throw new Error('YouTube only accepts video files, not images.');
+                throw new Error(
+                  'YouTube only accepts video files, not images.',
+                );
               platformPostId = await this.postToYouTube(
                 account.accessToken,
                 post.content,
@@ -118,15 +120,20 @@ export class PublisherService {
                 mediaMimeType,
               );
               break;
-            case 'INSTAGRAM':
+            case 'INSTAGRAM': {
+              const meta = post.platformMeta as Record<string, any> | null;
+              const igFirstComment: string | undefined =
+                meta?.firstComment || undefined;
               platformPostId = await this.postToInstagram(
                 account.accessToken,
                 account.platformUserId,
                 formattedContent,
                 mediaUrl,
                 mediaMimeType,
+                igFirstComment,
               );
               break;
+            }
             case 'THREADS':
               platformPostId = await this.postToThreads(
                 account.accessToken,
@@ -159,16 +166,27 @@ export class PublisherService {
               try {
                 let newToken: string;
                 if (platform === 'YOUTUBE') {
-                  newToken = await this.refreshGoogleToken(account.id, account.refreshToken as string);
+                  newToken = await this.refreshGoogleToken(
+                    account.id,
+                    account.refreshToken as string,
+                  );
                 } else if (platform === 'LINKEDIN') {
-                  newToken = await this.refreshLinkedInToken(account.id, account.refreshToken as string);
+                  newToken = await this.refreshLinkedInToken(
+                    account.id,
+                    account.refreshToken as string,
+                  );
                 } else {
-                  newToken = await this.refreshTwitterToken(account.id, account.refreshToken as string);
+                  newToken = await this.refreshTwitterToken(
+                    account.id,
+                    account.refreshToken as string,
+                  );
                 }
                 account.accessToken = newToken;
                 this.logger.log(` Token refreshed for ${platform} — retrying`);
               } catch {
-                this.logger.error(` Token refresh failed for ${platform} — marking inactive`);
+                this.logger.error(
+                  ` Token refresh failed for ${platform} — marking inactive`,
+                );
                 await this.prisma.socialAccount.update({
                   where: { id: account.id },
                   data: { isActive: false },
@@ -291,6 +309,7 @@ export class PublisherService {
     caption: string,
     mediaUrl?: string,
     mimeType?: string,
+    firstComment?: string,
   ) {
     if (!mediaUrl) throw new Error('Instagram requires an image or video.');
 
@@ -319,7 +338,9 @@ export class PublisherService {
 
     const containerId: string = containerRes.data?.id;
     if (!containerId) {
-      throw new Error(`Instagram media container creation failed: ${JSON.stringify(containerRes.data)}`);
+      throw new Error(
+        `Instagram media container creation failed: ${JSON.stringify(containerRes.data)}`,
+      );
     }
 
     // Step 2: For videos, poll until container is ready (FINISHED)
@@ -329,13 +350,20 @@ export class PublisherService {
         await new Promise((r) => setTimeout(r, 5000));
         const statusRes = await axios.get(
           `https://graph.facebook.com/v19.0/${containerId}`,
-          { params: { fields: 'status_code', access_token: pageToken }, timeout: 10_000 },
+          {
+            params: { fields: 'status_code', access_token: pageToken },
+            timeout: 10_000,
+          },
         );
         const statusCode: string = statusRes.data?.status_code;
-        this.logger.log(`Instagram container ${containerId} status: ${statusCode}`);
+        this.logger.log(
+          `Instagram container ${containerId} status: ${statusCode}`,
+        );
         if (statusCode === 'FINISHED') break;
         if (statusCode === 'ERROR') {
-          throw new Error(`Instagram video processing failed for container ${containerId}`);
+          throw new Error(
+            `Instagram video processing failed for container ${containerId}`,
+          );
         }
         if (i === maxAttempts - 1) {
           throw new Error('Instagram video processing timed out after 150s');
@@ -347,12 +375,36 @@ export class PublisherService {
     const publishRes = await axios.post(
       `https://graph.facebook.com/v19.0/${igUserId}/media_publish`,
       null,
-      { params: { creation_id: containerId, access_token: pageToken }, timeout: 30_000 },
+      {
+        params: { creation_id: containerId, access_token: pageToken },
+        timeout: 30_000,
+      },
     );
 
     const postId: string = publishRes.data?.id;
     if (!postId) {
-      throw new Error(`Instagram publish returned no post ID: ${JSON.stringify(publishRes.data)}`);
+      throw new Error(
+        `Instagram publish returned no post ID: ${JSON.stringify(publishRes.data)}`,
+      );
+    }
+
+    // Post first comment if provided (requires instagram_manage_comments permission)
+    if (firstComment) {
+      try {
+        await axios.post(
+          `https://graph.facebook.com/v19.0/${postId}/comments`,
+          null,
+          {
+            params: { message: firstComment, access_token: pageToken },
+            timeout: 15_000,
+          },
+        );
+        this.logger.log(`Instagram first comment posted on ${postId}`);
+      } catch (err: any) {
+        const msg =
+          err.response?.data?.error?.message || err.message;
+        this.logger.warn(`Instagram first comment failed (non-fatal): ${msg}`);
+      }
     }
 
     return postId;
@@ -390,7 +442,10 @@ export class PublisherService {
             recipes: [recipe],
             owner: `urn:li:person:${personUrn}`,
             serviceRelationships: [
-              { relationshipType: 'OWNER', identifier: 'urn:li:userGeneratedContent' },
+              {
+                relationshipType: 'OWNER',
+                identifier: 'urn:li:userGeneratedContent',
+              },
             ],
           },
         },
@@ -428,8 +483,10 @@ export class PublisherService {
           const assetStatus: string = statusRes.data?.recipes?.[0]?.status;
           this.logger.debug(`LinkedIn asset ${assetId} status: ${assetStatus}`);
           if (assetStatus === 'AVAILABLE') break;
-          if (assetStatus === 'FAILED') throw new Error('LinkedIn video processing failed');
-          if (i === maxAttempts - 1) throw new Error('LinkedIn video processing timed out after 60s');
+          if (assetStatus === 'FAILED')
+            throw new Error('LinkedIn video processing failed');
+          if (i === maxAttempts - 1)
+            throw new Error('LinkedIn video processing timed out after 60s');
         }
       }
     }
@@ -443,7 +500,12 @@ export class PublisherService {
 
     if (assetUrn) {
       shareContent.media = [
-        { status: 'READY', description: { text: '' }, media: assetUrn, title: { text: '' } },
+        {
+          status: 'READY',
+          description: { text: '' },
+          media: assetUrn,
+          title: { text: '' },
+        },
       ];
     }
 
@@ -482,7 +544,10 @@ export class PublisherService {
     text: string,
     mimeType?: string,
   ) {
-    const tiktokRequest = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
+    const tiktokRequest = async <T>(
+      label: string,
+      fn: () => Promise<T>,
+    ): Promise<T> => {
       try {
         return await fn();
       } catch (err: any) {
@@ -491,9 +556,7 @@ export class PublisherService {
         this.logger.error(
           `TikTok [${label}] HTTP ${status ?? 'no-response'}: ${JSON.stringify(body)}`,
         );
-        throw new Error(
-          body?.error?.message || body?.message || err.message,
-        );
+        throw new Error(body?.error?.message || body?.message || err.message);
       }
     };
 
@@ -507,70 +570,80 @@ export class PublisherService {
     const contentType = mimeType?.startsWith('video/') ? mimeType : 'video/mp4';
 
     // Step 2: Init the upload session — Direct Post to TikTok feed
-    const initRes = await tiktokRequest('init', () => axios.post(
-      'https://open.tiktokapis.com/v2/post/publish/video/init/',
-      {
-        post_info: {
-          title: text.substring(0, 2200),
-          privacy_level: 'PUBLIC_TO_EVERYONE',
-          disable_duet: false,
-          disable_stitch: false,
-          disable_comment: false,
-          video_cover_timestamp_ms: 1000,
+    const initRes = await tiktokRequest('init', () =>
+      axios.post(
+        'https://open.tiktokapis.com/v2/post/publish/video/init/',
+        {
+          post_info: {
+            title: text.substring(0, 2200),
+            privacy_level: 'PUBLIC_TO_EVERYONE',
+            disable_duet: false,
+            disable_stitch: false,
+            disable_comment: false,
+            video_cover_timestamp_ms: 1000,
+          },
+          source_info: {
+            source: 'FILE_UPLOAD',
+            video_size: videoSize,
+            chunk_size: videoSize,
+            total_chunk_count: 1,
+          },
         },
-        source_info: {
-          source: 'FILE_UPLOAD',
-          video_size: videoSize,
-          chunk_size: videoSize,
-          total_chunk_count: 1,
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        timeout: 30_000,
-      },
-    ));
-
-    const tiktokError = initRes.data?.error;
-    if (tiktokError?.code && tiktokError.code !== 'ok') {
-      throw new Error(`TikTok init error: ${tiktokError.message} (${tiktokError.code})`);
-    }
-
-    const { publish_id, upload_url } = initRes.data?.data ?? {};
-    if (!publish_id || !upload_url) {
-      throw new Error(`TikTok init returned no upload URL: ${JSON.stringify(initRes.data)}`);
-    }
-
-    // Step 3: Upload video bytes in a single chunk
-    await tiktokRequest('upload', () => axios.put(upload_url, videoBuffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Content-Range': `bytes 0-${videoSize - 1}/${videoSize}`,
-        'Content-Length': String(videoSize),
-      },
-      maxBodyLength: Infinity,
-      maxContentLength: Infinity,
-      timeout: 120_000,
-    }));
-
-    // Step 4: Poll until TikTok finishes processing the upload
-    const maxAttempts = 30; // 30 × 2s = 60s max wait
-    for (let i = 0; i < maxAttempts; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      const statusRes = await tiktokRequest('status', () => axios.post(
-        'https://open.tiktokapis.com/v2/post/publish/status/fetch/',
-        { publish_id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json; charset=UTF-8',
           },
-          timeout: 10_000,
+          timeout: 30_000,
         },
-      ));
+      ),
+    );
+
+    const tiktokError = initRes.data?.error;
+    if (tiktokError?.code && tiktokError.code !== 'ok') {
+      throw new Error(
+        `TikTok init error: ${tiktokError.message} (${tiktokError.code})`,
+      );
+    }
+
+    const { publish_id, upload_url } = initRes.data?.data ?? {};
+    if (!publish_id || !upload_url) {
+      throw new Error(
+        `TikTok init returned no upload URL: ${JSON.stringify(initRes.data)}`,
+      );
+    }
+
+    // Step 3: Upload video bytes in a single chunk
+    await tiktokRequest('upload', () =>
+      axios.put(upload_url, videoBuffer, {
+        headers: {
+          'Content-Type': contentType,
+          'Content-Range': `bytes 0-${videoSize - 1}/${videoSize}`,
+          'Content-Length': String(videoSize),
+        },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        timeout: 120_000,
+      }),
+    );
+
+    // Step 4: Poll until TikTok finishes processing the upload
+    const maxAttempts = 30; // 30 × 2s = 60s max wait
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const statusRes = await tiktokRequest('status', () =>
+        axios.post(
+          'https://open.tiktokapis.com/v2/post/publish/status/fetch/',
+          { publish_id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            timeout: 10_000,
+          },
+        ),
+      );
       const status = statusRes.data?.data?.status as string;
       this.logger.log(`TikTok publish_id=${publish_id} status: ${status}`);
       // PUBLISH_COMPLETE = direct post succeeded
@@ -579,7 +652,9 @@ export class PublisherService {
         return publish_id as string;
       }
       if (status === 'FAILED') {
-        throw new Error(`TikTok publish failed: ${JSON.stringify(statusRes.data?.data)}`);
+        throw new Error(
+          `TikTok publish failed: ${JSON.stringify(statusRes.data?.data)}`,
+        );
       }
       if (i === maxAttempts - 1) {
         throw new Error('TikTok publishing timed out after 60s');
@@ -606,7 +681,7 @@ export class PublisherService {
     const containerRes = await axios.post(
       'https://graph.threads.net/v1.0/me/threads',
       null,
-      { params: containerParams }
+      { params: containerParams },
     );
     const containerId = containerRes.data.id;
 
@@ -618,7 +693,7 @@ export class PublisherService {
     const publishRes = await axios.post(
       'https://graph.threads.net/v1.0/me/threads_publish',
       null,
-      { params: { creation_id: containerId, access_token: token } }
+      { params: { creation_id: containerId, access_token: token } },
     );
 
     return publishRes.data.id;
@@ -673,7 +748,10 @@ export class PublisherService {
   // =================================================================
   // TOKEN REFRESH — Google (YouTube)
   // =================================================================
-  private async refreshGoogleToken(accountId: string, refreshToken: string): Promise<string> {
+  private async refreshGoogleToken(
+    accountId: string,
+    refreshToken: string,
+  ): Promise<string> {
     const params = new URLSearchParams({
       client_id: process.env.GOOGLE_CLIENT_ID ?? '',
       client_secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
@@ -699,7 +777,10 @@ export class PublisherService {
   // =================================================================
   // TOKEN REFRESH — LinkedIn
   // =================================================================
-  private async refreshLinkedInToken(accountId: string, refreshToken: string): Promise<string> {
+  private async refreshLinkedInToken(
+    accountId: string,
+    refreshToken: string,
+  ): Promise<string> {
     const params = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
@@ -710,7 +791,10 @@ export class PublisherService {
     const res = await axios.post(
       'https://www.linkedin.com/oauth/v2/accessToken',
       params.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 15_000 },
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        timeout: 15_000,
+      },
     );
 
     const newAccessToken: string = res.data.access_token;
@@ -729,10 +813,15 @@ export class PublisherService {
   // =================================================================
   // TOKEN REFRESH — Twitter / X (OAuth 2.0)
   // =================================================================
-  private async refreshTwitterToken(accountId: string, refreshToken: string): Promise<string> {
+  private async refreshTwitterToken(
+    accountId: string,
+    refreshToken: string,
+  ): Promise<string> {
     const clientId = process.env.TWITTER_API_KEY ?? '';
     const clientSecret = process.env.TWITTER_API_SECRET ?? '';
-    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      'base64',
+    );
 
     const params = new URLSearchParams({
       grant_type: 'refresh_token',
@@ -793,9 +882,12 @@ export class PublisherService {
       switch (platform) {
         case 'FACEBOOK':
         case 'INSTAGRAM':
-          await axios.delete(`https://graph.facebook.com/v19.0/${platformPostId}`, {
-            params: { access_token: accessToken },
-          });
+          await axios.delete(
+            `https://graph.facebook.com/v19.0/${platformPostId}`,
+            {
+              params: { access_token: accessToken },
+            },
+          );
           break;
         case 'LINKEDIN':
           await axios.delete(
@@ -847,7 +939,9 @@ export class PublisherService {
         error.response?.data?.error?.message ||
         error.response?.data?.message ||
         error.message;
-      this.logger.warn(`Could not delete ${platform} post ${platformPostId}: ${msg}`);
+      this.logger.warn(
+        `Could not delete ${platform} post ${platformPostId}: ${msg}`,
+      );
       // Don't rethrow — always proceed with DB deletion
     }
   }

@@ -52,10 +52,14 @@ export class GcsService {
   }
 
   isGcsSignedUrl(url: string): boolean {
-    return url.includes('storage.googleapis.com') && url.includes('X-Goog-Algorithm');
+    return (
+      url.includes('storage.googleapis.com') && url.includes('X-Goog-Algorithm')
+    );
   }
 
-  private async signBlob(blob: ReturnType<ReturnType<Storage['bucket']>['file']>): Promise<string> {
+  private async signBlob(
+    blob: ReturnType<ReturnType<Storage['bucket']>['file']>,
+  ): Promise<string> {
     const [url] = await blob.getSignedUrl({
       action: 'read',
       expires: Date.now() + SIGNED_URL_TTL_MS,

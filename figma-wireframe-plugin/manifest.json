@@ -1,0 +1,13 @@
+{
+  "name": "EazyPost Wireframe Generator",
+  "id": "eazypost-wireframe-generator",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "ui": {},
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

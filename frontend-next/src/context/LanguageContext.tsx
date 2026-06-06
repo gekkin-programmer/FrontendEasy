@@ -2,13 +2,14 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-type Language = 'en' | 'fr';
+type Language = 'en' | 'fr' | 'ar';
 type Theme = 'light' | 'dark';
 
 interface LanguageContextType {
   language: Language;
+  setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: (en: string, fr: string) => string;
+  t: (en: string, fr: string, ar?: string) => string;
   theme: Theme;
   toggleTheme: () => void;
 }
@@ -50,10 +51,15 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleLanguage = () => {
     setLanguage((prev) => {
-      const newLang = prev === 'en' ? 'fr' : 'en';
+      const newLang = prev === 'en' ? 'fr' : prev === 'fr' ? 'ar' : 'en';
       localStorage.setItem('app_language', newLang);
       return newLang;
     });
+  };
+
+  const setLanguageOverride = (newLang: Language) => {
+    localStorage.setItem('app_language', newLang);
+    setLanguage(newLang);
   };
 
   const toggleTheme = () => {
@@ -64,10 +70,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const t = (en: string, fr: string) => (language === 'en' ? en : fr);
+  const t = (en: string, fr: string, ar?: string) => {
+    if (language === 'fr') return fr;
+    if (language === 'ar' && ar) return ar;
+    return en;
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t, theme, toggleTheme }}>
+    <LanguageContext.Provider value={{ language, setLanguage: setLanguageOverride, toggleLanguage, t, theme, toggleTheme }}>
       {children}
     </LanguageContext.Provider>
   );
