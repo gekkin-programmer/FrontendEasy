@@ -60,22 +60,6 @@ export default function Home() {
         <div style={styles.countdown}>
           {formatTime(timeLeft.hours)} : {formatTime(timeLeft.minutes)} : {formatTime(timeLeft.seconds)}
         </div>
-
-        <button 
-          style={styles.button}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = '#3C48F6';
-            e.currentTarget.style.color = '#FCE7E8';
-            e.currentTarget.style.transform = 'scale(1.02)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = '#FCE7E8';
-            e.currentTarget.style.color = '#3C48F6';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          {t("Stay in Touch", "Restez en contact")}
-        </button>
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
