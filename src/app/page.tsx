@@ -51,7 +51,10 @@ export default function Home() {
 
       {/* Text Content on the Right */}
       <div style={styles.contentColumn}>
-        <img src="/applogo.png" alt="EazyPost Logo" style={styles.logo} />
+        <div style={styles.logoContainer}>
+          <img src="/applogo.png" alt="E" style={styles.logo} />
+          <span style={styles.logoText}>azypost</span>
+        </div>
         <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
         
         <p style={styles.subheading}>
@@ -62,6 +65,8 @@ export default function Home() {
           {formatTime(timeLeft.hours)} : {formatTime(timeLeft.minutes)} : {formatTime(timeLeft.seconds)}
         </div>
       </div>
+      
+      <img src="/logos/BC-violet.png" alt="BestCorp Logo" style={styles.bestcorpLogo} />
       
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&display=swap');
@@ -78,6 +83,7 @@ export default function Home() {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
+    position: 'relative',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -105,10 +111,30 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: '750px',
     flex: '1 1 500px',
   },
+  logoContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '4px',
+    marginBottom: '16px',
+  },
   logo: {
     height: '64px',
     width: 'auto',
-    marginBottom: '16px',
+  },
+  logoText: {
+    fontFamily: "'Rubik', sans-serif",
+    fontWeight: 700,
+    fontSize: '56px',
+    color: '#3C48F6',
+    letterSpacing: '-1px',
+  },
+  bestcorpLogo: {
+    position: 'absolute',
+    bottom: '32px',
+    right: '64px',
+    height: '48px',
+    width: 'auto',
   },
   heading: {
     fontFamily: "'Rubik', sans-serif",
