@@ -119,13 +119,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '16px',
   },
   logo: {
-    height: '64px',
+    height: '80px',
     width: 'auto',
   },
   logoText: {
     fontFamily: "'Rubik', sans-serif",
     fontWeight: 700,
-    fontSize: '56px',
+    fontSize: '72px',
     color: '#3C48F6',
     letterSpacing: '-1px',
   },
