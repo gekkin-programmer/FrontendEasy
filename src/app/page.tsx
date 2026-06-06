@@ -244,11 +244,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     height: 'clamp(350px, 45vw, 700px)',
     background: 'url(/Update.gif)',
     backgroundSize: 'cover',
-    backgroundPosition: 'bottom right',
+    backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     flex: 'none',
     order: 1,
     flexGrow: 0,
-    alignSelf: 'flex-end',
   }
 };
