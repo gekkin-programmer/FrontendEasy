@@ -51,6 +51,7 @@ export default function Home() {
 
       {/* Text Content on the Right */}
       <div style={styles.contentColumn}>
+        <img src="/applogo.png" alt="EazyPost Logo" style={styles.logo} />
         <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
         
         <p style={styles.subheading}>
@@ -103,6 +104,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '32px',
     maxWidth: '750px',
     flex: '1 1 500px',
+  },
+  logo: {
+    height: '64px',
+    width: 'auto',
+    marginBottom: '16px',
   },
   heading: {
     fontFamily: "'Rubik', sans-serif",
