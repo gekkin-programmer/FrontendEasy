@@ -75,8 +75,12 @@ export default function Home() {
         </div>
       </div>
       
+      {/* The new GIF element */}
+      <div style={styles.imageBox} />
+      
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rubik+One&display=swap');
         
         * {
           box-sizing: border-box;
@@ -91,14 +95,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: '0px 64px',
     position: 'relative',
     width: '100%',
     minHeight: '100vh',
-    // Using a light elegant placeholder image since Figma didn't specify the exact .jpg
-    background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url("https://images.unsplash.com/photo-1495360010541-f48722b34f7d?q=80&w=2536&auto=format&fit=crop")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    background: '#FFFFFF', // Solid white background
     fontFamily: "'Roboto', sans-serif",
   },
   column: {
@@ -109,6 +111,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '24px',
     width: '100%',
     maxWidth: '709px',
+    flex: 'none',
+    order: 0,
+    flexGrow: 0,
   },
   content: {
     display: 'flex',
@@ -121,9 +126,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   heading: {
     margin: 0,
     width: '100%',
+    fontFamily: "'Rubik One', sans-serif",
     fontStyle: 'normal',
-    fontWeight: 700,
-    fontSize: 'clamp(40px, 5vw, 56px)',
+    fontWeight: 400,
+    fontSize: 'clamp(32px, 4vw, 56px)',
     lineHeight: '120%',
     color: '#3C48F6',
   },
@@ -142,23 +148,23 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   countdownNumber: {
     fontWeight: 700,
-    fontSize: 'clamp(32px, 5vw, 56px)',
-    color: '#3C48F6',
+    fontSize: 'clamp(32px, 5vw, 48px)',
+    color: '#1E1E1E',
     lineHeight: '100%',
     fontVariantNumeric: 'tabular-nums',
   },
   countdownLabel: {
     fontWeight: 400,
     fontSize: '16px',
-    color: '#676767',
+    color: '#1E1E1E',
     marginTop: '8px',
     textTransform: 'uppercase',
     letterSpacing: '1px',
   },
   countdownSeparator: {
     fontWeight: 700,
-    fontSize: 'clamp(32px, 5vw, 56px)',
-    color: '#3C48F6',
+    fontSize: 'clamp(32px, 5vw, 48px)',
+    color: '#1E1E1E',
     lineHeight: '90%',
   },
   actions: {
@@ -222,5 +228,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '12px',
     lineHeight: '150%',
     color: '#1E1E1E',
+  },
+  imageBox: {
+    width: 'clamp(300px, 35vw, 500px)',
+    height: 'clamp(300px, 35vw, 500px)',
+    background: 'url(/Update.gif)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    flex: 'none',
+    order: 1,
+    flexGrow: 0,
   }
 };
