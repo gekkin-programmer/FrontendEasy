@@ -35,7 +35,7 @@ export default function Home() {
         <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
         
         <p style={styles.subheading}>
-          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 15.", "Ce n'est pas encore là, mais nous vous ferons savoir que cela arrive très bientôt. Restez dans le coin et revenez le 15 juin.")}
+          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que cela arrive très bientôt. Restez dans le coin et revenez le 27 juin.")}
         </p>
       </div>
       
