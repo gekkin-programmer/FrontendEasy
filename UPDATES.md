@@ -57,3 +57,4 @@
 - feat(frontend-next): implement responsive "Coming Soon" page based on Figma export, with functional 72-hour countdown timer and solid #032EF8 background.
 - feat(frontend-next): refine logo styling with Rubik font and custom image, and add 'By Bestcorp' label.
 - style(frontend-next): update primary theme color to #3C48F5 across the page and set main card background to white.
+- fix(frontend-next): eliminate video border visibility and fix typography pulsing glitch in the countdown timer.
