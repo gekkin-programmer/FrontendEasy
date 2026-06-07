@@ -59,3 +59,4 @@
 - style(frontend-next): update primary theme color to #3C48F5 across the page and set main card background to white.
 - fix(frontend-next): eliminate video border visibility and fix typography pulsing glitch in the countdown timer.
 - content(frontend-next): update main headline text and replace Bestcorp label with a clickable logo redirecting to their website.
+- fix(frontend-next): extract countdown logic to prevent whole-page re-renders and fix H1 layout pulsing, and increase Bestcorp logo size.
