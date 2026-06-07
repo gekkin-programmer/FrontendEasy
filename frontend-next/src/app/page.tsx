@@ -4,16 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
-export default function Home() {
-  const { t } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-
+const Countdown = () => {
   const [timeLeft, setTimeLeft] = useState(72 * 60 * 60);
 
   useEffect(() => {
-    setMounted(true);
-    
-    // Check if we have a saved end time in localStorage
     const savedEndTime = localStorage.getItem('countdownEndTime');
     let endTime: number;
     
@@ -42,6 +36,21 @@ export default function Home() {
     return `${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
   };
 
+  return (
+    <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest tabular-nums min-w-[260px] transform-gpu">
+      {formatTime(timeLeft)}
+    </h2>
+  );
+};
+
+export default function Home() {
+  const { t } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!mounted) return null;
 
   return (
@@ -60,9 +69,7 @@ export default function Home() {
             azypost
           </div>
           
-          <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest tabular-nums min-w-[260px]">
-            {formatTime(timeLeft)}
-          </h2>
+          <Countdown />
           
           <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px]">
             {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
@@ -96,7 +103,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-[#A7A7A7] text-xl font-medium tracking-wide hover:opacity-80 transition-opacity"
           >
-            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-6 w-auto" />
+            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-10 w-auto" />
           </a>
 
           <video 
