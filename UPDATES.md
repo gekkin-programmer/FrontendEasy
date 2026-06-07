@@ -64,3 +64,5 @@
 - style(frontend-next): apply Rubik font to H1 and By text, update By text color to black, and increase Bestcorp logo size.
 - feat(frontend-next): remove countdown timer completely from the landing page.
 - style(frontend-next): further increase the size of the Bestcorp logo.
+- feat(frontend-next): implement functional email subscription form that collects and stores emails in localStorage.
+- style(frontend-next): add smooth scale and shadow transform animation to the Subscribe button on hover.
