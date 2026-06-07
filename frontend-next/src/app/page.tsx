@@ -62,7 +62,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-black text-xl font-medium tracking-wide hover:opacity-80 transition-opacity font-rubik"
           >
-            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-14 w-auto" />
+            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-20 w-auto" />
           </a>
 
           <video 
