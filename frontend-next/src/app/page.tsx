@@ -64,8 +64,8 @@ export default function Home() {
             {formatTime(timeLeft)}
           </h2>
           
-          <h1 className="text-[#2D2D2D] text-4xl sm:text-5xl lg:text-[64px] font-semibold leading-[1.1] mb-12">
-            {t("GET NOTIFIED WHEN WE WILL LAUNCH!", "SOYEZ INFORMÉ DE NOTRE LANCEMENT !")}
+          <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px]">
+            {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
           </h1>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
@@ -90,9 +90,14 @@ export default function Home() {
         {/* Right Content Column */}
         <div className="flex-1 w-full flex flex-col items-center lg:items-end justify-center relative mt-8 lg:mt-0">
           {/* By Bestcorp Label for Desktop */}
-          <div className="hidden lg:flex absolute -top-12 right-4 text-[#A7A7A7] text-xl font-medium tracking-wide">
-            By Bestcorp
-          </div>
+          <a 
+            href="https://www.bestcorpcmr.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-[#A7A7A7] text-xl font-medium tracking-wide hover:opacity-80 transition-opacity"
+          >
+            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-6 w-auto" />
+          </a>
 
           <video 
             autoPlay 
