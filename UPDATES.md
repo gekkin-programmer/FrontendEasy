@@ -63,3 +63,4 @@
 - style(frontend-next): remove shadows from the main display video.
 - style(frontend-next): apply Rubik font to H1 and By text, update By text color to black, and increase Bestcorp logo size.
 - feat(frontend-next): remove countdown timer completely from the landing page.
+- style(frontend-next): further increase the size of the Bestcorp logo.
