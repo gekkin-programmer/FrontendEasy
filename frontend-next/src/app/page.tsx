@@ -71,7 +71,7 @@ export default function Home() {
           
           <Countdown />
           
-          <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px]">
+          <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px] font-rubik">
             {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
           </h1>
 
@@ -101,9 +101,9 @@ export default function Home() {
             href="https://www.bestcorpcmr.com/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-[#A7A7A7] text-xl font-medium tracking-wide hover:opacity-80 transition-opacity"
+            className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-black text-xl font-medium tracking-wide hover:opacity-80 transition-opacity font-rubik"
           >
-            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-10 w-auto" />
+            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-14 w-auto" />
           </a>
 
           <video 
@@ -120,7 +120,7 @@ export default function Home() {
 
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
         
         .font-outfit {
           font-family: 'Outfit', sans-serif;
