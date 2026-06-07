@@ -7,10 +7,34 @@ import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 export default function Home() {
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    // Collect and store email in localStorage
+    const existing = localStorage.getItem('subscribedEmails');
+    const emails = existing ? JSON.parse(existing) : [];
+    
+    if (!emails.includes(email)) {
+      emails.push(email);
+      localStorage.setItem('subscribedEmails', JSON.stringify(emails));
+    }
+    
+    setSubscribed(true);
+    setEmail('');
+    
+    // Reset success message after 3 seconds
+    setTimeout(() => {
+      setSubscribed(false);
+    }, 3000);
+  };
 
   if (!mounted) return null;
 
@@ -34,16 +58,22 @@ export default function Home() {
             {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
           </h1>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
             <input 
               type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder={t("Enter your email", "Entrez votre email")}
+              required
               className="flex-1 px-6 py-4 bg-white shadow-[0px_20px_70px_rgba(0,39,96,0.12)] rounded-lg text-lg text-[#2D2D2D] outline-none placeholder:text-[#A7A7A7] transition-shadow focus:shadow-[0px_20px_70px_rgba(0,103,255,0.2)]"
             />
-            <button className="px-8 py-4 bg-[#3C48F5] text-white rounded-lg text-lg font-semibold hover:bg-[#2d38cf] transition-colors shrink-0">
-              {t("Subscribe", "S'abonner")}
+            <button 
+              type="submit"
+              className="px-8 py-4 bg-[#3C48F5] text-white rounded-lg text-lg font-semibold hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300 shrink-0"
+            >
+              {subscribed ? t("Subscribed!", "Abonné !") : t("Subscribe", "S'abonner")}
             </button>
-          </div>
+          </form>
           
           {/* Social Icons for Mobile */}
           <div className="flex lg:hidden flex-row gap-6 mt-12 text-[#A7A7A7] text-2xl">
