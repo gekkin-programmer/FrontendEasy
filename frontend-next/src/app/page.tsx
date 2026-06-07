@@ -60,7 +60,7 @@ export default function Home() {
             azypost
           </div>
           
-          <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest">
+          <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest tabular-nums min-w-[260px]">
             {formatTime(timeLeft)}
           </h2>
           
@@ -99,7 +99,7 @@ export default function Home() {
             loop 
             muted 
             playsInline 
-            className="w-full max-w-[512px] aspect-square object-cover rounded-[36px] shadow-lg"
+            className="w-full max-w-[512px] aspect-square object-cover rounded-[36px] shadow-lg border-none outline-none ring-0"
           >
             <source src="/coming-soon.mp4" type="video/mp4" />
           </video>
