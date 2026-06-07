@@ -56,3 +56,4 @@
 - chore(frontend): pull latest changes from FrontendEasy repository main branch (source of truth) into frontend-next workspace, replacing old contents to ensure up-to-date state.
 - feat(frontend-next): implement responsive "Coming Soon" page based on Figma export, with functional 72-hour countdown timer and solid #032EF8 background.
 - feat(frontend-next): refine logo styling with Rubik font and custom image, and add 'By Bestcorp' label.
+- style(frontend-next): update primary theme color to #3C48F5 across the page and set main card background to white.
