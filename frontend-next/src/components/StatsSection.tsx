@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { useLanguage } from "../context/LanguageContext"; 
+import { useLanguage } from "../context/LanguageContext";
+import SectionBackground from './SectionBackground'; 
 
 interface StatsCardProps {
   end: number;
@@ -33,8 +34,8 @@ const StatsCard: React.FC<StatsCardProps> = ({ end, label, suffix = "", duration
   }, [inView, end, duration]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 border-b-4 md:border-b-0 md:border-r-4 border-black dark:border-white/5 last:border-b-0 last:border-r-0 hover:bg-[#3C48F5] hover:text-white dark:hover:bg-white/5 transition-colors cursor-default group">
-      <div className="text-4xl sm:text-5xl md:text-6xl font-black font-mono text-black dark:text-gray-200 group-hover:text-white group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
+    <div className="flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-100 dark:border-white/5 last:border-b-0 last:border-r-0 hover:bg-[#3C48F5] hover:text-white dark:hover:bg-white/5 transition-colors cursor-default group">
+      <div className="text-4xl sm:text-5xl md:text-6xl font-black font-mono text-black dark:text-gray-200 group-hover:text-white transition-colors">
         <span ref={ref}>{count.toLocaleString()}</span>{suffix}
       </div>
       <p className="mt-4 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-gray-500 group-hover:text-black dark:group-hover:text-gray-200 text-center">
@@ -54,11 +55,12 @@ const StatsSection: React.FC = () => {
   ];
 
   return (
-    <section 
-      className="w-full bg-white dark:bg-black/90 border-b-4 border-black dark:border-white/5"
+    <section
+      className="w-full bg-white dark:bg-black border-b border-gray-100 dark:border-white/5 relative overflow-hidden"
       aria-label="Statistics"
     >
-      <div className="container mx-auto px-0">
+      <SectionBackground />
+      <div className="container mx-auto px-0 relative z-10">
         {/* Mobile: Stack vertical (border-b), Desktop: Horizontal (border-r) */}
         <div className="grid grid-cols-1 md:grid-cols-3">
           {stats.map((item) => (

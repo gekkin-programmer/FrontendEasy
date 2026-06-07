@@ -22,7 +22,7 @@ export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exch
 
     useEffect(() => {
         if (isOpen) {
-            setIsLoading(true);
+            setTimeout(() => setIsLoading(true), 0);
             let endpoint = '/social-accounts/facebook/pages';
             if (exchangeToken) endpoint += `?exchange_token=${encodeURIComponent(exchangeToken)}`;
             

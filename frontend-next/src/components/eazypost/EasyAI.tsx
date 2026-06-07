@@ -106,9 +106,9 @@ export default function EasyAI() {
       const res = await api.post<AiChatResponse>('/ai/chat', { message: text });
       
       // ➤ FIX: Match backend response structure ({ messageId, response })
-      // @ts-ignore
+      // @ts-expect-error -- backend response shape differs from typed client
       const aiResponse = res.response || res.data?.response || "I didn't catch that.";
-      // @ts-ignore
+      // @ts-expect-error -- backend response shape differs from typed client
       const messageId = res.messageId || res.data?.messageId;
       
       setMessages(prev => [...prev, { role: 'ai', content: aiResponse, messageId }]);

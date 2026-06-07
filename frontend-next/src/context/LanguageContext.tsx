@@ -16,36 +16,25 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // 1. Language Initialization
+  // 1. Language — lazy init from localStorage (client only, fallback 'en' for SSR)
   const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('app_language') as Language;
-      if (saved) return saved;
-      const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
-      localStorage.setItem('app_language', deviceLang);
-      return deviceLang;
-    }
-    return 'en';
+    if (typeof window === 'undefined') return 'en';
+    const saved = localStorage.getItem('app_language') as Language;
+    if (saved) return saved;
+    const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+    localStorage.setItem('app_language', deviceLang);
+    return deviceLang;
   });
 
-  // 2. Theme Initialization
+  // 2. Theme — lazy init from localStorage (client only, fallback 'dark' for SSR)
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme') as Theme;
-      if (saved) {
-        if (saved === 'dark') document.documentElement.classList.add('dark');
-        else document.documentElement.classList.remove('dark');
-        return saved;
-      }
-      // Default to dark for EazyPost
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      return 'dark';
-    }
-    return 'dark';
+    if (typeof window === 'undefined') return 'dark';
+    const saved = localStorage.getItem('theme') as Theme;
+    if (!saved) localStorage.setItem('theme', 'dark');
+    return saved || 'dark';
   });
 
-  // Apply theme to document class on mount and when changed
+  // Apply theme class whenever theme changes
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -53,6 +42,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
+
+  // Sync <html lang> with selected language
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const toggleLanguage = () => {
     setLanguage((prev) => {

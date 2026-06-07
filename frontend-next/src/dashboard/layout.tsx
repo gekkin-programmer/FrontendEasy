@@ -1,5 +1,5 @@
-import Sidebar from '@/src/components/eazypost/Sidebar';
-import MobileNav from '@/src/components/eazypost/MobileNav';
+import Sidebar from '@/src/components/easypost/Sidebar';
+import MobileNav from '@/src/components/easypost/MobileNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      {/* Mobile Bottom Nav (Hidden on Desktop) */}
+      {/* Mobile Bottom Nav (Hidden on Desktop for better UX) */}
       <MobileNav />
     </div>
   );

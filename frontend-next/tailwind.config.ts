@@ -11,9 +11,9 @@ const config: Config = {
   	extend: {
       // --- YOUR CUSTOM FONTS ---
       fontFamily: {
-        mono: ["var(--font-jetbrains-mono)", "monospace"],
+        mono: ["var(--font-rubik)", "monospace"],
         // Setting this to sans makes it the default for the whole app
-        sans: ["var(--font-jetbrains-mono)", "sans-serif"], 
+        sans: ["var(--font-rubik)", "sans-serif"], 
       },
       
   		colors: {
@@ -65,6 +65,7 @@ const config: Config = {
   		}
   	}
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 export default config;

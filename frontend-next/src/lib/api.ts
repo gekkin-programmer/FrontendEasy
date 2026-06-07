@@ -3,7 +3,10 @@
 import { getCookie, deleteCookie } from 'cookies-next';
 
 // 1. Ensure the URL doesn't have a trailing slash to avoid double slashes (e.g., //posts)
-const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com/api').replace(/\/$/, '');
+const BASE_URL =
+  (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+    .replace(/\/$/, '')
+    .replace(/\/api$/, '') + '/api';
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
@@ -85,6 +88,7 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
   } catch (error: any) {
     // 7. Handle Network Errors (Common on 3G in Yaoundé)
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+       console.error("NETWORK_DISCONNECTED :: Check 3G/Fiber status");
        throw new Error('NETWORK_OFFLINE');
     }
     throw error;

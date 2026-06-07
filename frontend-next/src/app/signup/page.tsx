@@ -8,6 +8,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaGithub, FaCheck, FaStar } from 'react-icons/fa6';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { setCookie } from 'cookies-next';
 
 // --- CAROUSEL DATA ---
 const TESTIMONIALS = [
@@ -56,7 +57,10 @@ const SignupPage = () => {
   }, []);
 
   // API Config
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const API_URL =
+    (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
+      .replace(/\/$/, '')
+      .replace(/\/api$/, '') + '/api';
 
   // --- AUTH HANDLERS ---
   const handleGoogleSignup = () => {
@@ -95,8 +99,14 @@ const SignupPage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Verification failed');
-      
-      localStorage.setItem('accessToken', data.accessToken);
+
+      if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
+      setCookie('accessToken', data.accessToken, {
+        maxAge: 60 * 60 * 24,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.message);
@@ -106,19 +116,27 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 lg:grid lg:grid-cols-2 relative font-sans">
-      
+    <div className={`min-h-screen bg-white dark:bg-gray-900 relative font-sans ${step === 'FORM' ? 'lg:grid lg:grid-cols-2' : ''}`}>
+
       {/* LEFT COLUMN: FORM */}
-        <div className="relative hidden lg:flex flex-col h-screen w-full bg-[#FFFFFF] overflow-hidden sticky top-0">
-        <div className="mx-auto w-full max-w-[480px]">
+      <div className="relative flex flex-col justify-center items-center h-screen w-full bg-white overflow-y-auto px-6 py-12 lg:px-12 sticky top-0">
+        <div className="w-full max-w-[480px]">
+
+          {/* Mobile Logo */}
+          <div className="mb-8 lg:hidden">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <Image src="/assets/WiggleLogo.png" alt="EazyPost" width={36} height={36} className="object-contain" />
+              <span className="font-bold text-lg text-gray-900">EazyPost</span>
+            </Link>
+          </div>
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {step === 'FORM' ? 'Create an account' : 'Check your email'}
             </h1>
-            <p className="mt-1 text-base text-gray-600">
+            <p className="mt-2 text-base text-gray-600">
               {step === 'FORM' 
-                ? '' 
+                ? 'Start your 14-day free trial. No credit card required.' 
                 : <span>We sent a verification code to <strong>{formData.email}</strong></span>
               }
             </p>
@@ -195,8 +213,8 @@ const SignupPage = () => {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: HIGH-END CAROUSEL */}
-      <div className="relative hidden lg:flex flex-col h-full w-full bg-[#050505] overflow-hidden">
+      {/* RIGHT COLUMN: HIGH-END CAROUSEL — hidden on verify step */}
+      <div className={`relative flex-col h-full w-full bg-[#050505] overflow-hidden ${step === 'FORM' ? 'hidden lg:flex' : 'hidden'}`}>
         
         {/* Background Image Carousel */}
         <AnimatePresence mode='popLayout'>
@@ -235,7 +253,7 @@ const SignupPage = () => {
                     </div>
                     
                     <blockquote className="text-3xl lg:text-4xl font-medium leading-snug text-white mb-8 tracking-tight">
-                        "{TESTIMONIALS[currentSlide].quote}"
+                        &ldquo;{TESTIMONIALS[currentSlide].quote}&rdquo;
                     </blockquote>
 
                     <div className="flex items-center gap-5 border-t border-white/10 pt-8">

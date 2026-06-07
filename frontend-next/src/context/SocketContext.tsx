@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
 
@@ -15,45 +15,55 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children, workspaceId }: { children: React.ReactNode, workspaceId?: string }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     const token = getCookie('accessToken');
     if (!token) return;
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazypostv2.onrender.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com';
     const socketUrl = API_URL.replace('/api', '') + '/events';
 
-    const socket = io(socketUrl, {
+    const newSocket = io(socketUrl, {
       auth: { token },
       transports: ['websocket'],
     });
 
-    socket.on('connect', () => {
+    newSocket.on('connect', () => {
+      console.log('📡 [WS] Connected to Server');
       setIsConnected(true);
+      setSocket(newSocket);
       if (workspaceId) {
-        socket.emit('join_workspace', workspaceId);
+        newSocket.emit('join_workspace', workspaceId);
       }
     });
 
-    socket.on('disconnect', () => {
+    newSocket.on('connect_error', (err) => {
+      const msg = err.message?.toLowerCase() ?? '';
+      if (msg.includes('jwt') || msg.includes('expired') || msg.includes('unauthorized')) {
+        newSocket.disconnect();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('📡 [WS] Disconnected');
       setIsConnected(false);
     });
 
-    socket.on('joined', () => {});
-
-    socketRef.current = socket;
+    newSocket.on('joined', (data) => {
+        console.log('📡 [WS] Joined Room:', data);
+    });
 
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('joined');
-      socket.disconnect();
+      newSocket.disconnect();
     };
   }, [workspaceId]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
+    <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </SocketContext.Provider>
   );

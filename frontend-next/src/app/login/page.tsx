@@ -19,7 +19,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   // CONFIG
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const API_URL =
+    (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
+      .replace(/\/$/, '')
+      .replace(/\/api$/, '') + '/api';
 
   // 1. SOCIAL LOGIN
   const handleGoogleLogin = () => {
@@ -82,7 +85,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
             <Image 
               src="/assets/WiggleLogo.png" 
-              alt="EazyPost Logo" 
+              alt="EasyPost Logo" 
               width={48} 
               height={48} 
               className="object-contain"
@@ -101,7 +104,7 @@ export default function LoginPage() {
           <div className="flex gap-1 mb-3">
             {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
           </div>
-          <p className="text-gray-200 mb-6 leading-relaxed">"The workspace feature changed how we handle multiple clients. It's simply the best tool out there."</p>
+          <p className="text-gray-200 mb-6 leading-relaxed">&ldquo;The workspace feature changed how we handle multiple clients. It&apos;s simply the best tool out there.&rdquo;</p>
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
                 <Image 
@@ -130,7 +133,7 @@ export default function LoginPage() {
                <div className="relative w-10 h-10">
                  <Image 
                    src="/assets/WiggleLogo.png" 
-                   alt="EazyPost Logo" 
+                   alt="EasyPost Logo" 
                    fill
                    className="object-contain"
                    priority
@@ -178,7 +181,7 @@ export default function LoginPage() {
             <div>
               <div className="flex justify-between items-center mb-2 ml-1">
                 <label className="block text-sm font-bold text-gray-700">Password</label>
-                <Link href="#" className="text-xs font-semibold text-[#3C48F6] hover:text-blue-700">
+                <Link href="/forgot-password" className="text-xs font-semibold text-[#3C48F6] hover:text-blue-700">
                   Forgot password?
                 </Link>
               </div>
@@ -210,7 +213,7 @@ export default function LoginPage() {
 
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="font-bold text-[#3C48F6] hover:text-blue-700 transition-colors">
                 Sign up
               </Link>

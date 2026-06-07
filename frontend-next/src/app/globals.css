@@ -2,18 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── GLOBAL SCALE FIX ───────────────────────────────────────────────────────
-   App was designed at 90% browser zoom. Setting html font-size to 90% (14.4px)
-   makes 1rem = 14.4px so all Tailwind rem values match the intended design at
-   any browser zoom level. px-based borders/shadows are unaffected.
-────────────────────────────────────────────────────────────────────────────── */
-html {
-  font-size: 90%;
-}
-
 @layer base {
   :root {
-    /* --- BRAND: EazyPost Blue #304AEB --- */
+    /* --- BRAND: EasyPost Blue #304AEB --- */
     /* HSL values for opacity support: 232 83% 55% */
     --primary: 232 83% 55%; 
     --primary-foreground: 0 0% 100%;
@@ -94,6 +85,20 @@ html {
 
 /* --- CUSTOM UTILITIES --- */
 
+/* Rainbow right-to-left moving gradient text (PROFESSIONAL plan badge) */
+@keyframes rainbow-rtl {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-rainbow-rtl {
+  background: linear-gradient(to left, #ff0000, #ff7700, #ffff00, #00cc44, #3C48F5, #8b00ff, #ff0000);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-rtl 3s linear infinite;
+}
+
 /* Hide Scrollbar but keep functionality */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -125,4 +130,19 @@ html {
 /* Glassmorphism */
 .glass {
   @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
+}
+
+/* --- PREMIUM SKELETON SHIMMER --- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+  background-size: 200% 100%;
 }

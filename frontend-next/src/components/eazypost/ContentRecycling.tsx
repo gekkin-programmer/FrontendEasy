@@ -157,7 +157,7 @@ export default function ContentRecycling({ workspaceId }: { workspaceId: string 
            <div className="p-6 bg-blue-50 border-4 border-black shadow-[8px_8px_0px_0px_#000]">
               <h4 className="font-black uppercase text-sm mb-2 flex items-center gap-2"><Info size={16} /> Why recycle?</h4>
               <p className="text-xs font-medium leading-relaxed uppercase">
-                 "Social media algorithms show your content to only 5-10% of your audience. Recycling ensures your best ideas reach the other 90%."
+                 &ldquo;Social media algorithms show your content to only 5-10% of your audience. Recycling ensures your best ideas reach the other 90%.&rdquo;
               </p>
            </div>
         </div>

@@ -260,6 +260,27 @@ function BillingSettings() {
     );
 }
 
+// --- SUB-COMPONENT: SETTING ITEM ---
+function SettingItem({ label, desc, value, onToggle }: any) {
+    return (
+        <div className="flex items-center justify-between py-4 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors">
+            <div>
+                <h4 className="font-black text-sm uppercase leading-none mb-1">{label}</h4>
+                <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-tight">{desc}</p>
+            </div>
+            <button
+                onClick={onToggle}
+                className={cn(
+                    "w-12 h-6 border-2 border-black transition-all flex items-center p-0.5",
+                    value ? "bg-[#3C48F6]" : "bg-gray-200 dark:bg-zinc-800"
+                )}
+            >
+                <div className={cn("w-4 h-4 bg-white border-2 border-black transition-all", value ? "translate-x-6" : "translate-x-0")} />
+            </button>
+        </div>
+    );
+}
+
 // --- SUB-COMPONENT: NOTIFICATION SETTINGS ---
 function NotificationSettings() {
     const [settings, setSettings] = useState({
@@ -274,24 +295,6 @@ function NotificationSettings() {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));
         toast.success("PREFERENCE_UPDATED");
     };
-
-    const SettingItem = ({ label, desc, value, onToggle }: any) => (
-        <div className="flex items-center justify-between py-4 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors">
-            <div>
-                <h4 className="font-black text-sm uppercase leading-none mb-1">{label}</h4>
-                <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-tight">{desc}</p>
-            </div>
-            <button 
-                onClick={onToggle}
-                className={cn(
-                    "w-12 h-6 border-2 border-black transition-all flex items-center p-0.5",
-                    value ? "bg-[#3C48F6]" : "bg-gray-200 dark:bg-zinc-800"
-                )}
-            >
-                <div className={cn("w-4 h-4 bg-white border-2 border-black transition-all", value ? "translate-x-6" : "translate-x-0")} />
-            </button>
-        </div>
-    );
 
     return (
         <NeuCard title="Communication Preferences" description="HOW WE ALERT YOU ABOUT ACTIVITY">

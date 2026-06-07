@@ -108,7 +108,7 @@ export const boardApi = {
   createCard: (columnId: string, data: Record<string, unknown>) =>
     api.post<Card>(`/boards/columns/${columnId}/cards`, data),
 
-  getCardDetails: (cardId: string) => 
+  getCardDetails: (cardId: string) =>
     api.get<Card>(`/boards/cards/${cardId}`),
 
   updateCard: (cardId: string, data: Record<string, unknown>) =>
@@ -121,5 +121,5 @@ export const boardApi = {
     api.post<CardComment>(`/boards/cards/${cardId}/comments`, { content }),
 
   convertToPost: (cardId: string) =>
-    api.post<Record<string, unknown>>(`/boards/cards/${cardId}/convert-to-post`, {}),
+    api.post<unknown>(`/boards/cards/${cardId}/convert-to-post`, {}),
 };

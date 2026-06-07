@@ -1,22 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner";
+import { Rubik } from "next/font/google";
+import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer";
 import QueryProvider from "@/src/providers/query-provider";
-import dynamic from "next/dynamic";
+import AgentationLoader from "../components/AgentationLoader";
 
-const AgentationWrapper = process.env.NODE_ENV === "development"
-  ? dynamic(() => import("../components/AgentationWrapper"), { ssr: false })
-  : () => null;
-
-const jetbrainsMono = JetBrains_Mono({
+const rubik = Rubik({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
+  variable: "--font-rubik",
   display: "swap",
-  weight: ["400", "500", "700", "800"], 
+  weight: ["400", "500", "700", "800"],
 });
 
 // ➤ 1. MOBILE VIEWPORT CONFIG (Prevents iOS zoom on inputs)
@@ -33,7 +30,7 @@ export const viewport: Viewport = {
 
 // ➤ 2. ROBUST SEO METADATA
 export const metadata: Metadata = {
-  metadataBase: new URL('https://eazyposttio.vercel.app'), 
+  metadataBase: new URL('https://eazypost.cm'),
   title: {
     template: '%s | EazyPost Africa',
     default: 'EazyPost - The Digital Engine for African Creators',
@@ -43,9 +40,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'EazyPost Team' }],
   creator: 'EazyPost Inc.',
   icons: {
-    icon: '/applogo.png', 
+    icon: '/applogo.png',
     shortcut: '/applogo.png',
-    apple: '/applogo.png', 
+    apple: '/applogo.png',
   },
   openGraph: {
     type: 'website',
@@ -68,13 +65,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning> 
-      <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${rubik.variable} font-sans antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
+        <Script src="https://cdn.lordicon.com/lordicon.js" strategy="afterInteractive" />
         
         <QueryProvider>
           <LanguageProvider>
-            <AgentationWrapper />
-            {/* NEUBRUTALIST GLOBAL TOASTER */}
+            {/* 🚀 NEUBRUTALIST GLOBAL TOASTER */}
             <Toaster 
               position="bottom-right" 
               expand={false}
@@ -84,7 +81,7 @@ export default function RootLayout({
                 style: {
                   borderRadius: '0px',
                   border: '3px solid black',
-                  fontFamily: 'var(--font-jetbrains-mono)',
+                  fontFamily: 'var(--font-rubik)',
                   fontSize: '12px',
                   fontWeight: '800',
                   textTransform: 'uppercase',
@@ -95,10 +92,11 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            
-            <main className="min-h-screen pt-16 md:pt-1"> 
+            <main className="min-h-screen pt-16 md:pt-1">
               {children}
             </main>
+
+            <AgentationLoader />
 
           </LanguageProvider>
         </QueryProvider>

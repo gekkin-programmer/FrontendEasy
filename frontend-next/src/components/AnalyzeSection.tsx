@@ -1,16 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image'; 
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaArrowRight, 
-  FaLightbulb, 
-  FaUserFriends,
-} from 'react-icons/fa';
-import { IoBarChartOutline, IoScanSharp } from 'react-icons/io5';
-import { FiTag, FiCheckCircle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import { FaArrowRight, FaLightbulb } from 'react-icons/fa';
+import { IoScanSharp } from 'react-icons/io5';
+import { FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
+import SectionBackground from './SectionBackground';
 
 // --- UTILS ---
 
@@ -44,7 +40,7 @@ const AnimatedCounter = ({ value, duration = 1 }: { value: string | number; dura
 // --- NEUBRUTALIST COMPONENTS ---
 
 const HardCard = ({ children, className = "", color = "bg-white", rivets = false }: any) => (
-  <div className={`relative border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${color} ${className}`}>
+  <div className={`relative border border-gray-100 shadow-lg rounded-2xl ${color} ${className}`}>
     {rivets && (
       <>
         <div className="absolute top-1 left-1 w-2 h-2 text-black/20 text-[8px] flex items-center justify-center pointer-events-none">+</div>
@@ -58,17 +54,15 @@ const HardCard = ({ children, className = "", color = "bg-white", rivets = false
 );
 
 const HardBadge = ({ children, color = "bg-[#3C48F5]" }: any) => (
-  <span className={`inline-block px-3 py-1 font-bold text-xs uppercase tracking-widest border-2 border-black ${color} text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+  <span className={`inline-block px-4 py-1 font-bold text-xs uppercase tracking-widest rounded-full ${color} text-white`}>
     {children}
   </span>
 );
 
 const FeatureItem = ({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) => (
-  <li className="flex items-start gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-default group">
-    <div className="text-black mt-1 flex-shrink-0 bg-blue-100 p-2 border-2 border-black group-hover:bg-[#3C48F5] group-hover:text-white transition-colors">
-        {icon}
-    </div>
-    <span className="text-black font-bold text-base md:text-lg leading-tight self-center">{children}</span>
+  <li className="flex items-center gap-4 p-4 border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl shadow-sm">
+    <div className="flex-shrink-0">{icon}</div>
+    <span className="text-black font-bold text-base md:text-lg leading-tight">{children}</span>
   </li>
 );
 
@@ -175,13 +169,13 @@ const MainDashboardVisual = () => {
         </div>
 
         {/* Header */}
-        <div className="relative z-10 flex justify-between items-start mb-8 border-b-4 border-black pb-4 bg-white">
+        <div className="relative z-10 flex justify-between items-start mb-8 border-b border-gray-100 pb-4">
           <div>
             <h3 className="text-3xl font-black text-black uppercase italic leading-none">
               Weekly<br/>Growth
             </h3>
           </div>
-          <div className="w-12 h-12 bg-[#3C48F6] border-4 border-black flex items-center justify-center text-white text-xl shadow-[2px_2px_0px_0px_#000]">
+          <div className="w-12 h-12 bg-[#3C48F6] rounded-xl flex items-center justify-center text-white text-xl shadow-sm">
             <motion.div
                 key={`icon-${animationKey}`}
                 animate={{ rotate: [0, 90, 0] }}
@@ -224,7 +218,7 @@ const MainDashboardVisual = () => {
                     }}
                     className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#3C48F6] transition-colors"
                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-blue-100 border-2 border-black px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-[2px_2px_0px_0px_#000]">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-sm">
                         {h}%
                     </div>
                  </motion.div>
@@ -253,7 +247,7 @@ const StatBox = ({ label, value, color = "bg-gray-100", delay, animationKey }: a
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.3 }}
-    className={`${color} border-2 border-black p-1 py-2 shadow-[2px_2px_0px_0px_#000]`}
+    className={`${color} border border-gray-100 p-1 py-2 shadow-sm rounded-lg`}
   >
     <p className="text-[9px] font-bold uppercase tracking-wider opacity-80 font-mono">{label}</p>
     <p className="font-black text-lg leading-none mt-1 font-mono">
@@ -269,49 +263,62 @@ const AnalyzeSection = () => {
 
   return (
     <section 
-      className="bg-white dark:bg-black/90 border-y-4 border-black dark:border-white/5 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
+      className="bg-white dark:bg-black border-y border-gray-100 dark:border-zinc-900 py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative font-sans overflow-hidden"
       aria-label="Analytics Features"
     >
-      
-      <div className="container mx-auto max-w-4xl relative z-10">
-        
-        {/* Centered Content */}
-        <div className="flex flex-col gap-6 md:gap-8 items-center text-center">
-          <div className="flex flex-col items-center">
-            <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
-            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
-              ANSWERS.<br/>
-              NOT JUST<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3C48F6] to-[#3C48F6] underline decoration-4 underline-offset-4 decoration-black dark:decoration-gray-200">NUMBERS.</span>
-            </h2>
-          </div>
-          
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-8 md:border-l-0 md:border-t-8 border-[#3C48F5] pl-6 md:pl-0 pt-4 md:pt-6 py-2 bg-gray-50 dark:bg-white/5 max-w-2xl">
-            {t("Most tools just show you a graph and wish you luck. EazyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EazyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
-          </p>
-          
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 w-full">
-            <FeatureItem icon={<IoBarChartOutline size={24} />}>
-              {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
-            </FeatureItem>
-            <FeatureItem icon={<FaUserFriends size={24} />}>
-              {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
-            </FeatureItem>
-            <FeatureItem icon={<FiTag size={24} />}>
-              {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
-            </FeatureItem>
-          </ul>
+      <SectionBackground />
+      <div className="container mx-auto max-w-7xl relative z-10">
 
-          <div className="pt-6">
-            <a 
-                href="/signup" 
-                className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 border-4 border-transparent hover:border-black hover:bg-white hover:text-black transition-all shadow-[8px_8px_0px_0px_#3C48F6] hover:shadow-none hover:translate-x-2 hover:translate-y-2 group"
-            >
-              <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
-            </a>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+          {/* Left: Text Column */}
+          <div className="flex flex-col gap-6 md:gap-8">
+            <div>
+              <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
+              <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
+                ANSWERS.<br/>
+                NOT JUST<br/>
+                <span className="text-[#3C48F6]">NUMBERS.</span>
+              </h2>
+            </div>
+
+            <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-2 border-[#3C48F5] pl-6 py-2">
+              {t("Most tools just show you a graph and wish you luck. EasyPost analyzes your data to tell you exactly what to post next to grow faster.", "La plupart des outils vous montrent un graphique et vous souhaitent bonne chance. EasyPost analyse vos données pour vous dire exactement quoi publier pour grandir.")}
+            </p>
+
+            <ul className="space-y-4 mt-4">
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
+              </FeatureItem>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
+              </FeatureItem>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+                {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
+              </FeatureItem>
+            </ul>
+
+            <div className="pt-6">
+              <a
+                  href="/signup"
+                  className="inline-flex items-center gap-3 bg-black dark:bg-gray-200 text-white dark:text-black font-black text-lg md:text-xl py-3 md:py-4 px-8 rounded-xl shadow-md hover:shadow-lg transition-shadow group"
+              >
+                <span className="group-hover:animate-pulse">{t("START ANALYZING", "COMMENCEZ")}</span> <FaArrowRight />
+              </a>
+            </div>
           </div>
+
+          {/* Right: Analytics illustration */}
+          <div className="hidden lg:flex items-center justify-center">
+            <img
+              src="/assets/undraw_analytics-setup.svg"
+              alt="Analytics illustration"
+              className="w-full max-w-lg mx-auto"
+            />
+          </div>
+
         </div>
-        
+
       </div>
     </section>
   );

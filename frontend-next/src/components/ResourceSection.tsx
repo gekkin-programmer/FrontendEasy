@@ -4,7 +4,7 @@ import ResourceCard from './ResourceCard';
 
 const ResourcesSection: React.FC = () => {
   return (
-    <section className="bg-slate-50 dark:bg-gray-900 font-sans py-20 px-4 sm:px-6 lg:px-8">
+    <section className="bg-slate-50 dark:bg-[#0a0a0a] font-sans py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Section Header (Unchanged) */}
         <div className="text-center max-w-3xl mx-auto mb-16">
