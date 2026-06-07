@@ -111,7 +111,7 @@ export default function Home() {
             loop 
             muted 
             playsInline 
-            className="w-full max-w-[512px] aspect-square object-cover rounded-[36px] shadow-lg border-none outline-none ring-0"
+            className="w-full max-w-[512px] aspect-square object-cover rounded-[36px] border-none outline-none ring-0 shadow-none"
           >
             <source src="/coming-soon.mp4" type="video/mp4" />
           </video>

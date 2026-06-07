@@ -60,3 +60,4 @@
 - fix(frontend-next): eliminate video border visibility and fix typography pulsing glitch in the countdown timer.
 - content(frontend-next): update main headline text and replace Bestcorp label with a clickable logo redirecting to their website.
 - fix(frontend-next): extract countdown logic to prevent whole-page re-renders and fix H1 layout pulsing, and increase Bestcorp logo size.
+- style(frontend-next): remove shadows from the main display video.
