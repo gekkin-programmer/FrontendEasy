@@ -4,45 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
-const Countdown = () => {
-  const [timeLeft, setTimeLeft] = useState(72 * 60 * 60);
-
-  useEffect(() => {
-    const savedEndTime = localStorage.getItem('countdownEndTime');
-    let endTime: number;
-    
-    if (savedEndTime) {
-      endTime = parseInt(savedEndTime, 10);
-    } else {
-      endTime = Date.now() + 72 * 60 * 60 * 1000;
-      localStorage.setItem('countdownEndTime', endTime.toString());
-    }
-
-    const updateTimer = () => {
-      const now = Date.now();
-      const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
-      setTimeLeft(remaining);
-    };
-
-    updateTimer(); // Initial call
-    const timer = setInterval(updateTimer, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
-  };
-
-  return (
-    <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest tabular-nums min-w-[260px] transform-gpu">
-      {formatTime(timeLeft)}
-    </h2>
-  );
-};
-
 export default function Home() {
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
@@ -68,8 +29,6 @@ export default function Home() {
             <img src="/applogo.png" alt="E" className="h-10 w-auto mr-1" />
             azypost
           </div>
-          
-          <Countdown />
           
           <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px] font-rubik">
             {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
