@@ -61,3 +61,4 @@
 - content(frontend-next): update main headline text and replace Bestcorp label with a clickable logo redirecting to their website.
 - fix(frontend-next): extract countdown logic to prevent whole-page re-renders and fix H1 layout pulsing, and increase Bestcorp logo size.
 - style(frontend-next): remove shadows from the main display video.
+- style(frontend-next): apply Rubik font to H1 and By text, update By text color to black, and increase Bestcorp logo size.
