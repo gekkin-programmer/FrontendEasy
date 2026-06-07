@@ -45,22 +45,22 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-[#032EF8]">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-[#3C48F5]">
       {/* Background blurred ellipses for the glowing effect */}
       <div className="absolute left-0 top-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
       <div className="absolute right-0 bottom-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
 
       {/* Main Card */}
-      <div className="font-outfit relative z-10 w-full max-w-[1170px] min-h-[685px] bg-[#F8F8F8] rounded-[36px] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_20px_70px_rgba(0,0,0,0.1)]">
+      <div className="font-outfit relative z-10 w-full max-w-[1170px] min-h-[685px] bg-[#FFFFFF] rounded-[36px] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_20px_70px_rgba(0,0,0,0.1)]">
         
         {/* Left Content Column */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1 w-full max-w-[500px]">
-          <div className="flex items-center text-[#0067FF] font-bold text-4xl tracking-tight mb-12 font-rubik">
+          <div className="flex items-center text-[#3C48F5] font-bold text-4xl tracking-tight mb-12 font-rubik">
             <img src="/applogo.png" alt="E" className="h-10 w-auto mr-1" />
             azypost
           </div>
           
-          <h2 className="text-[#0067FF] text-3xl font-bold mb-4 font-mono tracking-widest">
+          <h2 className="text-[#3C48F5] text-3xl font-bold mb-4 font-mono tracking-widest">
             {formatTime(timeLeft)}
           </h2>
           
@@ -74,7 +74,7 @@ export default function Home() {
               placeholder={t("Enter your email", "Entrez votre email")}
               className="flex-1 px-6 py-4 bg-white shadow-[0px_20px_70px_rgba(0,39,96,0.12)] rounded-lg text-lg text-[#2D2D2D] outline-none placeholder:text-[#A7A7A7] transition-shadow focus:shadow-[0px_20px_70px_rgba(0,103,255,0.2)]"
             />
-            <button className="px-8 py-4 bg-[#0067FF] text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shrink-0">
+            <button className="px-8 py-4 bg-[#3C48F5] text-white rounded-lg text-lg font-semibold hover:bg-[#2d38cf] transition-colors shrink-0">
               {t("Subscribe", "S'abonner")}
             </button>
           </div>
