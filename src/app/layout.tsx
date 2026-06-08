@@ -92,7 +92,7 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            <main className="min-h-screen pt-16 md:pt-1">
+            <main className="min-h-screen">
               {children}
             </main>
 

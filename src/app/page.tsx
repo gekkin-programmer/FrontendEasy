@@ -40,13 +40,13 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-[#3C48F5]">
+    <div className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-[#3C48F5]">
       {/* Background blurred ellipses for the glowing effect */}
       <div className="absolute left-0 top-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
       <div className="absolute right-0 bottom-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
 
       {/* Main Card */}
-      <div className="font-outfit relative z-10 w-full max-w-[1170px] min-h-[685px] bg-[#FFFFFF] rounded-[36px] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_20px_70px_rgba(0,0,0,0.1)]">
+      <div className="font-outfit relative z-10 w-full max-w-[1170px] min-h-fit lg:min-h-[685px] bg-[#FFFFFF] rounded-[36px] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_20px_70px_rgba(0,0,0,0.1)]">
         
         {/* Left Content Column */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1 w-full max-w-[500px]">
@@ -56,7 +56,7 @@ export default function Home() {
           </div>
           
           <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px] font-rubik">
-            {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Ce n'est pas encore là, mais nous vous ferons savoir que ça arrive très bientôt. Restez à l'écoute et revenez le 27 juin.")}
+            {t("A few adjustments are underway to optimize your experience on our platform. We are actively working to bring you a more fluid and high-performing interface. Stay tuned, we will be back very soon.", "Quelques ajustements sont en cours pour optimiser votre expérience sur notre plateforme. Nous travaillons activement à vous proposer une interface plus fluide et performante. Restez connectés, nous revenons vers vous très bientôt.")}
           </h1>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
@@ -93,7 +93,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-black text-xl font-medium tracking-wide hover:opacity-80 transition-opacity font-rubik"
           >
-            By <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-20 w-auto" />
+            <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-20 w-auto" />
           </a>
 
           <video 
