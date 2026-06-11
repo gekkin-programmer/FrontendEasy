@@ -472,9 +472,9 @@ export default function Navbar() {
         </div>
 
         {/* Login */}
-        <span className="text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
+        <Link href="/login" className="text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
           {t("Log in", "Connexion")}
-        </span>
+        </Link>
 
         {/* CTA */}
         {/* Fix 5: Switched to padding-based width sizing instead of hard-coded dimensions for a flexible fit */}
