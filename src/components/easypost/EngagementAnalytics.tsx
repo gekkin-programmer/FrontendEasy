@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { motion } from 'framer-motion';
 import {
   FiTrendingUp, FiTrendingDown, FiArrowUpRight, FiDownload, FiLoader,
@@ -14,7 +14,7 @@ import {
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- CONFIG ---
 const ICONS: Record<string, any> = {

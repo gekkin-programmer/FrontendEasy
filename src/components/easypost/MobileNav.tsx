@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, Calendar, PenTool, BarChart3, Menu } from 'lucide-react';
@@ -7,7 +7,7 @@ import { useState } from 'react';
 // Ensure these paths match your shadcn installation
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Sidebar from './Sidebar';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function MobileNav() {
   const pathname = usePathname();

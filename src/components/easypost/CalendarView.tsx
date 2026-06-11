@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { api } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,

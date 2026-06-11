@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import SpinningLoader from '@/src/components/SpinningLoader';
+import SpinningLoader from '@/components/SpinningLoader';
 import { setCookie } from 'cookies-next';
 
 export default function AuthCallbackPage() {

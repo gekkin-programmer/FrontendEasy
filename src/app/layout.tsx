@@ -6,7 +6,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer";
-import QueryProvider from "@/src/providers/query-provider";
+import QueryProvider from "@/providers/query-provider";
 import AgentationLoader from "../components/AgentationLoader";
 
 const rubik = Rubik({

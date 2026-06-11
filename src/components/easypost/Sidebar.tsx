@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutGrid, Calendar, PenTool, BarChart3, Settings, Users, LogOut, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SidebarProps {
   isMobile?: boolean;

@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
-import { useLanguage } from '@/src/context/LanguageContext';
-import { useSocket } from '@/src/context/SocketContext';
+import { api } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
+import { useSocket } from '@/context/SocketContext';
 import { cn } from '@/lib/utils';
 
 type Tab = 'designs' | 'assets';

@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
@@ -16,7 +16,7 @@ import {
   FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface QuickConnectSidebarProps {
   accounts: any[];

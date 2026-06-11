@@ -6,7 +6,7 @@ import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { getCookie } from 'cookies-next';
 
@@ -21,25 +21,25 @@ import {
 import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
-import Composer from '@/src/components/easypost/Composer';
-import PostFeed from '@/src/components/easypost/PostFeed';
-import Analytics from '@/src/components/easypost/Analytics';
-import Settings from '@/src/components/easypost/Settings';
-import Team from '@/src/components/easypost/Team';
-import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
-import CalendarView from '@/src/components/easypost/CalendarView';
-import SpinningLoader from '@/src/components/SpinningLoader';
+import Composer from '@/components/easypost/Composer';
+import PostFeed from '@/components/easypost/PostFeed';
+import Analytics from '@/components/easypost/Analytics';
+import Settings from '@/components/easypost/Settings';
+import Team from '@/components/easypost/Team';
+import VoiceAiButton from '@/components/easypost/VoiceAiButton';
+import CalendarView from '@/components/easypost/CalendarView';
+import SpinningLoader from '@/components/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/easypost/DashboardUI';
-import { QuickConnectSidebar } from '@/src/components/easypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSelector';
-import { SidebarItem } from '@/src/components/easypost/SidebarItem';
-import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/components/easypost/DashboardUI';
+import { QuickConnectSidebar } from '@/components/easypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/components/easypost/FacebookPageSelector';
+import { SidebarItem } from '@/components/easypost/SidebarItem';
+import { EngagementWithTabs } from '@/components/easypost/EngagementWithTabs';
 
 // SOCKET
-import { SocketProvider, useSocket } from '@/src/context/SocketContext';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { SocketProvider, useSocket } from '@/context/SocketContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 import { 
   Popover,
@@ -47,8 +47,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/src/components/easypost/BoardView';
-import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
+import BoardView from '@/components/easypost/BoardView';
+import OnboardingGuide from '@/components/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 

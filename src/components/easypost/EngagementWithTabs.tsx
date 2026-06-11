@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { MessageCircle, BarChart2 } from 'lucide-react';
 import Engagement from "./Engagement";
 import EngagementAnalytics from './EngagementAnalytics';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const EngagementWithTabs = () => {
   const { t } = useLanguage();

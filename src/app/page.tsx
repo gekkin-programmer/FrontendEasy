@@ -1,130 +1,78 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import React from 'react';
+import HeroBackground from '@/components/HeroBackground';
+import Navbar from '@/components/Navbar';
+import HeroLines from '@/components/hero/HeroLines';
+import IsometricCube from '@/components/hero/IsometricCube';
+import HeroText from '@/components/hero/HeroText';
+import ImpactSection from '@/components/ImpactSection';
+import PublishSection from '@/components/PublishSection';
+import UsersSection from '@/components/UsersSection';
+import ConnectSection from '@/components/ConnectSection';
 
 export default function Home() {
-  const { t } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return (
-    <div style={styles.container}>
-      {/* Video on the Left */}
-      <video 
-        autoPlay 
-        loop 
-        muted 
-        playsInline 
-        style={styles.video}
-      >
-        <source src="/coming-soon.mp4" type="video/mp4" />
-      </video>
-
-      {/* Text Content on the Right */}
-      <div style={styles.contentColumn}>
-        <div style={styles.logoContainer}>
-          <img src="/applogo.png" alt="E" style={styles.logo} />
-          <span style={styles.logoText}>azypost</span>
-        </div>
-        <h1 style={styles.heading}>{t("Looking for something ?", "Vous cherchez quelque chose ?")}</h1>
-        
-        <p style={styles.subheading}>
-          {t("It’s not here yet, but we'll let you know it’s coming really really soon. Sit tight and check back in on June 27.", "Quelques ajustements sont en cours pour optimiser votre expérience sur notre plateforme. Nous travaillons activement à vous proposer une interface plus fluide et performante. Restez connectés, nous revenons vers vous le 27 juin.")}
-        </p>
-      </div>
-      
-      <img src="/logos/BC-violet.png" alt="BestCorp Logo" style={styles.bestcorpLogo} />
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&display=swap');
-        
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
+    <main className="min-h-screen bg-[#1135A7]">
+      <style>{`
+        @keyframes slide1 {
+          0% { transform: translate(-1544px, -1068px); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(451px, 317px); opacity: 0; }
         }
-      `}} />
-    </div>
+        @keyframes slide2 {
+          0% { transform: translate(-1452px, -1128px); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(521px, 257px); opacity: 0; }
+        }
+        @keyframes slide1-right {
+          0% { transform: translate(-1544px, -1068px) scaleX(-1); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(451px, 317px) scaleX(-1); opacity: 0; }
+        }
+        @keyframes slide2-right {
+          0% { transform: translate(-1452px, -1128px) scaleX(-1); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(521px, 257px) scaleX(-1); opacity: 0; }
+        }
+        .icon-lane1 { animation: slide1 20s linear infinite; }
+        .icon-lane2 { animation: slide2 20s linear infinite; }
+        .icon-lane1-right { animation: slide1-right 20s linear infinite; }
+        .icon-lane2-right { animation: slide2-right 20s linear infinite; }
+      `}</style>
+      <Navbar />
+      <HeroBackground>
+        <div className="flex flex-col w-full h-full">
+          {/* Hero Content below Navbar */}
+          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px]">
+            <div className="relative w-[393px] h-[355px] scale-[1.15]">
+              {/* Left Lines Behind Cube */}
+              <div className="absolute top-[-142px] left-[-300px] -z-10 pointer-events-none">
+                <HeroLines />
+              </div>
+
+              {/* Right Lines Behind Cube (Mirrored) */}
+              <div className="absolute top-[-142px] right-[-300px] -z-10 pointer-events-none scale-x-[-1]">
+                <HeroLines right={true} />
+              </div>
+
+              {/* Cube Foreground */}
+              <IsometricCube />
+            </div>
+            
+            <HeroText />
+          </div>
+        </div>
+      </HeroBackground>
+      
+      <ImpactSection />
+      <PublishSection />
+      <ConnectSection />
+      <UsersSection />
+    </main>
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '40px 64px',
-    width: '100%',
-    minHeight: '100vh',
-    background: '#FFFFFF',
-    gap: '64px',
-  },
-  video: {
-    width: 'clamp(400px, 50vw, 850px)',
-    height: 'clamp(400px, 50vw, 850px)',
-    objectFit: 'cover',
-    flexShrink: 0,
-    borderRadius: '16px',
-    marginTop: '-64px',
-  },
-  contentColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: '32px',
-    maxWidth: '750px',
-    flex: '1 1 500px',
-  },
-  logoContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: '4px',
-    marginBottom: '16px',
-  },
-  logo: {
-    height: '80px',
-    width: 'auto',
-  },
-  logoText: {
-    fontFamily: "'Rubik', sans-serif",
-    fontWeight: 700,
-    fontSize: '72px',
-    color: '#3C48F6',
-    letterSpacing: '-1px',
-  },
-  bestcorpLogo: {
-    position: 'absolute',
-    bottom: '32px',
-    right: '64px',
-    height: '144px',
-    width: 'auto',
-  },
-  heading: {
-    fontFamily: "'Rubik', sans-serif",
-    fontWeight: 700,
-    fontSize: 'clamp(48px, 6vw, 96px)',
-    lineHeight: '1.1',
-    color: '#FCE7E8',
-    WebkitTextStroke: '3px #3C48F6',
-  },
-  subheading: {
-    fontFamily: "'Rubik', sans-serif",
-    fontWeight: 500,
-    fontSize: 'clamp(16px, 1.8vw, 24px)',
-    lineHeight: '1.2',
-    color: '#000000',
-    maxWidth: '600px',
-  }
-};

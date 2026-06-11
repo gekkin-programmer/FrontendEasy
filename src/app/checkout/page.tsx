@@ -7,12 +7,12 @@ import {
   ArrowLeft, Smartphone, ShieldCheck, 
   Loader2, CheckCircle2, AlertCircle, CreditCard
 } from 'lucide-react';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import Navbar from '@/src/components/Navbar';
+import Navbar from '@/components/Navbar';
 import Image from 'next/image';
 import { getCookie } from 'cookies-next';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();

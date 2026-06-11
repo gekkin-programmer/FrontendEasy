@@ -6,15 +6,15 @@ import {
   ExternalLink, MoreVertical, CheckCircle2, XCircle, Trash2, Ban, Ghost,
   AlertTriangle
 } from 'lucide-react';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import SpinningLoader from '@/src/components/SpinningLoader';
+import SpinningLoader from '@/components/SpinningLoader';
 import { 
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { NeuModal, NeuButton } from '@/src/components/easypost/DashboardUI';
+import { NeuModal, NeuButton } from '@/components/easypost/DashboardUI';
 
 interface User {
   id: string;

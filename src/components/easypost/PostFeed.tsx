@@ -1,14 +1,14 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- NEU COMPONENTS ---
 

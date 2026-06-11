@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram, FaThreads
 } from 'react-icons/fa6';
@@ -14,7 +14,7 @@ import SpinningLoader from '../SpinningLoader';
 import { getCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { cn } from "@/lib/utils";
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
   .replace(/\/$/, '')

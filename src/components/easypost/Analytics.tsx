@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Charting
 import { 
@@ -20,7 +20,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, Share2, ExternalLink, type Icon as LucideIcon
 } from "lucide-react";
-import { PlatformIcon } from '@/src/components/easypost/composer/PlatformIcon';
+import { PlatformIcon } from '@/components/easypost/composer/PlatformIcon';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function AnalyticsGridSkeleton() {

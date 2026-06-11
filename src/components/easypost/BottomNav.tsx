@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { Layers, BarChart2, MessageCircle, Settings, PlusCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface BottomNavProps {
   activeTab: string;
