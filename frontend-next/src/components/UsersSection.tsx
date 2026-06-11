@@ -10,7 +10,7 @@ export default function UsersSection() {
     if (selectedCard === index) {
       return `${baseClasses} top-[0px] shadow-2xl scale-[1.3] z-20`;
     } else {
-      return `${baseClasses} top-[72px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scale-[1.25] hover:scale-[1.3] hover:-translate-y-2 hover:shadow-2xl z-10`;
+      return `${baseClasses} top-[72px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scale-[1.25] z-10`;
     }
   };
 
