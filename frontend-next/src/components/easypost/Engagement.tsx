@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { api } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Icons
 import {

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -18,14 +18,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import MediaGallery from './MediaGallery';
 import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
 import { BroadcastPanel } from './composer/BroadcastPanel';
 import { PlatformSpecificPanels } from './composer/PlatformSpecificPanels';
 import { BROADCAST_IDS } from './composer/platformConfig';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- TYPES ---
 type AssetType = 'image' | 'video' | 'folder';

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaArrowLeft, FaUser, FaBriefcase, FaCamera, FaGlobe, FaBuilding, FaCheck } from 'react-icons/fa6';
-import SpinningLoader from '@/src/components/SpinningLoader'; 
+import SpinningLoader from '@/components/SpinningLoader'; 
 
 // --- 1. DATA CONFIGURATION (Unchanged) ---
 

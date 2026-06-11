@@ -1,8 +1,6 @@
 import React from 'react';
-import HeroBackground from '@/components/HeroBackground';
-import Navbar from '@/components/Navbar';
 
-const FacebookIcon = () => (
+export const FacebookIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="16" cy="16" r="14" fill="url(#fb_grad)"/>
     <path d="M21.2137 20.2816L21.8356 16.3301H17.9452V13.767C17.9452 12.6857 18.4877 11.6311 20.2302 11.6311H22V8.26699C22 8.26699 20.3945 8 18.8603 8C15.6548 8 13.5617 9.89294 13.5617 13.3184V16.3301H10V20.2816H13.5617V29.8345C14.2767 29.944 15.0082 30 15.7534 30C16.4986 30 17.2302 29.944 17.9452 29.8345V20.2816H21.2137Z" fill="white"/>
@@ -15,7 +13,7 @@ const FacebookIcon = () => (
   </svg>
 );
 
-const InstagramIcon = () => (
+export const InstagramIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#ig_grad1)"/>
     <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#ig_grad2)"/>
@@ -44,14 +42,14 @@ const InstagramIcon = () => (
   </svg>
 );
 
-const TwitterIcon = () => (
+export const TwitterIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="40" fill="white"/>
     <path fillRule="evenodd" clipRule="evenodd" d="M49.8637 67.5L35.9901 47.7253L18.6222 67.5H11.2744L32.7302 43.0777L11.2744 12.5H30.1393L43.215 31.1375L59.5982 12.5H66.9459L46.4858 35.7912L68.7285 67.5H49.8637ZM58.0462 61.925H53.0994L21.7953 18.075H26.7428L39.2803 35.6329L41.4484 38.6797L58.0462 61.925Z" fill="#242E36"/>
   </svg>
 );
 
-const LinkedInIcon = () => (
+export const LinkedInIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="28" height="28" rx="14" fill="#1275B1"/>
     <path d="M12.6186 9.69215C12.6186 10.6267 11.8085 11.3843 10.8093 11.3843C9.81004 11.3843 9 10.6267 9 9.69215C9 8.7576 9.81004 8 10.8093 8C11.8085 8 12.6186 8.7576 12.6186 9.69215Z" fill="white"/>
@@ -60,7 +58,7 @@ const LinkedInIcon = () => (
   </svg>
 );
 
-const WhatsAppIcon = () => (
+export const WhatsAppIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd" d="M16 31C23.732 31 30 24.732 30 17C30 9.26801 23.732 3 16 3C8.26801 3 2 9.26801 2 17C2 19.5109 2.661 21.8674 3.81847 23.905L2 31L9.31486 29.3038C11.3014 30.3854 13.5789 31 16 31ZM16 28.8462C22.5425 28.8462 27.8462 23.5425 27.8462 17C27.8462 10.4576 22.5425 5.15385 16 5.15385C9.45755 5.15385 4.15385 10.4576 4.15385 17C4.15385 19.5261 4.9445 21.8675 6.29184 23.7902L5.23077 27.7692L9.27993 26.7569C11.1894 28.0746 13.5046 28.8462 16 28.8462Z" fill="#BFC8D0"/>
     <path d="M28 16C28 22.6274 22.6274 28 16 28C13.4722 28 11.1269 27.2184 9.19266 25.8837L5.09091 26.9091L6.16576 22.8784C4.80092 20.9307 4 18.5589 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16Z" fill="url(#wa_grad)"/>
@@ -75,162 +73,9 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-const YoutubeIcon = () => (
+export const YoutubeIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M2.24451 9.94111C2.37304 7.96233 3.96395 6.41157 5.94447 6.31345C8.81239 6.17136 12.9115 6 16 6C19.0885 6 23.1876 6.17136 26.0555 6.31345C28.0361 6.41157 29.627 7.96233 29.7555 9.94111C29.8786 11.8369 30 14.1697 30 16C30 17.8303 29.8786 20.1631 29.7555 22.0589C29.627 24.0377 28.0361 25.5884 26.0555 25.6866C23.1876 25.8286 19.0885 26 16 26C12.9115 26 8.81239 25.8286 5.94447 25.6866C3.96395 25.5884 2.37304 24.0377 2.24451 22.0589C2.12136 20.1631 2 17.8303 2 16C2 14.1697 2.12136 11.8369 2.24451 9.94111Z" fill="#FC0D1B"/>
     <path d="M13 12V20L21 16L13 12Z" fill="white"/>
   </svg>
 );
-
-const AnimatedIcons = ({ right = false }: { right?: boolean }) => {
-  if (right) {
-    return (
-      <>
-        <g className="icon-lane1-right" style={{ animationDelay: '1.5s' }}>
-          <YoutubeIcon />
-        </g>
-        <g className="icon-lane1-right" style={{ animationDelay: '8.16s' }}>
-          <LinkedInIcon />
-        </g>
-        <g className="icon-lane1-right" style={{ animationDelay: '14.83s' }}>
-          <WhatsAppIcon />
-        </g>
-
-        <g className="icon-lane2-right" style={{ animationDelay: '4.83s' }}>
-          <TwitterIcon />
-        </g>
-        <g className="icon-lane2-right" style={{ animationDelay: '11.5s' }}>
-          <FacebookIcon />
-        </g>
-        <g className="icon-lane2-right" style={{ animationDelay: '18.16s' }}>
-          <InstagramIcon />
-        </g>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <g className="icon-lane1" style={{ animationDelay: '0s' }}>
-        <FacebookIcon />
-      </g>
-      <g className="icon-lane1" style={{ animationDelay: '6.66s' }}>
-        <InstagramIcon />
-      </g>
-      <g className="icon-lane1" style={{ animationDelay: '13.33s' }}>
-        <TwitterIcon />
-      </g>
-
-      <g className="icon-lane2" style={{ animationDelay: '3.33s' }}>
-        <LinkedInIcon />
-      </g>
-      <g className="icon-lane2" style={{ animationDelay: '10s' }}>
-        <WhatsAppIcon />
-      </g>
-      <g className="icon-lane2" style={{ animationDelay: '16.66s' }}>
-        <YoutubeIcon />
-      </g>
-    </>
-  );
-};
-
-export default function TestHero() {
-  return (
-    <main className="min-h-screen bg-black">
-      <style>{`
-        @keyframes slide1 {
-          0% { transform: translate(-1544px, -1068px); opacity: 0; }
-          5% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate(451px, 317px); opacity: 0; }
-        }
-        @keyframes slide2 {
-          0% { transform: translate(-1452px, -1128px); opacity: 0; }
-          5% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate(521px, 257px); opacity: 0; }
-        }
-        @keyframes slide1-right {
-          0% { transform: translate(-1544px, -1068px) scaleX(-1); opacity: 0; }
-          5% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate(451px, 317px) scaleX(-1); opacity: 0; }
-        }
-        @keyframes slide2-right {
-          0% { transform: translate(-1452px, -1128px) scaleX(-1); opacity: 0; }
-          5% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate(521px, 257px) scaleX(-1); opacity: 0; }
-        }
-        .icon-lane1 { animation: slide1 20s linear infinite; }
-        .icon-lane2 { animation: slide2 20s linear infinite; }
-        .icon-lane1-right { animation: slide1-right 20s linear infinite; }
-        .icon-lane2-right { animation: slide2-right 20s linear infinite; }
-      `}</style>
-      <HeroBackground>
-        <div className="flex flex-col w-full h-full">
-          <Navbar />
-          {/* Hero Content below Navbar */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px]">
-            <div className="relative w-[393px] h-[355px] scale-[1.15]">
-              {/* Left Lines Behind Cube */}
-              <div className="absolute top-[-142px] left-[-300px] -z-10 pointer-events-none">
-                <svg className="overflow-visible" width="550" height="319" viewBox="0 0 550 319" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="-1589" y1="-1040" x2="411.16" y2="344.66" stroke="white" strokeWidth="7"/>
-                  <line x1="-1499" y1="-1096" x2="491.16" y2="288.66" stroke="white" strokeWidth="7"/>
-                  <line x1="-1405" y1="-1160" x2="550.16" y2="224.66" stroke="white" strokeWidth="7"/>
-                  <AnimatedIcons />
-                </svg>
-              </div>
-
-              {/* Right Lines Behind Cube (Mirrored) */}
-              <div className="absolute top-[-142px] right-[-300px] -z-10 pointer-events-none scale-x-[-1]">
-                <svg className="overflow-visible" width="550" height="319" viewBox="0 0 550 319" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="-1589" y1="-1040" x2="411.16" y2="344.66" stroke="white" strokeWidth="7"/>
-                  <line x1="-1499" y1="-1096" x2="491.16" y2="288.66" stroke="white" strokeWidth="7"/>
-                  <line x1="-1405" y1="-1160" x2="550.16" y2="224.66" stroke="white" strokeWidth="7"/>
-                  <AnimatedIcons right={true} />
-                </svg>
-              </div>
-
-              {/* Cube Foreground */}
-              <svg className="relative z-10 w-full h-full" viewBox="0 0 393 355" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M196.5 102.988C196.5 90.7824 182.698 83.6869 172.771 90.7894L17.0498 202.207C8.6876 208.19 8.6876 220.622 17.0498 226.605L172.771 338.023C182.698 345.125 196.5 338.03 196.5 325.824V102.988Z" fill="#3C48F6"/>
-                <path d="M196.5 102.988C196.5 90.7824 210.301 83.6869 220.228 90.7894L375.95 202.207C384.312 208.19 384.312 220.622 375.95 226.605L220.228 338.023C210.301 345.125 196.5 338.03 196.5 325.824V102.988Z" fill="#3C48F6"/>
-                <path d="M196.5 355L392.999 214.406L196.5 355Z" fill="black"/>
-                <rect width="241.617" height="241.617" rx="15" transform="matrix(0.813269 0.581888 -0.813269 0.581888 196.5 42.1782)" fill="black"/>
-                <path d="M196.5 29.1764C196.5 16.9704 182.698 9.87487 172.771 16.9774L17.0498 128.395C8.6876 134.378 8.6876 146.81 17.0498 152.793L172.771 264.211C182.698 271.313 196.5 264.218 196.5 252.012V29.1764Z" fill="white" stroke="#3C48F6" strokeWidth="3"/>
-                <path d="M196.5 29.1764C196.5 16.9704 210.301 9.87487 220.228 16.9774L375.95 128.395C384.312 134.378 384.312 146.81 375.95 152.793L220.228 264.211C210.301 271.313 196.5 264.218 196.5 252.012V29.1764Z" fill="white" stroke="#3C48F6" strokeWidth="3"/>
-                <path d="M196.5 281.188L392.999 140.594L196.5 281.188Z" fill="white"/>
-                <path d="M196.5 281.188L0 140.594L196.5 281.188Z" fill="white"/>
-                <rect width="241.617" height="241.617" rx="15" transform="matrix(0.813269 0.581888 -0.813269 0.581888 196.5 0)" fill="white"/>
-              </svg>
-            </div>
-            <div 
-              className="absolute text-center text-white pointer-events-none"
-              style={{
-                width: '1000px',
-                height: '80px',
-                fontFamily: 'Rubik, sans-serif',
-                fontStyle: 'normal',
-                fontWeight: 800,
-                fontSize: '34px',
-                lineHeight: '42px',
-                top: 'calc(50% + 200px)',
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              Arrêtez de jongler. Planifiez, programmez et automatisez votre contenu sur Facebook, TikTok , LinkedIn et autres au même endroit.
-            </div>
-          </div>
-        </div>
-      </HeroBackground>
-      
-      {/* Spacer to prove scrolling works to the next section */}
-      <section className="h-[1000px] flex items-center justify-center bg-zinc-900 text-white text-3xl font-bold">
-        Next Section Begins Here
-      </section>
-    </main>
-  );
-}

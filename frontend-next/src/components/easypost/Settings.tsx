@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -6,11 +6,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import ConnectAccounts from './ConnectAccounts';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,

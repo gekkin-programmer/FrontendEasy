@@ -1,11 +1,11 @@
 "use client";
 
-import { api } from "@/src/lib/api";
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
-import SpinningLoader from "@/src/components/SpinningLoader";
+import SpinningLoader from "@/components/SpinningLoader";
 import { getCookie } from 'cookies-next';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardRootPage() {
   const router = useRouter();

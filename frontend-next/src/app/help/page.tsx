@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Navbar from '@/src/components/Navbar';
-import Footer from '@/src/components/Footer';
-import { useLanguage } from '@/src/context/LanguageContext';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { useLanguage } from '@/context/LanguageContext';
 import { ChevronDown, Mail, MessageCircle } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';

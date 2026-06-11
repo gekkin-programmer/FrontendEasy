@@ -1,121 +1,76 @@
-"use client";
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, Wand2, Bell, CheckCircle } from "lucide-react";
-import { useLanguage } from '../context/LanguageContext';
-import SectionBackground from './SectionBackground';
-
-// --- NEUBRUTALIST COMPONENTS ---
-
-interface HardCardProps {
-  children: React.ReactNode;
-  className?: string;
-  color?: string;
-}
-
-const HardCard = ({ children, className = "", color = "bg-white" }: HardCardProps) => (
-  <div className={`border border-gray-100 dark:border-zinc-800 shadow-lg ${color} ${className}`}>
-    {children}
-  </div>
-);
-
-const FeatureItem = ({ icon, text }: { icon: React.ReactNode; text: string }) => (
-  <div className="flex items-start gap-4 p-4 border border-gray-100 dark:border-zinc-800 rounded-xl bg-white dark:bg-black">
-    <div className="flex-shrink-0 w-12 h-12 bg-[#3C48F5] rounded-xl flex items-center justify-center text-white">
-      {icon}
-    </div>
-    <p className="text-sm sm:text-base font-bold text-black dark:text-white leading-tight pt-1">{text}</p>
-  </div>
-);
+import React, { useState } from 'react';
 
 export default function PublishSection() {
-  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState('Publier');
+  const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
 
   return (
-    <section 
-      className="bg-white dark:bg-black border-b border-gray-100 dark:border-zinc-900 py-16 md:py-20 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden relative"
-      aria-label="Publishing Features"
-    >
-      
-      <SectionBackground />
-      {/* Background Decor (CSS Only Animation for Performance) */}
-      <div className="absolute top-10 left-10 w-16 h-16 md:w-20 md:h-20 bg-pink-100 rounded-full opacity-50 animate-pulse pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-24 h-24 md:w-32 md:h-32 bg-green-100 rounded-2xl rotate-12 opacity-50 pointer-events-none"></div>
-
-      <div className="container mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-7xl relative z-10">
-        
-        {/* LEFT – VISUAL (The Browser Window) */}
-        <motion.div
-          className="relative order-2 lg:order-1"
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
+    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center">
+      {/* Content Wrapper */}
+      <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[52px]">
+        {/* Title Area */}
+        <div className="relative w-full h-[200px] mb-2">
+          <h2 
+            className="absolute text-[#000000] text-[32px] leading-[40px]"
+            style={{ fontFamily: "'Rubik One', sans-serif", top: '24px', left: '8px' }}
+          >
+            Pilotez tous vos
+          </h2>
+          <h1 
+            className="absolute text-[#174CD2] text-[70px] leading-[87px]"
+            style={{ fontFamily: "'Rubik One', sans-serif", top: '49px', left: '4px' }}
+          >
+            Reseaux sociaux
+          </h1>
+          <h2 
+            className="absolute text-[#000000] text-[32px] leading-[40px] tracking-[0.3em]"
+            style={{ fontFamily: "'Rubik One', sans-serif", top: '125px', left: '8px' }}
+          >
+            au meme endroit
+          </h2>
+        </div>
+        <p 
+          className="text-[#000000] text-[20px] font-medium leading-[30px] max-w-[656px] pl-[8px] mt-2 mb-[120px]"
+          style={{ fontFamily: "'Rubik', sans-serif" }}
         >
-            {/* Illustration Card */}
-            <HardCard className="rounded-xl overflow-hidden p-0 bg-white">
-                <img
-                  src="/assets/undraw_writing-online.svg"
-                  alt="Writing online illustration"
-                  className="w-full h-auto object-contain p-8 md:p-10"
-                />
-            </HardCard>
+          Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.
+        </p>
 
-        </motion.div>
-
-        {/* RIGHT – COPY */}
-        <motion.div
-          className="space-y-6 md:space-y-8 order-1 lg:order-2"
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
-        >
-          <div>
-            <span className="inline-block px-3 py-1 font-black text-xs md:text-sm uppercase tracking-widest rounded-full bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 mb-4">
-              {t("PUBLISH", "PUBLIER")}
-            </span>
-            <h2 className="text-4xl md:text-6xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">
-              {t("The complete", "L'ensemble")} <br/>
-              <span className="text-[#3C48F6]">{t("publishing", "publication")}</span> <br/>
-              {t("suite.", "complet.")}
-            </h2>
+        {/* Blue Block Container */}
+        <div className="w-full max-w-full bg-[#3C48F6] rounded-[10px] shadow-[0px_15px_40px_15px_rgba(0,0,0,0.35)] relative py-[80px] px-0 flex flex-col">
+          {/* Menu */}
+          <div className="flex flex-row items-center gap-[90px] mb-16 pl-[84px] overflow-x-auto">
+            {tabs.map((tab) => (
+              <div 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab ? 'bg-white' : 'hover:bg-white/10'}`}
+              >
+                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab ? 'text-[#174CD2]' : 'text-white'}`}>
+                  {tab}
+                </span>
+              </div>
+            ))}
           </div>
 
-          <p className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-300 leading-snug border-l-2 border-[#3C48F6] pl-6">
-            {t(
-              "Schedule to Facebook, Instagram, TikTok, LinkedIn, and X from one dashboard. No more tab switching.",
-              "Planifiez sur Facebook, Instagram, TikTok, LinkedIn et X depuis un seul tableau de bord."
-            )}
-          </p>
-
-          <div className="space-y-4">
-            <FeatureItem
-              icon={<Bell className="w-5 h-5 md:w-6 md:h-6" />}
-              text={t("Auto-publish or get notified when it's time.", "Publication auto ou notifications.")}
+          {/* Content area */}
+          <div className="flex flex-row flex-wrap justify-between items-center mx-[84px] px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
+            {/* Image Publier */}
+            <img 
+              src="/Image Publier.png" 
+              alt="Dashboard Preview" 
+              className="w-full max-w-[650px] object-contain shadow-2xl rounded-[10px]"
             />
-            <FeatureItem
-              icon={<Wand2 className="w-5 h-5 md:w-6 md:h-6" />}
-              text={t("Magically repurpose posts for every platform.", "Réutilisez le contenu pour chaque plateforme.")}
-            />
-            <FeatureItem
-              icon={<Calendar className="w-5 h-5 md:w-6 md:h-6" />}
-              text={t("Visual calendar view for your entire month.", "Vue calendrier visuelle pour tout le mois.")}
-            />
+            
+            {/* Text Area */}
+            <div className="flex flex-col gap-[28px] max-w-[331px]">
+              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">Publiez en un clic</h3>
+              <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
+                Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages
+              </p>
+            </div>
           </div>
-
-          <div className="pt-4">
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`}
-              className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-black text-lg rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-3"
-            >
-              {t("Start Publishing", "Commencer")}
-              <CheckCircle strokeWidth={3} />
-            </a>
-          </div>
-        </motion.div>
-
+        </div>
       </div>
     </section>
   );

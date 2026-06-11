@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -8,9 +8,9 @@ import {
   Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Message {
   role: 'user' | 'ai';

@@ -1,13 +1,13 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
-import { useSocket } from '@/src/context/SocketContext';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { api } from '@/lib/api';
+import { useSocket } from '@/context/SocketContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Icons
 import {
