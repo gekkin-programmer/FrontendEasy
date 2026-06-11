@@ -10,6 +10,8 @@ import ImpactSection from '@/components/ImpactSection';
 import PublishSection from '@/components/PublishSection';
 import UsersSection from '@/components/UsersSection';
 import ConnectSection from '@/components/ConnectSection';
+import AProposSection from '@/components/AProposSection';
+import FaqSection from '@/components/FaqSection';
 
 export default function Home() {
   return (
@@ -73,6 +75,8 @@ export default function Home() {
       <PublishSection />
       <ConnectSection />
       <UsersSection />
+      <AProposSection />
+      <FaqSection />
     </main>
   );
 }
