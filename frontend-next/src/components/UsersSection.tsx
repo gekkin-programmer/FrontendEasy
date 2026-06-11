@@ -14,6 +14,33 @@ export default function UsersSection() {
     }
   };
 
+const influencers = [
+  {
+    name: "Blanche Bahoken",
+    image: "/star1.png",
+    tiktok: "1.1M",
+    instagram: "1.1M",
+    facebook: "1.1M",
+    position: "top-[417px] left-[202px] rotate-[-2deg]",
+  },
+  {
+    name: "Mayole Francine",
+    image: "/star2.png",
+    tiktok: "1.1M",
+    instagram: "1.1M",
+    facebook: "1.1M",
+    position: "top-[500px] right-[140px] rotate-[2deg]",
+  },
+  {
+    name: "Blanche Bally",
+    image: "/bally.jpg",
+    tiktok: "1.1M",
+    instagram: "1.1M",
+    facebook: "1.1M",
+    position: "top-[650px] left-[500px] rotate-[-1deg]",
+  },
+];
+
   return (
     <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
       
@@ -117,18 +144,100 @@ export default function UsersSection() {
               </div>
             </div>
 
-            {/* Floating Image Rectangles */}
-            <div className="absolute top-[417px] left-[202px] w-[439px] h-[140px] rounded-[10px] overflow-hidden shadow-lg hover:scale-105 transition-transform cursor-pointer">
-              <img src="/star1.png" alt="User 1" className="w-full h-full object-cover" />
-            </div>
+            {/* Floating Influencer Cards */}
+{influencers.map((person, index) => (
+  <div
+    key={index}
+    className={`
+      absolute
+      ${person.position}
+      bg-white
+      rounded-[12px]
+      p-3
+      w-[340px]
+      shadow-[0_12px_30px_rgba(0,0,0,0.12)]
+      hover:-translate-y-2
+      hover:scale-105
+      hover:shadow-2xl
+      transition-all
+      duration-300
+      cursor-pointer
+      z-20
+    `}
+  >
+    <div className="flex items-center gap-4">
 
-            <div className="absolute top-[544px] left-[831px] w-[428px] h-[140px] rounded-[10px] overflow-hidden shadow-lg hover:scale-105 transition-transform cursor-pointer">
-              <img src="/star2.png" alt="User 2" className="w-full h-full object-cover" />
-            </div>
+      {/* Profile Picture */}
+      <img
+        src={person.image}
+        alt={person.name}
+        className="
+          w-[110px]
+          h-[115px]
+          rounded-[5px]
+          object-cover
+          flex-shrink-0
+        "
+      />
 
-            <div className="absolute top-[697px] left-[168px] w-[497px] h-[140px] rounded-[10px] overflow-hidden shadow-lg hover:scale-105 transition-transform cursor-pointer">
-              <img src="/star3.png" alt="User 3" className="w-full h-full object-cover" />
-            </div>
+      {/* Content */}
+      <div className="flex flex-col justify-center">
+
+        {/* Name */}
+        <h3 className="font-semibold text-[18px] leading-none text-black">
+          {person.name}
+        </h3>
+
+        {/* Stats */}
+        <div className="mt-3 flex flex-col gap-1">
+
+          <div className="flex items-center gap-2">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="currentColor"
+            >
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.74h-3.09v13.4a2.79 2.79 0 1 1-2.79-2.79c.31 0 .61.05.89.14V9.57a5.86 5.86 0 0 0-.89-.07A5.89 5.89 0 1 0 15.82 15V8.16a7.9 7.9 0 0 0 4.62 1.48V6.69z"/>
+            </svg>
+
+            <span className="text-[14px] text-gray-700">
+              {person.tiktok} Abonnés
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="#E1306C"
+            >
+              <path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4A5.8 5.8 0 0 1 16.2 22H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm4.2 4.3a5.7 5.7 0 1 0 0 11.4 5.7 5.7 0 0 0 0-11.4zm0 1.9a3.8 3.8 0 1 1 0 7.6 3.8 3.8 0 0 1 0-7.6zm5.9-.9a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6z"/>
+            </svg>
+
+            <span className="text-[14px] text-gray-700">
+              {person.instagram} Abonnés
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="#1877F2"
+            >
+              <path d="M22 12A10 10 0 1 0 10.44 21.9v-7h-2.6V12h2.6V9.8c0-2.57 1.53-4 3.87-4 1.12 0 2.3.2 2.3.2v2.52h-1.3c-1.28 0-1.68.8-1.68 1.61V12h2.86l-.46 2.9h-2.4v7A10 10 0 0 0 22 12z"/>
+            </svg>
+
+            <span className="text-[14px] text-gray-700">
+              {person.facebook} Abonnés
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+))}
 
           </div>
         </div>
