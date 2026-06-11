@@ -172,9 +172,9 @@ const influencers = [
         src={person.image}
         alt={person.name}
         className="
-          w-[85px]
-          h-[85px]
-          rounded-[10px]
+          w-[110px]
+          h-[115px]
+          rounded-[5px]
           object-cover
           flex-shrink-0
         "
@@ -184,7 +184,7 @@ const influencers = [
       <div className="flex flex-col justify-center">
 
         {/* Name */}
-        <h3 className="font-semibold text-[24px] leading-none text-black">
+        <h3 className="font-semibold text-[18px] leading-none text-black">
           {person.name}
         </h3>
 
