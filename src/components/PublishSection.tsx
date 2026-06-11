@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 export default function PublishSection() {
   const [activeTab, setActiveTab] = useState('Publier');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
 
   const tabImages: Record<string, string> = {
@@ -87,12 +88,29 @@ const tabContent: Record<string, { title: string; description: string }> = {
 
           {/* Content area */}
           <div className="flex flex-row flex-wrap justify-between items-center mx-[84px] px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
-            {/* Image Publier */}
-            <img
-            src={tabImages[activeTab]}
-            alt={`${activeTab} Preview`}
-            className="w-full max-w-[650px] object-contain shadow-2xl rounded-[10px]"
-          />
+            {/* Image / Video wrapper */}
+            <div className={isFullscreen ? 'fixed inset-0 z-[100] bg-black/95 flex items-center justify-center' : 'relative w-full max-w-[650px]'}>
+              <img
+                src={tabImages[activeTab]}
+                alt={`${activeTab} Preview`}
+                className={isFullscreen ? 'max-w-[90vw] max-h-[90vh] object-contain shadow-2xl rounded-[10px]' : 'w-full object-contain shadow-2xl rounded-[10px]'}
+              />
+              <button 
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className={`absolute hover:scale-110 transition-transform flex items-center justify-center p-2 bg-black/20 hover:bg-black/50 rounded-full backdrop-blur-sm ${isFullscreen ? 'top-8 right-8' : 'top-4 right-4'}`}
+                aria-label="Toggle Fullscreen"
+              >
+                 {isFullscreen ? (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 20V14H4M10 14L3 21M14 4V10H20M14 10L21 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                 ) : (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 9V3H15M21 3L14 10M3 15V21H9M3 21L10 14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                 )}
+              </button>
+            </div>
             
             {/* Text Area */}
             <div className="flex flex-col gap-[28px] max-w-[331px]">
