@@ -4,6 +4,14 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   output: "standalone",
   eslint: { ignoreDuringBuilds: true },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://backend-eazypost.mbokofit.com/api/:path*",
+      },
+    ];
+  },
   images: {
     // ➤ 1. Allow SVGs
     dangerouslyAllowSVG: true,
