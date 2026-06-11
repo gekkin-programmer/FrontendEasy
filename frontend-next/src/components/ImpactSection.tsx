@@ -2,8 +2,10 @@
 
 import React from 'react';
 import AnimatedCounter from './AnimatedCounter';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ImpactSection() {
+  const { t } = useLanguage();
   return (
     <section className="w-full bg-white border-b-[4px] border-[#D9D9D9] rounded-t-[30px] min-h-[600px] flex items-center">
       <div className="max-w-[1435px] mx-auto w-full flex flex-col md:flex-row items-center justify-between py-[80px] px-[52px] gap-20">
@@ -54,7 +56,7 @@ export default function ImpactSection() {
                 textAlign: 'center' 
               }}
             >
-              Plateformes Sociales
+              {t("Social Platforms", "Plateformes Sociales")}
             </div>
             <div 
               style={{ 
@@ -83,7 +85,7 @@ export default function ImpactSection() {
                 textAlign: 'center' 
               }}
             >
-              Our users
+              {t("Our users", "Nos utilisateurs")}
             </div>
             <div 
               style={{ 
@@ -112,7 +114,7 @@ export default function ImpactSection() {
                 textAlign: 'center' 
               }}
             >
-              number of post per month
+              {t("Posts per month", "Publications par mois")}
             </div>
             <div 
               style={{ 
