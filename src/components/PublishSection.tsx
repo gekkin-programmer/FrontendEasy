@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function PublishSection() {
-  const [activeTab, setActiveTab] = useState('Publier');
-  const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
+  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState('Publish');
+  const tabs = [
+    { key: 'Publish', en: 'Publish', fr: 'Publier' },
+    { key: 'Create', en: 'Create', fr: 'Créer' },
+    { key: 'Collaborate', en: 'Collaborate', fr: 'Collaborer' },
+    { key: 'Analytics', en: 'Analytics', fr: 'Statistiques' },
+    { key: 'Schedule', en: 'Schedule', fr: 'Planifier' },
+  ];
 
   return (
     <section className="w-full bg-white relative pb-[100px] flex flex-col items-center">
@@ -14,26 +22,26 @@ export default function PublishSection() {
             className="absolute text-[#000000] text-[32px] leading-[40px]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '24px', left: '8px' }}
           >
-            Pilotez tous vos
+            {t("Control all your", "Pilotez tous vos")}
           </h2>
           <h1 
             className="absolute text-[#174CD2] text-[70px] leading-[87px]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '49px', left: '4px' }}
           >
-            Reseaux sociaux
+            {t("Social networks", "Réseaux sociaux")}
           </h1>
           <h2 
             className="absolute text-[#000000] text-[32px] leading-[40px] tracking-[0.3em]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '125px', left: '8px' }}
           >
-            au meme endroit
+            {t("in one place", "au même endroit")}
           </h2>
         </div>
         <p 
           className="text-[#000000] text-[20px] font-medium leading-[30px] max-w-[656px] pl-[8px] mt-2 mb-[120px]"
           style={{ fontFamily: "'Rubik', sans-serif" }}
         >
-          Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.
+          {t("Create your content, schedule your posts, collaborate with your team and analyze your stats directly from a single app.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}
         </p>
 
         {/* Blue Block Container */}
@@ -42,12 +50,12 @@ export default function PublishSection() {
           <div className="flex flex-row items-center gap-[90px] mb-16 pl-[84px] overflow-x-auto">
             {tabs.map((tab) => (
               <div 
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab ? 'bg-white' : 'hover:bg-white/10'}`}
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab.key ? 'bg-white' : 'hover:bg-white/10'}`}
               >
-                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab ? 'text-[#174CD2]' : 'text-white'}`}>
-                  {tab}
+                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab.key ? 'text-[#174CD2]' : 'text-white'}`}>
+                  {t(tab.en, tab.fr)}
                 </span>
               </div>
             ))}
@@ -64,9 +72,9 @@ export default function PublishSection() {
             
             {/* Text Area */}
             <div className="flex flex-col gap-[28px] max-w-[331px]">
-              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">Publiez en un clic</h3>
+              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">{t("Publish in one click", "Publiez en un clic")}</h3>
               <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
-                Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages
+                {t("Stop wasting time switching between apps. Centralize your sharing.", "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages")}
               </p>
             </div>
           </div>

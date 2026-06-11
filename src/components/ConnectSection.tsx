@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ConnectSection() {
+  const { t } = useLanguage();
   return (
     <section className="w-full bg-white relative py-[100px] flex flex-col items-center overflow-hidden">
       <div className="w-full max-w-[1435px] mx-auto flex flex-col relative px-[52px]">
@@ -11,13 +13,13 @@ export default function ConnectSection() {
             className="text-[#000000] text-[36px] leading-[45px] -mb-2"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
-            Connectez Vos
+            {t("Connect Your", "Connectez Vos")}
           </h2>
           <h1 
             className="text-[#174CD2] text-[70px] leading-[87px]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
-            Reseaux sociaux
+            {t("Social networks", "Réseaux sociaux")}
           </h1>
         </div>
 
@@ -153,7 +155,7 @@ export default function ConnectSection() {
         {/* & plus */}
         <div className="flex justify-center w-full mt-[50px]">
           <span className="font-['Rubik'] font-medium text-[32px] leading-[38px] text-[#000000]">
-            & plus
+            {t("& more", "& plus")}
           </span>
         </div>
       </div>
