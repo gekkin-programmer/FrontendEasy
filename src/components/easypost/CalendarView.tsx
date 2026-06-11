@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { api } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
@@ -226,8 +226,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         const post = posts.find(p => p.id === postId);
         if (!post) return;
 
+        if (post.status === 'PUBLISHED') {
+            toast.info(t("Published posts cannot be rescheduled", "Les publications publiées ne peuvent pas être replanifiées"));
+            return;
+        }
+
         const newDate = parseISO(targetDateStr);
-        const oldDate = parseISO(post.scheduledFor);
+        const oldDate = post.scheduledFor ? parseISO(post.scheduledFor) : new Date();
         const updatedDate = setMinutes(setHours(newDate, oldDate.getHours()), oldDate.getMinutes());
 
         queryClient.setQueryData(['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')], (old: any) => {

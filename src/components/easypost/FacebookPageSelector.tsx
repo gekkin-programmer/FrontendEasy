@@ -1,14 +1,14 @@
-﻿
+
 'use client';
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { Loader2, Plus } from 'lucide-react';
 import { FaFacebookF } from 'react-icons/fa6';
 import { NeuModal } from './DashboardUI';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface FacebookPageSelectorProps {
   isOpen: boolean;

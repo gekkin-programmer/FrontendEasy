@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function GlobalSettingsPage() {
   const { t } = useLanguage();

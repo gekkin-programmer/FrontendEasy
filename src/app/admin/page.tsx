@@ -6,8 +6,8 @@ import {
   Users, BarChart3, TrendingUp, Zap, 
   MessageSquare, ArrowUpRight, Activity
 } from 'lucide-react';
-import { api } from '@/src/lib/api';
-import SpinningLoader from '@/src/components/SpinningLoader';
+import { api } from '@/lib/api';
+import SpinningLoader from '@/components/SpinningLoader';
 
 interface Stats {
   totalUsers: number;

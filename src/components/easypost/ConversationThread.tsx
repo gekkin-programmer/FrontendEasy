@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   FiMessageCircle, FiSend, FiPaperclip, FiSmile, FiMoreHorizontal,
   FiChevronLeft, FiExternalLink, FiClock, FiCheck, FiCheckCircle,

@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
@@ -16,7 +16,7 @@ import {
   FaDiscord, FaTwitch, FaThreads
 } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface QuickConnectSidebarProps {
   accounts: any[];
@@ -98,7 +98,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/pricing')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-yellow-300 dark:hover:bg-zinc-600 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-700 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                             title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
                             <Crown size={16} className="text-black dark:text-white" />

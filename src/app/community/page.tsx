@@ -6,10 +6,10 @@ import {
   MessageCircle, Github, Twitter, Heart, Users, UploadCloud, 
   Check, X, ThumbsUp, Filter, Search, Loader2, Send
 } from 'lucide-react';
-import Navbar from '@/src/components/Navbar';
+import Navbar from '@/components/Navbar';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api'; 
-import { useLanguage } from '@/src/context/LanguageContext';
+import { api } from '@/lib/api'; 
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- TYPES ---
 type FeedbackStatus = 'UNDER_REVIEW' | 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';

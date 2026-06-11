@@ -1,13 +1,14 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
 import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- NEU COMPONENTS ---
 
@@ -125,7 +126,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       onDragStart={onDragStart as any}
       className={cn(
         "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] rounded-lg",
-        draggable ? "cursor-grab active:cursor-grabbing hover:bg-yellow-50 dark:hover:bg-zinc-800" : ""
+        draggable ? "cursor-grab active:cursor-grabbing hover:bg-zinc-50 dark:hover:bg-zinc-800" : ""
       )}
     >
       {draggable && (
@@ -282,13 +283,17 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
 export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false }: PostFeedProps) {
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
 
   const deletePost = async (postId: string) => {
+    if (!confirm(t("Delete this post?", "Supprimer cette publication ?"))) return;
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
-        toast.success(t("Post deleted from all platforms", "Publication supprimée de toutes les plateformes"));
+        toast.success(t("Post deleted", "Publication supprimée"));
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
     } catch (e) {
         toast.error(t("Failed to delete", "Échec de la suppression"));
     }

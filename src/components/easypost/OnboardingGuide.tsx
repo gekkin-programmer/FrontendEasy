@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, Check, X, Link2, FileText, CalendarDays, BarChart2, Users } from 'lucide-react';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SocialAccount { id: string; platform?: string; }
 interface Post { status?: string; scheduledFor?: string; scheduledAt?: string; }

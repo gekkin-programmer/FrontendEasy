@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShieldCheck, UserPlus, Clock, Info, Send, Loader2 } from 'lucide-react';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function AdminGrants() {

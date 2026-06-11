@@ -1,4 +1,4 @@
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 
 export interface Board {
   id: string;

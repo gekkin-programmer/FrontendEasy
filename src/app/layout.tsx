@@ -6,7 +6,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import { LanguageProvider } from "../context/LanguageContext";
 import Footer from "../components/Footer";
-import QueryProvider from "@/src/providers/query-provider";
+import QueryProvider from "@/providers/query-provider";
 import AgentationLoader from "../components/AgentationLoader";
 
 const rubik = Rubik({
@@ -92,7 +92,7 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            <main className="min-h-screen">
+            <main className="min-h-screen pt-16 md:pt-1">
               {children}
             </main>
 
