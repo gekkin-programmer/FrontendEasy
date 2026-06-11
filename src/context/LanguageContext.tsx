@@ -1,9 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import en from '../locales/en.json';
+import fr from '../locales/fr.json';
+import ar from '../locales/ar.json';
 
 type Language = 'en' | 'fr' | 'ar';
 type Theme = 'light' | 'dark';
+
+type Translations = Record<string, string>;
+
+const translations: Record<Language, Translations> = { en, fr, ar };
 
 interface LanguageContextType {
   language: Language;
@@ -17,7 +24,6 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // 1. Language — lazy init from localStorage (client only, fallback 'en' for SSR)
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === 'undefined') return 'en';
     const saved = localStorage.getItem('app_language') as Language;
@@ -27,7 +33,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return deviceLang;
   });
 
-  // 2. Theme — lazy init from localStorage (client only, fallback 'dark' for SSR)
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'dark';
     const saved = localStorage.getItem('theme') as Theme;
@@ -35,7 +40,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return saved || 'dark';
   });
 
-  // Apply theme class whenever theme changes
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -44,7 +48,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme]);
 
-  // Sync <html lang> with selected language
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
@@ -71,6 +74,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const t = (en: string, fr: string, ar?: string) => {
+    const langTranslations = translations[language];
+    if (langTranslations) {
+      const translated = langTranslations[en] || langTranslations[fr];
+      if (translated) return translated;
+    }
     if (language === 'fr') return fr;
     if (language === 'ar' && ar) return ar;
     return en;
