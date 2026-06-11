@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLangOpen, setIsLangOpen] = useState(false);
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -45,7 +45,7 @@ export default function Navbar() {
           onMouseEnter={() => setActiveDropdown('Fonctionnalités')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <span>Fonctionnalités</span>
+          <span>{t("Features", "Fonctionnalités")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
             <path d="M10.835 5.83502L5.83496 0.835022L0.834961 5.83502" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -55,31 +55,31 @@ export default function Navbar() {
             <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
               <div className="max-w-[1440px] mx-auto grid grid-cols-3 gap-x-[40px] gap-y-[32px]">
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Tableau de bord global</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Global Dashboard", "Tableau de bord global")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Planification multi réseaux</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Multi-network Scheduling", "Planification multi réseaux")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Boîte de réception & engagement</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Inbox & Engagement", "Boîte de réception & engagement")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Calendrier éditorial</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Editorial Calendar", "Calendrier éditorial")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Analytics & rapports simplifiés</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Simplified Analytics & Reports", "Analytics & rapports simplifiés")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Collaboration & gestion d'équipe</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Collaboration & Team Management", "Collaboration & gestion d'équipe")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Bibliothèque de contenus & intégrations</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Content Library & Integrations", "Bibliothèque de contenus & intégrations")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Automatisation & assistance intelligente</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Automation & Smart Assistance", "Automatisation & assistance intelligente")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold transition-colors">Paramètres, facturation & accessibilité</h3>
+                  <h3 className="text-[18px] text-white font-bold transition-colors">{t("Settings, Billing & Accessibility", "Paramètres, facturation & accessibilité")}</h3>
                 </div>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function Navbar() {
           onMouseEnter={() => setActiveDropdown('Canaux')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <span>Canaux</span>
+          <span>{t("Channels", "Canaux")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
             <path d="M10.835 5.83502L5.83496 0.835022L0.834961 5.83502" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -115,7 +115,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Facebook</h3>
-                    <p className="text-[14px]">Pages & Groupes</p>
+                    <p className="text-[14px]">{t("Pages & Groups", "Pages & Groupes")}</p>
                   </div>
                 </div>
 
@@ -149,7 +149,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Instagram</h3>
-                    <p className="text-[14px]">Posts, Reels & Stories</p>
+                    <p className="text-[14px]">{t("Posts, Reels & Stories", "Posts, Reels & Stories")}</p>
                   </div>
                 </div>
 
@@ -161,7 +161,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Twitter (X)</h3>
-                    <p className="text-[14px]">Tweets & Threads</p>
+                    <p className="text-[14px]">{t("Tweets & Threads", "Tweets & Threads")}</p>
                   </div>
                 </div>
 
@@ -175,7 +175,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">LinkedIn</h3>
-                    <p className="text-[14px]">Profils & Pages</p>
+                    <p className="text-[14px]">{t("Profiles & Pages", "Profils & Pages")}</p>
                   </div>
                 </div>
 
@@ -198,7 +198,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Telegram</h3>
-                    <p className="text-[14px]">Canaux & Groupes</p>
+                    <p className="text-[14px]">{t("Channels & Groups", "Canaux & Groupes")}</p>
                   </div>
                 </div>
 
@@ -216,7 +216,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Discord</h3>
-                    <p className="text-[14px]">Serveurs & Salons</p>
+                    <p className="text-[14px]">{t("Servers & Channels", "Serveurs & Salons")}</p>
                   </div>
                 </div>
 
@@ -236,7 +236,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">WhatsApp</h3>
-                    <p className="text-[14px]">Business & Broadcasts</p>
+                    <p className="text-[14px]">{t("Business & Broadcasts", "Business & Broadcasts")}</p>
                   </div>
                 </div>
 
@@ -248,7 +248,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">YouTube</h3>
-                    <p className="text-[14px]">Chaînes & Shorts</p>
+                    <p className="text-[14px]">{t("Channels & Shorts", "Chaînes & Shorts")}</p>
                   </div>
                 </div>
 
@@ -261,7 +261,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Twitch</h3>
-                    <p className="text-[14px]">Streams & VOD</p>
+                    <p className="text-[14px]">{t("Streams & VOD", "Streams & VOD")}</p>
                   </div>
                 </div>
 
@@ -280,7 +280,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Pinterest</h3>
-                    <p className="text-[14px]">Épingles & Tableaux</p>
+                    <p className="text-[14px]">{t("Pins & Boards", "Épingles & Tableaux")}</p>
                   </div>
                 </div>
 
@@ -291,7 +291,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Canva</h3>
-                    <p className="text-[14px]">Designs & Templates</p>
+                    <p className="text-[14px]">{t("Designs & Templates", "Designs & Templates")}</p>
                   </div>
                 </div>
 
@@ -304,7 +304,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Dropbox</h3>
-                    <p className="text-[14px]">Fichiers & Dossiers</p>
+                    <p className="text-[14px]">{t("Files & Folders", "Fichiers & Dossiers")}</p>
                   </div>
                 </div>
 
@@ -317,7 +317,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">TikTok</h3>
-                    <p className="text-[14px]">Vidéos & Tendances</p>
+                    <p className="text-[14px]">{t("Videos & Trends", "Vidéos & Tendances")}</p>
                   </div>
                 </div>
 
@@ -329,7 +329,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Reddit</h3>
-                    <p className="text-[14px]">Subreddits & Communautés</p>
+                    <p className="text-[14px]">{t("Subreddits & Communities", "Subreddits & Communautés")}</p>
                   </div>
                 </div>
 
@@ -347,7 +347,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Messenger</h3>
-                    <p className="text-[14px]">Discussions & Bots</p>
+                    <p className="text-[14px]">{t("Chats & Bots", "Discussions & Bots")}</p>
                   </div>
                 </div>
 
@@ -361,7 +361,7 @@ export default function Navbar() {
                   </svg>
                   <div>
                     <h3 className="text-[18px] text-white font-bold mb-1 transition-colors">Google Drive</h3>
-                    <p className="text-[14px]">Stockage & Docs</p>
+                    <p className="text-[14px]">{t("Storage & Docs", "Stockage & Docs")}</p>
                   </div>
                 </div>
               </div>
@@ -375,7 +375,7 @@ export default function Navbar() {
           onMouseEnter={() => setActiveDropdown('Pour')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <span>Pour</span>
+          <span>{t("For", "Pour")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
             <path d="M10.835 5.83502L5.83496 0.835022L0.834961 5.83502" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -384,16 +384,16 @@ export default function Navbar() {
             <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
               <div className="max-w-[1440px] mx-auto grid grid-cols-4 gap-[40px]">
                 <Link href="/pour/createurs" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Créateurs & Influenceurs</h3>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Creators & Influencers", "Créateurs & Influenceurs")}</h3>
                 </Link>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Petites & Moyennes Entreprises</h3>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Agences</h3>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Agencies", "Agences")}</h3>
                 </div>
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Organisations & Institutions</h3>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Organizations & Institutions", "Organisations & Institutions")}</h3>
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ export default function Navbar() {
           onMouseEnter={() => setActiveDropdown('Ressources')}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <span>Ressources</span>
+          <span>{t("Resources", "Ressources")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
             <path d="M10.835 5.83502L5.83496 0.835022L0.834961 5.83502" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -415,12 +415,12 @@ export default function Navbar() {
             <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
               <div className="max-w-[1440px] mx-auto grid grid-cols-2 gap-[40px]">
                 <div className="text-white/80">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Blog</h3>
-                  <p className="text-[14px]">Découvrez nos derniers articles et astuces marketing.</p>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Blog", "Blog")}</h3>
+                  <p className="text-[14px]">{t("Discover our latest articles and marketing tips.", "Découvrez nos derniers articles et astuces marketing.")}</p>
                 </div>
                 <div className="text-white/80">
-                  <h3 className="text-[18px] text-white font-bold mb-2">Centre d'Aide</h3>
-                  <p className="text-[14px]">Trouvez des réponses rapides à vos questions.</p>
+                  <h3 className="text-[18px] text-white font-bold mb-2">{t("Help Center", "Centre d'Aide")}</h3>
+                  <p className="text-[14px]">{t("Find quick answers to your questions.", "Trouvez des réponses rapides à vos questions.")}</p>
                 </div>
               </div>
             </div>
@@ -429,7 +429,7 @@ export default function Navbar() {
 
         {/* Frame 17: Tarifs */}
         <div className="h-full flex items-center gap-[4px] cursor-pointer">
-          <span>Tarifs</span>
+          <span>{t("Pricing", "Tarifs")}</span>
         </div>
 
       </div>
@@ -472,13 +472,13 @@ export default function Navbar() {
 
         {/* Login */}
         <span className="text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
-          Connexion
+          {t("Log in", "Connexion")}
         </span>
 
         {/* CTA */}
         {/* Fix 5: Switched to padding-based width sizing instead of hard-coded dimensions for a flexible fit */}
         <button className="flex items-center justify-center px-[24px] md:px-[32px] h-[48px] md:h-[54px] border-[2px] border-white rounded-[14px] md:rounded-[18px] text-[14px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
-          Commencer l'essai
+          {t("Start free trial", "Commencer l'essai")}
         </button>
       </div>
     </nav>
