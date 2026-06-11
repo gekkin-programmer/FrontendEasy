@@ -12,6 +12,7 @@ import UsersSection from '@/components/UsersSection';
 import ConnectSection from '@/components/ConnectSection';
 import AProposSection from '@/components/AProposSection';
 import FaqSection from '@/components/FaqSection';
+import ContactSection from '@/components/ContactSection';
 
 export default function Home() {
   return (
@@ -77,6 +78,7 @@ export default function Home() {
       <UsersSection />
       <AProposSection />
       <FaqSection />
+      <ContactSection />
     </main>
   );
 }
