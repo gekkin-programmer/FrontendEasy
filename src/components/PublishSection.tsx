@@ -4,8 +4,40 @@ export default function PublishSection() {
   const [activeTab, setActiveTab] = useState('Publier');
   const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
 
+  const tabImages: Record<string, string> = {
+  Publier: "/Image Publier.png",
+  Creer: "/Image Publier.png",
+  Collaborer: "/Image Publier.png",
+  Statistique: "/Image Publier.png",
+  Planifier: "/Image Publier.png",
+};
+
+const tabContent: Record<string, { title: string; description: string }> = {
+  Publier: {
+    title: "Publiez en un clic",
+    description: "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages",
+  },
+  Creer: {
+    title: "Créez facilement",
+    description: "Donnez vie à vos idées avec des outils simples et puissants.",
+  },
+  Collaborer: {
+    title: "Collaborez en équipe",
+    description: "Travaillez ensemble et partagez vos projets en temps réel.",
+  },
+  Statistique: {
+    title: "Analysez vos statistiques",
+    description: "Suivez vos performances et optimisez vos contenus.",
+  },
+  Planifier: {
+    title: "Planifiez vos publications",
+    description: "Organisez votre calendrier et publiez au bon moment.",
+  },
+};
+
+
   return (
-    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center">
+    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center pt-[100px]">
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[52px]">
         {/* Title Area */}
@@ -56,18 +88,21 @@ export default function PublishSection() {
           {/* Content area */}
           <div className="flex flex-row flex-wrap justify-between items-center mx-[84px] px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
             {/* Image Publier */}
-            <img 
-              src="/Image Publier.png" 
-              alt="Dashboard Preview" 
-              className="w-full max-w-[650px] object-contain shadow-2xl rounded-[10px]"
-            />
+            <img
+            src={tabImages[activeTab]}
+            alt={`${activeTab} Preview`}
+            className="w-full max-w-[650px] object-contain shadow-2xl rounded-[10px]"
+          />
             
             {/* Text Area */}
             <div className="flex flex-col gap-[28px] max-w-[331px]">
-              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">Publiez en un clic</h3>
-              <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
-                Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages
-              </p>
+              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">
+              {tabContent[activeTab].title}
+            </h3>
+            <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
+              {tabContent[activeTab].description}
+            </p>
+
             </div>
           </div>
         </div>
