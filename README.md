@@ -1,8 +1,8 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="public/applogo.png" alt="EazyPost Logo" width="120" />
 
-# EazyPost — Frontend
+# EazyPost ΓÇö Frontend
 
 **AI-powered social media management for African creators and businesses**
 
@@ -13,7 +13,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
 [![Live](https://img.shields.io/badge/Live-eazypost.cm-3C48F5?logo=googlechrome)](https://eazypost.cm)
 
-[**→ Live App**](https://eazypost.cm) · [**→ Backend Repo**](https://github.com/gekkin-programmer/BackendEasy) · [**→ API Docs**](https://backend-eazypost.mbokofit.com/api-docs)
+[**ΓåÆ Live App**](https://eazypost.cm) ┬╖ [**ΓåÆ Backend Repo**](https://github.com/gekkin-programmer/BackendEasy) ┬╖ [**ΓåÆ API Docs**](https://backend-eazypost.mbokofit.com/api-docs)
 
 </div>
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-EazyPost is a full-featured social media management platform built for creators and SMBs across Cameroon, Nigeria, and Côte d'Ivoire. Schedule, publish, and analyse content across every major platform — from a single neubrutalist dashboard.
+EazyPost is a full-featured social media management platform built for creators and SMBs across Cameroon, Nigeria, and C├┤te d'Ivoire. Schedule, publish, and analyse content across every major platform ΓÇö from a single neubrutalist dashboard.
 
 This repository contains the **Next.js frontend** (App Router). The NestJS backend lives in [BackendEasy](https://github.com/gekkin-programmer/BackendEasy).
 
@@ -61,18 +61,18 @@ This repository contains the **Next.js frontend** (App Router). The NestJS backe
 ## Features
 
 ### Publishing
-- **Multi-platform scheduling** — Facebook, Instagram, TikTok, LinkedIn, YouTube, Twitter/X, Threads, WhatsApp Business
-- **AI content generation** — GPT-powered captions, hashtag suggestions, and post rewrites
-- **Calendar view** — drag-and-drop rescheduling across a monthly/weekly grid
-- **Kanban board** — manage posts through Draft → Scheduled → Published workflow
-- **Media library** — upload, organise, and reuse images & videos with GCS storage
-- **Canva integration** — import designs directly from Canva into the composer
-- **Platform-specific panels** — TikTok privacy, Instagram first-comment, YouTube description fields
+- **Multi-platform scheduling** ΓÇö Facebook, Instagram, TikTok, LinkedIn, YouTube, Twitter/X, Threads, WhatsApp Business
+- **AI content generation** ΓÇö GPT-powered captions, hashtag suggestions, and post rewrites
+- **Calendar view** ΓÇö drag-and-drop rescheduling across a monthly/weekly grid
+- **Kanban board** ΓÇö manage posts through Draft ΓåÆ Scheduled ΓåÆ Published workflow
+- **Media library** ΓÇö upload, organise, and reuse images & videos with GCS storage
+- **Canva integration** ΓÇö import designs directly from Canva into the composer
+- **Platform-specific panels** ΓÇö TikTok privacy, Instagram first-comment, YouTube description fields
 
 ### Analytics
-- Per-post engagement breakdown (likes · comments · shares · reach)
+- Per-post engagement breakdown (likes ┬╖ comments ┬╖ shares ┬╖ reach)
 - Per-platform metric split with engagement rate
-- AI-powered strategy insights — best posting time, content ROI, hashtag performance
+- AI-powered strategy insights ΓÇö best posting time, content ROI, hashtag performance
 - Synced comment inbox from Facebook, Instagram, and YouTube
 
 ### Engagement (Unified Inbox)
@@ -108,16 +108,16 @@ This repository contains the **Next.js frontend** (App Router). The NestJS backe
 | Icons | Lucide React | 0.56 |
 | Date Handling | date-fns | 4.1 |
 | Error Tracking | Sentry | 10.38 |
-| HTTP Client | Native `fetch` (custom wrapper in `src/lib/api.ts`) | — |
-| Package Manager | **pnpm** (mandatory — do not use npm or yarn) | 9+ |
+| HTTP Client | Native `fetch` (custom wrapper in `src/lib/api.ts`) | ΓÇö |
+| Package Manager | **pnpm** (mandatory ΓÇö do not use npm or yarn) | 9+ |
 
 ### Design System
 EazyPost uses a custom **Neubrutalist** design language:
-- 2–4 px solid borders (`border-black dark:border-white`)
+- 2ΓÇô4 px solid borders (`border-black dark:border-white`)
 - Hard box shadows (`shadow-[4px_4px_0px_0px_#000]`)
 - Font: **Rubik** (entire app)
 - Brand colour: `#3C48F5`
-- Light background: `#F4F4F0` · Dark background: `#000000`
+- Light background: `#F4F4F0` ┬╖ Dark background: `#000000`
 - Full dark mode support via Tailwind `dark:` variants
 
 ---
@@ -126,27 +126,27 @@ EazyPost uses a custom **Neubrutalist** design language:
 
 ```
 src/
-├── app/                     # Next.js App Router pages
-│   ├── dashboard/[id]/      # Main workspace dashboard
-│   ├── pricing/             # Pricing page
-│   ├── login/ signup/       # Auth pages
-│   └── legal/               # Terms, Privacy, Cookies
-├── components/
-│   ├── easypost/            # Core dashboard components
-│   │   ├── Composer.tsx     # Post creation & scheduling
-│   │   ├── Analytics.tsx    # Analytics hub
-│   │   ├── CalendarView.tsx # Calendar scheduler
-│   │   ├── BoardView.tsx    # Kanban board
-│   │   ├── EngagementWithTabs.tsx  # Unified inbox
-│   │   ├── EasyAI.tsx       # AI assistant
-│   │   ├── MediaGallery.tsx # Media library
-│   │   └── Settings.tsx     # Workspace settings
-│   └── ui/                  # Shared UI primitives (shadcn/ui)
-├── context/
-│   └── LanguageContext.tsx  # i18n — t("EN text", "FR text")
-├── lib/
-│   └── api.ts               # Axios-free fetch wrapper (always use this)
-└── types/                   # Global TypeScript types
+Γö£ΓöÇΓöÇ app/                     # Next.js App Router pages
+Γöé   Γö£ΓöÇΓöÇ dashboard/[id]/      # Main workspace dashboard
+Γöé   Γö£ΓöÇΓöÇ pricing/             # Pricing page
+Γöé   Γö£ΓöÇΓöÇ login/ signup/       # Auth pages
+Γöé   ΓööΓöÇΓöÇ legal/               # Terms, Privacy, Cookies
+Γö£ΓöÇΓöÇ components/
+Γöé   Γö£ΓöÇΓöÇ easypost/            # Core dashboard components
+Γöé   Γöé   Γö£ΓöÇΓöÇ Composer.tsx     # Post creation & scheduling
+Γöé   Γöé   Γö£ΓöÇΓöÇ Analytics.tsx    # Analytics hub
+Γöé   Γöé   Γö£ΓöÇΓöÇ CalendarView.tsx # Calendar scheduler
+Γöé   Γöé   Γö£ΓöÇΓöÇ BoardView.tsx    # Kanban board
+Γöé   Γöé   Γö£ΓöÇΓöÇ EngagementWithTabs.tsx  # Unified inbox
+Γöé   Γöé   Γö£ΓöÇΓöÇ EasyAI.tsx       # AI assistant
+Γöé   Γöé   Γö£ΓöÇΓöÇ MediaGallery.tsx # Media library
+Γöé   Γöé   ΓööΓöÇΓöÇ Settings.tsx     # Workspace settings
+Γöé   ΓööΓöÇΓöÇ ui/                  # Shared UI primitives (shadcn/ui)
+Γö£ΓöÇΓöÇ context/
+Γöé   ΓööΓöÇΓöÇ LanguageContext.tsx  # i18n ΓÇö t("EN text", "FR text")
+Γö£ΓöÇΓöÇ lib/
+Γöé   ΓööΓöÇΓöÇ api.ts               # Axios-free fetch wrapper (always use this)
+ΓööΓöÇΓöÇ types/                   # Global TypeScript types
 ```
 
 ---
@@ -155,8 +155,8 @@ src/
 
 ### Prerequisites
 
-- **Node.js** ≥ 20
-- **pnpm** ≥ 9 — `npm i -g pnpm`
+- **Node.js** ΓëÑ 20
+- **pnpm** ΓëÑ 9 ΓÇö `npm i -g pnpm`
 - A running instance of the [EazyPost Backend](https://github.com/gekkin-programmer/BackendEasy)
 
 ### Installation
@@ -216,13 +216,13 @@ pnpm build         # Production build (Next.js standalone)
 Every push to `dev` triggers a three-stage GitHub Actions pipeline:
 
 ```
-push → dev
-  │
-  ├─ 1. Checks  ── pnpm lint → pnpm test → pnpm build
-  │
-  ├─ 2. Docker  ── Build image → push to ghcr.io (GitHub layer cache)
-  │
-  └─ 3. Deploy  ── fast-forward main ← dev → Dokploy webhook → live
+push ΓåÆ dev
+  Γöé
+  Γö£ΓöÇ 1. Checks  ΓöÇΓöÇ pnpm lint ΓåÆ pnpm test ΓåÆ pnpm build
+  Γöé
+  Γö£ΓöÇ 2. Docker  ΓöÇΓöÇ Build image ΓåÆ push to ghcr.io (GitHub layer cache)
+  Γöé
+  ΓööΓöÇ 3. Deploy  ΓöÇΓöÇ fast-forward main ΓåÉ dev ΓåÆ Dokploy webhook ΓåÆ live
 ```
 
 **Production infrastructure:**
@@ -239,8 +239,8 @@ The app ships with English and French. All strings use the `useLanguage()` hook:
 ```tsx
 const { t } = useLanguage();
 
-// Usage: t("English text", "Texte en français")
-<p>{t("Published", "Publiée")}</p>
+// Usage: t("English text", "Texte en fran├ºais")
+<p>{t("Published", "Publi├⌐e")}</p>
 ```
 
 Language is stored in `localStorage` and respects browser preference on first load.
@@ -249,7 +249,7 @@ Language is stored in `localStorage` and respects browser preference on first lo
 
 ## API Integration
 
-All API calls must go through `src/lib/api.ts` — never use raw `fetch` or `axios` directly. The wrapper handles authentication headers, 401 redirects, and network errors:
+All API calls must go through `src/lib/api.ts` ΓÇö never use raw `fetch` or `axios` directly. The wrapper handles authentication headers, 401 redirects, and network errors:
 
 ```ts
 import { api } from '@/src/lib/api';
@@ -268,17 +268,17 @@ await api.upload('/media', formData);
 
 ## Contributing
 
-1. Branch off `dev` — never commit directly to `main`
+1. Branch off `dev` ΓÇö never commit directly to `main`
 2. Follow the existing **Neubrutalist** design conventions (see Design System above)
 3. All new user-facing strings must use `t("EN", "FR")` for i18n
 4. Run `pnpm lint && pnpm test` before pushing
-5. Push to `dev` — CI runs automatically and promotes to `main` on success
+5. Push to `dev` ΓÇö CI runs automatically and promotes to `main` on success
 
 ---
 
 <div align="center">
 
-Built with purpose for African creators 🌍
+Built with purpose for African creators ≡ƒîì
 
 [eazypost.cm](https://eazypost.cm)
 
