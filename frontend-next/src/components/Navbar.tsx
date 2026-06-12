@@ -38,7 +38,7 @@ export default function Navbar() {
         Fix 3: Changed 'items-start' to 'items-center' so text items align evenly with their icons. 
         Fix 4: Stripped away all rigid 'w-[146px]', 'h-[20px]', and 'flex-none' constraints from frames.
       */}
-      <div className="hidden 2xl:flex h-full items-center justify-center gap-[64px] ml-[40px] font-['Rubik_One'] font-normal text-[16px]">
+      <div className="hidden xl:flex h-full items-center justify-center gap-[24px] 2xl:gap-[64px] ml-[24px] 2xl:ml-[40px] font-['Rubik_One'] font-normal text-[14px] 2xl:text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 
@@ -438,8 +438,8 @@ export default function Navbar() {
 
       {/* Right Actions (Right Aligned) */}
       <div className="flex items-center justify-end gap-[12px] md:gap-[24px] font-['Rubik_One'] font-normal">
-        {/* Language */}
-        <div className="relative">
+        {/* Language (Hidden below 2xl) */}
+        <div className="relative hidden 2xl:block">
           <div 
             className="flex items-center gap-[4px] md:gap-[6px] cursor-pointer transition-colors"
             onClick={() => setIsLangOpen(!isLangOpen)}
@@ -483,14 +483,14 @@ export default function Navbar() {
         </button>
 
         {/* Hamburger Menu Toggle */}
-        <button className="2xl:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+        <button className="xl:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="absolute top-[87px] left-0 w-full h-[calc(100vh-87px)] bg-[#040028] flex flex-col p-[24px] overflow-y-auto 2xl:hidden font-sans border-t border-white/10 shadow-2xl">
+        <div className="absolute top-[87px] left-0 w-full h-[calc(100vh-87px)] bg-[#040028] flex flex-col p-[24px] overflow-y-auto xl:hidden font-sans border-t border-white/10 shadow-2xl">
           <div className="flex flex-col gap-6 font-['Rubik_One'] pb-[40px]">
              
              {/* Features */}
