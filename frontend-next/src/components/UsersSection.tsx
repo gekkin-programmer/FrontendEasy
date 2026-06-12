@@ -20,32 +20,118 @@ export default function UsersSection() {
     }
   };
 
-const influencers = [
-  {
-    name: "Blanche Bahoken",
-    image: "/star1.png",
-    tiktok: "1.1M",
-    instagram: "1.1M",
-    facebook: "1.1M",
-    position: "top-[417px] left-[202px] rotate-[-2deg]",
-  },
-  {
-    name: "Mayole Francine",
-    image: "/star2.png",
-    tiktok: "1.1M",
-    instagram: "1.1M",
-    facebook: "1.1M",
-    position: "top-[500px] right-[140px] rotate-[2deg]",
-  },
-  {
-    name: "Blanche Bally",
-    image: "/assets/blanche-bailey.png",
-    tiktok: "1.1M",
-    instagram: "1.1M",
-    facebook: "1.1M",
-    position: "top-[650px] left-[500px] xl:left-[400px] 2xl:left-[500px] rotate-[-1deg]",
-  },
+const influencersData = [
+  // 0: Creators & Influencers
+  [
+    {
+      name: "Blanche Bahoken",
+      image: "/star1.png",
+      tiktok: "1.1M",
+      instagram: "1.1M",
+      facebook: "1.1M",
+      position: "top-[417px] left-[202px] rotate-[-2deg]",
+    },
+    {
+      name: "Mayole Francine",
+      image: "/star2.png",
+      tiktok: "1.1M",
+      instagram: "1.1M",
+      facebook: "1.1M",
+      position: "top-[500px] right-[140px] rotate-[2deg]",
+    },
+    {
+      name: "Blanche Bally",
+      image: "/assets/blanche-bailey.png",
+      tiktok: "1.1M",
+      instagram: "1.1M",
+      facebook: "1.1M",
+      position: "top-[650px] left-[500px] xl:left-[400px] 2xl:left-[500px] rotate-[-1deg]",
+    },
+  ],
+  // 1: SMEs
+  [
+    {
+      name: "Boutique Chez Maman",
+      image: "/star1.png",
+      tiktok: "10K",
+      instagram: "25K",
+      facebook: "50K",
+      position: "top-[450px] left-[300px] xl:left-[250px] 2xl:left-[300px] rotate-[3deg]",
+    },
+    {
+      name: "Tech Solutions",
+      image: "/star2.png",
+      tiktok: "5K",
+      instagram: "15K",
+      facebook: "30K",
+      position: "top-[550px] right-[250px] rotate-[-3deg]",
+    },
+    {
+      name: "African Resto",
+      image: "/assets/blanche-bailey.png",
+      tiktok: "50K",
+      instagram: "40K",
+      facebook: "80K",
+      position: "top-[700px] left-[400px] xl:left-[300px] 2xl:left-[400px] rotate-[1deg]",
+    },
+  ],
+  // 2: Agencies
+  [
+    {
+      name: "Digital Pulse Agency",
+      image: "/star1.png",
+      tiktok: "100K",
+      instagram: "200K",
+      facebook: "150K",
+      position: "top-[400px] left-[250px] rotate-[-1deg]",
+    },
+    {
+      name: "Creative Media",
+      image: "/star2.png",
+      tiktok: "80K",
+      instagram: "120K",
+      facebook: "90K",
+      position: "top-[520px] right-[180px] rotate-[4deg]",
+    },
+    {
+      name: "Africa Buzz",
+      image: "/assets/blanche-bailey.png",
+      tiktok: "500K",
+      instagram: "300K",
+      facebook: "400K",
+      position: "top-[680px] left-[450px] xl:left-[350px] 2xl:left-[450px] rotate-[-2deg]",
+    },
+  ],
+  // 3: Organizations
+  [
+    {
+      name: "Ministère de la Santé",
+      image: "/star1.png",
+      tiktok: "50K",
+      instagram: "100K",
+      facebook: "500K",
+      position: "top-[430px] left-[220px] rotate-[2deg]",
+    },
+    {
+      name: "ONG Environnement",
+      image: "/star2.png",
+      tiktok: "20K",
+      instagram: "45K",
+      facebook: "120K",
+      position: "top-[580px] right-[200px] rotate-[-1deg]",
+    },
+    {
+      name: "Université Digitale",
+      image: "/assets/blanche-bailey.png",
+      tiktok: "200K",
+      instagram: "150K",
+      facebook: "250K",
+      position: "top-[620px] left-[550px] xl:left-[450px] 2xl:left-[550px] rotate-[1deg]",
+    },
+  ]
 ];
+
+const influencers = influencersData[selectedCard];
 
   return (
     <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
@@ -77,7 +163,7 @@ const influencers = [
             {/* Card 1 */}
             <div 
               onClick={() => setSelectedCard(0)} 
-              className={getCardClasses(0, "left-[85px]")}
+              className={getCardClasses(0, "left-[40px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[110px]">
                 {t("Creators & Influencers", "Créateurs & Influenceurs")}
@@ -100,7 +186,7 @@ const influencers = [
             {/* Card 2 */}
             <div 
               onClick={() => setSelectedCard(1)} 
-              className={getCardClasses(1, "left-[419px]")}
+              className={getCardClasses(1, "left-[410px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}
@@ -123,7 +209,7 @@ const influencers = [
             {/* Card 3 */}
             <div 
               onClick={() => setSelectedCard(2)} 
-              className={getCardClasses(2, "left-[753px]")}
+              className={getCardClasses(2, "left-[780px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Agencies", "Agences")}
@@ -146,7 +232,7 @@ const influencers = [
             {/* Card 4 */}
             <div 
               onClick={() => setSelectedCard(3)} 
-              className={getCardClasses(3, "left-[1091px]")}
+              className={getCardClasses(3, "left-[1150px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Organizations & Institutions", "Organisations & Institutions")}

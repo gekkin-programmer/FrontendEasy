@@ -55,22 +55,12 @@ export default function ContactSection() {
           {/* Checkbox (Rectangle 115) + Submit Button Area */}
           <div className="w-full flex flex-col mt-[10px] gap-[40px] items-center">
             
-            {/* Checkbox wrapper */}
-            <label className="flex items-center justify-center gap-[15px] cursor-pointer px-[10px]">
-  <input
-    type="checkbox"
-    className="appearance-none w-[22px] h-[22px] rounded-full border border-[#000000] 
-               checked:bg-[#174CD2] checked:border-[#174CD2] cursor-pointer transition-colors"
-  />
-  <span className="font-['Rubik'] text-[#000000] text-[16px]">
-    J'accepte d'être recontacté(e)
-  </span>
-</label>
+
 
             {/* Envoyer Button */}
             <button 
               type="submit"
-              className="w-full h-[80px] bg-[#174CD2] rounded-[20px] flex items-center justify-center hover:bg-[#1135A7] transition-colors shadow-lg"
+              className="w-full h-[80px] bg-[#174CD2] rounded-[20px] flex items-center justify-center shadow-lg"
             >
               <span className="font-['Rubik'] font-[700] text-[20px] sm:text-[24px] leading-[1.2] sm:leading-[28px] text-white">
               {t("Send", "Envoyer")}

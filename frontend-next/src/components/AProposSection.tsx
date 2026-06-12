@@ -13,7 +13,7 @@ export default function AProposSection() {
           className="text-black text-[24px] md:text-[36px] font-normal"
           style={{ fontFamily: "'Rubik One', sans-serif" }}
         >
-          {t("About", "A propos de")}
+          {t("About Us Heading", "A propos de")}
         </h2>
         <h1
           className="text-[#174CD2] text-4xl md:text-6xl lg:text-7xl font-bold"
