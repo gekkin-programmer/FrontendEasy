@@ -72,38 +72,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col lg:flex-row relative">
       
-      {/* LEFT SIDE: Visual (Desktop Only) */}
-      <div 
-        className="hidden lg:flex w-full lg:w-[701px] flex-col justify-center items-center relative overflow-hidden h-screen flex-shrink-0" 
-        style={{ background: 'linear-gradient(201.28deg, rgba(12, 39, 108, 0.9) 6.99%, #024AFF 36.84%, #0349F9 53.72%, #123A9F 69.69%)' }}
-      >
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <h1 className="text-white font-bold text-[48px] leading-[58px] font-['Inter'] mb-4 w-full max-w-[580px]">
-            Bienvenue sur Eazypost!
-          </h1>
-          <h2 className="text-white font-bold text-[26px] leading-[31px] font-['Inter'] mb-[50px]">
-            Votre aventure commence ici
-          </h2>
-          
-          <Link href="/signup" className="flex items-center justify-center w-[377px] h-[70px] bg-white border border-[#174CD2] rounded-[10px] text-[#174CD2] font-semibold text-[32px] hover:bg-gray-50 transition-colors font-['Inter']">
-            Inscription
-          </Link>
-        </div>
-        
-        {/* Floating Icons Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-           {/* We can place some simple star/sparkle svgs in place of the image.png */}
-           <svg className="absolute top-[160px] left-[113px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[671px] left-[267px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[130px] left-[488px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[657px] left-[641px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[859px] left-[497px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[857px] left-[83px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-           <svg className="absolute top-[516px] left-[46px]" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-        </div>
-      </div>
-
-      {/* RIGHT SIDE: Form */}
+      {/* LEFT SIDE: Form */}
       <div className="flex-1 flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white h-screen overflow-y-auto">
         <div className="w-full max-w-[596px]">
           
@@ -193,6 +162,35 @@ export default function LoginPage() {
             </p>
           </div>
 
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: Visual Banner (Desktop Only) */}
+      <div 
+        className="hidden lg:flex w-full lg:w-[720px] flex-col justify-center items-center relative overflow-hidden h-screen flex-shrink-0" 
+        style={{ background: 'linear-gradient(201.28deg, rgba(12, 39, 108, 0.9) 6.99%, #024AFF 36.84%, #0349F9 53.72%, #123A9F 69.69%)' }}
+      >
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <h1 className="text-white font-bold text-[48px] leading-[57px] font-['Rubik'] mb-4 w-full max-w-[650px]">
+            Bienvenue sur EazyPost !
+          </h1>
+          <h2 className="text-white font-medium text-[32px] leading-[38px] font-['Rubik'] mb-[100px] w-full max-w-[451px]">
+            Votre aventure commence ici
+          </h2>
+          
+          <Link href="/signup" className="flex items-center justify-center w-[294px] h-[98px] bg-white rounded-[20px] text-[#174CD2] font-medium text-[32px] leading-[38px] hover:bg-gray-50 transition-colors font-['Rubik']">
+            Inscription
+          </Link>
+        </div>
+        
+        {/* Floating Facebook Icons Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-50">
+           <svg className="absolute top-[43px] left-[37px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[93px] left-[591px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[396px] left-[631px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[622px] left-[52px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[893px] left-[67px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[918px] left-[606px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
         </div>
       </div>
     </div>
