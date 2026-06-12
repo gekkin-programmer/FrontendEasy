@@ -24,21 +24,29 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window === 'undefined') return 'en';
-    const saved = localStorage.getItem('app_language') as Language;
-    if (saved) return saved;
-    const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
-    localStorage.setItem('app_language', deviceLang);
-    return deviceLang;
-  });
+  const [language, setLanguage] = useState<Language>('en');
+  const [theme, setTheme] = useState<Theme>('dark');
 
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    const saved = localStorage.getItem('theme') as Theme;
-    if (!saved) localStorage.setItem('theme', 'dark');
-    return saved || 'dark';
-  });
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('app_language') as Language;
+      if (savedLang) {
+        setLanguage(savedLang);
+      } else {
+        const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+        localStorage.setItem('app_language', deviceLang);
+        setLanguage(deviceLang);
+      }
+
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else {
+        localStorage.setItem('theme', 'dark');
+        setTheme('dark');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
