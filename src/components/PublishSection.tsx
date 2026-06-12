@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function PublishSection() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('Publier');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
@@ -16,24 +17,24 @@ export default function PublishSection() {
 
 const tabContent: Record<string, { title: string; description: string }> = {
   Publier: {
-    title: "Publiez en un clic",
-    description: "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages",
+    title: t("Publish in one click", "Publiez en un clic"),
+    description: t("Stop wasting time switching from one app to another. Centralize your shares.", "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages"),
   },
   Creer: {
-    title: "Créez facilement",
-    description: "Donnez vie à vos idées avec des outils simples et puissants.",
+    title: t("Create easily", "Créez facilement"),
+    description: t("Bring your ideas to life with simple and powerful tools.", "Donnez vie à vos idées avec des outils simples et puissants."),
   },
   Collaborer: {
-    title: "Collaborez en équipe",
-    description: "Travaillez ensemble et partagez vos projets en temps réel.",
+    title: t("Collaborate as a team", "Collaborez en équipe"),
+    description: t("Work together and share your projects in real time.", "Travaillez ensemble et partagez vos projets en temps réel."),
   },
   Statistique: {
-    title: "Analysez vos statistiques",
-    description: "Suivez vos performances et optimisez vos contenus.",
+    title: t("Analyze your statistics", "Analysez vos statistiques"),
+    description: t("Track your performance and optimize your content.", "Suivez vos performances et optimisez vos contenus."),
   },
   Planifier: {
-    title: "Planifiez vos publications",
-    description: "Organisez votre calendrier et publiez au bon moment.",
+    title: t("Schedule your posts", "Planifiez vos publications"),
+    description: t("Organize your calendar and publish at the right time.", "Organisez votre calendrier et publiez au bon moment."),
   },
 };
 
@@ -48,26 +49,26 @@ const tabContent: Record<string, { title: string; description: string }> = {
             className="absolute text-[#000000] text-[32px] leading-[40px]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '24px', left: '8px' }}
           >
-            {t("Control all your", "Pilotez tous vos")}
+            {t("Manage all your", "Pilotez tous vos")}
           </h2>
           <h1 
             className="absolute text-[#174CD2] text-[70px] leading-[87px]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '49px', left: '4px' }}
           >
-            {t("Social networks", "Réseaux sociaux")}
+            {t("Social networks", "Reseaux sociaux")}
           </h1>
           <h2 
             className="absolute text-[#000000] text-[32px] leading-[40px] tracking-[0.3em]"
             style={{ fontFamily: "'Rubik One', sans-serif", top: '125px', left: '8px' }}
           >
-            {t("in one place", "au même endroit")}
+            {t("in one place", "au meme endroit")}
           </h2>
         </div>
         <p 
           className="text-[#000000] text-[20px] font-medium leading-[30px] max-w-[656px] pl-[8px] mt-2 mb-[120px]"
           style={{ fontFamily: "'Rubik', sans-serif" }}
         >
-          {t("Create your content, schedule your posts, collaborate with your team and analyze your stats directly from a single app.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}
+          {t("Create your content, schedule your posts, collaborate with your team, and analyze your statistics directly from a single application.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}
         </p>
 
         {/* Blue Block Container */}
@@ -76,12 +77,16 @@ const tabContent: Record<string, { title: string; description: string }> = {
           <div className="flex flex-row items-center gap-[90px] mb-16 pl-[84px] overflow-x-auto">
             {tabs.map((tab) => (
               <div 
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab.key ? 'bg-white' : 'hover:bg-white/10'}`}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab ? 'bg-white' : 'hover:bg-white/10'}`}
               >
-                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab.key ? 'text-[#174CD2]' : 'text-white'}`}>
-                  {t(tab.en, tab.fr)}
+                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab ? 'text-[#174CD2]' : 'text-white'}`}>
+                  {tab === 'Publier' ? t('Publish', 'Publier') : 
+                   tab === 'Creer' ? t('Create', 'Creer') : 
+                   tab === 'Collaborer' ? t('Collaborate', 'Collaborer') : 
+                   tab === 'Statistique' ? t('Statistics', 'Statistique') : 
+                   tab === 'Planifier' ? t('Schedule', 'Planifier') : tab}
                 </span>
               </div>
             ))}

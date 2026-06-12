@@ -155,7 +155,7 @@ export default function ConnectSection() {
         {/* & plus */}
         <div className="flex justify-center w-full mt-[50px]">
           <span className="font-['Rubik'] font-medium text-[32px] leading-[38px] text-[#000000] cursor-pointer">
-            & plus
+            {t("& more", "& plus")}
           </span>
         </div>
       </div>

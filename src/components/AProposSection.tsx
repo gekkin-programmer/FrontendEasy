@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AProposSection() {
+  const { t } = useLanguage();
   return (
     <section className="w-full bg-white relative flex flex-col items-center pt-[40px] pb-[100px]">
       {/* 
@@ -17,13 +19,13 @@ export default function AProposSection() {
             className="text-[#000000] text-[36px] leading-[45px] -mb-2"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
-            A Propos De
+            {t("About", "A Propos De")}
           </h2>
           <h1 
             className="text-[#174CD2] text-[70px] leading-[87px]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
-            Nous
+            {t("Us", "Nous")}
           </h1>
         </div>
 
@@ -55,19 +57,19 @@ export default function AProposSection() {
             <div className="flex flex-col items-center gap-[60px]">
               {/* Paragraph 1 */}
               <p className="w-full max-w-[580px] text-center text-[#000000] font-[600] text-[20px] leading-[30px]" style={{ fontFamily: "'Rubik', sans-serif" }}>
-                BEST-CORP propulse l’écosystème numérique africain. Startup technologique basée au Cameroun, nous déployons une offre intégrée : SaaS, IA, IT, Marketing et Esport; pour outiller les entreprises dans leur progression tout en créant des opportunités durables pour la jeunesse.
+                {t("BEST-CORP powers the African digital ecosystem. A technology startup based in Cameroon, we deploy an integrated offering: SaaS, AI, IT, Marketing and Esport; to equip businesses in their progress while creating sustainable opportunities for youth.", "BEST-CORP propulse l’écosystème numérique africain. Startup technologique basée au Cameroun, nous déployons une offre intégrée : SaaS, IA, IT, Marketing et Esport; pour outiller les entreprises dans leur progression tout en créant des opportunités durables pour la jeunesse.")}
               </p>
 
               {/* Paragraph 2 */}
               <p className="w-full max-w-[580px] text-center text-[#000000] font-[600] text-[20px] leading-[30px]" style={{ fontFamily: "'Rubik', sans-serif" }}>
-                Au cœur de son département SaaS, BEST‑CORP développe plusieurs solutions dont Eazypost, une plateforme de gestion des réseaux sociaux pensée d’abord pour les réalités africaines : multi‑plateforme, simple à prendre en main, accessible en prix et taillée pour les créateurs, PME, agences et organisations du continent. Eazypost s’impose comme l’une des solutions phares de BEST‑CORP, en incarnant sa vision, offrir des outils professionnels, robustes et modernes, tout en restant d’une simplicité fluide et accessible.
+                {t("At the heart of its SaaS department, BEST-CORP develops several solutions including Eazypost, a social media management platform designed primarily for African realities: multi-platform, easy to use, affordable and tailored for creators, SMEs, agencies and organizations on the continent. Eazypost stands out as one of BEST-CORP's flagship solutions, embodying its vision to offer professional, robust and modern tools, while remaining fluid and accessible in its simplicity.", "Au cœur de son département SaaS, BEST‑CORP développe plusieurs solutions dont Eazypost, une plateforme de gestion des réseaux sociaux pensée d’abord pour les réalités africaines : multi‑plateforme, simple à prendre en main, accessible en prix et taillée pour les créateurs, PME, agences et organisations du continent. Eazypost s’impose comme l’une des solutions phares de BEST‑CORP, en incarnant sa vision, offrir des outils professionnels, robustes et modernes, tout en restant d’une simplicité fluide et accessible.")}
               </p>
             </div>
 
             {/* Button */}
             <button className="w-[347px] h-[70px] bg-[#174CD2] rounded-[40px] flex justify-center items-center shadow-lg cursor-pointer hover:scale-105 transition-transform">
               <span className="font-[700] text-[24px] leading-[30px] text-white" style={{ fontFamily: "'Rubik', sans-serif" }}>
-                En savoir plus sur nous
+                {t("Learn more about us", "En savoir plus sur nous")}
               </span>
             </button>
 
