@@ -97,7 +97,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
               />
               <button 
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                className={`absolute hover:scale-110 transition-transform flex items-center justify-center p-2 bg-black/20 hover:bg-black/50 rounded-full backdrop-blur-sm ${isFullscreen ? 'top-8 right-8' : 'top-4 right-4'}`}
+                className={`absolute hover:scale-110 transition-transform flex items-center justify-center p-2 bg-black/20 rounded-full backdrop-blur-sm ${isFullscreen ? 'top-8 right-8' : 'top-4 right-4'}`}
                 aria-label="Toggle Fullscreen"
               >
                  {isFullscreen ? (
