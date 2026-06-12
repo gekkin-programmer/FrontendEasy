@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function ConnectSection() {
   return (
-    <section className="w-full bg-white relative py-[100px] flex flex-col items-center overflow-hidden">
-      <div className="w-full max-w-[1435px] mx-auto flex flex-col relative px-[52px]">
+    <section className="w-full bg-white relative py-[60px] md:py-[100px] flex flex-col items-center overflow-hidden">
+      <div className="w-full max-w-[1435px] mx-auto flex flex-col relative px-[16px] md:px-[52px]">
         
         <div className="flex flex-col items-center justify-center w-full text-center mb-[60px]">
           <h2 
@@ -21,7 +21,7 @@ export default function ConnectSection() {
         </div>
 
         {/* Icons Row */}
-        <div className="flex flex-row items-center justify-between flex-wrap gap-y-[40px] w-full max-w-full min-h-[60px]">
+        <div className="flex flex-row items-center justify-center md:justify-between flex-wrap gap-[24px] md:gap-y-[40px] w-full max-w-full min-h-[60px]">
           
           {/* Facebook */}
           <div className="w-[60px] h-[60px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">

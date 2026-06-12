@@ -38,9 +38,9 @@ const tabContent: Record<string, { title: string; description: string }> = {
 
 
   return (
-    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center pt-[100px]">
+    <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px]">
       {/* Content Wrapper */}
-      <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[52px]">
+      <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
         {/* Title Area */}
         <div className="w-full flex flex-col gap-1 mb-6">
           <h2 
@@ -72,7 +72,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
         {/* Blue Block Container */}
         <div className="w-full max-w-full bg-[#3C48F6] rounded-[10px] shadow-[0px_15px_40px_15px_rgba(0,0,0,0.35)] relative py-[40px] md:py-[80px] px-0 flex flex-col">
           {/* Menu */}
-          <div className="flex flex-row items-center gap-[20px] md:gap-[40px] xl:gap-[90px] mb-16 px-[20px] xl:pl-[84px] overflow-x-auto hide-scrollbar">
+          <div className="flex flex-row items-center gap-[16px] md:gap-[40px] xl:gap-[90px] mb-10 md:mb-16 px-[16px] md:px-[20px] xl:pl-[84px] overflow-x-auto hide-scrollbar">
             {tabs.map((tab) => (
               <div 
                 key={tab}
@@ -87,7 +87,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
           </div>
 
           {/* Content area */}
-          <div className="flex flex-col lg:flex-row flex-wrap justify-between items-center mx-[20px] xl:mx-[84px] px-[20px] xl:px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
+          <div className="flex flex-col lg:flex-row flex-wrap justify-between items-center mx-[16px] md:mx-[20px] xl:mx-[84px] px-[16px] md:px-[20px] xl:px-[40px] py-[24px] md:py-[40px] gap-10 bg-black/10 rounded-[20px]">
             {/* Image / Video wrapper */}
             <div className={isFullscreen ? 'fixed inset-0 z-[100] bg-black/95 flex items-center justify-center' : 'relative w-full max-w-[650px]'}>
               <img
