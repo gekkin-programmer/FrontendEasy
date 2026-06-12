@@ -7,16 +7,15 @@ export default function ConnectSection() {
     <section className="w-full bg-white relative py-[100px] flex flex-col items-center overflow-hidden">
       <div className="w-full max-w-[1435px] mx-auto flex flex-col relative px-[52px]">
         
-        {/* Title Area */}
         <div className="flex flex-col items-center justify-center w-full text-center mb-[60px]">
           <h2 
-            className="text-[#000000] text-[36px] leading-[45px] -mb-2"
+            className="text-[#000000] text-[28px] md:text-[36px] leading-[1.2] -mb-2"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Connect Your", "Connectez Vos")}
           </h2>
           <h1 
-            className="text-[#174CD2] text-[70px] leading-[87px]"
+            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[70px] leading-[1.2]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Social networks", "Réseaux sociaux")}

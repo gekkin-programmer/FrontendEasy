@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Globe } from 'lucide-react';
+import { ChevronDown, Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   
   const [isScrolled, setIsScrolled] = useState(false);
@@ -21,15 +22,15 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full h-[87px] flex items-center justify-between px-[40px] md:px-[74px] text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
+    <nav className={`fixed top-0 left-0 w-full h-[87px] flex items-center justify-between px-[16px] md:px-[40px] 2xl:px-[74px] text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
       
       {/* Logo (Left Aligned) */}
       <div 
-        className="flex items-center justify-start gap-[12px] ml-[20px] cursor-pointer"
+        className="flex items-center justify-start gap-[8px] md:gap-[12px] 2xl:ml-[20px] cursor-pointer"
         onClick={() => window.location.reload()}
       >
-        <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-[48px] h-[48px] md:w-[56px] md:h-[56px] object-contain" />
-        <span className="font-['Rubik_One'] font-normal text-[24px] md:text-[36px] tracking-tight">azypost</span>
+        <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-[36px] h-[36px] md:w-[48px] md:h-[48px] object-contain" />
+        <span className="font-['Rubik_One'] font-normal text-[22px] md:text-[28px] lg:text-[36px] tracking-tight">azypost</span>
       </div>
 
       {/* Nav Links (Perfectly Centered) */}
@@ -37,7 +38,7 @@ export default function Navbar() {
         Fix 3: Changed 'items-start' to 'items-center' so text items align evenly with their icons. 
         Fix 4: Stripped away all rigid 'w-[146px]', 'h-[20px]', and 'flex-none' constraints from frames.
       */}
-      <div className="hidden lg:flex h-full items-center justify-center gap-[48px] xl:gap-[64px] ml-[40px] font-['Rubik_One'] font-normal text-[14px] xl:text-[16px]">
+      <div className="hidden xl:flex h-full items-center justify-center gap-[24px] 2xl:gap-[64px] ml-[24px] 2xl:ml-[40px] font-['Rubik_One'] font-normal text-[14px] 2xl:text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 
@@ -436,15 +437,15 @@ export default function Navbar() {
       </div>
 
       {/* Right Actions (Right Aligned) */}
-      <div className="flex items-center justify-end gap-[16px] md:gap-[24px] font-['Rubik_One'] font-normal">
+      <div className="flex items-center justify-end gap-[12px] md:gap-[24px] font-['Rubik_One'] font-normal">
         {/* Language */}
         <div className="relative">
           <div 
-            className="flex items-center gap-[6px] cursor-pointer transition-colors"
+            className="flex items-center gap-[4px] md:gap-[6px] cursor-pointer transition-colors"
             onClick={() => setIsLangOpen(!isLangOpen)}
           >
-            <span className="text-[16px] md:text-[18px] uppercase">{language}</span>
-            <Globe size={20} />
+            <span className="text-[14px] md:text-[18px] uppercase">{language}</span>
+            <Globe size={20} className="w-[16px] md:w-[20px] h-[16px] md:h-[20px]" />
           </div>
 
           {isLangOpen && (
@@ -472,16 +473,120 @@ export default function Navbar() {
         </div>
 
         {/* Login */}
-        <Link href="/login" className="text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
+        <Link href="/login" className="hidden sm:block text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
           {t("Log in", "Connexion")}
         </Link>
 
         {/* CTA */}
-        {/* Fix 5: Switched to padding-based width sizing instead of hard-coded dimensions for a flexible fit */}
-        <button className="flex items-center justify-center px-[24px] md:px-[32px] h-[48px] md:h-[54px] border-[2px] border-white rounded-[14px] md:rounded-[18px] text-[14px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
+        <button className="hidden sm:flex items-center justify-center px-[16px] md:px-[32px] h-[40px] md:h-[54px] border-[2px] border-white rounded-[12px] md:rounded-[18px] text-[12px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
           {t("Start free trial", "Commencer l'essai")}
         </button>
+
+        {/* Hamburger Menu Toggle */}
+        <button className="xl:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-[87px] left-0 w-full h-[calc(100vh-87px)] bg-[#040028] flex flex-col p-[24px] overflow-y-auto xl:hidden font-sans border-t border-white/10 shadow-2xl">
+          <div className="flex flex-col gap-6 font-['Rubik_One'] pb-[40px]">
+             
+             {/* Features */}
+             <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => setActiveDropdown(activeDropdown === 'Fonctionnalités' ? null : 'Fonctionnalités')}>
+                   <span className="text-[18px]">{t("Features", "Fonctionnalités")}</span>
+                   <ChevronDown className={`transition-transform ${activeDropdown === 'Fonctionnalités' ? 'rotate-180' : ''}`} />
+                </div>
+                {activeDropdown === 'Fonctionnalités' && (
+                   <div className="flex flex-col gap-3 pl-4 font-sans text-[16px] text-white/80 border-l border-white/20">
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Global Dashboard", "Tableau de bord global")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Multi-network Scheduling", "Planification multi réseaux")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Inbox & Engagement", "Boîte de réception & engagement")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Editorial Calendar", "Calendrier éditorial")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Simplified Analytics & Reports", "Analytics & rapports simplifiés")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Collaboration & Team Management", "Collaboration & gestion d'équipe")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Content Library & Integrations", "Bibliothèque de contenus & intégrations")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Automation & Smart Assistance", "Automatisation & assistance intelligente")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Settings, Billing & Accessibility", "Paramètres, facturation & accessibilité")}</Link>
+                   </div>
+                )}
+             </div>
+
+             {/* Canaux */}
+             <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => setActiveDropdown(activeDropdown === 'Canaux' ? null : 'Canaux')}>
+                   <span className="text-[18px]">{t("Channels", "Canaux")}</span>
+                   <ChevronDown className={`transition-transform ${activeDropdown === 'Canaux' ? 'rotate-180' : ''}`} />
+                </div>
+                {activeDropdown === 'Canaux' && (
+                   <div className="flex flex-col gap-3 pl-4 font-sans text-[16px] text-white/80 border-l border-white/20">
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Facebook</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Instagram</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Twitter (X)</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>LinkedIn</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Telegram</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Discord</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>WhatsApp</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>YouTube</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Twitch</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Pinterest</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Canva</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Dropbox</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>TikTok</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Reddit</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Messenger</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Drive</Link>
+                   </div>
+                )}
+             </div>
+
+             {/* Pour */}
+             <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => setActiveDropdown(activeDropdown === 'Pour' ? null : 'Pour')}>
+                   <span className="text-[18px]">{t("For", "Pour")}</span>
+                   <ChevronDown className={`transition-transform ${activeDropdown === 'Pour' ? 'rotate-180' : ''}`} />
+                </div>
+                {activeDropdown === 'Pour' && (
+                   <div className="flex flex-col gap-3 pl-4 font-sans text-[16px] text-white/80 border-l border-white/20">
+                      <Link href="/pour/createurs" onClick={() => setIsMobileMenuOpen(false)}>{t("Creators & Influencers", "Créateurs & Influenceurs")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Agencies", "Agences")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Organizations & Institutions", "Organisations & Institutions")}</Link>
+                   </div>
+                )}
+             </div>
+
+             {/* Ressources */}
+             <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => setActiveDropdown(activeDropdown === 'Ressources' ? null : 'Ressources')}>
+                   <span className="text-[18px]">{t("Resources", "Ressources")}</span>
+                   <ChevronDown className={`transition-transform ${activeDropdown === 'Ressources' ? 'rotate-180' : ''}`} />
+                </div>
+                {activeDropdown === 'Ressources' && (
+                   <div className="flex flex-col gap-3 pl-4 font-sans text-[16px] text-white/80 border-l border-white/20">
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Blog", "Blog")}</Link>
+                      <Link href="#" onClick={() => setIsMobileMenuOpen(false)}>{t("Help Center", "Centre d'Aide")}</Link>
+                   </div>
+                )}
+             </div>
+
+             {/* Tarifs */}
+             <Link href="#" onClick={() => setIsMobileMenuOpen(false)} className="text-[18px] block pt-2">{t("Pricing", "Tarifs")}</Link>
+
+             {/* Mobile CTA */}
+             <div className="sm:hidden flex flex-col gap-4 mt-8 pt-6 border-t border-white/10">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-3 text-[16px]">
+                  {t("Log in", "Connexion")}
+                </Link>
+                <button className="w-full h-[48px] border-[2px] border-white rounded-[12px] text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all">
+                  {t("Start free trial", "Commencer l'essai")}
+                </button>
+             </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

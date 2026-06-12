@@ -51,8 +51,8 @@ export default function Home() {
       <HeroBackground>
         <div className="flex flex-col w-full h-full">
           {/* Hero Content below Navbar */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px]">
-            <div className="relative w-[393px] h-[355px] scale-[1.15]">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px] min-h-[500px]">
+            <div className="relative w-[393px] h-[355px] scale-[0.6] md:scale-[0.8] lg:scale-[0.95] xl:scale-[1.15] transition-transform duration-300">
               {/* Left Lines Behind Cube */}
               <div className="absolute top-[-142px] left-[-300px] -z-10 pointer-events-none">
                 <HeroLines />

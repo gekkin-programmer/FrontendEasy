@@ -7,12 +7,12 @@ export default function UsersSection() {
   const { t } = useLanguage();
   const [selectedCard, setSelectedCard] = useState(0);
 
-  const getCardClasses = (index: number, leftPosition: string) => {
-    const baseClasses = `absolute ${leftPosition} bg-white rounded-[10px] cursor-pointer transition-all duration-300 origin-top-left w-[229px] h-[231px]`;
+  const getCardClasses = (index: number) => {
+    const baseClasses = `relative bg-white rounded-[10px] cursor-pointer transition-all duration-300 origin-center w-[229px] h-[231px] flex-shrink-0`;
     if (selectedCard === index) {
-      return `${baseClasses} top-[0px] shadow-2xl scale-[1.3] z-20`;
+      return `${baseClasses} -mt-[30px] lg:-mt-[72px] shadow-2xl scale-[1.15] lg:scale-[1.3] z-20`;
     } else {
-      return `${baseClasses} top-[72px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scale-[1.25] z-10`;
+      return `${baseClasses} shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scale-[1] lg:scale-[1.25] z-10`;
     }
   };
 
@@ -23,7 +23,7 @@ const influencers = [
     tiktok: "1.1M",
     instagram: "1.1M",
     facebook: "1.1M",
-    position: "top-[417px] left-[202px] rotate-[-2deg]",
+    position: "top-[417px] left-2 lg:left-[202px] rotate-[-2deg]",
   },
   {
     name: "Mayole Francine",
@@ -31,7 +31,7 @@ const influencers = [
     tiktok: "1.1M",
     instagram: "1.1M",
     facebook: "1.1M",
-    position: "top-[500px] right-[140px] rotate-[2deg]",
+    position: "top-[500px] right-2 lg:right-[140px] rotate-[2deg]",
   },
   {
     name: "Blanche Bally",
@@ -39,7 +39,7 @@ const influencers = [
     tiktok: "1.1M",
     instagram: "1.1M",
     facebook: "1.1M",
-    position: "top-[650px] left-[500px] rotate-[-1deg]",
+    position: "top-[650px] left-1/2 -translate-x-1/2 lg:left-[500px] lg:translate-x-0 rotate-[-1deg]",
   },
 ];
 
@@ -54,10 +54,10 @@ const influencers = [
         
         {/* New Header Text - Aligned with global page max-width */}
         <div className="w-full max-w-[1435px] mx-auto px-[52px] pt-[120px] relative z-10 flex flex-col">
-          <span className="font-sans font-black text-[36px] leading-[45px] text-[#000000]">
+          <span className="font-sans font-black text-[24px] lg:text-[36px] leading-tight text-[#000000]">
             EazyPost
           </span>
-          <h2 className="font-sans font-black text-[70px] leading-[87px] text-[#174CD2] mt-[-5px]">
+          <h2 className="font-sans font-black text-[40px] md:text-[60px] xl:text-[70px] leading-tight text-[#174CD2] mt-[-5px]">
             {t("for all types of profiles", "pour tout types de profils")}
           </h2>
         </div>
@@ -70,10 +70,12 @@ const influencers = [
           {/* Inner Constraints for Cards & Images */}
           <div className="w-full max-w-[1438px] mx-auto relative h-full z-10">
             
+            {/* Flex Container for Cards */}
+            <div className="flex flex-row flex-wrap justify-center xl:justify-between items-center gap-y-16 gap-x-10 px-[20px] lg:px-[85px] pt-[72px] pb-[40px]">
             {/* Card 1 */}
             <div 
               onClick={() => setSelectedCard(0)} 
-              className={getCardClasses(0, "left-[85px]")}
+              className={getCardClasses(0)}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[110px]">
                 {t("Creators & Influencers", "Créateurs & Influenceurs")}
@@ -82,7 +84,7 @@ const influencers = [
                 {t("EazyPost helps you publish regularly, analyze your performance and professionalize your image, without spending your life on social media.", "EazyPost t'aide à publier régulièrement, à analyser tes performances et à professionnaliser ton image, sans passer ta vie sur les réseaux.")}
               </p>
               <div className="absolute top-[125px] left-[70px] w-[80px] h-[80px]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full" fill="none" viewBox="0 0 192 192"><g clipPath="url(#j9NIKFc-Hva)"><g stroke="#174cd2" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="1.5" clipPath="url(#A_tufkDvSnb)"><path strokeWidth="4.5" d="M59.5 114.716c-7.338 11.18-19.865 30.669-27.312 45.157-2.476 4.816 2.297 5.906 3.963 4.406 7.36-6.626 18.233-14.215 20.358-13.717 2.5.587 6.602 22.191 11.427 22.192.584 0 14.576-27.399 22.112-42.254"/><path fill="#174cd2" strokeWidth="1.4994" d="M67.936 172.755c-1.584.08-3.225-2.874-3.594-3.639-.208-.627 12.66-26.238 21.365-41.523 0 0 1.23 1.075 2.075 1.651.908.619 2.265 1.256 2.265 1.256-7.687 15.091-21.532 42.255-22.111 42.255"/><path strokeWidth="4.5" d="M103.481 130.689c7.585 14.793 21.412 41.579 21.992 41.579 4.825-.002 8.927-21.606 11.427-22.192 2.125-.499 12.723 8.641 20.083 15.267 1.665 1.499 5.262.506 2.786-4.31-7.332-14.263-18.471-34.661-25.154-46.72"/><path strokeWidth="2.9988" d="m111.789 164.243-11.056-19.121"/><path fill="#174cd2" fillRule="evenodd" strokeWidth="4.5" d="M97.093 40c-3.01 5.038-5.819 19.084-7.116 20.396-.497.503-18.368-.727-18.976.6-.104.226 12.849 8.2 15.418 10.798.587.594-10.01 20.306-8.302 22.196.089.098 3.292-.252 18.976-14.397.718-.647 15.814 14.528 18.383 13.797 1.391-.396-8.488-21.914-8.302-22.196.636-.964 14.943-10.738 14.825-10.798-.92-.465-17.312.88-17.79 0-1.459-2.684-4.685-16.143-7.116-20.396" clipRule="evenodd"/><path strokeWidth="3" d="M159 87c11.307-4.955 9.828-24.91.565-31M30.535 80.55c-2.65-6.953-3.511-19.341 4.764-24.475"/><path strokeWidth="4.5009" d="M83.034 18.943C85.32 14.455 90.794 11 97 11s11.677 3.455 13.965 7.943c4.206-2.733 10.66-2.966 16.034.163 5.375 3.129 8.402 8.88 8.157 13.919 4.999-.245 10.701 2.807 13.804 8.225 3.104 5.419 2.874 11.926.163 16.167 4.449 2.307 7.876 7.826 7.876 14.084 0 6.256-3.427 11.775-7.876 14.082 2.711 4.24 2.941 10.748-.163 16.167s-8.805 8.472-13.804 8.225c.245 5.04-2.782 10.79-8.157 13.919-5.374 3.128-11.828 2.898-16.034.163C108.677 128.545 103.205 132 97 132c-6.207 0-11.68-3.455-13.967-7.943-4.206 2.735-10.66 2.966-16.034-.163s-8.4-8.879-8.157-13.919c-4.997.247-10.701-2.805-13.804-8.225-3.104-5.419-2.872-11.926-.162-16.167C40.427 83.276 37 77.757 37 71.5s3.427-11.777 7.877-14.084c-2.71-4.24-2.942-10.748.162-16.167 3.103-5.418 8.807-8.47 13.804-8.225-.244-5.039 2.783-10.79 8.157-13.92 5.374-3.128 11.828-2.895 16.034-.162" clipRule="evenodd"/><path fill="#174cd2" d="M157.077 163.87c1.066 1.972 5.168 1.979 2.692-2.837-7.333-14.265-18.474-34.667-25.157-46.725-.587 2.004-1.626 3.974-3.063 5.718 7.758 13.61 22.065 37.437 25.528 43.844"/><path fill="#174cd2" fillRule="evenodd" strokeWidth="2.9933" d="M146 71.5c0 26.786-21.714 48.5-48.5 48.5S49 98.286 49 71.5 70.714 23 97.5 23 146 44.714 146 71.5m-8 0c0 22.368-18.132 40.5-40.5 40.5S57 93.868 57 71.5 75.132 31 97.5 31 138 49.133 138 71.5" clipRule="evenodd"/></g></g><defs><clipPath id="j9NIKFc-Hva"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath><clipPath id="A_tufkDvSnb"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath></defs></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full" fill="none" viewBox="0 0 192 192"><g clipPath="url(#j9NIKFc-Hva)"><g stroke="#174cd2" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="1.5" clipPath="url(#A_tufkDvSnb)"><path strokeWidth="4.5" d="M59.5 114.716c-7.338 11.18-19.865 30.669-27.312 45.157-2.476 4.816 2.297 5.906 3.963 4.406 7.36-6.626 18.233-14.215 20.358-13.717 2.5.587 6.602 22.191 11.427 22.192.584 0 14.576-27.399 22.112-42.254"/><path fill="#174cd2" strokeWidth="1.4994" d="M67.936 172.755c-1.584.08-3.225-2.874-3.594-3.639-.208-.627 12.66-26.238 21.365-41.523 0 0 1.23 1.075 2.075 1.651.908.619 2.265 1.256 2.265 1.256-7.687 15.091-21.532 42.255-22.111 42.255"/><path strokeWidth="4.5" d="M103.481 130.689c7.585 14.793 21.412 41.579 21.992 41.579 4.825-.002 8.927-21.606 11.427-22.192 2.125-.499 12.723 8.641 20.083 15.267 1.665 1.499 5.262.506 2.786-4.31-7.332-14.263-18.471-34.661-25.154-46.72"/><path strokeWidth="2.9988" d="m111.789 164.243-11.056-19.121"/><path fill="#174cd2" fillRule="evenodd" strokeWidth="4.5" d="M97.093 40c-3.01 5.038-5.819 19.084-7.116 20.396-.497.503-18.368-.727-18.976.6-.104.226 12.849 8.2 15.418 10.798.587.594-10.01 20.306-8.302 22.196.089.098 3.292-.252 18.976-14.397.718-.647 15.814 14.528 18.383 13.797 1.391-.396-8.488-21.914-8.302-22.196.636-.964 14.943-10.738 14.825-10.798-.92-.465-17.312.88-17.79 0-1.459-2.684-4.685-16.143-7.116-20.396" clipRule="evenodd"/><path strokeWidth="3" d="M159 87c11.307-4.955 9.828-24.91.565-31M30.535 80.55c-2.65-6.953-3.511-19.341 4.764-24.475"/><path strokeWidth="4.5009" d="M83.034 18.943C85.32 14.455 90.794 11 97 11s11.677 3.455 13.965 7.943c4.206-2.733 10.66-2.966 16.034.163 5.375 3.129 8.402 8.88 8.157 13.919 4.999-.245 10.701 2.807 13.804 8.225 3.104 5.419 2.874 11.926.163 16.167 4.449 2.307 7.876 7.826 7.876 14.084 0 6.256-3.427 11.775-7.876 14.082 2.711 4.24 2.941 10.748-.163 16.167s-8.805 8.472-13.804 8.225c.245 5.04-2.782 10.79-8.157 13.919-5.374 3.128-11.828 2.898-16.034.163C108.677 128.545 103.205 132 97 132c-6.207 0-11.68-3.455-13.967-7.943-4.206 2.735-10.66 2.966-16.034-.163s-8.4-8.879-8.157-13.919c-4.997.247-10.701-2.805-13.804-8.225-3.104-5.419-2.872-11.926-.162-16.167C40.427 83.276 37 77.757 37 71.5s3.427-11.777 7.877-14.084c-2.71-4.24-2.942-10.748.162-16.167 3.103-5.418 8.807-8.47 13.804-8.225-.244-5.039 2.783-10.79 8.157-13.92 5.374-3.128 11.828-2.895 16.034-.162" clipRule="evenodd"/><path fill="#174cd2" d="M157.077 163.87c1.066 1.972 5.168 1.979 2.692-2.837-7.333-14.265-18.474-34.667-25.157-46.725-.587 2.004-1.626 3.974-3.063 5.718 7.758 13.61 22.065 37.437 25.528 43.844"/><path fill="#174cd2" fillRule="evenodd" strokeMiterlimit="2" strokeWidth="2.9933" d="M146 71.5c0 26.786-21.714 48.5-48.5 48.5S49 98.286 49 71.5 70.714 23 97.5 23 146 44.714 146 71.5m-8 0c0 22.368-18.132 40.5-40.5 40.5S57 93.868 57 71.5 75.132 31 97.5 31 138 49.133 138 71.5" clipRule="evenodd"/></g></g><defs><clipPath id="j9NIKFc-Hva"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath><clipPath id="A_tufkDvSnb"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath></defs></svg>
               </div>
               <div className="absolute top-[17px] left-[189px] w-[30px] h-[30px] bg-[#174CD2]/80 rounded-full flex items-center justify-center">
                 <div className="w-[20px] h-[20px] bg-[#174CD2] rounded-full overflow-hidden flex items-center justify-center">
@@ -96,7 +98,7 @@ const influencers = [
             {/* Card 2 */}
             <div 
               onClick={() => setSelectedCard(1)} 
-              className={getCardClasses(1, "left-[419px]")}
+              className={getCardClasses(1)}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}
@@ -119,7 +121,7 @@ const influencers = [
             {/* Card 3 */}
             <div 
               onClick={() => setSelectedCard(2)} 
-              className={getCardClasses(2, "left-[753px]")}
+              className={getCardClasses(2)}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Agencies", "Agences")}
@@ -128,7 +130,7 @@ const influencers = [
                 {t("Manage more clients without wearing out your teams.", "Gérez plus de clients, sans essouffler vos équipes.")}
               </p>
               <div className="absolute top-[125px] left-[70px] w-[80px] h-[80px]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full" fill="none" viewBox="0 0 192 192"><g stroke="#174cd2" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="1.5" clipPath="url(#QABYIBkVAsa)"><path strokeWidth="4.5" d="M163.76 65.565c-16.764-.148-111.818-.01-137.47.223-4.057.037-6.368 3.883-6.354 7.047.067 15.75.276 50.111.49 64.978.204 14.09 4.512 13.562 17.957 13.698 27.931.281 81.833.358 111.012-.327 16.781-.395 19.875-1.575 20.211-13.38.426-14.948-.377-55.07-.662-68.057-.054-2.417-1.966-4.153-5.184-4.182" clipRule="evenodd"/><path fill="#174cd2" d="M38.223 26.4c6.026.061 13.815.093 22.313.182 3.063.032 11.245 22.465 11.5 22.47 3.447.066 71.965.176 91.381.373 3.218.032 5.131 2.013 5.184 4.77.066 3.429.177 8.73.305 15.066-.285-2.16-2.148-3.67-5.146-3.695-16.764-.15-111.817-.011-137.468.222-3.916.036-6.206 3.618-6.35 6.712h-.012c-.036-11.45-.032-22.042.04-29.996.127-14.22 2.092-16.268 18.253-16.104"/><path strokeWidth="3.0039" d="M105.213 91.103c8.512.018 36.928-.35 50.394-.35m-50.435 30.162c8.512.019 36.928-.349 50.394-.349m-50.632-14.404c8.513.018 36.928-.35 50.395-.35"/><path fill="#174cd2" fillRule="evenodd" d="M85.734 108.545c.025 0-.26-15.443-.285-17.325 0-.127-51.814.36-51.82.579-.03.995-.345 17.251.209 17.246 11.857-.11 41.55-.333 51.896-.5" clipRule="evenodd"/><path strokeWidth="3" d="M179.297 79.799c.026 19.988-.216 44.989-.216 59.889m-146.564 21.71c10.713-.17 40.565-.278 47.396-.261m8.265-.27c8.681-.091 17.143-.023 26.678-.142m-34.975-120.6c5.421.055 48.358.371 63.182.371"/></g><defs><clipPath id="QABYIBkVAsa"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath></defs></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full" fill="none" viewBox="0 0 192 192"><g stroke="#174cd2" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="1.5" clipPath="url(#QABYIBkVAsa)"><path strokeWidth="4.5" d="M163.76 65.565c-16.764-.148-111.818-.01-137.47.223-4.057.037-6.368 3.883-6.354 7.047.067 15.75.276 50.111.49 64.978.204 14.09 4.512 13.562 17.957 13.698 27.931.281 81.833.358 111.012-.327 16.781-.395 19.875-1.575 20.211-13.38.426-14.948-.377 55.07-.662-68.057-.054-2.417-1.966-4.153-5.184-4.182" clipRule="evenodd"/><path fill="#174cd2" d="M38.223 26.4c6.026.061 13.815.093 22.313.182 3.063.032 11.245 22.465 11.5 22.47 3.447.066 71.965.176 91.381.373 3.218.032 5.131 2.013 5.184 4.77.066 3.429.177 8.73.305 15.066-.285-2.16-2.148-3.67-5.146-3.695-16.764-.15-111.817-.011-137.468.222-3.916.036-6.206 3.618-6.35 6.712h-.012c-.036-11.45-.032-22.042.04-29.996.127-14.22 2.092-16.268 18.253-16.104"/><path strokeWidth="3.0039" d="M105.213 91.103c8.512.018 36.928-.35 50.394-.35m-50.435 30.162c8.512.019 36.928-.349 50.394-.349m-50.632-14.404c8.513.018 36.928-.35 50.395-.35"/><path fill="#174cd2" fillRule="evenodd" d="M85.734 108.545c.025 0-.26-15.443-.285-17.325 0-.127-51.814.36-51.82.579-.03.995-.345 17.251.209 17.246 11.857-.11 41.55-.333 51.896-.5" clipRule="evenodd"/><path strokeWidth="3" d="M179.297 79.799c.026 19.988-.216 44.989-.216 59.889m-146.564 21.71c10.713-.17 40.565-.278 47.396-.261m8.265-.27c8.681-.091 17.143-.023 26.678-.142m-34.975-120.6c5.421.055 48.358.371 63.182.371"/></g><defs><clipPath id="QABYIBkVAsa"><path fill="#fff" d="M0 0h192v192H0z"/></clipPath></defs></svg>
               </div>
               <div className="absolute top-[17px] left-[189px] w-[30px] h-[30px] bg-[#174CD2]/80 rounded-full flex items-center justify-center">
                 <div className="w-[20px] h-[20px] bg-[#174CD2] rounded-full overflow-hidden flex items-center justify-center">
@@ -142,7 +144,7 @@ const influencers = [
             {/* Card 4 */}
             <div 
               onClick={() => setSelectedCard(3)} 
-              className={getCardClasses(3, "left-[1091px]")}
+              className={getCardClasses(3)}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Organizations & Institutions", "Organisations & Institutions")}
@@ -161,7 +163,7 @@ const influencers = [
                 </div>
               </div>
             </div>
-
+            </div>
             {/* Floating Influencer Cards */}
 {influencers.map((person, index) => (
   <div
