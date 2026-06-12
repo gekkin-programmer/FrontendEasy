@@ -22,11 +22,11 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full h-[87px] flex items-center justify-between px-[16px] md:px-[40px] lg:px-[74px] text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
+    <nav className={`fixed top-0 left-0 w-full h-[87px] flex items-center justify-between px-[16px] md:px-[40px] 2xl:px-[74px] text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
       
       {/* Logo (Left Aligned) */}
       <div 
-        className="flex items-center justify-start gap-[8px] md:gap-[12px] lg:ml-[20px] cursor-pointer"
+        className="flex items-center justify-start gap-[8px] md:gap-[12px] 2xl:ml-[20px] cursor-pointer"
         onClick={() => window.location.reload()}
       >
         <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-[36px] h-[36px] md:w-[48px] md:h-[48px] object-contain" />
@@ -38,7 +38,7 @@ export default function Navbar() {
         Fix 3: Changed 'items-start' to 'items-center' so text items align evenly with their icons. 
         Fix 4: Stripped away all rigid 'w-[146px]', 'h-[20px]', and 'flex-none' constraints from frames.
       */}
-      <div className="hidden lg:flex h-full items-center justify-center gap-[48px] xl:gap-[64px] ml-[40px] font-['Rubik_One'] font-normal text-[14px] xl:text-[16px]">
+      <div className="hidden 2xl:flex h-full items-center justify-center gap-[64px] ml-[40px] font-['Rubik_One'] font-normal text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 
@@ -483,14 +483,14 @@ export default function Navbar() {
         </button>
 
         {/* Hamburger Menu Toggle */}
-        <button className="lg:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+        <button className="2xl:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="absolute top-[87px] left-0 w-full h-[calc(100vh-87px)] bg-[#040028] flex flex-col p-[24px] overflow-y-auto lg:hidden font-sans border-t border-white/10 shadow-2xl">
+        <div className="absolute top-[87px] left-0 w-full h-[calc(100vh-87px)] bg-[#040028] flex flex-col p-[24px] overflow-y-auto 2xl:hidden font-sans border-t border-white/10 shadow-2xl">
           <div className="flex flex-col gap-6 font-['Rubik_One'] pb-[40px]">
              
              {/* Features */}
