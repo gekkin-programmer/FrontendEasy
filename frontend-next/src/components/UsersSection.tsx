@@ -8,7 +8,11 @@ export default function UsersSection() {
   const [selectedCard, setSelectedCard] = useState(0);
 
   const getCardClasses = (index: number, leftPosition: string) => {
-    const baseClasses = `absolute ${leftPosition} bg-white rounded-[10px] cursor-pointer transition-all duration-300 origin-top-left w-[229px] h-[231px]`;
+    // Map the 1440px positions to scaled xl positions to fit 1280px evenly
+    const xlLeft = index === 0 ? "xl:left-[60px]" : 
+                   index === 1 ? "xl:left-[365px]" : 
+                   index === 2 ? "xl:left-[670px]" : "xl:left-[975px]";
+    const baseClasses = `absolute ${xlLeft} 2xl:${leftPosition} max-[1279px]:${leftPosition} bg-white rounded-[10px] cursor-pointer transition-all duration-300 origin-top-left w-[229px] h-[231px]`;
     if (selectedCard === index) {
       return `${baseClasses} top-[0px] shadow-2xl scale-[1.3] z-20`;
     } else {
@@ -39,7 +43,7 @@ const influencers = [
     tiktok: "1.1M",
     instagram: "1.1M",
     facebook: "1.1M",
-    position: "top-[650px] left-[500px] rotate-[-1deg]",
+    position: "top-[650px] left-[500px] xl:left-[400px] 2xl:left-[500px] rotate-[-1deg]",
   },
 ];
 

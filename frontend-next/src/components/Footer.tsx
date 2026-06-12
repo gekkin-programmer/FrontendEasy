@@ -20,16 +20,16 @@ export default function Footer() {
       <div className="w-full max-w-[1328px] mx-auto px-4 lg:px-0 flex flex-col justify-between h-full min-h-[400px] md:min-h-[655px]">
         
         {/* Top Grid: Links */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-[90px]">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-[20px] xl:gap-[40px] 2xl:gap-[90px]">
           
           {/* Fonctionnalités */}
           <div className="flex flex-col gap-[20px] md:gap-[34px]">
-            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[36px] leading-tight text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[20px] xl:text-[22px] 2xl:text-[28px] leading-tight text-[#024AFF]">
               {t('Features', 'Fonctionnalités')}
             </h3>
             <div className="flex flex-col gap-[10px] md:gap-[15px]">
               {['Publier', 'Créer', 'Collaborer', 'Planifier'].map(item => (
-                <Link key={item} href="#" className="font-sans font-medium text-[16px] md:text-[24px] lg:text-[32px] leading-tight text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-medium text-[16px] md:text-[24px] lg:text-[16px] xl:text-[18px] 2xl:text-[24px] leading-tight text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -38,12 +38,12 @@ export default function Footer() {
 
           {/* Canaux */}
           <div className="flex flex-col gap-[20px] md:gap-[34px]">
-            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[36px] leading-tight text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[20px] xl:text-[22px] 2xl:text-[28px] leading-tight text-[#024AFF]">
               {t('Channels', 'Canaux')}
             </h3>
             <div className="flex flex-col gap-[10px] md:gap-[15px]">
               {['Facebook', 'Tiktok', 'Instagram', 'Snapchat', 'Youtube', 'Télégram', 'Whatsapp', 'Pinterest', 'Twitter'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[32px] leading-tight text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[16px] xl:text-[18px] 2xl:text-[24px] leading-tight text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -52,12 +52,12 @@ export default function Footer() {
 
           {/* Pour qui */}
           <div className="flex flex-col gap-[20px] md:gap-[34px]">
-            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[36px] leading-tight text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[20px] xl:text-[22px] 2xl:text-[28px] leading-tight text-[#024AFF]">
               {t('For who', 'Pour qui')}
             </h3>
             <div className="flex flex-col gap-[10px] md:gap-[15px]">
               {['Influenceur', 'Créateur de contenu', 'PME', 'Agences', 'Organisation', 'Institutions'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[32px] leading-tight text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[16px] xl:text-[18px] 2xl:text-[24px] leading-tight text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -66,12 +66,12 @@ export default function Footer() {
 
           {/* Ressources */}
           <div className="flex flex-col gap-[20px] md:gap-[34px]">
-            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[36px] leading-tight text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[20px] xl:text-[22px] 2xl:text-[28px] leading-tight text-[#024AFF]">
               {t('Resources', 'Ressources')}
             </h3>
             <div className="flex flex-col gap-[10px] md:gap-[15px]">
               {['Blog', 'Communauté', 'Centre d\'aide', 'Contact'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[32px] leading-tight text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[16px] xl:text-[18px] 2xl:text-[24px] leading-tight text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -80,12 +80,12 @@ export default function Footer() {
 
           {/* A propos */}
           <div className="flex flex-col gap-[20px] md:gap-[34px]">
-            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[36px] leading-tight text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[20px] md:text-[28px] lg:text-[20px] xl:text-[22px] 2xl:text-[28px] leading-tight text-[#024AFF]">
               {t('About', 'A propos')}
             </h3>
             <div className="flex flex-col gap-[10px] md:gap-[15px]">
               {['Equipe', 'Entreprise'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[32px] leading-tight text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[16px] md:text-[24px] lg:text-[16px] xl:text-[18px] 2xl:text-[24px] leading-tight text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}

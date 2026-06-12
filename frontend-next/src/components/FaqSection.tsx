@@ -58,7 +58,7 @@ export default function FaqSection() {
         
         {/* Left Side: Text */}
         <div className="flex flex-col w-full lg:w-[35%] gap-2 lg:sticky lg:top-32">
-          <h2 className="text-[#000000] text-[40px] md:text-[50px] xl:text-[70px] leading-tight font-black" style={{ fontFamily: "'Rubik One', sans-serif" }}>
+          <h2 className="text-[#000000] text-[28px] md:text-[32px] xl:text-[36px] leading-tight font-normal" style={{ fontFamily: "'Rubik One', sans-serif" }}>
             {t("Frequently Asked", "Foire Aux")}
           </h2>
           <h1 
