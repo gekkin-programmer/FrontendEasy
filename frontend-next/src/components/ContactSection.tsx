@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ContactSection() {
+  const { t } = useLanguage();
   return (
     <section className="w-full bg-white relative py-[100px] flex flex-col items-center">
       <div className="w-full max-w-[725px] mx-auto flex flex-col items-center px-[20px] sm:px-0">

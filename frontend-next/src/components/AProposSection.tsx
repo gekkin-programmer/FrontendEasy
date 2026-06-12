@@ -1,6 +1,10 @@
+'use client';
+
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AProposSection() {
+  const { t } = useLanguage();
   return (
     <section className="w-full bg-white flex flex-col items-center py-12 px-4 relative">
       {/* Title */}
