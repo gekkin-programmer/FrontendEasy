@@ -2,18 +2,44 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function PublishSection() {
-  const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState('Publish');
-  const tabs = [
-    { key: 'Publish', en: 'Publish', fr: 'Publier' },
-    { key: 'Create', en: 'Create', fr: 'Créer' },
-    { key: 'Collaborate', en: 'Collaborate', fr: 'Collaborer' },
-    { key: 'Analytics', en: 'Analytics', fr: 'Statistiques' },
-    { key: 'Schedule', en: 'Schedule', fr: 'Planifier' },
-  ];
+  const [activeTab, setActiveTab] = useState('Publier');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const tabs = ['Publier', 'Creer', 'Collaborer', 'Statistique', 'Planifier'];
+
+  const tabImages: Record<string, string> = {
+  Publier: "/Image Publier.png",
+  Creer: "/Image Publier.png",
+  Collaborer: "/Image Publier.png",
+  Statistique: "/Image Publier.png",
+  Planifier: "/Image Publier.png",
+};
+
+const tabContent: Record<string, { title: string; description: string }> = {
+  Publier: {
+    title: "Publiez en un clic",
+    description: "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages",
+  },
+  Creer: {
+    title: "Créez facilement",
+    description: "Donnez vie à vos idées avec des outils simples et puissants.",
+  },
+  Collaborer: {
+    title: "Collaborez en équipe",
+    description: "Travaillez ensemble et partagez vos projets en temps réel.",
+  },
+  Statistique: {
+    title: "Analysez vos statistiques",
+    description: "Suivez vos performances et optimisez vos contenus.",
+  },
+  Planifier: {
+    title: "Planifiez vos publications",
+    description: "Organisez votre calendrier et publiez au bon moment.",
+  },
+};
+
 
   return (
-    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center">
+    <section className="w-full bg-white relative pb-[100px] flex flex-col items-center pt-[100px]">
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[52px]">
         {/* Title Area */}
@@ -63,19 +89,39 @@ export default function PublishSection() {
 
           {/* Content area */}
           <div className="flex flex-row flex-wrap justify-between items-center mx-[84px] px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
-            {/* Image Publier */}
-            <img 
-              src="/Image Publier.png" 
-              alt="Dashboard Preview" 
-              className="w-full max-w-[650px] object-contain shadow-2xl rounded-[10px]"
-            />
+            {/* Image / Video wrapper */}
+            <div className={isFullscreen ? 'fixed inset-0 z-[100] bg-black/95 flex items-center justify-center' : 'relative w-full max-w-[650px]'}>
+              <img
+                src={tabImages[activeTab]}
+                alt={`${activeTab} Preview`}
+                className={isFullscreen ? 'max-w-[90vw] max-h-[90vh] object-contain shadow-2xl rounded-[10px]' : 'w-full object-contain shadow-2xl rounded-[10px]'}
+              />
+              <button 
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className={`absolute hover:scale-110 transition-transform flex items-center justify-center p-2 bg-black/20 rounded-full backdrop-blur-sm ${isFullscreen ? 'top-8 right-8' : 'top-4 right-4'}`}
+                aria-label="Toggle Fullscreen"
+              >
+                 {isFullscreen ? (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 20V14H4M10 14L3 21M14 4V10H20M14 10L21 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                 ) : (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 9V3H15M21 3L14 10M3 15V21H9M3 21L10 14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                 )}
+              </button>
+            </div>
             
             {/* Text Area */}
             <div className="flex flex-col gap-[28px] max-w-[331px]">
-              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">{t("Publish in one click", "Publiez en un clic")}</h3>
-              <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
-                {t("Stop wasting time switching between apps. Centralize your sharing.", "Ne perdez plus de temps à passer d'une application à l'autre. Centralisez vos partages")}
-              </p>
+              <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">
+              {tabContent[activeTab].title}
+            </h3>
+            <p className="text-white font-normal text-[18px] leading-[24px] font-['Rubik']">
+              {tabContent[activeTab].description}
+            </p>
+
             </div>
           </div>
         </div>
