@@ -42,44 +42,44 @@ const tabContent: Record<string, { title: string; description: string }> = {
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[52px]">
         {/* Title Area */}
-        <div className="relative w-full h-[200px] mb-2">
+        <div className="w-full flex flex-col gap-1 mb-6">
           <h2 
-            className="absolute text-[#000000] text-[32px] leading-[40px]"
-            style={{ fontFamily: "'Rubik One', sans-serif", top: '24px', left: '8px' }}
+            className="text-[#000000] text-[24px] md:text-[32px] leading-tight"
+            style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             Pilotez tous vos
           </h2>
           <h1 
-            className="absolute text-[#174CD2] text-[70px] leading-[87px]"
-            style={{ fontFamily: "'Rubik One', sans-serif", top: '49px', left: '4px' }}
+            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[70px] leading-tight -ml-[4px]"
+            style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             Reseaux sociaux
           </h1>
           <h2 
-            className="absolute text-[#000000] text-[32px] leading-[40px] tracking-[0.3em]"
-            style={{ fontFamily: "'Rubik One', sans-serif", top: '125px', left: '8px' }}
+            className="text-[#000000] text-[20px] md:text-[32px] leading-tight tracking-[0.15em] md:tracking-[0.3em]"
+            style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             au meme endroit
           </h2>
         </div>
         <p 
-          className="text-[#000000] text-[20px] font-medium leading-[30px] max-w-[656px] pl-[8px] mt-2 mb-[120px]"
+          className="text-[#000000] text-[16px] md:text-[20px] font-medium leading-[26px] md:leading-[30px] max-w-[656px] mt-2 mb-[60px] md:mb-[120px]"
           style={{ fontFamily: "'Rubik', sans-serif" }}
         >
           Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.
         </p>
 
         {/* Blue Block Container */}
-        <div className="w-full max-w-full bg-[#3C48F6] rounded-[10px] shadow-[0px_15px_40px_15px_rgba(0,0,0,0.35)] relative py-[80px] px-0 flex flex-col">
+        <div className="w-full max-w-full bg-[#3C48F6] rounded-[10px] shadow-[0px_15px_40px_15px_rgba(0,0,0,0.35)] relative py-[40px] md:py-[80px] px-0 flex flex-col">
           {/* Menu */}
-          <div className="flex flex-row items-center gap-[90px] mb-16 pl-[84px] overflow-x-auto">
+          <div className="flex flex-row items-center gap-[20px] md:gap-[40px] xl:gap-[90px] mb-16 px-[20px] xl:pl-[84px] overflow-x-auto hide-scrollbar">
             {tabs.map((tab) => (
               <div 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative flex items-center justify-center rounded-[50px] w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab ? 'bg-white' : 'hover:bg-white/10'}`}
+                className={`relative flex items-center justify-center rounded-[50px] px-4 md:w-[120px] h-[50px] flex-shrink-0 cursor-pointer transition-all duration-300 ${activeTab === tab ? 'bg-white' : 'hover:bg-white/10'}`}
               >
-                <span className={`font-bold text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab ? 'text-[#174CD2]' : 'text-white'}`}>
+                <span className={`font-bold text-[14px] md:text-[16px] font-['Rubik'] transition-colors duration-300 ${activeTab === tab ? 'text-[#174CD2]' : 'text-white'}`}>
                   {tab}
                 </span>
               </div>
@@ -87,7 +87,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
           </div>
 
           {/* Content area */}
-          <div className="flex flex-row flex-wrap justify-between items-center mx-[84px] px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
+          <div className="flex flex-col lg:flex-row flex-wrap justify-between items-center mx-[20px] xl:mx-[84px] px-[20px] xl:px-[40px] py-[40px] gap-10 bg-black/10 rounded-[20px]">
             {/* Image / Video wrapper */}
             <div className={isFullscreen ? 'fixed inset-0 z-[100] bg-black/95 flex items-center justify-center' : 'relative w-full max-w-[650px]'}>
               <img

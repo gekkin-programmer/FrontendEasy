@@ -54,18 +54,15 @@ export default function FaqSection() {
 
   return (
     <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
-      <div className="w-full max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[5%] xl:px-[157px] gap-[60px]">
+      <div className="w-full max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[20px] md:px-[52px] xl:px-[157px] gap-[40px] lg:gap-[60px]">
         
-        {/* FAQ Title matching previous sections */}
-        <div className="w-full lg:w-[35%] flex flex-col items-start text-left pt-[20px]">
-          <h2 
-            className="text-[#000000] text-[36px] leading-[45px] -mb-2"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+        {/* Left Side: Text */}
+        <div className="flex flex-col w-full lg:w-[35%] gap-2 lg:sticky lg:top-32">
+          <h2 className="text-[#000000] text-[40px] md:text-[50px] xl:text-[70px] leading-tight font-black" style={{ fontFamily: "'Rubik One', sans-serif" }}>
             Foire Aux
           </h2>
           <h1 
-            className="text-[#174CD2] text-[70px] leading-[87px]"
+            className="text-[#174CD2] text-[40px] md:text-[50px] xl:text-[70px] leading-tight font-black"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             Questions
