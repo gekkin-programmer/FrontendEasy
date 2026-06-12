@@ -4,10 +4,16 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const { language, setLanguage, t } = useLanguage();
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/login') || pathname?.startsWith('/signup')) {
+    return null;
+  }
 
   return (
     <footer className="w-full bg-[#060830] rounded-t-[30px] md:rounded-t-[50px] pt-[40px] md:pt-[70px] pb-[30px] md:pb-[40px] relative font-sans overflow-hidden flex flex-col mt-[30px] md:mt-[50px]">

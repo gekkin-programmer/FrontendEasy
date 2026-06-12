@@ -3,10 +3,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaGithub } from 'react-icons/fa6';
 import { FcGoogle } from 'react-icons/fc';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { setCookie } from 'cookies-next';
 
 export default function LoginPage() {
@@ -17,6 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   // CONFIG
   const API_URL =
@@ -35,10 +35,6 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Use your new 'api' instance instead of 'fetch' if possible, 
-      // but 'fetch' is fine here since it's a public endpoint.
-      // If using 'api' instance, it handles the baseURL automatically.
-      
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,7 +48,6 @@ export default function LoginPage() {
       }
 
       // SUCCESS
-      // Clean up legacy local storage if present
       if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
 
       setCookie('accessToken', data.accessToken, {
@@ -62,140 +57,70 @@ export default function LoginPage() {
         sameSite: 'lax'
       });
       
-      // The refreshToken is automatically saved by the browser as a secure Cookie 
-      // No need to save it manually.
-
       // Force Redirect
       router.push('/dashboard');
 
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || 'Something went wrong');
+      const e = err as Error;
+      setError(e.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 lg:grid lg:grid-cols-2 relative">
+    <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col lg:flex-row relative">
       
-      {/* LEFT SIDE: Visual (Desktop Only) */}
-      <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
-        <div className="relative z-10">
-          <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
-            <Image 
-              src="/assets/WiggleLogo.png" 
-              alt="EasyPost Logo" 
-              width={48} 
-              height={48} 
-              className="object-contain"
-              priority
-            />
-          </Link>
-          <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">Manage your social empire from one command center.</h1>
-          <p className="text-gray-400 text-lg">Join 12,000+ creators and teams.</p>
-        </div>
-        
-        {/* Background Blur */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#3C48F6]/20 rounded-full blur-[120px] pointer-events-none" />
-        
-        {/* Testimonial Card */}
-        <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex gap-1 mb-3">
-            {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
-          </div>
-          <p className="text-gray-200 mb-6 leading-relaxed">&ldquo;The workspace feature changed how we handle multiple clients. It&apos;s simply the best tool out there.&rdquo;</p>
-          <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-white/20">
-                <Image 
-                  src="/assets/3.jpg" 
-                  alt="User Profile" 
-                  fill 
-                  className="object-cover"
-                  sizes="48px"
-                />
-            </div>
-            <div>
-              <p className="font-bold text-sm">Alex Rivera</p>
-              <p className="text-xs text-gray-400">Director at Acme Corp</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT SIDE: Form */}
-      <div className="flex flex-col justify-center px-6 py-12 lg:px-20 xl:px-24 bg-white h-screen overflow-y-auto">
-        <div className="mx-auto w-full max-w-[480px]">
+      {/* LEFT SIDE: Form */}
+      <div className="flex-1 flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-white h-screen overflow-y-auto">
+        <div className="w-full max-w-[596px]">
           
-          {/* Mobile Logo Link */}
-          <div className="mb-10 lg:hidden">
-             <Link href="/" className="inline-block">
-               <div className="relative w-10 h-10">
-                 <Image 
-                   src="/assets/WiggleLogo.png" 
-                   alt="EasyPost Logo" 
-                   fill
-                   className="object-contain"
-                   priority
-                 />
-                 asyPost
-               </div>
-             </Link>
-          </div>
+          <h2 className="text-[#174CD2] font-bold text-[32px] md:text-[48px] leading-[57px] font-['Rubik'] mb-12 text-center lg:text-left">
+            Connectez-vous
+          </h2>
 
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Welcome back</h2>
-            <p className="mt-2 text-base text-gray-600">Please enter your details to sign in.</p>
-          </div>
-
-          {/* Social Buttons */}
-          <div className="flex gap-4 mb-8">
-            <button type="button" onClick={handleGoogleLogin} className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700 shadow-sm">
-              <FcGoogle className="text-xl" /> Google
-            </button>
-            <button type="button" disabled className="flex-1 flex items-center justify-center gap-2 h-12 border border-gray-200 bg-gray-50 rounded-xl text-gray-400 cursor-not-allowed font-semibold shadow-none opacity-60">
-              <FaGithub /> GitHub
-            </button>
-          </div>
-
-          <div className="relative mb-8">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-            <div className="relative flex justify-center text-xs font-bold uppercase text-gray-400">
-              <span className="bg-white px-3">Or sign in with email</span>
-            </div>
-          </div>
-
-          {/* Email Form */}
-          <div className="space-y-5">
+          <div className="space-y-6">
+            {/* Email Form */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Email address</label>
+              <label className="block text-[20px] text-black font-normal font-['Rubik'] mb-2">Email</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm" 
-                placeholder="you@example.com" 
+                className="w-full h-[70px] bg-white border border-[#174CD2]/10 rounded-[10px] px-6 text-[16px] text-black outline-none placeholder:text-[#D9D9D9] transition-all focus:border-[#174CD2]/30 font-['Inter']" 
+                placeholder="exemple@gmail.com" 
               />
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-2 ml-1">
-                <label className="block text-sm font-bold text-gray-700">Password</label>
-                <Link href="/forgot-password" className="text-xs font-semibold text-[#3C48F6] hover:text-blue-700">
-                  Forgot password?
+            {/* Password Form */}
+            <div className="relative">
+              <div className="flex justify-between items-end mb-2">
+                <label className="block text-[20px] text-black font-normal font-['Rubik']">Mot de passe</label>
+                <Link href="/forgot-password" className="text-black italic font-light text-[16px] font-['Rubik'] hover:underline">
+                  Mot de passe oublié?
                 </Link>
               </div>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm" 
-                placeholder="••••••••" 
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-[70px] bg-white border border-[#174CD2]/10 rounded-[10px] px-6 text-[16px] text-black outline-none placeholder:text-[#D9D9D9] transition-all focus:border-[#174CD2]/30 pr-12 font-['Inter']" 
+                  placeholder="••••••••" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 text-black/50 hover:text-black transition-colors"
+                >
+                  {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 text-[#3C48F6] text-sm font-medium border border-red-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <div className="p-4 rounded-[10px] bg-red-50 text-[#174CD2] text-sm font-medium border border-red-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
                   {error}
               </div>
             )}
@@ -204,22 +129,68 @@ export default function LoginPage() {
               type="button" 
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-[#3C48F6] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-[70px] bg-[#174CD2] hover:bg-blue-700 text-white font-semibold text-[32px] rounded-[10px] transition-all mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-['Inter']"
             >
-              {isLoading && <Loader2 className="animate-spin w-4 h-4"/>}
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading && <Loader2 className="animate-spin w-8 h-8"/>}
+              Connexion
             </button>
           </div>
 
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="font-bold text-[#3C48F6] hover:text-blue-700 transition-colors">
-                Sign up
+          <div className="flex items-center justify-center mt-[40px] mb-[40px] gap-4">
+            <div className="h-px bg-black/50 w-[80px] sm:w-[250px]" />
+            <span className="text-[20px] font-light text-black font-['Inter'] whitespace-nowrap">Continuer avec</span>
+            <div className="h-px bg-black/50 w-[80px] sm:w-[250px]" />
+          </div>
+
+          <div className="flex flex-col gap-[30px]">
+            <button type="button" onClick={handleGoogleLogin} className="w-full h-[70px] bg-[#174CD2]/5 rounded-[10px] hover:bg-[#174CD2]/10 transition-colors flex items-center justify-center gap-4">
+              <FcGoogle className="text-3xl" />
+              <span className="text-[24px] font-semibold text-black font-['Inter']">Continuer avec google</span>
+            </button>
+            <button type="button" disabled className="w-full h-[70px] bg-[#174CD2]/5 rounded-[10px] opacity-60 cursor-not-allowed flex items-center justify-center gap-4">
+              <FaGithub className="text-3xl text-black" />
+              <span className="text-[24px] font-semibold text-black font-['Inter']">Continuer avec github</span>
+            </button>
+          </div>
+
+          <div className="text-center mt-8 lg:hidden">
+            <p className="text-[16px] text-gray-600 font-['Inter']">
+              Pas encore de compte?{' '}
+              <Link href="/signup" className="font-bold text-[#174CD2] hover:underline">
+                Inscription
               </Link>
             </p>
           </div>
 
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: Visual Banner (Desktop Only) */}
+      <div 
+        className="hidden lg:flex w-full lg:w-[720px] flex-col justify-center items-center relative overflow-hidden h-screen flex-shrink-0" 
+        style={{ background: 'linear-gradient(201.28deg, rgba(12, 39, 108, 0.9) 6.99%, #024AFF 36.84%, #0349F9 53.72%, #123A9F 69.69%)' }}
+      >
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <h1 className="text-white font-bold text-[48px] leading-[57px] font-['Rubik'] mb-4 w-full max-w-[650px]">
+            Bienvenue sur EazyPost !
+          </h1>
+          <h2 className="text-white font-medium text-[32px] leading-[38px] font-['Rubik'] mb-[100px] w-full max-w-[451px]">
+            Votre aventure commence ici
+          </h2>
+          
+          <Link href="/signup" className="flex items-center justify-center w-[294px] h-[98px] bg-white rounded-[20px] text-[#174CD2] font-medium text-[32px] leading-[38px] hover:bg-gray-50 transition-colors font-['Rubik']">
+            Inscription
+          </Link>
+        </div>
+        
+        {/* Floating Facebook Icons Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-50">
+           <svg className="absolute top-[43px] left-[37px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[93px] left-[591px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[396px] left-[631px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[622px] left-[52px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[893px] left-[67px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
+           <svg className="absolute top-[918px] left-[606px]" width="50" height="50" viewBox="0 0 24 24" fill="#1877F2" stroke="white" strokeWidth="0"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" fill="white" /></svg>
         </div>
       </div>
     </div>
