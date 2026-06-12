@@ -96,6 +96,7 @@ export default function RootLayout({
               {children}
             </main>
 
+            <Footer />
             <AgentationLoader />
 
           </LanguageProvider>
