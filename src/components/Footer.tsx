@@ -10,7 +10,7 @@ export default function Footer() {
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   return (
-    <footer className="w-full bg-[#060830] rounded-t-[50px] pt-[70px] pb-[40px] relative font-sans overflow-hidden flex flex-col mt-[50px]">
+    <footer className="w-full bg-[rgb(4,0,40)] rounded-t-[50px] pt-[70px] pb-[40px] relative font-sans overflow-hidden flex flex-col">
       <div className="w-full max-w-[1328px] mx-auto px-4 lg:px-0 flex flex-col justify-between h-full min-h-[655px]">
         
         {/* Top Grid: Links */}
@@ -18,12 +18,12 @@ export default function Footer() {
           
           {/* Fonctionnalités */}
           <div className="flex flex-col gap-[34px]">
-            <h3 className="font-sans font-semibold text-[36px] leading-[43px] text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[26px] leading-[32px] text-[#024AFF]">
               {t('Features', 'Fonctionnalités')}
             </h3>
             <div className="flex flex-col gap-[15px]">
               {['Publier', 'Créer', 'Collaborer', 'Planifier'].map(item => (
-                <Link key={item} href="#" className="font-sans font-medium text-[32px] leading-[38px] text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-medium text-[20px] leading-[26px] text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -32,12 +32,12 @@ export default function Footer() {
 
           {/* Canaux */}
           <div className="flex flex-col gap-[34px]">
-            <h3 className="font-sans font-semibold text-[36px] leading-[43px] text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[26px] leading-[32px] text-[#024AFF]">
               {t('Channels', 'Canaux')}
             </h3>
             <div className="flex flex-col gap-[15px]">
               {['Facebook', 'Tiktok', 'Instagram', 'Snapchat', 'Youtube', 'Télégram', 'Whatsapp', 'Pinterest', 'Twitter'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[32px] leading-[38px] text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[20px] leading-[26px] text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -46,12 +46,12 @@ export default function Footer() {
 
           {/* Pour qui */}
           <div className="flex flex-col gap-[34px]">
-            <h3 className="font-sans font-semibold text-[36px] leading-[43px] text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[26px] leading-[32px] text-[#024AFF]">
               {t('For who', 'Pour qui')}
             </h3>
             <div className="flex flex-col gap-[15px]">
               {['Influenceur', 'Créateur de contenu', 'PME', 'Agences', 'Organisation', 'Institutions'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[32px] leading-[38px] text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[20px] leading-[26px] text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -60,12 +60,12 @@ export default function Footer() {
 
           {/* Ressources */}
           <div className="flex flex-col gap-[34px]">
-            <h3 className="font-sans font-semibold text-[36px] leading-[43px] text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[26px] leading-[32px] text-[#024AFF]">
               {t('Resources', 'Ressources')}
             </h3>
             <div className="flex flex-col gap-[15px]">
               {['Blog', 'Communauté', 'Centre d\'aide', 'Contact'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[32px] leading-[38px] text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[20px] leading-[26px] text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -74,12 +74,12 @@ export default function Footer() {
 
           {/* A propos */}
           <div className="flex flex-col gap-[34px]">
-            <h3 className="font-sans font-semibold text-[36px] leading-[43px] text-[#024AFF]">
+            <h3 className="font-sans font-semibold text-[26px] leading-[32px] text-[#024AFF]">
               {t('About', 'A propos')}
             </h3>
             <div className="flex flex-col gap-[15px]">
               {['Equipe', 'Entreprise'].map(item => (
-                <Link key={item} href="#" className="font-sans font-normal text-[32px] leading-[38px] text-white hover:text-gray-300 transition-colors">
+                <Link key={item} href="#" className="font-sans font-normal text-[20px] leading-[26px] text-white hover:text-gray-300 transition-colors">
                   {item}
                 </Link>
               ))}
@@ -92,9 +92,9 @@ export default function Footer() {
         <div className="w-full flex flex-col md:flex-row justify-between items-end mt-20">
           
           {/* Logo */}
-          <div className="flex items-end pl-2">
-            <div className="w-[85px] h-[85px] bg-no-repeat bg-contain bg-center" style={{ backgroundImage: "url('/assets/WiggleLogo.png')" }}></div>
-            <span className="font-['Rubik_One'] font-normal text-[64px] leading-[79px] text-white ml-[-10px] pb-1">
+          <div className="flex items-end">
+            <div className="w-[48px] h-[48px] bg-no-repeat bg-contain bg-center" style={{ backgroundImage: "url('/assets/WiggleLogo.png')" }}></div>
+            <span className="font-['Rubik_One'] font-normal text-[36px] leading-[44px] text-white ml-[-5px] pb-1">
               azypost
             </span>
           </div>
