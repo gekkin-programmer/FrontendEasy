@@ -28,7 +28,7 @@ export default function ContactSection() {
           <div className="w-full h-[80px] bg-white border border-[#060830] rounded-[20px] relative flex items-center px-[22px]">
             <input 
               type="text" 
-              placeholder="Entrez votre nom"
+              placeholder={t("Enter your name", "Entrez votre nom")}
               className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]/50"
             />
           </div>
@@ -37,7 +37,7 @@ export default function ContactSection() {
           <div className="w-full h-[80px] bg-white border border-[#060830] rounded-[20px] relative flex items-center px-[22px]">
             <input 
               type="email" 
-              placeholder="Entrez votre E-mail"
+              placeholder={t("Enter your Email", "Entrez votre E-mail")}
               className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]/50"
             />
           </div>
@@ -70,9 +70,9 @@ export default function ContactSection() {
               type="submit"
               className="w-full h-[80px] bg-[#174CD2] rounded-[20px] flex items-center justify-center hover:bg-[#1135A7] transition-colors shadow-lg"
             >
-              <span className="font-['Rubik'] font-[600] text-[32px] leading-[38px] text-white">
-                Envoyer
-              </span>
+              <span className="font-['Rubik'] font-[700] text-[20px] sm:text-[24px] leading-[1.2] sm:leading-[28px] text-white">
+              {t("Send", "Envoyer")}
+            </span>
             </button>
           </div>
         </form>

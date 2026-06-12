@@ -217,7 +217,7 @@ const influencers = [
             </svg>
 
             <span className="text-[14px] text-gray-700">
-              {person.tiktok} Abonnés
+              {person.tiktok} {t("Followers", "Abonnés")}
             </span>
           </div>
 
@@ -250,7 +250,7 @@ const influencers = [
             </svg>
 
             <span className="text-[14px] text-gray-700">
-              {person.instagram} Abonnés
+              {person.instagram} {t("Followers", "Abonnés")}
             </span>
           </div>
 
@@ -267,7 +267,7 @@ const influencers = [
             </svg>
 
             <span className="text-[14px] text-gray-700">
-              {person.facebook} Abonnés
+              {person.facebook} {t("Followers", "Abonnés")}
             </span>
           </div>
 

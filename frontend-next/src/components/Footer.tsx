@@ -16,7 +16,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="w-full bg-[#060830] rounded-t-[30px] md:rounded-t-[50px] pt-[40px] md:pt-[70px] pb-[30px] md:pb-[40px] relative font-sans overflow-hidden flex flex-col mt-[30px] md:mt-[50px]">
+    <footer className="w-full bg-[#040028] rounded-t-[30px] md:rounded-t-[50px] pt-[40px] md:pt-[70px] pb-[30px] md:pb-[40px] relative font-sans overflow-hidden flex flex-col mt-[30px] md:mt-[50px]">
       <div className="w-full max-w-[1328px] mx-auto px-4 lg:px-0 flex flex-col justify-between h-full min-h-[400px] md:min-h-[655px]">
         
         {/* Top Grid: Links */}
