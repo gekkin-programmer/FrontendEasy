@@ -29,7 +29,7 @@ export default function ContactSection() {
             <input 
               type="text" 
               placeholder="Entrez votre nom"
-              className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]"
+              className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]/50"
             />
           </div>
 
@@ -38,30 +38,32 @@ export default function ContactSection() {
             <input 
               type="email" 
               placeholder="Entrez votre E-mail"
-              className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]"
+              className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]/50"
             />
           </div>
 
           {/* Message */}
-          <div className="w-full h-[160px] sm:h-[80px] bg-white border border-[#060830] rounded-[20px] relative flex items-center px-[22px]">
-            <input 
-              type="text" 
-              placeholder="Entrez votre message"
-              className="w-full h-full bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[24px] placeholder:text-[#000000]"
-            />
-          </div>
+          <div className="w-full bg-white border border-[#060830] rounded-[20px] relative flex px-[22px] py-[10px]">
+  <textarea
+    placeholder="Entrez votre message"
+    className="w-full h-[160px] sm:h-[200px] resize-none bg-transparent outline-none text-[#000000] font-['Rubik'] font-[400] text-[20px] leading-[28px] placeholder:text-[#000000]/50"
+  />
+</div>
 
           {/* Checkbox (Rectangle 115) + Submit Button Area */}
           <div className="w-full flex flex-col mt-[10px] gap-[40px] items-center">
             
             {/* Checkbox wrapper */}
-            <div className="w-full flex items-center justify-start gap-[15px] px-[10px]">
-              <div className="w-[20px] h-[20px] bg-white border border-[#000000] rounded-sm flex-shrink-0 cursor-pointer flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <input type="checkbox" className="opacity-0 absolute cursor-pointer w-[20px] h-[20px]" />
-                {/* SVG for a custom checkmark if checked could go here */}
-              </div>
-              <span className="font-['Rubik'] text-[#000000] text-[16px]">J'accepte d'être recontacté(e)</span>
-            </div>
+            <label className="flex items-center justify-center gap-[15px] cursor-pointer px-[10px]">
+  <input
+    type="checkbox"
+    className="appearance-none w-[22px] h-[22px] rounded-full border border-[#000000] 
+               checked:bg-[#174CD2] checked:border-[#174CD2] cursor-pointer transition-colors"
+  />
+  <span className="font-['Rubik'] text-[#000000] text-[16px]">
+    J'accepte d'être recontacté(e)
+  </span>
+</label>
 
             {/* Envoyer Button */}
             <button 
