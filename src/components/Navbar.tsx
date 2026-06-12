@@ -438,8 +438,8 @@ export default function Navbar() {
 
       {/* Right Actions (Right Aligned) */}
       <div className="flex items-center justify-end gap-[12px] md:gap-[24px] font-['Rubik_One'] font-normal">
-        {/* Language (Hidden below 2xl) */}
-        <div className="relative hidden 2xl:block">
+        {/* Language */}
+        <div className="relative">
           <div 
             className="flex items-center gap-[4px] md:gap-[6px] cursor-pointer transition-colors"
             onClick={() => setIsLangOpen(!isLangOpen)}
