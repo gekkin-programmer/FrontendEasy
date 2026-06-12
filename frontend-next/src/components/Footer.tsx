@@ -11,7 +11,7 @@ export default function Footer() {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const pathname = usePathname();
 
-  if (pathname === '/login' || pathname === '/signup') {
+  if (pathname?.startsWith('/login') || pathname?.startsWith('/signup')) {
     return null;
   }
 
