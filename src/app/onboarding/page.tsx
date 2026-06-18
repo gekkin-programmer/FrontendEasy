@@ -138,9 +138,9 @@ export default function OnboardingPage() {
                 <button 
                     key={cat.id} 
                     onClick={() => handleCategorySelect(cat.id)}
-                    className="flex items-center gap-5 p-5 rounded-2xl border border-gray-200 hover:border-[#3C48F6] hover:bg-blue-50/50 transition-all text-left group bg-white shadow-sm hover:shadow-md"
+                    className="flex items-center gap-5 p-5 rounded-2xl border border-gray-200 hover:border-[#174CD2] hover:bg-blue-50/50 transition-all text-left group bg-white shadow-sm hover:shadow-md"
                 >
-                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-[#3C48F6] group-hover:text-white transition-colors">
+                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-[#174CD2] group-hover:text-white transition-colors">
                         <Icon className="w-6 h-6" />
                     </div>
                     <div>
@@ -175,10 +175,10 @@ export default function OnboardingPage() {
           {plans.map((plan) => (
             <div 
                 key={plan.id}
-                className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white ${plan.isPopular ? 'border-[#3C48F6] shadow-lg shadow-blue-500/10' : 'border-gray-100 hover:border-gray-300 shadow-sm'}`}
+                className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white ${plan.isPopular ? 'border-[#174CD2] shadow-lg shadow-blue-500/10' : 'border-gray-100 hover:border-gray-300 shadow-sm'}`}
             >
                 {plan.isPopular && (
-                    <span className="absolute -top-3 right-6 bg-[#3C48F6] text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                    <span className="absolute -top-3 right-6 bg-[#174CD2] text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                         POPULAR
                     </span>
                 )}
@@ -194,7 +194,7 @@ export default function OnboardingPage() {
                     <button 
                         onClick={() => handleFinalSubmit(plan.id)}
                         disabled={isLoading}
-                        className="bg-[#3C48F6] text-white hover:bg-blue-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#174CD2] text-white hover:bg-blue-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Setting up...' : 'Select Plan'}
                     </button>
@@ -205,7 +205,7 @@ export default function OnboardingPage() {
                         {plan.features.map((feat: string, i: number) => (
                             <li key={i} className="flex items-center text-sm text-gray-600 gap-2.5">
                                 <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                                    <FaCheck className="text-[#3C48F6] w-2.5 h-2.5" />
+                                    <FaCheck className="text-[#174CD2] w-2.5 h-2.5" />
                                 </div>
                                 {feat}
                             </li>

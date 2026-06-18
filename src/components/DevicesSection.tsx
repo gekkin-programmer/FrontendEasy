@@ -37,7 +37,7 @@ export default function DevicesSection() {
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-white uppercase leading-[0.9] tracking-tighter mb-5">
             {t('YOUR FAVORITE', 'VOTRE APPAREIL')}<br />
-            <span className="bg-[#3C48F6] text-white px-3 inline-block mt-1">
+            <span className="bg-[#174CD2] text-white px-3 inline-block mt-1">
               {t('DEVICE.', 'PRÉFÉRÉ.')}
             </span>
           </h2>
@@ -82,7 +82,7 @@ export default function DevicesSection() {
               key={i}
               className="flex items-center gap-3 border border-gray-200 dark:border-white/20 bg-white dark:bg-zinc-900 px-6 py-3 shadow-sm rounded-xl font-black text-sm uppercase text-black dark:text-white"
             >
-              <span className="text-[#3C48F6]">{f.icon}</span>
+              <span className="text-[#174CD2]">{f.icon}</span>
               {f.label}
             </div>
           ))}

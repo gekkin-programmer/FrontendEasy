@@ -55,7 +55,7 @@ const SocialProof = () => {
                 {/* Header Section */}
                 <div className="md:w-1/4 text-center md:text-left z-20 bg-white dark:bg-black md:bg-transparent p-2 transition-colors">
                     <h3 className="text-3xl font-black text-black dark:text-white uppercase leading-none tracking-tighter">
-                        {t("TRUSTED", "LES")} <span className="text-[#3C48F6]">{t("BY", "PME'S")}</span><br/>
+                        {t("TRUSTED", "LES")} <span className="text-[#174CD2]">{t("BY", "PME'S")}</span><br/>
                         {t("LOCAL", "NOUS FONT")}<br/>
                         {t("BRANDS", "CONFIANCE")}<br/>
                     </h3>

@@ -35,7 +35,7 @@ export const createWorkspace = async (ws: Partial<Workspace>) => {
     members: 1, 
     projects: 0,
     name: ws.name || 'Untitled', 
-    color: ws.color || '#3C48F6',
+    color: ws.color || '#174CD2',
     // Default values
     plan: ws.plan || 'free',
     notify_on_publish: true

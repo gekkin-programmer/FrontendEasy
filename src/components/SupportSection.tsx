@@ -46,7 +46,7 @@ export default function SupportSection() {
       <SectionBackground />
       {/* Decorative Elements (CSS Only for perf) */}
       <div className="absolute top-10 left-10 w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-full animate-bounce-slow hidden md:block pointer-events-none opacity-60"></div>
-      <div className="absolute bottom-10 right-10 w-16 h-16 md:w-24 md:h-24 bg-[#3C48F6] rotate-12 rounded-2xl hidden md:block pointer-events-none opacity-60"></div>
+      <div className="absolute bottom-10 right-10 w-16 h-16 md:w-24 md:h-24 bg-[#174CD2] rotate-12 rounded-2xl hidden md:block pointer-events-none opacity-60"></div>
 
       <motion.div
         className="container mx-auto flex max-w-4xl flex-col items-center gap-6 md:gap-8 text-center relative z-10"
@@ -80,7 +80,7 @@ export default function SupportSection() {
                     />
                 </div>
             ))}
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white bg-[#3C48F6] flex items-center justify-center shadow-sm z-10 text-white">
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-white bg-[#174CD2] flex items-center justify-center shadow-sm z-10 text-white">
                 <FaHeadset className="w-6 h-6 md:w-8 md:h-8" />
             </div>
         </motion.div>

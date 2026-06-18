@@ -34,7 +34,7 @@ export default function BottomNav({ activeTab, setActiveTab, onCompose }: Bottom
       <div className="relative -top-5">
         <button 
           onClick={onCompose}
-          className="w-14 h-14 rounded-full bg-[#3C48F6] text-white flex items-center justify-center shadow-lg shadow-blue-900/50 hover:scale-105 active:scale-95 transition-transform border-4 border-black dark:border-white"
+          className="w-14 h-14 rounded-full bg-[#174CD2] text-white flex items-center justify-center shadow-lg shadow-blue-900/50 hover:scale-105 active:scale-95 transition-transform border-4 border-black dark:border-white"
         >
           <PlusCircle size={28} strokeWidth={3} />
         </button>
@@ -66,7 +66,7 @@ function NavButton({ active, onClick, icon: Icon, label }: any) {
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1 transition-colors w-12",
-        active ? "text-[#3C48F6] dark:text-blue-400" : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white"
+        active ? "text-[#174CD2] dark:text-blue-400" : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white"
       )}
     >
       <Icon size={20} strokeWidth={active ? 3 : 2} />

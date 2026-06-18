@@ -87,7 +87,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-[#3C48F6] text-white";
+        case 'SCHEDULED': return "bg-[#174CD2] text-white";
         case 'PUBLISHED': return "bg-green-500 text-black";
         case 'FAILED': return "bg-red-500 text-white";
         default: return "bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400";

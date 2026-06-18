@@ -242,7 +242,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                 {tag}
               </span>
             ))}
-            <button className="text-[10px] font-black uppercase text-[#3C48F6] dark:text-blue-400 hover:underline">+ {t("ADD TAG", "AJOUTER TAG")}</button>
+            <button className="text-[10px] font-black uppercase text-[#174CD2] dark:text-blue-400 hover:underline">+ {t("ADD TAG", "AJOUTER TAG")}</button>
           </div>
         )}
       </div>
@@ -455,10 +455,10 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
           </div>
           <button
             onClick={() => handleQuickReply("That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study!")}
-            className="text-xs font-bold text-left text-black dark:text-white hover:text-[#3C48F6] dark:hover:text-blue-400 transition-colors leading-relaxed"
+            className="text-xs font-bold text-left text-black dark:text-white hover:text-[#174CD2] dark:hover:text-blue-400 transition-colors leading-relaxed"
           >
             &ldquo;That&apos;s wonderful to hear, Sarah! We&apos;re so glad the bulk upload feature worked perfectly for you...&rdquo;
-            <span className="text-[#3C48F6] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
+            <span className="text-[#174CD2] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
           </button>
         </div>
       </div>

@@ -58,7 +58,7 @@ const FolderTab = ({ children, isActive, onClick }: any) => (
 
 const ChecklistItem = ({ children }: { children: React.ReactNode }) => (
   <li className="flex items-start gap-3 md:gap-4 p-2 rounded-full hover:bg-blue-50 transition-colors cursor-default">
-    <div className="bg-[#3C48F6] text-white p-1 flex-shrink-0 rounded-full shadow-sm">
+    <div className="bg-[#174CD2] text-white p-1 flex-shrink-0 rounded-full shadow-sm">
       <FaCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
     </div>
     <span className="text-black dark:text-white font-bold text-sm md:text-lg leading-tight">{children}</span>
@@ -131,7 +131,7 @@ const GrowSection = () => {
           <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 text-left bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-6 md:p-8 shadow-lg rounded-2xl">
             <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-black dark:text-white leading-[0.9] tracking-tighter uppercase">
               {t("ZERO TO", "DE ZÉRO À")}<br/>
-              <span className="text-[#3C48F6]">{t("ONE MILLION.", "UN MILLION.")}</span>
+              <span className="text-[#174CD2]">{t("ONE MILLION.", "UN MILLION.")}</span>
             </h2>
             
             <p className="text-base md:text-xl font-bold text-gray-800 dark:text-white leading-snug">

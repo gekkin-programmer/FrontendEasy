@@ -11,7 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 
 const inputClass =
-  'w-full bg-white dark:bg-black border-2 border-black dark:border-white/20 px-4 py-3 font-bold text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-[#3C48F6] dark:focus:border-[#3C48F6] transition-colors uppercase';
+  'w-full bg-white dark:bg-black border-2 border-black dark:border-white/20 px-4 py-3 font-bold text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-[#174CD2] dark:focus:border-[#174CD2] transition-colors uppercase';
 
 export default function AboutPage() {
   const { t } = useLanguage();
@@ -30,7 +30,7 @@ export default function AboutPage() {
         "Entrepreneur en série et stratège d'affaires, Christian pilote la vision de Best-Corp en Afrique Centrale. Il transforme les opportunités de marché en entreprises structurées et scalables — EazyPost étant son dernier pari sur l'économie créative africaine."
       ),
       image: 'https://i.pravatar.cc/300?img=11',
-      accent: 'bg-[#3C48F6]',
+      accent: 'bg-[#174CD2]',
       socials: { linkedin: '#', twitter: '#', github: '#' },
     },
     {
@@ -41,7 +41,7 @@ export default function AboutPage() {
         "Architecte full-stack et pilier technique d'EazyPost. Bryan conçoit et livre les systèmes qui alimentent la planification, la génération IA et la publication multi-plateforme — obsédé par la construction de choses qui fonctionnent vraiment à l'échelle."
       ),
       image: 'https://i.pravatar.cc/300?img=32',
-      accent: 'bg-[#3C48F6]',
+      accent: 'bg-[#174CD2]',
       socials: { linkedin: '#', twitter: '#', github: '#' },
     },
     {
@@ -106,8 +106,8 @@ export default function AboutPage() {
 
       {/* Hero */}
       <section className="border-b-4 border-black dark:border-white/10 bg-white dark:bg-black py-20 md:py-32 px-4 text-center relative overflow-hidden">
-        <div className="absolute top-6 left-6 w-10 h-10 bg-[#3C48F6] border-4 border-black dark:border-white/20 rotate-12 hidden md:block" />
-        <div className="absolute bottom-6 right-10 w-16 h-16 bg-[#3C48F6] border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
+        <div className="absolute top-6 left-6 w-10 h-10 bg-[#174CD2] border-4 border-black dark:border-white/20 rotate-12 hidden md:block" />
+        <div className="absolute bottom-6 right-10 w-16 h-16 bg-[#174CD2] border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest mb-6">
             {t('THE TEAM BEHIND EASYPOST', "L'ÉQUIPE DERRIÈRE EASYPOST")}
@@ -151,16 +151,16 @@ export default function AboutPage() {
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <p className="font-black text-base uppercase text-black dark:text-white leading-tight">{member.name}</p>
-                  <p className="text-xs font-bold uppercase text-[#3C48F6] mt-1 mb-3 tracking-wider">{member.role}</p>
+                  <p className="text-xs font-bold uppercase text-[#174CD2] mt-1 mb-3 tracking-wider">{member.role}</p>
                   <p className="text-sm text-gray-600 dark:text-zinc-400 font-medium leading-snug flex-1">{member.bio}</p>
                   <div className="flex gap-3 mt-4 pt-4 border-t-2 border-black dark:border-white/10">
-                    <a href={member.socials.linkedin} className="text-black dark:text-white hover:text-[#3C48F6] transition-colors">
+                    <a href={member.socials.linkedin} className="text-black dark:text-white hover:text-[#174CD2] transition-colors">
                       <FaLinkedinIn size={16} />
                     </a>
-                    <a href={member.socials.twitter} className="text-black dark:text-white hover:text-[#3C48F6] transition-colors">
+                    <a href={member.socials.twitter} className="text-black dark:text-white hover:text-[#174CD2] transition-colors">
                       <FaTwitter size={16} />
                     </a>
-                    <a href={member.socials.github} className="text-black dark:text-white hover:text-[#3C48F6] transition-colors">
+                    <a href={member.socials.github} className="text-black dark:text-white hover:text-[#174CD2] transition-colors">
                       <FaGithub size={16} />
                     </a>
                   </div>
@@ -190,11 +190,11 @@ export default function AboutPage() {
                   <lord-icon
                     src={v.icon}
                     trigger="hover"
-                    colors="primary:#3C48F6,secondary:#111111"
+                    colors="primary:#174CD2,secondary:#111111"
                     style={{ width: '72px', height: '72px' }}
                   />
                 </div>
-                <div className="w-8 h-1 bg-[#3C48F6] mb-4" />
+                <div className="w-8 h-1 bg-[#174CD2] mb-4" />
                 <h3 className="font-black text-xl uppercase text-black dark:text-white mb-3 tracking-tight">{v.title}</h3>
                 <p className="text-sm text-gray-500 dark:text-zinc-500 font-medium leading-relaxed max-w-xs">{v.desc}</p>
               </div>
@@ -208,7 +208,7 @@ export default function AboutPage() {
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-black uppercase text-black dark:text-white leading-tight mb-6">
             {t('WANT TO JOIN', 'ENVIE DE REJOINDRE')}<br />
-            <span className="text-[#3C48F6]">{t('THE CREW?', "L'ÉQUIPE ?")}</span>
+            <span className="text-[#174CD2]">{t('THE CREW?', "L'ÉQUIPE ?")}</span>
           </h2>
           <p className="text-gray-600 dark:text-white/60 font-bold mb-8 text-lg">
             {t(
@@ -219,7 +219,7 @@ export default function AboutPage() {
 
           <button
             onClick={() => setFormOpen((v) => !v)}
-            className="inline-flex items-center gap-2 bg-[#3C48F6] text-white font-black uppercase px-8 py-4 border-4 border-black dark:border-white/30 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all text-lg"
+            className="inline-flex items-center gap-2 bg-[#174CD2] text-white font-black uppercase px-8 py-4 border-4 border-black dark:border-white/30 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all text-lg"
           >
             {t('GET IN TOUCH', 'NOUS CONTACTER')}
             <motion.span animate={{ rotate: formOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -258,7 +258,7 @@ export default function AboutPage() {
                       animate={{ opacity: 1, y: 0 }}
                       className="py-12 text-center"
                     >
-                      <div className="w-16 h-16 bg-[#3C48F6] border-4 border-black dark:border-white/20 flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-[#174CD2] border-4 border-black dark:border-white/20 flex items-center justify-center mx-auto mb-4">
                         <Send size={28} className="text-white" />
                       </div>
                       <h4 className="font-black text-2xl uppercase text-black dark:text-white mb-2">
@@ -272,7 +272,7 @@ export default function AboutPage() {
                       </p>
                       <button
                         onClick={() => { setSubmitted(false); setFormOpen(false); setForm({ name: '', email: '', profession: '', message: '' }); setCvFile(null); }}
-                        className="mt-6 text-xs font-black uppercase text-[#3C48F6] hover:underline"
+                        className="mt-6 text-xs font-black uppercase text-[#174CD2] hover:underline"
                       >
                         {t('Close', 'Fermer')}
                       </button>
@@ -356,10 +356,10 @@ export default function AboutPage() {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="w-full border-2 border-dashed border-black dark:border-white/20 hover:border-[#3C48F6] dark:hover:border-[#3C48F6] bg-white dark:bg-black px-4 py-4 flex items-center justify-center gap-3 transition-colors group"
+                          className="w-full border-2 border-dashed border-black dark:border-white/20 hover:border-[#174CD2] dark:hover:border-[#174CD2] bg-white dark:bg-black px-4 py-4 flex items-center justify-center gap-3 transition-colors group"
                         >
-                          <Upload size={18} className="text-gray-400 group-hover:text-[#3C48F6] transition-colors" />
-                          <span className="text-xs font-black uppercase text-gray-500 dark:text-zinc-500 group-hover:text-[#3C48F6] transition-colors">
+                          <Upload size={18} className="text-gray-400 group-hover:text-[#174CD2] transition-colors" />
+                          <span className="text-xs font-black uppercase text-gray-500 dark:text-zinc-500 group-hover:text-[#174CD2] transition-colors">
                             {cvFile ? cvFile.name : t('Upload PDF or DOC', 'Téléverser PDF ou DOC')}
                           </span>
                         </button>
@@ -367,7 +367,7 @@ export default function AboutPage() {
 
                       <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-2 bg-[#3C48F6] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[4px_4px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-none transition-all mt-2"
+                        className="w-full flex items-center justify-center gap-2 bg-[#174CD2] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[4px_4px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-none transition-all mt-2"
                       >
                         {t('SEND APPLICATION', 'ENVOYER LA CANDIDATURE')} <ArrowRight size={18} />
                       </button>

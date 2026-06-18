@@ -239,7 +239,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                 {tag}
               </span>
             ))}
-            <button className="text-[10px] font-black uppercase text-[#3C48F6] dark:text-blue-400 hover:underline">+ ADD_TAG</button>
+            <button className="text-[10px] font-black uppercase text-[#174CD2] dark:text-blue-400 hover:underline">+ ADD_TAG</button>
           </div>
         )}
       </div>
@@ -287,7 +287,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                   message.isInternal 
                     ? 'bg-yellow-50 dark:bg-yellow-900/20 border-dashed' 
                     : message.sender === 'team' 
-                      ? 'bg-[#3C48F6] text-white' 
+                      ? 'bg-[#174CD2] text-white' 
                       : 'bg-white dark:bg-zinc-800 text-black dark:text-white'
                 }`}>
                   {/* Team Author Info */}
@@ -362,7 +362,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             onClick={() => setIsInternalNote(false)}
             className={`px-4 py-2 border-2 border-black dark:border-white text-xs font-black uppercase transition-all ${
               !isInternalNote 
-                ? 'bg-[#3C48F6] text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
+                ? 'bg-[#174CD2] text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] -translate-y-0.5' 
                 : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-blue-50'
             }`}
           >
@@ -452,10 +452,10 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
           </div>
           <button
             onClick={() => handleQuickReply("That's wonderful to hear, Sarah! We're so glad the bulk upload feature worked perfectly for you. If you'd like, we'd love to feature your experience in a case study!")}
-            className="text-xs font-bold text-left text-black dark:text-white hover:text-[#3C48F6] dark:hover:text-blue-400 transition-colors leading-relaxed"
+            className="text-xs font-bold text-left text-black dark:text-white hover:text-[#174CD2] dark:hover:text-blue-400 transition-colors leading-relaxed"
           >
             &ldquo;That&apos;s wonderful to hear, Sarah! We&apos;re so glad the bulk upload feature worked perfectly for you...&rdquo;
-            <span className="text-[#3C48F6] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
+            <span className="text-[#174CD2] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
           </button>
         </div>
       </div>

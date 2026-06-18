@@ -18,7 +18,7 @@ export interface Project {
 let PROJECTS_DB: Project[] = [
   { 
     id: 'p1', workspaceId: 1, name: 'Q3 Marketing', description: 'Social takeover', 
-    status: 'active', color: '#3C48F6', members: 4, stats: { posts: 12, engagement: '+24%' } 
+    status: 'active', color: '#174CD2', members: 4, stats: { posts: 12, engagement: '+24%' } 
   },
   { 
     id: 'p2', workspaceId: 1, name: 'Website Launch', description: 'Teaser campaign', 
@@ -56,7 +56,7 @@ export const createProject = async (workspaceId: number, data: Partial<Project>)
         name: data.name || 'New Project',
         description: data.description || '',
         status: 'active',
-        color: data.color || '#3C48F6',
+        color: data.color || '#174CD2',
         members: 1, // Default owner of the space 
         stats: { posts: 0, engagement: '0%' }
       };

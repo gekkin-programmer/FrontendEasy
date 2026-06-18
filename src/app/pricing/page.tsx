@@ -141,7 +141,7 @@ export default function PricingPage() {
           </motion.div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
             {t('Dominate the', 'Dominez le')}<br />
-            <span className="text-black dark:text-[#3C48F6] italic">
+            <span className="text-black dark:text-[#174CD2] italic">
               {t('Market.', 'Marché.')}
             </span>
           </h1>

@@ -1,0 +1,101 @@
+'use client';
+
+import React from 'react';
+
+export default function CareerHeroLayout({ 
+  heroImage = "/assets/magnific__background__70466.png",
+  titleNode,
+  subtitle,
+  hideBackground = false
+}: { 
+  heroImage?: string;
+  titleNode?: React.ReactNode;
+  subtitle?: string;
+  hideBackground?: boolean;
+}) {
+  return (
+    <section className="w-full relative bg-transparent overflow-hidden flex justify-center h-[100dvh] items-center snap-start">
+      
+      {/* Light Gradient 10 */}
+      {!hideBackground && (
+        <div className="absolute left-[-6.4%] top-[63.77%] w-[500px] md:w-[800px] h-[500px] md:h-[800px] bg-[#174CD2] blur-[150px] md:blur-[200px] opacity-50 rounded-full pointer-events-none z-0"></div>
+      )}
+
+      {/* Decorative SVG - Bottom Right */}
+      <div className="absolute bottom-0 right-0 z-0 opacity-40 md:opacity-100 xl:right-[2%] pointer-events-none">
+        <svg className="w-[450px] md:w-[650px] h-auto" viewBox="0 0 324 308" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" clipRule="evenodd" d="M9.64467 170.231C2.432 148.26 -7.04332 120.571 10.3771 101.044C18.8151 91.5847 30.6842 86.2967 42.1715 82.3449C50.3986 79.5128 63.4618 78.6791 68.5058 69.9721C72.2104 63.5644 72.7234 54.7249 76.0747 47.8598C80.6799 38.4213 87.656 30.6472 95.8404 24.5616C117.162 8.70349 144.933 2.57573 170.258 0.821068C225.286 -2.98621 281.278 27.3366 310.724 77.2254C319.504 92.0964 330.838 107.924 316.649 123.117C301.158 139.692 277.821 147.457 259.332 159.234C252.268 163.73 243.265 169.136 239.324 177.277C236.953 182.171 236.791 188.311 236.683 193.698C236.398 207.419 235.318 219.759 230.088 232.562C222.012 252.348 209.134 270.602 194.541 285.554C181.814 298.592 163.664 313.915 145.181 304.515C131.009 297.292 122.021 281.961 111.01 270.659C98.7557 258.073 83.6008 249.591 66.9584 245.447C50.7691 241.426 33.0125 238.714 24.4804 221.631C21.5537 215.771 18.4959 208.184 17.3988 201.698C15.6276 191.004 13.0343 180.48 9.64467 170.231Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M21.3884 170.386C18.0516 148.2 17.6808 125.067 33.184 107.581C40.4194 99.4233 49.5656 93.6279 58.8145 88.377C65.6192 84.5134 72.6465 81.2546 77.7286 74.9205C82.4372 69.0558 86.0164 62.2463 90.5624 56.2281C96.5591 48.2528 103.734 41.3488 111.812 35.7815C132.061 21.8526 156.693 15.3379 180.259 13.0781C191.667 11.9798 204.041 11.4081 215.372 14.4021C226.315 17.2908 237.135 21.8586 247.197 27.1846C268.587 38.4957 287.124 55.0606 300.563 76.0037C309.777 90.369 314.76 104.337 302.827 118.91C289.375 135.337 268.282 144.4 250.896 155.061C238.972 162.373 225.608 169.541 223.38 185.08C221.607 197.444 220.166 209.179 215.578 220.866C208.748 238.105 198.706 253.721 186.048 266.788C174.472 278.692 159.828 288.793 143.269 282.435C130.15 277.389 119.972 266.084 108.51 258.001C95.7358 248.974 81.7014 243.997 66.9226 239.995C53.6411 236.384 41.1352 230.835 32.5509 219.055C30.7941 216.648 28.9489 214.027 27.5942 211.334C25.8659 207.897 26 204.491 25.6606 200.639C24.7765 190.475 22.8971 180.427 21.3884 170.386Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M34.3372 168.573C34.6223 147.5 39.4256 127.584 52.5812 111.161C58.2055 104.135 64.9216 98.3486 71.1102 91.9109C76.0931 86.7209 80.8024 81.8987 86.5321 77.6219C100.124 67.4952 111.17 54.3907 125.614 45.3731C144.896 33.3174 166.982 26.6537 188.898 23.9894C199.599 22.6873 210.654 22.2322 221.48 23.703C230.779 24.9659 239.685 29.3993 247.946 33.9353C264.137 42.8203 279.858 55.4486 290.371 71.4253C313.55 106.649 267.852 132.258 244.397 147.255C233.61 154.154 217.128 162.144 212.709 175.809C209.551 185.571 207.626 195.499 203.559 204.96C192.632 230.367 170.452 260.25 140.893 256.272C128.245 254.572 116.717 247.667 104.91 243.032C92.7522 238.257 80.2037 235.596 67.5669 232.676C55.7568 229.948 46.344 226.066 38.7158 215.659C35.0698 210.689 35.392 204.74 35.067 198.643C34.5368 188.627 34.209 178.555 34.3372 168.573Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M46.1278 165.874C50.8765 134.065 68.5129 99.3398 94.4452 80.8672C124.949 59.1374 157.996 40.8393 194.442 35.579C211.339 33.1398 229.849 31.9398 245.793 39.9159C257.927 45.9822 272.022 55.0501 278.7 67.8022C295.038 98.9939 258.698 123.825 237.994 138.255C226.847 146.024 212.658 153.594 204.256 164.938C199.382 171.516 196.893 180.217 192.958 187.441C181.032 209.333 161.401 226.991 136.947 230.149C125.64 231.607 114.251 229.803 103.029 228.368C91.5429 226.9 79.9137 226.103 68.4986 224.055C59.3864 222.419 48.6476 219.649 45.2916 209.36C41.0594 196.395 44.1901 178.863 46.1278 165.874Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M57.6901 160.764C64.6158 130.859 79.2813 101.688 103.935 83.8355C117.009 74.3688 132.186 67.8339 146.758 61.3773C163.274 54.0598 180.531 48.3798 198.157 45.5624C220.102 42.0526 255.645 38.889 267.11 65.2724C278.49 91.46 249.733 114.638 232.728 127.846C221.825 136.307 210.157 144.073 199.74 153.323C194.091 158.338 189.74 164.132 184.96 170.014C171.749 186.31 152.915 199.212 133.718 206.099C115.112 212.775 92.0954 215.731 72.4556 213.525C63.9815 212.576 57.9244 209.377 55.3616 200.28C51.8102 187.635 54.8273 173.117 57.6901 160.764Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M69.179 152.709C76.0591 126.379 90.8989 102.33 112.545 86.527C136.809 68.8116 168.052 58.9677 196.769 53.9618C212.033 51.303 245.112 44.0939 252.892 64.7259C260.672 85.3579 238.18 105.69 225.235 116.883C209.524 130.447 192.584 143.543 175.665 155.713C160.964 166.294 145.278 177.112 129.356 185.284C120.376 189.919 111.021 193.704 101.403 196.593C94.2806 198.716 85.2239 201.881 77.757 200.301C58.923 196.312 65.8886 165.299 69.179 152.709Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M83.3601 144.825C98.4557 95.0311 146.283 70.5416 192.333 62.0056C203.034 60.0242 233.032 52.8803 239.013 68.0912C244.809 82.839 226.375 100.329 217.745 108.615C191.003 134.292 157.964 153.331 126.656 172.192C116.884 178.079 99.259 190.854 87.1369 184.961C73.9752 178.551 80.2328 155.15 83.3601 144.825Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M98.8231 135.241C111.951 98.5713 150.135 77.5401 185.241 70.6068C193.839 68.9104 215.677 63.6285 222.19 73.8614C228.217 83.3273 213.834 97.0433 208.453 102.494C196.474 114.631 182.277 124.629 168.252 134.239C155.284 143.13 142.176 152.244 128.531 159.764C121.344 163.723 107.865 172.169 99.6976 166.057C90.9046 159.481 95.9084 143.383 98.8231 135.241Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M115.863 124.527C125.868 100.581 152.667 85.0307 176.306 79.8634C182.667 78.476 196.415 74.8767 201.781 81.2719C206.721 87.1615 198.759 95.7957 195.226 99.7833C179.565 117.458 156.632 133.246 135.62 142.943C130.337 145.38 120.84 150.165 115.405 145.245C109.83 140.192 113.564 130.026 115.863 124.527Z" stroke="#040028"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M133.938 114.468C139.576 102.577 154.312 93.6061 166.519 90.7503C175.11 88.7422 185.436 90.4769 177.949 100.828C170.512 111.099 156.711 120.481 145.015 124.64C136.091 127.811 129.097 124.682 133.938 114.468Z" stroke="#040028"/>
+        </svg>
+      </div>
+
+      {/* Main Container - Frame 1053 */}
+      <div className="w-full max-w-[1440px] flex flex-col lg:flex-row items-center gap-[40px] lg:gap-[73px] px-4 md:px-12 xl:px-0 pt-[80px] lg:pt-[120px] z-10 relative">
+        
+        {/* Left Column - Frame 987 */}
+        <div className="flex flex-col items-start gap-[24px] w-full lg:w-[579px] z-10">
+          
+          <div className="flex flex-col items-start gap-[10px] w-full">
+            <div className="flex flex-col items-start w-full gap-[10px]">
+              {titleNode ? titleNode : (
+                <h1 className="flex flex-col font-['Rubik_One'] font-normal m-0 w-full gap-[4px] md:gap-[8px]">
+                  <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">
+                    EazyPost pour les
+                  </span>
+                  <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">
+                    createurs
+                  </span>
+                  
+                  <div className="flex flex-row items-baseline gap-[12px] md:gap-[16px]">
+                    <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">de</span>
+                    <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">contenus</span>
+                  </div>
+                  
+                  <div className="flex flex-row items-baseline gap-[12px] md:gap-[16px]">
+                    <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">et</span>
+                    <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">Influenceurs</span>
+                  </div>
+                </h1>
+              )}
+              <p className="text-[#000000] text-[16px] md:text-[20px] font-normal leading-[26px] md:leading-[30px] font-['Rubik'] max-w-[650px] m-0">
+                {subtitle || "publie regilierement , analyse tes perfomances et professionalise ton image , sans passer ta vie sur les reseaux"}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons - Frame 986 */}
+          <div className="flex flex-row items-center gap-[24px]">
+            {/* Get Started Button */}
+            <button className="flex flex-row items-center justify-center px-[43px] py-[15px] gap-[10px] w-auto h-[54px] bg-[#174CD2] rounded-[8px] font-sans font-semibold text-[16px] leading-[24px] text-white shadow-md">
+              Commencer
+            </button>
+          </div>
+          
+        </div>
+
+        {/* Right Column (Images & Floating Cards) - Frame 989 */}
+        <div className="relative w-full max-w-[650px] lg:max-w-[800px] h-[600px] md:h-[740px] mt-[40px] lg:mt-0 flex-shrink-0 mx-auto">
+          
+          {/* Yellow Background Box - Frame 988 */}
+          <div className="absolute w-full md:w-[700px] h-[520px] md:h-[640px] right-0 md:left-[38px] top-[80px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
+          
+          {/* Main Image */}
+          <div className="absolute w-[340px] md:w-[680px] h-[500px] md:h-[720px] right-[5%] md:left-[58px] top-0 bg-cover bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('${heroImage}')` }}></div>
+          
+          {/* Blur Shadow Effect under Main Image */}
+          <div className="absolute w-[173px] h-[141px] left-0 top-[300px] bg-[#000000] opacity-5 blur-[64.5px] rounded-[14px] z-0"></div>
+          
+        </div>
+
+      </div>
+    </section>
+  );
+}

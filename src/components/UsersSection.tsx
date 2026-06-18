@@ -134,7 +134,7 @@ const influencersData = [
 const influencers = influencersData[selectedCard];
 
   return (
-    <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
+    <section className="w-full bg-white relative flex flex-col items-center pt-[60px] md:pt-[80px] pb-[150px]">
       
       {/* 
         The section uses a relative wrapper that explicitly matches the Figma width structure 
@@ -143,7 +143,7 @@ const influencers = influencersData[selectedCard];
       <div className="w-full relative h-full z-10">
         
         {/* New Header Text - Aligned with global page max-width */}
-        <div className="w-full max-w-[1435px] mx-auto px-[52px] pt-[120px] relative z-10 flex flex-col">
+        <div className="w-full max-w-[1435px] mx-auto px-[52px] pt-[40px] md:pt-[60px] relative z-10 flex flex-col">
           <span className="font-sans font-black text-[36px] leading-[45px] text-[#000000]">
             EazyPost
           </span>

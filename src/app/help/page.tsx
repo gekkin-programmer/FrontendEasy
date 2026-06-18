@@ -123,8 +123,8 @@ export default function HelpPage() {
 
       {/* Hero */}
       <section className="border-b-4 border-black dark:border-white/10 bg-white dark:bg-zinc-950 py-20 md:py-28 px-4 text-center relative overflow-hidden">
-        <div className="absolute top-6 left-6 w-10 h-10 bg-[#3C48F6] border-4 border-black dark:border-white/20 rotate-12 hidden md:block" />
-        <div className="absolute bottom-6 right-10 w-14 h-14 bg-[#3C48F6]/20 border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
+        <div className="absolute top-6 left-6 w-10 h-10 bg-[#174CD2] border-4 border-black dark:border-white/20 rotate-12 hidden md:block" />
+        <div className="absolute bottom-6 right-10 w-14 h-14 bg-[#174CD2]/20 border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest mb-6">
             {t('HELP CENTER', "CENTRE D'AIDE")}
@@ -149,7 +149,7 @@ export default function HelpPage() {
         <div className="max-w-3xl mx-auto space-y-12">
           {categories.map((cat, ci) => (
             <div key={ci}>
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3C48F6] mb-4 border-b-2 border-black dark:border-white/10 pb-2">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[#174CD2] mb-4 border-b-2 border-black dark:border-white/10 pb-2">
                 {cat.label}
               </h2>
               <div className="space-y-2">
@@ -162,7 +162,7 @@ export default function HelpPage() {
                         onClick={() => setOpen(isOpen ? null : idx)}
                         className="w-full flex items-center justify-between px-5 py-4 text-left group"
                       >
-                        <span className="font-black text-sm uppercase text-black dark:text-white group-hover:text-[#3C48F6] transition-colors">
+                        <span className="font-black text-sm uppercase text-black dark:text-white group-hover:text-[#174CD2] transition-colors">
                           {item.q}
                         </span>
                         <motion.span
@@ -212,7 +212,7 @@ export default function HelpPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="mailto:support@easypost.cm"
-              className="inline-flex items-center justify-center gap-2 bg-[#3C48F6] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all"
+              className="inline-flex items-center justify-center gap-2 bg-[#174CD2] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all"
             >
               <Mail size={18} /> {t('Email Support', 'Contacter par Email')}
             </a>

@@ -126,7 +126,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2 text-sm font-black uppercase transition-all border-2 border-black dark:border-white", 
-      active ? "bg-[#3C48F6] text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-100 dark:hover:bg-zinc-800", 
+      active ? "bg-[#174CD2] text-white shadow-none translate-x-[2px] translate-y-[2px]" : "bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-[3px_3px_0px_0px_#fff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none hover:bg-yellow-100 dark:hover:bg-zinc-800", 
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -304,7 +304,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                 <XAxis dataKey="date" hide />
                                 <YAxis tick={{fontSize: 10, fontWeight: 'bold', fill: 'currentColor'}} />
                                 <Tooltip contentStyle={{ borderRadius: '0px', border: '2px solid currentColor', backgroundColor: 'var(--tw-bg-opacity)' }} />
-                                <Area type="monotone" dataKey="count" stroke="#3C48F6" fill="#3C48F6" fillOpacity={0.1} strokeWidth={3} />
+                                <Area type="monotone" dataKey="count" stroke="#174CD2" fill="#174CD2" fillOpacity={0.1} strokeWidth={3} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>

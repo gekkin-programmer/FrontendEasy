@@ -62,7 +62,7 @@ const BrutalCard = ({ children, color = "bg-white", className = "" }: any) => (
   </div>
 );
 
-const BrutalBadge = ({ children, color = "bg-[#3C48F6]", textColor = "text-white" }: any) => (
+const BrutalBadge = ({ children, color = "bg-[#174CD2]", textColor = "text-white" }: any) => (
   <span className={`inline-block px-4 py-1 font-black text-xs md:text-sm uppercase tracking-widest rounded-full ${color} ${textColor}`}>
     {children}
   </span>
@@ -112,15 +112,15 @@ export default function CreateSection() {
         
         {/* Left – Hero Content */}
         <div className="space-y-6 md:space-y-8 pt-6 md:pt-10">
-          <BrutalBadge color="bg-[#3C48F6]">{t("CREATE","CREER")}</BrutalBadge>
+          <BrutalBadge color="bg-[#174CD2]">{t("CREATE","CREER")}</BrutalBadge>
           
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] tracking-tighter uppercase">
             {t("TURN","TRANSFORMER")}<span className="text-white dark:text-black bg-black dark:bg-white px-2 mx-1">{t("IDEAS","VOS IDEES")}</span><br/>
-            {t("INTO","EN")} <span className="text-[#3C48F6]">{t("VIRAL","CONTENU")}</span><br/>
+            {t("INTO","EN")} <span className="text-[#174CD2]">{t("VIRAL","CONTENU")}</span><br/>
             {t("CONTENT.","VIRAUX.")}
           </h1>
 
-          <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-2 border-[#3C48F6] pl-6 leading-snug">
+          <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-2 border-[#174CD2] pl-6 leading-snug">
             {t(
               "Whether you’re flying solo or working with a team, EasyPost has all the features to help you create, organize, and repurpose your content.",
               "Que vous travailliez seul ou en équipe, EasyPost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
@@ -138,7 +138,7 @@ export default function CreateSection() {
                 { icon: Link2, text: t("Add a beautiful link-in-bio page", "Ajoutez une belle page link-in-bio") }
             ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl">
-                    <item.icon size={24} className="text-[#3C48F6] flex-shrink-0" strokeWidth={2.5} />
+                    <item.icon size={24} className="text-[#174CD2] flex-shrink-0" strokeWidth={2.5} />
                     <span className="font-bold text-black dark:text-gray-800 text-sm md:text-base">{item.text}</span>
                 </div>
             ))}
@@ -163,14 +163,14 @@ export default function CreateSection() {
              </div>
              
              <div className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-4 font-mono text-sm min-h-[80px] mb-4">
-                <span className="text-[#3C48F6] font-bold">{">"}</span>{" "}
+                <span className="text-[#174CD2] font-bold">{">"}</span>{" "}
                 <span className="text-black font-bold">
                     {prompt}
                 </span>
                 <span className="animate-pulse w-2 h-4 bg-black inline-block align-middle ml-1"></span>
              </div>
 
-             <button className="w-full bg-[#3C48F6] text-white font-black py-3 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center justify-center gap-2">
+             <button className="w-full bg-[#174CD2] text-white font-black py-3 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center justify-center gap-2">
                 <PenTool size={18} /> {t("GENERATE MAGIC", "GENERER VOS TEXTES")}
              </button>
           </BrutalCard>

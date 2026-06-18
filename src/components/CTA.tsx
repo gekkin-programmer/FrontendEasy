@@ -8,7 +8,7 @@ const CTA = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="py-24 bg-[#3C48F6] dark:bg-blue-900 text-white text-center">
+    <section className="py-24 bg-[#174CD2] dark:bg-blue-900 text-white text-center">
       <div className="container mx-auto px-4">
         
         {/* Heading */}
@@ -27,7 +27,7 @@ const CTA = () => {
         {/* Action Button */}
         <Link 
           href="/signup" 
-          className="inline-block bg-white text-[#3C48F6] font-bold text-lg px-10 py-4 rounded-full shadow-xl hover:bg-gray-50 hover:scale-105 transition-all duration-300"
+          className="inline-block bg-white text-[#174CD2] font-bold text-lg px-10 py-4 rounded-full shadow-xl hover:bg-gray-50 hover:scale-105 transition-all duration-300"
         >
           {t("Start my free trial", "Commencer mon essai gratuit")}
         </Link>

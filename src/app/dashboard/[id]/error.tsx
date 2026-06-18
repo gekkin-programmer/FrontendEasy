@@ -28,7 +28,7 @@ export default function WorkspaceDashboardError({
       <div className="flex gap-3 mt-6">
         <button
           onClick={reset}
-          className="px-6 py-3 bg-[#3C48F6] text-white font-bold rounded-xl hover:bg-blue-700 transition-colors"
+          className="px-6 py-3 bg-[#174CD2] text-white font-bold rounded-xl hover:bg-blue-700 transition-colors"
         >
           Try again
         </button>

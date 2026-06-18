@@ -34,11 +34,7 @@ export default function AProposSection() {
 {/* Left Column */}
 <div className="relative w-full md:w-1/2 flex flex-col items-center justify-center px-6 py-10 gap-10">
   
-  {/* Decorative Shape Top Right of Text Column */}
-  <div className="absolute w-[70px] h-[40px] md:w-[75px] md:h-[59px] 
-                  right-[-2px] top-[-2px] 
-                  bg-[#174CD2] border-2 border-[#174CD2] 
-                  rounded-[10px_40px_10px_10px] transform rotate-180 z-10" />
+
 
   <div className="flex flex-col items-center gap-8">
     {/* Paragraph 1 */}

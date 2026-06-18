@@ -70,7 +70,7 @@ function NavButton({ active, onClick, icon: Icon, label }: any) {
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1 transition-colors w-12",
-        active ? "text-[#3C48F6] dark:text-blue-400" : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white"
+        active ? "text-[#174CD2] dark:text-blue-400" : "text-gray-500 dark:text-zinc-500 hover:text-black dark:hover:text-white"
       )}
     >
       <Icon size={20} strokeWidth={active ? 3 : 2} />

@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
         <div className="text-center max-w-sm px-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-3">Invalid link</h2>
           <p className="text-gray-600 mb-6">This reset link is missing or malformed.</p>
-          <Link href="/forgot-password" className="font-bold text-[#3C48F6] hover:text-blue-700">
+          <Link href="/forgot-password" className="font-bold text-[#174CD2] hover:text-blue-700">
             Request a new one →
           </Link>
         </div>
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
           <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">Choose a strong password you&apos;ll actually remember.</h1>
           <p className="text-gray-400 text-lg">Min. 8 characters. Mix letters, numbers, and symbols.</p>
         </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#3C48F6]/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#174CD2]/20 rounded-full blur-[120px] pointer-events-none" />
       </div>
 
       {/* RIGHT SIDE */}
@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
           {done ? (
             <div className="text-center">
               <div className="flex justify-center mb-6">
-                <CheckCircle className="w-16 h-16 text-[#3C48F6]" />
+                <CheckCircle className="w-16 h-16 text-[#174CD2]" />
               </div>
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">Password updated!</h2>
               <p className="text-gray-600">Redirecting you to sign in...</p>
@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 pr-12 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm"
+                      className="w-full bg-white border border-gray-300 focus:border-[#174CD2] focus:ring-4 focus:ring-[#174CD2]/10 rounded-xl py-3.5 px-4 pr-12 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm"
                       placeholder="••••••••"
                     />
                     <button
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                    className="w-full bg-white border border-gray-300 focus:border-[#3C48F6] focus:ring-4 focus:ring-[#3C48F6]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm"
+                    className="w-full bg-white border border-gray-300 focus:border-[#174CD2] focus:ring-4 focus:ring-[#174CD2]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm"
                     placeholder="••••••••"
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function ResetPasswordPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={isLoading || !password || !confirm}
-                  className="w-full bg-[#3C48F6] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-[#174CD2] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading && <Loader2 className="animate-spin w-4 h-4" />}
                   {isLoading ? 'Updating...' : 'Update password'}

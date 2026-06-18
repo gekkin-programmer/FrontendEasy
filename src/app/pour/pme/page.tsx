@@ -1,0 +1,50 @@
+import React from 'react';
+import Navbar from '@/components/Navbar';
+import CareerHeroLayout from '@/components/pour/CareerHeroLayout';
+import PmeFeaturesSection from '@/components/pour/PmeFeaturesSection';
+import WhyChooseUsSection from '@/components/pour/WhyChooseUsSection';
+import CtaSection from '@/components/pour/CtaSection';
+
+export default function PmePage() {
+  return (
+    <div className="bg-white relative font-sans flex flex-col">
+      
+      <div className="relative z-50 bg-white">
+        <Navbar />
+      </div>
+      
+      {/* Main Content Area */}
+      <main className="w-full flex flex-col relative z-10">
+        
+        <CareerHeroLayout 
+          heroImage="/assets/magnific_l7uVXlugv9.png" 
+          hideBackground={true}
+          titleNode={
+            <h1 className="flex flex-col font-['Rubik_One'] font-normal m-0 w-full gap-[4px] md:gap-[8px]">
+              <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">
+                EazyPost pour les
+              </span>
+              <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">
+                Petites
+              </span>
+              
+              <div className="flex flex-row items-baseline gap-[12px] md:gap-[16px]">
+                <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">et</span>
+                <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">Moyennes</span>
+              </div>
+              
+              <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">
+                Entreprises
+              </span>
+            </h1>
+          }
+          subtitle="simplifie ta gestion des réseaux sociaux, attire de nouveaux clients locaux et libère du temps pour ton activité principale."
+        />
+        <PmeFeaturesSection />
+        <WhyChooseUsSection />
+        <CtaSection />
+
+      </main>
+    </div>
+  );
+}

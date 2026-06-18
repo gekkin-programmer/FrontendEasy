@@ -175,7 +175,7 @@ const MainDashboardVisual = () => {
               Weekly<br/>Growth
             </h3>
           </div>
-          <div className="w-12 h-12 bg-[#3C48F6] rounded-xl flex items-center justify-center text-white text-xl shadow-sm">
+          <div className="w-12 h-12 bg-[#174CD2] rounded-xl flex items-center justify-center text-white text-xl shadow-sm">
             <motion.div
                 key={`icon-${animationKey}`}
                 animate={{ rotate: [0, 90, 0] }}
@@ -216,7 +216,7 @@ const MainDashboardVisual = () => {
                         delay: 0.6 + (i * 0.2), 
                         type: "spring", stiffness: 150 
                     }}
-                    className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#3C48F6] transition-colors"
+                    className="w-full bg-black relative z-10 border-x border-t border-black hover:bg-[#174CD2] transition-colors"
                  >
                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded px-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-40 shadow-sm">
                         {h}%
@@ -229,7 +229,7 @@ const MainDashboardVisual = () => {
         {/* Bottom Stats */}
         <div className="grid grid-cols-3 gap-2 text-center text-black">
              <StatBox label="Reach" value="12%" delay={2.1} animationKey={animationKey} />
-             <StatBox label="Saves" value="402" color="bg-[#3C48F6] text-white" delay={2.3} animationKey={animationKey} />
+             <StatBox label="Saves" value="402" color="bg-[#174CD2] text-white" delay={2.3} animationKey={animationKey} />
              <StatBox label="Clicks" value="8.2k" delay={2.5} animationKey={animationKey} />
         </div>
       </HardCard>
@@ -274,11 +274,11 @@ const AnalyzeSection = () => {
           {/* Left: Text Column */}
           <div className="flex flex-col gap-6 md:gap-8">
             <div>
-              <HardBadge color="bg-[#3C48F6] text-white">SYSTEM_ANALYZE</HardBadge>
+              <HardBadge color="bg-[#174CD2] text-white">SYSTEM_ANALYZE</HardBadge>
               <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-black dark:text-gray-200 leading-[0.95] mt-4 tracking-tighter uppercase">
                 ANSWERS.<br/>
                 NOT JUST<br/>
-                <span className="text-[#3C48F6]">NUMBERS.</span>
+                <span className="text-[#174CD2]">NUMBERS.</span>
               </h2>
             </div>
 
@@ -287,13 +287,13 @@ const AnalyzeSection = () => {
             </p>
 
             <ul className="space-y-4 mt-4">
-              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#174CD2,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
                 {t("AI-driven suggestions on when to post", "Suggestions IA sur le moment de publication")}
               </FeatureItem>
-              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#174CD2,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
                 {t("Breakdown of your most loyal followers", "Analyse de vos abonnés les plus fidèles")}
               </FeatureItem>
-              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#3C48F6,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
+              <FeatureItem icon={<lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#174CD2,secondary:#000000" style={{ width: '40px', height: '40px' }} />}>
                 {t("Content recycling engine for high performers", "Moteur de recyclage pour les contenus performants")}
               </FeatureItem>
             </ul>

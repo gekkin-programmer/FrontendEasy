@@ -171,7 +171,7 @@ const Hero: React.FC = () => {
         >
             {t("YOUR SOCIAL MEDIA", "VOTRE ESPACE")}
             <br />
-            <span className="relative inline-block text-[#3C48F6]">
+            <span className="relative inline-block text-[#174CD2]">
                 <ScribbleUnderline />
                 {t("WORKSPACE.", "SOCIAL.")}
             </span>
@@ -211,7 +211,7 @@ const Hero: React.FC = () => {
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </a>
                 {/* Button decoration */}
-                <div className="absolute inset-0 bg-[#3C48F6] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                <div className="absolute inset-0 bg-[#174CD2] -z-10 translate-x-1.5 translate-y-1.5 rotate-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                 
                 <ScribbleArrow />
             </div>

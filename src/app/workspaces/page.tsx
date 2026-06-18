@@ -64,7 +64,7 @@ export default function WorkspaceManager() {
           role: 'Owner',
           members: 1,
           projects: 0,
-          color: '#3C48F6',
+          color: '#174CD2',
           default_platforms: ['twitter', 'linkedin'], // Default platforms
           timezone: 'UTC',
           default_language: 'en'
@@ -180,7 +180,7 @@ export default function WorkspaceManager() {
       {/* --- NEW BACKGROUND LAYER --- */}
       <div className="fixed inset-0 -z-10 h-full w-full bg-slate-50">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-[#3C48F6] opacity-20 blur-[100px]"></div>
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-[#174CD2] opacity-20 blur-[100px]"></div>
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10 p-6 md:p-12">
@@ -193,7 +193,7 @@ export default function WorkspaceManager() {
           </div>
           {/* Optional: Show Plan Badge */}
           <div className="bg-white/80 backdrop-blur border border-gray-200 px-3 py-1 rounded-full text-xs font-bold text-gray-500">
-            Current Plan: <span className="text-[#3C48F6]">Agency/Pro</span>
+            Current Plan: <span className="text-[#174CD2]">Agency/Pro</span>
           </div>
         </div>
 
@@ -204,10 +204,10 @@ export default function WorkspaceManager() {
             {/* Create Button */}
             <button 
               onClick={() => { setSelectedWorkspace({}); setView('create'); }} 
-              className="border-2 border-dashed border-gray-300/80 bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-[#3C48F6] hover:bg-blue-50/50 transition-all h-64 group"
+              className="border-2 border-dashed border-gray-300/80 bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-[#174CD2] hover:bg-blue-50/50 transition-all h-64 group"
             >
-              <div className="w-12 h-12 rounded-full bg-white border flex items-center justify-center text-[#3C48F6] shadow-sm group-hover:scale-110 transition-transform"><FiPlus size={24} /></div>
-              <span className="font-bold text-gray-600 group-hover:text-[#3C48F6]">Create New</span>
+              <div className="w-12 h-12 rounded-full bg-white border flex items-center justify-center text-[#174CD2] shadow-sm group-hover:scale-110 transition-transform"><FiPlus size={24} /></div>
+              <span className="font-bold text-gray-600 group-hover:text-[#174CD2]">Create New</span>
             </button>
 
             <AnimatePresence>
@@ -250,7 +250,7 @@ export default function WorkspaceManager() {
                   {/* Footer */}
                   <div className="flex justify-between items-center z-10 mt-auto pointer-events-auto pt-4 border-t border-gray-50">
                      <Link href={`/dashboard/${ws.id}`}>
-                      <button className="text-sm font-bold text-white bg-[#3C48F6] px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:translate-y-[-1px]">
+                      <button className="text-sm font-bold text-white bg-[#174CD2] px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:translate-y-[-1px]">
                           Enter <FiCheck />
                       </button>
                      </Link>
@@ -275,7 +275,7 @@ export default function WorkspaceManager() {
                 <div className="space-y-4">
                   <label className="block">
                     <span className="text-sm font-bold text-gray-900">Workspace Name</span>
-                    <input type="text" value={selectedWorkspace.name || ''} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, name: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-sm focus:border-[#3C48F6] outline-none border transition-colors" placeholder="e.g. Acme Corp" />
+                    <input type="text" value={selectedWorkspace.name || ''} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, name: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-sm focus:border-[#174CD2] outline-none border transition-colors" placeholder="e.g. Acme Corp" />
                   </label>
                 </div>
 
@@ -285,7 +285,7 @@ export default function WorkspaceManager() {
                    <div className="grid grid-cols-2 gap-4">
                       <label className="block">
                         <span className="text-xs font-bold text-gray-500 uppercase">Timezone</span>
-                        <select value={selectedWorkspace.timezone || 'UTC'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, timezone: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#3C48F6]">
+                        <select value={selectedWorkspace.timezone || 'UTC'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, timezone: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#174CD2]">
                           <option value="America/New_York">New York (EST)</option>
                           <option value="Europe/London">London (GMT)</option>
                           <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -294,7 +294,7 @@ export default function WorkspaceManager() {
                       </label>
                       <label className="block">
                         <span className="text-xs font-bold text-gray-500 uppercase">Language</span>
-                        <select value={selectedWorkspace.default_language || 'en'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, default_language: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#3C48F6]">
+                        <select value={selectedWorkspace.default_language || 'en'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, default_language: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#174CD2]">
                           <option value="en">English</option>
                           <option value="es">Spanish</option>
                           <option value="fr">French</option>
@@ -315,7 +315,7 @@ export default function WorkspaceManager() {
                       ].map((p) => {
                         const isSelected = (selectedWorkspace.default_platforms || []).includes(p.id);
                         return (
-                          <button key={p.id} onClick={() => togglePlatform(p.id)} className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#3C48F6] bg-blue-50 ring-2 ring-blue-100 ring-offset-2' : 'border-gray-200 bg-white grayscale hover:grayscale-0'}`}>
+                          <button key={p.id} onClick={() => togglePlatform(p.id)} className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#174CD2] bg-blue-50 ring-2 ring-blue-100 ring-offset-2' : 'border-gray-200 bg-white grayscale hover:grayscale-0'}`}>
                             <p.icon className={`w-5 h-5 ${p.color}`} />
                           </button>
                         )
@@ -336,7 +336,7 @@ export default function WorkspaceManager() {
                  </div>
 
                  <div className="space-y-3">
-                   <button onClick={handleSubmit} disabled={isSaving} className="w-full bg-[#3C48F6] text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-transform active:scale-95 flex justify-center items-center gap-2">
+                   <button onClick={handleSubmit} disabled={isSaving} className="w-full bg-[#174CD2] text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-transform active:scale-95 flex justify-center items-center gap-2">
                       {isSaving && <FiLoader className="animate-spin"/>} Save Changes
                    </button>
                    
@@ -434,7 +434,7 @@ function ToggleRow({ label, desc, active, onClick }: any) {
        </div>
        <button 
          onClick={onClick}
-         className={`w-11 h-6 rounded-full relative transition-colors duration-200 ease-in-out ${active ? 'bg-[#3C48F6]' : 'bg-gray-300'}`}
+         className={`w-11 h-6 rounded-full relative transition-colors duration-200 ease-in-out ${active ? 'bg-[#174CD2]' : 'bg-gray-300'}`}
        >
          <span className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0'}`} />
        </button>

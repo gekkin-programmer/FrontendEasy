@@ -84,7 +84,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
                 onClick={() => setActiveTab(tab.id)} 
                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase border-2 border-black dark:border-white transition-all duration-200 
                 ${activeTab === tab.id 
-                    ? 'bg-[#3C48F6] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]' 
+                    ? 'bg-[#174CD2] text-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px]' 
                     : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-yellow-100 dark:hover:bg-zinc-800 hover:translate-x-1'}`}
               >
                 <span className={activeTab === tab.id ? 'text-white' : 'text-black dark:text-white'}>{tab.icon}</span>
@@ -221,12 +221,12 @@ function BillingSettings() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                            <span className="text-4xl font-black text-[#3C48F6] italic uppercase">{plan}</span>
+                            <span className="text-4xl font-black text-[#174CD2] italic uppercase">{plan}</span>
                             <span className="px-2 py-1 bg-green-100 text-green-700 border-2 border-green-600 text-[10px] font-black uppercase tracking-widest">ACTIVE</span>
                         </div>
                         <p className="text-sm font-bold text-gray-500 uppercase">Renewing on {new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()}</p>
                     </div>
-                    <NeuButton className="bg-[#3C48F6] text-white">Upgrade Now</NeuButton>
+                    <NeuButton className="bg-[#174CD2] text-white">Upgrade Now</NeuButton>
                 </div>
             </NeuCard>
 
@@ -272,7 +272,7 @@ function SettingItem({ label, desc, value, onToggle }: any) {
                 onClick={onToggle}
                 className={cn(
                     "w-12 h-6 border-2 border-black transition-all flex items-center p-0.5",
-                    value ? "bg-[#3C48F6]" : "bg-gray-200 dark:bg-zinc-800"
+                    value ? "bg-[#174CD2]" : "bg-gray-200 dark:bg-zinc-800"
                 )}
             >
                 <div className={cn("w-4 h-4 bg-white border-2 border-black transition-all", value ? "translate-x-6" : "translate-x-0")} />

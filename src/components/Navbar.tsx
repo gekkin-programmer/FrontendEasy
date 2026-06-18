@@ -385,15 +385,15 @@ export default function Navbar() {
                 <Link href="/pour/createurs" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Creators & Influencers", "Créateurs & Influenceurs")}</h3>
                 </Link>
-                <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
+                <Link href="/pour/pme" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}</h3>
-                </div>
-                <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
+                </Link>
+                <Link href="/pour/agences" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Agencies", "Agences")}</h3>
-                </div>
-                <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
+                </Link>
+                <Link href="/pour/organisations" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Organizations & Institutions", "Organisations & Institutions")}</h3>
-                </div>
+                </Link>
               </div>
             </div>
           )}
@@ -475,9 +475,9 @@ export default function Navbar() {
         </Link>
 
         {/* CTA */}
-        <button className="hidden sm:flex items-center justify-center px-[16px] xl:px-[32px] h-[40px] md:h-[54px] border-[2px] border-white rounded-[12px] md:rounded-[18px] text-[12px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
+        <Link href="/signup" className="hidden sm:flex items-center justify-center px-[16px] xl:px-[32px] h-[40px] md:h-[54px] border-[2px] border-white rounded-[12px] md:rounded-[18px] text-[12px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
           {t("Start free trial", "Commencer l'essai")}
-        </button>
+        </Link>
 
         {/* Hamburger Menu Toggle */}
         <button className="lg:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -577,9 +577,9 @@ export default function Navbar() {
                 <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-center py-3 text-[16px]">
                   {t("Log in", "Connexion")}
                 </Link>
-                <button className="w-full h-[48px] border-[2px] border-white rounded-[12px] text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all">
+                <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="w-full h-[48px] flex items-center justify-center border-[2px] border-white rounded-[12px] text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all">
                   {t("Start free trial", "Commencer l'essai")}
-                </button>
+                </Link>
              </div>
           </div>
         </div>
