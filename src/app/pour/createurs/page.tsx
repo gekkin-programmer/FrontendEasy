@@ -7,7 +7,7 @@ import CtaSection from '@/components/pour/CtaSection';
 
 export default function CreateursPage() {
   return (
-    <div className="bg-white relative font-sans flex flex-col">
+    <div className="relative font-sans flex flex-col">
       
       <div className="relative z-50 bg-white">
         <Navbar />
@@ -17,7 +17,7 @@ export default function CreateursPage() {
       <main className="w-full flex flex-col relative z-10">
         
         {/* Primary Hero Section Restored */}
-        <CareerHeroLayout />
+        <CareerHeroLayout hideBackground={true} />
         <AboutUsSection />
         <WhyChooseUsSection />
         <CtaSection />
