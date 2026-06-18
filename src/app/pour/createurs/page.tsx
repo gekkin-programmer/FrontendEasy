@@ -19,7 +19,7 @@ export default function CreateursPage() {
         {/* Primary Hero Section Restored */}
         <CareerHeroLayout />
         <AboutUsSection hideBackground={true} />
-        <WhyChooseUsSection />
+        <WhyChooseUsSection hideBackground={true} />
         <CtaSection />
 
       </main>

@@ -9,7 +9,7 @@ import feature1Animation from '../../../public/assets/icons/feature-1.json';
 import feature2Animation from '../../../public/assets/icons/feature-2.json';
 import feature3Animation from '../../../public/assets/icons/feature-3.json';
 
-export default function WhyChooseUsSection() {
+export default function WhyChooseUsSection({ hideBackground = false }: { hideBackground?: boolean }) {
   const features = [
     {
       title: "Visibilité accrue",
@@ -51,14 +51,16 @@ export default function WhyChooseUsSection() {
         <div className="relative w-full max-w-[500px] lg:max-w-[650px] h-[500px] md:h-[600px] flex-shrink-0 mx-auto lg:mx-0">
           
           {/* Light Gradient 10 - Restrained to Image Area and Primary Blue */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Ellipse 20 */}
-            <div className="absolute w-[200px] h-[200px] -left-[62px] top-[140px] bg-[#00D2FF] blur-[150px] opacity-60"></div>
-            {/* Ellipse 21 */}
-            <div className="absolute w-[300px] h-[300px] left-[113px] top-[178px] bg-[#174CD2] blur-[150px] opacity-60"></div>
-            {/* Vector 8 */}
-            <div className="absolute w-[350px] h-[450px] -left-[92px] top-[73px] bg-[#040028] blur-[200px] opacity-60"></div>
-          </div>
+          {!hideBackground && (
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              {/* Ellipse 20 */}
+              <div className="absolute w-[200px] h-[200px] -left-[62px] top-[140px] bg-[#00D2FF] blur-[150px] opacity-60"></div>
+              {/* Ellipse 21 */}
+              <div className="absolute w-[300px] h-[300px] left-[113px] top-[178px] bg-[#174CD2] blur-[150px] opacity-60"></div>
+              {/* Vector 8 */}
+              <div className="absolute w-[350px] h-[450px] -left-[92px] top-[73px] bg-[#040028] blur-[200px] opacity-60"></div>
+            </div>
+          )}
 
           {/* Dark Blue Background Box */}
           <div className="absolute w-[90%] md:w-[600px] h-[400px] md:h-[500px] left-0 md:left-[38px] top-[80px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
