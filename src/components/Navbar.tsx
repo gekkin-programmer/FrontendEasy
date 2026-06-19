@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronDown, Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -9,6 +9,7 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const clickActiveRef = useRef<string | null>(null);
   const { language, setLanguage, t } = useLanguage();
   
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,26 +23,34 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full h-[87px] flex items-center justify-center text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
-      <div className="w-full h-full max-w-[1440px] mx-auto flex items-center justify-between px-[16px] lg:px-[40px]">
+    <nav className={`fixed top-0 left-0 w-full h-[87px] lg:h-[72px] flex items-center justify-center text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
+      <div className="w-full h-full max-w-[1440px] 2xl:max-w-[2200px] 3xl:max-w-[2200px] mx-auto flex items-center justify-between px-[16px] lg:px-[12px] xl:px-[40px] 2xl:px-[60px] 3xl:px-[120px]">
       
-      {/* Logo (Left Aligned) */}
-      <div 
-        className="flex items-center justify-start gap-[8px] lg:gap-[12px] cursor-pointer"
-        onClick={() => window.location.reload()}
-      >
+      {/* Logo (Left Aligned) — lien vers l'accueil */}
+      <Link href="/" className="flex items-center justify-start gap-[8px] lg:gap-[12px] 2xl:gap-[16px] 3xl:gap-[20px] cursor-pointer">
         <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-[36px] h-[36px] md:w-[48px] md:h-[48px] object-contain" />
-        <span className="font-['Rubik_One'] font-normal text-[22px] md:text-[28px] 2xl:text-[36px] tracking-tight">azypost</span>
-      </div>
+        <span className="font-['Rubik_One'] font-normal text-[22px] md:text-[28px] lg:text-[20px] xl:text-[28px] 2xl:text-[32px] 3xl:text-[36px] tracking-tight">azypost</span>
+      </Link>
 
       {/* Nav Links (Perfectly Centered) */}
-      <div className="hidden lg:flex h-full items-center justify-center gap-[12px] xl:gap-[24px] 2xl:gap-[40px] font-['Rubik_One'] font-normal text-[12px] xl:text-[14px]">
+      <div className="hidden lg:flex h-full items-center justify-center gap-[6px] xl:gap-[24px] 2xl:gap-[32px] 3xl:gap-[60px] font-['Rubik_One'] font-normal text-[11px] xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 
           className="h-full flex items-center gap-[4px] cursor-pointer group"
-          onMouseEnter={() => setActiveDropdown('Fonctionnalités')}
-          onMouseLeave={() => setActiveDropdown(null)}
+          onClick={() => {
+            const next = activeDropdown === 'Fonctionnalités' ? null : 'Fonctionnalités';
+            clickActiveRef.current = next;
+            setActiveDropdown(next);
+          }}
+          onMouseEnter={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown('Fonctionnalités');
+          }}
+          onMouseLeave={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown(null);
+          }}
         >
           <span>{t("Features", "Fonctionnalités")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
@@ -50,8 +59,8 @@ export default function Navbar() {
 
           {/* Mega Dropdown */}
           {activeDropdown === 'Fonctionnalités' && (
-            <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
-              <div className="max-w-[1440px] mx-auto grid grid-cols-3 gap-x-[40px] gap-y-[32px]">
+            <div className="absolute left-0 top-[87px] lg:top-[72px] w-full bg-[#040028] cursor-default p-[24px] lg:p-[24px] 2xl:p-[50px] 3xl:p-[60px] shadow-2xl font-sans">
+              <div className="max-w-[1440px] 2xl:max-w-[1800px] 3xl:max-w-[2200px] mx-auto grid grid-cols-3 gap-x-[40px] 2xl:gap-x-[50px] 3xl:gap-x-[60px] gap-y-[32px] 2xl:gap-y-[36px] 3xl:gap-y-[40px]">
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item">
                   <h3 className="text-[18px] text-white font-bold transition-colors">{t("Global Dashboard", "Tableau de bord global")}</h3>
                 </div>
@@ -87,8 +96,19 @@ export default function Navbar() {
         {/* Frame 16: Canaux */}
         <div 
           className="h-full flex items-center gap-[4px] cursor-pointer group"
-          onMouseEnter={() => setActiveDropdown('Canaux')}
-          onMouseLeave={() => setActiveDropdown(null)}
+          onClick={() => {
+            const next = activeDropdown === 'Canaux' ? null : 'Canaux';
+            clickActiveRef.current = next;
+            setActiveDropdown(next);
+          }}
+          onMouseEnter={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown('Canaux');
+          }}
+          onMouseLeave={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown(null);
+          }}
         >
           <span>{t("Channels", "Canaux")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
@@ -96,8 +116,8 @@ export default function Navbar() {
           </svg>
 
           {activeDropdown === 'Canaux' && (
-            <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
-              <div className="max-w-[1440px] mx-auto grid grid-cols-4 gap-x-[40px] gap-y-[32px]">
+            <div className="absolute left-0 top-[87px] lg:top-[72px] w-full bg-[#040028] cursor-default p-[24px] lg:p-[24px] 2xl:p-[50px] 3xl:p-[60px] shadow-2xl font-sans">
+              <div className="max-w-[1440px] 2xl:max-w-[1800px] 3xl:max-w-[2200px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-x-[24px] lg:gap-x-[40px] 2xl:gap-x-[50px] 3xl:gap-x-[60px] gap-y-[24px] lg:gap-y-[32px] 2xl:gap-y-[36px] 3xl:gap-y-[40px]">
                 
                 {/* Facebook */}
                 <div className="text-white/80 hover:text-white transition-colors cursor-pointer group/item flex items-center gap-[16px]">
@@ -371,8 +391,19 @@ export default function Navbar() {
         {/* Frame: Pour */}
         <div 
           className="h-full flex items-center gap-[4px] cursor-pointer group"
-          onMouseEnter={() => setActiveDropdown('Pour')}
-          onMouseLeave={() => setActiveDropdown(null)}
+          onClick={() => {
+            const next = activeDropdown === 'Pour' ? null : 'Pour';
+            clickActiveRef.current = next;
+            setActiveDropdown(next);
+          }}
+          onMouseEnter={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown('Pour');
+          }}
+          onMouseLeave={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown(null);
+          }}
         >
           <span>{t("For", "Pour")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
@@ -380,8 +411,8 @@ export default function Navbar() {
           </svg>
 
           {activeDropdown === 'Pour' && (
-            <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
-              <div className="max-w-[1440px] mx-auto grid grid-cols-4 gap-[40px]">
+            <div className="absolute left-0 top-[87px] lg:top-[72px] w-full bg-[#040028] cursor-default p-[24px] lg:p-[24px] 2xl:p-[50px] 3xl:p-[60px] shadow-2xl font-sans">
+              <div className="max-w-[1440px] 2xl:max-w-[1800px] 3xl:max-w-[2200px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-[24px] lg:gap-[40px] 2xl:gap-[50px] 3xl:gap-[60px]">
                 <Link href="/pour/createurs" className="text-white/80 hover:text-white transition-colors cursor-pointer group/item block">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Creators & Influencers", "Créateurs & Influenceurs")}</h3>
                 </Link>
@@ -402,8 +433,19 @@ export default function Navbar() {
         {/* Frame 15: Ressources */}
         <div 
           className="h-full flex items-center gap-[4px] cursor-pointer group"
-          onMouseEnter={() => setActiveDropdown('Ressources')}
-          onMouseLeave={() => setActiveDropdown(null)}
+          onClick={() => {
+            const next = activeDropdown === 'Ressources' ? null : 'Ressources';
+            clickActiveRef.current = next;
+            setActiveDropdown(next);
+          }}
+          onMouseEnter={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown('Ressources');
+          }}
+          onMouseLeave={() => {
+            if (clickActiveRef.current) return;
+            setActiveDropdown(null);
+          }}
         >
           <span>{t("Resources", "Ressources")}</span>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white transition-transform duration-300 group-hover:rotate-180">
@@ -411,8 +453,8 @@ export default function Navbar() {
           </svg>
 
           {activeDropdown === 'Ressources' && (
-            <div className="absolute left-0 top-[87px] w-full bg-[#040028] cursor-default p-[40px] shadow-2xl font-sans">
-              <div className="max-w-[1440px] mx-auto grid grid-cols-2 gap-[40px]">
+            <div className="absolute left-0 top-[87px] lg:top-[72px] w-full bg-[#040028] cursor-default p-[24px] lg:p-[24px] 2xl:p-[50px] 3xl:p-[60px] shadow-2xl font-sans">
+              <div className="max-w-[1440px] 2xl:max-w-[1800px] 3xl:max-w-[2200px] mx-auto grid grid-cols-2 gap-[24px] lg:gap-[40px] 2xl:gap-[50px] 3xl:gap-[60px]">
                 <div className="text-white/80">
                   <h3 className="text-[18px] text-white font-bold mb-2">{t("Blog", "Blog")}</h3>
                   <p className="text-[14px]">{t("Discover our latest articles and marketing tips.", "Découvrez nos derniers articles et astuces marketing.")}</p>
@@ -434,7 +476,7 @@ export default function Navbar() {
       </div>
 
       {/* Right Actions (Right Aligned) */}
-      <div className="flex items-center justify-end gap-[12px] xl:gap-[24px] font-['Rubik_One'] font-normal">
+      <div className="flex items-center justify-end gap-[8px] xl:gap-[24px] 2xl:gap-[28px] 3xl:gap-[40px] font-['Rubik_One'] font-normal">
         {/* Language */}
         <div className="relative">
           <div 
@@ -470,12 +512,12 @@ export default function Navbar() {
         </div>
 
         {/* Login */}
-        <Link href="/login" className="hidden sm:block text-[14px] md:text-[16px] cursor-pointer transition-colors whitespace-nowrap">
+        <Link href="/login" className="hidden sm:block text-[14px] md:text-[16px] lg:text-[12px] xl:text-[16px] 2xl:text-[17px] 3xl:text-[18px] cursor-pointer transition-colors whitespace-nowrap">
           {t("Log in", "Connexion")}
         </Link>
 
         {/* CTA */}
-        <Link href="/signup" className="hidden sm:flex items-center justify-center px-[16px] xl:px-[32px] h-[40px] md:h-[54px] border-[2px] border-white rounded-[12px] md:rounded-[18px] text-[12px] md:text-[16px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
+        <Link href="/signup" className="hidden sm:flex items-center justify-center px-[16px] lg:px-[10px] xl:px-[32px] 2xl:px-[36px] 3xl:px-[40px] h-[40px] md:h-[54px] lg:h-[32px] xl:h-[54px] 2xl:h-[56px] 3xl:h-[60px] border-[2px] border-white rounded-[12px] md:rounded-[18px] 2xl:rounded-[19px] 3xl:rounded-[20px] text-[12px] md:text-[16px] lg:text-[12px] xl:text-[16px] 2xl:text-[17px] 3xl:text-[18px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
           {t("Start free trial", "Commencer l'essai")}
         </Link>
 
