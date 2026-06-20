@@ -20,7 +20,7 @@ import {
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
   Zap, Calendar, Activity, Share2, ExternalLink, type Icon as LucideIcon
 } from "lucide-react";
-import { PlatformIcon } from '@/components/easypost/composer/PlatformIcon';
+import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function AnalyticsGridSkeleton() {

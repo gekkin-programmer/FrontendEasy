@@ -21,21 +21,21 @@ import {
 import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
-import Composer from '@/components/easypost/Composer';
-import PostFeed from '@/components/easypost/PostFeed';
-import Analytics from '@/components/easypost/Analytics';
-import Settings from '@/components/easypost/Settings';
-import Team from '@/components/easypost/Team';
-import VoiceAiButton from '@/components/easypost/VoiceAiButton';
-import CalendarView from '@/components/easypost/CalendarView';
-import SpinningLoader from '@/components/SpinningLoader';
+import Composer from '@/features/dashboard/easypost/Composer';
+import PostFeed from '@/features/dashboard/easypost/PostFeed';
+import Analytics from '@/features/dashboard/easypost/Analytics';
+import Settings from '@/features/dashboard/easypost/Settings';
+import Team from '@/features/dashboard/easypost/Team';
+import VoiceAiButton from '@/features/dashboard/easypost/VoiceAiButton';
+import CalendarView from '@/features/dashboard/easypost/CalendarView';
+import SpinningLoader from '@/components/common/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/components/easypost/DashboardUI';
-import { QuickConnectSidebar } from '@/components/easypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/components/easypost/FacebookPageSelector';
-import { SidebarItem } from '@/components/easypost/SidebarItem';
-import { EngagementWithTabs } from '@/components/easypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/features/dashboard/easypost/DashboardUI';
+import { QuickConnectSidebar } from '@/features/dashboard/easypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/features/dashboard/easypost/FacebookPageSelector';
+import { SidebarItem } from '@/features/dashboard/easypost/SidebarItem';
+import { EngagementWithTabs } from '@/features/dashboard/easypost/EngagementWithTabs';
 
 // SOCKET
 import { SocketProvider, useSocket } from '@/context/SocketContext';
@@ -47,8 +47,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/components/easypost/BoardView';
-import OnboardingGuide from '@/components/easypost/OnboardingGuide';
+import BoardView from '@/features/dashboard/easypost/BoardView';
+import OnboardingGuide from '@/features/dashboard/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 

@@ -7,7 +7,7 @@ import {
   MessageSquare, ArrowUpRight, Activity
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import SpinningLoader from '@/components/SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 
 interface Stats {
   totalUsers: number;

@@ -8,11 +8,11 @@ import {
   Instagram, Youtube, Twitter, Linkedin, Github
 } from 'lucide-react';
 import { SiTiktok } from 'react-icons/si';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import SpinningLoader from '@/components/SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import { getCookie } from 'cookies-next';
 
 // --- TYPES ---

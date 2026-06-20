@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import Image from 'next/image';
 import { getCookie } from 'cookies-next';
 import { useLanguage } from '@/context/LanguageContext';

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { FaLinkedinIn, FaTwitter, FaGithub } from 'react-icons/fa';
 import { ArrowRight, ChevronDown, Upload, Send, X } from 'lucide-react';
 import Image from 'next/image';

@@ -8,13 +8,13 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import SpinningLoader from '@/components/SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import { 
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { NeuModal, NeuButton } from '@/components/easypost/DashboardUI';
+import { NeuModal, NeuButton } from '@/features/dashboard/easypost/DashboardUI';
 
 interface User {
   id: string;
