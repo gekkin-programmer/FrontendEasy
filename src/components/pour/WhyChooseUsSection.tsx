@@ -8,30 +8,32 @@ const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
 import feature1Animation from '../../../public/assets/icons/feature-1.json';
 import feature2Animation from '../../../public/assets/icons/feature-2.json';
 import feature3Animation from '../../../public/assets/icons/feature-3.json';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function WhyChooseUsSection({ hideBackground = false }: { hideBackground?: boolean }) {
+  const { t } = useLanguage();
   const features = [
     {
-      title: "Visibilité accrue",
-      description: "Plus de régularité dans les posts, donc plus de visibilité et d’abonnés qualifiés.",
+      title: t('Increased visibility', 'Visibilité accrue'),
+      description: t('More consistency in posts, therefore more visibility and qualified followers.', 'Plus de régularité dans les posts, donc plus de visibilité et d\'abonnés qualifiés.'),
       animationData: feature1Animation
     },
     {
-      title: "Gain de temps précieux",
-      description: "Gain de plusieurs heures par semaine en automatisant la publication et la gestion des messages",
+      title: t('Save precious time', 'Gain de temps précieux'),
+      description: t('Save several hours per week by automating publishing and message management.', 'Gain de plusieurs heures par semaine en automatisant la publication et la gestion des messages.'),
       animationData: feature2Animation
     },
     {
-      title: "Image professionnelle",
-      description: "Image plus professionnelle, plus attractive pour les marques et partenaires.",
+      title: t('Professional image', 'Image professionnelle'),
+      description: t('A more professional image, more attractive to brands and partners.', 'Image plus professionnelle, plus attractive pour les marques et partenaires.'),
       animationData: feature3Animation
     }
   ];
   return (
-    <section className="w-full bg-transparent relative pt-[120px] pb-[60px] md:pt-[160px] md:pb-[100px] flex flex-col items-center justify-center min-h-[100dvh] overflow-hidden">
+    <section className="w-full bg-[#FAFAFA] relative font-sans overflow-hidden py-[40px] max-[375px]:py-[32px] md:pt-[100px] md:pb-[80px] lg:pt-[100px] xl:pt-[160px] 3xl:pt-[200px] lg:pb-[100px] xl:pb-[160px] 3xl:pb-[200px] flex flex-col items-center">
       
       {/* Decorative SVG - Top Left */}
-      <div className="absolute top-0 left-0 z-0 pointer-events-none opacity-40 md:opacity-100">
+      <div className="absolute top-0 left-0 z-0 pointer-events-none opacity-40 md:opacity-100 max-[375px]:w-[80px] max-[375px]:overflow-hidden">
         <svg width="130" height="246" viewBox="0 0 130 246" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M41.4179 206.384C29.0813 212.806 14.1357 206.004 0.46176 208.545C-22.4227 212.797 -45.3615 237.384 -65.8371 226.314C-84.5202 216.214 -82.4932 186.278 -79.6616 165.229C-77.2342 147.186 -61.8219 134.516 -51.4727 119.537C-45.0373 110.223 -34.4051 104.288 -30.2725 93.7486C-23.2393 75.8113 -32.252 52.3983 -19.4885 37.9655C-6.91738 23.7503 15.7548 15.6207 33.8965 21.1872C52.3478 26.8488 57.1772 50.7475 69.7874 65.3587C80.1584 77.3753 100.42 83.8406 101.629 99.6676C102.917 116.525 82.9723 126.982 75.6587 142.224C70.689 152.582 71.0855 164.462 65.6767 174.597C59.2924 186.56 53.4456 200.123 41.4179 206.384Z" fill="#174CD2"/>
           <mask id="mask0_2001_72350" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="-82" y="19" width="184" height="211">
@@ -45,63 +47,59 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
         </svg>
       </div>
       
-      <div className="w-full max-w-[1440px] mx-auto px-[16px] md:px-[52px] xl:px-[100px] flex flex-col lg:flex-row items-center lg:items-center gap-[60px] lg:gap-[100px] z-10 relative">
+      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] mx-auto px-[12px] max-[375px]:px-[8px] md:px-[52px] lg:px-[40px] xl:px-[100px] 3xl:px-[120px] flex flex-col lg:flex-row items-center lg:items-center gap-[32px] max-[375px]:gap-[24px] lg:gap-[40px] xl:gap-[100px] 3xl:gap-[140px] z-10 relative">
         
         {/* Left: Image Container */}
-        <div className="relative w-full max-w-[500px] lg:max-w-[650px] h-[500px] md:h-[600px] flex-shrink-0 mx-auto lg:mx-0">
+        <div className="relative w-full max-w-[500px] h-[240px] max-[375px]:h-[280px] max-[320px]:h-[250px] sm:h-[340px] md:h-[500px] lg:max-w-none lg:w-[480px] lg:h-[480px] xl:w-[680px] xl:h-[680px] 3xl:w-[900px] 3xl:h-[900px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0">
           
           {/* Light Gradient 10 - Restrained to Image Area and Primary Blue */}
           {!hideBackground && (
             <div className="absolute inset-0 z-0 pointer-events-none">
               {/* Ellipse 20 */}
-              <div className="absolute w-[200px] h-[200px] -left-[62px] top-[140px] bg-[#00D2FF] blur-[150px] opacity-60"></div>
+              <div className="absolute w-[150px] max-[375px]:w-[100px] 3xl:w-[260px] h-[150px] max-[375px]:h-[100px] 3xl:h-[260px] -left-[62px] 3xl:-left-[80px] top-[140px] 3xl:top-[180px] bg-[#00D2FF] blur-[150px] 3xl:blur-[200px] opacity-60"></div>
               {/* Ellipse 21 */}
-              <div className="absolute w-[300px] h-[300px] left-[113px] top-[178px] bg-[#174CD2] blur-[150px] opacity-60"></div>
+              <div className="absolute w-[300px] 3xl:w-[390px] h-[300px] 3xl:h-[390px] left-[113px] 3xl:left-[147px] top-[178px] 3xl:top-[230px] bg-[#174CD2] blur-[150px] 3xl:blur-[200px] opacity-60"></div>
               {/* Vector 8 */}
-              <div className="absolute w-[350px] h-[450px] -left-[92px] top-[73px] bg-[#040028] blur-[200px] opacity-60"></div>
+              <div className="absolute w-[350px] 3xl:w-[455px] h-[450px] 3xl:h-[585px] -left-[92px] 3xl:-left-[120px] top-[73px] 3xl:top-[95px] bg-[#040028] blur-[200px] 3xl:blur-[260px] opacity-60"></div>
             </div>
           )}
 
           {/* Dark Blue Background Box */}
-          <div className="absolute w-[90%] md:w-[600px] h-[400px] md:h-[500px] left-0 md:left-[38px] top-[80px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
+          <div className="absolute w-full md:w-[90%] lg:w-[380px] xl:w-[600px] 3xl:w-[800px] h-[200px] max-[375px]:h-[240px] max-[320px]:h-[210px] sm:h-[300px] md:h-[420px] lg:h-[420px] xl:h-[600px] 3xl:h-[800px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-0 top-[32px] max-[375px]:top-[26px] max-[320px]:top-[20px] lg:top-[60px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0 max-[375px]:hidden"></div>
           
           {/* Main Image */}
-          <img 
-            src="/assets/magnific_swEz1K6l8e.png"
-            alt="Créateur utilisant l'application EazyPost"
-            className="absolute w-[85%] md:w-[480px] h-[480px] md:h-[580px] left-0 md:left-[38px] top-0 object-cover object-center rounded-t-[20px] z-10" 
-          />
+          <div className="absolute w-[98%] sm:w-[280px] md:w-[85%] lg:w-[340px] xl:w-[580px] 3xl:w-[780px] h-[180px] max-[375px]:h-[220px] max-[320px]:h-[190px] sm:h-[280px] md:h-[460px] lg:h-[440px] xl:h-[660px] 3xl:h-[860px] left-1/2 -translate-x-1/2 md:left-[10%] md:translate-x-0 lg:left-[40px] xl:left-[60px] 3xl:left-[80px] top-0 bg-cover max-[375px]:bg-[length:105%] bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('/assets/magnific_swEz1K6l8e.png')` }}></div>
           
         </div>
 
         {/* Right: Content */}
-        <div className="w-full flex flex-col items-start flex-1 gap-[24px] lg:gap-[32px] pb-[60px]">
+        <div className="w-full flex flex-col items-start flex-1 gap-[20px] max-[375px]:gap-[16px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px] pb-[40px] max-[375px]:pb-[24px] lg:pb-0 xl:pb-[60px]">
           {/* Main Title */}
-          <h2 className="text-[#174CD2] text-[32px] md:text-[40px] lg:text-[48px] leading-tight font-['Rubik_One'] font-normal">
-            Reprenez le contrôle de vos réseaux sociaux
+          <h2 className="text-[#174CD2] text-[24px] max-[375px]:text-[20px] max-[320px]:text-[18px] sm:text-[32px] md:text-[40px] lg:text-[32px] xl:text-[40px] 3xl:text-[62px] leading-tight font-['Rubik_One'] font-normal">
+            {t('Take back control of your social media', 'Reprenez le contrôle de vos réseaux sociaux')}
           </h2>
           
           {/* Paragraph */}
-          <p className="text-[#000000] text-[16px] md:text-[18px] font-normal leading-[26px] md:leading-[30px] font-['Rubik'] max-w-[500px]">
-            Libérez-vous des tâches chronophages. EazyPost vous permet de planifier, centraliser et optimiser votre présence en ligne pour vous concentrer sur la création.
+          <p className="text-[#000000] text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[18px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[30px] lg:leading-[24px] xl:leading-[30px] 3xl:leading-[38px] font-['Rubik'] max-w-[500px] 3xl:max-w-[650px]">
+            {t('Free yourself from time-consuming tasks. EazyPost lets you plan, centralize and optimize your online presence so you can focus on creation.', 'Libérez-vous des tâches chronophages. EazyPost vous permet de planifier, centraliser et optimiser votre présence en ligne pour vous concentrer sur la création.')}
           </p>
 
           {/* List Items */}
-          <div className="flex flex-col gap-[30px] w-full mt-[8px]">
+          <div className="flex flex-col gap-[24px] max-[375px]:gap-[16px] lg:gap-[20px] xl:gap-[30px] 3xl:gap-[40px] w-full mt-[8px]">
             {features.map((feature, index) => {
               return (
-                <div key={index} className="flex flex-row items-center gap-[24px] md:gap-[32px]">
+                <div key={index} className="flex flex-row items-center gap-[16px] max-[375px]:gap-[12px] md:gap-[32px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px]">
                   {/* Icon */}
-                  <div className="w-[64px] h-[64px] flex items-center justify-center shrink-0">
+                  <div className="w-[52px] h-[52px] max-[375px]:w-[44px] max-[375px]:h-[44px] lg:w-[44px] lg:h-[44px] xl:w-[64px] xl:h-[64px] 3xl:w-[84px] 3xl:h-[84px] flex items-center justify-center shrink-0">
                     <Lottie animationData={feature.animationData} loop={true} autoplay={true} />
                   </div>
                   
                   {/* Text Content */}
-                  <div className="flex flex-col gap-[8px]">
-                    <h3 className="font-['Rubik'] font-bold text-[16px] md:text-[18px] leading-[26px] text-[#000000]">
+                  <div className="flex flex-col gap-[6px] max-[375px]:gap-[4px] lg:gap-[4px] xl:gap-[8px] 3xl:gap-[12px]">
+                    <h3 className="font-['Rubik'] font-bold text-[14px] max-[375px]:text-[13px] max-[320px]:text-[12px] md:text-[18px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] leading-[22px] max-[375px]:leading-[20px] lg:leading-[22px] xl:leading-[26px] 3xl:leading-[34px] text-[#000000]">
                       {feature.title}
                     </h3>
-                    <p className="font-['Rubik'] font-normal text-[14px] leading-[20px] text-[#555C60] max-w-[320px]">
+                    <p className="font-['Rubik',_sans-serif] font-normal text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[16px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] leading-[1.5] max-[375px]:leading-[1.4] md:leading-[1.8] lg:leading-[1.6] xl:leading-[1.8] text-[#071210] opacity-80 m-0 w-full lg:max-w-[480px] xl:max-w-[650px] 3xl:max-w-[850px]">
                       {feature.description}
                     </p>
                   </div>
