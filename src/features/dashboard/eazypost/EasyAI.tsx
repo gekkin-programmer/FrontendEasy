@@ -8,7 +8,7 @@ import {
   Sparkles, ArrowUp, MessageCircle, ChevronDown, Loader2, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface Message {

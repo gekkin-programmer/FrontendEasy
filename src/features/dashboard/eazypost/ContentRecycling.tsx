@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { 
   RefreshCw, Star, Zap, Trash2, ArrowRight, Clock, 
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import { NeuButton, NeuCard, NeuModal } from './DashboardUI';
 import { format } from 'date-fns';
 

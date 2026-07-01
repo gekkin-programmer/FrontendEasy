@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Phone, Mail, MapPin, Twitter, Instagram, MessageCircle } from 'lucide-react';
 
 export default function ContactSection() {

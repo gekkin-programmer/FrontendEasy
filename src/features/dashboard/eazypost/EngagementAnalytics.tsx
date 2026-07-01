@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { motion } from 'framer-motion';
 import {
   FiTrendingUp, FiTrendingDown, FiArrowUpRight, FiDownload, FiLoader,
@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 
 // --- CONFIG ---
 const ICONS: Record<string, any> = {

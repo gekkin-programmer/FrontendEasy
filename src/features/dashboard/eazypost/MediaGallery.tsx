@@ -9,10 +9,10 @@ import {
 import { SiCanva, SiDropbox } from 'react-icons/si';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import Script from 'next/script';
 
 export default function MediaGallery({ hideUsage = false, onSelect, workspaceId }: { workspaceId?: string, hideUsage?: boolean, onSelect?: (asset: { id: string, url: string }) => void }) {

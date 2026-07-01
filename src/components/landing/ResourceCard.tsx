@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
-import { Resource, categoryStyles } from '../data/resources';
+import { Resource, categoryStyles } from '@/data/resources';
 
 interface ResourceCardProps {
   resource: Resource;

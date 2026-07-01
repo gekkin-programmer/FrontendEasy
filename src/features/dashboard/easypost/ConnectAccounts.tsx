@@ -10,7 +10,7 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 import { Check, Plus, Trash2, Loader2, RefreshCw, AlertTriangle, ShieldCheck, Zap, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import { getCookie, deleteCookie } from 'cookies-next';
 import { jwtDecode } from 'jwt-decode';
 import { cn } from "@/lib/utils";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext";
 import SectionBackground from './SectionBackground';
 
 const logos = [

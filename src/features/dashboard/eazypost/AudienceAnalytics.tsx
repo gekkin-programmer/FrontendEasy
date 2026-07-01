@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { 
   Users, UserCheck, Star, Zap, TrendingUp, Download, 
@@ -11,7 +11,7 @@ import {
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 import { NeuButton, NeuCard } from './DashboardUI';
 
 const COLORS = {

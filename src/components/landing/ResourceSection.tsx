@@ -1,5 +1,5 @@
 import React from 'react';
-import { resources } from '../data/resources';
+import { resources } from '@/data/resources';
 import ResourceCard from './ResourceCard';
 
 const ResourcesSection: React.FC = () => {

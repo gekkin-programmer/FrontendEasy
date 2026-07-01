@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext";
 import SectionBackground from './SectionBackground'; 
 
 interface StatsCardProps {

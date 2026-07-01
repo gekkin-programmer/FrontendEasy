@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { Sparkles, ArrowRight, Upload, Grid3X3, Link2, Plus, PenTool } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import SectionBackground from './SectionBackground'; 
 
 // ---------- Types ----------

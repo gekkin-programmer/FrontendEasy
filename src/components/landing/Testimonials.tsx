@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext'; // adjust path
+import { useLanguage } from '@/context/LanguageContext'; // adjust path
 
 const testimonialsData = [
   {

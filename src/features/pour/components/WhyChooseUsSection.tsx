@@ -5,10 +5,10 @@ import dynamic from 'next/dynamic';
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
 
-import feature1Animation from '../../../public/assets/icons/feature-1.json';
-import feature2Animation from '../../../public/assets/icons/feature-2.json';
-import feature3Animation from '../../../public/assets/icons/feature-3.json';
-import { useLanguage } from '../../context/LanguageContext';
+import feature1Animation from '../../../../public/assets/icons/feature-1.json';
+import feature2Animation from '../../../../public/assets/icons/feature-2.json';
+import feature3Animation from '../../../../public/assets/icons/feature-3.json';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function WhyChooseUsSection({ hideBackground = false }: { hideBackground?: boolean }) {
   const { t } = useLanguage();

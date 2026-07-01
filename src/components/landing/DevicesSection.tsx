@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Wifi, RefreshCw, Smartphone } from 'lucide-react';
 
 export default function DevicesSection() {

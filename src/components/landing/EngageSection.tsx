@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, ArrowRight } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext'; 
+import { useLanguage } from '@/context/LanguageContext'; 
 
 // --- CommentItem Component ---
 function CommentItem({

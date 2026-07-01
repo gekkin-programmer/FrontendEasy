@@ -7,7 +7,7 @@ import { FaArrowRight } from 'react-icons/fa';
 
 // NOTE: useLanguage is not used in this corrected version to simplify things.
 // You can add it back later if you translate the resource content.
-// import { useLanguage } from '../context/LanguageContext';
+// import { useLanguage } from '@/context/LanguageContext';
 
 // This is the correct data structure for your ResourceCard
 const resourcesData = [

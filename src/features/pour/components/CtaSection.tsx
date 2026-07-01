@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { ArrowRight, Clapperboard, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 export default function CtaSection() {

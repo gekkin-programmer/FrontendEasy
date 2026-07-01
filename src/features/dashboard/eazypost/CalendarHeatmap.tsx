@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { Sparkles, X, Facebook, Instagram, Twitter, Linkedin, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

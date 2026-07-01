@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import AnimatedCounter from './AnimatedCounter';
-import { useLanguage } from '../context/LanguageContext';
+import AnimatedCounter from '@/components/common/AnimatedCounter';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ImpactSection() {
   const { t } = useLanguage();

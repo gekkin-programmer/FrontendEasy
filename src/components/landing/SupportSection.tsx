@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion, type Variants } from 'framer-motion';
 import { FaArrowRight, FaWhatsapp, FaHeadset } from 'react-icons/fa';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import SectionBackground from './SectionBackground';
 
 const revealItem: Variants = {

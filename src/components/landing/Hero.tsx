@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, type Variants } from "framer-motion";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   FaArrowRight, FaYoutube, FaLinkedinIn, FaInstagram, FaTwitter,
   FaFacebookF, FaPinterestP, FaSlack, FaGithub, FaMastodon,

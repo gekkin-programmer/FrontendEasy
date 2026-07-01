@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { FaCheck, FaInstagram, FaLinkedinIn, FaFacebookF, FaPinterestP, FaYoutube } from 'react-icons/fa';
 import { FaXTwitter, FaTiktok } from 'react-icons/fa6';
 import { SiThreads } from 'react-icons/si';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import SectionBackground from './SectionBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 

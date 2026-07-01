@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FaArrowRight, FaLightbulb } from 'react-icons/fa';
 import { IoScanSharp } from 'react-icons/io5';
 import { FiCheckCircle } from 'react-icons/fi';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 import SectionBackground from './SectionBackground';
 
 // --- UTILS ---

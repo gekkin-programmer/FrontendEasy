@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { Loader2, Plus } from 'lucide-react';
 import { FaFacebookF } from 'react-icons/fa6';
 import { NeuModal } from './DashboardUI';

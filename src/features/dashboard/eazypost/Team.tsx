@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 import { formatDistanceToNow, parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
-import { useSocket } from '@/src/context/SocketContext';
+import { api } from '@/lib/api';
+import { useSocket } from '@/context/SocketContext';
 
 // Icons
 import { 
@@ -14,7 +14,7 @@ import {
   Clock, X, PlusCircle, UserPlus, Hash, Shield, Crown, RefreshCw,
   FileCheck, Eye, CheckCircle2, AlertCircle
 } from 'lucide-react';
-import SpinningLoader from '../SpinningLoader';
+import SpinningLoader from '@/components/common/SpinningLoader';
 
 // UI
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { api } from '@/src/lib/api'; // Use our robust client for Profile/Workspace too
+import { api } from '@/lib/api'; // Use our robust client for Profile/Workspace too
 import ConnectAccounts from './ConnectAccounts'; // 🟢 The new component we built
 
 import {

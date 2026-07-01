@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Mic, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 
 interface VoiceAiButtonProps {
   onCommand: (transcription: string, intent: any) => void;
