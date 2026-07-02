@@ -15,7 +15,7 @@ import {
 } from '@/services/workspaceApi';
 
 // Import the branded loader if you want a smooth transition
-import SpinningLoader from '@/components/SpinningLoader'; 
+import SpinningLoader from '@/components/common/SpinningLoader'; 
 
 export default function WorkspaceManager() {
   const router = useRouter(); // <--- ADDED

@@ -3,11 +3,11 @@ import { Rubik } from "next/font/google";
 import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
 import Script from "next/script";
 import "./globals.css";
-import Navbar from "../components/Navbar";
-import { LanguageProvider } from "../context/LanguageContext";
-import Footer from "../components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import { LanguageProvider } from "@/context/LanguageContext";
+import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/providers/query-provider";
-import AgentationLoader from "../components/AgentationLoader";
+import AgentationLoader from "@/components/common/AgentationLoader";
 
 const rubik = Rubik({
   subsets: ["latin"],

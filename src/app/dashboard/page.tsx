@@ -3,7 +3,7 @@
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // 🟢 Added useSearchParams
-import SpinningLoader from "@/components/SpinningLoader";
+import SpinningLoader from "@/components/common/SpinningLoader";
 import { getCookie } from 'cookies-next';
 import { useLanguage } from '@/context/LanguageContext';
 

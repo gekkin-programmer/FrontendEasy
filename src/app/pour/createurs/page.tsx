@@ -1,9 +1,9 @@
 import React from 'react';
-import Navbar from '@/components/Navbar';
-import CareerHeroLayout from '@/components/pour/CareerHeroLayout';
-import AboutUsSection from '@/components/pour/AboutUsSection';
-import WhyChooseUsSection from '@/components/pour/WhyChooseUsSection';
-import CtaSection from '@/components/pour/CtaSection';
+import Navbar from '@/components/layout/Navbar';
+import CareerHeroLayout from '@/features/pour/components/CareerHeroLayout';
+import AboutUsSection from '@/features/pour/components/AboutUsSection';
+import WhyChooseUsSection from '@/features/pour/components/WhyChooseUsSection';
+import CtaSection from '@/features/pour/components/CtaSection';
 
 export default function CreateursPage() {
   return (

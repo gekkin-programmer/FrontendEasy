@@ -1,6 +1,6 @@
 import React from 'react';
-import HeroBackground from '@/components/HeroBackground';
-import Navbar from '@/components/Navbar';
+import HeroBackground from '@/components/landing/HeroBackground';
+import Navbar from '@/components/layout/Navbar';
 
 const FacebookIcon = () => (
   <svg x="-26" y="-26" width="52" height="52" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">

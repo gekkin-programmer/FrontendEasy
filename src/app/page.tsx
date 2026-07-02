@@ -1,18 +1,18 @@
 'use client';
 
 import React from 'react';
-import HeroBackground from '@/components/HeroBackground';
-import Navbar from '@/components/Navbar';
-import HeroLines from '@/components/hero/HeroLines';
-import IsometricCube from '@/components/hero/IsometricCube';
-import HeroText from '@/components/hero/HeroText';
-import ImpactSection from '@/components/ImpactSection';
-import PublishSection from '@/components/PublishSection';
-import UsersSection from '@/components/UsersSection';
-import ConnectSection from '@/components/ConnectSection';
-import AProposSection from '@/components/AProposSection';
-import FaqSection from '@/components/FaqSection';
-import ContactSection from '@/components/ContactSection';
+import HeroBackground from '@/components/landing/HeroBackground';
+import Navbar from '@/components/layout/Navbar';
+import HeroLines from '@/components/landing/hero/HeroLines';
+import IsometricCube from '@/components/landing/hero/IsometricCube';
+import HeroText from '@/components/landing/hero/HeroText';
+import ImpactSection from '@/components/landing/ImpactSection';
+import PublishSection from '@/components/landing/PublishSection';
+import UsersSection from '@/components/landing/UsersSection';
+import ConnectSection from '@/components/landing/ConnectSection';
+import AProposSection from '@/components/landing/AProposSection';
+import FaqSection from '@/components/landing/FaqSection';
+import ContactSection from '@/components/landing/ContactSection';
 
 export default function Home() {
   return (
