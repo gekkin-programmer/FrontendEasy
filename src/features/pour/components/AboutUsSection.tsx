@@ -29,7 +29,7 @@ export default function AboutUsSection({ hideBackground = false }: { hideBackgro
   ];
 
   return (
-    <section className="w-full flex flex-col items-center pt-[20px] max-[375px]:pt-[12px] md:pt-[80px] lg:pt-[40px] xl:pt-[80px] pb-[60px] max-[375px]:pb-[32px] md:pb-[80px] lg:pb-[90px] 3xl:pb-[120px] px-3 max-[375px]:px-2 md:px-[40px] lg:px-[60px] xl:px-4 3xl:px-[120px] bg-transparent relative overflow-hidden">
+    <section className="w-full flex flex-col items-center pt-[20px] max-[375px]:pt-[12px] max-[540px]:pt-[12px] md:pt-[80px] lg:pt-[40px] xl:pt-[80px] pb-[60px] max-[375px]:pb-[32px] max-[540px]:pb-[40px] md:pb-[80px] lg:pb-[90px] 3xl:pb-[120px] px-3 max-[375px]:px-2 md:px-[40px] lg:px-[60px] xl:px-4 3xl:px-[120px] bg-transparent relative overflow-hidden">
       
       {/* Light Gradient 07 & 09 Backgrounds - Primary Blue Variations */}
       {!hideBackground && (
@@ -62,7 +62,7 @@ export default function AboutUsSection({ hideBackground = false }: { hideBackgro
           </div>
 
           {/* Frame 997 - Cards Container */}
-          <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-[24px] max-[375px]:gap-[16px] lg:gap-[20px] xl:gap-[24px] 3xl:gap-[56px] w-full mt-4">
+          <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-[24px] max-[375px]:gap-[16px] max-[540px]:gap-[16px] lg:gap-[20px] xl:gap-[24px] 3xl:gap-[56px] w-full mt-4">
             
             {cards.map((card, index) => {
               return (

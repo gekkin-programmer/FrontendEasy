@@ -3,12 +3,12 @@ import { ArrowRight, BarChart2, TrendingUp, Search } from 'lucide-react';
 
 export default function PmeFeaturesSection() {
   return (
-    <section className="relative w-full py-[100px] md:py-[150px] flex justify-center bg-white overflow-hidden">
-      <div className="relative w-full max-w-[1296px] px-6 flex flex-col gap-[150px] z-10">
+    <section className="relative w-full py-[100px] max-[540px]:py-[40px] md:py-[150px] flex justify-center bg-white overflow-hidden">
+      <div className="relative w-full max-w-[1296px] px-6 flex flex-col gap-[150px] max-[540px]:gap-[60px] z-10">
         
         {/* Header Content */}
         <div className="flex flex-col gap-6 max-w-[636px]">
-          <h2 className="font-['Rubik_One',_sans-serif] font-normal text-[36px] md:text-[48px] leading-[1.2] text-[#12141D]">
+          <h2 className="font-['Rubik_One',_sans-serif] font-normal text-[36px] max-[540px]:text-[24px] md:text-[48px] leading-[1.2] text-[#12141D]">
             Leur réalité aujourd’hui
           </h2>
           <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] text-[#12141D] opacity-70">
@@ -17,9 +17,9 @@ export default function PmeFeaturesSection() {
         </div>
 
         {/* Block 2: Bring your target users */}
-        <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-[60px] lg:gap-[40px]">
-          <div className="flex-1 flex flex-col gap-[40px] max-w-[636px]">
-            <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] md:text-[48px] leading-[1.2]">
+        <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
+          <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
+            <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
               Bring your target users together on social media
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
@@ -27,7 +27,7 @@ export default function PmeFeaturesSection() {
             </p>
           </div>
           
-          <div className="flex-1 relative w-full flex justify-center lg:justify-start h-[450px]">
+          <div className="flex-1 relative w-full flex justify-center lg:justify-start h-[450px] max-[540px]:h-[300px]">
             <div className="relative transform origin-center lg:origin-left scale-[0.65] md:scale-[0.85] lg:scale-100" style={{ width: 545.36, height: 419 }}>
               
               {/* bg */}
@@ -121,9 +121,9 @@ export default function PmeFeaturesSection() {
         </div>
 
         {/* Block 3: Build your brand */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-[60px] lg:gap-[40px]">
-          <div className="flex-1 flex flex-col gap-[40px] max-w-[636px]">
-            <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] md:text-[48px] leading-[1.2]">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
+          <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
+            <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
               Build your brand & reach out to social followers
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
@@ -131,7 +131,7 @@ export default function PmeFeaturesSection() {
             </p>
           </div>
 
-          <div className="flex-1 relative w-full flex justify-center lg:justify-end h-[450px]">
+          <div className="flex-1 relative w-full flex justify-center lg:justify-end h-[450px] max-[540px]:h-[300px]">
             <div className="relative transform origin-center lg:origin-right scale-[0.65] md:scale-[0.85] lg:scale-100" style={{ width: 526, height: 400 }}>
                {/* bg */}
                <div className="absolute left-0 top-0 bg-[#FFACAC] rounded-[10px]" style={{ width: 526, height: 400 }}></div>

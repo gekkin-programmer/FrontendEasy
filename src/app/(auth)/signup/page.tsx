@@ -26,6 +26,10 @@ export default function SignupPage() {
       .replace(/\/$/, '')
       .replace(/\/api$/, '') + '/api';
 
+  const handleGoogleSignup = () => {
+    window.location.href = `${API_URL}/auth/google`;
+  };
+
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.agreeTerms) {
@@ -78,16 +82,12 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${API_URL}/auth/google`;
-  };
-
   return (
-    <div className="fixed inset-0 z-50 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
+    <div className="fixed inset-0 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
       
       {/* Left Side: Form */}
-      <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center p-6 sm:p-12 lg:p-20 relative">
-        <div className="w-full max-w-[404px] flex flex-col w-full">
+      <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative overflow-y-auto">
+        <div className="w-full max-w-[480px] xl:max-w-[540px] 2xl:max-w-[620px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8 lg:py-12">
           
           {error && (
             <div className="p-3 mb-6 rounded-md bg-red-50 text-red-600 text-sm border border-red-200">
@@ -99,20 +99,20 @@ export default function SignupPage() {
             <div className="flex flex-col">
               
               {/* Header Texts */}
-              <div className="flex flex-col gap-[5px] mb-[clamp(24px,4vw,58px)]">
+              <div className="flex flex-col gap-[2px] mb-[10px] [@media(min-height:740px)]:mb-[16px] [@media(min-height:840px)]:mb-[24px] lg:mb-[16px] 3xl:mb-[40px]">
                 <Link href="/">
-                  <img src="/assets/WiggleLogo.png" alt="Eazypost Logo" className="w-[48px] h-[48px] object-contain mb-[15px] cursor-pointer" />
+                  <img src="/assets/WiggleLogo.png" alt="Eazypost Logo" className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] 3xl:w-[48px] 3xl:h-[48px] object-contain mb-[4px] lg:mb-[10px] cursor-pointer" />
                 </Link>
                 <h1 className="font-sans font-medium text-[clamp(24px,4vw,32px)] leading-[clamp(32px,5vw,48px)] text-[#000000]">
                   {t('Get Started Now', 'Commencer maintenant')}
                 </h1>
-                <p className="font-sans font-medium text-[16px] leading-[24px] text-[#000000]">
+                <p className="font-sans font-medium text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#000000]">
                   {t('Enter your Credentials to create your account', 'Entrez vos identifiants pour créer votre compte')}
                 </p>
               </div>
 
               {/* Form Fields */}
-              <form className="flex flex-col gap-[25px]" onSubmit={handleRequestCode}>
+              <form className="flex flex-col gap-[8px] [@media(min-height:740px)]:gap-[12px] [@media(min-height:840px)]:gap-[16px] lg:gap-[12px] 3xl:gap-[20px]" onSubmit={handleRequestCode}>
                 
                 {/* Name */}
                 <div className="flex flex-col gap-[5px]">
@@ -125,7 +125,7 @@ export default function SignupPage() {
                     value={formData.username}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
                     placeholder={t('Enter your name', 'Entrez votre nom')}
-                    className="w-full h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
+                    className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
                   />
                 </div>
 
@@ -140,7 +140,7 @@ export default function SignupPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder={t('Enter your email', 'Entrez votre e-mail')}
-                    className="w-full h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
+                    className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
                   />
                 </div>
 
@@ -156,7 +156,7 @@ export default function SignupPage() {
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder={t('Enter your password', 'Entrez votre mot de passe')}
-                    className="w-full h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
+                    className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
                   />
                 </div>
 
@@ -183,7 +183,7 @@ export default function SignupPage() {
                 <button 
                   type="submit" 
                   disabled={isLoading}
-                  className="w-full h-[48px] bg-[#174CD2] border border-[#174CD2] rounded-[10px] flex items-center justify-center mt-[10px] disabled:opacity-50"
+                  className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-[#174CD2] border border-[#174CD2] rounded-[10px] flex items-center justify-center mt-[4px] [@media(min-height:840px)]:mt-[8px] 3xl:mt-[10px] disabled:opacity-50"
                 >
                   {isLoading ? (
                     <Loader2 className="animate-spin w-[20px] h-[20px] text-white" />
@@ -196,7 +196,7 @@ export default function SignupPage() {
               </form>
 
               {/* Divider */}
-              <div className="relative w-full flex items-center justify-center mt-[45px] mb-[45px]">
+              <div className="relative w-full flex items-center justify-center my-[12px] [@media(min-height:740px)]:my-[16px] [@media(min-height:840px)]:my-[24px] lg:my-[16px] 3xl:my-[32px]">
                 <div className="absolute w-full h-[2px] bg-[#F5F5F5] z-0"></div>
                 <div className="bg-[#FFFFFF] px-[12px] z-10">
                   <span className="font-sans font-medium text-[10px] md:text-[12px] text-[#000000]">
@@ -206,8 +206,8 @@ export default function SignupPage() {
               </div>
 
                 {/* Social Logins */}
-                <div className="flex flex-row gap-[15px] mt-[10px] w-full">
-                  <button type="button" className="flex-1 h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
+                <div className="flex flex-col sm:flex-row gap-[10px] sm:gap-[15px] mt-[10px] [@media(min-height:740px)]:mt-[16px] [@media(min-height:840px)]:mt-[20px] w-full">
+                  <button type="button" className="w-full sm:flex-1 h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
                     {/* Apple */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clipPath="url(#clip0_1_155)">
@@ -225,7 +225,7 @@ export default function SignupPage() {
                       {t('Sign in with Apple', 'Apple')}
                     </span>
                   </button>
-                  <button type="button" onClick={handleGoogleLogin} className="flex-1 h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
+                  <button type="button" onClick={handleGoogleSignup} className="w-full sm:flex-1 h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors hover:bg-gray-50">
                     {/* Google */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107"/>
@@ -240,7 +240,7 @@ export default function SignupPage() {
                 </div>
 
               {/* Sign In Link */}
-              <div className="w-full flex justify-center mt-[40px]">
+              <div className="w-full flex justify-center mt-[16px] [@media(min-height:740px)]:mt-[24px] [@media(min-height:840px)]:mt-[32px] 3xl:mt-[32px]">
                 <Link href="/login" className="font-sans font-medium text-[14px] transition-colors">
                   <span className="text-[#000000]">{t('Have an account?', 'Vous avez déjà un compte ?')} </span>
                   <span className="text-[#174CD2] hover:underline">{t('Sign In', 'Se connecter')}</span>
@@ -287,27 +287,23 @@ export default function SignupPage() {
       </div>
 
       {/* Right Side: Visuals */}
-      <div className="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#174CD2]">
+      <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#174CD2] flex-col items-center justify-center">
         
         {/* Background Vectors */}
-        <div className="absolute left-[579px] top-[-106px] w-[504px] h-[448px] bg-[#174CD2] bg-opacity-50"></div>
-        <div className="absolute left-[0px] top-[245px] w-[421px] h-[389px] bg-[#FFFFFF] rounded-tr-[40px]"></div>
-        <svg className="absolute left-[521px] top-[251px]" width="763" height="616" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>
+        <div className="absolute top-[20%] left-[60%] w-[52%] h-[41%] bg-[#174CD2] bg-opacity-50"></div>
+        <div className="absolute top-[23%] left-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tr-[40px]"></div>
+        <svg className="absolute top-[30%] -right-[20%] w-[120%] max-w-[900px] h-auto opacity-80 pointer-events-none" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
         </svg>
 
         {/* Content Wrapper */}
-        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-12">
-          
-          {/* Illustration Image */}
-          <div className="w-full max-w-[837px] flex justify-center">
-            <img 
-              src="/assets/LoginImage.png" 
-              alt="Recruitment Scene Illustration" 
-              className="w-full h-auto object-contain"
-            />
-          </div>
-
+        <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
+          <img 
+            src="/assets/LoginImage.png" 
+            alt="Recruitment Scene Illustration" 
+            className="w-full h-auto max-h-[80vh] object-contain scale-110 2xl:scale-125"
+          />
         </div>
       </div>
 
