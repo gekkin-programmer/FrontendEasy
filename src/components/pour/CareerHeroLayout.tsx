@@ -16,7 +16,7 @@ export default function CareerHeroLayout({
 }) {
   const { t } = useLanguage();
   return (
-    <section className="w-full relative bg-transparent overflow-hidden flex justify-center items-start lg:min-h-[calc(100vh-172px)]">
+    <section className="w-full relative bg-transparent overflow-hidden flex justify-center items-start xl:min-h-[calc(100vh-172px)]">
       
      
 
@@ -37,10 +37,10 @@ export default function CareerHeroLayout({
       </div>
 
       {/* Main Container - Frame 1053 */}
-      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] flex flex-col lg:flex-row items-center lg:items-center gap-[40px] max-[375px]:gap-[24px] lg:gap-[40px] xl:gap-[73px] 3xl:gap-[100px] px-3 max-[375px]:px-2 md:px-[40px] lg:px-[40px] xl:px-0 3xl:px-[120px] pt-[80px] max-[375px]:pt-[76px] md:pt-[100px] lg:pt-[100px] xl:pt-[140px] 3xl:pt-[180px] z-10 relative lg:h-full">
+      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] flex flex-col lg:flex-row items-center lg:items-center gap-[40px] max-[375px]:gap-[24px] max-[540px]:gap-[24px] lg:gap-[40px] xl:gap-[73px] 3xl:gap-[100px] px-3 max-[375px]:px-2 md:px-[40px] lg:px-[40px] xl:pl-[15px] 3xl:px-[120px] pt-[80px] max-[375px]:pt-[76px] max-[540px]:pt-[48px] md:pt-[100px] lg:pt-[100px] xl:pt-[140px] 3xl:pt-[180px] z-10 relative lg:h-full">
         
         {/* Left Column - Frame 987 */}
-        <div className="flex flex-col items-start gap-[16px] lg:gap-[16px] xl:gap-[24px] 3xl:gap-[32px] w-full lg:w-[480px] xl:w-[579px] 3xl:w-[750px] z-10">
+        <div className="flex flex-col items-start gap-[16px] lg:gap-[16px] xl:gap-[24px] 3xl:gap-[32px] w-full lg:w-[420px] xl:w-[579px] 3xl:w-[750px] z-10">
           
           <div className="flex flex-col items-start gap-[10px] w-full">
             <div className="flex flex-col items-start w-full gap-[10px]">
@@ -71,7 +71,7 @@ export default function CareerHeroLayout({
           </div>
 
           {/* Action Buttons - Frame 986 (Desktop only) */}
-          <div className="hidden lg:flex flex-row items-center gap-[16px] xl:gap-[24px] 3xl:gap-[32px] w-auto">
+          <div className="hidden lg:flex flex-row items-center justify-center gap-[16px] xl:gap-[24px] 3xl:gap-[32px] w-full">
             {/* Get Started Button */}
             <button className="flex flex-row items-center justify-center px-[24px] xl:px-[43px] 3xl:px-[56px] py-[12px] xl:py-[15px] 3xl:py-[20px] gap-[10px] w-auto h-[48px] xl:h-[54px] 3xl:h-[70px] bg-[#174CD2] rounded-[8px] 3xl:rounded-[12px] font-sans font-semibold text-[16px] xl:text-[16px] 3xl:text-[20px] leading-[24px] text-white shadow-md">
               {t('Start', 'Commencer')}
@@ -81,13 +81,13 @@ export default function CareerHeroLayout({
         </div>
 
         {/* Right Column (Images & Floating Cards) - Frame 989 */}
-        <div className="relative w-full max-w-[650px] md:max-w-[100%] lg:max-w-[460px] xl:max-w-[800px] 3xl:max-w-[1050px] h-[260px] max-[375px]:h-[220px] max-[320px]:h-[180px] sm:h-[400px] md:h-[500px] lg:h-[500px] xl:h-[740px] 3xl:h-[960px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0 mx-auto">
+        <div className="relative w-full max-w-[650px] md:max-w-[100%] lg:max-w-[400px] xl:max-w-[800px] 3xl:max-w-[1050px] h-[260px] max-[375px]:h-[220px] max-[540px]:h-[200px] max-[320px]:h-[180px] sm:h-[400px] md:h-[500px] lg:h-[420px] xl:h-[740px] 3xl:h-[960px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0 mx-auto">
           
           {/* Yellow Background Box - Frame 988 */}
-          <div className="absolute w-full md:w-[90%] lg:w-[420px] xl:w-[700px] 3xl:w-[900px] h-[220px] max-[375px]:h-[186px] max-[320px]:h-[150px] sm:h-[340px] md:h-[440px] lg:h-[420px] xl:h-[640px] 3xl:h-[830px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-[20px] xl:left-[38px] 3xl:left-[50px] top-[32px] max-[375px]:top-[28px] max-[320px]:top-[22px] md:top-[40px] lg:top-[20px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
+          <div className="absolute w-full md:w-[90%] lg:w-[360px] xl:w-[700px] 3xl:w-[900px] h-[220px] max-[375px]:h-[186px] max-[540px]:h-[170px] max-[320px]:h-[150px] sm:h-[340px] md:h-[440px] lg:h-[360px] xl:h-[640px] 3xl:h-[830px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-[20px] xl:left-[38px] 3xl:left-[50px] top-[32px] max-[375px]:top-[28px] max-[320px]:top-[22px] md:top-[40px] lg:top-[20px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
           
           {/* Main Image */}
-          <div className="absolute w-[90%] sm:w-[320px] md:w-[85%] lg:w-[380px] xl:w-[680px] 3xl:w-[880px] h-[200px] max-[375px]:h-[170px] max-[320px]:h-[138px] sm:h-[320px] md:h-[480px] lg:h-[440px] xl:h-[720px] 3xl:h-[930px] left-1/2 -translate-x-1/2 md:left-[10%] md:translate-x-0 lg:left-[40px] xl:left-[58px] 3xl:left-[75px] top-0 bg-cover bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('${heroImage}')` }}></div>
+          <div className="absolute w-[90%] sm:w-[320px] md:w-[85%] lg:w-[320px] xl:w-[680px] 3xl:w-[880px] h-[200px] max-[375px]:h-[170px] max-[540px]:h-[160px] max-[320px]:h-[138px] sm:h-[320px] md:h-[480px] lg:h-[380px] xl:h-[720px] 3xl:h-[930px] left-1/2 -translate-x-1/2 md:left-[10%] md:translate-x-0 lg:left-[40px] xl:left-[58px] 3xl:left-[75px] top-0 bg-cover bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('${heroImage}')` }}></div>
           
           {/* Blur Shadow Effect under Main Image */}
           <div className="absolute w-[80px] max-[375px]:w-[60px] md:w-[173px] xl:w-[173px] 3xl:w-[225px] h-[50px] max-[375px]:h-[40px] md:h-[141px] xl:h-[141px] 3xl:h-[183px] left-0 top-[120px] max-[375px]:top-[100px] max-[320px]:top-[80px] lg:top-[160px] xl:top-[300px] 3xl:top-[390px] bg-[#000000] opacity-5 blur-[64.5px] rounded-[14px] z-0"></div>

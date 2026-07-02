@@ -7,12 +7,12 @@ import { ArrowRight, Clapperboard, Image as ImageIcon, Sparkles } from 'lucide-r
 export default function CtaSection() {
   const { t } = useLanguage();
   return (
-    <section className="w-full bg-transparent relative pt-[80px] max-[375px]:pt-[48px] pb-[40px] max-[375px]:pb-[32px] md:pt-[120px] lg:pt-[80px] xl:pt-[120px] 3xl:pt-[160px] md:pb-[100px] lg:pb-[80px] xl:pb-[100px] 3xl:pb-[140px] flex flex-col items-center overflow-hidden px-3 max-[375px]:px-2 md:px-0">
+    <section className="w-full bg-transparent relative pt-[80px] max-[375px]:pt-[48px] max-[540px]:pt-[40px] pb-[40px] max-[375px]:pb-[32px] max-[540px]:pb-[24px] md:pt-[120px] lg:pt-[80px] xl:pt-[120px] 3xl:pt-[160px] md:pb-[100px] lg:pb-[80px] xl:pb-[100px] 3xl:pb-[140px] flex flex-col items-center overflow-hidden px-3 max-[375px]:px-2 md:px-0">
       
       
       
       
-      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] mx-auto px-[16px] max-[375px]:px-[12px] md:px-[52px] lg:px-[60px] xl:px-[100px] 3xl:px-[120px] py-[40px] max-[375px]:py-[32px] md:py-[80px] lg:py-[80px] xl:py-[100px] 3xl:py-[140px] bg-[#174CD2] rounded-[24px] max-[375px]:rounded-[16px] md:rounded-[40px] 3xl:rounded-[56px] flex flex-col items-center text-center relative z-10 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] mx-auto px-[16px] max-[375px]:px-[12px] md:px-[52px] lg:px-[60px] xl:px-[100px] 3xl:px-[120px] py-[40px] max-[375px]:py-[32px] max-[540px]:py-[24px] md:py-[80px] lg:py-[80px] xl:py-[100px] 3xl:py-[140px] bg-[#174CD2] rounded-[24px] max-[375px]:rounded-[16px] md:rounded-[40px] 3xl:rounded-[56px] flex flex-col items-center text-center relative z-10 shadow-2xl overflow-hidden">
         
         {/* Decorative SVG - Top Left */}
         <div className="absolute top-0 left-0 z-0 pointer-events-none opacity-50 md:opacity-100 max-[375px]:hidden">
@@ -31,12 +31,12 @@ export default function CtaSection() {
 
         
         {/* Main Title */}
-        <h2 className="text-white text-[24px] max-[375px]:text-[20px] max-[320px]:text-[18px] sm:text-[36px] md:text-[40px] lg:text-[40px] xl:text-[55px] 3xl:text-[72px] leading-[1.15] font-['Rubik_One'] font-normal max-w-[800px] 3xl:max-w-[1040px] mb-[16px] max-[375px]:mb-[12px] lg:mb-[16px] xl:mb-[24px] 3xl:mb-[32px] tracking-tight relative z-10">
+        <h2 className="text-white text-[24px] max-[375px]:text-[20px] max-[540px]:text-[20px] max-[320px]:text-[18px] sm:text-[36px] md:text-[40px] lg:text-[40px] xl:text-[55px] 3xl:text-[72px] leading-[1.15] font-['Rubik_One'] font-normal max-w-[800px] 3xl:max-w-[1040px] mb-[16px] max-[375px]:mb-[12px] lg:mb-[16px] xl:mb-[24px] 3xl:mb-[32px] tracking-tight relative z-10">
           {t('Start today', "Commencez dès aujourd'hui")}
         </h2>
         
         {/* Paragraph */}
-        <p className="text-white/80 text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[16px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[26px] lg:leading-[26px] xl:leading-[28px] 3xl:leading-[36px] font-['Rubik'] max-w-[600px] 3xl:max-w-[780px] mb-[32px] max-[375px]:mb-[24px] md:mb-[32px] lg:mb-[24px] xl:mb-[40px] 3xl:mb-[56px]">
+        <p className="text-white/80 text-[14px] max-[375px]:text-[12px] max-[540px]:text-[12px] max-[320px]:text-[11px] md:text-[16px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[26px] lg:leading-[26px] xl:leading-[28px] 3xl:leading-[36px] font-['Rubik'] max-w-[600px] 3xl:max-w-[780px] mb-[32px] max-[375px]:mb-[24px] max-[540px]:mb-[16px] md:mb-[32px] lg:mb-[24px] xl:mb-[40px] 3xl:mb-[56px]">
           {t('Boost your online presence with EazyPost. Centralize, schedule and analyze your content across all your networks in just a few clicks.', 'Boostez votre présence en ligne avec EazyPost. Centralisez, planifiez et analysez vos contenus sur tous vos réseaux en quelques clics.')}
         </p>
         

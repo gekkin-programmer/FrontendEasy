@@ -30,7 +30,7 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
     }
   ];
   return (
-    <section className="w-full bg-[#FAFAFA] relative font-sans overflow-hidden py-[40px] max-[375px]:py-[32px] md:pt-[100px] md:pb-[80px] lg:pt-[100px] xl:pt-[160px] 3xl:pt-[200px] lg:pb-[100px] xl:pb-[160px] 3xl:pb-[200px] flex flex-col items-center">
+    <section className="w-full bg-[#FAFAFA] relative font-sans overflow-hidden py-[40px] max-[375px]:py-[32px] max-[540px]:py-[24px] md:pt-[100px] md:pb-[80px] lg:pt-[100px] xl:pt-[160px] 3xl:pt-[200px] lg:pb-[100px] xl:pb-[160px] 3xl:pb-[200px] flex flex-col items-center">
       
       {/* Decorative SVG - Top Left */}
       <div className="absolute top-0 left-0 z-0 pointer-events-none opacity-40 md:opacity-100 max-[375px]:w-[80px] max-[375px]:overflow-hidden">
@@ -47,10 +47,10 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
         </svg>
       </div>
       
-      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] mx-auto px-[12px] max-[375px]:px-[8px] md:px-[52px] lg:px-[40px] xl:px-[100px] 3xl:px-[120px] flex flex-col lg:flex-row items-center lg:items-center gap-[32px] max-[375px]:gap-[24px] lg:gap-[40px] xl:gap-[100px] 3xl:gap-[140px] z-10 relative">
+      <div className="w-full max-w-[1440px] 3xl:max-w-[2200px] mx-auto px-[12px] max-[375px]:px-[8px] md:px-[52px] lg:px-[40px] xl:px-[60px] 3xl:px-[120px] flex flex-col lg:flex-row items-center lg:items-center gap-[32px] max-[375px]:gap-[24px] max-[540px]:gap-[24px] lg:gap-[40px] xl:gap-[60px] 3xl:gap-[140px] z-10 relative">
         
         {/* Left: Image Container */}
-        <div className="relative w-full max-w-[500px] h-[240px] max-[375px]:h-[280px] max-[320px]:h-[250px] sm:h-[340px] md:h-[500px] lg:max-w-none lg:w-[480px] lg:h-[480px] xl:w-[680px] xl:h-[680px] 3xl:w-[900px] 3xl:h-[900px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0">
+        <div className="relative w-full max-w-[500px] h-[240px] max-[375px]:h-[280px] max-[540px]:h-[200px] max-[320px]:h-[250px] sm:h-[340px] md:h-[500px] lg:max-w-none lg:w-[480px] lg:h-[480px] xl:w-[540px] xl:h-[540px] 3xl:w-[900px] 3xl:h-[900px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0">
           
           {/* Light Gradient 10 - Restrained to Image Area and Primary Blue */}
           {!hideBackground && (
@@ -65,15 +65,15 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
           )}
 
           {/* Dark Blue Background Box */}
-          <div className="absolute w-full md:w-[90%] lg:w-[380px] xl:w-[600px] 3xl:w-[800px] h-[200px] max-[375px]:h-[240px] max-[320px]:h-[210px] sm:h-[300px] md:h-[420px] lg:h-[420px] xl:h-[600px] 3xl:h-[800px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-0 top-[32px] max-[375px]:top-[26px] max-[320px]:top-[20px] lg:top-[60px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0 max-[375px]:hidden"></div>
+          <div className="absolute w-full md:w-[90%] lg:w-[380px] xl:w-[480px] 3xl:w-[800px] h-[200px] max-[375px]:h-[240px] max-[540px]:h-[170px] max-[320px]:h-[210px] sm:h-[300px] md:h-[420px] lg:h-[420px] xl:h-[480px] 3xl:h-[800px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-0 top-[32px] max-[375px]:top-[26px] max-[320px]:top-[20px] lg:top-[60px] xl:top-[60px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0 max-[375px]:hidden"></div>
           
           {/* Main Image */}
-          <div className="absolute w-[98%] sm:w-[280px] md:w-[85%] lg:w-[340px] xl:w-[580px] 3xl:w-[780px] h-[180px] max-[375px]:h-[220px] max-[320px]:h-[190px] sm:h-[280px] md:h-[460px] lg:h-[440px] xl:h-[660px] 3xl:h-[860px] left-1/2 -translate-x-1/2 md:left-[10%] md:translate-x-0 lg:left-[40px] xl:left-[60px] 3xl:left-[80px] top-0 bg-cover max-[375px]:bg-[length:105%] bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('/assets/magnific_swEz1K6l8e.png')` }}></div>
+          <div className="absolute w-[98%] sm:w-[280px] md:w-[85%] lg:w-[340px] xl:w-[460px] 3xl:w-[780px] h-[180px] max-[375px]:h-[220px] max-[540px]:h-[150px] max-[320px]:h-[190px] sm:h-[280px] md:h-[460px] lg:h-[440px] xl:h-[460px] 3xl:h-[860px] left-1/2 -translate-x-1/2 md:left-[10%] md:translate-x-0 lg:left-[40px] xl:left-[40px] 3xl:left-[80px] top-0 bg-cover max-[375px]:bg-[length:105%] bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('/assets/magnific_swEz1K6l8e.png')` }}></div>
           
         </div>
 
         {/* Right: Content */}
-        <div className="w-full flex flex-col items-start flex-1 gap-[20px] max-[375px]:gap-[16px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px] pb-[40px] max-[375px]:pb-[24px] lg:pb-0 xl:pb-[60px]">
+        <div className="w-full flex flex-col items-start flex-1 gap-[20px] max-[375px]:gap-[16px] max-[540px]:gap-[12px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px] pb-[40px] max-[375px]:pb-[24px] lg:pb-0 xl:pb-[60px]">
           {/* Main Title */}
           <h2 className="text-[#174CD2] text-[24px] max-[375px]:text-[20px] max-[320px]:text-[18px] sm:text-[32px] md:text-[40px] lg:text-[32px] xl:text-[40px] 3xl:text-[62px] leading-tight font-['Rubik_One'] font-normal">
             {t('Take back control of your social media', 'Reprenez le contrôle de vos réseaux sociaux')}
@@ -85,12 +85,12 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
           </p>
 
           {/* List Items */}
-          <div className="flex flex-col gap-[24px] max-[375px]:gap-[16px] lg:gap-[20px] xl:gap-[30px] 3xl:gap-[40px] w-full mt-[8px]">
+          <div className="flex flex-col gap-[24px] max-[375px]:gap-[16px] max-[540px]:gap-[16px] lg:gap-[20px] xl:gap-[30px] 3xl:gap-[40px] w-full mt-[8px]">
             {features.map((feature, index) => {
               return (
                 <div key={index} className="flex flex-row items-center gap-[16px] max-[375px]:gap-[12px] md:gap-[32px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px]">
                   {/* Icon */}
-                  <div className="w-[52px] h-[52px] max-[375px]:w-[44px] max-[375px]:h-[44px] lg:w-[44px] lg:h-[44px] xl:w-[64px] xl:h-[64px] 3xl:w-[84px] 3xl:h-[84px] flex items-center justify-center shrink-0">
+                  <div className="w-[52px] h-[52px] max-[375px]:w-[44px] max-[375px]:h-[44px] max-[540px]:w-[40px] max-[540px]:h-[40px] lg:w-[44px] lg:h-[44px] xl:w-[64px] xl:h-[64px] 3xl:w-[84px] 3xl:h-[84px] flex items-center justify-center shrink-0">
                     <Lottie animationData={feature.animationData} loop={true} autoplay={true} />
                   </div>
                   
