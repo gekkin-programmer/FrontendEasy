@@ -86,8 +86,8 @@ export default function SignupPage() {
     <div className="fixed inset-0 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
       
       {/* Left Side: Form */}
-      <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative">
-        <div className="w-full max-w-[480px] 3xl:max-w-[560px] flex flex-col justify-center min-h-full py-4 lg:py-0 lg:-translate-y-[20px] xl:-translate-y-[10px]">
+      <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative overflow-y-auto">
+        <div className="w-full max-w-[480px] xl:max-w-[540px] 2xl:max-w-[620px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8 lg:py-12">
           
           {error && (
             <div className="p-3 mb-6 rounded-md bg-red-50 text-red-600 text-sm border border-red-200">
@@ -287,22 +287,22 @@ export default function SignupPage() {
       </div>
 
       {/* Right Side: Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#174CD2] flex-col items-center justify-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#174CD2] flex-col items-center justify-center">
         
         {/* Background Vectors */}
         <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>
-        <div className="absolute left-[579px] top-[-106px] w-[504px] h-[448px] bg-[#174CD2] bg-opacity-50"></div>
-        <div className="absolute left-[0px] top-[245px] w-[421px] h-[389px] bg-[#FFFFFF] rounded-tr-[40px]"></div>
+        <div className="absolute top-[20%] left-[60%] w-[52%] h-[41%] bg-[#174CD2] bg-opacity-50"></div>
+        <div className="absolute top-[23%] left-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tr-[40px]"></div>
         <svg className="absolute top-[30%] -right-[20%] w-[120%] max-w-[900px] h-auto opacity-80 pointer-events-none" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
         </svg>
 
         {/* Content Wrapper */}
-        <div className="relative z-10 w-full max-w-[837px] flex justify-center">
+        <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
           <img 
             src="/assets/LoginImage.png" 
             alt="Recruitment Scene Illustration" 
-            className="w-full h-auto max-h-[80vh] object-contain"
+            className="w-full h-auto max-h-[80vh] object-contain scale-110 2xl:scale-125"
           />
         </div>
       </div>
