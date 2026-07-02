@@ -287,7 +287,7 @@ export default function SignupPage() {
         
         {/* Background Vectors */}
         <div className="absolute left-[579px] top-[-106px] w-[504px] h-[448px] bg-[#174CD2] bg-opacity-50"></div>
-        <div className="absolute left-[0px] top-[245px] w-[421px] h-[389px] bg-[#FFFFFF]"></div>
+        <div className="absolute left-[0px] top-[245px] w-[421px] h-[389px] bg-[#FFFFFF] rounded-tr-[40px]"></div>
         <svg className="absolute left-[521px] top-[251px]" width="763" height="616" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
         </svg>
