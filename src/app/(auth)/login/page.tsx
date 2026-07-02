@@ -217,7 +217,7 @@ export default function LoginPage() {
             <img 
               src="/assets/svg-login-page.svg" 
               alt="Login Scene Illustration" 
-              className="w-full h-auto object-contain"
+              className="w-full h-auto object-contain scale-125"
             />
           </div>
 
