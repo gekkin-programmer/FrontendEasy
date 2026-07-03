@@ -81,10 +81,10 @@ export default function CareerHeroLayout({
         </div>
 
         {/* Right Column (Images & Floating Cards) - Frame 989 */}
-        <div className="relative w-full max-w-[650px] md:max-w-[100%] lg:max-w-[400px] xl:max-w-[800px] 3xl:max-w-[1050px] h-[260px] max-[375px]:h-[220px] max-[540px]:h-[200px] max-[320px]:h-[180px] sm:h-[400px] md:h-[500px] lg:h-[420px] xl:h-[740px] 3xl:h-[960px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0 mx-auto">
+        <div className="relative w-full max-w-[650px] md:max-w-[100%] lg:max-w-[400px] xl:max-w-[800px] 3xl:max-w-[1050px] h-[310px] max-[375px]:h-[270px] max-[540px]:h-[250px] max-[320px]:h-[230px] sm:h-[450px] md:h-[550px] lg:h-[470px] xl:h-[790px] 3xl:h-[1010px] mt-[12px] max-[375px]:mt-[8px] lg:mt-0 flex-shrink-0 mx-auto">
           
           {/* Yellow Background Box - Frame 988 */}
-          <div className="absolute w-full md:w-[95%] lg:w-[400px] xl:w-[760px] 3xl:w-[1000px] h-[220px] max-[375px]:h-[186px] max-[540px]:h-[170px] max-[320px]:h-[150px] sm:h-[340px] md:h-[440px] lg:h-[360px] xl:h-[640px] 3xl:h-[830px] left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 lg:left-0 xl:left-0 3xl:left-0 top-[32px] max-[375px]:top-[28px] max-[320px]:top-[22px] md:top-[40px] lg:top-[20px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
+          <div className="absolute w-[calc(100%-80px)] md:w-[calc(95%-80px)] lg:w-[320px] xl:w-[680px] 3xl:w-[920px] h-[270px] max-[375px]:h-[236px] max-[540px]:h-[220px] max-[320px]:h-[200px] sm:h-[390px] md:h-[490px] lg:h-[410px] xl:h-[690px] 3xl:h-[880px] left-[calc(50%+37px)] -translate-x-1/2 md:left-[37px] md:translate-x-0 lg:left-[37px] xl:left-[37px] 3xl:left-[37px] top-[32px] max-[375px]:top-[28px] max-[320px]:top-[22px] md:top-[40px] lg:top-[20px] xl:top-[80px] 3xl:top-[100px] bg-[#040028] rounded-[20px] rounded-br-[100px] z-0"></div>
           
           {/* Main Image */}
           <div className="absolute w-[90%] sm:w-[320px] md:w-[85%] lg:w-[320px] xl:w-[680px] 3xl:w-[880px] h-[200px] max-[375px]:h-[170px] max-[540px]:h-[160px] max-[320px]:h-[138px] sm:h-[320px] md:h-[480px] lg:h-[380px] xl:h-[720px] 3xl:h-[930px] left-1/2 -translate-x-1/2 md:left-[5%] md:translate-x-0 lg:left-[20px] xl:left-[38px] 3xl:left-[50px] top-0 bg-cover bg-center rounded-[20px] rounded-br-[100px] z-10" style={{ backgroundImage: `url('${heroImage}')` }}></div>
