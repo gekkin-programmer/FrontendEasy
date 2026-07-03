@@ -53,11 +53,11 @@ export default function ForgotPasswordPage() {
         {/* Background Vectors (Flipped for Left Side) */}
         <div className="absolute top-[-10%] left-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>
         <div className="absolute top-[20%] right-[60%] w-[52%] h-[41%] bg-[#174CD2] bg-opacity-50"></div>
-        {/* White box touching the right edge (center split line) */}
-        <div className="absolute top-[23%] right-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tl-[40px]"></div>
         <svg className="absolute top-[30%] -left-[20%] w-[120%] max-w-[900px] h-auto opacity-80 pointer-events-none" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
         </svg>
+        {/* White box touching the right edge (center split line) - Rendered after SVG to stay on top */}
+        <div className="absolute top-[23%] right-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tl-[40px] z-[5]"></div>
 
         {/* Content Wrapper */}
         <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
