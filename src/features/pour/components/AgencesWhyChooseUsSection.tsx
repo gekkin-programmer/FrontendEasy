@@ -10,22 +10,22 @@ import feature2Animation from '../../../../public/assets/icons/feature-2.json';
 import feature3Animation from '../../../../public/assets/icons/feature-3.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-export default function WhyChooseUsSection({ hideBackground = false }: { hideBackground?: boolean }) {
+export default function AgencesWhyChooseUsSection({ hideBackground = false }: { hideBackground?: boolean }) {
   const { t } = useLanguage();
   const features = [
     {
-      title: t('Increased visibility', 'Visibilité accrue'),
-      description: t('More consistency in posts, therefore more visibility and qualified followers.', 'Plus de régularité dans les posts, donc plus de visibilité et d\'abonnés qualifiés.'),
+      title: t('Better productivity', 'Meilleure productivité'),
+      description: t('Less back-and-forth between tools, more time to create and advise your clients.', 'Moins de va-et-vient entre les outils, plus de temps pour créer et conseiller vos clients.'),
       animationData: feature1Animation
     },
     {
-      title: t('Save precious time', 'Gain de temps précieux'),
-      description: t('Save several hours per week by automating publishing and message management.', 'Gain de plusieurs heures par semaine en automatisant la publication et la gestion des messages.'),
+      title: t('Zero account errors', 'Zéro erreur de compte'),
+      description: t('Every piece of content is published on the right account, validated by the right person, at the right time.', 'Chaque contenu est publié sur le bon compte, validé par la bonne personne, au bon moment.'),
       animationData: feature2Animation
     },
     {
-      title: t('Professional image', 'Image professionnelle'),
-      description: t('A more professional image, more attractive to brands and partners.', 'Image plus professionnelle, plus attractive pour les marques et partenaires.'),
+      title: t('Reassured clients', 'Des clients rassurés'),
+      description: t('Clear and automatic reports to show the value of your work to each client.', 'Des rapports clairs et automatiques pour montrer la valeur de votre travail à chaque client.'),
       animationData: feature3Animation
     }
   ];
@@ -64,12 +64,12 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
         <div className="flex flex-col items-start flex-1 min-w-0 w-full lg:w-[50%] xl:w-[50%] gap-[20px] max-[375px]:gap-[16px] max-[540px]:gap-[12px] lg:gap-[16px] xl:gap-[32px] 3xl:gap-[40px] pb-[40px] max-[375px]:pb-[24px] lg:pb-0 xl:pb-[60px]">
           {/* Main Title */}
           <h2 className="text-[#174CD2] text-[24px] max-[375px]:text-[20px] max-[320px]:text-[18px] sm:text-[32px] md:text-[40px] lg:text-[32px] xl:text-[40px] 3xl:text-[62px] leading-tight font-['Rubik_One'] font-normal break-words w-full">
-            {t('Take back control of your social media', 'Reprenez le contrôle de vos réseaux sociaux')}
+            {t('Take back control of your client accounts', 'Reprenez le contrôle de vos comptes clients')}
           </h2>
           
           {/* Paragraph */}
           <p className="text-[#000000] text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[18px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[30px] lg:leading-[24px] xl:leading-[30px] 3xl:leading-[38px] font-['Rubik'] max-w-[500px] xl:max-w-none 3xl:max-w-none break-words w-full">
-            {t('Free yourself from time-consuming tasks. EazyPost lets you plan, centralize and optimize your online presence so you can focus on creation.', 'Libérez-vous des tâches chronophages. EazyPost vous permet de planifier, centraliser et optimiser votre présence en ligne pour vous concentrer sur la création.')}
+            {t('Free your teams from repetitive tasks. EazyPost lets you centralize, plan and report the activity of all your clients from a single tool.', 'Libérez vos équipes des tâches répétitives. EazyPost vous permet de centraliser, planifier et reporter l\'activité de tous vos clients depuis un seul outil.')}
           </p>
 
           {/* List Items */}
