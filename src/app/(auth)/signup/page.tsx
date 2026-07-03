@@ -32,6 +32,10 @@ export default function SignupPage() {
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) {
+      setError(t('Password must be at least 7 characters and contain at least one capital letter.', 'Le mot de passe doit contenir au moins 7 caractères et une lettre majuscule.'));
+      return;
+    }
     if (!formData.agreeTerms) {
       setError(t('You must agree to the terms and policy', 'Vous devez accepter les conditions et la politique'));
       return;
@@ -152,12 +156,26 @@ export default function SignupPage() {
                   <input 
                     type="password" 
                     required
-                    minLength={6}
+                    minLength={7}
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder={t('Enter your password', 'Entrez votre mot de passe')}
-                    className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
+                    className={`w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] ${formData.password.length > 0 && (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) ? 'border-red-400' : 'border-[#D9D9D9]'}`}
                   />
+                  {formData.password.length > 0 && (
+                    <div className="flex flex-col gap-[2px] mt-[2px]">
+                      {formData.password.length < 7 && (
+                        <span className="text-[11px] font-sans text-red-400">
+                          {t('At least 7 characters', 'Au moins 7 caractères')}
+                        </span>
+                      )}
+                      {!/[A-Z]/.test(formData.password) && (
+                        <span className="text-[11px] font-sans text-red-400">
+                          {t('At least one capital letter', 'Au moins une lettre majuscule')}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Terms Checkbox */}
@@ -243,7 +261,7 @@ export default function SignupPage() {
               <div className="w-full flex justify-center mt-[16px] [@media(min-height:740px)]:mt-[24px] [@media(min-height:840px)]:mt-[32px] 3xl:mt-[32px]">
                 <Link href="/login" className="font-sans font-medium text-[14px] transition-colors">
                   <span className="text-[#000000]">{t('Have an account?', 'Vous avez déjà un compte ?')} </span>
-                  <span className="text-[#174CD2] hover:underline">{t('Sign In', 'Se connecter')}</span>
+                  <span className="text-[#174CD2]">{t('Sign In', 'Se connecter')}</span>
                 </Link>
               </div>
 

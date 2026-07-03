@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, BarChart2, TrendingUp, Search } from 'lucide-react';
 
-export default function PmeFeaturesSection() {
+export default function AgencesFeaturesSection() {
   return (
     <section className="relative w-full py-[100px] max-[540px]:py-[40px] md:py-[150px] flex justify-center bg-white overflow-hidden">
       <div className="relative w-full max-w-[1296px] px-6 flex flex-col gap-[150px] max-[540px]:gap-[60px] z-10">
@@ -9,10 +9,10 @@ export default function PmeFeaturesSection() {
         {/* Header Content */}
         <div className="flex flex-col gap-6 max-w-[636px]">
           <h2 className="font-['Rubik_One',_sans-serif] font-normal text-[36px] max-[540px]:text-[24px] md:text-[48px] leading-[1.2] text-[#12141D]">
-            Leur réalité aujourd’hui
+            Leur réalité aujourd'hui
           </h2>
           <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] text-[#12141D] opacity-70">
-            Les agences social media africaines et internationales gèrent plusieurs clients, chacun avec plusieurs comptes. Entre les validations, les reporting manuels et le suivi des messages, les équipes perdent énormément de temps, et augmentent les risques d’erreurs.
+            Les agences social media africaines et internationales gèrent plusieurs clients, chacun avec plusieurs comptes. Entre les validations, les reporting manuels et le suivi des messages, les équipes perdent énormément de temps, et augmentent les risques d'erreurs.
           </p>
         </div>
 
@@ -20,10 +20,10 @@ export default function PmeFeaturesSection() {
         <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
           <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
             <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
-              Bring your target users together on social media
+              Un tableau de bord centralisé pour toute l'équipe
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
-              Social media audience research isn’t complicated. It’s mainly about narrowing your focus while expanding your reach. We’ve created a free social media audience research template to help you keep track of all the information you learn as you conduct your research.
+              Gérer plusieurs marques et plusieurs comptes depuis un seul tableau de bord partagé avec l'équipe.
             </p>
           </div>
           
@@ -121,10 +121,10 @@ export default function PmeFeaturesSection() {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
           <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
             <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
-              Build your brand & reach out to social followers
+              Planification éditoriale multi-clients
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
-              Brand awareness is cited as the top priority for marketers, and social media channels are a one-to-many solution for getting the word out about your products and services. By creating a strong brand presence on social media, you can reach a broader audience & get partners brand advocates to post content.
+              Planifier les contenus de chaque client et obtenir une vue calendrier claire pour ne rien rater.
             </p>
           </div>
 
@@ -169,10 +169,10 @@ export default function PmeFeaturesSection() {
         <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
           <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
             <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
-              Build your brand & reach out to social followers
+              Rapports automatiques et professionnels
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
-              Brand awareness is cited as the top priority for marketers, and social media channels are a one-to-many solution for getting the word out about your products and services. By creating a strong brand presence on social media, you can reach a broader audience & get partners brand advocates to post content.
+              Générer des rapports automatiques et professionnels, faciles à partager avec les clients.
             </p>
           </div>
 

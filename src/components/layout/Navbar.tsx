@@ -23,7 +23,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full h-[87px] lg:h-[72px] flex items-center justify-center text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
+    <nav className={`fixed top-0 left-0 w-full h-[100px] lg:h-[88px] flex items-center justify-center text-white z-50 box-border transition-all duration-300 bg-[#040028] ${isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.15)]' : ''}`}>
       <div className="w-full h-full max-w-[1440px] 2xl:max-w-[2200px] 3xl:max-w-[2200px] mx-auto flex items-center justify-between px-[16px] lg:px-[12px] xl:px-[40px] 2xl:px-[60px] 3xl:px-[120px]">
       
       {/* Logo (Left Aligned) — lien vers l'accueil */}
