@@ -5,21 +5,47 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RATE_LIMIT_MS = 60000;
+const MAX_ATTEMPTS = 3;
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [sent, setSent] = React.useState(false);
+  const [attempts, setAttempts] = React.useState(0);
+  const [lastAttemptTime, setLastAttemptTime] = React.useState(0);
 
   const API_URL =
     (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
       .replace(/\/$/, '')
       .replace(/\/api$/, '') + '/api';
 
+  const isValidEmail = EMAIL_REGEX.test(email);
+
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!isValidEmail) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastAttemptTime < RATE_LIMIT_MS) {
+      const waitSeconds = Math.ceil((RATE_LIMIT_MS - (now - lastAttemptTime)) / 1000);
+      setError(`Please wait ${waitSeconds} seconds before trying again.`);
+      return;
+    }
+
+    if (attempts >= MAX_ATTEMPTS) {
+      setError('Too many attempts. Please try again later.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
+    setLastAttemptTime(Date.now());
+    setAttempts((prev) => prev + 1);
 
     try {
       const res = await fetch(`${API_URL}/auth/forgot-password`, {
@@ -42,25 +68,13 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-white font-sans text-gray-900 relative ${!sent ? 'lg:grid lg:grid-cols-2' : ''}`}>
-
-      {/* LEFT SIDE — hidden on sent state */}
-      <div className={`flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen ${!sent ? 'hidden lg:flex' : 'hidden'}`}>
-        <div className="relative z-10">
-          <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
-            <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" width={48} height={48} className="object-contain" priority />
-          </Link>
-          <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">It happens to everyone. We&apos;ve got you covered.</h1>
-          <p className="text-gray-400 text-lg">Enter your email and we&apos;ll send a reset link instantly.</p>
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#174CD2]/20 rounded-full blur-[120px] pointer-events-none" />
-      </div>
+    <div className="min-h-screen bg-white font-sans text-gray-900 relative">
 
       {/* RIGHT SIDE */}
-      <div className="flex flex-col justify-center px-6 py-12 lg:px-20 xl:px-24 bg-white h-screen overflow-y-auto">
-        <div className="mx-auto w-full max-w-[480px]">
+      <div className="flex flex-col justify-center items-center px-6 py-12 h-screen overflow-y-auto">
+        <div className="w-full max-w-[480px]">
 
-          <div className="mb-10 lg:hidden">
+          <div className="mb-10 lg:hidden flex justify-center">
             <Link href="/" className="inline-block">
               <div className="relative w-10 h-10">
                 <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" fill className="object-contain" priority />
@@ -96,7 +110,7 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                    className="w-full bg-white border border-gray-300 focus:border-[#174CD2] focus:ring-4 focus:ring-[#174CD2]/10 rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-all placeholder:text-gray-400 shadow-sm"
+                    className="w-full bg-white border-2 border-gray-300  rounded-xl py-3.5 px-4 text-gray-900 outline-none transition-colors duration-200 placeholder:text-gray-400 shadow-sm"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -110,7 +124,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={isLoading || !email}
+                  disabled={isLoading}
                   className="w-full bg-[#174CD2] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading && <Loader2 className="animate-spin w-4 h-4" />}
