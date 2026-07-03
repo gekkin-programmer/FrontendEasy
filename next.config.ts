@@ -5,10 +5,16 @@ const nextConfig: NextConfig = {
   output: "standalone",
   eslint: { ignoreDuringBuilds: true },
   async rewrites() {
+    // Determine the backend URL based on the environment
+    const isDev = process.env.NODE_ENV === "development";
+    const backendUrl = isDev
+      ? "http://127.0.0.1:3000/api/:path*"
+      : "https://backend-eazypost.mbokofit.com/api/:path*";
+
     return [
       {
         source: "/api/:path*",
-        destination: "https://backend-eazypost.mbokofit.com/api/:path*",
+        destination: backendUrl,
       },
     ];
   },
