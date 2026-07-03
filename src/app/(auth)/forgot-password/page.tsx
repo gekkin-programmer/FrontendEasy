@@ -6,23 +6,49 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RATE_LIMIT_MS = 60000;
+const MAX_ATTEMPTS = 3;
+
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
   const [email, setEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [sent, setSent] = React.useState(false);
+  const [attempts, setAttempts] = React.useState(0);
+  const [lastAttemptTime, setLastAttemptTime] = React.useState(0);
 
   const API_URL =
     (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000')
       .replace(/\/$/, '')
       .replace(/\/api$/, '') + '/api';
 
+  const isValidEmail = EMAIL_REGEX.test(email);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!email) return;
+    if (!isValidEmail) {
+      setError(t('Please enter a valid email address.', 'Veuillez entrer une adresse e-mail valide.'));
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastAttemptTime < RATE_LIMIT_MS) {
+      const waitSeconds = Math.ceil((RATE_LIMIT_MS - (now - lastAttemptTime)) / 1000);
+      setError(t(`Please wait ${waitSeconds} seconds before trying again.`, `Veuillez patienter ${waitSeconds} secondes avant de réessayer.`));
+      return;
+    }
+
+    if (attempts >= MAX_ATTEMPTS) {
+      setError(t('Too many attempts. Please try again later.', 'Trop de tentatives. Veuillez réessayer plus tard.'));
+      return;
+    }
+
     setIsLoading(true);
     setError('');
+    setLastAttemptTime(Date.now());
+    setAttempts((prev) => prev + 1);
 
     try {
       const res = await fetch(`${API_URL}/auth/forgot-password`, {
