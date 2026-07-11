@@ -40,7 +40,6 @@ function CheckoutContent() {
   // Checkout requires an account — bounce to login and come back with the same plan params.
   // ➤ TEMPORARILY DISABLED for presentation/demo. Re-enable by removing the `if (false)` guard.
   useEffect(() => {
-    if (true) return; // demo mode: guard off
     const token = getCookie('accessToken');
     if (!token) {
       toast.error(t('Please log in to proceed with payment.', 'Veuillez vous connecter pour procéder au paiement.'));
