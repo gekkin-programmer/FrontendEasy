@@ -9,10 +9,10 @@ export default function AgencesFeaturesSection() {
         {/* Header Content */}
         <div className="flex flex-col gap-6 max-w-[636px]">
           <h2 className="font-['Rubik_One',_sans-serif] font-normal text-[36px] max-[540px]:text-[24px] md:text-[48px] leading-[1.2] text-[#12141D]">
-            Leur réalité aujourd'hui
+            Leur réalité aujourd’hui
           </h2>
           <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] text-[#12141D] opacity-70">
-            Les agences social media africaines et internationales gèrent plusieurs clients, chacun avec plusieurs comptes. Entre les validations, les reporting manuels et le suivi des messages, les équipes perdent énormément de temps, et augmentent les risques d'erreurs.
+            Les agences social media africaines et internationales gèrent plusieurs clients, chacun avec plusieurs comptes. Entre les validations, les reporting manuels et le suivi des messages, les équipes perdent énormément de temps, et augmentent les risques d’erreurs.
           </p>
         </div>
 
@@ -20,10 +20,10 @@ export default function AgencesFeaturesSection() {
         <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-[60px] max-[540px]:gap-[32px] lg:gap-[40px]">
           <div className="flex-1 flex flex-col gap-[40px] max-[540px]:gap-[20px] max-w-[636px]">
             <h2 className="font-['Clash_Display',_'Rubik_One',_sans-serif] font-normal text-[32px] max-[540px]:text-[22px] md:text-[48px] leading-[1.2]">
-              Un tableau de bord centralisé pour toute l'équipe
+              Un tableau de bord centralisé pour toute l’équipe
             </h2>
             <p className="font-['Inter',_sans-serif] text-[16px] md:text-[18px] leading-[1.6] opacity-70">
-              Gérer plusieurs marques et plusieurs comptes depuis un seul tableau de bord partagé avec l'équipe.
+              Gérer plusieurs marques et plusieurs comptes depuis un seul tableau de bord partagé avec l’équipe.
             </p>
           </div>
           

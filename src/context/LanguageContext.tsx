@@ -27,6 +27,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('en');
   const [theme, setTheme] = useState<Theme>('dark');
 
+  // Hydration-safe preference load: state must start identical on server and
+  // client, then sync from localStorage after mount. A lazy initializer would
+  // read localStorage during the client render and cause hydration mismatches.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('app_language') as Language;
@@ -47,6 +51,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (theme === 'dark') {

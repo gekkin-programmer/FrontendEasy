@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SignupPage from './page';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { useRouter } from 'next/navigation';
 
 // Mock next/navigation
@@ -11,91 +12,115 @@ jest.mock('next/navigation', () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
+// The page reads the language preference from context — always render inside the provider.
+const renderWithProviders = (ui: React.ReactElement) => render(<LanguageProvider>{ui}</LanguageProvider>);
+
+const fillForm = () => {
+  fireEvent.change(screen.getByPlaceholderText('Enter your name'), { target: { value: 'John' } });
+  fireEvent.change(screen.getByPlaceholderText('Enter your email'), { target: { value: 'john@example.com' } });
+  fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Password123' } });
+};
+
 describe('Signup Page', () => {
   const mockPush = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue({
-      push: mockPush,
-    });
-    
-    // Mock successful OTP request
+    window.localStorage.clear();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ message: 'OTP sent' }),
+      status: 200,
+      json: async () => ({ accessToken: 'mock-token' }),
     });
   });
 
   it('should render signup form', () => {
-    render(<SignupPage />);
-    expect(screen.getByText('Create an account')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeInTheDocument();
+    renderWithProviders(<SignupPage />);
+    expect(screen.getByPlaceholderText('Enter your name')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^sign up$/i })).toBeInTheDocument();
   });
 
-  it('should validate email format', () => {
-    render(<SignupPage />);
-    const emailInput = screen.getByPlaceholderText('you@example.com');
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    
-    // HTML5 validation is handled by the browser, but we can check if it's required
-    expect(emailInput).toBeRequired();
-    expect(emailInput).toHaveAttribute('type', 'email');
+  it('should reject a weak password before calling the API', async () => {
+    renderWithProviders(<SignupPage />);
+    fillForm();
+    fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'abc' } });
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Password must be at least 7 characters and contain at least one capital letter.')
+      ).toBeInTheDocument();
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('should redirect to dashboard on success', async () => {
-    // 1. Render and fill form
-    render(<SignupPage />);
-    fireEvent.change(screen.getByPlaceholderText('First'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByPlaceholderText('Last'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
-    
-    // 2. Click Continue (triggers handleRequestCode)
-    fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
-    
-    // 3. Wait for step to change to VERIFY
+  it('should require accepting the terms', async () => {
+    renderWithProviders(<SignupPage />);
+    fillForm();
+    // Terms checkbox intentionally left unchecked
+
+    fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
+
     await waitFor(() => {
-      expect(screen.getByText(/Check your email/i)).toBeInTheDocument();
+      expect(screen.getByText('You must agree to the terms and policy')).toBeInTheDocument();
     });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
 
-    // 4. Fill verification code
-    fireEvent.change(screen.getByPlaceholderText('123456'), { target: { value: '123456' } });
-    
-    // Mock successful register
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ accessToken: 'mock-token' }),
-    });
+  it('should request a verification code and show the verify step', async () => {
+    renderWithProviders(<SignupPage />);
+    fillForm();
+    fireEvent.click(screen.getByRole('checkbox'));
 
-    // 5. Click Verify & Create Account
-    fireEvent.click(screen.getByRole('button', { name: /Verify & Create Account/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
-    // 6. Wait for redirect
     await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/email/send-otp'),
+        expect.any(Object)
+      );
+      expect(screen.getByPlaceholderText('123456')).toBeInTheDocument();
+    });
+  });
+
+  it('should register after code verification and redirect to onboarding', async () => {
+    renderWithProviders(<SignupPage />);
+    fillForm();
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
+
+    const codeInput = await screen.findByPlaceholderText('123456');
+    fireEvent.change(codeInput, { target: { value: '123456' } });
+    // The verify step has its own form and submit button
+    fireEvent.submit(codeInput.closest('form')!);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/auth/register'), expect.any(Object));
       expect(mockPush).toHaveBeenCalledWith('/onboarding');
     });
   });
 
   it('should show error on failure', async () => {
-    render(<SignupPage />);
-    
-    // Mock failed OTP request
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ message: 'Invalid email' }),
+      status: 409,
+      json: async () => ({ message: 'Email already registered' }),
     });
 
-    fireEvent.change(screen.getByPlaceholderText('First'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByPlaceholderText('Last'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'bad@email.com' } });
-    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
-    
-    fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
+    renderWithProviders(<SignupPage />);
+    fillForm();
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid email')).toBeInTheDocument();
+      expect(screen.getByText('Email already registered')).toBeInTheDocument();
     });
   });
 });
