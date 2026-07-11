@@ -10,23 +10,55 @@ export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const accessToken = searchParams.get('accessToken');
+    const handleAuth = async () => {
+      const accessToken = searchParams.get('accessToken');
+      const code = searchParams.get('code');
 
-    if (accessToken) {
-      //  Save Tokens in Cookies (accessible by Middleware)
-      setCookie('accessToken', accessToken, {
-        maxAge: 60 * 60 * 24 * 7, // 7 days (matches backend)
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
+      if (accessToken) {
+        // Fallback for old flow
+        setCookie('accessToken', accessToken, {
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+        window.location.href = '/dashboard';
+        return;
+      }
 
-      //  Redirect to Dashboard
-      window.location.href = '/dashboard';
-    } else {
-      //  Failed
+      if (code) {
+        try {
+          const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api').replace(/\/$/, '').replace(/\/api$/, '') + '/api';
+          
+          const res = await fetch(`${API_URL}/auth/exchange-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+          });
+
+          if (!res.ok) throw new Error('Failed to exchange code');
+
+          const data = await res.json();
+          if (data.accessToken) {
+            setCookie('accessToken', data.accessToken, {
+              maxAge: 60 * 60 * 24 * 7,
+              path: '/',
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax'
+            });
+            window.location.href = '/dashboard';
+            return;
+          }
+        } catch (error) {
+          console.error('[Auth] Failed to exchange code:', error);
+        }
+      }
+
+      // Failed
       router.push('/login?error=auth_failed');
-    }
+    };
+
+    handleAuth();
   }, [router, searchParams]);
 
   return <SpinningLoader fullScreen={true} />;
