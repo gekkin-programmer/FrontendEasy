@@ -1,14 +1,22 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import en from '../locales/en.json';
+import fr from '../locales/fr.json';
+import ar from '../locales/ar.json';
 
-type Language = 'en' | 'fr';
+type Language = 'en' | 'fr' | 'ar';
 type Theme = 'light' | 'dark';
+
+type Translations = Record<string, string>;
+
+const translations: Record<Language, Translations> = { en, fr, ar };
 
 interface LanguageContextType {
   language: Language;
+  setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: (en: string, fr: string) => string;
+  t: (en: string, fr: string, ar?: string) => string;
   theme: Theme;
   toggleTheme: () => void;
 }
@@ -16,25 +24,30 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  // 1. Language — lazy init from localStorage (client only, fallback 'en' for SSR)
-  const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window === 'undefined') return 'en';
-    const saved = localStorage.getItem('app_language') as Language;
-    if (saved) return saved;
-    const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
-    localStorage.setItem('app_language', deviceLang);
-    return deviceLang;
-  });
+  const [language, setLanguage] = useState<Language>('en');
+  const [theme, setTheme] = useState<Theme>('dark');
 
-  // 2. Theme — lazy init from localStorage (client only, fallback 'dark' for SSR)
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    const saved = localStorage.getItem('theme') as Theme;
-    if (!saved) localStorage.setItem('theme', 'dark');
-    return saved || 'dark';
-  });
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('app_language') as Language;
+      if (savedLang) {
+        setLanguage(savedLang);
+      } else {
+        const deviceLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
+        localStorage.setItem('app_language', deviceLang);
+        setLanguage(deviceLang);
+      }
 
-  // Apply theme class whenever theme changes
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else {
+        localStorage.setItem('theme', 'dark');
+        setTheme('dark');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -43,17 +56,21 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [theme]);
 
-  // Sync <html lang> with selected language
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
   const toggleLanguage = () => {
     setLanguage((prev) => {
-      const newLang = prev === 'en' ? 'fr' : 'en';
+      const newLang = prev === 'en' ? 'fr' : prev === 'fr' ? 'ar' : 'en';
       localStorage.setItem('app_language', newLang);
       return newLang;
     });
+  };
+
+  const setLanguageOverride = (newLang: Language) => {
+    localStorage.setItem('app_language', newLang);
+    setLanguage(newLang);
   };
 
   const toggleTheme = () => {
@@ -64,10 +81,19 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const t = (en: string, fr: string) => (language === 'en' ? en : fr);
+  const t = (en: string, fr: string, ar?: string) => {
+    const langTranslations = translations[language];
+    if (langTranslations) {
+      const translated = langTranslations[en] || langTranslations[fr];
+      if (translated) return translated;
+    }
+    if (language === 'fr') return fr;
+    if (language === 'ar' && ar) return ar;
+    return en;
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t, theme, toggleTheme }}>
+    <LanguageContext.Provider value={{ language, setLanguage: setLanguageOverride, toggleLanguage, t, theme, toggleTheme }}>
       {children}
     </LanguageContext.Provider>
   );

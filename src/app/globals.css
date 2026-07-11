@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+One&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -77,7 +79,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1; /* Better font rendering */
     font-family: var(--font-jetbrains-mono), monospace;
   }
@@ -145,4 +147,52 @@
 .dark .skeleton {
   background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
   background-size: 200% 100%;
+}
+
+/* --- HERO SECTION BACKGROUND --- */
+/* Conteneur principal de l'arrière-plan */
+.final-hero-bg {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #040028 0%, #040028 87px, #020014 87px, #020014 100%);
+  overflow: hidden;
+}
+
+/* Base de l'effet lumineux de fond */
+.herobg-base, 
+.herobg-blend {
+  position: absolute;
+  top: 87px; /* Space reserved for the Navbar */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 87px);
+}
+
+/* Couche supérieure accentuée pour intensifier la lumière */
+.herobg-blend {
+  mix-blend-mode: plus-lighter;
+}
+
+/* Moitié Gauche du faisceau lumineux - Ajusté tout en haut (Y: 0%) */
+.light-half-left {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  /* Correction : Origine du cône déplacée à 50% sur l'axe X, et 0% (tout en haut) sur l'axe Y */
+  background: conic-gradient(from 89.09deg at 50% 0%, #020014 -0.99deg, #174CD2 3.23deg, #020014 176.4deg, #020014 359.01deg, #174CD2 363.23deg);
+}
+
+/* Moitié Droite du faisceau lumineux (Effet Miroir) - Ajusté tout en haut (Y: 0%) */
+.light-half-right {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  /* Correction : Origine du cône déplacée à 50% sur l'axe X, et 0% (tout en haut) sur l'axe Y */
+  background: conic-gradient(from 89.09deg at 50% 0%, #020014 -0.99deg, #174CD2 3.23deg, #020014 176.4deg, #020014 359.01deg, #174CD2 363.23deg);
+  transform: scaleX(-1); /* Plus propre et plus moderne que l'ancienne propriété matrix() */
 }

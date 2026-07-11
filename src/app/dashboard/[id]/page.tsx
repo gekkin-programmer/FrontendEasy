@@ -6,7 +6,7 @@ import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/src/lib/api';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { getCookie } from 'cookies-next';
 
@@ -21,25 +21,25 @@ import {
 import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
-import Composer from '@/src/components/easypost/Composer';
-import PostFeed from '@/src/components/easypost/PostFeed';
-import Analytics from '@/src/components/easypost/Analytics';
-import Settings from '@/src/components/easypost/Settings';
-import Team from '@/src/components/easypost/Team';
-import VoiceAiButton from '@/src/components/easypost/VoiceAiButton';
-import CalendarView from '@/src/components/easypost/CalendarView';
-import SpinningLoader from '@/src/components/SpinningLoader';
+import Composer from '@/features/dashboard/easypost/Composer';
+import PostFeed from '@/features/dashboard/easypost/PostFeed';
+import Analytics from '@/features/dashboard/easypost/Analytics';
+import Settings from '@/features/dashboard/easypost/Settings';
+import Team from '@/features/dashboard/easypost/Team';
+import VoiceAiButton from '@/features/dashboard/easypost/VoiceAiButton';
+import CalendarView from '@/features/dashboard/easypost/CalendarView';
+import SpinningLoader from '@/components/common/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/src/components/easypost/DashboardUI';
-import { QuickConnectSidebar } from '@/src/components/easypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/src/components/easypost/FacebookPageSelector';
-import { SidebarItem } from '@/src/components/easypost/SidebarItem';
-import { EngagementWithTabs } from '@/src/components/easypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/features/dashboard/easypost/DashboardUI';
+import { QuickConnectSidebar } from '@/features/dashboard/easypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/features/dashboard/easypost/FacebookPageSelector';
+import { SidebarItem } from '@/features/dashboard/easypost/SidebarItem';
+import { EngagementWithTabs } from '@/features/dashboard/easypost/EngagementWithTabs';
 
 // SOCKET
-import { SocketProvider, useSocket } from '@/src/context/SocketContext';
-import { useLanguage } from '@/src/context/LanguageContext';
+import { SocketProvider, useSocket } from '@/context/SocketContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 import { 
   Popover,
@@ -47,8 +47,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/src/components/easypost/BoardView';
-import OnboardingGuide from '@/src/components/easypost/OnboardingGuide';
+import BoardView from '@/features/dashboard/easypost/BoardView';
+import OnboardingGuide from '@/features/dashboard/easypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -726,7 +726,7 @@ function DashboardContent() {
                                 <span className="font-black text-2xl tracking-tighter italic text-black dark:text-white">ASYPOST.</span>
                             </div>
                         </div>
-                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-gray-100 dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
+                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-white dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-transparent transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-black dark:text-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-black dark:border-white transition-all"><Plus size={16} className="text-black dark:text-white"/> {t("New Workspace", "Nouvel Espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>

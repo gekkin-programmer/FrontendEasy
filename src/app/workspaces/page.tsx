@@ -15,9 +15,11 @@ import {
 } from '@/services/workspaceApi';
 
 // Import the branded loader if you want a smooth transition
-import SpinningLoader from '@/src/components/SpinningLoader'; 
+import SpinningLoader from '@/components/common/SpinningLoader';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function WorkspaceManager() {
+  const { t } = useLanguage();
   const router = useRouter(); // <--- ADDED
 
   // --- Data State ---
@@ -64,7 +66,7 @@ export default function WorkspaceManager() {
           role: 'Owner',
           members: 1,
           projects: 0,
-          color: '#3C48F6',
+          color: '#174CD2',
           default_platforms: ['twitter', 'linkedin'], // Default platforms
           timezone: 'UTC',
           default_language: 'en'
@@ -163,7 +165,7 @@ export default function WorkspaceManager() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <SpinningLoader fullScreen={false} size={80} />
-        <p className="mt-4 text-gray-500 font-medium animate-pulse">Setting up your dashboard...</p>
+        <p className="mt-4 text-gray-500 font-medium animate-pulse">{t('Setting up your dashboard...', 'Préparation de votre tableau de bord...')}</p>
       </div>
     );
   }
@@ -180,7 +182,7 @@ export default function WorkspaceManager() {
       {/* --- NEW BACKGROUND LAYER --- */}
       <div className="fixed inset-0 -z-10 h-full w-full bg-slate-50">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-[#3C48F6] opacity-20 blur-[100px]"></div>
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-[#174CD2] opacity-20 blur-[100px]"></div>
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10 p-6 md:p-12">
@@ -188,12 +190,12 @@ export default function WorkspaceManager() {
         {/* Header */}
         <div className="flex justify-between items-end mb-10">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Workspace Manager</h1>
-            <p className="text-gray-500 mt-1">Manage your organizations, teams, and billing.</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('Workspace Manager', 'Gestionnaire d\'espaces de travail')}</h1>
+            <p className="text-gray-500 mt-1">{t('Manage your organizations, teams, and billing.', 'Gérez vos organisations, équipes et facturation.')}</p>
           </div>
           {/* Optional: Show Plan Badge */}
           <div className="bg-white/80 backdrop-blur border border-gray-200 px-3 py-1 rounded-full text-xs font-bold text-gray-500">
-            Current Plan: <span className="text-[#3C48F6]">Agency/Pro</span>
+            {t('Current Plan:', 'Forfait actuel :')} <span className="text-[#174CD2]">Agency/Pro</span>
           </div>
         </div>
 
@@ -204,10 +206,10 @@ export default function WorkspaceManager() {
             {/* Create Button */}
             <button 
               onClick={() => { setSelectedWorkspace({}); setView('create'); }} 
-              className="border-2 border-dashed border-gray-300/80 bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-[#3C48F6] hover:bg-blue-50/50 transition-all h-64 group"
+              className="border-2 border-dashed border-gray-300/80 bg-white/50 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-[#174CD2] hover:bg-blue-50/50 transition-all h-64 group"
             >
-              <div className="w-12 h-12 rounded-full bg-white border flex items-center justify-center text-[#3C48F6] shadow-sm group-hover:scale-110 transition-transform"><FiPlus size={24} /></div>
-              <span className="font-bold text-gray-600 group-hover:text-[#3C48F6]">Create New</span>
+              <div className="w-12 h-12 rounded-full bg-white border flex items-center justify-center text-[#174CD2] shadow-sm group-hover:scale-110 transition-transform"><FiPlus size={24} /></div>
+              <span className="font-bold text-gray-600 group-hover:text-[#174CD2]">{t('Create New', 'Créer un nouveau')}</span>
             </button>
 
             <AnimatePresence>
@@ -238,11 +240,11 @@ export default function WorkspaceManager() {
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-4 pointer-events-none">
                     <div className="bg-gray-50/80 p-2 rounded-lg border border-gray-100">
-                       <p className="text-gray-400 text-[10px] uppercase font-bold flex items-center gap-1 mb-1"><FiUsers/> Members</p>
+                       <p className="text-gray-400 text-[10px] uppercase font-bold flex items-center gap-1 mb-1"><FiUsers/> {t('Members', 'Membres')}</p>
                        <p className="text-lg font-bold text-gray-900">{ws.members}</p>
                     </div>
                     <div className="bg-gray-50/80 p-2 rounded-lg border border-gray-100">
-                       <p className="text-gray-400 text-[10px] uppercase font-bold flex items-center gap-1 mb-1"><FiBriefcase/> Projects</p>
+                       <p className="text-gray-400 text-[10px] uppercase font-bold flex items-center gap-1 mb-1"><FiBriefcase/> {t('Projects', 'Projets')}</p>
                        <p className="text-lg font-bold text-gray-900">{ws.projects}</p>
                     </div>
                   </div>
@@ -250,8 +252,8 @@ export default function WorkspaceManager() {
                   {/* Footer */}
                   <div className="flex justify-between items-center z-10 mt-auto pointer-events-auto pt-4 border-t border-gray-50">
                      <Link href={`/dashboard/${ws.id}`}>
-                      <button className="text-sm font-bold text-white bg-[#3C48F6] px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:translate-y-[-1px]">
-                          Enter <FiCheck />
+                      <button className="text-sm font-bold text-white bg-[#174CD2] px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:translate-y-[-1px]">
+                          {t('Enter', 'Entrer')} <FiCheck />
                       </button>
                      </Link>
                   </div>
@@ -265,7 +267,7 @@ export default function WorkspaceManager() {
         {(view === 'edit' || view === 'create') && selectedWorkspace && (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 z-20 relative">
             <div className="bg-gray-50/80 backdrop-blur px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">{view === 'create' ? 'Create Workspace' : 'Settings'}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{view === 'create' ? t('Create Workspace', 'Créer un espace de travail') : t('Settings', 'Paramètres')}</h2>
               <button onClick={() => setView('list')} className="p-2 hover:bg-gray-200 rounded-full transition-colors"><FiX /></button>
             </div>
 
@@ -274,18 +276,18 @@ export default function WorkspaceManager() {
               <div className="lg:col-span-7 space-y-8">
                 <div className="space-y-4">
                   <label className="block">
-                    <span className="text-sm font-bold text-gray-900">Workspace Name</span>
-                    <input type="text" value={selectedWorkspace.name || ''} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, name: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-sm focus:border-[#3C48F6] outline-none border transition-colors" placeholder="e.g. Acme Corp" />
+                    <span className="text-sm font-bold text-gray-900">{t('Workspace Name', "Nom de l'espace de travail")}</span>
+                    <input type="text" value={selectedWorkspace.name || ''} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, name: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-sm focus:border-[#174CD2] outline-none border transition-colors" placeholder="e.g. Acme Corp" />
                   </label>
                 </div>
 
                 {/* Localization */}
                 <div>
-                   <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4 pb-2 border-b border-gray-100"><FiGlobe className="text-gray-400"/> Localization</h3>
+                   <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4 pb-2 border-b border-gray-100"><FiGlobe className="text-gray-400"/> {t('Localization', 'Localisation')}</h3>
                    <div className="grid grid-cols-2 gap-4">
                       <label className="block">
-                        <span className="text-xs font-bold text-gray-500 uppercase">Timezone</span>
-                        <select value={selectedWorkspace.timezone || 'UTC'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, timezone: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#3C48F6]">
+                        <span className="text-xs font-bold text-gray-500 uppercase">{t('Timezone', 'Fuseau horaire')}</span>
+                        <select value={selectedWorkspace.timezone || 'UTC'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, timezone: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#174CD2]">
                           <option value="America/New_York">New York (EST)</option>
                           <option value="Europe/London">London (GMT)</option>
                           <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -293,11 +295,11 @@ export default function WorkspaceManager() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="text-xs font-bold text-gray-500 uppercase">Language</span>
-                        <select value={selectedWorkspace.default_language || 'en'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, default_language: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#3C48F6]">
-                          <option value="en">English</option>
-                          <option value="es">Spanish</option>
-                          <option value="fr">French</option>
+                        <span className="text-xs font-bold text-gray-500 uppercase">{t('Language', 'Langue')}</span>
+                        <select value={selectedWorkspace.default_language || 'en'} onChange={(e) => setSelectedWorkspace({...selectedWorkspace, default_language: e.target.value})} className="mt-1 block w-full rounded-lg border-gray-300 bg-white p-2.5 text-sm border outline-none focus:border-[#174CD2]">
+                          <option value="en">{t('English', 'Anglais')}</option>
+                          <option value="es">{t('Spanish', 'Espagnol')}</option>
+                          <option value="fr">{t('French', 'Français')}</option>
                         </select>
                       </label>
                    </div>
@@ -305,7 +307,7 @@ export default function WorkspaceManager() {
 
                 {/* Platforms */}
                 <div>
-                   <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4 pb-2 border-b border-gray-100"><FiLayout className="text-gray-400"/> Default Platforms</h3>
+                   <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4 pb-2 border-b border-gray-100"><FiLayout className="text-gray-400"/> {t('Default Platforms', 'Plateformes par défaut')}</h3>
                    <div className="flex gap-4">
                       {[
                         { id: 'twitter', icon: FaTwitter, color: 'text-sky-500' },
@@ -315,7 +317,7 @@ export default function WorkspaceManager() {
                       ].map((p) => {
                         const isSelected = (selectedWorkspace.default_platforms || []).includes(p.id);
                         return (
-                          <button key={p.id} onClick={() => togglePlatform(p.id)} className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#3C48F6] bg-blue-50 ring-2 ring-blue-100 ring-offset-2' : 'border-gray-200 bg-white grayscale hover:grayscale-0'}`}>
+                          <button key={p.id} onClick={() => togglePlatform(p.id)} className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all ${isSelected ? 'border-[#174CD2] bg-blue-50 ring-2 ring-blue-100 ring-offset-2' : 'border-gray-200 bg-white grayscale hover:grayscale-0'}`}>
                             <p.icon className={`w-5 h-5 ${p.color}`} />
                           </button>
                         )
@@ -327,22 +329,22 @@ export default function WorkspaceManager() {
               {/* RIGHT COLUMN */}
               <div className="lg:col-span-5 space-y-8">
                  <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-200">
-                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><FiBell className="text-gray-400"/> Notifications</h3>
+                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><FiBell className="text-gray-400"/> {t('Notifications', 'Notifications')}</h3>
                     <div className="space-y-4">
-                       <ToggleRow label="Publish Alerts" desc="When a post goes live." active={selectedWorkspace.notify_on_publish} onClick={() => toggleSetting('notify_on_publish')} />
-                       <ToggleRow label="Failure Alerts" desc="If an API error occurs." active={selectedWorkspace.notify_on_failure} onClick={() => toggleSetting('notify_on_failure')} />
-                       <ToggleRow label="Weekly Report" desc="Email analytics summary." active={selectedWorkspace.weekly_report} onClick={() => toggleSetting('weekly_report')} />
+                       <ToggleRow label={t('Publish Alerts', 'Alertes de publication')} desc={t('When a post goes live.', 'Quand un post est publié.')} active={selectedWorkspace.notify_on_publish} onClick={() => toggleSetting('notify_on_publish')} />
+                       <ToggleRow label={t('Failure Alerts', "Alertes d'échec")} desc={t('If an API error occurs.', 'En cas d\'erreur API.')} active={selectedWorkspace.notify_on_failure} onClick={() => toggleSetting('notify_on_failure')} />
+                       <ToggleRow label={t('Weekly Report', 'Rapport hebdomadaire')} desc={t('Email analytics summary.', 'Résumé des statistiques par e-mail.')} active={selectedWorkspace.weekly_report} onClick={() => toggleSetting('weekly_report')} />
                     </div>
                  </div>
 
                  <div className="space-y-3">
-                   <button onClick={handleSubmit} disabled={isSaving} className="w-full bg-[#3C48F6] text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-transform active:scale-95 flex justify-center items-center gap-2">
-                      {isSaving && <FiLoader className="animate-spin"/>} Save Changes
+                   <button onClick={handleSubmit} disabled={isSaving} className="w-full bg-[#174CD2] text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-transform active:scale-95 flex justify-center items-center gap-2">
+                      {isSaving && <FiLoader className="animate-spin"/>} {t('Save Changes', 'Enregistrer les modifications')}
                    </button>
                    
                    {view === 'edit' && (
                      <button onClick={() => { setItemToDelete(selectedWorkspace as Workspace); setDeleteModalOpen(true); }} className="w-full bg-white border border-red-100 text-red-500 py-3 rounded-xl font-bold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
-                       <FiTrash2 /> Delete Workspace
+                       <FiTrash2 /> {t('Delete Workspace', "Supprimer l'espace de travail")}
                      </button>
                    )}
                  </div>
@@ -368,7 +370,7 @@ export default function WorkspaceManager() {
       >
         <FiTrash2 className={`w-8 h-8 ${trashHovered ? 'animate-bounce' : ''}`} />
         <span className="font-bold text-sm">
-          {trashHovered ? 'Release to Delete' : 'Drag here to delete'}
+          {trashHovered ? t('Release to Delete', 'Relâcher pour supprimer') : t('Drag here to delete', 'Glisser ici pour supprimer')}
         </span>
       </motion.div>
 
@@ -394,10 +396,10 @@ export default function WorkspaceManager() {
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600">
                   <FiAlertTriangle size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Workspace?</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('Delete Workspace?', "Supprimer l'espace de travail ?")}</h3>
                 <p className="text-gray-500 text-sm mb-6">
-                  Are you sure you want to delete <span className="font-bold text-gray-900">&ldquo;{itemToDelete.name}&rdquo;</span>? <br/>
-                  All projects and members will be permanently removed.
+                  {t('Are you sure you want to delete', 'Êtes-vous sûr de vouloir supprimer')} <span className="font-bold text-gray-900">&ldquo;{itemToDelete.name}&rdquo;</span>? <br/>
+                  {t('All projects and members will be permanently removed.', 'Tous les projets et membres seront définitivement supprimés.')}
                 </p>
                 
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -405,13 +407,13 @@ export default function WorkspaceManager() {
                     onClick={() => setDeleteModalOpen(false)}
                     className="py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
                   >
-                    Cancel
+                    {t('Cancel', 'Annuler')}
                   </button>
-                  <button 
+                  <button
                     onClick={confirmDelete}
                     className="py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-lg shadow-red-500/30"
                   >
-                    {isSaving ? 'Deleting...' : 'Yes, Delete'}
+                    {isSaving ? t('Deleting...', 'Suppression...') : t('Yes, Delete', 'Oui, supprimer')}
                   </button>
                 </div>
               </div>
@@ -434,7 +436,7 @@ function ToggleRow({ label, desc, active, onClick }: any) {
        </div>
        <button 
          onClick={onClick}
-         className={`w-11 h-6 rounded-full relative transition-colors duration-200 ease-in-out ${active ? 'bg-[#3C48F6]' : 'bg-gray-300'}`}
+         className={`w-11 h-6 rounded-full relative transition-colors duration-200 ease-in-out ${active ? 'bg-[#174CD2]' : 'bg-gray-300'}`}
        >
          <span className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0'}`} />
        </button>

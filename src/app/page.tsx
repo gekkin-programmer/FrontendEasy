@@ -1,125 +1,84 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext';
-import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
+import React from 'react';
+import HeroBackground from '@/components/landing/HeroBackground';
+import Navbar from '@/components/layout/Navbar';
+import HeroLines from '@/components/landing/hero/HeroLines';
+import IsometricCube from '@/components/landing/hero/IsometricCube';
+import HeroText from '@/components/landing/hero/HeroText';
+import ImpactSection from '@/components/landing/ImpactSection';
+import PublishSection from '@/components/landing/PublishSection';
+import UsersSection from '@/components/landing/UsersSection';
+import ConnectSection from '@/components/landing/ConnectSection';
+import AProposSection from '@/components/landing/AProposSection';
+import FaqSection from '@/components/landing/FaqSection';
+import ContactSection from '@/components/landing/ContactSection';
 
 export default function Home() {
-  const { t } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    // Collect and store email in localStorage
-    const existing = localStorage.getItem('subscribedEmails');
-    const emails = existing ? JSON.parse(existing) : [];
-    
-    if (!emails.includes(email)) {
-      emails.push(email);
-      localStorage.setItem('subscribedEmails', JSON.stringify(emails));
-    }
-    
-    setSubscribed(true);
-    setEmail('');
-    
-    // Reset success message after 3 seconds
-    setTimeout(() => {
-      setSubscribed(false);
-    }, 3000);
-  };
-
-  if (!mounted) return null;
-
   return (
-    <div className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-[#3C48F5]">
-      {/* Background blurred ellipses for the glowing effect */}
-      <div className="absolute left-0 top-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
-      <div className="absolute right-0 bottom-0 w-[305px] h-[314px] bg-white rounded-full blur-[150px] opacity-80 pointer-events-none"></div>
+    <main className="min-h-screen bg-[#1135A7] overflow-x-hidden">
+      <style>{`
+        @keyframes slide1 {
+          0% { transform: translate(-1544px, -1068px); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(451px, 317px); opacity: 0; }
+        }
+        @keyframes slide2 {
+          0% { transform: translate(-1452px, -1128px); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(521px, 257px); opacity: 0; }
+        }
+        @keyframes slide1-right {
+          0% { transform: translate(-1544px, -1068px) scaleX(-1); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(451px, 317px) scaleX(-1); opacity: 0; }
+        }
+        @keyframes slide2-right {
+          0% { transform: translate(-1452px, -1128px) scaleX(-1); opacity: 0; }
+          5% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(521px, 257px) scaleX(-1); opacity: 0; }
+        }
+        .icon-lane1 { animation: slide1 20s linear infinite; }
+        .icon-lane2 { animation: slide2 20s linear infinite; }
+        .icon-lane1-right { animation: slide1-right 20s linear infinite; }
+        .icon-lane2-right { animation: slide2-right 20s linear infinite; }
+      `}</style>
+      <Navbar />
+      <HeroBackground>
+        <div className="flex flex-col w-full h-full">
+          {/* Hero Content below Navbar */}
+          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px] min-h-[400px] md:min-h-[500px]">
+            <div className="relative w-[240px] h-[220px] sm:w-[300px] sm:h-[275px] md:w-[350px] md:h-[320px] lg:w-[393px] lg:h-[355px] scale-[0.6] md:scale-[0.8] lg:scale-[0.95] xl:scale-[1.0] 2xl:scale-[1.15] transition-transform duration-300">
+              {/* Left Lines Behind Cube */}
+              <div className="absolute top-[-100px] md:top-[-120px] lg:top-[-142px] left-[-200px] md:left-[-250px] lg:left-[-300px] -z-10 pointer-events-none">
+                <HeroLines />
+              </div>
 
-      {/* Main Card */}
-      <div className="font-outfit relative z-10 w-full max-w-[1170px] min-h-fit lg:min-h-[685px] bg-[#FFFFFF] rounded-[36px] p-8 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_20px_70px_rgba(0,0,0,0.1)]">
-        
-        {/* Left Content Column */}
-        <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1 w-full max-w-[500px]">
-          <div className="flex items-center text-[#3C48F5] font-bold text-4xl tracking-tight mb-12 font-rubik">
-            <img src="/applogo.png" alt="E" className="h-10 w-auto mr-1" />
-            azypost
-          </div>
-          
-          <h1 className="text-[#2D2D2D] text-2xl sm:text-3xl font-medium leading-relaxed mb-12 max-w-[450px] font-rubik">
-            {t("A few adjustments are underway to optimize your experience on our platform. We are actively working to bring you a more fluid and high-performing interface. Stay tuned, we will be back very soon.", "Quelques ajustements sont en cours pour optimiser votre expérience sur notre plateforme. Nous travaillons activement à vous proposer une interface plus fluide et performante. Restez connectés, nous revenons vers vous très bientôt.")}
-          </h1>
+              {/* Right Lines Behind Cube (Mirrored) */}
+              <div className="absolute top-[-100px] md:top-[-120px] lg:top-[-142px] right-[-200px] md:right-[-250px] lg:right-[-300px] -z-10 pointer-events-none scale-x-[-1]">
+                <HeroLines right={true} />
+              </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("Enter your email", "Entrez votre email")}
-              required
-              className="flex-1 px-6 py-4 bg-white shadow-[0px_20px_70px_rgba(0,39,96,0.12)] rounded-lg text-lg text-[#2D2D2D] outline-none placeholder:text-[#A7A7A7] transition-shadow focus:shadow-[0px_20px_70px_rgba(0,103,255,0.2)]"
-            />
-            <button 
-              type="submit"
-              className="px-8 py-4 bg-[#3C48F5] text-white rounded-lg text-lg font-semibold hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300 shrink-0"
-            >
-              {subscribed ? t("Subscribed!", "Abonné !") : t("Subscribe", "S'abonner")}
-            </button>
-          </form>
-          
-          {/* Social Icons for Mobile */}
-          <div className="flex lg:hidden flex-row gap-6 mt-12 text-[#A7A7A7] text-2xl">
-            <FaFacebookF className="hover:text-[#0067FF] transition-colors cursor-pointer" />
-            <FaTwitter className="hover:text-[#0067FF] transition-colors cursor-pointer" />
-            <FaInstagram className="hover:text-[#0067FF] transition-colors cursor-pointer" />
+              {/* Cube Foreground */}
+              <IsometricCube />
+            </div>
+            
+            <HeroText />
           </div>
         </div>
-
-        {/* Right Content Column */}
-        <div className="flex-1 w-full flex flex-col items-center lg:items-end justify-center relative mt-8 lg:mt-0">
-          {/* By Bestcorp Label for Desktop */}
-          <a 
-            href="https://www.bestcorpcmr.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hidden lg:flex absolute -top-12 right-4 items-center gap-2 text-black text-xl font-medium tracking-wide hover:opacity-80 transition-opacity font-rubik"
-          >
-            <img src="/logos/BC-violet.png" alt="Bestcorp" className="h-20 w-auto" />
-          </a>
-
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="w-full max-w-[512px] aspect-square object-cover rounded-[36px] border-none outline-none ring-0 shadow-none"
-          >
-            <source src="/coming-soon.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
-        
-        .font-outfit {
-          font-family: 'Outfit', sans-serif;
-        }
-
-        .font-rubik {
-          font-family: 'Rubik', sans-serif;
-        }
-      `}} />
-    </div>
+      </HeroBackground>
+      
+      <ImpactSection />
+      <PublishSection />
+      <ConnectSection />
+      <UsersSection />
+      <AProposSection />
+      <FaqSection />
+      <ContactSection />
+    </main>
   );
 }

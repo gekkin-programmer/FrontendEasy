@@ -3,17 +3,17 @@ import { Rubik } from "next/font/google";
 import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
 import Script from "next/script";
 import "./globals.css";
-import Navbar from "../components/Navbar";
-import { LanguageProvider } from "../context/LanguageContext";
-import Footer from "../components/Footer";
-import QueryProvider from "@/src/providers/query-provider";
-import AgentationLoader from "../components/AgentationLoader";
+import Navbar from "@/components/layout/Navbar";
+import { LanguageProvider } from "@/context/LanguageContext";
+import Footer from "@/components/layout/Footer";
+import QueryProvider from "@/providers/query-provider";
+import AgentationLoader from "@/components/common/AgentationLoader";
 
 const rubik = Rubik({
   subsets: ["latin"],
   variable: "--font-rubik",
   display: "swap",
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "700", "800", "900"],
 });
 
 // ➤ 1. MOBILE VIEWPORT CONFIG (Prevents iOS zoom on inputs)
@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${rubik.variable} font-sans antialiased bg-[#F4F4F0] text-black dark:bg-black dark:text-white transition-colors duration-300`}>
+      <body className={`${rubik.variable} font-sans antialiased bg-white text-black transition-colors duration-300 overflow-x-hidden w-full`}>
         <Script src="https://cdn.lordicon.com/lordicon.js" strategy="afterInteractive" />
         
         <QueryProvider>
@@ -92,10 +92,11 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            <main className="min-h-screen">
+            <main className="min-h-screen pt-16 md:pt-1">
               {children}
             </main>
 
+            <Footer />
             <AgentationLoader />
 
           </LanguageProvider>
