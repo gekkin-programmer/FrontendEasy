@@ -222,7 +222,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {post.status === 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
-              title="Repost"
+              title={t('Repost', 'Republier')}
               className="bg-white hover:bg-white border-black hover:border-black"
             >
               <RefreshCw size={14} className="text-black dark:text-white" />
@@ -232,7 +232,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {post.status === 'FAILED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
-              title="Retry Publication"
+              title={t('Retry Publication', 'Réessayer la publication')}
               className="bg-white hover:bg-white border-black hover:border-black"
             >
               <RefreshCw size={14} className="text-black" />
@@ -242,7 +242,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
-              title="Publish Now"
+              title={t('Publish Now', 'Publier maintenant')}
               className="bg-white hover:bg-white border-black hover:border-black"
             >
               <Send size={14} className="text-black dark:text-white" />
@@ -252,7 +252,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {isQueued && post.status === 'SCHEDULED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
-              title="Cancel Schedule"
+              title={t('Cancel Schedule', 'Annuler la planification')}
               className="bg-white hover:bg-white border-black hover:border-black"
             >
               <Clock size={14} className="text-black dark:text-white" />
@@ -262,7 +262,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           {post.status !== 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
-              title="Edit Post"
+              title={t('Edit Post', 'Modifier le post')}
             >
               <Edit2 size={14} className="text-black dark:text-white" />
             </NeuButton>
@@ -270,7 +270,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
           <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
-            title="Delete Post"
+            title={t('Delete Post', 'Supprimer le post')}
             className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:border-red-600 hover:text-white hover:shadow-[2px_2px_0px_0px_#991b1b] dark:hover:bg-red-500 dark:hover:border-red-600 dark:hover:text-white transition-all"
           >
             <Trash2 size={14} />

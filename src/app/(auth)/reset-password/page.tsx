@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ResetPasswordPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -26,11 +28,11 @@ export default function ResetPasswordPage() {
   const handleSubmit = async () => {
     if (!password || !confirm) return;
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError(t('Passwords do not match.', 'Les mots de passe ne correspondent pas.'));
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(t('Password must be at least 8 characters.', 'Le mot de passe doit contenir au moins 8 caractères.'));
       return;
     }
 
@@ -47,13 +49,13 @@ export default function ResetPasswordPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.message || t('Something went wrong', 'Une erreur est survenue'));
       }
 
       setDone(true);
       setTimeout(() => router.push('/login'), 3000);
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || t('Something went wrong', 'Une erreur est survenue'));
     } finally {
       setIsLoading(false);
     }
@@ -63,10 +65,10 @@ export default function ResetPasswordPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white font-sans">
         <div className="text-center max-w-sm px-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Invalid link</h2>
-          <p className="text-gray-600 mb-6">This reset link is missing or malformed.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">{t('Invalid link', 'Lien invalide')}</h2>
+          <p className="text-gray-600 mb-6">{t('This reset link is missing or malformed.', 'Ce lien de réinitialisation est manquant ou incorrect.')}</p>
           <Link href="/forgot-password" className="font-bold text-[#174CD2] hover:text-blue-700">
-            Request a new one →
+            {t('Request a new one', 'Demander un nouveau lien')} →
           </Link>
         </div>
       </div>
@@ -82,8 +84,8 @@ export default function ResetPasswordPage() {
           <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
             <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" width={48} height={48} className="object-contain" priority />
           </Link>
-          <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">Choose a strong password you&apos;ll actually remember.</h1>
-          <p className="text-gray-400 text-lg">Min. 8 characters. Mix letters, numbers, and symbols.</p>
+          <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">{t("Choose a strong password you'll actually remember.", 'Choisissez un mot de passe fort dont vous vous souviendrez.')}</h1>
+          <p className="text-gray-400 text-lg">{t('Min. 8 characters. Mix letters, numbers, and symbols.', 'Min. 8 caractères. Mélangez lettres, chiffres et symboles.')}</p>
         </div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#174CD2]/20 rounded-full blur-[120px] pointer-events-none" />
       </div>
@@ -105,19 +107,19 @@ export default function ResetPasswordPage() {
               <div className="flex justify-center mb-6">
                 <CheckCircle className="w-16 h-16 text-[#174CD2]" />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">Password updated!</h2>
-              <p className="text-gray-600">Redirecting you to sign in...</p>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">{t('Password updated!', 'Mot de passe mis à jour !')}</h2>
+              <p className="text-gray-600">{t('Redirecting you to sign in...', 'Redirection vers la connexion...')}</p>
             </div>
           ) : (
             <>
               <div className="mb-8">
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">Set new password</h2>
-                <p className="mt-2 text-base text-gray-600">Must be at least 8 characters.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">{t('Set new password', 'Définir un nouveau mot de passe')}</h2>
+                <p className="mt-2 text-base text-gray-600">{t('Must be at least 8 characters.', 'Au moins 8 caractères.')}</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">New password</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">{t('New password', 'Nouveau mot de passe')}</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -137,7 +139,7 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Confirm password</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">{t('Confirm password', 'Confirmer le mot de passe')}</label>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={confirm}
@@ -161,7 +163,7 @@ export default function ResetPasswordPage() {
                   className="w-full bg-[#174CD2] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading && <Loader2 className="animate-spin w-4 h-4" />}
-                  {isLoading ? 'Updating...' : 'Update password'}
+                  {isLoading ? t('Updating...', 'Mise à jour...') : t('Update password', 'Mettre à jour le mot de passe')}
                 </button>
               </div>
             </>

@@ -134,7 +134,7 @@ export default function EasyAI() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-white dark:bg-black border-4 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] rounded-full group"
-                aria-label="Open AI Chat"
+                aria-label={t('Open AI Chat', 'Ouvrir le chat IA')}
             >
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                     <Image 
@@ -147,7 +147,7 @@ export default function EasyAI() {
                 </div>
                 
                 <div className="text-left hidden sm:block">
-                    <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-wider">Online</p>
+                    <p className="text-[10px] text-gray-500 dark:text-zinc-400 font-bold uppercase tracking-wider">{t('Online', 'En ligne')}</p>
                     <p className="text-sm font-black text-black dark:text-white uppercase transition-colors">
                         {isDashboard ? t("ASK STEVE", "DEMANDER À STEVE") : t("NEED HELP?", "BESOIN D'AIDE ?")}
                     </p>

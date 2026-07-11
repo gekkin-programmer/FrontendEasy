@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CreateursHero() {
+  const { t } = useLanguage();
   return (
     <section className="relative w-full h-auto min-h-[100dvh] lg:h-screen bg-white flex flex-col lg:flex-row items-center overflow-hidden py-[80px] lg:py-0">
       
@@ -13,20 +15,20 @@ export default function CreateursHero() {
         <div className="w-full lg:w-[422px] flex flex-col justify-center gap-[20px] lg:pl-[12px] z-20">
           <div className="flex flex-col">
             <h2 className="text-[#000000] text-[24px] md:text-[36px] leading-[45px] font-['Rubik_One'] font-normal -mb-2">
-              EazyPost Pour les
+              {t("EazyPost For", "EazyPost Pour les")}
             </h2>
             <h1 className="text-[#174CD2] text-[40px] md:text-[70px] leading-[87px] font-['Rubik_One'] font-normal">
-              Créateurs
+              {t("Creators", "Créateurs")}
             </h1>
           </div>
-          
+
           <p className="text-[#000000] text-[16px] font-medium leading-[19px] font-['Rubik'] max-w-[412px]">
-            Publie régulièrement, analyse tes performances et professionnalise ton image, sans passer ta vie sur les réseaux.
+            {t("Publish regularly, analyze your performance and professionalize your image, without spending your life on social media.", "Publie régulièrement, analyse tes performances et professionnalise ton image, sans passer ta vie sur les réseaux.")}
           </p>
-          
+
           <div className="mt-4">
             <button className="bg-[#174CD2] text-white font-sans font-bold text-[24px] leading-[30px] rounded-[40px] flex items-center justify-center w-full max-w-[307px] h-[70px] hover:scale-105 transition-transform shadow-[0px_4px_4px_5px_rgba(23,76,210,0.53)]">
-              En savoir plus sur nous
+              {t("Learn more about us", "En savoir plus sur nous")}
             </button>
           </div>
         </div>

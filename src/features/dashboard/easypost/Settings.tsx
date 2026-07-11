@@ -883,7 +883,7 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
             </p>
           </div>
           {isFree && (
-            <NeuButton onClick={() => window.location.href = '/pricing'} icon={<FiZap />}>
+            <NeuButton onClick={() => window.location.href = '/tarifs'} icon={<FiZap />}>
               {t('Upgrade Plan', 'Améliorer le plan')}
             </NeuButton>
           )}
@@ -918,7 +918,7 @@ function BillingSettings({ workspaceId }: { workspaceId: string }) {
                   <div className="mt-1.5 flex items-center justify-between">
                     <span className="text-[9px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">{t('LIMIT REACHED · ACTION BLOCKED', 'LIMITE ATTEINTE · ACTION BLOQUÉE')}</span>
                     <button
-                      onClick={() => window.location.href = '/pricing'}
+                      onClick={() => window.location.href = '/tarifs'}
                       className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white hover:underline"
                     >
                       {t('Upgrade →', 'Améliorer →')}

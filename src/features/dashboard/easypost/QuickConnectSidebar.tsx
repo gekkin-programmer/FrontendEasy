@@ -97,7 +97,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                 <div className="flex items-center gap-2 w-full justify-center mb-1 bg-black -mx-2 mt-1 px-2 pt-3 pb-2">
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
-                            onClick={() => router.push('/pricing')}
+                            onClick={() => router.push('/tarifs')}
                             className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-700 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                             title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >

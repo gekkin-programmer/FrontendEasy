@@ -4,6 +4,7 @@ import React from 'react';
 import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
 import { PlatformModeResult } from './usePlatformMode';
 import { PlatformIcon } from './PlatformIcon';
+import { useLanguage } from '@/context/LanguageContext';
 
 const YT_CATEGORIES = [
   'Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals',
@@ -105,6 +106,7 @@ export function PlatformSpecificPanels({
   tiktokHashtags, setTiktokHashtags,
   tiktokHasVideo,
 }: PlatformSpecificPanelsProps) {
+  const { t } = useLanguage();
   const ids = platformMode.postPlatforms.map((p) => p.id);
   const hasYT = ids.includes('youtube');
   const hasPin = ids.includes('pinterest');
@@ -115,8 +117,8 @@ export function PlatformSpecificPanels({
   // Tag chip input helpers — declared before early return to satisfy Rules of Hooks
   const [tagInput, setTagInput] = React.useState('');
   const addTag = () => {
-    const t = tagInput.trim().replace(/^#/, '');
-    if (t && !ytTags.includes(t)) setYtTags([...ytTags, t]);
+    const tag = tagInput.trim().replace(/^#/, '');
+    if (tag && !ytTags.includes(tag)) setYtTags([...ytTags, tag]);
     setTagInput('');
   };
 
@@ -130,8 +132,8 @@ export function PlatformSpecificPanels({
       {hasYT && (
         <>
           <PanelHeader
-            id="youtube" platform="youtube" label="YouTube Options"
-            badge={submitAttempted && !ytTitle ? 'Title required' : undefined}
+            id="youtube" platform="youtube" label={t('YouTube Options', 'Options YouTube')}
+            badge={submitAttempted && !ytTitle ? t('Title required', 'Titre requis') : undefined}
             expanded={expandedPanels.has('youtube')}
             onToggle={() => onTogglePanel('youtube')}
           />
@@ -139,41 +141,41 @@ export function PlatformSpecificPanels({
             <div className="px-4 py-4 space-y-3 border-t-0 bg-white dark:bg-zinc-900">
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  Video Title <span className="text-red-500">*</span>
+                  {t('Video Title', 'Titre de la vidéo')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={ytTitle}
                   onChange={(e) => setYtTitle(e.target.value)}
-                  placeholder="e.g. How to grow on Instagram in 2026"
+                  placeholder={t('e.g. How to grow on Instagram in 2026', 'ex. Comment grandir sur Instagram en 2026')}
                   className={`${inputCls} ${submitAttempted && !ytTitle ? 'border-red-600' : ''}`}
                 />
                 {submitAttempted && !ytTitle && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">Title is required for YouTube</p>
+                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Title is required for YouTube', 'Le titre est requis pour YouTube')}</p>
                 )}
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Category</label>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Category', 'Catégorie')}</label>
                 <select
                   value={ytCategory}
                   onChange={(e) => setYtCategory(e.target.value)}
                   className={inputCls}
                 >
-                  <option value="">Select category...</option>
+                  <option value="">{t('Select category...', 'Choisir une catégorie...')}</option>
                   {YT_CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Tags</label>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Tags', 'Tags')}</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); } }}
-                    placeholder="Add tag, press Enter"
+                    placeholder={t('Add tag, press Enter', 'Ajouter un tag, appuyez sur Entrée')}
                     className={`${inputCls} flex-1`}
                   />
                   <button type="button" onClick={addTag} className="px-3 py-1 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase">+</button>
@@ -198,22 +200,22 @@ export function PlatformSpecificPanels({
       {hasPin && (
         <>
           <PanelHeader
-            id="pinterest" platform="pinterest" label="Pinterest Pin"
+            id="pinterest" platform="pinterest" label={t('Pinterest Pin', 'Épingle Pinterest')}
             expanded={expandedPanels.has('pinterest')}
             onToggle={() => onTogglePanel('pinterest')}
           />
           {expandedPanels.has('pinterest') && (
             <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Board</label>
-                <input type="text" value={pinBoard} onChange={(e) => setPinBoard(e.target.value)} placeholder="e.g. African Fashion" className={inputCls} />
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Board', 'Tableau')}</label>
+                <input type="text" value={pinBoard} onChange={(e) => setPinBoard(e.target.value)} placeholder={t('e.g. African Fashion', 'ex. Mode Africaine')} className={inputCls} />
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Pin Title</label>
-                <input type="text" value={pinTitle} onChange={(e) => setPinTitle(e.target.value)} placeholder="e.g. Top 10 African Tech Startups" className={inputCls} />
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Pin Title', "Titre de l'épingle")}</label>
+                <input type="text" value={pinTitle} onChange={(e) => setPinTitle(e.target.value)} placeholder={t('e.g. Top 10 African Tech Startups', 'ex. Top 10 des startups tech africaines')} className={inputCls} />
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Destination URL</label>
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Destination URL', 'URL de destination')}</label>
                 <input type="url" value={pinDestUrl} onChange={(e) => setPinDestUrl(e.target.value)} placeholder="https://yoursite.com/article" className={inputCls} />
               </div>
             </div>
@@ -225,7 +227,7 @@ export function PlatformSpecificPanels({
       {hasLI && (
         <>
           <PanelHeader
-            id="linkedin" platform="linkedin" label="LinkedIn Options"
+            id="linkedin" platform="linkedin" label={t('LinkedIn Options', 'Options LinkedIn')}
             expanded={expandedPanels.has('linkedin')}
             onToggle={() => onTogglePanel('linkedin')}
           />
@@ -237,19 +239,19 @@ export function PlatformSpecificPanels({
                   onClick={() => setLiArticleMode(false)}
                   className={`px-4 py-2 border-2 border-black dark:border-white text-[10px] font-black uppercase transition-all ${!liArticleMode ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
                 >
-                  Post
+                  {t('Post', 'Post')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setLiArticleMode(true)}
                   className={`px-4 py-2 border-2 border-l-0 border-black dark:border-white text-[10px] font-black uppercase transition-all ${liArticleMode ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
                 >
-                  Article
+                  {t('Article', 'Article')}
                 </button>
               </div>
               {liArticleMode && (
                 <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 uppercase mt-2">
-                  Content will be published as a LinkedIn article (long-form)
+                  {t('Content will be published as a LinkedIn article (long-form)', 'Le contenu sera publié comme un article LinkedIn (format long)')}
                 </p>
               )}
             </div>
@@ -261,7 +263,7 @@ export function PlatformSpecificPanels({
       {hasIG && (
         <>
           <PanelHeader
-            id="instagram" platform="instagram" label="Instagram Options"
+            id="instagram" platform="instagram" label={t('Instagram Options', 'Options Instagram')}
             expanded={expandedPanels.has('instagram')}
             onToggle={() => onTogglePanel('instagram')}
           />
@@ -269,20 +271,20 @@ export function PlatformSpecificPanels({
             <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  First Comment
+                  {t('First Comment', 'Premier commentaire')}
                 </label>
                 <textarea
                   value={firstComment}
                   onChange={(e) => setFirstComment(e.target.value)}
-                  placeholder="Appears instantly in the comments section"
+                  placeholder={t('Appears instantly in the comments section', 'Apparaît instantanément dans la section commentaires')}
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — posted as a comment, not in caption</p>
+                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — {t('posted as a comment, not in caption', 'publié en commentaire, pas dans la légende')}</p>
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">Alt Text (accessibility)</label>
-                <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Describe this image for screen readers" className={inputCls} />
+                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Alt Text (accessibility)', 'Texte alternatif (accessibilité)')}</label>
+                <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder={t('Describe this image for screen readers', "Décrivez cette image pour les lecteurs d'écran")} className={inputCls} />
               </div>
             </div>
           )}
@@ -293,10 +295,10 @@ export function PlatformSpecificPanels({
       {hasTK && (
         <>
           <PanelHeader
-            id="tiktok" platform="tiktok" label="TikTok Settings"
+            id="tiktok" platform="tiktok" label={t('TikTok Settings', 'Paramètres TikTok')}
             badge={
               (submitAttempted && (!tiktokTitle || !tiktokPrivacyLevel)) || tiktokDisclosureInvalid
-                ? 'Required fields'
+                ? t('Required fields', 'Champs requis')
                 : undefined
             }
             expanded={expandedPanels.has('tiktok')}
@@ -308,7 +310,7 @@ export function PlatformSpecificPanels({
               {/* Point 1: Creator Info */}
               {tiktokCreatorNickname && (
                 <div className="flex items-center gap-2 px-3 py-2 border-2 border-black/20 dark:border-white/20 bg-zinc-50 dark:bg-zinc-800">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400">Posting as:</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400">{t('Posting as:', 'Publication en tant que :')}</span>
                   <span className="text-[10px] font-black text-black dark:text-white">@{tiktokCreatorNickname}</span>
                 </div>
               )}
@@ -316,45 +318,45 @@ export function PlatformSpecificPanels({
               {/* Point 2: Post Title */}
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  Post Title <span className="text-red-500">*</span>
+                  {t('Post Title', 'Titre du post')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={tiktokTitle}
                   onChange={e => setTiktokTitle(e.target.value)}
-                  placeholder="Describe your video..."
+                  placeholder={t('Describe your video...', 'Décrivez votre vidéo...')}
                   className={`${inputCls} ${submitAttempted && !tiktokTitle ? 'border-red-600' : ''}`}
                 />
                 {submitAttempted && !tiktokTitle && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">Title is required for TikTok</p>
+                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Title is required for TikTok', 'Le titre est requis pour TikTok')}</p>
                 )}
               </div>
 
               {/* Point 2: Privacy Status */}
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  Privacy Status <span className="text-red-500">*</span>
+                  {t('Privacy Status', 'Confidentialité')} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={tiktokPrivacyLevel}
                   onChange={e => setTiktokPrivacyLevel(e.target.value)}
                   className={`${inputCls} ${submitAttempted && !tiktokPrivacyLevel ? 'border-red-600' : ''}`}
                 >
-                  <option value="">Select privacy...</option>
-                  <option value="PUBLIC_TO_EVERYONE">Everyone</option>
-                  <option value="MUTUAL_FOLLOW_FRIENDS">Friends</option>
-                  <option value="FOLLOWER_OF_CREATOR">Followers</option>
-                  {!tiktokBrandContent && <option value="SELF_ONLY">Only me</option>}
+                  <option value="">{t('Select privacy...', 'Choisir la confidentialité...')}</option>
+                  <option value="PUBLIC_TO_EVERYONE">{t('Everyone', 'Tout le monde')}</option>
+                  <option value="MUTUAL_FOLLOW_FRIENDS">{t('Friends', 'Amis')}</option>
+                  <option value="FOLLOWER_OF_CREATOR">{t('Followers', 'Abonnés')}</option>
+                  {!tiktokBrandContent && <option value="SELF_ONLY">{t('Only me', 'Moi uniquement')}</option>}
                 </select>
                 {submitAttempted && !tiktokPrivacyLevel && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">Privacy is required for TikTok</p>
+                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Privacy is required for TikTok', 'La confidentialité est requise pour TikTok')}</p>
                 )}
               </div>
 
               {/* Point 2: Interaction Settings */}
               <div className="space-y-2">
                 <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block">
-                  Interaction Settings
+                  {t('Interaction Settings', "Paramètres d'interaction")}
                 </span>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
@@ -363,7 +365,7 @@ export function PlatformSpecificPanels({
                     onChange={e => setTiktokAllowComment(e.target.checked)}
                     className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
                   />
-                  <span className="text-[10px] font-black text-black dark:text-white">Allow Comment</span>
+                  <span className="text-[10px] font-black text-black dark:text-white">{t('Allow Comment', 'Autoriser les commentaires')}</span>
                 </label>
                 {tiktokHasVideo && (
                   <>
@@ -407,10 +409,10 @@ export function PlatformSpecificPanels({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1">
                     <span className="text-[10px] font-black uppercase text-black dark:text-white block">
-                      Content Disclosure Setting
+                      {t('Content Disclosure Setting', 'Divulgation de contenu')}
                     </span>
                     <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                      Indicate if content promotes yourself, a brand, product, or service
+                      {t('Indicate if content promotes yourself, a brand, product, or service', 'Indiquez si le contenu fait la promotion de vous-même, d\'une marque, d\'un produit ou d\'un service')}
                     </p>
                   </div>
                   <button
@@ -441,13 +443,13 @@ export function PlatformSpecificPanels({
                         onChange={e => setTiktokYourBrand(e.target.checked)}
                         className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">Your brand</span>
+                      <span className="text-[10px] font-black text-black dark:text-white">{t('Your brand', 'Votre marque')}</span>
                     </label>
                     <label
                       className={`flex items-center gap-2 select-none ${
                         tiktokPrivacyLevel === 'SELF_ONLY' ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
                       }`}
-                      title={tiktokPrivacyLevel === 'SELF_ONLY' ? 'Branded content visibility cannot be set to private' : ''}
+                      title={tiktokPrivacyLevel === 'SELF_ONLY' ? t('Branded content visibility cannot be set to private', 'La visibilité du contenu de marque ne peut pas être privée') : ''}
                     >
                       <input
                         type="checkbox"
@@ -460,18 +462,18 @@ export function PlatformSpecificPanels({
                         }}
                         className="w-3 h-3 accent-black dark:accent-white cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">Branded content</span>
+                      <span className="text-[10px] font-black text-black dark:text-white">{t('Branded content', 'Contenu de marque')}</span>
                     </label>
 
                     {(tiktokYourBrand || tiktokBrandContent) ? (
                       <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 italic">
                         {tiktokBrandContent
-                          ? "Your photo/video will be labeled as 'Paid partnership'"
-                          : "Your photo/video will be labeled as 'Promotional content'"}
+                          ? t("Your photo/video will be labeled as 'Paid partnership'", "Votre photo/vidéo sera étiquetée 'Partenariat rémunéré'")
+                          : t("Your photo/video will be labeled as 'Promotional content'", "Votre photo/vidéo sera étiquetée 'Contenu promotionnel'")}
                       </p>
                     ) : (
                       <p className="text-[9px] font-black uppercase text-red-500">
-                        Select at least one option above to continue
+                        {t('Select at least one option above to continue', 'Sélectionnez au moins une option ci-dessus pour continuer')}
                       </p>
                     )}
 
@@ -503,13 +505,13 @@ export function PlatformSpecificPanels({
 
               {/* Point 5: Post-publish processing notice */}
               <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 italic leading-relaxed">
-                After you finish publishing your content, it may take a few minutes for the content to process and be visible on their profile.
+                {t('After you finish publishing your content, it may take a few minutes for the content to process and be visible on their profile.', 'Après la publication, le traitement du contenu peut prendre quelques minutes avant d\'être visible sur le profil.')}
               </p>
 
               {/* Hashtags */}
               <div>
                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  Hashtags
+                  {t('Hashtags', 'Hashtags')}
                 </label>
                 <textarea
                   value={tiktokHashtags}

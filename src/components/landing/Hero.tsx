@@ -216,7 +216,7 @@ const Hero: React.FC = () => {
                 <ScribbleArrow />
             </div>
 
-            <Link href="/pricing" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border border-gray-200 dark:border-white/10 hover:bg-black/5 transition-colors rounded-xl flex items-center gap-2">
+            <Link href="/tarifs" className="w-full sm:w-auto justify-center px-8 py-4 bg-transparent text-black dark:text-white font-bold text-lg border border-gray-200 dark:border-white/10 hover:bg-black/5 transition-colors rounded-xl flex items-center gap-2">
                 {t("View Pricing", "Voir les Tarifs")}
             </Link>
         </motion.div>

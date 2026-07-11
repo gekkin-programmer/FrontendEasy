@@ -11,6 +11,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e:server": "next dev -p 3001",
+    "i18n:check": "node scripts/check-i18n.mjs",
     "verify": "pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {

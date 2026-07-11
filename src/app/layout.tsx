@@ -13,7 +13,7 @@ const rubik = Rubik({
   subsets: ["latin"],
   variable: "--font-rubik",
   display: "swap",
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "700", "800", "900"],
 });
 
 // ➤ 1. MOBILE VIEWPORT CONFIG (Prevents iOS zoom on inputs)

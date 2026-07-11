@@ -9,8 +9,8 @@ export default function UsersSection() {
 
   const getCardClasses = (index: number, leftPosition: string) => {
     // Map the 1440px positions to scaled xl positions to fit 1280px evenly
-    const xlLeft = index === 0 ? "xl:left-[60px]" : 
-                   index === 1 ? "xl:left-[365px]" : 
+    const xlLeft = index === 0 ? "xl:left-[60px]" :
+                   index === 1 ? "xl:left-[365px]" :
                    index === 2 ? "xl:left-[670px]" : "xl:left-[975px]";
     const baseClasses = `absolute ${xlLeft} 2xl:${leftPosition} max-[1279px]:${leftPosition} bg-white rounded-[10px] cursor-pointer transition-all duration-300 origin-top-left w-[229px] h-[231px]`;
     if (selectedCard === index) {
@@ -186,7 +186,7 @@ const influencers = influencersData[selectedCard];
             {/* Card 2 */}
             <div 
               onClick={() => setSelectedCard(1)} 
-              className={getCardClasses(1, "left-[410px]")}
+              className={getCardClasses(1, "left-[420px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Small & Medium Businesses", "Petites & Moyennes Entreprises")}
@@ -209,7 +209,7 @@ const influencers = influencersData[selectedCard];
             {/* Card 3 */}
             <div 
               onClick={() => setSelectedCard(2)} 
-              className={getCardClasses(2, "left-[780px]")}
+              className={getCardClasses(2, "left-[800px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Agencies", "Agences")}
@@ -232,7 +232,7 @@ const influencers = influencersData[selectedCard];
             {/* Card 4 */}
             <div 
               onClick={() => setSelectedCard(3)} 
-              className={getCardClasses(3, "left-[1150px]")}
+              className={getCardClasses(3, "left-[1180px]")}
             >
               <h3 className="absolute top-[15px] left-[12px] font-sans font-bold text-[16px] leading-[19px] text-[#000000] w-[165px]">
                 {t("Organizations & Institutions", "Organisations & Institutions")}

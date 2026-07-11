@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import { Send, Clock } from 'lucide-react';
 import { PlatformConfig } from './platformConfig';
 import { PlatformIcon } from './PlatformIcon';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface BroadcastPanelProps {
   broadcastPlatforms: PlatformConfig[];
@@ -63,6 +64,7 @@ export function BroadcastPanel({
   onBroadcast,
   asLane = false,
 }: BroadcastPanelProps) {
+  const { t } = useLanguage();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const primaryPlatform = broadcastPlatforms[0];
@@ -122,7 +124,7 @@ export function BroadcastPanel({
         ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Write your broadcast message... (Markdown supported)"
+        placeholder={t('Write your broadcast message... (Markdown supported)', 'Écrivez votre message de diffusion... (Markdown pris en charge)')}
         rows={10}
         className="w-full px-4 py-3 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white font-mono text-sm resize-none focus:outline-none placeholder:text-gray-400 dark:placeholder:text-zinc-600 min-h-[240px]"
       />

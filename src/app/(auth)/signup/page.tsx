@@ -185,9 +185,9 @@ export default function SignupPage() {
                   </div>
                   <span className="font-sans font-medium text-[clamp(10px,1.5vw,12px)] leading-[14px] text-[#000000] flex-1">
                     {t("I agree to the ", "J'accepte les ")}
-                    <a href="#" className="font-semibold hover:underline" onClick={(e) => e.stopPropagation()}>{t("terms", "termes")}</a>
+                    <a href="/legal/terms" target="_blank" rel="noopener" className="font-semibold hover:underline" onClick={(e) => e.stopPropagation()}>{t('Terms of Service', "Conditions d'utilisation")}</a>
                     {t(" and ", " et la ")}
-                    <a href="#" className="font-semibold hover:underline" onClick={(e) => e.stopPropagation()}>{t("policy", "politique")}</a>
+                    <a href="/legal/privacy" target="_blank" rel="noopener" className="font-semibold hover:underline" onClick={(e) => e.stopPropagation()}>{t('Privacy Policy', 'Politique de confidentialité')}</a>
                   </span>
                   <input 
                     type="checkbox" 
@@ -293,7 +293,7 @@ export default function SignupPage() {
                   disabled={isLoading} 
                   className="w-full h-[32px] bg-[#174CD2] rounded-[10px] flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50 gap-2"
                 >
-                  {isLoading ? <Loader2 className="animate-spin w-[20px] h-[20px] text-white"/> : <><FaCheck className="text-white"/> <span className="text-white font-sans font-bold">Verify & Create Account</span></>}
+                  {isLoading ? <Loader2 className="animate-spin w-[20px] h-[20px] text-white"/> : <><FaCheck className="text-white"/> <span className="text-white font-sans font-bold">{t('Verify & Create Account', 'Vérifier & Créer le compte')}</span></>}
                 </button>
                 <button type="button" onClick={() => setStep('FORM')} className="text-[#000000] hover:underline hover:text-[#174CD2] text-[14px] font-sans">
                   {t('Change email address', 'Changer d\'adresse e-mail')}

@@ -458,7 +458,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             className="text-xs font-bold text-left text-black dark:text-white hover:text-[#174CD2] dark:hover:text-blue-400 transition-colors leading-relaxed"
           >
             &ldquo;That&apos;s wonderful to hear, Sarah! We&apos;re so glad the bulk upload feature worked perfectly for you...&rdquo;
-            <span className="text-[#174CD2] dark:text-blue-400 font-black ml-2 uppercase">Apply →</span>
+            <span className="text-[#174CD2] dark:text-blue-400 font-black ml-2 uppercase">{t('Apply', 'Appliquer')} →</span>
           </button>
         </div>
       </div>

@@ -62,7 +62,7 @@ export default function AProposSection() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/apropos-image.jpg"
-            alt="À propos de nous"
+            alt={t("About us", "À propos de nous")}
             className="w-full h-full object-cover"
           />
         </div>

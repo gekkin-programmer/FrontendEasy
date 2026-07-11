@@ -4,46 +4,48 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaArrowLeft, FaUser, FaBriefcase, FaCamera, FaGlobe, FaBuilding, FaCheck } from 'react-icons/fa6';
-import SpinningLoader from '@/components/common/SpinningLoader'; 
+import SpinningLoader from '@/components/common/SpinningLoader';
+import { useLanguage } from '@/context/LanguageContext';
 
-// --- 1. DATA CONFIGURATION (Unchanged) ---
+// --- 1. DATA CONFIGURATION ---
 
 type CategoryType = 'personal' | 'business' | 'creator' | 'agency' | 'enterprise';
-
-const CATEGORIES = [
-  { id: 'personal', name: 'Personal', icon: FaUser, desc: 'Individual users & hobbyists' },
-  { id: 'business', name: 'Business', icon: FaBriefcase, desc: 'Shops & companies' },
-  { id: 'creator', name: 'Creator', icon: FaCamera, desc: 'Influencers & content creators' },
-  { id: 'agency', name: 'Agency', icon: FaGlobe, desc: 'Marketing agencies managing clients' },
-  { id: 'enterprise', name: 'Enterprise', icon: FaBuilding, desc: 'Large organizations' },
-];
-
-const PLANS: Record<string, any[]> = {
-  personal: [
-    { id: 'FREE', name: 'Gratuit', price: '0 FCFA', period: '/mois', features: ['1 Workspace', '2 Social Accounts', '10 Posts/mois'] },
-    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
-  ],
-  business: [
-    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
-    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', isPopular: true, features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
-  ],
-  creator: [
-    { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: '/mois', features: ['3 Workspaces', '5 Social Accounts', '100 Posts/mois'] },
-    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
-  ],
-  agency: [
-    { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: '/mois', features: ['10 Workspaces', '15 Social Accounts', 'Unlimited Posts'] },
-    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Custom', period: '', features: ['Unlimited Everything', 'White-label', 'Dedicated Support'] },
-  ],
-  enterprise: [
-    { id: 'ENTERPRISE', name: 'Enterprise', price: 'Sur devis', period: '', features: ['Unlimited Everything', 'Custom Integrations', 'SLA Support'] }
-  ]
-};
 
 // --- 2. COMPONENT ---
 
 export default function OnboardingPage() {
+  const { t } = useLanguage();
   const router = useRouter();
+
+  const CATEGORIES = [
+    { id: 'personal', name: t('Personal', 'Personnel'), icon: FaUser, desc: t('Individual users & hobbyists', 'Utilisateurs individuels & amateurs') },
+    { id: 'business', name: t('Business', 'Entreprise'), icon: FaBriefcase, desc: t('Shops & companies', 'Boutiques & sociétés') },
+    { id: 'creator', name: t('Creator', 'Créateur'), icon: FaCamera, desc: t('Influencers & content creators', 'Influenceurs & créateurs de contenu') },
+    { id: 'agency', name: t('Agency', 'Agence'), icon: FaGlobe, desc: t('Marketing agencies managing clients', 'Agences marketing gérant des clients') },
+    { id: 'enterprise', name: t('Enterprise', 'Grande entreprise'), icon: FaBuilding, desc: t('Large organizations', 'Grandes organisations') },
+  ];
+
+  const PLANS: Record<string, any[]> = {
+    personal: [
+      { id: 'FREE', name: t('Free', 'Gratuit'), price: '0 FCFA', period: t('/month', '/mois'), features: ['1 Workspace', t('2 Social Accounts', '2 comptes sociaux'), t('10 Posts/month', '10 posts/mois')] },
+      { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: t('/month', '/mois'), features: ['3 Workspaces', t('5 Social Accounts', '5 comptes sociaux'), t('100 Posts/month', '100 posts/mois')] },
+    ],
+    business: [
+      { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: t('/month', '/mois'), features: ['3 Workspaces', t('5 Social Accounts', '5 comptes sociaux'), t('100 Posts/month', '100 posts/mois')] },
+      { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: t('/month', '/mois'), isPopular: true, features: ['10 Workspaces', t('15 Social Accounts', '15 comptes sociaux'), t('Unlimited Posts', 'Posts illimités')] },
+    ],
+    creator: [
+      { id: 'STARTER', name: 'Starter', price: '4,900 FCFA', period: t('/month', '/mois'), features: ['3 Workspaces', t('5 Social Accounts', '5 comptes sociaux'), t('100 Posts/month', '100 posts/mois')] },
+      { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: t('/month', '/mois'), features: ['10 Workspaces', t('15 Social Accounts', '15 comptes sociaux'), t('Unlimited Posts', 'Posts illimités')] },
+    ],
+    agency: [
+      { id: 'PROFESSIONAL', name: 'Pro', price: '14,900 FCFA', period: t('/month', '/mois'), features: ['10 Workspaces', t('15 Social Accounts', '15 comptes sociaux'), t('Unlimited Posts', 'Posts illimités')] },
+      { id: 'ENTERPRISE', name: 'Enterprise', price: t('Custom', 'Sur mesure'), period: '', features: [t('Unlimited Everything', 'Tout illimité'), t('White-label', 'Marque blanche'), t('Dedicated Support', 'Support dédié')] },
+    ],
+    enterprise: [
+      { id: 'ENTERPRISE', name: 'Enterprise', price: t('Custom quote', 'Sur devis'), period: '', features: [t('Unlimited Everything', 'Tout illimité'), t('Custom Integrations', 'Intégrations sur mesure'), t('SLA Support', 'Support SLA')] }
+    ]
+  };
 
   // State
   const [step, setStep] = useState(1); // 1 = Category, 2 = Plan
@@ -127,8 +129,8 @@ export default function OnboardingPage() {
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">How will you use EasyPost?</h1>
-        <p className="text-gray-500 mt-2">We&apos;ll customize your experience based on your needs.</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('How will you use EasyPost?', 'Comment allez-vous utiliser EasyPost ?')}</h1>
+        <p className="text-gray-500 mt-2">{t("We'll customize your experience based on your needs.", 'Nous personnaliserons votre expérience selon vos besoins.')}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-1">
@@ -163,12 +165,12 @@ export default function OnboardingPage() {
           onClick={() => setStep(1)} 
           className="mb-6 text-sm text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors"
         >
-          <FaArrowLeft /> Back to categories
+          <FaArrowLeft /> {t('Back to categories', 'Retour aux catégories')}
         </button>
-        
+
         <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Choose your {selectedCategory} plan</h1>
-            <p className="text-gray-500 mt-2">You can change this anytime. 14-day free trial included.</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('Choose your plan', 'Choisissez votre forfait')}</h1>
+            <p className="text-gray-500 mt-2">{t('You can change this anytime. 14-day free trial included.', 'Vous pouvez changer à tout moment. Essai gratuit de 14 jours inclus.')}</p>
         </div>
 
         <div className="space-y-4">
@@ -179,7 +181,7 @@ export default function OnboardingPage() {
             >
                 {plan.isPopular && (
                     <span className="absolute -top-3 right-6 bg-[#174CD2] text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                        POPULAR
+                        {t('POPULAR', 'POPULAIRE')}
                     </span>
                 )}
                 
@@ -196,7 +198,7 @@ export default function OnboardingPage() {
                         disabled={isLoading}
                         className="bg-[#174CD2] text-white hover:bg-blue-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? 'Setting up...' : 'Select Plan'}
+                        {isLoading ? t('Setting up...', 'Configuration...') : t('Select Plan', 'Choisir ce forfait')}
                     </button>
                 </div>
                 
@@ -258,7 +260,7 @@ export default function OnboardingPage() {
                         {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-sm">★</span>)}
                     </div>
                     <p className="text-lg font-medium leading-relaxed opacity-90">
-                        &ldquo;Setting up my workspace took less than 2 minutes. The onboarding experience is seamless.&rdquo;
+                        &ldquo;{t('Setting up my workspace took less than 2 minutes. The onboarding experience is seamless.', "La configuration de mon espace de travail a pris moins de 2 minutes. L'expérience d'intégration est fluide.")}&rdquo;
                     </p>
                 </div>
                 
@@ -268,7 +270,7 @@ export default function OnboardingPage() {
                     </div>
                     <div>
                         <p className="font-bold text-sm">Marcus Chen</p>
-                        <p className="text-xs text-gray-400">Content Creator</p>
+                        <p className="text-xs text-gray-400">{t('Content Creator', 'Créateur de contenu')}</p>
                     </div>
                 </div>
             </div>

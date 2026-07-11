@@ -677,6 +677,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
 // ==========================================
 
 function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen: boolean, onClose: () => void }) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
 
@@ -735,34 +736,34 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
           <div className="md:col-span-2 space-y-6">
             <div>
                <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{card.title}</h3>
-               <p className="text-xs font-bold text-gray-500 uppercase italic">In column: {card.column?.name}</p>
+               <p className="text-xs font-bold text-gray-500 uppercase italic">{t('In column:', 'Dans la colonne :')} {card.column?.name}</p>
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-black uppercase text-xs">Description</h4>
+              <h4 className="font-black uppercase text-xs">{t('Description', 'Description')}</h4>
               <div className="p-4 bg-gray-50 dark:bg-zinc-900 border-2 border-black dark:border-white min-h-[100px] text-sm">
-                {card.description || 'No description provided.'}
+                {card.description || t('No description provided.', 'Aucune description fournie.')}
               </div>
             </div>
 
             {/* Comments Section */}
             <div className="space-y-4">
                <h4 className="font-black uppercase text-xs flex items-center gap-2">
-                 <MessageSquare size={14}/> Discussions ({card.comments?.length || 0})
+                 <MessageSquare size={14}/> {t('Discussions', 'Discussions')} ({card.comments?.length || 0})
                </h4>
-               
+
                <div className="flex gap-2">
-                  <NeuInput 
-                    placeholder="WRITE_A_REPLY..." 
+                  <NeuInput
+                    placeholder={t('WRITE_A_REPLY...', 'ÉCRIRE_UNE_RÉPONSE...')}
                     value={comment}
                     onChange={(e: any) => setComment(e.target.value)}
                   />
-                  <NeuButton 
+                  <NeuButton
                     onClick={() => addCommentMutation.mutate(comment)}
                     className="bg-black text-white"
                     disabled={!comment.trim()}
                   >
-                    SEND
+                    {t('SEND', 'ENVOYER')}
                   </NeuButton>
                </div>
 
@@ -788,7 +789,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
           <div className="space-y-6">
             <div className="p-4 border-2 border-black dark:border-white bg-yellow-50 dark:bg-zinc-900 space-y-4">
                <div>
-                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">Assignee</h4>
+                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Assignee', 'Assigné à')}</h4>
                   {card.assignee ? (
                     <div className="flex items-center gap-2">
                        <div className="w-6 h-6 border-2 border-black overflow-hidden">
@@ -796,11 +797,11 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
                        </div>
                        <span className="font-bold text-xs">{card.assignee.firstName}</span>
                     </div>
-                  ) : <p className="text-xs font-bold text-gray-300">Unassigned</p>}
+                  ) : <p className="text-xs font-bold text-gray-300">{t('Unassigned', 'Non assigné')}</p>}
                </div>
 
                <div>
-                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">Priority</h4>
+                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Priority', 'Priorité')}</h4>
                   <span className={`px-2 py-0.5 font-black text-[10px] uppercase text-white ${
                     card.priority === 'URGENT' ? 'bg-red-500' : 
                     card.priority === 'HIGH' ? 'bg-orange-500' : 'bg-zinc-1000'
@@ -811,7 +812,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
 
                {card.dueDate && (
                  <div>
-                    <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">Due Date</h4>
+                    <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Due Date', "Date d'échéance")}</h4>
                     <div className="flex items-center gap-2 text-xs font-bold">
                        <Calendar size={14} />
                        {new Date(card.dueDate).toLocaleDateString()}
@@ -821,7 +822,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
             </div>
 
             <div className="space-y-2">
-               <h4 className="font-black uppercase text-xs">Actions</h4>
+               <h4 className="font-black uppercase text-xs">{t('Actions', 'Actions')}</h4>
                <NeuButton 
                  onClick={() => convertMutation.mutate()} 
                  className="w-full bg-black dark:bg-white text-white dark:text-black flex justify-center items-center gap-2"
@@ -837,7 +838,7 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
 
             {/* Mini Activity Log */}
             <div className="space-y-2">
-               <h4 className="font-black uppercase text-[10px] text-gray-400">Recent Activity</h4>
+               <h4 className="font-black uppercase text-[10px] text-gray-400">{t('Recent Activity', 'Activité récente')}</h4>
                <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                   {card.activities?.slice(0, 5).map(a => (
                     <div key={a.id} className="text-[10px] flex gap-2">

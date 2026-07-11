@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import SpinningLoader from '@/components/common/SpinningLoader';
 import { getCookie } from 'cookies-next';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- TYPES ---
 interface Application {
@@ -25,6 +26,7 @@ interface Application {
 }
 
 export default function CreatorFundPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'benefits' | 'apply'>('benefits');
   const [application, setApplication] = useState<Application | null>(null);
   const [isLoadingApp, setIsLoadingApp] = useState(true);
@@ -66,7 +68,7 @@ export default function CreatorFundPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.totalFollowers || !formData.niche) {
-      toast.error("Please provide follower count and niche.");
+      toast.error(t("Please provide follower count and niche.", "Veuillez indiquer votre nombre d'abonnés et votre niche."));
       return;
     }
 
@@ -77,10 +79,10 @@ export default function CreatorFundPage() {
         totalFollowers: parseInt(formData.totalFollowers)
       });
       setApplication(res);
-      toast.success("Application submitted successfully!");
+      toast.success(t("Application submitted successfully!", "Candidature envoyée avec succès !"));
       setActiveTab('benefits'); // Switch back to see status
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Submission failed";
+      const msg = error.response?.data?.message || t("Submission failed", "Échec de l'envoi");
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
@@ -104,11 +106,11 @@ export default function CreatorFundPage() {
               </span>
            </motion.div>
            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
-             Fuel Your<br/>
-             <span className="text-transparent text-stroke-white italic">Influence.</span>
+             {t('Fuel Your', 'Boostez votre')}<br/>
+             <span className="text-transparent text-stroke-white italic">{t('Influence.', 'Influence.')}</span>
            </h1>
            <p className="text-xl text-gray-400 max-w-2xl mx-auto font-bold leading-relaxed mb-10">
-             We&apos;re looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.
+             {t("We're looking for the next generation of African creators. Get funded, get promoted, and get the tools you need to reach millions.", 'Nous recherchons la prochaine génération de créateurs africains. Obtenez un financement, une promotion et les outils nécessaires pour toucher des millions de personnes.')}
            </p>
 
            <div className="flex justify-center gap-6">
@@ -116,13 +118,13 @@ export default function CreatorFundPage() {
                 onClick={() => setActiveTab('benefits')}
                 className={`px-8 py-4 font-black uppercase border-4 border-white transition-all shadow-[8px_8px_0px_0px_#3C48F5] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${activeTab === 'benefits' ? 'bg-white text-black' : 'bg-transparent text-white'}`}
               >
-                The Program
+                {t('The Program', 'Le Programme')}
               </button>
               <button 
                 onClick={() => setActiveTab('apply')}
                 className={`px-8 py-4 font-black uppercase border-4 border-white transition-all shadow-[8px_8px_0px_0px_#3C48F5] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${activeTab === 'apply' ? 'bg-white text-black' : 'bg-transparent text-white'}`}
               >
-                {application ? 'My Application' : 'Apply Now'}
+                {application ? t('My Application', 'Ma candidature') : t('Apply Now', 'Postuler maintenant')}
               </button>
            </div>
         </section>
@@ -138,8 +140,8 @@ export default function CreatorFundPage() {
                         <div className="flex items-center gap-4 mb-4 md:mb-0">
                             <CheckCircle className="w-10 h-10 text-white animate-pulse" />
                             <div>
-                                <p className="font-black uppercase text-xs opacity-80">Application Status</p>
-                                <p className="text-2xl font-black uppercase tracking-tighter">Your request is {application.status}</p>
+                                <p className="font-black uppercase text-xs opacity-80">{t('Application Status', 'Statut de la candidature')}</p>
+                                <p className="text-2xl font-black uppercase tracking-tighter">{t('Your request is', 'Votre demande est')} {application.status}</p>
                             </div>
                         </div>
                         <p className="text-sm font-mono font-bold bg-black text-white px-4 py-2 border-2 border-white">ID: CF-{application.id.substring(0,8)}</p>
@@ -148,29 +150,29 @@ export default function CreatorFundPage() {
 
                 {/* 3-COL GRID: BENEFITS */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    <BenefitCard title="Free Pro Access" desc="Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included." />
-                    <BenefitCard title="Cash Stipend" desc="Receive up to 50,000 FCFA/month to support your content production and gear." />
-                    <BenefitCard title="Global Reach" desc="We feature your profile and content across our social nodes reaching 100k+ users." />
+                    <BenefitCard title={t('Free Pro Access', 'Accès Pro gratuit')} desc={t('Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included.', "Débloquez 12 mois d'EasyPost Pro. Posts illimités, statistiques avancées et IA Magique inclus.")} />
+                    <BenefitCard title={t('Cash Stipend', 'Allocation financière')} desc={t('Receive up to 50,000 FCFA/month to support your content production and gear.', "Recevez jusqu'à 50 000 FCFA/mois pour soutenir votre production de contenu et votre équipement.")} />
+                    <BenefitCard title={t('Global Reach', 'Portée mondiale')} desc={t('We feature your profile and content across our social nodes reaching 100k+ users.', 'Nous mettons en avant votre profil et vos contenus sur nos réseaux touchant plus de 100 000 utilisateurs.')} />
                 </div>
 
                 {/* ELIGIBILITY SECTION */}
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
                     <div className="bg-zinc-900 border-4 border-white p-10 shadow-[16px_16px_0px_0px_#3C48F5]">
-                        <h2 className="text-4xl font-black uppercase mb-8">Eligibility</h2>
+                        <h2 className="text-4xl font-black uppercase mb-8">{t('Eligibility', 'Éligibilité')}</h2>
                         <ul className="space-y-6">
-                            <EligibilityItem text="1,000+ followers on at least one platform." />
-                            <EligibilityItem text="Consistent posting (min 3 posts/week)." />
-                            <EligibilityItem text="Niche alignment (Tech, Business, Marketing)." />
-                            <EligibilityItem text="Primarily Francophone/African audience." />
+                            <EligibilityItem text={t('1,000+ followers on at least one platform.', '1 000+ abonnés sur au moins une plateforme.')} />
+                            <EligibilityItem text={t('Consistent posting (min 3 posts/week).', 'Publication régulière (min. 3 posts/semaine).')} />
+                            <EligibilityItem text={t('Niche alignment (Tech, Business, Marketing).', 'Niche alignée (Tech, Business, Marketing).')} />
+                            <EligibilityItem text={t('Primarily Francophone/African audience.', 'Audience principalement francophone/africaine.')} />
                         </ul>
                     </div>
                     <div className="space-y-8">
-                        <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">Your<br/><span className="text-[#3C48F5]">Commitment.</span></h2>
-                        <p className="text-xl text-gray-400 font-bold">Joining the fund means becoming a partner. We grow together.</p>
+                        <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">{t('Your', 'Votre')}<br/><span className="text-[#3C48F5]">{t('Commitment.', 'Engagement.')}</span></h2>
+                        <p className="text-xl text-gray-400 font-bold">{t('Joining the fund means becoming a partner. We grow together.', 'Rejoindre le fonds, c\'est devenir partenaire. Nous grandissons ensemble.')}</p>
                         <div className="space-y-4">
-                            <CommitmentItem icon={<MessageSquare />} text="Active participation in our Discord community." />
-                            <CommitmentItem icon={<CheckCircle />} text="2 posts per month mentioning EasyPost." />
-                            <CommitmentItem icon={<Target />} text="1 tutorial or platform review per quarter." />
+                            <CommitmentItem icon={<MessageSquare />} text={t('Active participation in our Discord community.', 'Participation active à notre communauté Discord.')} />
+                            <CommitmentItem icon={<CheckCircle />} text={t('2 posts per month mentioning EasyPost.', '2 posts par mois mentionnant EasyPost.')} />
+                            <CommitmentItem icon={<Target />} text={t('1 tutorial or platform review per quarter.', '1 tutoriel ou avis sur la plateforme par trimestre.')} />
                         </div>
                     </div>
                 </div>
@@ -180,27 +182,27 @@ export default function CreatorFundPage() {
                 {application && application.status === 'PENDING' ? (
                     <div className="bg-zinc-900 border-4 border-white p-12 text-center">
                         <Trophy className="w-20 h-20 text-[#3C48F5] mx-auto mb-6" />
-                        <h2 className="text-3xl font-black uppercase mb-4">Application Received!</h2>
-                        <p className="text-gray-400 font-bold mb-8">Our team is reviewing your profile. Expect a response via email within 3-5 business days.</p>
-                        <button onClick={() => setActiveTab('benefits')} className="px-8 py-3 bg-white text-black font-black uppercase border-2 border-black">Back to Program</button>
+                        <h2 className="text-3xl font-black uppercase mb-4">{t('Application Received!', 'Candidature reçue !')}</h2>
+                        <p className="text-gray-400 font-bold mb-8">{t('Our team is reviewing your profile. Expect a response via email within 3-5 business days.', 'Notre équipe examine votre profil. Attendez une réponse par e-mail sous 3 à 5 jours ouvrés.')}</p>
+                        <button onClick={() => setActiveTab('benefits')} className="px-8 py-3 bg-white text-black font-black uppercase border-2 border-black">{t('Back to Program', 'Retour au programme')}</button>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="bg-white text-black border-4 border-white p-8 md:p-12 shadow-[16px_16px_0px_0px_#3C48F5] space-y-8">
-                        <h2 className="text-3xl font-black uppercase border-b-4 border-black pb-4 mb-8">Apply for Fund</h2>
+                        <h2 className="text-3xl font-black uppercase border-b-4 border-black pb-4 mb-8">{t('Apply for Fund', 'Postuler au fonds')}</h2>
                         
                         <div className="grid md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="block text-xs font-black uppercase tracking-widest">Total Followers</label>
-                                <input 
-                                    type="number" required placeholder="e.g. 1500" 
+                                <label className="block text-xs font-black uppercase tracking-widest">{t('Total Followers', 'Nombre total d\'abonnés')}</label>
+                                <input
+                                    type="number" required placeholder={t('e.g. 1500', 'ex. 1500')}
                                     value={formData.totalFollowers} onChange={e => setFormData({...formData, totalFollowers: e.target.value})}
                                     className="w-full bg-gray-50 border-4 border-black p-4 font-black focus:bg-blue-50 outline-none" 
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-xs font-black uppercase tracking-widest">Niche / Industry</label>
-                                <input 
-                                    type="text" required placeholder="e.g. Fashion, Tech" 
+                                <label className="block text-xs font-black uppercase tracking-widest">{t('Niche / Industry', 'Niche / Secteur')}</label>
+                                <input
+                                    type="text" required placeholder={t('e.g. Fashion, Tech', 'ex. Mode, Tech')}
                                     value={formData.niche} onChange={e => setFormData({...formData, niche: e.target.value})}
                                     className="w-full bg-gray-50 border-4 border-black p-4 font-black focus:bg-blue-50 outline-none" 
                                 />
@@ -208,7 +210,7 @@ export default function CreatorFundPage() {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="block text-xs font-black uppercase tracking-widest">Social Handles</label>
+                            <label className="block text-xs font-black uppercase tracking-widest">{t('Social Handles', 'Identifiants sociaux')}</label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <SocialInput icon={<SiTiktok />} placeholder="TikTok" value={formData.tiktokHandle} onChange={v => setFormData({...formData, tiktokHandle: v})} />
                                 <SocialInput icon={<Instagram />} placeholder="Instagram" value={formData.instagramHandle} onChange={v => setFormData({...formData, instagramHandle: v})} />
@@ -219,9 +221,9 @@ export default function CreatorFundPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-xs font-black uppercase tracking-widest">Why should we pick you?</label>
-                            <textarea 
-                                rows={4} placeholder="Tell us about your audience and goals..." 
+                            <label className="block text-xs font-black uppercase tracking-widest">{t('Why should we pick you?', 'Pourquoi devrions-nous vous choisir ?')}</label>
+                            <textarea
+                                rows={4} placeholder={t('Tell us about your audience and goals...', 'Parlez-nous de votre audience et de vos objectifs...')}
                                 value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
                                 className="w-full bg-gray-50 border-4 border-black p-4 font-bold focus:bg-blue-50 outline-none resize-none" 
                             />
@@ -232,7 +234,7 @@ export default function CreatorFundPage() {
                             disabled={isSubmitting}
                             className="w-full bg-[#3C48F5] text-white font-black uppercase py-5 text-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                         >
-                            {isSubmitting ? <Loader2 className="animate-spin" /> : <>Send Application <Send size={24} /></>}
+                            {isSubmitting ? <Loader2 className="animate-spin" /> : <>{t('Send Application', 'Envoyer la candidature')} <Send size={24} /></>}
                         </button>
                     </form>
                 )}

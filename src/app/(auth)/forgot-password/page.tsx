@@ -4,12 +4,14 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_LIMIT_MS = 60000;
 const MAX_ATTEMPTS = 3;
 
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -26,19 +28,19 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async () => {
     if (!isValidEmail) {
-      setError('Please enter a valid email address.');
+      setError(t('Please enter a valid email address.', 'Veuillez saisir une adresse e-mail valide.'));
       return;
     }
 
     const now = Date.now();
     if (now - lastAttemptTime < RATE_LIMIT_MS) {
       const waitSeconds = Math.ceil((RATE_LIMIT_MS - (now - lastAttemptTime)) / 1000);
-      setError(`Please wait ${waitSeconds} seconds before trying again.`);
+      setError(t('Please wait', 'Veuillez patienter') + ` ${waitSeconds} ` + t('seconds before trying again.', 'secondes avant de réessayer.'));
       return;
     }
 
     if (attempts >= MAX_ATTEMPTS) {
-      setError('Too many attempts. Please try again later.');
+      setError(t('Too many attempts. Please try again later.', 'Trop de tentatives. Veuillez réessayer plus tard.'));
       return;
     }
 
@@ -56,12 +58,12 @@ export default function ForgotPasswordPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.message || t('Something went wrong', 'Une erreur est survenue'));
       }
 
       setSent(true);
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || t('Something went wrong', 'Une erreur est survenue'));
     } finally {
       setIsLoading(false);
     }
@@ -87,24 +89,24 @@ export default function ForgotPasswordPage() {
               <div className="flex justify-center mb-6">
                 <CheckCircle className="w-16 h-16 text-[#174CD2]" />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">Check your inbox</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">{t('Check your inbox', 'Vérifiez votre boîte mail')}</h2>
               <p className="text-gray-600 mb-8">
-                If <span className="font-semibold text-gray-900">{email}</span> is registered, you&apos;ll receive a reset link within a few minutes.
+                {t('If', 'Si')} <span className="font-semibold text-gray-900">{email}</span> {t("is registered, you'll receive a reset link within a few minutes.", 'est enregistrée, vous recevrez un lien de réinitialisation dans quelques minutes.')}
               </p>
               <Link href="/login" className="inline-flex items-center gap-2 text-sm font-semibold text-[#174CD2] hover:text-blue-700 transition-colors">
-                <ArrowLeft className="w-4 h-4" /> Back to sign in
+                <ArrowLeft className="w-4 h-4" /> {t('Back to sign in', 'Retour à la connexion')}
               </Link>
             </div>
           ) : (
             <>
               <div className="mb-8">
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">Forgot password?</h2>
-                <p className="mt-2 text-base text-gray-600">Enter your email and we&apos;ll send you a reset link.</p>
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">{t('Forgot password?', 'Mot de passe oublié ?')}</h2>
+                <p className="mt-2 text-base text-gray-600">{t("Enter your email and we'll send you a reset link.", 'Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation.')}</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Email address</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">{t('Email address', 'Adresse e-mail')}</label>
                   <input
                     type="email"
                     value={email}
@@ -128,13 +130,13 @@ export default function ForgotPasswordPage() {
                   className="w-full bg-[#174CD2] hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading && <Loader2 className="animate-spin w-4 h-4" />}
-                  {isLoading ? 'Sending...' : 'Send reset link'}
+                  {isLoading ? t('Sending...', 'Envoi...') : t('Send reset link', 'Envoyer le lien de réinitialisation')}
                 </button>
               </div>
 
               <div className="text-center mt-8">
                 <Link href="/login" className="inline-flex items-center gap-2 text-sm font-semibold text-[#174CD2] hover:text-blue-700 transition-colors">
-                  <ArrowLeft className="w-4 h-4" /> Back to sign in
+                  <ArrowLeft className="w-4 h-4" /> {t('Back to sign in', 'Retour à la connexion')}
                 </Link>
               </div>
             </>

@@ -112,7 +112,7 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
             ),
             action: {
               label: t("Upgrade", "Passer"),
-              onClick: () => window.location.href = '/pricing'
+              onClick: () => window.location.href = '/tarifs'
             }
           });
         }, 1500);

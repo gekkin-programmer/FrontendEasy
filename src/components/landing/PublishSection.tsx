@@ -127,6 +127,10 @@ const tabContent: Record<string, { title: string; description: string }> = {
               {tabContent[activeTab].description}
             </p>
 
+            <button className="bg-white text-[#174CD2] font-semibold py-3 px-6 rounded-full flex items-center justify-center gap-2 w-fit hover:bg-gray-100 transition-all hover:scale-105">
+              {t("Learn more", "En savoir plus")}
+            </button>
+
             </div>
           </div>
         </div>
