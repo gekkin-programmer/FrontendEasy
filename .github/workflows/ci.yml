@@ -141,34 +141,3 @@ jobs:
           git merge origin/dev --ff-only
           git push origin main
 
-  # ── Job 4: Trigger Dokploy Redeploy ──────────────
-  deploy-to-dokploy:
-    name: Trigger Dokploy — pull new image
-    needs: [build-and-push]
-    runs-on: ubuntu-latest
-
-    steps:
-      # A missing secret must fail loudly — a webhook that silently no-ops
-      # means "deploys stopped and nobody noticed" (see BackendEasy history).
-      - name: Guard — required secret is present
-        env:
-          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
-        run: |
-          if [ -z "$DOKPLOY_WEBHOOK_URL" ]; then
-            echo "::error title=Missing secret::DOKPLOY_WEBHOOK_URL is not set. Add it in Settings → Secrets → Actions (value: Dokploy dashboard → frontend service → Deployments → Webhook URL)."
-            exit 1
-          fi
-
-      - name: Deploy via webhook
-        env:
-          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
-        run: |
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 "$DOKPLOY_WEBHOOK_URL")
-          echo "Dokploy status: $HTTP_CODE"
-          case "$HTTP_CODE" in
-            2*|3*) echo "Deploy triggered." ;;
-            *)
-              echo "::error title=Dokploy webhook failed::HTTP $HTTP_CODE from the deploy webhook."
-              exit 1
-              ;;
-          esac
