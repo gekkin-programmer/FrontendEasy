@@ -92,7 +92,11 @@ dist
 
 # Gatsby files
 .cache/
-public
+# NOTE: 'public' was ignored here by the Gatsby section of this boilerplate.
+# In Next.js, public/ holds source assets and MUST be tracked — do not re-add it.
+
+# Accidental nested duplicate of public/ — delete it, don't commit it
+public/public/
 
 # vuepress build output
 .vuepress/dist
