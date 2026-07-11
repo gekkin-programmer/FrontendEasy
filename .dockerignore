@@ -1,0 +1,19 @@
+.git
+.github
+.next
+node_modules
+npm-debug.log*
+pnpm-debug.log*
+.env*
+!.env.example
+Dockerfile
+.dockerignore
+README.md
+coverage
+tsconfig.tsbuildinfo
+# accidental nested duplicate of public/
+public/public
+# local scratch scripts
+fix_navbar*.js
+test_navbar.js
+.tmp-*
