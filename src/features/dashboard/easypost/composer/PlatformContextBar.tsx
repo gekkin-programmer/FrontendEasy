@@ -3,6 +3,7 @@
 import React from 'react';
 import { PlatformModeResult } from './usePlatformMode';
 import { PlatformIcon } from './PlatformIcon';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface PlatformContextBarProps {
   platformMode: PlatformModeResult;
@@ -17,12 +18,13 @@ export function PlatformContextBar({
   textLength,
   broadcastLength = 0,
 }: PlatformContextBarProps) {
-  const { activePlatforms, broadcastPlatforms, postPlatforms, overLimitPlatforms, warningPlatforms } = platformMode;
+  const { t } = useLanguage();
+  const { activePlatforms, broadcastPlatforms, overLimitPlatforms, warningPlatforms } = platformMode;
 
   if (activePlatforms.length === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-2 border-b-2 border-black dark:border-white bg-zinc-50 dark:bg-zinc-950 scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto px-4 py-2 border-b border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.02] scrollbar-hide">
       {activePlatforms.map((p) => {
         const isBroadcast = broadcastPlatforms.some((b) => b.id === p.id);
         const count = isBroadcast ? broadcastLength : textLength;
@@ -32,22 +34,22 @@ export function PlatformContextBar({
         return (
           <div
             key={p.id}
-            className={`flex items-center gap-1.5 px-2 py-1 border-2 flex-shrink-0 transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full flex-shrink-0 transition-all ${
               isOver
-                ? 'border-red-600 bg-red-50 dark:bg-red-950/30'
+                ? 'bg-red-50 dark:bg-red-950/30'
                 : isWarn
-                  ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30'
-                  : 'border-black dark:border-white bg-white dark:bg-zinc-900'
+                  ? 'bg-yellow-50 dark:bg-yellow-950/30'
+                  : 'bg-white dark:bg-[#0A0A2E] shadow-sm'
             }`}
           >
             <PlatformIcon platform={p.id} size={12} />
             <span
-              className={`text-[9px] font-black uppercase tracking-widest ${
+              className={`text-xs font-semibold ${
                 isOver
                   ? 'text-red-600'
                   : isWarn
                     ? 'text-yellow-600 dark:text-yellow-400'
-                    : 'text-black dark:text-white'
+                    : 'text-[#040028] dark:text-white'
               }`}
             >
               {p.label}
@@ -55,12 +57,12 @@ export function PlatformContextBar({
 
             {p.charLimit !== null && (
               <span
-                className={`text-[9px] font-mono ml-1 ${
+                className={`text-xs ml-1 ${
                   isOver
-                    ? 'text-red-600 font-black animate-pulse'
+                    ? 'text-red-600 font-semibold animate-pulse'
                     : isWarn
                       ? 'text-yellow-600 dark:text-yellow-400'
-                      : 'text-gray-400 dark:text-zinc-500'
+                      : 'text-[#8E8E8E]'
                 }`}
               >
                 {count}/{p.charLimit}
@@ -68,20 +70,20 @@ export function PlatformContextBar({
             )}
 
             {isOver && (
-              <span className="text-[8px] font-black uppercase bg-red-600 text-white px-1">
-                OVER
+              <span className="text-[10px] font-semibold rounded-full bg-red-600 text-white px-1.5">
+                {t('Over', 'Dépassé')}
               </span>
             )}
 
             {p.requiresVideo && (
-              <span className="text-[8px] font-black uppercase bg-black dark:bg-white text-white dark:text-black px-1">
-                VIDEO
+              <span className="text-[10px] font-semibold rounded-full bg-[#174CD2] text-white px-1.5">
+                {t('Video', 'Vidéo')}
               </span>
             )}
 
             {p.requiresTitle && (
-              <span className="text-[8px] font-black uppercase border border-current px-1">
-                TITLE
+              <span className="text-[10px] font-semibold rounded-full border border-current px-1.5">
+                {t('Title', 'Titre')}
               </span>
             )}
           </div>
