@@ -703,7 +703,7 @@ function DashboardContent() {
             <main className="relative z-10 flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8 self-stretch -ml-8">
-                        <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
+                        <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A2E] hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0A0A2E] rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm text-left hover:bg-[#174CD2]/8 transition-colors"><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-medium truncate text-[#040028] dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-[#174CD2]"/>}</button>))}</div><div className="h-px bg-black/5 dark:bg-white/10 my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm font-medium text-[#174CD2] hover:bg-[#174CD2]/8 transition-colors"><Plus size={16}/> {t("New workspace", "Nouvel espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
@@ -829,6 +829,19 @@ function DashboardContent() {
                 {/* Desktop left rail — nav, docked below the header */}
                 <aside className="hidden lg:flex flex-col fixed left-0 top-20 bottom-0 w-64 bg-white dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-y-auto z-20">
                     <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] transition-all duration-200 group ${activeTab === item.id ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]' : 'text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+
+                    <div className="flex-1 flex items-center justify-center py-4">
+                        <QuickConnectSidebar
+                            accounts={accounts}
+                            workspaceId={workspaceId}
+                            currentWorkspace={currentWorkspace}
+                            refreshData={() => {
+                                refetchAccounts();
+                                queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+                            }}
+                        />
+                    </div>
+
                     <div className="mt-6 p-4 rounded-[14px] bg-[#F5F7FA] dark:bg-white/5 border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028]/50 dark:text-white/50 mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
   className={`text-xl font-bold ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
@@ -897,9 +910,9 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className={cn("hidden lg:block sticky top-32 self-start transition-all duration-200", isPreviewMode ? "w-80" : "w-auto")}>
-                            <AnimatePresence mode="wait">
-                                {isPreviewMode ? (
+                        {isPreviewMode && (
+                            <div className="hidden lg:block sticky top-32 self-start w-80">
+                                <AnimatePresence mode="wait">
                                     <motion.div key="preview" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
                                         <PhoneMockupPreview
                                             previewData={previewData}
@@ -909,21 +922,9 @@ function DashboardContent() {
                                             onClose={() => setIsPreviewMode(false)}
                                         />
                                     </motion.div>
-                                ) : (
-                                    <motion.div key="quickconnect" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-                                        <QuickConnectSidebar
-                                            accounts={accounts}
-                                            workspaceId={workspaceId}
-                                            currentWorkspace={currentWorkspace}
-                                            refreshData={() => {
-                                                refetchAccounts();
-                                                queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
-                                            }}
-                                        />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
+                                </AnimatePresence>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>
