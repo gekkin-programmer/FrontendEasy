@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Link as LinkIcon, Trash2, Check, Crown, X, Copy, CheckCheck
+  Trash2, Check, X, Copy, CheckCheck
 } from 'lucide-react';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
@@ -25,9 +24,8 @@ interface QuickConnectSidebarProps {
   currentWorkspace: any;
 }
 
-export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, currentWorkspace }: QuickConnectSidebarProps) => {
+export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: QuickConnectSidebarProps) => {
     const { t } = useLanguage();
-    const router = useRouter();
     const queryClient = useQueryClient();
     const [telegramModal, setTelegramModal] = useState(false);
     const [telegramToken, setTelegramToken] = useState<string | null>(null);
@@ -91,25 +89,9 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     return (
         <>
-            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] h-full overflow-y-auto scrollbar-hide transition-colors">
-                {/* Header row */}
-                <div className="flex items-center gap-2 w-full justify-center mb-1 pb-2 border-b border-black/5 dark:border-white/5">
-                    {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
-                        <button
-                            onClick={() => router.push('/tarifs')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-                            title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
-                        >
-                            <Crown size={16} className="text-[#8E8E8E]" />
-                        </button>
-                    )}
-                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-[10px] bg-[#174CD2]">
-                        <LinkIcon size={14} className="text-white" />
-                    </div>
-                </div>
-
-                {/* Platform icons — 2-column grid */}
-                <div className="grid grid-cols-2 gap-2 w-full">
+            <div className="w-40 flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] transition-colors">
+                {/* Platform icons — 3-column grid */}
+                <div className="grid grid-cols-3 gap-2 w-full">
                     {platforms.map((p) => {
                         const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase());
 
