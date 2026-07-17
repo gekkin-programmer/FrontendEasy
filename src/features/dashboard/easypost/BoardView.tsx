@@ -20,21 +20,21 @@ function BoardsListSkeleton() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div className="space-y-2">
-          <Skeleton className="h-7 w-48 rounded" />
-          <Skeleton className="h-4 w-32 rounded" />
+          <Skeleton className="h-7 w-48 rounded-[8px]" />
+          <Skeleton className="h-4 w-32 rounded-[6px]" />
         </div>
-        <Skeleton className="h-10 w-32 rounded" />
+        <Skeleton className="h-10 w-32 rounded-[10px]" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] p-4 space-y-3">
-            <div className="h-2 w-full bg-blue-200 dark:bg-blue-900/40" />
-            <Skeleton className="h-5 w-36 rounded mt-2" />
-            <Skeleton className="h-3 w-full rounded" />
-            <Skeleton className="h-3 w-2/3 rounded" />
-            <div className="flex justify-between pt-3 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
-              <Skeleton className="h-5 w-20 rounded" />
-              <Skeleton className="h-5 w-5 rounded" />
+          <div key={i} className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] p-4 space-y-3">
+            <div className="h-2 w-full rounded-full bg-[#174CD2]/20" />
+            <Skeleton className="h-5 w-36 rounded-[6px] mt-2" />
+            <Skeleton className="h-3 w-full rounded-[4px]" />
+            <Skeleton className="h-3 w-2/3 rounded-[4px]" />
+            <div className="flex justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-5 rounded-full" />
             </div>
           </div>
         ))}
@@ -47,15 +47,15 @@ function KanbanSkeleton() {
   return (
     <div className="flex gap-4 h-full overflow-x-auto pb-4">
       {[...Array(3)].map((_, col) => (
-        <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-          <div className="p-3 border-b-2 border-black dark:border-white bg-gray-50 dark:bg-zinc-800">
-            <Skeleton className="h-5 w-24 rounded" />
+        <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+          <div className="p-3 border-b border-black/5 dark:border-white/5">
+            <Skeleton className="h-5 w-24 rounded-[6px]" />
           </div>
           <div className="p-3 space-y-3">
             {[...Array(col + 2)].map((_, card) => (
-              <div key={card} className="bg-gray-50 dark:bg-zinc-800 border-2 border-black dark:border-white p-3 space-y-2">
-                <Skeleton className="h-4 w-full rounded" />
-                <Skeleton className="h-3 w-2/3 rounded" />
+              <div key={card} className="bg-[#F5F7FA] dark:bg-white/5 rounded-[12px] p-3 space-y-2">
+                <Skeleton className="h-4 w-full rounded-[4px]" />
+                <Skeleton className="h-3 w-2/3 rounded-[4px]" />
               </div>
             ))}
           </div>
@@ -110,13 +110,13 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   const createBoardMutation = useMutation({
     mutationFn: (name: string) => boardApi.createBoard(workspaceId, { name }),
     onSuccess: (newBoard) => {
-      toast.success(t('BOARD_INITIALIZED', 'TABLEAU_INITIALISÉ'));
+      toast.success(t('Board created', 'Tableau créé'));
       setIsCreateBoardOpen(false);
       setNewBoardName('');
       queryClient.invalidateQueries({ queryKey: ['boards', workspaceId] });
       setSelectedBoardId(newBoard.id);
     },
-    onError: () => toast.error(t('BOARD_INIT_FAILED', 'INIT_TABLEAU_ÉCHOUÉE'))
+    onError: () => toast.error(t('Failed to create board', 'Échec de la création du tableau'))
   });
 
   if (isLoading) return <BoardsListSkeleton />;
@@ -136,21 +136,21 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{t("Workspace Boards", "Tableaux de l'Espace")}</h2>
-          <p className="text-sm font-bold text-gray-500 uppercase">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
+          <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{t("Workspace boards", "Tableaux de l'espace")}</h2>
+          <p className="text-sm font-medium text-[#8E8E8E]">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
         </div>
-        <NeuButton onClick={() => setIsCreateBoardOpen(true)} className="bg-[#3C48F5] text-white">
-          <Plus size={20} className="mr-2" /> {t("NEW_BOARD", "NOUVEAU_TABLEAU")}
+        <NeuButton onClick={() => setIsCreateBoardOpen(true)} active>
+          <Plus size={18} className="inline mr-2" /> {t("New board", "Nouveau tableau")}
         </NeuButton>
       </div>
 
       {boards.length === 0 ? (
-        <div className="py-20 text-center border-4 border-dashed border-gray-300 dark:border-zinc-800">
-          <Layout size={48} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-black uppercase text-gray-400">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
+        <div className="py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10">
+          <Layout size={40} className="mx-auto text-[#8E8E8E] mb-4" />
+          <h3 className="text-lg font-semibold text-[#8E8E8E]">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
           <button
             onClick={() => setIsCreateBoardOpen(true)}
-            className="mt-4 text-[#3C48F5] font-black uppercase underline hover:no-underline"
+            className="mt-3 text-[#174CD2] font-semibold text-sm hover:underline"
           >
             {t("Create your first board", "Créer votre premier tableau")}
           </button>
@@ -160,24 +160,24 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
           {boards.map((board) => (
             <motion.div
               key={board.id}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -4 }}
               onClick={() => setSelectedBoardId(board.id)}
               className="cursor-pointer"
             >
-              <NeuCard className="h-full hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-colors group relative overflow-hidden">
+              <NeuCard className="h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-shadow group relative overflow-hidden">
                 <div
-                  className="absolute top-0 left-0 right-0 h-2"
-                  style={{ backgroundColor: board.color || '#3C48F5' }}
+                  className="absolute top-0 left-0 right-0 h-1.5 rounded-t-[16px]"
+                  style={{ backgroundColor: board.color || '#174CD2' }}
                 />
-                <div className="pt-4">
-                  <h3 className="text-lg font-black uppercase mb-2 group-hover:text-[#3C48F5]">{board.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{board.description || t('No description provided', 'Aucune description fournie')}</p>
-                  
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t-2 border-dashed border-gray-100 dark:border-zinc-800">
-                    <span className="text-[10px] font-black uppercase bg-gray-100 dark:bg-zinc-800 px-2 py-1">
-                      {board._count?.columns || 0} COLUMNS
+                <div className="pt-3">
+                  <h3 className="text-lg font-bold text-[#040028] dark:text-white mb-2 group-hover:text-[#174CD2] transition-colors">{board.name}</h3>
+                  <p className="text-sm text-[#8E8E8E] line-clamp-2 mb-4">{board.description || t('No description provided', 'Aucune description fournie')}</p>
+
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-black/5 dark:border-white/5">
+                    <span className="text-xs font-semibold rounded-full bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white px-2.5 py-1">
+                      {board._count?.columns || 0} {t("columns", "colonnes")}
                     </span>
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight size={16} className="text-[#8E8E8E] group-hover:translate-x-1 group-hover:text-[#174CD2] transition-all" />
                   </div>
                 </div>
               </NeuCard>
@@ -187,28 +187,28 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
       )}
 
       {/* Create Board Modal */}
-      <NeuModal 
-        isOpen={isCreateBoardOpen} 
+      <NeuModal
+        isOpen={isCreateBoardOpen}
         onClose={() => setIsCreateBoardOpen(false)}
-        title="INITIALIZE_BOARD"
+        title={t("New board", "Nouveau tableau")}
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">{t("Board Name", "Nom du Tableau")}</label>
+            <label className="text-xs font-semibold text-[#8E8E8E] mb-1 block">{t("Board name", "Nom du tableau")}</label>
             <NeuInput
-              placeholder={t("E.G. MARKETING_CAMPAIGN_2026", "EX. CAMPAGNE_MARKETING_2026")}
+              placeholder={t("e.g. Marketing campaign 2026", "ex. Campagne marketing 2026")}
               value={newBoardName}
               onChange={(e: any) => setNewBoardName(e.target.value)}
               autoFocus
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsCreateBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton onClick={() => setIsCreateBoardOpen(false)}>{t("Cancel", "Annuler")}</NeuButton>
             <NeuButton
               onClick={() => createBoardMutation.mutate(newBoardName)}
-              className="bg-[#3C48F5] text-white"
+              active
             >
-              {t("CREATE_BOARD", "CRÉER_TABLEAU")}
+              {t("Create board", "Créer le tableau")}
             </NeuButton>
           </div>
         </div>
@@ -254,7 +254,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       setIsEditBoardOpen(false);
       queryClient.invalidateQueries({ queryKey: ['boards'] });
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('BOARD_UPDATED', 'TABLEAU_MIS_À_JOUR'));
+      toast.success(t('Board updated', 'Tableau mis à jour'));
     }
   });
 
@@ -263,7 +263,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     onSuccess: () => {
       setIsEditColumnOpen(false);
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('COLUMN_UPDATED', 'COLONNE_MISE_À_JOUR'));
+      toast.success(t('Column updated', 'Colonne mise à jour'));
     }
   });
 
@@ -272,7 +272,7 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     onSuccess: () => {
       setIsEditColumnOpen(false);
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('COLUMN_DELETED', 'COLONNE_SUPPRIMÉE'));
+      toast.success(t('Column deleted', 'Colonne supprimée'));
     }
   });
 
@@ -285,13 +285,13 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
   });
 
   const createCardMutation = useMutation({
-    mutationFn: (data: { columnId: string, title: string }) => 
+    mutationFn: (data: { columnId: string, title: string }) =>
       boardApi.createCard(data.columnId, { title: data.title }),
     onSuccess: () => {
       setIsCreateCardOpen(false);
       setNewCardTitle('');
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('CARD_CREATED', 'CARTE_CRÉÉE'));
+      toast.success(t('Card created', 'Carte créée'));
     }
   });
 
@@ -358,20 +358,20 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={onBack}
-            className="p-2 border-2 border-black dark:border-white hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
+            className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white transition-colors"
           >
-            <ArrowRight className="rotate-180" size={20} />
+            <ArrowRight className="rotate-180" size={18} />
           </button>
           <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-2xl font-black uppercase tracking-tighter text-black dark:text-white">{board.name}</h2>
-              <p className="text-xs font-bold text-gray-500 uppercase italic">{t("Board View", "Vue Tableau")} • {board.columns?.length || 0} {t("Columns", "Colonnes")}</p>
+              <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{board.name}</h2>
+              <p className="text-xs font-medium text-[#8E8E8E]">{t("Board view", "Vue tableau")} · {board.columns?.length || 0} {t("columns", "colonnes")}</p>
             </div>
-            <button 
+            <button
               onClick={() => setIsEditBoardOpen(true)}
-              className="p-2 border-2 border-black dark:border-white hover:bg-yellow-200 transition-colors"
+              className="p-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 text-[#8E8E8E] transition-colors"
             >
               <MoreHorizontal size={16} />
             </button>
@@ -396,9 +396,9 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
               />
             ))}
             
-            <button className="flex-shrink-0 w-80 h-16 border-4 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center gap-2 hover:border-[#3C48F5] hover:text-[#3C48F5] transition-all group">
-              <Plus size={20} />
-              <span className="font-black uppercase text-sm">{t("Add Column", "Ajouter Colonne")}</span>
+            <button className="flex-shrink-0 w-80 h-16 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 flex items-center justify-center gap-2 text-[#8E8E8E] hover:border-[#174CD2]/40 hover:text-[#174CD2] transition-all group">
+              <Plus size={18} />
+              <span className="font-semibold text-sm">{t("Add column", "Ajouter une colonne")}</span>
             </button>
           </div>
         </DndContext>
@@ -408,23 +408,23 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       <NeuModal
         isOpen={isEditBoardOpen}
         onClose={() => setIsEditBoardOpen(false)}
-        title="RENAME_BOARD"
+        title={t("Rename board", "Renommer le tableau")}
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">{t("New Name", "Nouveau Nom")}</label>
+            <label className="text-xs font-semibold text-[#8E8E8E] mb-1 block">{t("New name", "Nouveau nom")}</label>
             <NeuInput
               value={editBoardName}
               onChange={(e: any) => setEditBoardName(e.target.value)}
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsEditBoardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton onClick={() => setIsEditBoardOpen(false)}>{t("Cancel", "Annuler")}</NeuButton>
             <NeuButton
               onClick={() => updateBoardMutation.mutate(editBoardName)}
-              className="bg-[#3C48F5] text-white"
+              active
             >
-              {t("UPDATE", "METTRE_À_JOUR")}
+              {t("Update", "Mettre à jour")}
             </NeuButton>
           </div>
         </div>
@@ -434,34 +434,34 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       <NeuModal
         isOpen={isEditColumnOpen}
         onClose={() => setIsEditColumnOpen(false)}
-        title="MANAGE_COLUMN"
+        title={t("Manage column", "Gérer la colonne")}
       >
         <div className="space-y-6">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">{t("Column Name", "Nom de la Colonne")}</label>
+            <label className="text-xs font-semibold text-[#8E8E8E] mb-1 block">{t("Column name", "Nom de la colonne")}</label>
             <NeuInput
               value={editColumnName}
               onChange={(e: any) => setEditColumnName(e.target.value)}
             />
           </div>
-          <div className="flex justify-between items-center pt-4 border-t-2 border-dashed border-gray-100">
+          <div className="flex justify-between items-center pt-4 border-t border-black/5 dark:border-white/5">
             <button
               onClick={() => {
                 if(confirm(t('Are you sure? This will delete all cards in this column.', 'Êtes-vous sûr ? Cela supprimera toutes les cartes de cette colonne.'))) {
                   deleteColumnMutation.mutate(editingColumn!.id);
                 }
               }}
-              className="text-red-500 font-black uppercase text-xs hover:underline"
+              className="text-red-500 font-semibold text-xs hover:underline"
             >
-              {t("Delete Column", "Supprimer Colonne")}
+              {t("Delete column", "Supprimer la colonne")}
             </button>
             <div className="flex gap-3">
-              <NeuButton onClick={() => setIsEditColumnOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+              <NeuButton onClick={() => setIsEditColumnOpen(false)}>{t("Cancel", "Annuler")}</NeuButton>
               <NeuButton
                 onClick={() => updateColumnMutation.mutate({ id: editingColumn!.id, name: editColumnName })}
-                className="bg-black text-white"
+                active
               >
-                {t("SAVE_CHANGES", "ENREGISTRER")}
+                {t("Save changes", "Enregistrer")}
               </NeuButton>
             </div>
           </div>
@@ -481,26 +481,26 @@ function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardNam
       <NeuModal
         isOpen={isCreateCardOpen}
         onClose={() => setIsCreateCardOpen(false)}
-        title="NEW_CARD"
+        title={t("New card", "Nouvelle carte")}
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black uppercase mb-1 block">{t("Title", "Titre")}</label>
+            <label className="text-xs font-semibold text-[#8E8E8E] mb-1 block">{t("Title", "Titre")}</label>
             <NeuInput
-              placeholder={t("TASK_TITLE...", "TITRE_TÂCHE...")}
+              placeholder={t("Task title...", "Titre de la tâche...")}
               value={newCardTitle}
               onChange={(e: any) => setNewCardTitle(e.target.value)}
               autoFocus
             />
           </div>
           <div className="flex justify-end gap-3">
-            <NeuButton onClick={() => setIsCreateCardOpen(false)} className="bg-white">{t("CANCEL", "ANNULER")}</NeuButton>
+            <NeuButton onClick={() => setIsCreateCardOpen(false)}>{t("Cancel", "Annuler")}</NeuButton>
             <NeuButton
               onClick={() => createCardMutation.mutate({ columnId: targetColumnId!, title: newCardTitle })}
-              className="bg-[#3C48F5] text-white"
+              active
               disabled={!newCardTitle.trim()}
             >
-              {t("CREATE", "CRÉER")}
+              {t("Create", "Créer")}
             </NeuButton>
           </div>
         </div>
@@ -532,48 +532,48 @@ function KanbanColumn({ column, onAddCard, onCardClick, onEditColumn }: {
     <div className="flex-shrink-0 w-80 flex flex-col h-full">
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-2">
-          <h3 className="font-black uppercase text-sm tracking-tight">{column.name}</h3>
-          <span className="text-[10px] font-black bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5">
+          <h3 className="font-bold text-sm text-[#040028] dark:text-white">{column.name}</h3>
+          <span className="text-xs font-semibold rounded-full bg-[#F5F7FA] dark:bg-white/10 text-[#8E8E8E] px-2 py-0.5">
             {column.cards?.length || 0}
           </span>
         </div>
         <div className="flex gap-1">
           <button
             onClick={onAddCard}
-            className="p-1 hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
+            className="p-1.5 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#174CD2] transition-colors"
           >
             <Plus size={16} />
           </button>
           <button
             onClick={onEditColumn}
-            className="p-1 hover:bg-yellow-400 dark:hover:bg-yellow-500 transition-colors"
+            className="p-1.5 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           >
             <MoreVertical size={16} />
           </button>
         </div>
       </div>
 
-      <div 
+      <div
         ref={setNodeRef}
-        className="flex-1 bg-gray-50 dark:bg-zinc-900/50 border-2 border-black dark:border-white p-3 space-y-3 overflow-y-auto custom-scrollbar"
+        className="flex-1 bg-[#F5F7FA] dark:bg-white/[0.03] rounded-[16px] p-3 space-y-3 overflow-y-auto custom-scrollbar"
       >
-        <SortableContext 
-          items={column.cards?.map(c => c.id) || []} 
+        <SortableContext
+          items={column.cards?.map(c => c.id) || []}
           strategy={verticalListSortingStrategy}
         >
           {column.cards?.map((card) => (
-            <KanbanCard 
-              key={card.id} 
-              card={card} 
+            <KanbanCard
+              key={card.id}
+              card={card}
               columnId={column.id}
-              onClick={() => onCardClick(card.id)} 
+              onClick={() => onCardClick(card.id)}
             />
           ))}
         </SortableContext>
-        
+
         {column.cards?.length === 0 && (
-          <div className="h-20 border-2 border-dashed border-gray-300 dark:border-zinc-800 flex items-center justify-center">
-             <p className="text-[10px] font-black uppercase text-gray-400">{t("Empty_Column", "Colonne_Vide")}</p>
+          <div className="h-20 rounded-[12px] border border-dashed border-black/10 dark:border-white/10 flex items-center justify-center">
+             <p className="text-xs font-medium text-[#8E8E8E]">{t("Empty column", "Colonne vide")}</p>
           </div>
         )}
       </div>
@@ -611,8 +611,8 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
     switch (p) {
       case 'URGENT': return 'bg-red-500';
       case 'HIGH': return 'bg-orange-500';
-      case 'MEDIUM': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      case 'MEDIUM': return 'bg-[#174CD2]';
+      default: return 'bg-[#8E8E8E]';
     }
   };
 
@@ -622,46 +622,46 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
       style={style}
       className="group"
     >
-      <NeuCard 
+      <NeuCard
         onClick={onClick}
-        className="p-3 cursor-pointer hover:border-[#3C48F5] hover:bg-yellow-50 dark:hover:bg-zinc-800 transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+        className="!p-3 cursor-pointer hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)] transition-all"
       >
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className={`w-8 h-1 ${getPriorityColor(card.priority)}`} />
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className={`w-8 h-1 rounded-full ${getPriorityColor(card.priority)}`} />
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-[#8E8E8E] opacity-0 group-hover:opacity-100 transition-opacity">
               <GripVertical size={14} />
             </div>
           </div>
-          
-          <h4 className="font-bold text-sm leading-tight">{card.title}</h4>
-          
+
+          <h4 className="font-semibold text-sm leading-tight text-[#040028] dark:text-white">{card.title}</h4>
+
           {card.description && (
-            <p className="text-[10px] text-gray-500 line-clamp-2 italic">{card.description}</p>
+            <p className="text-xs text-[#8E8E8E] line-clamp-2">{card.description}</p>
           )}
 
           <div className="flex items-center justify-between mt-2">
             <div className="flex -space-x-2">
               {card.assignee ? (
-                <div className="w-6 h-6 border-2 border-black bg-white rounded-none overflow-hidden" title={card.assignee.firstName}>
+                <div className="w-6 h-6 rounded-full bg-white overflow-hidden ring-2 ring-white dark:ring-[#0A0A2E]" title={card.assignee.firstName}>
                   <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${card.assignee.firstName}`} alt="avatar" className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <div className="w-6 h-6 border-2 border-black bg-gray-100 flex items-center justify-center rounded-none">
-                  <UserIcon size={12} className="text-gray-400" />
+                <div className="w-6 h-6 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center">
+                  <UserIcon size={12} className="text-[#8E8E8E]" />
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400">
+            <div className="flex items-center gap-2 text-xs font-medium text-[#8E8E8E]">
               {card._count?.comments ? (
                 <div className="flex items-center gap-0.5">
-                  <MessageSquare size={10} /> {card._count.comments}
+                  <MessageSquare size={12} /> {card._count.comments}
                 </div>
               ) : null}
               {card.dueDate && (
                 <div className="flex items-center gap-0.5">
-                  <Clock size={10} />
+                  <Clock size={12} />
                 </div>
               )}
             </div>
@@ -692,14 +692,14 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
     onSuccess: () => {
       setComment('');
       queryClient.invalidateQueries({ queryKey: ['card', cardId] });
-      toast.success('COMMENT_POSTED');
+      toast.success(t('Comment posted', 'Commentaire publié'));
     }
   });
 
   const convertMutation = useMutation({
     mutationFn: () => boardApi.convertToPost(cardId),
     onSuccess: () => {
-      toast.success('NODE_SYNCED_TO_CONTENT_FEED');
+      toast.success(t('Synced to content feed', 'Synchronisé avec le fil de contenu'));
       queryClient.invalidateQueries({ queryKey: ['card', cardId] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     }
@@ -711,23 +711,23 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
     <NeuModal
       isOpen={isOpen}
       onClose={onClose}
-      title="CARD_INSPECTOR"
+      title={t("Card details", "Détails de la carte")}
       maxWidth="max-w-3xl"
     >
       {isLoading ? (
-        <div className="p-8 space-y-4">
-          <Skeleton className="h-7 w-48 rounded" />
-          <Skeleton className="h-3 w-32 rounded" />
+        <div className="space-y-4">
+          <Skeleton className="h-7 w-48 rounded-[8px]" />
+          <Skeleton className="h-3 w-32 rounded-[6px]" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
             <div className="md:col-span-2 space-y-4">
-              <Skeleton className="h-24 w-full rounded" />
-              <Skeleton className="h-10 w-full rounded" />
+              <Skeleton className="h-24 w-full rounded-[10px]" />
+              <Skeleton className="h-10 w-full rounded-[10px]" />
             </div>
             <div className="space-y-3">
-              <Skeleton className="h-5 w-20 rounded" />
-              <Skeleton className="h-8 w-full rounded" />
-              <Skeleton className="h-5 w-24 rounded" />
-              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-5 w-20 rounded-[6px]" />
+              <Skeleton className="h-8 w-full rounded-[8px]" />
+              <Skeleton className="h-5 w-24 rounded-[6px]" />
+              <Skeleton className="h-8 w-full rounded-[8px]" />
             </div>
           </div>
         </div>
@@ -735,50 +735,50 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
             <div>
-               <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{card.title}</h3>
-               <p className="text-xs font-bold text-gray-500 uppercase italic">{t('In column:', 'Dans la colonne :')} {card.column?.name}</p>
+               <h3 className="text-xl font-bold text-[#040028] dark:text-white mb-1">{card.title}</h3>
+               <p className="text-xs font-medium text-[#8E8E8E]">{t('In column:', 'Dans la colonne :')} {card.column?.name}</p>
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-black uppercase text-xs">{t('Description', 'Description')}</h4>
-              <div className="p-4 bg-gray-50 dark:bg-zinc-900 border-2 border-black dark:border-white min-h-[100px] text-sm">
+              <h4 className="font-semibold text-xs text-[#8E8E8E]">{t('Description', 'Description')}</h4>
+              <div className="p-4 rounded-[12px] bg-[#F5F7FA] dark:bg-white/5 min-h-[100px] text-sm text-[#040028] dark:text-white">
                 {card.description || t('No description provided.', 'Aucune description fournie.')}
               </div>
             </div>
 
             {/* Comments Section */}
             <div className="space-y-4">
-               <h4 className="font-black uppercase text-xs flex items-center gap-2">
+               <h4 className="font-semibold text-xs text-[#8E8E8E] flex items-center gap-2">
                  <MessageSquare size={14}/> {t('Discussions', 'Discussions')} ({card.comments?.length || 0})
                </h4>
 
                <div className="flex gap-2">
                   <NeuInput
-                    placeholder={t('WRITE_A_REPLY...', 'ÉCRIRE_UNE_RÉPONSE...')}
+                    placeholder={t('Write a reply...', 'Écrire une réponse...')}
                     value={comment}
                     onChange={(e: any) => setComment(e.target.value)}
                   />
                   <NeuButton
                     onClick={() => addCommentMutation.mutate(comment)}
-                    className="bg-black text-white"
+                    active
                     disabled={!comment.trim()}
                   >
-                    {t('SEND', 'ENVOYER')}
+                    {t('Send', 'Envoyer')}
                   </NeuButton>
                </div>
 
                <div className="space-y-3 mt-4">
                  {card.comments?.map((c) => (
-                   <div key={c.id} className="p-3 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 flex gap-3">
-                      <div className="w-8 h-8 border-2 border-black bg-white flex-shrink-0">
+                   <div key={c.id} className="p-3 rounded-[12px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#F5F7FA] dark:bg-white/10 overflow-hidden flex-shrink-0">
                          <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${c.author.firstName}`} className="w-full h-full" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                           <span className="font-black uppercase text-[10px]">{c.author.firstName}</span>
-                           <span className="text-[10px] text-gray-400 italic">{new Date(c.createdAt).toLocaleDateString()}</span>
+                           <span className="font-semibold text-xs text-[#040028] dark:text-white">{c.author.firstName}</span>
+                           <span className="text-xs text-[#8E8E8E]">{new Date(c.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-sm">{c.content}</p>
+                        <p className="text-sm text-[#040028] dark:text-white">{c.content}</p>
                       </div>
                    </div>
                  ))}
@@ -787,24 +787,24 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
           </div>
 
           <div className="space-y-6">
-            <div className="p-4 border-2 border-black dark:border-white bg-yellow-50 dark:bg-zinc-900 space-y-4">
+            <div className="p-4 rounded-[14px] bg-[#F5F7FA] dark:bg-white/5 space-y-4">
                <div>
-                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Assignee', 'Assigné à')}</h4>
+                  <h4 className="font-semibold text-xs text-[#8E8E8E] mb-1">{t('Assignee', 'Assigné à')}</h4>
                   {card.assignee ? (
                     <div className="flex items-center gap-2">
-                       <div className="w-6 h-6 border-2 border-black overflow-hidden">
+                       <div className="w-6 h-6 rounded-full overflow-hidden">
                           <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${card.assignee.firstName}`} className="w-full h-full" />
                        </div>
-                       <span className="font-bold text-xs">{card.assignee.firstName}</span>
+                       <span className="font-medium text-xs text-[#040028] dark:text-white">{card.assignee.firstName}</span>
                     </div>
-                  ) : <p className="text-xs font-bold text-gray-300">{t('Unassigned', 'Non assigné')}</p>}
+                  ) : <p className="text-xs font-medium text-[#8E8E8E]">{t('Unassigned', 'Non assigné')}</p>}
                </div>
 
                <div>
-                  <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Priority', 'Priorité')}</h4>
-                  <span className={`px-2 py-0.5 font-black text-[10px] uppercase text-white ${
-                    card.priority === 'URGENT' ? 'bg-red-500' : 
-                    card.priority === 'HIGH' ? 'bg-orange-500' : 'bg-blue-500'
+                  <h4 className="font-semibold text-xs text-[#8E8E8E] mb-1">{t('Priority', 'Priorité')}</h4>
+                  <span className={`px-2.5 py-1 rounded-full font-semibold text-xs text-white ${
+                    card.priority === 'URGENT' ? 'bg-red-500' :
+                    card.priority === 'HIGH' ? 'bg-orange-500' : 'bg-[#174CD2]'
                   }`}>
                     {card.priority}
                   </span>
@@ -812,8 +812,8 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
 
                {card.dueDate && (
                  <div>
-                    <h4 className="font-black uppercase text-[10px] text-gray-400 mb-1">{t('Due Date', "Date d'échéance")}</h4>
-                    <div className="flex items-center gap-2 text-xs font-bold">
+                    <h4 className="font-semibold text-xs text-[#8E8E8E] mb-1">{t('Due date', "Date d'échéance")}</h4>
+                    <div className="flex items-center gap-2 text-xs font-medium text-[#040028] dark:text-white">
                        <Calendar size={14} />
                        {new Date(card.dueDate).toLocaleDateString()}
                     </div>
@@ -822,28 +822,29 @@ function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen:
             </div>
 
             <div className="space-y-2">
-               <h4 className="font-black uppercase text-xs">{t('Actions', 'Actions')}</h4>
-               <NeuButton 
-                 onClick={() => convertMutation.mutate()} 
-                 className="w-full bg-black dark:bg-white text-white dark:text-black flex justify-center items-center gap-2"
+               <h4 className="font-semibold text-xs text-[#8E8E8E]">{t('Actions', 'Actions')}</h4>
+               <NeuButton
+                 onClick={() => convertMutation.mutate()}
+                 active
+                 className="w-full flex justify-center items-center gap-2"
                  disabled={!!card.postId}
                >
-                 <ArrowRight size={16}/> {card.postId ? 'SYNCED_TO_FEED' : 'CONVERT_TO_POST'}
+                 <ArrowRight size={16}/> {card.postId ? t('Synced to feed', 'Synchronisé') : t('Convert to post', 'Convertir en publication')}
                </NeuButton>
-               
-               <NeuButton className="w-full bg-white border-red-500 text-red-500 hover:bg-red-50 flex justify-center items-center gap-2">
-                 <Trash2 size={16}/> ARCHIVE_CARD
+
+               <NeuButton className="w-full flex justify-center items-center gap-2 !text-red-500 hover:!border-red-200 dark:hover:!border-red-900/40">
+                 <Trash2 size={16}/> {t('Archive card', 'Archiver la carte')}
                </NeuButton>
             </div>
 
             {/* Mini Activity Log */}
             <div className="space-y-2">
-               <h4 className="font-black uppercase text-[10px] text-gray-400">{t('Recent Activity', 'Activité récente')}</h4>
+               <h4 className="font-semibold text-xs text-[#8E8E8E]">{t('Recent activity', 'Activité récente')}</h4>
                <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                   {card.activities?.slice(0, 5).map(a => (
-                    <div key={a.id} className="text-[10px] flex gap-2">
-                       <span className="font-black uppercase text-[#3C48F5]">{a.user.firstName}</span>
-                       <span className="italic">{a.action}</span>
+                    <div key={a.id} className="text-xs flex gap-2">
+                       <span className="font-semibold text-[#174CD2]">{a.user.firstName}</span>
+                       <span className="text-[#8E8E8E]">{a.action}</span>
                     </div>
                   ))}
                </div>
