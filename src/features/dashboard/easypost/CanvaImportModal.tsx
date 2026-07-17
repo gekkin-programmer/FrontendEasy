@@ -139,37 +139,37 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#040028]/50 backdrop-blur-sm p-4">
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white dark:bg-zinc-900 border-4 border-black dark:border-white shadow-[16px_16px_0px_0px_#000] dark:shadow-[16px_16px_0px_0px_#fff] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden"
+        initial={{ scale: 0.96, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.96, opacity: 0, y: 10 }}
+        className="bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between bg-black dark:bg-white text-white dark:text-black px-5 py-3 border-b-4 border-black dark:border-white flex-shrink-0">
+        <div className="flex items-center justify-between bg-[#174CD2] text-white px-5 py-4 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <span className="font-black uppercase tracking-widest text-sm">CANVA IMPORT</span>
+            <span className="font-bold text-sm">{t('Canva import', 'Import Canva')}</span>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-white/20 dark:hover:bg-black/20 transition-colors">
-            <X size={20} strokeWidth={3} />
+          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
+            <X size={20} />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b-2 border-black dark:border-white flex-shrink-0">
-          {(['designs', 'assets'] as Tab[]).map(t => (
+        <div className="flex border-b border-black/5 dark:border-white/5 flex-shrink-0">
+          {(['designs', 'assets'] as Tab[]).map(tb => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tb}
+              onClick={() => setTab(tb)}
               className={cn(
-                'flex-1 py-2.5 text-[11px] font-black uppercase tracking-wider transition-all',
-                tab === t
-                  ? 'bg-[#3C48F5] text-white'
-                  : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                'flex-1 py-3 text-sm font-semibold transition-all',
+                tab === tb
+                  ? 'text-[#174CD2] border-b-2 border-[#174CD2]'
+                  : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'
               )}
             >
-              {t === 'designs' ? '⬡ Designs (Export)' : '🗂 Assets Library'}
+              {tb === 'designs' ? t('Designs (export)', 'Designs (export)') : t('Assets library', 'Bibliothèque d\'assets')}
             </button>
           ))}
         </div>
@@ -180,31 +180,31 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
             <div className="space-y-4">
               {selectedDesign ? (
                 /* Export config panel */
-                <div className="border-2 border-black dark:border-white p-4 space-y-4">
+                <div className="rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] p-4 space-y-4">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setSelectedDesign(null)} className="p-1 border-2 border-black dark:border-white hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                    <button onClick={() => setSelectedDesign(null)} className="p-1.5 rounded-[8px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white transition-colors">
                       <ChevronRight size={14} className="rotate-180" />
                     </button>
-                    <span className="font-black uppercase text-sm text-black dark:text-white truncate">{selectedDesign.title || selectedDesign.id}</span>
+                    <span className="font-semibold text-sm text-[#040028] dark:text-white truncate">{selectedDesign.title || selectedDesign.id}</span>
                   </div>
 
                   {selectedDesign.thumbnail?.url && (
-                    <img src={selectedDesign.thumbnail.url} alt="" className="w-full max-h-40 object-contain border-2 border-black dark:border-white bg-zinc-50 dark:bg-zinc-800" />
+                    <img src={selectedDesign.thumbnail.url} alt="" className="w-full max-h-40 object-contain rounded-[10px] bg-[#F5F7FA] dark:bg-white/5" />
                   )}
 
                   <div>
-                    <p className="text-[10px] font-black uppercase mb-2 text-black dark:text-white">{t('Export Format', "Format d'export")}</p>
+                    <p className="text-xs font-semibold text-[#8E8E8E] mb-2">{t('Export format', "Format d'export")}</p>
                     <div className="flex gap-2 flex-wrap">
                       {(['jpg', 'png', 'gif', 'mp4', 'pdf'] as ExportFormat[]).map(fmt => (
                         <button
                           key={fmt}
                           onClick={() => setExportFormat(fmt)}
                           className={cn(
-                            'px-3 py-1 border-2 border-black dark:border-white text-[10px] font-black uppercase transition-all',
-                            exportFormat === fmt ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                            'px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all',
+                            exportFormat === fmt ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10'
                           )}
                         >
-                          {fmt === 'mp4' ? <Film size={10} className="inline mr-1" /> : <ImageIcon size={10} className="inline mr-1" />}
+                          {fmt === 'mp4' ? <Film size={11} className="inline mr-1" /> : <ImageIcon size={11} className="inline mr-1" />}
                           {fmt.toUpperCase()}
                         </button>
                       ))}
@@ -214,10 +214,10 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                   <button
                     onClick={startExport}
                     disabled={!!importing}
-                    className="w-full bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white py-2.5 font-black uppercase text-xs hover:bg-zinc-800 dark:hover:bg-zinc-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all shadow-[4px_4px_0px_0px_#3C48F5] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                    className="w-full bg-[#174CD2] text-white py-2.5 rounded-[10px] font-semibold text-sm hover:bg-[#123a9e] disabled:opacity-50 flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(23,76,210,0.3)]"
                   >
                     {importing ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
-                    {importing ? t('Exporting…', 'Export en cours…') : t('Export & Import to Library', 'Exporter vers la médiathèque')}
+                    {importing ? t('Exporting…', 'Export en cours…') : t('Export & import to library', 'Exporter vers la médiathèque')}
                   </button>
                 </div>
               ) : (
@@ -226,11 +226,11 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                   {loading && designs.length === 0 ? (
                     <div className="grid grid-cols-3 gap-3">
                       {[...Array(6)].map((_, i) => (
-                        <div key={i} className="aspect-video bg-zinc-100 dark:bg-zinc-800 animate-pulse border-2 border-black dark:border-white" />
+                        <div key={i} className="aspect-video rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 animate-pulse" />
                       ))}
                     </div>
                   ) : designs.length === 0 ? (
-                    <div className="py-16 text-center text-xs font-black uppercase text-gray-400 dark:text-zinc-600">
+                    <div className="py-16 text-center text-sm font-medium text-[#8E8E8E]">
                       {t('No designs found', 'Aucun design trouvé')}
                     </div>
                   ) : (
@@ -238,27 +238,27 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                       {designs.map(d => (
                         <div
                           key={d.id}
-                          className="group relative aspect-video bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white hover:border-[#3C48F5] overflow-hidden transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                          className="group relative aspect-video rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden transition-all shadow-sm hover:shadow-md"
                         >
                           {d.thumbnail?.url
                             ? <img src={d.thumbnail.url} alt="" className="w-full h-full object-cover" />
-                            : <div className="w-full h-full flex items-center justify-center text-zinc-400"><ImageIcon size={24} /></div>
+                            : <div className="w-full h-full flex items-center justify-center text-[#8E8E8E]"><ImageIcon size={24} /></div>
                           }
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex flex-col items-center justify-center gap-1.5">
+                          <div className="absolute inset-0 bg-[#040028]/0 group-hover:bg-[#040028]/60 transition-colors flex flex-col items-center justify-center gap-1.5">
                             <button
                               onClick={() => setSelectedDesign(d)}
-                              className="opacity-0 group-hover:opacity-100 bg-white text-black border-2 border-black px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-zinc-100 transition-all"
+                              className="opacity-0 group-hover:opacity-100 bg-white text-[#040028] rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1 hover:bg-white/90 transition-all"
                             >
-                              <Download size={9} />{t('Import', 'Importer')}
+                              <Download size={11} />{t('Import', 'Importer')}
                             </button>
                             <a
                               href={canvaEditUrl(d.id)}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={e => e.stopPropagation()}
-                              className="opacity-0 group-hover:opacity-100 bg-[#3C48F5] text-white border-2 border-[#3C48F5] px-2.5 py-1 text-[9px] font-black uppercase flex items-center gap-1 hover:bg-[#2d38d4] transition-all"
+                              className="opacity-0 group-hover:opacity-100 bg-[#174CD2] text-white rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1 hover:bg-[#123a9e] transition-all"
                             >
-                              <ExternalLink size={9} />{t('Edit in Canva', 'Éditer dans Canva')}
+                              <ExternalLink size={11} />{t('Edit in Canva', 'Éditer dans Canva')}
                             </a>
                           </div>
                         </div>
@@ -269,7 +269,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                     <button
                       onClick={() => loadDesigns(false)}
                       disabled={loading}
-                      className="w-full py-2 border-2 border-dashed border-black dark:border-white text-[10px] font-black uppercase hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                      className="w-full py-2.5 rounded-[10px] border border-dashed border-black/10 dark:border-white/10 text-xs font-semibold text-[#8E8E8E] hover:bg-[#F5F7FA] dark:hover:bg-white/5 transition-all"
                     >
                       {loading ? <RefreshCw size={12} className="animate-spin inline mr-2" /> : null}
                       {t('Load more', 'Charger plus')}
@@ -282,30 +282,30 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
 
           {tab === 'assets' && (
             <div className="space-y-3">
-              <p className="text-[10px] font-black uppercase text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs font-semibold text-[#8E8E8E]">
                 {t('Previously imported from Canva', 'Importés depuis Canva')}
               </p>
               {loading && assets.length === 0 ? (
                 <div className="grid grid-cols-4 gap-3">
                   {[...Array(8)].map((_, i) => (
-                    <div key={i} className="aspect-square bg-zinc-100 dark:bg-zinc-800 animate-pulse border-2 border-black dark:border-white" />
+                    <div key={i} className="aspect-square rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 animate-pulse" />
                   ))}
                 </div>
               ) : assets.length === 0 ? (
-                <div className="py-16 text-center text-xs font-black uppercase text-gray-400 dark:text-zinc-600">
+                <div className="py-16 text-center text-sm font-medium text-[#8E8E8E]">
                   {t('No imported assets yet — use the Designs tab to import', 'Aucun asset importé — utilisez l\'onglet Designs')}
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-3">
                   {assets.map((a: any) => (
-                    <div key={a.id} className="group relative aspect-square bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white overflow-hidden shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                    <div key={a.id} className="group relative aspect-square rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden shadow-sm">
                       {a.mimeType?.startsWith('video')
-                        ? <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-zinc-400"><Film size={20} /><span className="text-[9px] font-bold uppercase">{a.filename?.split('.').pop()}</span></div>
+                        ? <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-[#8E8E8E]"><Film size={20} /><span className="text-[10px] font-semibold uppercase">{a.filename?.split('.').pop()}</span></div>
                         : <img src={a.url} alt={a.filename} className="w-full h-full object-cover" />
                       }
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex items-end justify-center pb-2">
-                        <span className="opacity-0 group-hover:opacity-100 text-white text-[8px] font-black uppercase px-1 truncate max-w-full">
-                          <Check size={8} className="inline mr-0.5" />{t('In library', 'Dans la médiathèque')}
+                      <div className="absolute inset-0 bg-[#040028]/0 group-hover:bg-[#040028]/60 transition-colors flex items-end justify-center pb-2">
+                        <span className="opacity-0 group-hover:opacity-100 text-white text-[10px] font-semibold px-1 truncate max-w-full">
+                          <Check size={10} className="inline mr-0.5" />{t('In library', 'Dans la médiathèque')}
                         </span>
                       </div>
                     </div>

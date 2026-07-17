@@ -211,22 +211,22 @@ export default function MediaGallery({
   };
 
   return (
-    <div className="flex flex-col gap-4 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
 
-      {/* OS Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
+      {/* Toolbar */}
+      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-[#0A0A2E] p-3 rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] text-[#040028] dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
-                  <button onClick={goBack} className="p-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                      <FiChevronLeft size={18} strokeWidth={3} />
+                  <button onClick={goBack} className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
+                      <FiChevronLeft size={18} />
                   </button>
               )}
-              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter text-black dark:text-white">
-                  <FiFolder className="text-black dark:text-white" />
-                  <span>{t("ROOT", "RACINE")}</span>
+              <div className="flex items-center gap-2 font-semibold text-sm text-[#040028] dark:text-white">
+                  <FiFolder className="text-[#8E8E8E]" />
+                  <span>{t("Root", "Racine")}</span>
                   {folderPath.map(p => (
                       <React.Fragment key={p.id}>
-                          <span className="opacity-50">/</span>
+                          <span className="text-[#8E8E8E]">/</span>
                           <span>{p.name}</span>
                       </React.Fragment>
                   ))}
@@ -236,29 +236,29 @@ export default function MediaGallery({
           <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
               >
-                  <FiPlus /> {t("New Folder", "Nouveau Dossier")}
+                  <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#174CD2] text-white text-xs font-semibold shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
               >
-                  <FiUploadCloud />
+                  <FiUploadCloud size={14} />
                   {uploadProgress
-                    ? t(`${uploadProgress.done}/${uploadProgress.total} Uploading...`, `${uploadProgress.done}/${uploadProgress.total} En cours...`)
-                    : t("Upload Asset", "Télécharger un média")}
+                    ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
+                    : t("Upload asset", "Télécharger un média")}
               </button>
               <button
                 onClick={handleCanvaClick}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
                   <SiCanva size={13} /> Canva
               </button>
               <button
-                onClick={() => toast.info(t("Dropbox Import — Coming Soon", "Import Dropbox — Bientôt disponible"))}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                onClick={() => toast.info(t("Dropbox import — coming soon", "Import Dropbox — bientôt disponible"))}
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
                   <SiDropbox size={13} /> Dropbox
@@ -269,13 +269,13 @@ export default function MediaGallery({
       {/* Storage & Folder Creator */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!hideUsage && (
-            <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                <div className="flex justify-between text-[8px] font-black uppercase mb-1">
+            <div className="bg-white dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+                <div className="flex justify-between text-xs font-semibold text-[#8E8E8E] mb-2">
                     <span>{t("Usage", "Utilisation")}</span>
                     <span>{formatSize(usage)} / 100MB</span>
                 </div>
-                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
-                    <div className="h-full bg-black dark:bg-white" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+                <div className="h-2 rounded-full bg-[#F5F7FA] dark:bg-white/10 overflow-hidden">
+                    <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
                 </div>
             </div>
           )}
@@ -287,20 +287,20 @@ export default function MediaGallery({
                         autoFocus
                         value={newFolderName}
                         onChange={e => setNewFolderName(e.target.value)}
-                        placeholder={t("FOLDER NAME...", "NOM DU DOSSIER...")}
-                        className="flex-1 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 text-xs font-bold uppercase focus:outline-none"
+                        placeholder={t("Folder name...", "Nom du dossier...")}
+                        className="flex-1 bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] px-3 text-sm font-medium placeholder:text-[#8E8E8E] focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
                       />
                       <button
                         onClick={() => createFolderMutation.mutate(newFolderName)}
-                        className="px-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white text-black dark:text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-black hover:text-white transition-all"
+                        className="px-4 rounded-[10px] bg-[#174CD2] text-white font-semibold text-xs shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
                       >
                           {t("OK", "OK")}
                       </button>
                       <button
                         onClick={() => setIsCreatingFolder(false)}
-                        className="px-4 bg-white border-2 border-black dark:border-white text-black font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                        className="px-4 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white font-semibold text-xs hover:bg-black/5 dark:hover:bg-white/10 transition-all"
                       >
-                          {t("X", "X")}
+                          {t("Cancel", "Annuler")}
                       </button>
                   </motion.div>
               )}
@@ -315,9 +315,9 @@ export default function MediaGallery({
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                   <Skeleton className="w-full aspect-square" />
-                   <Skeleton className="h-2.5 w-3/4" />
+                 <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+                   <Skeleton className="w-full aspect-square rounded-[10px]" />
+                   <Skeleton className="h-2.5 w-3/4 rounded-[4px]" />
                  </div>
                ))}
              </>
@@ -331,23 +331,23 @@ export default function MediaGallery({
                         animate={{ opacity: 1, scale: 1 }}
                         key={folder.id}
                         onDoubleClick={() => enterFolder(folder)}
-                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all relative"
+                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all relative"
                     >
-                        <div className="text-[#3C48F5] dark:text-blue-400 group-hover:scale-110 transition-transform">
-                            <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
+                        <div className="text-[#174CD2] group-hover:scale-110 transition-transform">
+                            <FiFolder size={44} fill="currentColor" fillOpacity={0.15} strokeWidth={2} />
                         </div>
-                        <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>
+                        <span className="text-xs font-semibold text-center truncate w-full text-[#040028] dark:text-white">{folder.name}</span>
                         {deleteConfirm?.id === folder.id ? (
-                            <div className="absolute top-1 right-1 flex gap-0.5 z-10">
-                                <button onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-red-500 text-white border border-black text-[8px] font-black uppercase">{t('Del', 'Sup')}</button>
-                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-white text-black border border-black text-[8px] font-black">✕</button>
+                            <div className="absolute top-1 right-1 flex gap-1 z-10">
+                                <button onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); setDeleteConfirm(null); }} className="px-2 py-1 rounded-[6px] bg-red-500 text-white text-[10px] font-semibold">{t('Delete', 'Suppr.')}</button>
+                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="px-2 py-1 rounded-[6px] bg-white text-[#040028] shadow-sm text-[10px] font-semibold">✕</button>
                             </div>
                         ) : (
                             <button
                                 onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'folder', id: folder.id}); }}
-                                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
+                                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-white shadow-sm text-red-500 transition-opacity"
                             >
-                                <FiTrash2 size={10} />
+                                <FiTrash2 size={12} />
                             </button>
                         )}
                     </motion.div>
@@ -360,7 +360,7 @@ export default function MediaGallery({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         key={asset.id}
-                        className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
+                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all overflow-hidden"
                     >
                         {asset.mimeType?.startsWith('video/') ? (
                             <video src={asset.url} className="w-full h-full object-cover" muted playsInline />
@@ -368,60 +368,60 @@ export default function MediaGallery({
                             <img src={asset.url} className="w-full h-full object-cover" alt="" />
                         )}
                         {asset.mimeType?.startsWith('video/') && (
-                            <div className="absolute top-1 left-1 bg-black/80 text-white text-[8px] font-black px-1.5 py-0.5 pointer-events-none tracking-widest">
-                                VIDEO
+                            <div className="absolute top-2 left-2 rounded-full bg-[#040028]/70 text-white text-[10px] font-semibold px-2 py-0.5 pointer-events-none">
+                                {t('Video', 'Vidéo')}
                             </div>
                         )}
 
                         <div
                             className={cn(
-                                "absolute inset-0 transition-opacity flex flex-col justify-between p-1.5",
-                                sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                "absolute inset-0 bg-[#040028]/0 group-hover:bg-[#040028]/10 transition-all flex flex-col justify-between p-2",
+                                sectionMenuFor === asset.id ? "opacity-100 bg-[#040028]/10" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
                             {/* Top row: Edit in Canva + Delete */}
-                            <div className="flex justify-end gap-1">
+                            <div className="flex justify-end gap-1.5">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
                                     disabled={canvaUploading === asset.id}
                                     title={t('Edit in Canva', 'Modifier dans Canva')}
-                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                    className="p-1.5 rounded-full bg-white shadow-sm text-[#040028]"
                                 >
                                     {canvaUploading === asset.id
-                                        ? <FiLoader size={10} className="animate-spin" />
-                                        : <FiEdit2 size={10} />
+                                        ? <FiLoader size={11} className="animate-spin" />
+                                        : <FiEdit2 size={11} />
                                     }
                                 </button>
                                 {deleteConfirm?.id === asset.id ? (
                                     <>
-                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="p-1.5 bg-red-500 text-white border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black uppercase">{t('Del?', 'Sup?')}</button>
-                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black">✕</button>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="px-2 py-1 rounded-[6px] bg-red-500 text-white text-[10px] font-semibold">{t('Delete?', 'Suppr.?')}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 rounded-full bg-white shadow-sm text-[#040028]">✕</button>
                                     </>
                                 ) : (
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'asset', id: asset.id}); }}
                                         title={t('Delete', 'Supprimer')}
-                                        className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                        className="p-1.5 rounded-full bg-white shadow-sm text-red-500"
                                     >
-                                        <FiTrash2 size={10} />
+                                        <FiTrash2 size={11} />
                                     </button>
                                 )}
                             </div>
 
                             {/* Bottom: Use / section selector */}
                             {onUse && sectionMenuFor === asset.id ? (
-                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1">
+                                <div className="bg-white dark:bg-[#0A0A2E] rounded-[10px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] flex flex-col gap-1 p-1.5">
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors"
+                                            className="w-full rounded-[6px] bg-[#174CD2] text-white py-1.5 text-[10px] font-semibold hover:bg-[#123a9e] transition-colors"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
                                         </button>
                                     ))}
                                     <button
-                                        className="w-full bg-white dark:bg-zinc-800 text-black dark:text-white py-1 text-[8px] font-black uppercase border border-black dark:border-white"
+                                        className="w-full rounded-[6px] bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white py-1.5 text-[10px] font-semibold"
                                         onClick={() => setSectionMenuFor(null)}
                                     >
                                         {t("Cancel", "Annuler")}
@@ -429,7 +429,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-lg"
+                                    className="w-full rounded-[8px] bg-white text-[#040028] py-1.5 text-xs font-semibold hover:bg-white/90 transition-colors"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
@@ -449,7 +449,7 @@ export default function MediaGallery({
          )}
 
          {!isLoading && assets.length === 0 && folders.length === 0 && (
-             <div className="col-span-full py-20 text-center border-4 border-dashed border-zinc-200 dark:border-zinc-800 text-zinc-300 dark:text-zinc-700 font-black uppercase tracking-tighter text-3xl">
+             <div className="col-span-full py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10 text-[#8E8E8E] font-semibold text-lg">
                  {t("Folder is empty", "Le dossier est vide")}
              </div>
          )}
