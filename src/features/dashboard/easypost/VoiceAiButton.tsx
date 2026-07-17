@@ -107,8 +107,8 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
             `${10 - data.aiUsageCount} générations restantes ce mois.`
           ), {
             description: t(
-              "Upgrade to STARTER for 100 generations!",
-              "Passez à STARTER pour 100 générations !"
+              "Upgrade to Starter for 100 generations!",
+              "Passez à Starter pour 100 générations !"
             ),
             action: {
               label: t("Upgrade", "Passer"),
@@ -143,14 +143,14 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
         disabled={isProcessing}
         className={`
             group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border shadow-sm transition-all duration-300 select-none cursor-pointer
-            ${isRecording 
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 shadow-red-500/20' 
-                : 'bg-white dark:bg-zinc-900 border-blue-100 dark:border-blue-900 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700'}
+            ${isRecording
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 shadow-red-500/20'
+                : 'bg-white dark:bg-[#0A0A2E] border-[#174CD2]/15 dark:border-[#174CD2]/30 hover:shadow-md hover:border-[#174CD2]/40'}
         `}
       >
         <div className={`
             w-7 h-7 flex items-center justify-center rounded-full text-white transition-colors
-            ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gradient-to-tr from-blue-500 to-indigo-600'}
+            ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-[#174CD2]'}
         `}>
             {isProcessing ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -158,19 +158,19 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
                 <Mic className="w-3.5 h-3.5" />
             ) : (
                 <img
-                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=3C48F6`}
+                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=EasyAI&backgroundColor=174CD2`}
                     alt={t("AI assistant", "Assistant IA")}
                     className="w-full h-full rounded-full border border-white/20"
                 />
             )}
         </div>
-        
-        <span className={`text-xs font-bold ${isRecording ? 'text-red-500' : 'text-gray-600 dark:text-zinc-400'}`}>
+
+        <span className={`text-xs font-semibold ${isRecording ? 'text-red-500' : 'text-[#8E8E8E]'}`}>
             {isRecording
               ? t('Listening...', 'Écoute...')
               : isProcessing
               ? t('Thinking...', 'Réflexion...')
-              : t('Voice AI', 'IA Vocale')}
+              : t('Voice AI', 'IA vocale')}
         </span>
       </motion.button>
 
