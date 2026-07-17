@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } fr
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -14,7 +13,7 @@ import { getCookie } from 'cookies-next';
 import {
   Layers, BarChart2, Settings as SettingsIcon,
   Search, Bell, Check, ChevronDown, Plus, Users, Menu, X,
-  ExternalLink, ArrowRight, Calendar as CalendarIcon, Home,
+  ExternalLink, ArrowRight, Calendar as CalendarIcon,
   AlertTriangle, Crown, MessageCircle, Layout,
   Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
 } from 'lucide-react';
@@ -702,29 +701,8 @@ function DashboardContent() {
 
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
-                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-black/5 dark:border-white/10 items-center justify-between px-8">
+                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => router.push('/')}
-                                className="p-2 rounded-[10px] hover:bg-[#174CD2]/10 transition-colors"
-                                title={t("Back to Home", "Retour à l'accueil")}
-                            >
-                                <Home size={20} className="text-[#040028] dark:text-white" />
-                            </button>
-                            <div className="flex items-center gap-2">
-                                <div className="w-9 h-9 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 flex items-center justify-center">
-                                    <Image
-                                        src="/applogo.png"
-                                        alt="EazyPost Logo"
-                                        width={36}
-                                        height={36}
-                                        className="object-contain p-1"
-                                    />
-                                </div>
-                                <span className="font-['Rubik_One'] text-xl text-[#174CD2]">azypost</span>
-                            </div>
-                        </div>
                         <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-[#040028]/50 dark:text-white/50" /></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0A0A2E] rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm text-left hover:bg-[#174CD2]/8 transition-colors"><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-medium truncate text-[#040028] dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-[#174CD2]"/>}</button>))}</div><div className="h-px bg-black/5 dark:bg-white/10 my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm font-medium text-[#174CD2] hover:bg-[#174CD2]/8 transition-colors"><Plus size={16}/> {t("New workspace", "Nouvel espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
@@ -736,11 +714,12 @@ function DashboardContent() {
                                 value={searchTerm}
                                 onChange={(e: any) => { setSearchTerm(e.target.value); setIsSearchOpen(true); }}
                                 onFocus={() => setIsSearchOpen(true)}
+                                className="rounded-none"
                                 style={{ width: '250px' }}
                             />
                             <button
                                 onClick={() => setIsSearchOpen(v => !v)}
-                                className="bg-[#174CD2] text-white p-2.5 rounded-[10px] hover:bg-[#123a9e] transition-colors"
+                                className="bg-[#174CD2] text-white p-2.5 rounded-none"
                             >
                                 <Search size={18} />
                             </button>
@@ -838,7 +817,7 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-[#0A0A2E]">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start -ml-4">
                             <QuickConnectSidebar 
