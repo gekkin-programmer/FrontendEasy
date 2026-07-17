@@ -12,23 +12,23 @@ export const EngagementWithTabs = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-4 mb-6 border-b-2 border-black dark:border-white pb-4 transition-colors">
+      <div className="flex items-center gap-6 mb-6 border-b border-black/5 dark:border-white/5">
         <button
           onClick={() => setSubTab('inbox')}
-          className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black dark:border-white transition-all ${
+          className={`flex items-center gap-2 font-semibold text-sm pb-3 border-b-2 transition-all ${
             subTab === 'inbox'
-              ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] -translate-y-1'
-              : 'bg-white dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-transparent hover:border-black dark:hover:border-white'
+              ? 'text-[#174CD2] border-[#174CD2]'
+              : 'text-[#8E8E8E] border-transparent hover:text-[#040028] dark:hover:text-white'
           }`}
         >
           <MessageCircle size={16} /> {t("Inbox", "Messages")}
         </button>
         <button
           onClick={() => setSubTab('analytics')}
-          className={`flex items-center gap-2 font-black uppercase text-sm px-4 py-2 border-2 border-black dark:border-white transition-all ${
+          className={`flex items-center gap-2 font-semibold text-sm pb-3 border-b-2 transition-all ${
             subTab === 'analytics'
-              ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] -translate-y-1'
-              : 'bg-white dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-transparent hover:border-black dark:hover:border-white'
+              ? 'text-[#174CD2] border-[#174CD2]'
+              : 'text-[#8E8E8E] border-transparent hover:text-[#040028] dark:hover:text-white'
           }`}
         >
           <BarChart2 size={16} /> {t("Performance", "Performance")}

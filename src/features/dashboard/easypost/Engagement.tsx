@@ -50,10 +50,10 @@ const PLATFORM_FILTERS = [
 ];
 
 const SENTIMENT_STYLES: any = {
-  positive: 'bg-green-100 text-black border-2 border-black',
-  negative: 'bg-red-100 text-black border-2 border-black',
-  neutral: 'bg-gray-100 text-black border-2 border-black',
-  question: 'bg-blue-100 text-black border-2 border-black',
+  positive: 'bg-green-100 text-green-700',
+  negative: 'bg-red-100 text-red-700',
+  neutral: 'bg-[#F5F7FA] text-[#040028]',
+  question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
 
 export default function Engagement() {
@@ -162,35 +162,35 @@ export default function Engagement() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] overflow-hidden animate-in fade-in font-sans text-black dark:text-white transition-colors">
+    <div className="flex h-[calc(100vh-140px)] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in font-sans text-[#040028] dark:text-white transition-colors">
 
       {/* LEFT PANEL: INBOX LIST */}
-      <div className="w-[380px] flex flex-col border-r-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
+      <div className="w-[380px] flex flex-col border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-colors">
 
         {/* Header & Filters */}
-        <div className="p-4 border-b-2 border-black dark:border-white flex flex-col gap-4 bg-white dark:bg-zinc-900 transition-colors">
+        <div className="p-4 border-b border-black/5 dark:border-white/5 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] transition-colors">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
+            <h2 className="text-lg font-bold text-[#040028] dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
             <div className="flex gap-2">
-                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none transition-all" title={t('Refresh', 'Actualiser')}>
+                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all" title={t('Refresh', 'Actualiser')}>
                   <FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
                 </button>
-                <button onClick={() => void handleSync()} disabled={syncing} className="p-2 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black hover:opacity-80 active:translate-y-[2px] transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
-                  {syncing ? <FiLoader size={16} className="animate-spin" /> : <span className="text-[10px] font-black">SYNC</span>}
+                <button onClick={() => void handleSync()} disabled={syncing} className="px-3 py-2 rounded-[10px] bg-[#174CD2] text-white text-xs font-semibold shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
+                  {syncing ? <FiLoader size={16} className="animate-spin" /> : t('Sync', 'Synchroniser')}
                 </button>
             </div>
           </div>
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-zinc-400" size={16} />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8E8E]" size={16} />
             <input
               type="text"
               placeholder={t('Search messages...', 'Rechercher des messages...')}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-sm font-bold placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] dark:focus:shadow-[4px_4px_0px_0px_#fff] transition-all text-black dark:text-white"
+              className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-sm font-medium placeholder:text-[#8E8E8E] focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label={t('ALL', 'TOUT')} active={filter === 'all' && platformFilter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
-             <FilterBadge label={t('UNREAD', 'NON LU')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => { setFilter('unread'); setPlatformFilter('all'); }} />
+             <FilterBadge label={t('All', 'Tout')} active={filter === 'all' && platformFilter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
+             <FilterBadge label={t('Unread', 'Non lu')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => { setFilter('unread'); setPlatformFilter('all'); }} />
              {PLATFORM_FILTERS.map(pf => (
                <FilterBadge
                  key={pf.id}
@@ -205,71 +205,70 @@ export default function Engagement() {
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 transition-colors">
+        <div className="flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] transition-colors">
           {isLoading && (
-            <div className="divide-y-2 divide-black dark:divide-white">
+            <div className="divide-y divide-black/5 dark:divide-white/5">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="flex items-start gap-3 p-4">
                   <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
                   <div className="flex-1 space-y-2">
                     <div className="flex justify-between">
-                      <Skeleton className="h-3 w-28" />
-                      <Skeleton className="h-3 w-12" />
+                      <Skeleton className="h-3 w-28 rounded-[4px]" />
+                      <Skeleton className="h-3 w-12 rounded-[4px]" />
                     </div>
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-3/4" />
+                    <Skeleton className="h-3 w-full rounded-[4px]" />
+                    <Skeleton className="h-3 w-3/4 rounded-[4px]" />
                   </div>
                 </div>
               ))}
             </div>
           )}
           {!isLoading && filteredEngagements.length === 0 && (
-             <div className="p-8 text-center text-gray-400 dark:text-zinc-500 text-sm font-mono border-b-2 border-dashed border-gray-300 dark:border-zinc-700">{t('No messages found', 'Aucun message trouvé')}</div>
+             <div className="p-8 text-center text-[#8E8E8E] text-sm font-medium">{t('No messages found', 'Aucun message trouvé')}</div>
           )}
           {!isLoading && filteredEngagements.map((e: any) => (
             <div
               key={e._id}
               onClick={() => setActiveId(e._id)}
-              className={`p-4 cursor-pointer border-b-2 border-black dark:border-white transition-all group relative hover:bg-zinc-50 dark:hover:bg-zinc-800
-                ${activeId === e._id ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
+              className={`p-4 cursor-pointer border-b border-black/5 dark:border-white/5 transition-all group relative
+                ${activeId === e._id ? 'bg-[#174CD2]/8' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5'}`}
             >
-              {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-2 bg-yellow-400 dark:bg-yellow-600 border-r-2 border-black dark:border-white" />}
-              <div className={`flex gap-3 ${activeId === e._id ? 'pl-2' : ''}`}>
+              {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#174CD2]" />}
+              <div className="flex gap-3">
                  <div className="flex-shrink-0 relative">
-                    <div className={`w-10 h-10 border-2 border-black dark:border-white flex items-center justify-center text-xs font-black uppercase overflow-hidden
-                        ${activeId === e._id ? 'bg-white dark:bg-zinc-800 text-black dark:text-white' : 'bg-gray-100 dark:bg-zinc-800 text-black dark:text-white'}`}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold overflow-hidden bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
                         {e.authorAvatar ? <img src={e.authorAvatar} alt="" /> : e.authorName.charAt(0)}
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 p-0.5 border-2 border-black dark:border-white z-10 ${PLATFORM_BADGE_BG[e.platform.toLowerCase()] ?? 'bg-white dark:bg-zinc-900'}`}>
+                    <div className={`absolute -bottom-1 -right-1 p-0.5 rounded-full ring-2 ring-white dark:ring-[#0A0A2E] z-10 ${PLATFORM_BADGE_BG[e.platform.toLowerCase()] ?? 'bg-[#8E8E8E]'}`}>
                         <span className="text-xs [&>svg]:text-white">{PLATFORM_ICONS[e.platform.toLowerCase()] || <FiMessageCircle className="text-white" />}</span>
                     </div>
                  </div>
                  <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
-                        <span className={`text-sm font-black truncate uppercase ${e.status === 'unread' ? '' : 'opacity-80'}`}>
+                        <span className={`text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
                             {e.authorName}
                         </span>
-                        <span className={`text-[10px] font-mono ${activeId === e._id ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-500 dark:text-zinc-400'}`}>
+                        <span className="text-xs text-[#8E8E8E]">
                             {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : t('Now', 'Maintenant')}
                         </span>
                     </div>
-                    <p className={`text-xs line-clamp-2 ${activeId === e._id ? 'text-gray-200 dark:text-zinc-700' : 'text-gray-800 dark:text-zinc-300'}`}>
+                    <p className="text-xs line-clamp-2 text-[#8E8E8E]">
                         {e.content}
                     </p>
                     <div className="flex gap-2 mt-2 flex-wrap">
                          {e.type === 'dm' && (
-                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-white">
-                                 DM
+                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                                 {t('DM', 'MP')}
                              </span>
                          )}
                          {(e.unreadCount ?? 0) > 0 && (
-                             <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-black bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white min-w-[20px]">
+                             <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#174CD2] text-white min-w-[20px]">
                                  {e.unreadCount}
                              </span>
                          )}
                          {e.status === 'replied' && (
-                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-green-400 text-black border-2 border-black">
-                                 <FiCheck size={10} strokeWidth={4} /> {t('REPLIED', 'RÉPONDU')}
+                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
+                                 <FiCheck size={10} strokeWidth={3} /> {t('Replied', 'Répondu')}
                              </span>
                          )}
                     </div>
@@ -281,68 +280,65 @@ export default function Engagement() {
       </div>
 
       {/* RIGHT PANEL: DETAIL VIEW */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-zinc-900 min-w-0 relative transition-colors">
-        <div className="absolute inset-0 z-0 opacity-5 dark:opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+      <div className="flex-1 flex flex-col bg-white dark:bg-[#0A0A2E] min-w-0 relative transition-colors">
 
         {activeEngagement ? (
            <>
              {/* Toolbar */}
-             <div className="h-16 border-b-2 border-black dark:border-white flex items-center justify-between px-6 bg-white dark:bg-zinc-900 z-10 transition-colors">
+             <div className="h-16 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-6 bg-white dark:bg-[#0A0A2E] z-10 transition-colors">
                 <div className="flex items-center gap-4">
-                   <div className="flex -space-x-1">
-                      <div className="w-8 h-8 border-2 border-black dark:border-white bg-yellow-300 dark:bg-yellow-600 flex items-center justify-center text-xs font-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                         {activeEngagement.authorName.charAt(0)}
-                      </div>
+                   <div className="w-9 h-9 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center text-xs font-semibold text-[#040028] dark:text-white">
+                      {activeEngagement.authorName.charAt(0)}
                    </div>
                    <div>
-                       <div className="text-sm font-black uppercase leading-none text-black dark:text-white">{activeEngagement.authorName}</div>
-                       <div className="text-xs font-mono text-gray-500 dark:text-zinc-400">{activeEngagement.platform}</div>
+                       <div className="text-sm font-semibold leading-none text-[#040028] dark:text-white">{activeEngagement.authorName}</div>
+                       <div className="text-xs text-[#8E8E8E] mt-1 capitalize">{activeEngagement.platform}</div>
                    </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark Read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
+                    <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
                     <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
-                    <div className="w-0.5 h-6 bg-black dark:bg-white mx-2" />
+                    <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-2" />
                     {/* Prev / Next navigation */}
-                    <span className="text-[10px] font-mono text-gray-400 dark:text-zinc-500 select-none">
+                    <span className="text-xs text-[#8E8E8E] select-none">
                       {activeIndex + 1}/{filteredEngagements.length}
                     </span>
                     <button
                       onClick={goPrev}
                       disabled={!hasPrev}
-                      className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                      className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
                       title={t('Previous', 'Précédent')}
                     >
-                      <FiChevronLeft size={16} strokeWidth={2.5} />
+                      <FiChevronLeft size={16} />
                     </button>
                     <button
                       onClick={goNext}
                       disabled={!hasNext}
-                      className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 text-black dark:text-white disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                      className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
                       title={t('Next', 'Suivant')}
                     >
-                      <FiChevronRight size={16} strokeWidth={2.5} />
+                      <FiChevronRight size={16} />
                     </button>
                 </div>
              </div>
 
              {/* Content Area */}
-             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-white dark:bg-zinc-900 transition-colors">
+             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-[#F5F7FA]/40 dark:bg-transparent transition-colors">
                  <div className="max-w-3xl mx-auto space-y-8">
 
                      <div className="flex gap-4">
-                         <div className="w-12 h-12 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-lg font-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
+                         <div className="w-11 h-11 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex-shrink-0 flex items-center justify-center text-base font-semibold text-[#040028] dark:text-white">
                             {activeEngagement.authorName.charAt(0)}
                          </div>
                          <div className="flex-1">
-                             <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] text-black dark:text-white transition-colors">
-                                <div className="flex justify-between mb-4 border-b-2 border-black dark:border-white pb-2 border-dashed">
+                             <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] text-[#040028] dark:text-white transition-colors">
+                                <div className="flex justify-between mb-4 border-b border-black/5 dark:border-white/5 pb-3">
                                      <div className="flex items-center gap-2">
-                                        <span className="font-black uppercase text-sm">{activeEngagement.authorName}</span>
-                                        <span className="text-xs font-mono text-gray-500 dark:text-zinc-400">{new Date(activeEngagement.receivedAt).toLocaleTimeString()}</span>
+                                        <span className="font-semibold text-sm">{activeEngagement.authorName}</span>
+                                        <span className="text-xs text-[#8E8E8E]">{new Date(activeEngagement.receivedAt).toLocaleTimeString()}</span>
                                      </div>
                                 </div>
-                                <p className="text-black dark:text-white text-base font-medium leading-relaxed">{activeEngagement.content}</p>
+                                <p className="text-[#040028] dark:text-white text-base font-medium leading-relaxed">{activeEngagement.content}</p>
                              </div>
                          </div>
                      </div>
@@ -350,25 +346,25 @@ export default function Engagement() {
              </div>
 
              {/* Composer */}
-             <div className="p-6 bg-white dark:bg-zinc-900 border-t-2 border-black dark:border-white z-20 shadow-[0px_-4px_10px_rgba(0,0,0,0.05)] transition-colors">
+             <div className="p-6 bg-white dark:bg-[#0A0A2E] border-t border-black/5 dark:border-white/5 z-20 transition-colors">
                 <div className="max-w-3xl mx-auto">
-                    <div className="relative border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_#000] transition-all">
+                    <div className="relative rounded-[14px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 focus-within:border-[#174CD2] focus-within:ring-2 focus-within:ring-[#174CD2]/15 transition-all">
                         <textarea
                            value={replyText}
                            onChange={(e) => setReplyText(e.target.value)}
-                           className="w-full p-4 text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[100px] placeholder:text-gray-400 dark:placeholder:text-zinc-500 placeholder:font-bold placeholder:uppercase text-black dark:text-white"
+                           className="w-full p-4 text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[100px] placeholder:text-[#8E8E8E] text-[#040028] dark:text-white"
                            placeholder={`${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...`}
                         />
-                        <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-zinc-900 border-t-2 border-black dark:border-white transition-colors">
+                        <div className="flex items-center justify-between p-2 border-t border-black/5 dark:border-white/5 transition-colors">
                             <div className="flex gap-2">
                                 <IconButton icon={<FiSmile />} />
                             </div>
                             <button
                                 onClick={handleReply}
                                 disabled={!replyText || replyMutation.isPending}
-                                className="bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase px-6 py-2 border-2 border-black dark:border-white hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]"
+                                className="bg-[#174CD2] text-white text-sm font-semibold px-5 py-2 rounded-[10px] shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
-                                <FiSend size={14} strokeWidth={3} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
+                                <FiSend size={14} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
                             </button>
                         </div>
                     </div>
@@ -376,12 +372,12 @@ export default function Engagement() {
              </div>
            </>
         ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-black dark:text-white transition-colors">
-                <div className="w-20 h-20 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex items-center justify-center mb-6 shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff]">
-                    <FiMessageCircle size={32} strokeWidth={1.5} />
+            <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-colors">
+                <div className="w-16 h-16 rounded-[16px] bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-6">
+                    <FiMessageCircle size={28} strokeWidth={1.5} className="text-[#8E8E8E]" />
                 </div>
-                <p className="text-lg font-black uppercase tracking-tight">{t('Select a Message', 'Sélectionnez un message')}</p>
-                <p className="text-xs font-mono text-gray-500 dark:text-zinc-400 mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
+                <p className="text-lg font-semibold">{t('Select a message', 'Sélectionnez un message')}</p>
+                <p className="text-sm text-[#8E8E8E] mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
             </div>
         )}
       </div>
@@ -391,21 +387,21 @@ export default function Engagement() {
 
 // --- SUB COMPONENTS ---
 const FilterBadge = ({ label, active, count, onClick, icon }: any) => (
-    <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 text-xs font-black uppercase border-2 border-black dark:border-white transition-all flex items-center gap-2 ${active ? 'bg-black dark:bg-white text-white dark:text-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]' : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+    <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${active ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}>
         {icon && <span>{icon}</span>}
         {label}
-        {count !== undefined && <span className={`px-1.5 py-0.5 text-[10px] border border-current ${active ? 'bg-white dark:bg-zinc-900 text-black dark:text-white' : 'bg-black dark:bg-white text-white dark:text-black'}`}>{count}</span>}
+        {count !== undefined && <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${active ? 'bg-white/20 text-white' : 'bg-black/10 dark:bg-white/10 text-[#040028] dark:text-white'}`}>{count}</span>}
     </button>
 );
 
 const ActionButton = ({ icon, tooltip, onClick, variant = 'default' }: any) => (
-    <button onClick={onClick} className={`p-2 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] active:translate-y-[2px] active:shadow-none ${variant === 'danger' ? 'bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white' : 'bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-black dark:text-white'}`} title={tooltip}>
-        {React.cloneElement(icon as React.ReactElement<any>, { size: 16, strokeWidth: 2.5 })}
+    <button onClick={onClick} className={`p-2 rounded-[10px] transition-all ${variant === 'danger' ? 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-red-500 hover:text-white' : 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white'}`} title={tooltip}>
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );
 
 const IconButton = ({ icon }: { icon: React.ReactNode }) => (
-    <button className="p-2 text-black dark:text-white hover:bg-white dark:hover:bg-zinc-800 border-2 border-transparent hover:border-black dark:hover:border-white hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] transition-all">
-        {React.cloneElement(icon as React.ReactElement<any>, { size: 16, strokeWidth: 2.5 })}
+    <button className="p-2 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#040028] dark:hover:text-white transition-all">
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );
