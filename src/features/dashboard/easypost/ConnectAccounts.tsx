@@ -290,8 +290,8 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         </div>
       </div>
 
-      {/* NODE GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* PLATFORM GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {PLATFORMS.map((platform) => {
           const connectedAccount = accounts.find((a: any) => a.platform.toLowerCase() === platform.id);
           const isConnected = !!connectedAccount;
@@ -301,98 +301,94 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
             <div
               key={platform.id}
               className={cn(
-                "relative group flex flex-col p-8 border-4 border-black dark:border-white transition-all duration-300",
+                "relative group flex flex-col p-6 rounded-[16px] border transition-all duration-300",
                 isExpired
-                    ? 'bg-red-500 text-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff]'
+                    ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40'
                     : isConnected
-                        ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#3C48F5]'
-                        : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
+                        ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]'
+                        : 'bg-transparent border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 hover:bg-white dark:hover:bg-[#0A0A2E]'
               )}
             >
               {/* Status Indicator */}
               {isExpired && (
                 <div className="absolute top-4 right-4">
-                  <div className="bg-white text-red-600 border-2 border-black px-2 py-1 text-[10px] font-black uppercase flex items-center gap-1">
-                    <AlertTriangle size={12} strokeWidth={4} /> {t("Critical Failure", "Défaillance critique")}
+                  <div className="bg-white dark:bg-[#0A0A2E] text-red-600 dark:text-red-400 px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 shadow-sm">
+                    <AlertTriangle size={12} strokeWidth={2.5} /> {t("Reauthorization needed", "Réautorisation requise")}
                   </div>
                 </div>
               )}
 
               {/* Platform Identity */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-4 mb-6">
                   <div
                     className={cn(
-                        "w-16 h-16 flex items-center justify-center border-4 transition-all duration-500",
-                        isExpired ? 'bg-white border-black' : isConnected ? 'bg-black dark:bg-white border-black dark:border-white scale-110' : 'bg-white dark:bg-black border-black dark:border-white'
+                        "w-14 h-14 flex items-center justify-center rounded-[14px] transition-all duration-500",
+                        isExpired ? 'bg-white dark:bg-white/10' : isConnected ? 'bg-[#174CD2]/10' : 'bg-[#F5F7FA] dark:bg-white/5'
                     )}
                   >
                     <platform.icon
-                        size={32}
+                        size={26}
                         className={cn(
                             "transition-colors",
-                            isExpired ? "text-red-600" : isConnected ? "text-white dark:text-black" : "text-black dark:text-white"
+                            isExpired ? "text-red-500" : isConnected ? "text-[#174CD2]" : "text-[#8E8E8E]"
                         )}
                     />
                   </div>
                   <div>
-                      <h3 className="font-black text-2xl uppercase tracking-tighter leading-none">{platform.label}</h3>
-                      <p className="text-[10px] font-mono font-bold uppercase opacity-50 mt-1">{t("Social Node v2", "Nœud social v2")}</p>
+                      <h3 className="font-bold text-lg text-[#040028] dark:text-white leading-none">{platform.label}</h3>
                   </div>
               </div>
 
-              {/* Node Data */}
-              <div className="flex-1 space-y-4">
+              {/* Account Data */}
+              <div className="flex-1 space-y-3">
                   {isConnected ? (
-                    <div className="space-y-3">
-                      <div className={cn(
-                          "px-3 py-2 border-2 border-black dark:border-white font-mono text-xs font-bold truncate",
-                          isExpired ? "bg-white text-black" : "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
-                      )}>
-                        ID: @{connectedAccount.username}
+                    <div className="space-y-2">
+                      <div className="px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-sm font-medium text-[#040028] dark:text-white truncate">
+                        @{connectedAccount.username}
                       </div>
-                      <p className={cn("text-[10px] font-mono uppercase font-black", isExpired ? "text-white" : "text-gray-400")}>
-                        {t("Established:", "Établi le:")} {format(new Date(connectedAccount.createdAt), 'yyyy.MM.dd // HH:mm')}
+                      <p className="text-xs font-medium text-[#8E8E8E]">
+                        {t("Connected on", "Connecté le")} {format(new Date(connectedAccount.createdAt), 'dd/MM/yyyy · HH:mm')}
                       </p>
                     </div>
                   ) : (
-                    <div className="h-16 flex items-center border-2 border-dashed border-black dark:border-white px-4">
-                        <p className="text-[10px] font-mono font-black uppercase text-gray-400">{t("Signal Lost // No Link Detected", "Signal perdu // Aucune liaison détectée")}</p>
+                    <div className="h-12 flex items-center px-4">
+                        <p className="text-xs font-medium text-[#8E8E8E]">{t("Not connected", "Non connecté")}</p>
                     </div>
                   )}
               </div>
 
               {/* Actions */}
-              <div className="mt-10 flex flex-col gap-3">
+              <div className="mt-6 flex flex-col gap-2">
                 {isExpired ? (
                     <button
                         onClick={() => handleConnect(platform.id, platform.oauth)}
-                        className="w-full py-4 bg-white text-red-600 border-4 border-black font-black text-sm uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_#000]"
+                        className="w-full py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] text-red-600 dark:text-red-400 font-semibold text-sm border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
                     >
-                        {t("Force Reboot", "Forcer le redémarrage")}
+                        {t("Reconnect", "Reconnecter")}
                     </button>
                 ) : isConnected ? (
                   <>
                     <button
-                        onClick={() => { if(confirm(t("Terminate stream connection?", "Terminer la connexion?"))) disconnectMutation.mutate(connectedAccount.id) }}
-                        className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
+                        onClick={() => { if(confirm(t("Disconnect this account?", "Déconnecter ce compte?"))) disconnectMutation.mutate(connectedAccount.id) }}
+                        className="w-full py-2.5 rounded-[10px] font-semibold text-sm bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors"
                     >
                         <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
                     </button>
                     {platform.oauth && (
                       <button
                           onClick={() => handleConnect(platform.id, platform.oauth, true)}
-                          className="w-full py-2 border-2 border-dashed border-black dark:border-white font-black text-[10px] uppercase text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                          className="w-full py-2 font-medium text-xs text-[#8E8E8E] hover:text-[#174CD2] transition-colors"
                       >
-                          {t("Reconnect (fresh consent)", "Reconnecter (nouveau consentement)")}
+                          {t("Reconnect with fresh consent", "Reconnecter avec un nouveau consentement")}
                       </button>
                     )}
                   </>
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}
-                    className="w-full py-4 bg-[#3C48F5] text-white border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#3C48F5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
                   >
-                    <Plus size={16} className="inline mr-2" strokeWidth={4} /> {t("Connect", "Connecter")}
+                    <Plus size={16} className="inline mr-2" strokeWidth={2.5} /> {t("Connect", "Connecter")}
                   </button>
                 )}
               </div>
@@ -402,59 +398,59 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       </div>
 
       {/* ─── Business Messaging ─────────────────────────────────────────────── */}
-      <div className="border-t-8 border-black dark:border-white pt-10 space-y-6">
+      <div className="border-t border-black/5 dark:border-white/5 pt-8 space-y-4">
         <div className="space-y-1">
-          <h3 className="text-2xl font-black uppercase tracking-tighter italic">{t("Business Messaging", "Messagerie Business")}</h3>
-          <p className="font-mono text-xs font-bold opacity-50 uppercase tracking-widest">{t("Direct messaging channels", "Canaux de messagerie directe")}</p>
+          <h3 className="text-xl font-bold text-[#040028] dark:text-white">{t("Business messaging", "Messagerie Business")}</h3>
+          <p className="text-sm font-medium text-[#8E8E8E]">{t("Direct messaging channels", "Canaux de messagerie directe")}</p>
         </div>
 
         {/* WhatsApp Card */}
         <div className={cn(
-          "relative flex flex-col p-8 border-4 border-black dark:border-white transition-all duration-300 max-w-sm",
+          "relative flex flex-col p-6 rounded-[16px] border transition-all duration-300 max-w-sm",
           waStatus?.connected
-            ? 'bg-white dark:bg-black shadow-[12px_12px_0px_0px_#000]'
-            : 'bg-transparent hover:bg-white dark:hover:bg-zinc-900 hover:shadow-[8px_8px_0px_0px_#000] dark:hover:shadow-[8px_8px_0px_0px_#fff]'
+            ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]'
+            : 'bg-transparent border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 hover:bg-white dark:hover:bg-[#0A0A2E]'
         )}>
           {/* Identity */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-6">
             <div className={cn(
-              "w-16 h-16 flex items-center justify-center border-4 transition-all duration-500",
-              waStatus?.connected ? 'bg-black dark:bg-white border-black dark:border-white scale-110' : 'bg-white dark:bg-black border-black dark:border-white'
+              "w-14 h-14 flex items-center justify-center rounded-[14px] transition-all duration-500",
+              waStatus?.connected ? 'bg-[#174CD2]/10' : 'bg-[#F5F7FA] dark:bg-white/5'
             )}>
-              <FaWhatsapp size={32} className={cn("transition-colors", waStatus?.connected ? "text-white dark:text-black" : "text-black dark:text-white")} />
+              <FaWhatsapp size={26} className={cn("transition-colors", waStatus?.connected ? "text-[#174CD2]" : "text-[#8E8E8E]")} />
             </div>
             <div>
-              <h3 className="font-black text-2xl uppercase tracking-tighter leading-none">WhatsApp</h3>
-              <p className="text-[10px] font-mono font-bold uppercase opacity-50 mt-1">
+              <h3 className="font-bold text-lg text-[#040028] dark:text-white leading-none">WhatsApp</h3>
+              <p className="text-xs font-medium text-[#8E8E8E] mt-1">
                 {waStatus?.connected ? t("Business API", "API Business") : t("Not connected", "Non connecté")}
               </p>
             </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-3">
             {waStatus?.connected ? (
-              <div className="space-y-3">
-                <div className="px-3 py-2 border-2 border-black dark:border-white font-mono text-xs font-bold bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white truncate">
+              <div className="space-y-2">
+                <div className="px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-sm font-medium text-[#040028] dark:text-white truncate">
                   {waStatus.phoneNumber}
                 </div>
                 {waStatus.displayName && (
-                  <p className="text-[10px] font-mono uppercase font-black text-gray-400">{waStatus.displayName}</p>
+                  <p className="text-xs font-medium text-[#8E8E8E]">{waStatus.displayName}</p>
                 )}
               </div>
             ) : (
-              <div className="h-16 flex items-center border-2 border-dashed border-black dark:border-white px-4">
-                <p className="text-[10px] font-mono font-black uppercase text-gray-400">{t("Connect your WhatsApp Business Account", "Connectez votre compte WhatsApp Business")}</p>
+              <div className="h-12 flex items-center px-4">
+                <p className="text-xs font-medium text-[#8E8E8E]">{t("Connect your WhatsApp Business account", "Connectez votre compte WhatsApp Business")}</p>
               </div>
             )}
           </div>
 
           {/* Actions */}
-          <div className="mt-10 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-2">
             {waStatus?.connected ? (
               <button
                 onClick={() => { if (confirm(t("Disconnect WhatsApp?", "Déconnecter WhatsApp?"))) waDisconnectMutation.mutate(); }}
-                className="w-full py-3 border-4 border-black dark:border-white font-black text-xs uppercase hover:bg-black hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors bg-zinc-100 dark:bg-zinc-900 text-black dark:text-white"
+                className="w-full py-2.5 rounded-[10px] font-semibold text-sm bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors"
               >
                 <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
               </button>
@@ -462,7 +458,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               <button
                 onClick={connectWhatsApp}
                 disabled={waConnecting}
-                className="w-full py-4 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white font-black text-sm uppercase hover:bg-black dark:hover:bg-white transition-all shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+                className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50"
               >
                 {waConnecting ? <Loader2 size={16} className="inline animate-spin mr-2" /> : <FaWhatsapp size={16} className="inline mr-2" />}
                 {waConnecting ? t('Connecting...', 'Connexion...') : t('Connect via Meta', 'Connecter via Meta')}
