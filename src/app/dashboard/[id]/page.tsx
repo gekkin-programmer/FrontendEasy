@@ -12,7 +12,7 @@ import { getCookie } from 'cookies-next';
 // ICONS
 import {
   Layers, BarChart2, Settings as SettingsIcon,
-  Search, Bell, Check, ChevronDown, Plus, Users, Menu, X,
+  Search, Bell, Check, Plus, Users, Menu, X,
   ExternalLink, ArrowRight, Calendar as CalendarIcon,
   AlertTriangle, Crown, MessageCircle, Layout,
   Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
@@ -702,8 +702,8 @@ function DashboardContent() {
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
-                    <div className="flex items-center gap-8 self-stretch">
-                        <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="h-full flex items-center gap-3 px-3 border-r border-gray-200 dark:border-white/10 pr-6 hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-[#040028]/50 dark:text-white/50" /></button>
+                    <div className="flex items-center gap-8 self-stretch -ml-8">
+                        <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0A0A2E] rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm text-left hover:bg-[#174CD2]/8 transition-colors"><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-medium truncate text-[#040028] dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-[#174CD2]"/>}</button>))}</div><div className="h-px bg-black/5 dark:bg-white/10 my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm font-medium text-[#174CD2] hover:bg-[#174CD2]/8 transition-colors"><Plus size={16}/> {t("New workspace", "Nouvel espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
@@ -764,8 +764,17 @@ function DashboardContent() {
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
                         <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
-                                <button className="relative p-2.5 rounded-[10px] hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors">
-                                    <Bell size={20} className="text-[#040028] dark:text-white" />
+                                <button className="relative p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/[0.06] dark:hover:bg-white/10 transition-colors">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#040028] dark:text-white">
+                                        <g clipPath="url(#bell-icon-clip)">
+                                            <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </g>
+                                        <defs>
+                                            <clipPath id="bell-icon-clip">
+                                                <rect width="24" height="24" fill="white"/>
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
                                     {unreadCount > 0 && (
                                         <div className="absolute top-1 right-1 min-w-[16px] h-[16px] bg-[#174CD2] rounded-full flex items-center justify-center text-white text-[9px] font-bold px-0.5">
                                             {unreadCount > 9 ? '9+' : unreadCount}
