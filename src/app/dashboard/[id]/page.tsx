@@ -764,7 +764,7 @@ function DashboardContent() {
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
                         <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
-                                <button className="relative p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/[0.06] dark:hover:bg-white/10 transition-colors">
+                                <button className="relative p-2.5 rounded-none bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 transition-colors">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#040028] dark:text-white">
                                         <g clipPath="url(#bell-icon-clip)">
                                             <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -826,20 +826,28 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-[#0A0A2E]">
-                    <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        <div className="hidden lg:block sticky top-32 z-10 self-start -ml-4">
-                            <QuickConnectSidebar 
-                                accounts={accounts} 
-                                workspaceId={workspaceId} 
-                                currentWorkspace={currentWorkspace}
-                                refreshData={() => {
-                                    refetchAccounts();
-                                    queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
-                                }} 
-                            />
-                        </div>
+                {/* Desktop left rail — nav, docked below the header */}
+                <aside className="hidden lg:flex flex-col fixed left-0 top-20 bottom-0 w-64 bg-white dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-y-auto z-20">
+                    <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] transition-all duration-200 group ${activeTab === item.id ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]' : 'text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+                    <div className="mt-6 p-4 rounded-[14px] bg-[#F5F7FA] dark:bg-white/5 border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028]/50 dark:text-white/50 mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
+  className={`text-xl font-bold ${
+    !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
+      ? 'text-gray-400'
+      : currentWorkspace.owner.planType === 'STARTER'
+      ? 'text-[#174CD2]'
+      : currentWorkspace.owner.planType === 'PRO'
+      ? 'text-[#174CD2] animate-pulse'
+      : currentWorkspace.owner.planType === 'PROFESSIONAL'
+      ? 'animate-rainbow-rtl'
+      : currentWorkspace.owner.planType === 'ENTERPRISE'
+      ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
+      : 'text-green-600'
+  }`}
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] transition-colors">{t("Manage", "Gérer")}</button></div></div>
+                </aside>
 
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-64">
+                    <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="flex-1 min-w-0">
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
@@ -889,7 +897,7 @@ function DashboardContent() {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                        <div className={cn("hidden lg:block sticky top-32 self-start transition-all duration-200", isPreviewMode ? "w-80" : "w-64")}>
+                        <div className={cn("hidden lg:block sticky top-32 self-start transition-all duration-200", isPreviewMode ? "w-80" : "w-auto")}>
                             <AnimatePresence mode="wait">
                                 {isPreviewMode ? (
                                     <motion.div key="preview" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
@@ -902,24 +910,16 @@ function DashboardContent() {
                                         />
                                     </motion.div>
                                 ) : (
-                                    <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
-                                        <div className="px-1"><h3 className="font-bold text-sm text-[#040028]/50 dark:text-white/50 uppercase tracking-wider">{t("Menu", "Menu")}</h3></div>
-                                        <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] transition-all duration-200 group ${activeTab === item.id ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
-                                        <div className="mt-6 p-4 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028]/50 dark:text-white/50 mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
-  className={`text-xl font-bold ${
-    !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
-      ? 'text-gray-400'
-      : currentWorkspace.owner.planType === 'STARTER'
-      ? 'text-[#174CD2]'
-      : currentWorkspace.owner.planType === 'PRO'
-      ? 'text-[#174CD2] animate-pulse'
-      : currentWorkspace.owner.planType === 'PROFESSIONAL'
-      ? 'animate-rainbow-rtl'
-      : currentWorkspace.owner.planType === 'ENTERPRISE'
-      ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
-      : 'text-green-600'
-  }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] transition-colors">{t("Manage", "Gérer")}</button></div></div>
+                                    <motion.div key="quickconnect" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+                                        <QuickConnectSidebar
+                                            accounts={accounts}
+                                            workspaceId={workspaceId}
+                                            currentWorkspace={currentWorkspace}
+                                            refreshData={() => {
+                                                refetchAccounts();
+                                                queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
+                                            }}
+                                        />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
