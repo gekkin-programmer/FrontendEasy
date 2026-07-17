@@ -175,7 +175,7 @@ export default function OnboardingGuide({
           style={{ left: 'max(0.5rem, calc((100vw - min(100vw, 1664px)) / 2 + 2rem))' }}
         >
           {/* Header row */}
-          <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-black dark:bg-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-[#3C48F5]">
             <div className="flex items-center gap-2">
               <span className="font-black text-xs uppercase tracking-widest text-white">
                 {t('Getting Started', 'Démarrage')}
@@ -202,7 +202,7 @@ export default function OnboardingGuide({
           {/* Progress bar */}
           <div className="h-1.5 bg-gray-200 dark:bg-zinc-700 w-full">
             <motion.div
-              className="h-full bg-black dark:bg-white"
+              className="h-full bg-[#3C48F5]"
               initial={{ width: 0 }}
               animate={{ width: `${progressPct}%` }}
               transition={{ duration: 0.5, ease: 'easeOut' }}

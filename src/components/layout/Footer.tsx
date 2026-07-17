@@ -58,7 +58,7 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (pathname?.startsWith('/login') || pathname?.startsWith('/signup') || pathname?.startsWith('/checkout')) {
+  if (pathname?.startsWith('/login') || pathname?.startsWith('/signup') || pathname?.startsWith('/checkout') || pathname?.startsWith('/dashboard')) {
     return null;
   }
 

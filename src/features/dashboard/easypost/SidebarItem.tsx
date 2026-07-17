@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
@@ -15,13 +15,13 @@ export const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemP
     onClick={onClick}
     aria-label={label}
     aria-current={active ? 'page' : undefined}
-    className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-black uppercase tracking-wider border-2 border-black dark:border-white transition-all ${
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-semibold transition-colors ${
       active
-        ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]'
-        : 'bg-white dark:bg-zinc-900 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:translate-x-1'
+        ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]'
+        : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#174CD2]/8'
     }`}
   >
-    <Icon size={18} strokeWidth={2.5} />
+    <Icon size={18} strokeWidth={2} />
     {label}
   </button>
 );

@@ -66,7 +66,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
       ref={setNodeRef}
       className={cn(
         className,
-        isOver && "ring-4 ring-[#000] ring-inset bg-zinc-50 dark:bg-zinc-800/50 z-10"
+        isOver && "ring-4 ring-[#3C48F5] ring-inset bg-blue-50 dark:bg-blue-900/20 z-10"
       )}
     >
         <div className="flex justify-between items-center mb-1">
@@ -141,7 +141,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
       {post.status !== 'PUBLISHED' && (
         <button
           onClick={(e) => { e.stopPropagation(); onClick(post); }}
-          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-black dark:text-white dark:hover:text-black dark:text-white transition-opacity shrink-0"
+          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-[#3C48F5] dark:hover:text-[#3C48F5] transition-opacity shrink-0"
         >
           <Pencil size={viewType === 'day' ? 12 : 8} />
         </button>
@@ -280,7 +280,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   return (
     <div className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] transition-all overflow-hidden rounded-t-2xl">
       
-      <div className="flex flex-col lg:flex-row items-center justify-between p-6 border-b-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black gap-6">
+      <div className="flex flex-col lg:flex-row items-center justify-between p-6 border-b-4 border-black dark:border-white bg-[#3C48F5] text-white gap-6">
         <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-white text-black border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]">
                 <CalendarIcon size={24} />

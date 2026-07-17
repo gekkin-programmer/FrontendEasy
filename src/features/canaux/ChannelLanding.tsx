@@ -117,7 +117,7 @@ function SplitSection({
 }) {
   return (
     <section className="w-full" style={{ backgroundColor: bg }}>
-      <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] py-[100px] lg:py-[128px]">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[64px] pb-[100px] lg:pt-[88px] lg:pb-[128px]">
         <div className={`flex flex-col ${imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-[48px] lg:gap-[80px]`}>
           <div className="flex-1 max-w-[664px]">
             <h2
@@ -213,7 +213,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Hero — white */}
       <section className="w-full bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[100px] pb-[100px] lg:pt-[140px] lg:pb-[150px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[72px] pb-[100px] lg:pt-[112px] lg:pb-[150px]">
           <div className="flex flex-col lg:flex-row items-center gap-[48px] lg:gap-[16px]">
             <div className="flex-1 max-w-[664px]">
               <h1 className="font-extrabold text-[42px] leading-[46px] lg:text-[56px] lg:leading-[59px] tracking-[-1.12px] text-[#040028]">
@@ -224,8 +224,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
               </h1>
               <p className="mt-[24px] font-medium text-[20px] leading-[30px] tracking-[-0.4px] max-w-[562px] text-[#040028]">
                 {t(
-                  'Schedule your posts, manage your account and grow your community. EazyPost brings your whole social presence into one simple place.',
-                  'Programmez vos publications, gérez votre compte et développez votre communauté. EazyPost réunit toute votre présence sociale en un seul endroit.'
+                  `Schedule your ${channelName} posts, manage your account and grow your community. EazyPost brings your whole ${channelName} presence into one simple place.`,
+                  `Programmez vos publications ${channelName}, gérez votre compte et développez votre communauté. EazyPost réunit toute votre présence ${channelName} en un seul endroit.`
                 )}
               </p>
               <div className="mt-[42px]">
@@ -275,10 +275,10 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         bg="#FFFFFF"
         titleColor={INK}
         textColor={INK}
-        title={t('Share every kind of content', 'Partagez tous vos formats de contenu')}
+        title={t(`Share every kind of content on ${channelName}`, `Partagez tous vos formats de contenu sur ${channelName}`)}
         text={t(
-          'Photos, videos, Reels, links, events… Prepare everything in advance, preview exactly how it will look, and let EazyPost publish at the perfect time.',
-          'Photos, vidéos, Reels, liens, événements… Préparez tout à l’avance, prévisualisez le rendu exact et laissez EazyPost publier au moment parfait.'
+          `Photos, videos, Reels, links, events… Prepare everything in advance, preview exactly how it will look on ${channelName}, and let EazyPost publish at the perfect time.`,
+          `Photos, vidéos, Reels, liens, événements… Préparez tout à l’avance, prévisualisez le rendu exact sur ${channelName} et laissez EazyPost publier au moment parfait.`
         )}
         ctaLabel={startCta}
         ctaHref="/signup"
@@ -294,10 +294,10 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         bg={BLUE}
         titleColor="#FFFFFF"
         textColor="#FFFFFF"
-        title={t('Get more eyes on every post', 'Plus de visibilité sur chaque publication')}
+        title={t(`Get more eyes on every ${channelName} post`, `Plus de visibilité sur chaque publication ${channelName}`)}
         text={t(
-          'Publish consistently, at the times your audience is actually online. Consistency is what turns visitors into followers — EazyPost makes it automatic.',
-          'Publiez régulièrement, aux heures où votre audience est vraiment en ligne. C’est la régularité qui transforme les visiteurs en abonnés — EazyPost la rend automatique.'
+          `Publish consistently on ${channelName}, at the times your audience is actually online. Consistency is what turns visitors into followers — EazyPost makes it automatic.`,
+          `Publiez régulièrement sur ${channelName}, aux heures où votre audience est vraiment en ligne. C’est la régularité qui transforme les visiteurs en abonnés — EazyPost la rend automatique.`
         )}
         ctaLabel={startCta}
         ctaHref="/signup"
@@ -312,10 +312,10 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         bg={GREY}
         titleColor={INK}
         textColor={INK}
-        title={t('Manage your Page without the headache', 'Gérez votre Page sans prise de tête')}
+        title={t(`Manage your ${channelName} account without the headache`, `Gérez votre compte ${channelName} sans prise de tête`)}
         text={t(
-          'No more juggling tabs and reminders. Draft, preview, approve and schedule from a single dashboard — no code, no technical skills, just publish and grow.',
-          'Fini de jongler entre les onglets et les rappels. Rédigez, prévisualisez, validez et programmez depuis un seul tableau de bord — sans code ni compétences techniques.'
+          `No more juggling tabs and reminders. Draft, preview, approve and schedule your ${channelName} posts from a single dashboard — no code, no technical skills, just publish and grow.`,
+          `Fini de jongler entre les onglets et les rappels. Rédigez, prévisualisez, validez et programmez vos publications ${channelName} depuis un seul tableau de bord — sans code ni compétences techniques.`
         )}
         ctaLabel={startCta}
         ctaHref="/signup"
@@ -441,8 +441,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
           <div className="max-w-[1065px] text-center">
             <blockquote className="font-extrabold text-[34px] leading-[40px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
               {t(
-                '“EazyPost changed how I run my page, everything lives in one place and it saves me hours every week.”',
-                '« EazyPost a changé ma façon de gérer ma page, tout est au même endroit et je gagne des heures chaque semaine. »'
+                `“EazyPost changed how I run my ${channelName} page, everything lives in one place and it saves me hours every week.”`,
+                `« EazyPost a changé ma façon de gérer ma page ${channelName}, tout est au même endroit et je gagne des heures chaque semaine. »`
               )}
             </blockquote>
             <p className="mt-[24px] text-[20px] leading-[30px] tracking-[-0.4px] text-[#676B5F]">
@@ -509,7 +509,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Compare plans banner — grey bg, pink pill */}
       <section className="w-full" style={{ backgroundColor: GREY }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[128px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[64px]">
           <Link
             href="/tarifs"
             className="relative block rounded-full h-[240px] lg:h-[436px]"

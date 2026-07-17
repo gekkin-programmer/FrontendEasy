@@ -5,16 +5,17 @@ const nextConfig: NextConfig = {
   output: "standalone",
   eslint: { ignoreDuringBuilds: true },
   async rewrites() {
-    // Determine the backend URL based on the environment
-    const isDev = process.env.NODE_ENV === "development";
-    const backendUrl = isDev
-      ? "http://127.0.0.1:3000/api/:path*"
-      : "https://backend-eazypost.mbokofit.com/api/:path*";
+    // Defaults to the production backend. Set NEXT_PUBLIC_API_URL in .env.local
+    // (e.g. http://localhost:3000) to point this at a local backend instead —
+    // that same env var already drives src/lib/api.ts and the login/signup pages.
+    const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || "https://backend-eazypost.mbokofit.com")
+      .replace(/\/$/, "")
+      .replace(/\/api$/, "");
 
     return [
       {
         source: "/api/:path*",
-        destination: backendUrl,
+        destination: `${backendOrigin}/api/:path*`,
       },
     ];
   },

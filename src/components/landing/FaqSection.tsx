@@ -54,15 +54,15 @@ export default function FaqSection() {
 
   return (
     <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
-      <div className="w-full max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[20px] md:px-[52px] xl:px-[157px] gap-[40px] lg:gap-[60px]">
-        
+      <div className="w-full max-w-[1440px] 3xl:max-w-[1900px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[20px] md:px-[52px] xl:px-[157px] gap-[40px] lg:gap-[60px]">
+
         {/* Left Side: Text */}
         <div className="flex flex-col w-full lg:w-[35%] gap-2 lg:sticky lg:top-32">
-          <h2 className="text-[#000000] text-[28px] md:text-[32px] xl:text-[36px] leading-tight font-normal" style={{ fontFamily: "'Rubik One', sans-serif" }}>
+          <h2 className="text-[#000000] text-[28px] md:text-[32px] xl:text-[36px] 3xl:text-[44px] leading-tight font-normal" style={{ fontFamily: "'Rubik One', sans-serif" }}>
             {t("Frequently Asked", "Foire Aux")}
           </h2>
-          <h1 
-            className="text-[#174CD2] text-[40px] md:text-[50px] xl:text-[70px] leading-tight font-black"
+          <h1
+            className="text-[#174CD2] text-[40px] md:text-[50px] xl:text-[70px] 3xl:text-[88px] leading-tight font-black"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Questions", "Questions")}
@@ -70,8 +70,7 @@ export default function FaqSection() {
         </div>
 
         {/* FAQ Items (Accordion) */}
-        {/* Increased width slightly from 930px to 1000px */}
-        <div className="w-full lg:w-[65%] max-w-[1000px] flex flex-col gap-[40px]">
+        <div className="w-full lg:w-[65%] max-w-[1000px] 3xl:max-w-[1300px] flex flex-col gap-[40px]">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (

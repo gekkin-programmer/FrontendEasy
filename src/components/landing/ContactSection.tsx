@@ -13,16 +13,16 @@ export default function ContactSection() {
       
       {/* Section Header */}
       <div className="flex flex-col items-center text-center mb-[40px] md:mb-[50px] font-sans">
-        <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2]">
+        <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] 3xl:text-[88px] leading-tight lg:leading-[87px] text-[#174CD2]">
           {t('Contact Us', 'Contactez-nous')}
         </h1>
-        <p className="font-medium text-[16px] md:text-[18px] leading-[1.5] md:leading-[27px] text-[#717171] mt-[8px]">
+        <p className="font-medium text-[16px] md:text-[18px] 3xl:text-[20px] leading-[1.5] md:leading-[27px] text-[#717171] mt-[8px]">
           {t('Any question or remarks? Just write us a message!', 'Des questions ou des remarques ? Écrivez-nous un message !')}
         </p>
       </div>
 
       {/* Main Form Card */}
-      <div className="w-full max-w-[1320px] bg-white shadow-[0_0_50px_rgba(0,0,0,0.1)] rounded-[10px] p-[10px] flex flex-col lg:flex-row gap-[10px] lg:gap-0 relative">
+      <div className="w-full max-w-[1320px] 3xl:max-w-[1700px] bg-white shadow-[0_0_50px_rgba(0,0,0,0.1)] rounded-[10px] p-[10px] flex flex-col lg:flex-row gap-[10px] lg:gap-0 relative">
         
         {/* Left Panel */}
         <div className="w-full lg:w-[491px] lg:min-w-[491px] bg-[#174CD2] rounded-[10px] relative overflow-hidden flex flex-col px-[20px] py-[30px] md:px-[40px] md:py-[40px] min-h-[500px] lg:min-h-[647px] z-10">

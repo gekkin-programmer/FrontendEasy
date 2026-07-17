@@ -53,7 +53,7 @@ const SENTIMENT_STYLES: any = {
   positive: 'bg-green-100 text-black border-2 border-black',
   negative: 'bg-red-100 text-black border-2 border-black',
   neutral: 'bg-gray-100 text-black border-2 border-black',
-  question: 'bg-zinc-100 text-black border-2 border-black',
+  question: 'bg-blue-100 text-black border-2 border-black',
 };
 
 export default function Engagement() {

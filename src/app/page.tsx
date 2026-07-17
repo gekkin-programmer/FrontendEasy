@@ -42,17 +42,17 @@ export default function Home() {
           90% { opacity: 1; }
           100% { transform: translate(521px, 257px) scaleX(-1); opacity: 0; }
         }
-        .icon-lane1 { animation: slide1 20s linear infinite; }
-        .icon-lane2 { animation: slide2 20s linear infinite; }
-        .icon-lane1-right { animation: slide1-right 20s linear infinite; }
-        .icon-lane2-right { animation: slide2-right 20s linear infinite; }
+        .icon-lane1 { animation: slide1 20s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane2 { animation: slide2 20s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane1-right { animation: slide1-right 20s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane2-right { animation: slide2-right 20s linear infinite; animation-fill-mode: backwards; }
       `}</style>
       <Navbar />
       <HeroBackground>
         <div className="flex flex-col w-full h-full">
           {/* Hero Content below Navbar */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px] min-h-[400px] md:min-h-[500px]">
-            <div className="relative w-[240px] h-[220px] sm:w-[300px] sm:h-[275px] md:w-[350px] md:h-[320px] lg:w-[393px] lg:h-[355px] scale-[0.6] md:scale-[0.8] lg:scale-[0.95] xl:scale-[1.0] 2xl:scale-[1.15] transition-transform duration-300">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden w-full mt-[87px] min-h-[400px] md:min-h-[500px] 3xl:min-h-[750px]">
+            <div className="relative w-[240px] h-[220px] sm:w-[300px] sm:h-[275px] md:w-[350px] md:h-[320px] lg:w-[393px] lg:h-[355px] scale-[0.6] md:scale-[0.8] lg:scale-[0.95] xl:scale-[1.0] 2xl:scale-[1.15] 3xl:scale-[1.6] transition-transform duration-300">
               {/* Left Lines Behind Cube */}
               <div className="absolute top-[-100px] md:top-[-120px] lg:top-[-142px] left-[-200px] md:left-[-250px] lg:left-[-300px] -z-10 pointer-events-none">
                 <HeroLines />

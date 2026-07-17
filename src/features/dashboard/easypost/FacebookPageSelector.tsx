@@ -60,7 +60,7 @@ export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exch
         <NeuModal title={t("SELECT PAGE", "CHOISIR UNE PAGE")} isOpen={isOpen} onClose={onClose}>
             {isLoading ? (
                 <div className="p-8 flex justify-center flex-col items-center gap-2">
-                    <Loader2 className="animate-spin text-black dark:text-white" size={32} />
+                    <Loader2 className="animate-spin text-[#3C48F5]" size={32} />
                     <span className="text-xs font-bold animate-pulse uppercase tracking-widest text-black dark:text-white">{t("Connecting to Graph API...", "Connexion à l'API Graph...")}</span>
                 </div>
             ) : (

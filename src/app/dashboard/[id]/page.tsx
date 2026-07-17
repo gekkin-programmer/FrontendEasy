@@ -139,7 +139,7 @@ function InstagramPreview({ text, media, account }: { text: string; media: strin
             </div>
             {media[0]
                 ? <img src={media[0]} className="w-full aspect-square object-cover" alt="" />
-                : <div className="w-full aspect-square bg-gray-100 flex items-center justify-center text-gray-300 text-xs font-mono">NO_MEDIA</div>
+                : <div className="w-full aspect-square bg-gray-100 flex items-center justify-center text-gray-300 text-xs">No media</div>
             }
             <div className="flex items-center justify-between px-3 py-2">
                 <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ function LinkedInPreview({ text, media, account }: { text: string; media: string
 }
 
 function GenericFeedPreview({ text, media, account, platform }: { text: string; media: string[]; account: any; platform: string }) {
-    const color = PLATFORM_COLORS[platform] ?? '#000000';
+    const color = PLATFORM_COLORS[platform] ?? '#174CD2';
     return (
         <div className="bg-white overflow-y-auto" style={{ maxHeight: 400 }}>
             <div className="flex items-center gap-2 p-3 border-b border-gray-100">
@@ -286,22 +286,22 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
     const { text, mediaPreviews, mediaTypes = [], tiktokHashtags } = previewData;
 
     return (
-        <div className="border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden">
+        <div className="rounded-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-3 py-2 bg-black dark:bg-white border-b-2 border-black dark:border-white">
-                <span className="font-black text-[10px] uppercase tracking-widest text-white">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#174CD2]">
+                <span className="font-semibold text-xs text-white">
                     {current ? `${current.platform} Preview` : 'Live Preview'}
                 </span>
-                <button onClick={onClose} className="hover:bg-black/20 p-0.5 transition-colors text-white">
-                    <X size={14} strokeWidth={3} />
+                <button onClick={onClose} className="hover:bg-white/10 rounded-full p-0.5 transition-colors text-white">
+                    <X size={16} />
                 </button>
             </div>
 
             {/* Account avatar tabs — click to switch platform */}
             {platformAccounts.length > 0 && (
-                <div className="flex gap-2 px-3 py-2 bg-white dark:bg-black border-b-2 border-black dark:border-white overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 px-3 py-3 bg-white dark:bg-[#0A0A2E] overflow-x-auto scrollbar-hide">
                     {platformAccounts.map((item, i) => {
-                        const color = PLATFORM_COLORS[item.platform] ?? '#000000';
+                        const color = PLATFORM_COLORS[item.platform] ?? '#174CD2';
                         return (
                             <button
                                 key={item.platform}
@@ -310,13 +310,13 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
                                 className={cn(
                                     "relative w-8 h-8 rounded-full flex-shrink-0 overflow-hidden transition-all",
                                     i === safeIdx
-                                        ? "ring-2 ring-offset-1 ring-black dark:ring-white shadow-[2px_2px_0px_0px_#000]"
-                                        : "ring-1 ring-gray-300 dark:ring-zinc-600 hover:ring-black dark:hover:ring-white opacity-60 hover:opacity-100"
+                                        ? "ring-2 ring-offset-1 ring-[#174CD2]"
+                                        : "ring-1 ring-gray-300 dark:ring-zinc-600 hover:ring-[#174CD2]/60 opacity-60 hover:opacity-100"
                                 )}
                             >
                                 {item.account?.avatar
                                     ? <img src={item.account.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" onError={e => { e.currentTarget.style.display = 'none'; }} />
-                                    : <div className="w-full h-full flex items-center justify-center text-[11px] font-black" style={{ backgroundColor: color + '20', color }}>
+                                    : <div className="w-full h-full flex items-center justify-center text-[11px] font-bold" style={{ backgroundColor: color + '20', color }}>
                                         {item.account?.username?.[0]?.toUpperCase() ?? '?'}
                                       </div>
                                 }
@@ -331,7 +331,7 @@ function PhoneMockupPreview({ previewData, accounts, platformIdx, onPlatformChan
             {/* Platform UI render */}
             <div className="overflow-hidden">
                 {!current ? (
-                    <div className="h-72 flex items-center justify-center text-[11px] text-gray-400 dark:text-zinc-500 font-mono text-center px-6 leading-relaxed bg-gray-50 dark:bg-zinc-950">
+                    <div className="h-72 flex items-center justify-center text-[12px] text-gray-400 dark:text-zinc-500 text-center px-6 leading-relaxed bg-[#F5F7FA] dark:bg-white/5">
                         No accounts selected.<br />Add targets in the composer.
                     </div>
                 ) : current.platform === 'TIKTOK' ? (
@@ -685,49 +685,48 @@ function DashboardContent() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#F4F4F0] dark:bg-black font-sans text-black dark:text-white relative selection:bg-yellow-300 transition-colors duration-300">
-            <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }} />
+        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#040028] font-sans text-[#040028] dark:text-white relative transition-colors duration-300">
 
             {/* Mobile Header */}
-            <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-black border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
-                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
-                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
+            <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-[#0A0A2E] border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4 shadow-sm">
+                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-[10px] active:bg-[#174CD2]/10 transition-colors"><Menu size={22} className="text-[#040028] dark:text-white" /></button><div className="font-['Rubik_One'] text-lg text-[#174CD2]">azypost</div></div>
+                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
             <AnimatePresence>
                 {isSidebarOpen && (
-                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-black border-r-4 border-black dark:border-white flex flex-col z-50 shadow-[10px_0px_0px_0px_rgba(0,0,0,0.2)]"><div className="p-6 border-b-2 border-black dark:border-white flex justify-between items-center bg-black dark:bg-white text-white"><span className="font-black text-xl uppercase">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-red-500 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-3">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
+                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-[#040028]/40 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0A0A2E] flex flex-col z-50 shadow-[0_0_40px_rgba(0,0,0,0.15)]"><div className="p-6 flex justify-between items-center bg-[#174CD2] text-white"><span className="font-bold text-xl">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="text-white/80 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-2">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
                 )}
             </AnimatePresence>
 
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
-                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/95 dark:bg-black/90 backdrop-blur-sm border-4 border-black dark:border-white items-center justify-between px-8">
+                <header className="hidden lg:flex sticky top-0 z-30 h-20 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-black/5 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8">
                         <div className="flex items-center gap-4">
-                            <button 
+                            <button
                                 onClick={() => router.push('/')}
-                                className="p-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                className="p-2 rounded-[10px] hover:bg-[#174CD2]/10 transition-colors"
                                 title={t("Back to Home", "Retour à l'accueil")}
                             >
-                                <Home size={20} strokeWidth={3} className="text-black dark:text-white" />
+                                <Home size={20} className="text-[#040028] dark:text-white" />
                             </button>
                             <div className="flex items-center gap-2">
-                                <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-black overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                                    <Image 
-                                        src="/applogo.png" 
-                                        alt="EasyPost Logo" 
-                                        width={40} 
-                                        height={40} 
-                                        className="object-contain p-1" 
+                                <div className="w-9 h-9 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 flex items-center justify-center">
+                                    <Image
+                                        src="/applogo.png"
+                                        alt="EazyPost Logo"
+                                        width={36}
+                                        height={36}
+                                        className="object-contain p-1"
                                     />
                                 </div>
-                                <span className="font-black text-2xl tracking-tighter italic text-black dark:text-white">ASYPOST.</span>
+                                <span className="font-['Rubik_One'] text-xl text-[#174CD2]">azypost</span>
                             </div>
                         </div>
-                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] active:shadow-none transition-all"><div className="w-6 h-6 border-2 border-black dark:border-white rounded-none overflow-hidden bg-white dark:bg-zinc-800"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-bold uppercase truncate max-w-[120px] text-black dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-black dark:text-white" /></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-transparent transition-all"><div className="w-5 h-5 border border-black dark:border-white overflow-hidden bg-gray-50 dark:bg-zinc-800"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-bold truncate text-black dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-blue-600 border-2 border-transparent"/>}</button>))}</div><div className="h-0.5 bg-black dark:bg-white my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-bold text-black dark:text-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-800 border-2 border-black dark:border-white transition-all"><Plus size={16} className="text-black dark:text-white"/> {t("New Workspace", "Nouvel Espace")}</button></motion.div>)}</AnimatePresence>
+                        <div className="relative group"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><ChevronDown size={16} className="text-[#040028]/50 dark:text-white/50" /></button>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0A0A2E] rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-50 p-2 origin-top"><div className="space-y-1">{myWorkspaces.map((ws: any) => (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm text-left hover:bg-[#174CD2]/8 transition-colors"><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 font-medium truncate text-[#040028] dark:text-white">{ws.name}</span>{currentWorkspace?.id === ws.id && <Check size={16} className="text-[#174CD2]"/>}</button>))}</div><div className="h-px bg-black/5 dark:bg-white/10 my-2"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-[10px] text-sm font-medium text-[#174CD2] hover:bg-[#174CD2]/8 transition-colors"><Plus size={16}/> {t("New workspace", "Nouvel espace")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -741,38 +740,38 @@ function DashboardContent() {
                             />
                             <button
                                 onClick={() => setIsSearchOpen(v => !v)}
-                                className="bg-black dark:bg-white text-white dark:text-black p-2.5 border-2 border-black dark:border-white rounded-lg hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-colors"
+                                className="bg-[#174CD2] text-white p-2.5 rounded-[10px] hover:bg-[#123a9e] transition-colors"
                             >
                                 <Search size={18} />
                             </button>
 
                             {/* Real-time results dropdown */}
                             {isSearchOpen && searchTerm.trim() && (
-                                <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] z-50 overflow-hidden">
+                                <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-[#0A0A2E] rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-50 overflow-hidden">
                                     {searchResults.posts.length === 0 && searchResults.accounts.length === 0 ? (
-                                        <div className="p-4 text-center text-xs font-black uppercase text-gray-400">{t("No results found", "Aucun résultat")}</div>
+                                        <div className="p-4 text-center text-xs font-medium text-gray-400">{t("No results found", "Aucun résultat")}</div>
                                     ) : (
                                         <>
                                             {searchResults.posts.length > 0 && (
                                                 <div>
-                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">{t("Posts", "Publications")}</div>
+                                                    <div className="bg-[#F5F7FA] dark:bg-white/5 text-[#040028]/60 dark:text-white/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">{t("Posts", "Publications")}</div>
                                                     {searchResults.posts.map((p: any) => (
-                                                        <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 transition-colors">
-                                                            <div className={`w-2 h-2 flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-black dark:bg-white' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
-                                                            <span className="text-xs font-bold truncate text-black dark:text-white">{p.content?.substring(0, 60)}...</span>
-                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto flex-shrink-0">{p.status}</span>
+                                                        <button key={p.id} onClick={() => { setActiveTab('queue'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-[#174CD2]/8 border-b border-black/5 dark:border-white/5 flex items-center gap-3 transition-colors">
+                                                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.status === 'SCHEDULED' ? 'bg-[#174CD2]' : p.status === 'DRAFT' ? 'bg-yellow-400' : 'bg-green-500'}`} />
+                                                            <span className="text-xs font-medium truncate text-[#040028] dark:text-white">{p.content?.substring(0, 60)}...</span>
+                                                            <span className="text-[9px] font-semibold uppercase text-gray-400 ml-auto flex-shrink-0">{p.status}</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             )}
                                             {searchResults.accounts.length > 0 && (
                                                 <div>
-                                                    <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 text-[9px] font-black uppercase tracking-widest">{t("Accounts", "Comptes")}</div>
+                                                    <div className="bg-[#F5F7FA] dark:bg-white/5 text-[#040028]/60 dark:text-white/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">{t("Accounts", "Comptes")}</div>
                                                     {searchResults.accounts.map((a: any) => (
-                                                        <button key={a.id} onClick={() => { setActiveTab('settings'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-3 transition-colors">
-                                                            <div className="w-2 h-2 bg-green-500 flex-shrink-0" />
-                                                            <span className="text-xs font-bold text-black dark:text-white">@{a.username}</span>
-                                                            <span className="text-[9px] font-black uppercase text-gray-400 ml-auto">{a.platform}</span>
+                                                        <button key={a.id} onClick={() => { setActiveTab('settings'); setIsSearchOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-[#174CD2]/8 flex items-center gap-3 transition-colors">
+                                                            <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                                                            <span className="text-xs font-medium text-[#040028] dark:text-white">@{a.username}</span>
+                                                            <span className="text-[9px] font-semibold uppercase text-gray-400 ml-auto">{a.platform}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -782,43 +781,43 @@ function DashboardContent() {
                                 </div>
                             )}
                         </div>
-                        
+
                         {/* 🔔 FUNCTIONAL NOTIFICATION BELL */}
                         <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
                             <PopoverTrigger asChild>
-                                <button className="relative p-2.5 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] transition-all">
-                                    <Bell size={20} className="text-black dark:text-white" />
+                                <button className="relative p-2.5 rounded-[10px] hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors">
+                                    <Bell size={20} className="text-[#040028] dark:text-white" />
                                     {unreadCount > 0 && (
-                                        <div className="absolute top-0 right-0 min-w-[18px] h-[18px] bg-black dark:bg-white border-2 border-black dark:border-white flex items-center justify-center text-white text-[8px] font-black -translate-y-1/3 translate-x-1/3 px-0.5">
+                                        <div className="absolute top-1 right-1 min-w-[16px] h-[16px] bg-[#174CD2] rounded-full flex items-center justify-center text-white text-[9px] font-bold px-0.5">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </div>
                                     )}
                                 </button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 bg-white dark:bg-black border-4 border-black dark:border-white p-0 rounded-none shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] mt-2" align="end">
-                                <div className="bg-black dark:bg-white text-white dark:text-black p-3 font-black uppercase text-xs tracking-widest border-b-2 border-black dark:border-white flex items-center justify-between">
-                                    <span>{t("Activity Feed", "Flux d'Activité")}</span>
-                                    {notifications.length > 0 && <span className="text-[9px] opacity-60">{notifications.length} log{notifications.length !== 1 ? 's' : ''}</span>}
+                            <PopoverContent className="w-80 bg-white dark:bg-[#0A0A2E] p-0 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] mt-2 overflow-hidden" align="end">
+                                <div className="bg-[#174CD2] text-white p-3 font-bold text-sm flex items-center justify-between">
+                                    <span>{t("Activity feed", "Flux d'activité")}</span>
+                                    {notifications.length > 0 && <span className="text-[10px] opacity-70">{notifications.length} log{notifications.length !== 1 ? 's' : ''}</span>}
                                 </div>
                                 {notifications.length === 0 ? (
                                     <div className="p-8 text-center space-y-4">
                                         <div className="flex justify-center">
-                                            <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                                                <Bell size={24} className="text-gray-400" />
+                                            <div className="w-12 h-12 rounded-full bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center">
+                                                <Bell size={22} className="text-gray-400" />
                                             </div>
                                         </div>
-                                        <p className="font-bold text-xs uppercase tracking-tight text-gray-500 dark:text-zinc-400">
+                                        <p className="font-medium text-xs text-gray-500 dark:text-zinc-400">
                                             {t("No events logged yet.", "Aucun événement enregistré.")}
                                         </p>
                                     </div>
                                 ) : (
-                                    <div className="max-h-72 overflow-y-auto divide-y divide-black/10 dark:divide-white/10">
+                                    <div className="max-h-72 overflow-y-auto divide-y divide-black/5 dark:divide-white/10">
                                         {notifications.map(n => (
                                             <div key={n.id} className="flex items-start gap-3 px-3 py-2.5">
-                                                <div className={`mt-0.5 w-2 h-2 flex-shrink-0 rounded-none ${n.type === 'success' ? 'bg-green-500' : n.type === 'error' ? 'bg-red-500' : 'bg-black dark:bg-white'}`} />
+                                                <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${n.type === 'success' ? 'bg-green-500' : n.type === 'error' ? 'bg-red-500' : 'bg-[#174CD2]'}`} />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-[11px] font-bold text-black dark:text-white leading-tight">{n.message}</p>
-                                                    <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-0.5">
+                                                    <p className="text-[12px] font-medium text-[#040028] dark:text-white leading-tight">{n.message}</p>
+                                                    <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5">
                                                         {new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {new Date(n.time).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                                                     </p>
                                                 </div>
@@ -826,12 +825,12 @@ function DashboardContent() {
                                         ))}
                                     </div>
                                 )}
-                                <div className="p-2 border-t-2 border-black dark:border-white">
+                                <div className="p-2 border-t border-black/5 dark:border-white/10">
                                     <button
                                         onClick={clearNotifications}
-                                        className="w-full py-2 font-black text-[10px] uppercase border-2 border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                        className="w-full py-2 rounded-[10px] font-semibold text-xs text-[#040028] dark:text-white hover:bg-[#174CD2]/8 transition-colors"
                                     >
-                                        {t("Clear Logs", "Effacer les Logs")}
+                                        {t("Clear logs", "Effacer les logs")}
                                     </button>
                                 </div>
                             </PopoverContent>
@@ -839,7 +838,7 @@ function DashboardContent() {
                     </div>
                 </header>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-black border-x-4 border-black dark:border-white">
+                <div className="flex-1 px-4 md:px-8 pb-32 pt-8">
                     <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
                         <div className="hidden lg:block sticky top-32 z-10 self-start -ml-4">
                             <QuickConnectSidebar 
@@ -860,8 +859,8 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="bg-white dark:bg-black relative overflow-hidden min-h-[520px] rounded-t-lg">
-                                                <h2 className="text-xl font-black uppercase mb-4 flex items-center gap-2 text-black dark:text-white"><div className="w-4 h-4 bg-black dark:bg-white border-2 border-black dark:border-white"></div>{editingPost ? t('Edit Content', 'Modifier le Contenu') : t('Create New Content', 'Créer un Nouveau Contenu')}</h2>
+                                            <NeuCard className="relative overflow-hidden min-h-[520px]">
+                                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#040028] dark:text-white"><span className="w-2 h-2 rounded-full bg-[#174CD2]"></span>{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
@@ -878,8 +877,8 @@ function DashboardContent() {
                                     {activeTab === 'calendar' && (
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center">
-                                                <h2 className="text-xl font-black uppercase text-black dark:text-white">{t("Content Timeline", "Calendrier de Contenu")}</h2>
-                                                <NeuButton onClick={() => setActiveTab('queue')}>+ {t("Quick Post", "Publication Rapide")}</NeuButton>
+                                                <h2 className="text-xl font-bold text-[#040028] dark:text-white">{t("Content timeline", "Calendrier de contenu")}</h2>
+                                                <NeuButton onClick={() => setActiveTab('queue')} active>+ {t("Quick post", "Publication rapide")}</NeuButton>
                                             </div>
                                             <CalendarView
                                                 workspaceId={workspaceId}
@@ -895,10 +894,10 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'analytics' && <NeuCard className="bg-white dark:bg-black min-h-[600px]"><Analytics /></NeuCard>}
-                                    {activeTab === 'engagement' && <NeuCard className="bg-white dark:bg-black min-h-[600px]"><EngagementWithTabs /></NeuCard>}
+                                    {activeTab === 'analytics' && <NeuCard className="min-h-[600px]"><Analytics /></NeuCard>}
+                                    {activeTab === 'engagement' && <NeuCard className="min-h-[600px]"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <Team workspaceId={workspaceId} />}
-                                    {activeTab === 'settings' && <div className="bg-white dark:bg-black border-2 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></div>}
+                                    {activeTab === 'settings' && <NeuCard className="p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></NeuCard>}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
@@ -916,23 +915,23 @@ function DashboardContent() {
                                     </motion.div>
                                 ) : (
                                     <motion.div key="menu" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
-                                        <div className="p-4 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]"><h3 className="font-black text-lg uppercase tracking-tight">{t("MENU", "MENU")}</h3></div>
-                                        <nav className="space-y-3">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between p-4 border-2 border-black dark:border-white transition-all duration-200 group ${activeTab === item.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] translate-x-[-2px] translate-y-[-2px]' : 'bg-white dark:bg-black text-black dark:text-white hover:bg-white dark:hover:bg-zinc-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]'}`}><div className="flex items-center gap-3"><item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-bold uppercase tracking-wider">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
-                                        <div className="mt-8 p-4 bg-white dark:bg-black border-2 border-black dark:border-white border-dashed transition-colors"><p className="text-xs font-mono text-black dark:text-white mb-2 uppercase">{t("SUBSCRIPTION", "ABONNEMENT")}</p><div className="flex justify-between items-end text-black dark:text-white"><span
-  className={`text-xl font-black ${
+                                        <div className="px-1"><h3 className="font-bold text-sm text-[#040028]/50 dark:text-white/50 uppercase tracking-wider">{t("Menu", "Menu")}</h3></div>
+                                        <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] transition-all duration-200 group ${activeTab === item.id ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div>{activeTab === item.id && <ArrowRight size={16} />}</button>))}</nav>
+                                        <div className="mt-6 p-4 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028]/50 dark:text-white/50 mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
+  className={`text-xl font-bold ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
       : currentWorkspace.owner.planType === 'STARTER'
-      ? 'text-black dark:text-white'
+      ? 'text-[#174CD2]'
       : currentWorkspace.owner.planType === 'PRO'
-      ? 'text-black dark:text-white  animate-pulse'
+      ? 'text-[#174CD2] animate-pulse'
       : currentWorkspace.owner.planType === 'PROFESSIONAL'
       ? 'animate-rainbow-rtl'
       : currentWorkspace.owner.planType === 'ENTERPRISE'
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-bold underline hover:text-black dark:text-white uppercase">{t("MANAGE", "GÉRER")}</button></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] transition-colors">{t("Manage", "Gérer")}</button></div></div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -941,7 +940,7 @@ function DashboardContent() {
                 </div>
             </main>
 
-            <NeuModal title={t("CREATE WORKSPACE", "CRÉER UN ESPACE")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-bold uppercase mb-1 block text-black">{t("Workspace Name", "Nom de l'Espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("E.G. DIGITAL AGENCY", "EX : AGENCE DIGITALE")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)} className="bg-white hover:bg-gray-100">{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} className="bg-black dark:bg-white text-white hover:bg-zinc-800 dark:hover:bg-zinc-100">{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
+            <NeuModal title={t("Create workspace", "Créer un espace")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-semibold mb-1.5 block text-[#040028] dark:text-white">{t("Workspace name", "Nom de l'espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("e.g. Digital Agency", "ex : Agence digitale")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)}>{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} active>{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
             
             <FacebookPageSelector 
                 isOpen={isFbPageSelectorOpen} 
