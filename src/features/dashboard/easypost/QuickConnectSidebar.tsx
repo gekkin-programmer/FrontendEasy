@@ -66,7 +66,6 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
     const handleConnect = (platform: string, comingSoon?: boolean) => {
         if (comingSoon) {
             return;
-            return;
         }
         if (platform === 'telegram') {
             telegramTokenMutation.mutate();
@@ -92,19 +91,19 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
 
     return (
         <>
-            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-black border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] h-full overflow-y-auto scrollbar-hide transition-colors">
+            <div className="w-[104px] flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] h-full overflow-y-auto scrollbar-hide transition-colors">
                 {/* Header row */}
-                <div className="flex items-center gap-2 w-full justify-center mb-1 bg-black -mx-2 mt-1 px-2 pt-3 pb-2">
+                <div className="flex items-center gap-2 w-full justify-center mb-1 pb-2 border-b border-black/5 dark:border-white/5">
                     {accounts.length >= 2 && currentWorkspace?.owner?.planType === 'FREE' && (
                         <button
                             onClick={() => router.push('/tarifs')}
-                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:bg-zinc-100 dark:hover:bg-zinc-700 active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
                             title={t("Upgrade to add more accounts", "Passez à la version payante pour ajouter plus de comptes")}
                         >
-                            <Crown size={16} className="text-black dark:text-white" />
+                            <Crown size={16} className="text-[#8E8E8E]" />
                         </button>
                     )}
-                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center border-2 border-black dark:border-white bg-black hover:bg-zinc-700 transition-colors">
+                    <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-[10px] bg-[#174CD2]">
                         <LinkIcon size={14} className="text-white" />
                     </div>
                 </div>
@@ -119,7 +118,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                 {connected ? (
                                     <>
                                         {/* Base layer: platform icon */}
-                                        <button className="w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-default transition-colors bg-gray-50 dark:bg-zinc-800">
+                                        <button className="w-10 h-10 rounded-[10px] flex items-center justify-center cursor-default transition-colors bg-[#F5F7FA] dark:bg-white/5">
                                             <p.Icon size={16} className={cn(p.color, "opacity-60")} />
                                         </button>
 
@@ -127,17 +126,17 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                         <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="w-full flex items-center justify-center border-2 border-black dark:border-white bg-white dark:bg-black hover:border-red-500 transition-colors cursor-pointer"
+                                                className="w-full rounded-[10px] flex items-center justify-center bg-white dark:bg-[#0A0A2E] shadow-sm hover:bg-red-50 transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
-                                                <Trash2 size={10} className="text-red-500" strokeWidth={3} />
+                                                <Trash2 size={12} className="text-red-500" />
                                             </button>
                                         </div>
 
                                         {/* Status dot: always green */}
                                         <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                            <div className="w-3.5 h-3.5 bg-green-500 border-2 border-black dark:border-white flex items-center justify-center text-white">
-                                                <Check size={8} strokeWidth={4} />
+                                            <div className="w-3.5 h-3.5 bg-green-500 rounded-full ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center text-white">
+                                                <Check size={8} />
                                             </div>
                                         </div>
                                     </>
@@ -145,10 +144,10 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
                                     <button
                                         onClick={() => handleConnect(p.id, (p as any).comingSoon)}
                                         className={cn(
-                                            "group w-10 h-10 flex items-center justify-center border-2 border-black dark:border-white cursor-pointer transition-all",
+                                            "group w-10 h-10 rounded-[10px] flex items-center justify-center cursor-pointer transition-all",
                                             (p as any).comingSoon
-                                                ? "bg-zinc-100 dark:bg-zinc-800 opacity-50"
-                                                : "bg-white dark:bg-black shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:shadow-[4px_4px_0px_0px_#000] dark:hover:shadow-[4px_4px_0px_0px_#fff] hover:-translate-x-[1px] hover:-translate-y-[1px]"
+                                                ? "bg-[#F5F7FA] dark:bg-white/5 opacity-50"
+                                                : "bg-white dark:bg-[#0A0A2E] shadow-sm hover:shadow-md"
                                         )}
                                         title={(p as any).comingSoon
                                             ? t(`${p.id} — coming soon`, `${p.id} — bientôt disponible`)
@@ -169,52 +168,52 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
             {/* TELEGRAM LINK MODAL */}
             <AnimatePresence>
                 {telegramModal && telegramToken && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#040028]/50 backdrop-blur-sm p-4">
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[12px_12px_0px_0px_#000] dark:shadow-[12px_12px_0px_0px_#fff] w-full max-w-sm overflow-hidden"
+                            initial={{ scale: 0.96, opacity: 0, y: 10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.96, opacity: 0, y: 10 }}
+                            className="bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full max-w-sm overflow-hidden"
                         >
-                            <div className="bg-[#2AABEE] text-white p-4 border-b-4 border-black dark:border-white flex justify-between items-center">
-                                <span className="font-black uppercase tracking-wider flex items-center gap-2">
+                            <div className="bg-[#2AABEE] text-white p-4 flex justify-between items-center">
+                                <span className="font-bold flex items-center gap-2">
                                     <FaTelegram size={20} /> {t("Connect Telegram", "Connecter Telegram")}
                                 </span>
-                                <button onClick={() => setTelegramModal(false)}><X size={24} strokeWidth={3} /></button>
+                                <button onClick={() => setTelegramModal(false)} className="text-white/80 hover:text-white transition-colors"><X size={20} /></button>
                             </div>
                             <div className="p-6 space-y-4">
-                                <p className="font-bold uppercase text-xs text-black dark:text-white">
+                                <p className="font-semibold text-xs text-[#8E8E8E]">
                                     {t("1. Open Telegram and message", "1. Ouvrez Telegram et envoyez un message à")}
                                 </p>
                                 <a
                                     href="https://t.me/Eazy_Post_bot"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="block text-center font-black text-[#2AABEE] underline text-sm"
+                                    className="block text-center font-semibold text-[#2AABEE] hover:underline text-sm"
                                 >
                                     @Eazy_Post_bot
                                 </a>
-                                <p className="font-bold uppercase text-xs text-black dark:text-white">
+                                <p className="font-semibold text-xs text-[#8E8E8E]">
                                     {t("2. Send this command (expires in 15 min):", "2. Envoyez cette commande (expire dans 15 min):")}
                                 </p>
-                                <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white p-3">
-                                    <code className="flex-1 font-mono text-sm text-black dark:text-white break-all">
+                                <div className="flex items-center gap-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 p-3">
+                                    <code className="flex-1 font-mono text-sm text-[#040028] dark:text-white break-all">
                                         /link {telegramToken}
                                     </code>
                                     <button
                                         onClick={copyCommand}
-                                        className="flex-shrink-0 p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                                        className="flex-shrink-0 p-2 rounded-[8px] bg-white dark:bg-white/10 hover:bg-black/5 dark:hover:bg-white/20 text-[#040028] dark:text-white transition-colors"
                                         title={t("Copy", "Copier")}
                                     >
                                         {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
                                     </button>
                                 </div>
-                                <p className="text-[10px] font-mono opacity-60 text-black dark:text-white">
+                                <p className="text-xs text-[#8E8E8E]">
                                     {t("The bot will confirm when your account is linked.", "Le bot confirmera lorsque votre compte sera lié.")}
                                 </p>
                                 <button
                                     onClick={() => { setTelegramModal(false); refreshData(); }}
-                                    className="w-full py-3 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white font-black uppercase text-[10px] shadow-[4px_4px_0px_0px_#555] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
                                 >
                                     {t("Done", "Terminé")}
                                 </button>

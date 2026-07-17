@@ -171,14 +171,14 @@ export default function OnboardingGuide({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.25 }}
-          className="fixed bottom-6 z-40 w-[300px] max-h-[calc(100vh-10rem)] flex flex-col bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] overflow-hidden"
+          className="fixed bottom-6 z-40 w-[300px] max-h-[calc(100vh-10rem)] flex flex-col bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden"
           style={{ left: 'max(0.5rem, calc((100vw - min(100vw, 1664px)) / 2 + 2rem))' }}
         >
           {/* Header row */}
-          <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black dark:border-white bg-[#3C48F5]">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#174CD2]">
             <div className="flex items-center gap-2">
-              <span className="font-black text-xs uppercase tracking-widest text-white">
-                {t('Getting Started', 'Démarrage')}
+              <span className="font-semibold text-xs text-white">
+                {t('Getting started', 'Démarrage')}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -187,22 +187,22 @@ export default function OnboardingGuide({
                 className="text-white/80 hover:text-white transition-colors"
                 title={collapsed ? 'Expand' : 'Collapse'}
               >
-                {collapsed ? <ChevronDown size={16} strokeWidth={3} /> : <ChevronUp size={16} strokeWidth={3} />}
+                {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
               </button>
               <button
                 onClick={() => setDismissed(true)}
                 className="text-white/80 hover:text-white transition-colors"
                 title={t('Dismiss guide', 'Fermer le guide')}
               >
-                <X size={16} strokeWidth={3} />
+                <X size={16} />
               </button>
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-gray-200 dark:bg-zinc-700 w-full">
+          <div className="h-1.5 bg-[#F5F7FA] dark:bg-white/10 w-full">
             <motion.div
-              className="h-full bg-[#3C48F5]"
+              className="h-full bg-[#174CD2]"
               initial={{ width: 0 }}
               animate={{ width: `${progressPct}%` }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -220,36 +220,36 @@ export default function OnboardingGuide({
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="divide-y-2 divide-black/10 dark:divide-white/10 overflow-y-auto max-h-[50vh]">
+                <div className="divide-y divide-black/5 dark:divide-white/5 overflow-y-auto max-h-[50vh]">
                   {steps.map((step, i) => (
                     <motion.div
                       key={step.id}
                       layout
                       className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                        step.done ? 'bg-green-50 dark:bg-green-900/10' : 'bg-white dark:bg-zinc-900'
+                        step.done ? 'bg-green-50 dark:bg-green-900/10' : 'bg-white dark:bg-[#0A0A2E]'
                       }`}
                     >
                       {/* Step number / check */}
-                      <div className={`flex-shrink-0 w-7 h-7 border-2 flex items-center justify-center mt-0.5 ${
+                      <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5 ${
                         step.done
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : 'bg-white dark:bg-zinc-800 border-black dark:border-white text-black dark:text-white'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white'
                       }`}>
                         {step.done
-                          ? <Check size={14} strokeWidth={3} />
-                          : <span className="text-[10px] font-black">{i + 1}</span>
+                          ? <Check size={14} />
+                          : <span className="text-xs font-semibold">{i + 1}</span>
                         }
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-black uppercase tracking-wide ${
-                          step.done ? 'line-through text-gray-400 dark:text-zinc-500' : 'text-black dark:text-white'
+                        <p className={`text-xs font-semibold ${
+                          step.done ? 'line-through text-[#8E8E8E]' : 'text-[#040028] dark:text-white'
                         }`}>
                           {t(step.title, step.titleFr)}
                         </p>
                         {!step.done && (
-                          <p className="text-[10px] font-mono text-gray-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                          <p className="text-xs text-[#8E8E8E] mt-0.5 leading-relaxed">
                             {t(step.desc, step.descFr)}
                           </p>
                         )}
@@ -259,7 +259,7 @@ export default function OnboardingGuide({
                       {!step.done && (
                         <button
                           onClick={step.onAction}
-                          className="flex-shrink-0 text-[10px] font-black uppercase px-2 py-1 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_rgba(60,72,245,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all whitespace-nowrap"
+                          className="flex-shrink-0 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all whitespace-nowrap"
                         >
                           {t(step.action, step.actionFr)}
                         </button>
@@ -269,18 +269,18 @@ export default function OnboardingGuide({
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-2 border-t-2 border-black/10 dark:border-white/10 flex justify-between items-center">
-                  <span className="text-[10px] font-mono text-gray-400 dark:text-zinc-500">
+                <div className="px-4 py-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center">
+                  <span className="text-xs font-medium text-[#8E8E8E]">
                     {allComplete
-                      ? t('All done! 🎉', 'Tout terminé ! 🎉')
+                      ? t('All done!', 'Tout terminé !')
                       : t(`${steps.length - completedCount} steps remaining`, `${steps.length - completedCount} étapes restantes`)
                     }
                   </span>
                   <button
                     onClick={() => setDismissed(true)}
-                    className="text-[10px] font-black uppercase text-gray-400 dark:text-zinc-500 hover:text-red-500 transition-colors underline"
+                    className="text-xs font-semibold text-[#8E8E8E] hover:text-red-500 transition-colors"
                   >
-                    {t('Dismiss Guide', 'Fermer le guide')}
+                    {t('Dismiss guide', 'Fermer le guide')}
                   </button>
                 </div>
               </motion.div>
