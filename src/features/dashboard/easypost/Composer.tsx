@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send,
   Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy,
-  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, FileCheck, Loader2,
+  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Loader2,
   Sparkles, AlertTriangle, MessageCircle, RefreshCw
 } from 'lucide-react';
 import { FaTiktok, FaYoutube, FaDiscord, FaTelegram, FaWhatsapp, FaSnapchat, FaPinterestP } from 'react-icons/fa6';
@@ -65,8 +65,8 @@ const AI_TONES = [
 const NeuButton = ({ children, onClick, className = "", variant = "default", disabled = false, ...props }: any) => {
   const baseStyles = "relative font-semibold text-sm rounded-[10px] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
   const variants = {
-    default: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md",
-    primary: `bg-[#174CD2] text-white hover:bg-[#123a9e] shadow-[0_4px_14px_rgba(23,76,210,0.3)]`,
+    default: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40",
+    primary: `bg-[#174CD2] text-white hover:bg-[#123a9e]`,
     ghost: "bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/5"
   };
   return <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.default, className)} {...props}>{children}</button>;
@@ -93,11 +93,11 @@ const NeuInput = (props: any) => (
 
 const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) => (
   <div onClick={onClick} className="group cursor-pointer flex flex-col items-center gap-2 p-2 rounded-[10px] hover:bg-[#174CD2]/8 transition-colors">
-    <div className="relative w-16 h-12"><div className="absolute top-0 left-0 w-6 h-3 bg-[#F5C542] rounded-t-md z-0"></div><div className="absolute bottom-0 w-full h-10 bg-[#FFE9A8] rounded-md shadow-sm z-10 group-hover:brightness-95 transition-all flex items-center justify-center"></div></div>
+    <div className="relative w-16 h-12"><div className="absolute top-0 left-0 w-6 h-3 bg-[#F5C542] rounded-t-md z-0"></div><div className="absolute bottom-0 w-full h-10 bg-[#FFE9A8] rounded-md z-10 group-hover:brightness-95 transition-all flex items-center justify-center"></div></div>
     <span className="text-[11px] font-medium text-center max-w-full truncate w-full text-[#040028] dark:text-white">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md transition-all text-[#040028] dark:text-white"><Icon size={18} /></button>);
+const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 transition-all text-[#040028] dark:text-white"><Icon size={18} /></button>);
 const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; case 'tiktok': return <FaTiktok size={size} className="text-black dark:text-white" />; case 'youtube': case 'google': return <FaYoutube size={size} className="text-red-600" />; case 'discord': return <FaDiscord size={size} className="text-[#5865F2]" />; case 'telegram': return <FaTelegram size={size} className="text-[#26A5E4]" />; case 'whatsapp': return <FaWhatsapp size={size} className="text-[#25D366]" />; case 'snapchat': return <FaSnapchat size={size} className="text-yellow-400" />; case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
@@ -517,8 +517,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all">
-        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" className="hidden" />
+      <div className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* HEADER */}
         <div className="px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5 transition-colors">
@@ -528,7 +528,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
                 return (
-                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shadow-sm" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
                     <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
                     {acc.avatar && (
                       <img
@@ -548,10 +548,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <Popover>
               <PopoverTrigger asChild>
                 <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
-                  <Plus size={14} strokeWidth={2.5} className="text-[#174CD2]" />
+                  <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start">
+              <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="right" sideOffset={8}>
                 <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
                 <div className="max-h-60 overflow-y-auto">
                   {accounts.map((acc) => {
@@ -571,7 +571,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className={cn("flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all", isLibraryOpen ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40")}>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10">
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
           </div>
@@ -665,19 +665,19 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="px-6 pt-5 pb-6 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className="min-h-[120px] border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed text-[#040028] dark:text-white" />
+        <div className="px-6 pt-6 pb-8 bg-white dark:bg-[#0A0A2E] transition-colors">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[340px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {mediaPreviews.map((url, idx) => (
-                <div key={idx} className="relative aspect-square rounded-[14px] overflow-hidden group bg-[#F5F7FA] dark:bg-zinc-800 border border-black/5 dark:border-white/10 shadow-sm">
+                <div key={idx} className="relative aspect-square rounded-[14px] overflow-hidden group bg-[#F5F7FA] dark:bg-zinc-800 border border-black/5 dark:border-white/10">
                   {mediaTypes[idx] === 'video' ? (
                     <video src={url} className="w-full h-full object-cover" muted playsInline />
                   ) : (
                     <img src={url} className="w-full h-full object-cover" alt="" />
                   )}
-                  <button onClick={() => removeMedia(idx)} className="absolute top-1.5 right-1.5 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors shadow-sm opacity-0 group-hover:opacity-100"><X size={12} strokeWidth={2.5} /></button>
+                  <button onClick={() => removeMedia(idx)} className="absolute top-1.5 right-1.5 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors opacity-0 group-hover:opacity-100"><X size={12} strokeWidth={2.5} /></button>
                 </div>
               ))}
             </div>
@@ -719,15 +719,15 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-[10px] transition-all", isSelling ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40")}><ShoppingBag size={12} /> {isSelling ? t('Commerce: on', 'Commerce: actif') : t('Commerce: off', 'Commerce: inactif')}</button>
-              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40 text-xs font-semibold shadow-sm whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full text-left px-4 py-2 text-xs hover:bg-[#174CD2]/8 transition flex items-center justify-between border-b border-black/5 dark:border-white/5 last:border-0 font-medium text-[#040028] dark:text-white', category === cat && 'bg-[#174CD2] text-white hover:bg-[#174CD2]')}>{cat} {category === cat && <Check size={14} />}</button>))}</PopoverContent></Popover>
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-[10px] transition-all", isSelling ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10")}><ShoppingBag size={12} /> {isSelling ? t('Commerce: on', 'Commerce: actif') : t('Commerce: off', 'Commerce: inactif')}</button>
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#FAFAFA] dark:bg-white/5' : 'hover:bg-black/5 dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                           {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
                           {hasSchedulingData && (
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 shadow-sm transition-all flex items-center gap-1.5">
+                              <button className="px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">
                                 <Sparkles size={14} className="text-[#174CD2] animate-pulse" /> {t("AI scheduler", "Planif. IA")}
                               </button>
                             </PopoverTrigger>
@@ -746,13 +746,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           </Popover>
                           )}
 
-                          <Popover><PopoverTrigger asChild><NeuButton className="px-3"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
-            <PopoverContent className="w-auto p-0 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="bg-white dark:bg-[#0A0A2E] p-3 text-[#040028] dark:text-white" /><div className="p-3 border-t border-black/5 dark:border-white/5 flex items-center gap-2"><Clock size={16} className="text-[#174CD2]" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-semibold text-[#040028] dark:text-white border-b border-black/20 dark:border-white/20 focus:border-[#174CD2]" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
+                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
+            <PopoverContent className="w-auto p-0 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="bg-white dark:bg-[#0A0A2E] p-3 text-[#040028] dark:text-white" /><div className="p-3 border-t border-black/5 dark:border-white/5 flex items-center gap-2"><Clock size={16} className="text-[#040028] dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-semibold text-[#040028] dark:text-white border-b border-black/20 dark:border-white/20 focus:border-[#174CD2]" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40")}><LayoutGrid size={14} /> {t("Preview", "Aperçu")}</button>
-                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40 shadow-sm transition-all flex items-center gap-1.5"><FileCheck size={14} /> {t("Review", "Révision")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4">
-                      {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date ? <Clock className="w-4 h-4 mr-2"/> : <Send className="w-4 h-4 mr-2"/>)}
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10")}>{t("Preview", "Aperçu")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-white dark:hover:bg-[#0A0A2E]">
+                      {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </NeuButton>
               </div>
@@ -764,10 +764,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                 initial={{ height: 0, opacity: 0, marginTop: 0 }}
                 animate={{ height: 'auto', opacity: 1, marginTop: 12 }}
                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                className="overflow-hidden rounded-[14px] border border-black/10 dark:border-white/10 shadow-sm"
+                className="overflow-hidden rounded-none border border-black/10 dark:border-white/10"
               >
-                <div className="bg-[#174CD2] text-white px-3 py-2 flex items-center gap-2">
-                  <ShoppingBag size={12} />
+                <div className="bg-[#040028] text-white px-3 py-2 flex items-center gap-2">
                   <span className="text-xs font-semibold">{t("Payment link", "Lien de paiement")}</span>
                 </div>
                 <div className="bg-white dark:bg-[#0A0A2E] p-3 flex flex-col gap-2">
@@ -805,9 +804,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col transition-colors max-h-[420px]">
-            <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-[#174CD2] text-white flex justify-between items-center transition-colors flex-shrink-0"><span className="text-sm font-semibold flex items-center gap-2"><LayoutGrid size={14} /> {t("Media library", "Bibliothèque de médias")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-white/15 rounded-full p-1 transition-colors"><X size={14} /></button></div>
-            <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-y-auto flex-1">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors max-h-[420px]">
+            <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0"><span className="text-sm font-semibold flex items-center gap-2"><LayoutGrid size={14} /> {t("Media library", "Bibliothèque de médias")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-1 transition-colors"><X size={14} /></button></div>
+            <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-y-auto flex-1 min-h-0 scrollbar-grey">
                 <MediaGallery
                     hideUsage={false}
                     workspaceId={workspaceId}
@@ -859,7 +858,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         {accounts.some(a => selectedAccountIds.includes(a.id) && a.platform === 'FACEBOOK') && (
                             <div className="space-y-3">
                                 <span className="text-[10px] font-semibold uppercase tracking-wide bg-blue-600 text-white px-2.5 py-1 rounded-full">{t("Facebook feed", "Fil Facebook")}</span>
-                                <div className="bg-white dark:bg-black rounded-lg shadow-md border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
+                                <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
                                     <div className="flex items-center gap-2">
                                         <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-full border border-gray-300 dark:border-zinc-700"></div>
                                         <div className="flex-1">
@@ -889,7 +888,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                         {accounts.some(a => selectedAccountIds.includes(a.id) && (a.platform === 'TWITTER' || a.platform === 'X')) && (
                             <div className="space-y-3">
                                 <span className="text-[10px] font-semibold uppercase tracking-wide bg-black dark:bg-white text-white dark:text-black px-2.5 py-1 rounded-full">{t("X timeline", "Fil X")}</span>
-                                <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
+                                <div className="bg-white dark:bg-black rounded-xl border border-gray-100 dark:border-zinc-800 p-4 flex gap-3 text-black dark:text-white">
                                     <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded-full shrink-0"></div>
                                     <div className="space-y-2 flex-1 min-w-0">
                                         <div className="flex gap-1 items-center">
@@ -921,7 +920,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                                 <span className="text-[10px] font-semibold uppercase tracking-wide bg-[#0077B5] text-white px-2.5 py-1 rounded-full">{t("LinkedIn network", "Réseau LinkedIn")}</span>
                                 <div className="bg-white dark:bg-black border border-gray-200 dark:border-zinc-800 p-4 space-y-3 text-black dark:text-white">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded shadow-sm"></div>
+                                        <div className="w-12 h-12 bg-gray-200 dark:bg-zinc-800 rounded"></div>
                                         <div>
                                             <div className="h-3 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
                                             <div className="h-2 w-24 bg-gray-100 dark:bg-black rounded mt-1"></div>
@@ -968,7 +967,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
                 <div className="p-6 border-t border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] flex justify-end gap-3 transition-colors">
                     <NeuButton onClick={() => setIsPreviewOpen(false)} className="px-6 py-2.5">{t("Close", "Fermer")}</NeuButton>
-                    <NeuButton onClick={() => { setIsPreviewOpen(false); handleSubmit('execute'); }} className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white border-none shadow-[0_4px_14px_rgba(22,163,74,0.3)]">{t("Publish now", "Publier maintenant")}</NeuButton>
+                    <NeuButton onClick={() => { setIsPreviewOpen(false); handleSubmit('execute'); }} className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white border-none">{t("Publish now", "Publier maintenant")}</NeuButton>
                 </div>
             </motion.div>
         </div>

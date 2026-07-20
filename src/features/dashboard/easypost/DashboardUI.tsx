@@ -12,8 +12,8 @@ export const NeuButton = ({ children, onClick, active, className = "", disabled 
     className={cn(
       'relative px-4 py-2.5 rounded-[10px] font-bold text-sm transition-all duration-200',
       active
-        ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.35)]'
-        : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md',
+        ? 'bg-[#174CD2] text-white'
+        : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40',
       disabled ? 'opacity-50 cursor-not-allowed' : '',
       className
     )}
@@ -23,7 +23,7 @@ export const NeuButton = ({ children, onClick, active, className = "", disabled 
 );
 
 export const NeuCard = ({ children, className = "" }: any) => (
-  <div className={`bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] p-6 text-[#040028] dark:text-white ${className}`}>
+  <div className={cn('bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-6 text-[#040028] dark:text-white', className)}>
     {children}
   </div>
 );

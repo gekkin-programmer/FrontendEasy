@@ -29,7 +29,7 @@ type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
-  <div className={cn("bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] p-0 overflow-hidden", className)}>
+  <div className={cn("bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-0 overflow-hidden", className)}>
     {(title || description) && (
         <div className="px-6 py-4 border-b border-black/5 dark:border-white/5">
             {title && <h3 className="text-base font-bold text-[#040028] dark:text-white">{title}</h3>}
@@ -43,9 +43,9 @@ const NeuCard = ({ title, description, children, className = "" }: any) => (
 const NeuButton = ({ children, onClick, className = "", variant = "primary", disabled = false, icon }: any) => {
   const baseStyles = "relative font-semibold text-sm transition-all duration-200 rounded-[10px] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 px-4 py-2.5";
   const variants = {
-    primary: "bg-[#174CD2] text-white hover:bg-[#123a9e] shadow-[0_4px_14px_rgba(23,76,210,0.3)]",
-    secondary: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md",
-    danger: "bg-red-600 text-white hover:bg-red-700 shadow-[0_4px_14px_rgba(220,38,38,0.3)]"
+    primary: "bg-[#174CD2] text-white hover:bg-[#123a9e]",
+    secondary: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40",
+    danger: "bg-red-600 text-white hover:bg-red-700"
   };
   return (
     <button onClick={onClick} disabled={disabled} className={cn(baseStyles, variants[variant as keyof typeof variants] || variants.primary, className)}>
@@ -77,7 +77,7 @@ function TabBtn({ tab, activeTab, setActiveTab }: { tab: { id: SettingsTab; labe
       className={cn(
         "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-[10px] transition-all duration-200",
         activeTab === tab.id
-          ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]"
+          ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]"
           : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40"
       )}
     >
@@ -115,7 +115,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
           <h1 className="text-2xl font-bold text-[#040028] dark:text-white">{activeLabel}</h1>
         </div>
         {workspaceName && (
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-sm">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10">
             <span className="text-xs font-semibold text-[#040028] dark:text-white truncate max-w-[140px]">{workspaceName}</span>
           </div>
         )}
@@ -123,7 +123,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
-        <aside className="lg:w-56 flex-shrink-0 space-y-6">
+        <aside className="lg:w-56 flex-shrink-0 lg:self-start lg:sticky lg:top-24 space-y-6">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E8E] mb-2 px-1">{t('Account', 'Compte')}</p>
             <nav className="space-y-1">
@@ -346,7 +346,7 @@ function ProfileSettings() {
       <NeuCard title={t('Public profile', 'Profil public')} description={t('Visible to team members', 'Visible par les membres de l\'équipe')}>
         <div className="flex flex-col md:flex-row items-start gap-8 transition-colors">
           <div className="flex-shrink-0 flex flex-col items-center gap-3">
-            <div className="relative w-28 h-28 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center text-[#040028] dark:text-white text-4xl font-bold overflow-hidden group transition-all">
+            <div className="relative w-28 h-28 rounded-full bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 flex items-center justify-center text-[#040028] dark:text-white text-4xl font-bold overflow-hidden group transition-all">
                {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : (formData.firstName ? <span>{formData.firstName.charAt(0).toUpperCase()}</span> : <FiUser size={40} strokeWidth={1.5} />)}
                {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin text-2xl" /></div>}
             </div>
@@ -362,7 +362,7 @@ function ProfileSettings() {
           </div>
         </div>
         <div className="mt-8 flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
-            <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8" icon={<FiSave />}>{loading ? t('Saving...', 'Sauvegarde...') : t('Save changes', 'Enregistrer')}</NeuButton>
+            <NeuButton onClick={handleSave} disabled={loading || uploading} className="px-8 bg-[#040028] hover:bg-[#040028] dark:bg-white dark:hover:bg-white dark:text-[#040028]" icon={<FiSave />}>{loading ? t('Saving...', 'Sauvegarde...') : t('Save changes', 'Enregistrer')}</NeuButton>
         </div>
       </NeuCard>
       <NeuCard title={t('Account security', 'Sécurité du compte')} description={t('Used for login & alerts', 'Utilisé pour la connexion et les alertes')}>
@@ -497,7 +497,7 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
               const initials = (m.user?.firstName?.[0] || '') + (m.user?.lastName?.[0] || '') || m.user?.email?.[0]?.toUpperCase() || '?';
               const activity = ACTIVITY_LABELS[m.role] || t('Active', 'Actif');
               return (
-                <div key={m.id} className="flex items-center gap-4 p-4 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] shadow-sm hover:border-[#174CD2]/30 transition-all">
+                <div key={m.id} className="flex items-center gap-4 p-4 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/30 transition-all">
                   <div className="w-10 h-10 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center font-semibold text-sm text-[#040028] dark:text-white flex-shrink-0 overflow-hidden">
                     {m.user?.avatar
                       ? <img src={m.user.avatar} className="w-full h-full object-cover" alt="" />
@@ -603,7 +603,7 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
         <button type="button" onClick={onCancel} className="px-4 py-2.5 rounded-[10px] text-sm font-semibold text-[#040028] dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5 transition-all">
           {t('Cancel', 'Annuler')}
         </button>
-        <button type="submit" disabled={loading} className="px-4 py-2.5 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50">
+        <button type="submit" disabled={loading} className="px-4 py-2.5 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold hover:bg-[#123a9e] transition-all disabled:opacity-50">
           {loading ? <FiLoader className="animate-spin" /> : t('Save card', 'Enregistrer la carte')}
         </button>
       </div>
@@ -681,7 +681,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex gap-2 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-[10px] text-sm font-semibold text-[#040028] dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5 transition-all">{t('Cancel', 'Annuler')}</button>
-            <button type="submit" disabled={loading} className="px-4 py-2.5 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50">
+            <button type="submit" disabled={loading} className="px-4 py-2.5 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold hover:bg-[#123a9e] transition-all disabled:opacity-50">
               {loading ? <FiLoader className="animate-spin" /> : t('Save', 'Enregistrer')}
             </button>
           </div>
@@ -785,21 +785,21 @@ function PaymentMethodsCard() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowMobileModal(true)}
-              className="flex items-center gap-2 rounded-[10px] border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md transition-all overflow-hidden"
+              className="flex items-center gap-2 rounded-[10px] border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40 transition-all overflow-hidden"
               title={t('Add Orange Money', 'Ajouter Orange Money')}
             >
               <Image src="/assets/Orangemoney.png" alt="Orange Money" width={110} height={46} className="object-contain block" />
             </button>
             <button
               onClick={() => setShowMobileModal(true)}
-              className="flex items-center gap-2 rounded-[10px] border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md transition-all overflow-hidden"
+              className="flex items-center gap-2 rounded-[10px] border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40 transition-all overflow-hidden"
               title={t('Add MTN MoMo', 'Ajouter MTN MoMo')}
             >
               <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={110} height={46} className="object-contain block" />
             </button>
             <button
               onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info(t('Stripe not configured yet', 'Stripe n\'est pas encore configuré'))}
-              className="flex items-center gap-2 px-4 py-3 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[#040028] dark:text-white font-semibold text-xs shadow-sm hover:border-[#174CD2]/40 hover:shadow-md transition-all"
+              className="flex items-center gap-2 px-4 py-3 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[#040028] dark:text-white font-semibold text-xs hover:border-[#174CD2]/40 transition-all"
             >
               <FiCreditCard size={16} /> {t('Add Visa/Card', 'Ajouter Visa/Carte')}
             </button>

@@ -27,7 +27,7 @@ function BoardsListSkeleton() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] p-4 space-y-3">
+          <div key={i} className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4 space-y-3">
             <div className="h-2 w-full rounded-full bg-[#174CD2]/20" />
             <Skeleton className="h-5 w-36 rounded-[6px] mt-2" />
             <Skeleton className="h-3 w-full rounded-[4px]" />
@@ -47,7 +47,7 @@ function KanbanSkeleton() {
   return (
     <div className="flex gap-4 h-full overflow-x-auto pb-4">
       {[...Array(3)].map((_, col) => (
-        <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+        <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px]">
           <div className="p-3 border-b border-black/5 dark:border-white/5">
             <Skeleton className="h-5 w-24 rounded-[6px]" />
           </div>
@@ -137,20 +137,19 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{t("Workspace boards", "Tableaux de l'espace")}</h2>
-          <p className="text-sm font-medium text-[#8E8E8E]">{t("Manage your projects and tasks", "Gérez vos projets et tâches")}</p>
         </div>
-        <NeuButton onClick={() => setIsCreateBoardOpen(true)} active>
+        <NeuButton onClick={() => setIsCreateBoardOpen(true)} className="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:border-[#D9D9D9] dark:hover:border-white/10">
           <Plus size={18} className="inline mr-2" /> {t("New board", "Nouveau tableau")}
         </NeuButton>
       </div>
 
       {boards.length === 0 ? (
         <div className="py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10">
-          <Layout size={40} className="mx-auto text-[#8E8E8E] mb-4" />
+          <Layout size={40} className="mx-auto text-[#040028] dark:text-white mb-4" />
           <h3 className="text-lg font-semibold text-[#8E8E8E]">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
           <button
             onClick={() => setIsCreateBoardOpen(true)}
-            className="mt-3 text-[#174CD2] font-semibold text-sm hover:underline"
+            className="mt-3 text-[#040028] dark:text-white font-semibold text-sm hover:underline"
           >
             {t("Create your first board", "Créer votre premier tableau")}
           </button>
@@ -164,7 +163,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
               onClick={() => setSelectedBoardId(board.id)}
               className="cursor-pointer"
             >
-              <NeuCard className="h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-shadow group relative overflow-hidden">
+              <NeuCard className="h-full transition-shadow group relative overflow-hidden">
                 <div
                   className="absolute top-0 left-0 right-0 h-1.5 rounded-t-[16px]"
                   style={{ backgroundColor: board.color || '#174CD2' }}
@@ -624,7 +623,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
     >
       <NeuCard
         onClick={onClick}
-        className="!p-3 cursor-pointer hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.4)] transition-all"
+        className="!p-3 cursor-pointer transition-all"
       >
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">

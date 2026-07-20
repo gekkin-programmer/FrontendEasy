@@ -142,10 +142,10 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
         whileTap={{ scale: 0.95 }}
         disabled={isProcessing}
         className={`
-            group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border shadow-sm transition-all duration-300 select-none cursor-pointer
+            group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all duration-300 select-none cursor-pointer
             ${isRecording
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 shadow-red-500/20'
-                : 'bg-white dark:bg-[#0A0A2E] border-[#174CD2]/15 dark:border-[#174CD2]/30 hover:shadow-md hover:border-[#174CD2]/40'}
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                : 'bg-white dark:bg-[#0A0A2E] border-[#174CD2]/15 dark:border-[#174CD2]/30 hover:border-[#174CD2]/40'}
         `}
       >
         <div className={`

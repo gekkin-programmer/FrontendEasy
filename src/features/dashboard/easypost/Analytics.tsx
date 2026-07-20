@@ -18,7 +18,7 @@ import {
   ThumbsUp, MessageCircle, TrendingUp, TrendingDown,
   Eye, Search, AlertCircle, LayoutDashboard, List,
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
-  Zap, Calendar, Activity, Share2, ExternalLink, type Icon as LucideIcon
+  Activity, Share2, ExternalLink, type Icon as LucideIcon
 } from "lucide-react";
 import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,7 +28,7 @@ function AnalyticsGridSkeleton() {
     <div className="h-full overflow-y-auto pr-2 pb-20">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden">
+          <div key={i} className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 overflow-hidden">
             <div className="p-4 border-b border-black/5 dark:border-white/5">
               <Skeleton className="h-5 w-32 rounded" />
             </div>
@@ -49,14 +49,14 @@ function LiveStreamSkeleton() {
     <div className="flex flex-col h-full gap-8">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="rounded-[16px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+          <div key={i} className="rounded-[16px] border border-black/5 dark:border-white/5 p-4">
             <Skeleton className="h-3 w-20 mx-auto mb-2 rounded" />
             <Skeleton className="h-10 w-16 mx-auto rounded" />
           </div>
         ))}
       </div>
       <div className="flex flex-col md:flex-row gap-8 flex-1 pb-20 overflow-hidden">
-        <div className="w-full md:w-[380px] flex flex-col rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex-shrink-0">
+        <div className="w-full md:w-[380px] flex flex-col rounded-[16px] border border-black/5 dark:border-white/5 flex-shrink-0">
           <div className="p-4 border-b border-black/5 dark:border-white/5">
             <Skeleton className="h-8 w-full rounded mb-3" />
             <Skeleton className="h-8 w-full rounded" />
@@ -70,7 +70,7 @@ function LiveStreamSkeleton() {
             ))}
           </div>
         </div>
-        <div className="flex-1 rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex items-center justify-center">
+        <div className="flex-1 rounded-[16px] border border-black/5 dark:border-white/5 flex items-center justify-center">
           <Skeleton className="w-20 h-20 rounded" />
         </div>
       </div>
@@ -125,7 +125,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
     disabled={disabled}
     className={cn(
       "flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-[10px] transition-all",
-      active ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md",
+      active ? "bg-[#174CD2] text-white" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40",
       disabled && "opacity-50 cursor-not-allowed",
       className
     )}
@@ -135,7 +135,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
 );
 
 const NeuCard = ({ title, icon: Icon, children, className, action }: any) => (
-  <div className={cn("bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden", className)}>
+  <div className={cn("bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] flex flex-col overflow-hidden", className)}>
     <div className="flex justify-between items-center p-4 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-2">
             {Icon && <Icon className="w-4 h-4 text-[#174CD2]" strokeWidth={2.5} />}
@@ -153,20 +153,19 @@ const NeuCard = ({ title, icon: Icon, children, className, action }: any) => (
 export default function Analytics() {
   const params = useParams();
   const workspaceId = params.id as string;
-  const [viewMode, setViewMode] = useState<'stream' | 'strategy'>('stream');
+  const [viewMode, setViewMode] = useState<'stream' | 'strategy'>('strategy');
   const { t } = useLanguage();
 
   return (
     <div className="flex flex-col h-[calc(100vh-32px)] animate-in fade-in duration-500 gap-4 font-sans text-[#040028] dark:text-white transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
-        <div className="border-l-2 border-[#174CD2] pl-4">
+        <div>
            <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{t("Analytics hub", "Hub analytique")}</h2>
-           <p className="text-xs font-semibold text-[#8E8E8E]">{t("Real-time performance tracking", "Suivi performance en temps réel")}</p>
         </div>
         <div className="flex gap-3">
-           <NeuButton active={viewMode === 'stream'} onClick={() => setViewMode('stream')}><List size={16} /> {t("Live monitor", "Moniteur live")}</NeuButton>
-           <NeuButton active={viewMode === 'strategy'} onClick={() => setViewMode('strategy')}><LayoutDashboard size={16} /> {t("Niche intel", "Intel niche")}</NeuButton>
+           <NeuButton active={viewMode === 'strategy'} onClick={() => setViewMode('strategy')} className={cn(viewMode === 'strategy' ? 'bg-[#040028] dark:bg-white dark:text-[#040028]' : 'hover:border-[#D9D9D9] dark:hover:border-white/20')}><LayoutDashboard size={16} /> {t("Insights", "Aperçus")}</NeuButton>
+           <NeuButton active={viewMode === 'stream'} onClick={() => setViewMode('stream')} className={cn(viewMode === 'stream' ? 'bg-[#040028] dark:bg-white dark:text-[#040028]' : 'hover:border-[#D9D9D9] dark:hover:border-white/20')}><List size={16} /> {t("Posts", "Publications")}</NeuButton>
         </div>
       </div>
 
@@ -240,25 +239,72 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryFn: async () => (await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS`) as any).data
     });
 
+    // 8. Overview counts (promoted here from the Posts tab so the summary lives with the rest of the insights)
+    const overviewQuery = useQuery({
+        queryKey: ['analytics-overview', workspaceId],
+        gcTime: 0,
+        queryFn: async () => {
+            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
+            return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
+        }
+    });
+
     const isLoading = healthQuery.isLoading || forecastQuery.isLoading || timelineQuery.isLoading;
 
     if(isLoading) return <AnalyticsGridSkeleton />;
 
     const health = healthQuery.data || { healthScore: 0, consistencyStatus: 'N/A' };
     const forecast = forecastQuery.data || { trend: 'Stable', forecastNextMonth: 0 };
+    const overview = overviewQuery.data || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full overflow-y-auto pr-2 pb-20 scrollbar-hide">
-            
+
+            {/* 🟢 HERO: ACTIVITY TIMELINE */}
+            <NeuCard title={t("Activity timeline", "Chronologie d'activité")} className="mb-6">
+                <div className="h-[240px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={timelineQuery.data || []}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+                            <XAxis dataKey="date" tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
+                            <YAxis tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
+                            <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)' }} />
+                            <Area type="monotone" dataKey="count" stroke="#174CD2" fill="#174CD2" fillOpacity={0.1} strokeWidth={2.5} />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+                <p className="text-xs font-medium mt-2 text-center text-[#8E8E8E]">{t("Post frequency (last 30 days)", "Fréquence publications (30 derniers jours)")}</p>
+            </NeuCard>
+
+            {/* 🟢 OVERVIEW COUNTS */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Total posts", "Total publications")}</span>
+                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.totalPosts || 0}</span>
+                </div>
+                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Published", "Publiées")}</span>
+                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.published || 0}</span>
+                </div>
+                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Scheduled", "Planifiées")}</span>
+                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.scheduled || 0}</span>
+                </div>
+                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Drafts", "Brouillons")}</span>
+                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.drafts || 0}</span>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
 
-                <NeuCard title={t("Account health", "Santé du compte")} icon={Activity} className="bg-blue-50/50 dark:bg-blue-900/10">
+                <NeuCard title={t("Account health", "Santé du compte")} className="bg-blue-50/50 dark:bg-blue-900/10">
                     <div className="flex items-end justify-between mb-4">
                         <div>
                             <span className="text-5xl font-bold text-[#040028] dark:text-white">{health.healthScore}</span>
                             <span className="text-xl font-semibold text-[#8E8E8E]">/100</span>
                         </div>
-                        <span className="bg-[#174CD2] text-white px-2.5 py-1 font-semibold text-xs rounded-full mb-2">{health.consistencyStatus}</span>
+                        <span className="bg-[#040028] dark:bg-white text-white dark:text-[#040028] px-2.5 py-1 font-semibold text-xs rounded-full mb-2">{health.consistencyStatus}</span>
                     </div>
                     <div className="w-full bg-[#F5F7FA] dark:bg-white/10 h-2.5 rounded-full overflow-hidden">
                         <div className="bg-[#174CD2] h-full rounded-full transition-all duration-1000" style={{ width: `${health.healthScore}%` }}></div>
@@ -266,7 +312,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     <p className="mt-3 text-xs font-medium text-[#8E8E8E]">{t("Avg gap:", "Écart moy:")} {health.avgPostingGap || 'N/A'}</p>
                 </NeuCard>
 
-                <NeuCard title={t("AI forecast", "Prévision IA")} icon={TrendingUp}>
+                <NeuCard title={t("AI forecast", "Prévision IA")}>
                     <div className="flex flex-col h-full justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
@@ -284,7 +330,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     </div>
                 </NeuCard>
 
-                <NeuCard title={t("Content ROI", "ROI du contenu")} icon={LayoutDashboard}>
+                <NeuCard title={t("Content ROI", "ROI du contenu")}>
                     <div className="h-[140px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={contentMixQuery.data || []} layout="vertical" margin={{ left: 0, right: 20 }}>
@@ -302,25 +348,10 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                 </NeuCard>
             </div>
 
-            {/* 🟢 ACTIVITY & PLATFORM CHARTS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* 🟢 PLATFORM CHART */}
+            <div className="grid grid-cols-1 gap-6 mb-6">
 
-                <NeuCard title={t("Activity timeline", "Chronologie d'activité")} icon={Activity} className="md:col-span-1">
-                    <div className="h-[200px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={timelineQuery.data || []}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
-                                <XAxis dataKey="date" hide />
-                                <YAxis tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)' }} />
-                                <Area type="monotone" dataKey="count" stroke="#174CD2" fill="#174CD2" fillOpacity={0.1} strokeWidth={2.5} />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <p className="text-xs font-medium mt-2 text-center text-[#8E8E8E]">{t("Post frequency (last 30 days)", "Fréquence publications (30 derniers jours)")}</p>
-                </NeuCard>
-
-                <NeuCard title={t("Platform battle", "Bataille des plateformes")} icon={Zap} className="md:col-span-1">
+                <NeuCard title={t("Platform battle", "Bataille des plateformes")}>
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={platformQuery.data || []}>
@@ -339,7 +370,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                <NeuCard title={t("Golden windows", "Créneaux en or")} icon={Calendar} className="lg:col-span-1">
+                <NeuCard title={t("Golden windows", "Créneaux en or")} className="lg:col-span-1">
                     <div className="space-y-3">
                         {bestTimeQuery.data?.slice(0, 4).map((slot: any, i: number) => (
                             <div key={i} className="flex items-center justify-between p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 transition-all">
@@ -360,7 +391,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     </div>
                 </NeuCard>
 
-                <NeuCard title={t("Power words", "Mots puissants")} icon={Zap} className="lg:col-span-1">
+                <NeuCard title={t("Power words", "Mots puissants")} className="lg:col-span-1">
                     <div className="flex flex-wrap gap-2 content-start h-full">
                         {smartCopyQuery.data?.map((item: any, i: number) => (
                             <span
@@ -375,7 +406,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     </div>
                 </NeuCard>
 
-                <NeuCard title={t("Top hashtags", "Meilleurs hashtags")} icon={Hash} className="lg:col-span-1">
+                <NeuCard title={t("Top hashtags", "Meilleurs hashtags")} className="lg:col-span-1">
                     <div className="space-y-2">
                         {hashtagsQuery.data?.slice(0, 5).map((tag: any, i: number) => (
                             <div key={i} className="flex justify-between items-center border-b border-black/5 dark:border-white/5 last:border-0 pb-2">
@@ -398,16 +429,6 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     const queryClient = useQueryClient();
     const { t } = useLanguage();
     
-    // 🟢 1. FETCH OVERVIEW STATS
-    const { data: overview = { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 } } = useQuery({
-        queryKey: ['analytics-overview', workspaceId],
-        gcTime: 0,
-        queryFn: async () => {
-            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
-            return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
-        }
-    });
-
     const { data: posts = [], isLoading, refetch } = useQuery({
         queryKey: ['analytics-posts', workspaceId],
         gcTime: 0,
@@ -456,33 +477,13 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-4 transition-colors">
             
-            {/* 🟢 OVERVIEW CARDS */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-shrink-0">
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Total posts", "Total publications")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.totalPosts || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Published", "Publiées")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.totalPosts || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Scheduled", "Planifiées")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.scheduled || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Drafts", "Brouillons")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.drafts || 0}</span>
-                </div>
-            </div>
-
             <div className="flex flex-col md:flex-row gap-8 flex-1 overflow-hidden">
                 {/* Left Panel */}
-            <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex-shrink-0 h-full transition-colors rounded-[16px] overflow-hidden">
-                <div className="p-4 border-b border-black/5 dark:border-white/5 bg-[#174CD2]">
+            <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 flex-shrink-0 h-full transition-colors rounded-[16px] overflow-hidden">
+                <div className="p-4 border-b border-black/5 dark:border-white/5 bg-[#040028]">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg text-white">{t("Live stream", "Flux en direct")}</h3>
-                        <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-white text-[#174CD2] rounded-[8px] px-2.5 py-1.5 text-xs font-semibold hover:bg-white/90 disabled:opacity-50 flex items-center gap-1.5 transition-all shadow-sm">
+                        <button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} className="bg-white text-[#040028] rounded-[8px] px-2.5 py-1.5 text-xs font-semibold hover:bg-white/90 disabled:opacity-50 flex items-center gap-1.5 transition-all">
                             {syncMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin"/> : <RefreshCw className="w-3 h-3"/>}
                             {syncMutation.isPending ? t("Syncing...", "Sync en cours...") : t("Sync now", "Sync maintenant")}
                         </button>
@@ -505,7 +506,7 @@ function LiveStreamView({ workspaceId }: { workspaceId: string }) {
                 </div>
             </div>
             {/* Right Panel */}
-            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] h-full overflow-hidden transition-colors rounded-[16px]">
+            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 h-full overflow-hidden transition-colors rounded-[16px]">
                 {selectedPostId ? <PostAnalyticsDetailWrapper postId={selectedPostId} workspaceId={workspaceId} /> : (
                     <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-all">
                         <div className="w-20 h-20 rounded-full bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-4 transition-all"><TrendingUp size={36} strokeWidth={1.5} className="text-[#174CD2]" /></div>

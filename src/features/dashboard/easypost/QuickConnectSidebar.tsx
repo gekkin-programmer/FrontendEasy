@@ -9,11 +9,12 @@ import { cn } from '@/lib/utils';
 import {
   Trash2, Check, X, Copy, CheckCheck
 } from 'lucide-react';
+import { FaMedium, FaSnapchat, FaThreads } from 'react-icons/fa6';
 import {
-  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
-  FaTiktok, FaYoutube, FaPinterestP, FaWhatsapp, FaMedium, FaSnapchat, FaTelegram,
-  FaDiscord, FaTwitch, FaThreads
-} from 'react-icons/fa6';
+  FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon,
+  TiktokIcon, YoutubeIcon, PinterestIcon, WhatsappIcon, TelegramIcon,
+  DiscordIcon, TwitchIcon
+} from '@/components/icons/PlatformIcons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -32,19 +33,19 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
     const [copied, setCopied] = useState(false);
 
     const platforms = [
-        { id: 'facebook', Icon: FaFacebookF, color: 'text-[#1877F2]' },
-        { id: 'instagram', Icon: FaInstagram, color: 'text-[#E4405F]' },
-        { id: 'twitter', Icon: FaTwitter, color: 'text-black dark:text-white' },
-        { id: 'linkedin', Icon: FaLinkedinIn, color: 'text-[#0A66C2]' },
-        { id: 'tiktok', Icon: FaTiktok, color: 'text-black dark:text-white' },
-        { id: 'youtube', Icon: FaYoutube, color: 'text-[#FF0000]' },
-        { id: 'pinterest', Icon: FaPinterestP, color: 'text-[#BD081C]' },
-        { id: 'whatsapp', Icon: FaWhatsapp, color: 'text-[#25D366]' },
+        { id: 'facebook', Icon: FacebookIcon, color: '' },
+        { id: 'instagram', Icon: InstagramIcon, color: '' },
+        { id: 'twitter', Icon: TwitterIcon, color: '' },
+        { id: 'linkedin', Icon: LinkedinIcon, color: '' },
+        { id: 'tiktok', Icon: TiktokIcon, color: '' },
+        { id: 'youtube', Icon: YoutubeIcon, color: '' },
+        { id: 'pinterest', Icon: PinterestIcon, color: '' },
+        { id: 'whatsapp', Icon: WhatsappIcon, color: '' },
         { id: 'medium', Icon: FaMedium, color: 'text-black dark:text-white' },
         { id: 'snapchat', Icon: FaSnapchat, color: 'text-[#FFFC00]' },
-        { id: 'telegram', Icon: FaTelegram, color: 'text-[#2AABEE]' },
-        { id: 'discord', Icon: FaDiscord, color: 'text-[#5865F2]' },
-        { id: 'twitch', Icon: FaTwitch, color: 'text-[#9146FF]', comingSoon: true },
+        { id: 'telegram', Icon: TelegramIcon, color: '' },
+        { id: 'discord', Icon: DiscordIcon, color: '' },
+        { id: 'twitch', Icon: TwitchIcon, color: '', comingSoon: true },
         { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white' },
     ];
 
@@ -89,10 +90,8 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
 
     return (
         <>
-            <div className="w-40 flex flex-col items-center gap-3 py-4 px-2 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] transition-colors">
-                {/* Platform icons — 3-column grid */}
-                <div className="grid grid-cols-3 gap-2 w-full">
-                    {platforms.map((p) => {
+            <div className="grid grid-cols-3 gap-2 w-full p-3 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10">
+                {platforms.map((p) => {
                         const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase());
 
                         return (
@@ -100,15 +99,15 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
                                 {connected ? (
                                     <>
                                         {/* Base layer: platform icon */}
-                                        <button className="w-10 h-10 rounded-[10px] flex items-center justify-center cursor-default transition-colors bg-[#F5F7FA] dark:bg-white/5">
-                                            <p.Icon size={16} className={cn(p.color, "opacity-60")} />
+                                        <button className="w-12 h-12 rounded-[10px] flex items-center justify-center cursor-default transition-colors">
+                                            <p.Icon size={24} className={cn(p.color, "opacity-60")} />
                                         </button>
 
                                         {/* Hover overlay: disconnect only */}
-                                        <div className="absolute inset-0 w-10 h-10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
+                                        <div className="absolute inset-0 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
                                             <button
                                                 onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="w-full rounded-[10px] flex items-center justify-center bg-white dark:bg-[#0A0A2E] shadow-sm hover:bg-red-50 transition-colors cursor-pointer"
+                                                className="w-full rounded-[10px] flex items-center justify-center hover:bg-red-50 transition-colors cursor-pointer"
                                                 title={t("Disconnect", "Déconnecter")}
                                             >
                                                 <Trash2 size={12} className="text-red-500" />
@@ -126,25 +125,24 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
                                     <button
                                         onClick={() => handleConnect(p.id, (p as any).comingSoon)}
                                         className={cn(
-                                            "group w-10 h-10 rounded-[10px] flex items-center justify-center cursor-pointer transition-all",
+                                            "group w-12 h-12 rounded-[10px] flex items-center justify-center cursor-pointer transition-all",
                                             (p as any).comingSoon
-                                                ? "bg-[#F5F7FA] dark:bg-white/5 opacity-50"
-                                                : "bg-white dark:bg-[#0A0A2E] shadow-sm hover:shadow-md"
+                                                ? "opacity-50"
+                                                : "hover:bg-[#174CD2]/8"
                                         )}
                                         title={(p as any).comingSoon
                                             ? t(`${p.id} — coming soon`, `${p.id} — bientôt disponible`)
                                             : t(`Connect ${p.id}`, `Connecter ${p.id}`)}
                                     >
                                         <p.Icon
-                                            size={16}
+                                            size={24}
                                             className={cn(p.color, "transition-transform group-hover:scale-110")}
                                         />
                                     </button>
                                 )}
                             </div>
                         );
-                    })}
-                </div>
+                })}
             </div>
 
             {/* TELEGRAM LINK MODAL */}
@@ -159,7 +157,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
                         >
                             <div className="bg-[#2AABEE] text-white p-4 flex justify-between items-center">
                                 <span className="font-bold flex items-center gap-2">
-                                    <FaTelegram size={20} /> {t("Connect Telegram", "Connecter Telegram")}
+                                    <TelegramIcon size={20} /> {t("Connect Telegram", "Connecter Telegram")}
                                 </span>
                                 <button onClick={() => setTelegramModal(false)} className="text-white/80 hover:text-white transition-colors"><X size={20} /></button>
                             </div>
@@ -195,7 +193,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
                                 </p>
                                 <button
                                     onClick={() => { setTelegramModal(false); refreshData(); }}
-                                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
+                                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm hover:bg-[#123a9e] transition-all"
                                 >
                                     {t("Done", "Terminé")}
                                 </button>

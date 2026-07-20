@@ -23,10 +23,10 @@ const NeuButton = ({ children, onClick, className = "", variant = "default", dis
   const baseStyles = "relative font-semibold text-sm rounded-[10px] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
 
   const variants = {
-    default: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40 hover:shadow-md",
-    primary: "bg-[#174CD2] text-white hover:bg-[#123a9e] shadow-[0_4px_14px_rgba(23,76,210,0.3)]",
+    default: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40",
+    primary: "bg-[#174CD2] text-white hover:bg-[#123a9e]",
     ghost: "bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/5",
-    danger: "bg-red-600 text-white hover:bg-red-700 shadow-[0_4px_14px_rgba(220,38,38,0.3)]",
+    danger: "bg-red-600 text-white hover:bg-red-700",
   };
 
   return (
@@ -72,9 +72,15 @@ interface TeamProps {
 
 export default function Team({ workspaceId }: TeamProps) {
   const { t } = useLanguage();
+  const ROLE_DESCRIPTIONS: Record<string, string> = {
+    OWNER: t('Full control — billing, workspace settings, and can remove anyone.', 'Contrôle total — facturation, paramètres de l\'espace, et peut retirer n\'importe qui.'),
+    ADMIN: t('Can manage members and approve content — no billing access.', 'Peut gérer les membres et approuver le contenu — pas d\'accès à la facturation.'),
+    MEMBER: t('Can create and schedule content; posts may require approval.', 'Peut créer et planifier du contenu ; les publications peuvent nécessiter une approbation.'),
+    VIEWER: t('Read-only — can view content and analytics, cannot post or invite.', 'Lecture seule — peut consulter le contenu et les statistiques, ne peut pas publier ni inviter.'),
+  };
   const queryClient = useQueryClient();
   const { socket } = useSocket();
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'approvals'>('members');
+  const [activeTabOverride, setActiveTab] = useState<'members' | 'invites' | 'approvals' | null>(null);
 
   // ── QUERIES ───────────────────────────────────────────────────────────
   const { data: workspace } = useQuery({
@@ -101,8 +107,12 @@ export default function Team({ workspaceId }: TeamProps) {
     queryKey: ['review-posts', workspaceId],
     gcTime: 0,
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&status=REVIEW`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
-    enabled: !!workspaceId && activeTab === 'approvals',
+    enabled: !!workspaceId,
   });
+
+  // Surface pending approvals first — that's the item most likely to need action right now —
+  // until the user picks a tab themselves, at which point their choice always wins.
+  const activeTab = activeTabOverride ?? (reviewPosts.length > 0 ? 'approvals' : 'members');
 
   // ── MUTATIONS ─────────────────────────────────────────────────────────
   const inviteMutation = useMutation({
@@ -291,7 +301,7 @@ export default function Team({ workspaceId }: TeamProps) {
       <div className={cn("flex flex-col gap-6 overflow-hidden transition-all duration-300", chatExpanded ? "w-0 opacity-0 pointer-events-none flex-none" : "flex-1 min-w-0 opacity-100")}>
 
         {/* Invite Box */}
-        <div className="bg-white dark:bg-[#0A0A2E] p-6 rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex-shrink-0">
+        <div className="bg-white dark:bg-[#0A0A2E] p-6 rounded-[16px] border border-black/5 dark:border-white/5 flex-shrink-0">
           <div className="flex justify-between items-start mb-6 border-b border-black/5 dark:border-white/5 pb-4">
             <div>
               <h2 className="text-2xl font-bold text-[#040028] dark:text-white">
@@ -339,12 +349,12 @@ export default function Team({ workspaceId }: TeamProps) {
                 className={cn(
                   "w-full flex items-center pl-10 pr-4 py-3 rounded-[10px] font-semibold text-sm transition-all text-left",
                   isRoleOpen
-                    ? "bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]"
-                    : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 shadow-sm hover:border-[#174CD2]/40"
+                    ? "bg-[#174CD2] text-white"
+                    : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40"
                 )}
               >
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" size={16} />
-                <span className="flex-1">{role}</span>
+                <span className="flex-1" title={ROLE_DESCRIPTIONS[role]}>{role}</span>
                 <ChevronDown size={14} strokeWidth={2.5} className={cn("transition-transform duration-150", isRoleOpen && "rotate-180")} />
               </button>
 
@@ -355,6 +365,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       key={r}
                       type="button"
                       onClick={() => { setRole(r); setIsRoleOpen(false); }}
+                      title={ROLE_DESCRIPTIONS[r]}
                       className={cn(
                         "w-full text-left px-4 py-3 font-medium text-sm transition-colors border-b border-black/5 dark:border-white/5 last:border-b-0",
                         role === r
@@ -376,8 +387,14 @@ export default function Team({ workspaceId }: TeamProps) {
         </div>
 
         {/* Workspace Explorer */}
-        <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex border-b border-black/5 dark:border-white/5 flex-shrink-0">
+            <button
+              onClick={() => setActiveTab('approvals')}
+              className={`px-6 py-4 text-xs font-semibold transition-all flex items-center gap-2 ${activeTab === 'approvals' ? 'text-[#174CD2] border-b-2 border-[#174CD2] -mb-px' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
+            >
+              {t('Waiting approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${activeTab === 'approvals' ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white'}`}>{reviewPosts.length}</span>
+            </button>
             <button
               onClick={() => setActiveTab('members')}
               className={`px-6 py-4 text-xs font-semibold transition-all flex items-center gap-2 ${activeTab === 'members' ? 'text-[#174CD2] border-b-2 border-[#174CD2] -mb-px' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
@@ -389,12 +406,6 @@ export default function Team({ workspaceId }: TeamProps) {
               className={`px-6 py-4 text-xs font-semibold transition-all flex items-center gap-2 ${activeTab === 'invites' ? 'text-[#174CD2] border-b-2 border-[#174CD2] -mb-px' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
             >
               {t('Pending', 'En attente')} <span className="bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white px-1.5 py-0.5 rounded-full text-[10px] font-semibold">{pendingInvites.length}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('approvals')}
-              className={`px-6 py-4 text-xs font-semibold transition-all flex items-center gap-2 ${activeTab === 'approvals' ? 'text-[#174CD2] border-b-2 border-[#174CD2] -mb-px' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
-            >
-              {t('Waiting approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${activeTab === 'approvals' ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white'}`}>{reviewPosts.length}</span>
             </button>
             <button
               onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchReviews(); }}
@@ -411,7 +422,7 @@ export default function Team({ workspaceId }: TeamProps) {
               <div className="space-y-3">
                 {membersLoading && [1, 2, 3].map(i => <SkeletonMemberRow key={i} />)}
                 {!membersLoading && activeCrew.map((m: any) => (
-                  <div key={m.id} className="p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0A0A2E] shadow-sm hover:border-[#174CD2]/30 transition-all">
+                  <div key={m.id} className="p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/30 transition-all">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center font-semibold text-sm text-[#040028] dark:text-white">
                         {m.user?.firstName?.charAt(0) || m.user?.email?.charAt(0)}
@@ -422,7 +433,7 @@ export default function Team({ workspaceId }: TeamProps) {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="px-2.5 py-1 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white text-[10px] font-semibold uppercase rounded-full flex items-center gap-1">
+                      <div className="px-2.5 py-1 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white text-[10px] font-semibold uppercase rounded-full flex items-center gap-1" title={ROLE_DESCRIPTIONS[m.role]}>
                         {m.role === 'OWNER' && <Crown size={10} />} {m.role}
                       </div>
                       {m.role !== 'OWNER' && canManageMembers && m.user?.id !== currentUser?.id && m.user?.email !== currentUser?.email && (
@@ -445,7 +456,7 @@ export default function Team({ workspaceId }: TeamProps) {
                   </div>
                 )}
                 {!membersLoading && pendingInvites.map((m: any) => (
-                  <div key={m.id} className="p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0A0A2E] shadow-sm hover:border-[#174CD2]/30 transition-all">
+                  <div key={m.id} className="p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/30 transition-all">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full border border-dashed border-black/20 dark:border-white/20 bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center">
                         <Mail size={16} className="text-[#8E8E8E]" />
@@ -475,7 +486,7 @@ export default function Team({ workspaceId }: TeamProps) {
                   </div>
                 )}
                 {reviewPosts.map((post: any) => (
-                  <div key={post.id} className="rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col sm:flex-row transition-all">
+                  <div key={post.id} className="rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] overflow-hidden flex flex-col sm:flex-row transition-all">
                     <div className="w-full sm:w-1/3 bg-[#F5F7FA] dark:bg-black/20 p-4 flex flex-col gap-3">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E]">{t('Preview', 'Aperçu')}</span>
@@ -510,7 +521,7 @@ export default function Team({ workspaceId }: TeamProps) {
                         <NeuButton onClick={() => rejectMutation.mutate(post.id)} variant="default" className="py-3 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 border-red-200 dark:border-red-900/40">
                           <X size={16} /> {t('Reject', 'Rejeter')}
                         </NeuButton>
-                        <NeuButton onClick={() => approveMutation.mutate(post.id)} className="py-3 bg-green-600 hover:bg-green-700 text-white shadow-[0_4px_14px_rgba(22,163,74,0.3)]">
+                        <NeuButton onClick={() => approveMutation.mutate(post.id)} className="py-3 bg-green-600 hover:bg-green-700 text-white">
                           <FileCheck size={16} /> {t('Approve & publish', 'Approuver et publier')}
                         </NeuButton>
                       </div>
@@ -524,7 +535,7 @@ export default function Team({ workspaceId }: TeamProps) {
       </div>
 
       {/* RIGHT: TEAM CHAT */}
-      <div className={cn("flex-shrink-0 flex flex-col bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden min-h-0 transition-all duration-300", chatExpanded ? "flex-1 w-full" : "w-full lg:w-[320px]")}>
+      <div className={cn("flex-shrink-0 flex flex-col bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 overflow-hidden min-h-0 transition-all duration-300", chatExpanded ? "flex-1 w-full" : "w-full lg:w-[320px]")}>
 
         {/* Chat Header */}
         <div className="flex-shrink-0 px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]" />
@@ -621,7 +632,7 @@ export default function Team({ workspaceId }: TeamProps) {
             <button
               onClick={sendChatMessage}
               disabled={!chatInput.trim() || !channelId}
-              className="flex-shrink-0 px-3 py-2.5 rounded-[10px] bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none transition-all"
+              className="flex-shrink-0 px-3 py-2.5 rounded-[10px] bg-[#174CD2] text-white hover:bg-[#123a9e] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               <Send size={16} strokeWidth={2} />
             </button>

@@ -214,7 +214,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                   <button
                     onClick={startExport}
                     disabled={!!importing}
-                    className="w-full bg-[#174CD2] text-white py-2.5 rounded-[10px] font-semibold text-sm hover:bg-[#123a9e] disabled:opacity-50 flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(23,76,210,0.3)]"
+                    className="w-full bg-[#174CD2] text-white py-2.5 rounded-[10px] font-semibold text-sm hover:bg-[#123a9e] disabled:opacity-50 flex items-center justify-center gap-2 transition-all"
                   >
                     {importing ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
                     {importing ? t('Exporting…', 'Export en cours…') : t('Export & import to library', 'Exporter vers la médiathèque')}
@@ -238,7 +238,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
                       {designs.map(d => (
                         <div
                           key={d.id}
-                          className="group relative aspect-video rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden transition-all shadow-sm hover:shadow-md"
+                          className="group relative aspect-video rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden transition-all"
                         >
                           {d.thumbnail?.url
                             ? <img src={d.thumbnail.url} alt="" className="w-full h-full object-cover" />
@@ -298,7 +298,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
               ) : (
                 <div className="grid grid-cols-4 gap-3">
                   {assets.map((a: any) => (
-                    <div key={a.id} className="group relative aspect-square rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden shadow-sm">
+                    <div key={a.id} className="group relative aspect-square rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden">
                       {a.mimeType?.startsWith('video')
                         ? <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-[#8E8E8E]"><Film size={20} /><span className="text-[10px] font-semibold uppercase">{a.filename?.split('.').pop()}</span></div>
                         : <img src={a.url} alt={a.filename} className="w-full h-full object-cover" />

@@ -74,7 +74,7 @@ export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exch
                         <button
                             key={page.id}
                             onClick={() => selectMutation.mutate(page)}
-                            className="w-full flex items-center gap-3 p-3 rounded-[12px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:border-[#174CD2]/30 hover:bg-[#174CD2]/5 transition-all text-left group shadow-sm"
+                            className="w-full flex items-center gap-3 p-3 rounded-[12px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:border-[#174CD2]/30 hover:bg-[#174CD2]/5 transition-all text-left group"
                         >
                             <div className="w-10 h-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <FaFacebookF size={18} />

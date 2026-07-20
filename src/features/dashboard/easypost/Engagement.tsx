@@ -56,6 +56,13 @@ const SENTIMENT_STYLES: any = {
   question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
 
+const SENTIMENT_DOT: Record<string, string> = {
+  positive: 'bg-green-500',
+  negative: 'bg-red-500',
+  neutral: 'bg-[#8E8E8E]',
+  question: 'bg-[#174CD2]',
+};
+
 export default function Engagement() {
   const { t } = useLanguage();
   const params = useParams();
@@ -67,6 +74,7 @@ export default function Engagement() {
   const [replyText, setReplyText] = useState('');
   const [filter, setFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
+  const [isCannedOpen, setIsCannedOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
   // 🟢 1. FETCH ENGAGEMENT
@@ -161,25 +169,36 @@ export default function Engagement() {
       });
   };
 
+  const CANNED_REPLIES = [
+    t('Thanks so much for reaching out!', 'Merci beaucoup de nous avoir contactés !'),
+    t("We'll get back to you shortly.", 'Nous revenons vers vous très vite.'),
+    t('Glad you liked it! 🎉', 'Ravi que ça vous ait plu ! 🎉'),
+    t('Sorry to hear that — can you tell us more?', "Désolé de l'apprendre — pouvez-vous nous en dire plus ?"),
+  ];
+
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] overflow-hidden animate-in fade-in font-sans text-[#040028] dark:text-white transition-colors">
+    <div className="flex flex-col h-[calc(100vh-140px)] font-sans text-[#040028] dark:text-white transition-colors">
+
+      {/* PAGE HEADER */}
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <h2 className="text-lg font-bold text-[#040028] dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
+        <div className="flex gap-2">
+            <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all" title={t('Refresh', 'Actualiser')}>
+              <FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+            </button>
+            <button onClick={() => void handleSync()} disabled={syncing} className="px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white text-xs font-semibold hover:bg-[#F5F7FA] dark:hover:bg-white/10 transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
+              {syncing ? <FiLoader size={16} className="animate-spin" /> : t('Sync', 'Synchroniser')}
+            </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 min-h-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] overflow-hidden animate-in fade-in transition-colors">
 
       {/* LEFT PANEL: INBOX LIST */}
       <div className="w-[380px] flex flex-col border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-colors">
 
-        {/* Header & Filters */}
+        {/* Filters */}
         <div className="p-4 border-b border-black/5 dark:border-white/5 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-[#040028] dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
-            <div className="flex gap-2">
-                <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all" title={t('Refresh', 'Actualiser')}>
-                  <FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-                </button>
-                <button onClick={() => void handleSync()} disabled={syncing} className="px-3 py-2 rounded-[10px] bg-[#174CD2] text-white text-xs font-semibold shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
-                  {syncing ? <FiLoader size={16} className="animate-spin" /> : t('Sync', 'Synchroniser')}
-                </button>
-            </div>
-          </div>
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8E8E]" size={16} />
             <input
@@ -245,7 +264,8 @@ export default function Engagement() {
                  </div>
                  <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
-                        <span className={`text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
+                        <span className={`flex items-center gap-1.5 text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
+                            {e.sentiment && <span className={cn("w-2 h-2 rounded-full flex-shrink-0", SENTIMENT_DOT[e.sentiment])} title={e.sentiment} />}
                             {e.authorName}
                         </span>
                         <span className="text-xs text-[#8E8E8E]">
@@ -292,7 +312,14 @@ export default function Engagement() {
                    </div>
                    <div>
                        <div className="text-sm font-semibold leading-none text-[#040028] dark:text-white">{activeEngagement.authorName}</div>
-                       <div className="text-xs text-[#8E8E8E] mt-1 capitalize">{activeEngagement.platform}</div>
+                       <div className="flex items-center gap-2 mt-1">
+                           <span className="text-xs text-[#8E8E8E] capitalize">{activeEngagement.platform}</span>
+                           {activeEngagement.sentiment && (
+                               <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize", SENTIMENT_STYLES[activeEngagement.sentiment])}>
+                                   {activeEngagement.sentiment}
+                               </span>
+                           )}
+                       </div>
                    </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -331,7 +358,7 @@ export default function Engagement() {
                             {activeEngagement.authorName.charAt(0)}
                          </div>
                          <div className="flex-1">
-                             <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] text-[#040028] dark:text-white transition-colors">
+                             <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-6 text-[#040028] dark:text-white transition-colors">
                                 <div className="flex justify-between mb-4 border-b border-black/5 dark:border-white/5 pb-3">
                                      <div className="flex items-center gap-2">
                                         <span className="font-semibold text-sm">{activeEngagement.authorName}</span>
@@ -356,13 +383,28 @@ export default function Engagement() {
                            placeholder={`${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...`}
                         />
                         <div className="flex items-center justify-between p-2 border-t border-black/5 dark:border-white/5 transition-colors">
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 relative">
                                 <IconButton icon={<FiSmile />} />
+                                <IconButton icon={<FiMessageCircle />} onClick={() => setIsCannedOpen(v => !v)} />
+                                {isCannedOpen && (
+                                    <div className="absolute bottom-full left-0 mb-2 w-72 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden z-30">
+                                        {CANNED_REPLIES.map((reply, i) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => { setReplyText(reply); setIsCannedOpen(false); }}
+                                                className="w-full text-left px-4 py-3 text-xs font-medium text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors"
+                                            >
+                                                {reply}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={handleReply}
                                 disabled={!replyText || replyMutation.isPending}
-                                className="bg-[#174CD2] text-white text-sm font-semibold px-5 py-2 rounded-[10px] shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="bg-[#174CD2] text-white text-sm font-semibold px-5 py-2 rounded-[10px] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 <FiSend size={14} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
                             </button>
@@ -380,6 +422,7 @@ export default function Engagement() {
                 <p className="text-sm text-[#8E8E8E] mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
             </div>
         )}
+      </div>
       </div>
     </div>
   );
@@ -400,8 +443,8 @@ const ActionButton = ({ icon, tooltip, onClick, variant = 'default' }: any) => (
     </button>
 );
 
-const IconButton = ({ icon }: { icon: React.ReactNode }) => (
-    <button className="p-2 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#040028] dark:hover:text-white transition-all">
+const IconButton = ({ icon, onClick }: { icon: React.ReactNode; onClick?: () => void }) => (
+    <button type="button" onClick={onClick} className="p-2 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#040028] dark:hover:text-white transition-all">
         {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );

@@ -95,7 +95,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
           <button
             onClick={() => void generate()}
             disabled={loading}
-            className="w-full py-3 rounded-[10px] bg-[#26A5E4] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(38,165,228,0.3)] hover:brightness-95 transition-all disabled:opacity-50"
+            className="w-full py-3 rounded-[10px] bg-[#26A5E4] text-white font-semibold text-sm hover:brightness-95 transition-all disabled:opacity-50"
           >
             {loading ? <Loader2 size={16} className="inline animate-spin mr-2" /> : null}
             {loading ? t('Generating...', 'Génération en cours...') : t('Generate link token', 'Générer le jeton de liaison')}
@@ -278,7 +278,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         </div>
 
         {/* SESSION STATUS PANEL */}
-        <div className="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white p-4 rounded-[14px] border border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] flex flex-col gap-1 min-w-[180px]">
+        <div className="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex flex-col gap-1 min-w-[180px]">
             <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide border-b border-black/5 dark:border-white/5 pb-1 mb-1 text-[#8E8E8E]">
                 <span>{t("Session sync", "Sync session")}</span>
                 <span className={cn(tokenStatus === t("Valid", "Valide") ? 'text-green-600 dark:text-green-400' : 'text-red-500')}>● {tokenStatus}</span>
@@ -305,14 +305,14 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 isExpired
                     ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40'
                     : isConnected
-                        ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]'
+                        ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5'
                         : 'bg-transparent border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 hover:bg-white dark:hover:bg-[#0A0A2E]'
               )}
             >
               {/* Status Indicator */}
               {isExpired && (
                 <div className="absolute top-4 right-4">
-                  <div className="bg-white dark:bg-[#0A0A2E] text-red-600 dark:text-red-400 px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 shadow-sm">
+                  <div className="bg-white dark:bg-[#0A0A2E] text-red-600 dark:text-red-400 px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1">
                     <AlertTriangle size={12} strokeWidth={2.5} /> {t("Reauthorization needed", "Réautorisation requise")}
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 ) : (
                   <button
                     onClick={() => handleConnect(platform.id, platform.oauth)}
-                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all"
+                    className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm hover:bg-[#123a9e] transition-all"
                   >
                     <Plus size={16} className="inline mr-2" strokeWidth={2.5} /> {t("Connect", "Connecter")}
                   </button>
@@ -408,7 +408,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
         <div className={cn(
           "relative flex flex-col p-6 rounded-[16px] border transition-all duration-300 max-w-sm",
           waStatus?.connected
-            ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]'
+            ? 'bg-white dark:bg-[#0A0A2E] border-black/5 dark:border-white/5'
             : 'bg-transparent border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 hover:bg-white dark:hover:bg-[#0A0A2E]'
         )}>
           {/* Identity */}
@@ -458,7 +458,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
               <button
                 onClick={connectWhatsApp}
                 disabled={waConnecting}
-                className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all disabled:opacity-50"
+                className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm hover:bg-[#123a9e] transition-all disabled:opacity-50"
               >
                 {waConnecting ? <Loader2 size={16} className="inline animate-spin mr-2" /> : <FaWhatsapp size={16} className="inline mr-2" />}
                 {waConnecting ? t('Connecting...', 'Connexion...') : t('Connect via Meta', 'Connecter via Meta')}

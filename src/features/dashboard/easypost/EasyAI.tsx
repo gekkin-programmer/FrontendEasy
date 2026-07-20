@@ -249,7 +249,7 @@ export default function EasyAI() {
                             </div>
 
                             <div className={cn(
-                                "max-w-[85%] p-3 sm:p-4 text-sm font-medium shadow-sm transition-all",
+                                "max-w-[85%] p-3 sm:p-4 text-sm font-medium transition-all",
                                 msg.role === 'user'
                                     ? "bg-[#174CD2] text-white rounded-[16px] rounded-br-[4px]"
                                     : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white rounded-[16px] rounded-bl-[4px] border border-black/5 dark:border-white/5"
@@ -281,7 +281,7 @@ export default function EasyAI() {
                                     className="rounded-full bg-white dark:bg-white/10 object-cover"
                                 />
                              </div>
-                             <div className="bg-white dark:bg-[#0A0A2E] p-4 rounded-[16px] rounded-bl-[4px] border border-black/5 dark:border-white/5 shadow-sm flex gap-1 items-center h-12 transition-all">
+                             <div className="bg-white dark:bg-[#0A0A2E] p-4 rounded-[16px] rounded-bl-[4px] border border-black/5 dark:border-white/5 flex gap-1 items-center h-12 transition-all">
                                  <span className="w-2 h-2 bg-[#8E8E8E] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
                                  <span className="w-2 h-2 bg-[#8E8E8E] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                                  <span className="w-2 h-2 bg-[#8E8E8E] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
@@ -306,7 +306,7 @@ export default function EasyAI() {
                         <button
                             onClick={() => handleSend()}
                             disabled={!query.trim() || isTyping}
-                            className="absolute right-2 p-2 bg-[#174CD2] text-white rounded-[10px] hover:bg-[#123a9e] disabled:opacity-50 transition-all shadow-[0_4px_14px_rgba(23,76,210,0.3)]"
+                            className="absolute right-2 p-2 bg-[#174CD2] text-white rounded-[10px] hover:bg-[#123a9e] disabled:opacity-50 transition-all"
                         >
                             {isTyping ? <Loader2 className="animate-spin" size={20} /> : <ArrowUp size={20} />}
                         </button>

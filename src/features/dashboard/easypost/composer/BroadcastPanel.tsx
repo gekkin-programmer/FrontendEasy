@@ -150,7 +150,7 @@ export function BroadcastPanel({
             {broadcastAccounts.map((acc: any) => (
               <span
                 key={acc.id}
-                className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-sm"
+                className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white"
               >
                 <PlatformIcon platform={acc.platform} size={10} />
                 {acc.displayName || acc.username || acc.platform}
@@ -210,7 +210,7 @@ export function BroadcastPanel({
           type="button"
           onClick={onBroadcast}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold text-sm text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold text-sm text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ backgroundColor: primaryColor }}
         >
           <Send size={14} />

@@ -39,7 +39,7 @@ export function PlatformContextBar({
                 ? 'bg-red-50 dark:bg-red-950/30'
                 : isWarn
                   ? 'bg-yellow-50 dark:bg-yellow-950/30'
-                  : 'bg-white dark:bg-[#0A0A2E] shadow-sm'
+                  : 'bg-white dark:bg-[#0A0A2E]'
             }`}
           >
             <PlatformIcon platform={p.id} size={12} />

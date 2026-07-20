@@ -259,7 +259,7 @@ export default function OnboardingGuide({
                       {!step.done && (
                         <button
                           onClick={step.onAction}
-                          className="flex-shrink-0 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e] transition-all whitespace-nowrap"
+                          className="flex-shrink-0 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-[#174CD2] text-white hover:bg-[#123a9e] transition-all whitespace-nowrap"
                         >
                           {t(step.action, step.actionFr)}
                         </button>

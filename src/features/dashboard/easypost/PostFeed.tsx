@@ -69,7 +69,7 @@ interface PostFeedProps {
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+  <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
         <Skeleton className="w-8 h-8 rounded-full" />
@@ -125,7 +125,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       draggable={draggable}
       onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] rounded-[16px]",
+        "group relative bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all rounded-[16px]",
         draggable ? "cursor-grab active:cursor-grabbing" : ""
       )}
     >
@@ -139,7 +139,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {socialAccounts.map((sa: any, idx: number) => (
-                <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center shadow-sm transition-all z-[1]">
+                <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center transition-all z-[1]">
                     <PlatformIcon platform={sa.socialAccount?.platform} />
                 </div>
             ))}
@@ -163,7 +163,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         {post.media && post.media.length > 0 && (
           <div className="shrink-0 flex flex-col gap-1.5">
             <div className={cn(
-              "grid gap-1 relative overflow-hidden rounded-[10px] shadow-sm",
+              "grid gap-1 relative overflow-hidden rounded-[10px]",
               post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
             )}>
               {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
@@ -361,9 +361,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
       <div className="flex flex-col gap-4">
-        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-3 flex items-center justify-between w-full shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
-              <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")} ({drafts.length})
+              <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")}
             </h3>
             {drafts.length > 0 && (
                 <button
@@ -405,9 +405,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       </div>
 
       <div onDrop={handleDropToQueue} onDragOver={handleDragOver} className="relative group flex flex-col gap-4">
-        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-3 w-full shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
-              <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")} ({queued.length})
+              <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
             </h3>
         </div>
         <div className="space-y-4 min-h-[200px] z-10">

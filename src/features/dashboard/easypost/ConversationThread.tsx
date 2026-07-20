@@ -252,7 +252,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
 
         {/* Original Post Context */}
         {conversation.originalPost && (
-          <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-4 mb-6 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] transition-colors">
+          <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-4 mb-6 transition-colors">
             <div className="flex items-center gap-2 text-xs font-medium text-[#8E8E8E] mb-2">
               <platform.icon className={platform.color} size={12} />
               <span>{t('Original post', 'Publication originale')}: {platform.name}</span>
@@ -286,7 +286,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
                   </div>
                 )}
 
-                <div className={`relative group rounded-[16px] p-4 shadow-sm ${
+                <div className={`relative group rounded-[16px] p-4 ${
                   message.isInternal
                     ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-dashed border-yellow-300 dark:border-yellow-800'
                     : message.sender === 'team'
@@ -365,7 +365,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
             onClick={() => setIsInternalNote(false)}
             className={`px-4 py-2 rounded-[10px] text-xs font-semibold transition-all ${
               !isInternalNote
-                ? 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)]'
+                ? 'bg-[#174CD2] text-white'
                 : 'bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10'
             }`}
           >
@@ -413,7 +413,7 @@ export default function ConversationThread({ conversationId, onBack }: Conversat
               className={`px-6 py-2 rounded-[10px] font-semibold text-sm transition-all disabled:opacity-50 flex items-center gap-2 ${
                 isInternalNote
                   ? 'bg-yellow-400 text-[#040028]'
-                  : 'bg-[#174CD2] text-white shadow-[0_4px_14px_rgba(23,76,210,0.3)] hover:bg-[#123a9e]'
+                  : 'bg-[#174CD2] text-white hover:bg-[#123a9e]'
               }`}
             >
               {isSending ? (

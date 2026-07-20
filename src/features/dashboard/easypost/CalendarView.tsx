@@ -9,7 +9,7 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, GripVertical, Download, Calendar as CalendarIcon, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
@@ -73,7 +73,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
             <div className="flex items-center gap-2">
                 <span className={cn(
                     "text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors",
-                    isToday ? 'bg-[#174CD2] text-white' : 'text-[#040028] dark:text-white'
+                    isToday ? 'bg-[#040028] text-white dark:bg-white dark:text-[#040028]' : 'text-[#040028] dark:text-white'
                 )}>
                     {dayNum}
                 </span>
@@ -116,7 +116,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
       ref={setNodeRef}
       style={style}
       className={cn(
-          "group relative flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 text-[10px] font-medium shadow-sm transition-all hover:shadow-md",
+          "group relative flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 text-[10px] font-medium transition-all",
           viewType === 'day' ? "p-3 text-xs" : ""
       )}
     >
@@ -278,13 +278,10 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   };
 
   return (
-    <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] transition-all overflow-hidden">
+    <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none transition-all overflow-hidden">
 
-      <div className="flex flex-col lg:flex-row items-center justify-between p-6 bg-[#174CD2] text-white gap-6">
+      <div className="flex flex-col lg:flex-row items-center justify-between p-6 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white gap-6 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-[12px] bg-white/15 text-white flex items-center justify-center">
-                <CalendarIcon size={22} />
-            </div>
             <div>
                 <h2 className="text-2xl font-bold leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
@@ -293,14 +290,14 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-white/15 p-1 rounded-[10px]">
+          <div className="flex bg-[#F5F7FA] dark:bg-white/5 p-1 rounded-[10px]">
               {(['month', 'week', 'day'] as ViewType[]).map(v => (
                   <button
                     key={v}
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all",
-                        viewType === v ? "bg-white text-[#174CD2]" : "text-white/80 hover:text-white"
+                        viewType === v ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
                     )}
                   >
                       {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
@@ -309,13 +306,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-white/15 text-white hover:bg-white/25 transition-all"><ChevronLeft size={18} /></button>
-            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-white/15 text-white hover:bg-white/25 transition-all"><ChevronRight size={18}/></button>
+            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
+            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white text-[#174CD2] font-semibold text-sm hover:bg-white/90 transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-[#F5F7FA] dark:hover:bg-white/10 transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
@@ -323,7 +320,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       </div>
 
       {viewType !== 'day' && (
-        <div className="grid grid-cols-7 border-b border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.03]">
+        <div className="grid grid-cols-7 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
             {[t('Sun','Dim'), t('Mon','Lun'), t('Tue','Mar'), t('Wed','Mer'), t('Thu','Jeu'), t('Fri','Ven'), t('Sat','Sam')].map((day, i) => (
             <div key={i} className="p-3 text-center font-semibold text-xs text-[#8E8E8E]">{day}</div>
             ))}
