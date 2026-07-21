@@ -76,14 +76,6 @@ export default function ForgotPasswordPage() {
       <div className="flex flex-col justify-center items-center px-6 py-12 h-screen overflow-y-auto">
         <div className="w-full max-w-[480px]">
 
-          <div className="mb-10 lg:hidden flex justify-center">
-            <Link href="/" className="inline-block">
-              <div className="relative w-10 h-10">
-                <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" fill className="object-contain" priority />
-              </div>
-            </Link>
-          </div>
-
           {sent ? (
             <div className="text-center">
               <div className="flex justify-center mb-6">
