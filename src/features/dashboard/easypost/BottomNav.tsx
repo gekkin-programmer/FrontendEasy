@@ -38,7 +38,7 @@ export default function BottomNav({ activeTab, setActiveTab, onCompose }: Bottom
         <button
           onClick={onCompose}
           aria-label={t("Compose new post", "Rédiger un nouveau post")}
-          className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg shadow-black/50 hover:scale-105 active:scale-95 transition-transform border-4 border-black dark:border-white"
+          className="w-14 h-14 rounded-full bg-[#3C48F6] text-white flex items-center justify-center shadow-lg shadow-blue-900/50 hover:scale-105 active:scale-95 transition-transform border-4 border-black dark:border-white"
         >
           <PlusCircle size={28} strokeWidth={3} />
         </button>

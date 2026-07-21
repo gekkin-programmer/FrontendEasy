@@ -42,23 +42,23 @@ const tabContent: Record<string, { title: string; description: string }> = {
   return (
     <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px]">
       {/* Content Wrapper */}
-      <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
+      <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
         {/* Title Area */}
         <div className="w-full flex flex-col gap-1 mb-6">
-          <h2 
-            className="text-[#000000] text-[24px] md:text-[32px] leading-tight"
+          <h2
+            className="text-[#000000] text-[24px] md:text-[32px] 3xl:text-[40px] leading-tight"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Manage all your", "Pilotez tous vos")}
           </h2>
-          <h1 
-            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[60px] 2xl:text-[70px] leading-tight -ml-[4px]"
+          <h1
+            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[60px] 2xl:text-[70px] 3xl:text-[88px] leading-tight -ml-[4px]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Social networks", "Reseaux sociaux")}
           </h1>
-          <h2 
-            className="text-[#000000] text-[20px] md:text-[32px] leading-tight tracking-[0.15em] md:tracking-[0.3em]"
+          <h2
+            className="text-[#000000] text-[20px] md:text-[32px] 3xl:text-[40px] leading-tight tracking-[0.15em] md:tracking-[0.3em]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("in one place", "au meme endroit")}

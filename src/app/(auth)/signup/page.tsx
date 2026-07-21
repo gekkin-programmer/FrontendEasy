@@ -15,7 +15,7 @@ export default function SignupPage() {
 
   // --- FORM STATE ---
   const [step, setStep] = React.useState<'FORM' | 'VERIFY'>('FORM');
-  const [formData, setFormData] = React.useState({ username: '', email: '', password: '', agreeTerms: false });
+  const [formData, setFormData] = React.useState({ firstName: '', lastName: '', email: '', password: '', agreeTerms: false });
   const [code, setCode] = React.useState('');
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -66,7 +66,13 @@ export default function SignupPage() {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, code }),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          code,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Verification failed');
@@ -119,18 +125,33 @@ export default function SignupPage() {
               <form className="flex flex-col gap-[8px] [@media(min-height:740px)]:gap-[12px] [@media(min-height:840px)]:gap-[16px] lg:gap-[12px] 3xl:gap-[20px]" onSubmit={handleRequestCode}>
                 
                 {/* Name */}
-                <div className="flex flex-col gap-[5px]">
-                  <label className="font-sans font-medium text-[14px] leading-[21px] text-[#000000]">
-                    {t('Name', 'Nom')}
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
-                    placeholder={t('Enter your name', 'Entrez votre nom')}
-                    className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]" 
-                  />
+                <div className="flex flex-col sm:flex-row gap-[8px]">
+                  <div className="flex flex-col gap-[5px] flex-1">
+                    <label className="font-sans font-medium text-[14px] leading-[21px] text-[#000000]">
+                      {t('First name', 'Prénom')}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      placeholder={t('First name', 'Prénom')}
+                      className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-[5px] flex-1">
+                    <label className="font-sans font-medium text-[14px] leading-[21px] text-[#000000]">
+                      {t('Last name', 'Nom')}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      placeholder={t('Last name', 'Nom')}
+                      className="w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
+                    />
+                  </div>
                 </div>
 
                 {/* Email */}

@@ -14,6 +14,7 @@ import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import CanvaImportModal from './CanvaImportModal';
 
 interface Section { id: string; label: string; }
@@ -35,7 +36,7 @@ export default function MediaGallery({
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{type: 'asset'|'folder', id: string} | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{id: string} | null>(null);
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
@@ -102,6 +103,20 @@ export default function MediaGallery({
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
+  const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const pinnedKey = `media_pinned_folders_${workspaceId}`;
+  const [pinnedFolderIds, setPinnedFolderIds] = useState<string[]>(() => {
+      if (typeof window === 'undefined') return [];
+      try { return JSON.parse(localStorage.getItem(pinnedKey) || '[]'); } catch { return []; }
+  });
+  const togglePinFolder = (id: string) => {
+      setPinnedFolderIds(prev => {
+          const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+          try { localStorage.setItem(pinnedKey, JSON.stringify(next)); } catch {}
+          return next;
+      });
+  };
 
   // 1. Fetch Media & Folders
   const { data, isLoading } = useQuery({
@@ -167,6 +182,15 @@ export default function MediaGallery({
     }
   });
 
+  const renameFolderMutation = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => api.patch(`/media/folders/${id}`, { name }),
+    onSuccess: () => {
+        toast.success(t("Folder renamed", "Dossier renommé"));
+        setRenamingFolderId(null);
+        queryClient.invalidateQueries({ queryKey: ['media'] });
+    }
+  });
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -211,22 +235,22 @@ export default function MediaGallery({
   };
 
   return (
-    <div className="flex flex-col gap-4 font-sans text-black dark:text-white transition-colors">
+    <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
 
-      {/* OS Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-zinc-900 p-3 border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] text-black dark:text-white">
+      {/* Toolbar */}
+      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
-                  <button onClick={goBack} className="p-2 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 border-2 border-black dark:border-white transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                      <FiChevronLeft size={18} strokeWidth={3} />
+                  <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
+                      <FiChevronLeft size={18} />
                   </button>
               )}
-              <div className="flex items-center gap-2 font-black uppercase text-xs tracking-tighter text-black dark:text-white">
-                  <FiFolder className="text-black dark:text-white" />
-                  <span>{t("ROOT", "RACINE")}</span>
+              <div className="flex items-center gap-2 font-semibold text-sm text-[#040028] dark:text-white">
+                  <FiFolder className="text-[#8E8E8E]" />
+                  <span>{t("Root", "Racine")}</span>
                   {folderPath.map(p => (
                       <React.Fragment key={p.id}>
-                          <span className="opacity-50">/</span>
+                          <span className="text-[#8E8E8E]">/</span>
                           <span>{p.name}</span>
                       </React.Fragment>
                   ))}
@@ -236,29 +260,29 @@ export default function MediaGallery({
           <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
               >
-                  <FiPlus /> {t("New Folder", "Nouveau Dossier")}
+                  <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
               >
-                  <FiUploadCloud />
+                  <FiUploadCloud size={14} />
                   {uploadProgress
-                    ? t(`${uploadProgress.done}/${uploadProgress.total} Uploading...`, `${uploadProgress.done}/${uploadProgress.total} En cours...`)
-                    : t("Upload Asset", "Télécharger un média")}
+                    ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
+                    : t("Upload asset", "Télécharger un média")}
               </button>
               <button
                 onClick={handleCanvaClick}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
                   <SiCanva size={13} /> Canva
               </button>
               <button
-                onClick={() => toast.info(t("Dropbox Import — Coming Soon", "Import Dropbox — Bientôt disponible"))}
-                className="flex items-center gap-2 px-3 py-1.5 bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-black border-2 border-black dark:border-white text-[10px] font-black uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all"
+                onClick={() => toast.info(t("Dropbox import — coming soon", "Import Dropbox — bientôt disponible"))}
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
                   <SiDropbox size={13} /> Dropbox
@@ -269,13 +293,13 @@ export default function MediaGallery({
       {/* Storage & Folder Creator */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!hideUsage && (
-            <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-3 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-                <div className="flex justify-between text-[8px] font-black uppercase mb-1">
+            <div className="bg-white dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
+                <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
                     <span>{t("Usage", "Utilisation")}</span>
                     <span>{formatSize(usage)} / 100MB</span>
                 </div>
-                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 border border-black dark:border-white overflow-hidden">
-                    <div className="h-full bg-black dark:bg-white" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+                <div className="h-2 rounded-full bg-[#F5F7FA] dark:bg-white/10 overflow-hidden">
+                    <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
                 </div>
             </div>
           )}
@@ -287,20 +311,20 @@ export default function MediaGallery({
                         autoFocus
                         value={newFolderName}
                         onChange={e => setNewFolderName(e.target.value)}
-                        placeholder={t("FOLDER NAME...", "NOM DU DOSSIER...")}
-                        className="flex-1 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white px-3 text-xs font-bold uppercase focus:outline-none"
+                        placeholder={t("Folder name...", "Nom du dossier...")}
+                        className="flex-1 bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] px-3 text-sm font-medium placeholder:text-[#8E8E8E] focus:outline-none focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
                       />
                       <button
                         onClick={() => createFolderMutation.mutate(newFolderName)}
-                        className="px-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white text-black dark:text-white font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-black hover:text-white transition-all"
+                        className="px-4 rounded-[10px] bg-[#040028] dark:bg-white text-white dark:text-[#040028] font-semibold text-xs transition-all"
                       >
                           {t("OK", "OK")}
                       </button>
                       <button
                         onClick={() => setIsCreatingFolder(false)}
-                        className="px-4 bg-white border-2 border-black dark:border-white text-black font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000]"
+                        className="px-4 rounded-[10px] bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 font-semibold text-xs hover:bg-black/5 dark:hover:bg-white/10 transition-all"
                       >
-                          {t("X", "X")}
+                          {t("Cancel", "Annuler")}
                       </button>
                   </motion.div>
               )}
@@ -315,41 +339,76 @@ export default function MediaGallery({
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-col items-center gap-2 p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                   <Skeleton className="w-full aspect-square" />
-                   <Skeleton className="h-2.5 w-3/4" />
+                 <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
+                   <Skeleton className="w-full aspect-square rounded-[10px]" />
+                   <Skeleton className="h-2.5 w-3/4 rounded-[4px]" />
                  </div>
                ))}
              </>
          ) : (
             <AnimatePresence mode="popLayout">
                 {/* 1. Folders */}
-                {folders.map((folder: any) => (
+                {[...folders].sort((a, b) => (pinnedFolderIds.includes(b.id) ? 1 : 0) - (pinnedFolderIds.includes(a.id) ? 1 : 0)).map((folder: any) => (
                     <motion.div
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.15 }}
                         key={folder.id}
-                        onDoubleClick={() => enterFolder(folder)}
-                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all relative"
+                        onClick={() => { if (renamingFolderId !== folder.id) enterFolder(folder); }}
+                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:bg-black/10 dark:hover:bg-white/10 hover:border-[#040028]/20 dark:hover:border-white/20 transition-all relative"
                     >
-                        <div className="text-black dark:text-white dark:text-blue-400 group-hover:scale-110 transition-transform">
-                            <FiFolder size={48} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
-                        </div>
-                        <span className="text-[10px] font-black uppercase text-center truncate w-full">{folder.name}</span>
-                        {deleteConfirm?.id === folder.id ? (
-                            <div className="absolute top-1 right-1 flex gap-0.5 z-10">
-                                <button onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-red-500 text-white border border-black text-[8px] font-black uppercase">{t('Del', 'Sup')}</button>
-                                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="px-1.5 py-0.5 bg-white text-black border border-black text-[8px] font-black">✕</button>
+                        {pinnedFolderIds.includes(folder.id) && (
+                            <div className="absolute top-1 left-1 text-[#040028] dark:text-white" title={t('Pinned', 'Épinglé')}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a1 1 0 0 1 1 1v6.5l2.6 3.9a1 1 0 0 1-.83 1.6H13v6l-1 2-1-2v-6H5.23a1 1 0 0 1-.83-1.6L7 10.5V4a1 1 0 0 1 1-1h8Z"/></svg>
                             </div>
-                        ) : (
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'folder', id: folder.id}); }}
-                                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 bg-red-500 text-white border border-black"
-                            >
-                                <FiTrash2 size={10} />
-                            </button>
                         )}
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round"/><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round"/></svg>
+                        {renamingFolderId === folder.id ? (
+                            <input
+                                autoFocus
+                                value={renameValue}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && renameValue.trim()) renameFolderMutation.mutate({ id: folder.id, name: renameValue.trim() });
+                                    if (e.key === 'Escape') setRenamingFolderId(null);
+                                }}
+                                onBlur={() => setRenamingFolderId(null)}
+                                className="w-full text-xs font-semibold text-center bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[6px] px-1 py-0.5 text-[#040028] dark:text-white focus:outline-none"
+                            />
+                        ) : (
+                            <span className="text-xs font-semibold text-center truncate w-full text-[#040028] dark:text-white">{folder.name}</span>
+                        )}
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <button
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-[8px] bg-white hover:bg-black/5 transition-opacity"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                >
+                                    {t('Rename', 'Renommer')}
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); togglePinFolder(folder.id); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                >
+                                    {pinnedFolderIds.includes(folder.id) ? t('Unpin', 'Désépingler') : t('Pin to top', 'Épingler en haut')}
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                >
+                                    {t('Delete', 'Supprimer')}
+                                </button>
+                            </PopoverContent>
+                        </Popover>
                     </motion.div>
                 ))}
 
@@ -360,7 +419,7 @@ export default function MediaGallery({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         key={asset.id}
-                        className="group relative aspect-square bg-white dark:bg-zinc-900 border-2 border-black dark:border-white shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all overflow-hidden"
+                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 transition-all overflow-hidden"
                     >
                         {asset.mimeType?.startsWith('video/') ? (
                             <video src={asset.url} className="w-full h-full object-cover" muted playsInline />
@@ -368,60 +427,60 @@ export default function MediaGallery({
                             <img src={asset.url} className="w-full h-full object-cover" alt="" />
                         )}
                         {asset.mimeType?.startsWith('video/') && (
-                            <div className="absolute top-1 left-1 bg-black/80 text-white text-[8px] font-black px-1.5 py-0.5 pointer-events-none tracking-widest">
-                                VIDEO
+                            <div className="absolute top-2 left-2 rounded-full bg-[#040028]/70 text-white text-[10px] font-semibold px-2 py-0.5 pointer-events-none">
+                                {t('Video', 'Vidéo')}
                             </div>
                         )}
 
                         <div
                             className={cn(
-                                "absolute inset-0 transition-opacity flex flex-col justify-between p-1.5",
-                                sectionMenuFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                "absolute inset-0 bg-[#040028]/0 group-hover:bg-[#040028]/10 transition-all flex flex-col justify-between p-2",
+                                sectionMenuFor === asset.id ? "opacity-100 bg-[#040028]/10" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
                             {/* Top row: Edit in Canva + Delete */}
-                            <div className="flex justify-end gap-1">
+                            <div className="flex justify-end gap-1.5">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
                                     disabled={canvaUploading === asset.id}
                                     title={t('Edit in Canva', 'Modifier dans Canva')}
-                                    className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                    className="p-1.5 rounded-full bg-white text-[#040028]"
                                 >
                                     {canvaUploading === asset.id
-                                        ? <FiLoader size={10} className="animate-spin" />
-                                        : <FiEdit2 size={10} />
+                                        ? <FiLoader size={11} className="animate-spin" />
+                                        : <FiEdit2 size={11} />
                                     }
                                 </button>
                                 {deleteConfirm?.id === asset.id ? (
                                     <>
-                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="p-1.5 bg-red-500 text-white border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black uppercase">{t('Del?', 'Sup?')}</button>
-                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000] text-[8px] font-black">✕</button>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="px-2 py-1 rounded-[6px] bg-red-500 text-white text-[10px] font-semibold">{t('Delete?', 'Suppr.?')}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 rounded-full bg-white text-[#040028]">✕</button>
                                     </>
                                 ) : (
                                     <button
-                                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm({type: 'asset', id: asset.id}); }}
+                                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm({id: asset.id}); }}
                                         title={t('Delete', 'Supprimer')}
-                                        className="p-1.5 bg-white text-black border border-black shadow-[1px_1px_0px_0px_#000]"
+                                        className="p-1.5 rounded-full bg-white text-red-500"
                                     >
-                                        <FiTrash2 size={10} />
+                                        <FiTrash2 size={11} />
                                     </button>
                                 )}
                             </div>
 
                             {/* Bottom: Use / section selector */}
                             {onUse && sectionMenuFor === asset.id ? (
-                                <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex flex-col gap-1 p-1">
+                                <div className="bg-white dark:bg-[#0A0A2E] rounded-[10px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] flex flex-col gap-1 p-1.5">
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full bg-black text-white py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-700 transition-colors"
+                                            className="w-full rounded-[6px] bg-[#174CD2] text-white py-1.5 text-[10px] font-semibold hover:bg-[#123a9e] transition-colors"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
                                         </button>
                                     ))}
                                     <button
-                                        className="w-full bg-white dark:bg-zinc-800 text-black dark:text-white py-1 text-[8px] font-black uppercase border border-black dark:border-white"
+                                        className="w-full rounded-[6px] bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white py-1.5 text-[10px] font-semibold"
                                         onClick={() => setSectionMenuFor(null)}
                                     >
                                         {t("Cancel", "Annuler")}
@@ -429,7 +488,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full bg-white text-black py-1 text-[8px] font-black uppercase border border-black hover:bg-zinc-100 transition-colors rounded-lg"
+                                    className="w-full rounded-[8px] bg-white text-[#040028] py-1.5 text-xs font-semibold hover:bg-white/90 transition-colors"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
@@ -449,7 +508,7 @@ export default function MediaGallery({
          )}
 
          {!isLoading && assets.length === 0 && folders.length === 0 && (
-             <div className="col-span-full py-20 text-center border-4 border-dashed border-zinc-200 dark:border-zinc-800 text-zinc-300 dark:text-zinc-700 font-black uppercase tracking-tighter text-3xl">
+             <div className="col-span-full py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10 text-[#8E8E8E] font-semibold text-lg">
                  {t("Folder is empty", "Le dossier est vide")}
              </div>
          )}

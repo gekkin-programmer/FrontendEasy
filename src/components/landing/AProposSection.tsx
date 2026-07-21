@@ -16,7 +16,7 @@ export default function AProposSection() {
           {t("About Us Heading", "A propos de")}
         </h2>
         <h1
-          className="text-[#174CD2] text-4xl md:text-6xl lg:text-7xl font-bold"
+          className="text-[#174CD2] text-4xl md:text-6xl lg:text-7xl 3xl:text-8xl font-bold"
           style={{ fontFamily: "'Rubik One', sans-serif" }}
         >
           {t("Us", "Nous")}
@@ -24,7 +24,7 @@ export default function AProposSection() {
       </div>
 
       {/* Main Card */}
-      <div className="relative w-full max-w-[1200px] bg-white border-2 border-[#174CD2] rounded-lg overflow-hidden shadow-md flex flex-col md:flex-row">
+      <div className="relative w-full max-w-[1200px] 3xl:max-w-[1600px] bg-white border-2 border-[#174CD2] rounded-lg overflow-hidden shadow-md flex flex-col md:flex-row">
         
         {/* Decorative Shape Bottom Left */}
         <div className="absolute w-[70px] h-[40px] md:w-[95px] md:h-[59px] left-[-2px] bottom-[-2px] bg-[#174CD2] border-2 border-[#174CD2] rounded-[10px_40px_10px_10px] z-10" />

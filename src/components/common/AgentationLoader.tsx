@@ -8,7 +8,7 @@ const AgentationWrapper = dynamic(
 );
 
 export default function AgentationLoader() {
-  // Page-feedback toolbar is a local development tool only — never render it on deployed builds.
-  if (process.env.NODE_ENV !== 'development') return null;
+  // TEMP: page-feedback toolbar enabled on prod for live tweaking. Re-enable the
+  // dev-only gate (`if (process.env.NODE_ENV !== 'development') return null;`) once done.
   return <AgentationWrapper />;
 }

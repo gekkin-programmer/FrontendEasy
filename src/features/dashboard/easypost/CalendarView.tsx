@@ -9,7 +9,7 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, GripVertical, Download, Calendar as CalendarIcon, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
@@ -38,12 +38,12 @@ const ICONS: Record<string, any> = {
 
 function CalendarSkeleton() {
   return (
-    <div className="grid grid-cols-7 bg-black dark:bg-white gap-[2px]">
+    <div className="grid grid-cols-7 gap-px bg-black/5 dark:bg-white/5">
       {[...Array(35)].map((_, i) => (
-        <div key={i} className="min-h-[100px] p-2 bg-white dark:bg-zinc-900 space-y-2">
-          <Skeleton className="h-5 w-5" />
-          {i % 3 === 0 && <Skeleton className="h-8 w-full" />}
-          {i % 5 === 0 && <Skeleton className="h-8 w-full" />}
+        <div key={i} className="min-h-[100px] p-2 bg-white dark:bg-[#0A0A2E] space-y-2">
+          <Skeleton className="h-5 w-5 rounded-full" />
+          {i % 3 === 0 && <Skeleton className="h-8 w-full rounded-[8px]" />}
+          {i % 5 === 0 && <Skeleton className="h-8 w-full rounded-[8px]" />}
         </div>
       ))}
     </div>
@@ -66,21 +66,21 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
       ref={setNodeRef}
       className={cn(
         className,
-        isOver && "ring-4 ring-[#000] ring-inset bg-zinc-50 dark:bg-zinc-800/50 z-10"
+        isOver && "ring-2 ring-[#174CD2] ring-inset bg-[#174CD2]/5 z-10"
       )}
     >
         <div className="flex justify-between items-center mb-1">
             <div className="flex items-center gap-2">
                 <span className={cn(
-                    "text-xs font-black w-7 h-7 flex items-center justify-center border-2 transition-colors",
-                    isToday ? 'bg-black text-white dark:bg-white dark:text-black border-black' : 'text-black dark:text-white border-transparent'
+                    "text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors",
+                    isToday ? 'bg-[#040028] text-white dark:bg-white dark:text-[#040028]' : 'text-[#040028] dark:text-white'
                 )}>
                     {dayNum}
                 </span>
-                {dayLabel && <span className="text-[10px] font-black uppercase opacity-60 font-mono">{dayLabel}</span>}
+                {dayLabel && <span className="text-xs font-semibold text-[#8E8E8E]">{dayLabel}</span>}
             </div>
             {postCount > 0 && (
-                <span className="text-[8px] font-mono font-black border border-black dark:border-white px-1.5 py-0.5 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                <span className="text-[10px] font-semibold rounded-full px-2 py-0.5 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
                     {postCount}
                 </span>
             )}
@@ -116,11 +116,11 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
       ref={setNodeRef}
       style={style}
       className={cn(
-          "group relative flex items-center gap-1.5 p-1.5 bg-white dark:bg-zinc-800 border-2 border-black dark:border-white text-[10px] font-black transition-all shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
+          "group relative flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 text-[10px] font-medium transition-all",
           viewType === 'day' ? "p-3 text-xs" : ""
       )}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white shrink-0">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white shrink-0">
         <GripVertical size={viewType === 'day' ? 14 : 10} />
       </div>
 
@@ -129,27 +129,27 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
             const platform = sa.socialAccount?.platform || sa.platform || 'FACEBOOK';
             const Icon = ICONS[platform] || ICONS.FACEBOOK;
             return (
-                <div key={idx} className="bg-white dark:bg-black border border-black dark:border-white p-0.5 z-[1]">
+                <div key={idx} className="bg-white dark:bg-[#0A0A2E] rounded-full ring-2 ring-white dark:ring-[#0A0A2E] p-0.5 z-[1] text-[#040028] dark:text-white">
                     <Icon size={viewType === 'day' ? 12 : 8} />
                 </div>
             );
         })}
       </div>
 
-      <span className="truncate flex-1 uppercase tracking-tighter ml-1">{post.content || t('No Content', 'Aucun Contenu')}</span>
+      <span className="truncate flex-1 ml-1 text-[#040028] dark:text-white">{post.content || t('No content', 'Aucun contenu')}</span>
 
       {post.status !== 'PUBLISHED' && (
         <button
           onClick={(e) => { e.stopPropagation(); onClick(post); }}
-          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-black dark:text-white dark:hover:text-black dark:text-white transition-opacity shrink-0"
+          className="opacity-0 group-hover:opacity-100 p-0.5 text-[#8E8E8E] hover:text-[#174CD2] transition-opacity shrink-0"
         >
           <Pencil size={viewType === 'day' ? 12 : 8} />
         </button>
       )}
 
-      <div className="hidden group-hover:block absolute bottom-full left-0 w-48 bg-black text-white p-2 text-[10px] z-[100] mb-2 border-2 border-white shadow-[4px_4px_0px_0px_#000]">
-          <p className="line-clamp-3 font-bold">{post.content}</p>
-          <div className="flex flex-col mt-2 pt-2 border-t border-white/20 font-mono text-[8px] opacity-70 uppercase gap-1">
+      <div className="hidden group-hover:block absolute bottom-full left-0 w-48 rounded-[10px] bg-[#040028] text-white p-3 text-[10px] z-[100] mb-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+          <p className="line-clamp-3 font-medium">{post.content}</p>
+          <div className="flex flex-col mt-2 pt-2 border-t border-white/10 text-[10px] text-white/70 gap-1">
               <div className="flex justify-between">
                 <span>{t('Targets:', 'Cibles:')}</span>
                 <span>{socialAccounts.length}</span>
@@ -160,8 +160,8 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
               </div>
               {post.status === 'PUBLISHED' && (
                 <div className="flex justify-between text-green-400">
-                  <span>STATUS</span>
-                  <span>PUBLISHED</span>
+                  <span>{t('Status', 'Statut')}</span>
+                  <span>{t('Published', 'Publié')}</span>
                 </div>
               )}
           </div>
@@ -266,7 +266,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       URL.revokeObjectURL(url);
 
       trackAction('calendar_export', { workspaceId, postCount: posts.length });
-      toast.success(t("EXPORT_GENERATED", "EXPORT_GÉNÉRÉ"));
+      toast.success(t("Export generated", "Export généré"));
   };
 
   const navigate = (direction: 'prev' | 'next') => {
@@ -278,44 +278,41 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
   };
 
   return (
-    <div className="bg-white dark:bg-black border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_#000] dark:shadow-[8px_8px_0px_0px_#fff] transition-all overflow-hidden rounded-t-2xl">
-      
-      <div className="flex flex-col lg:flex-row items-center justify-between p-6 border-b-4 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black gap-6">
+    <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none transition-all overflow-hidden">
+
+      <div className="flex flex-col lg:flex-row items-center justify-between p-6 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white gap-6 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white text-black border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]">
-                <CalendarIcon size={24} />
-            </div>
             <div>
-                <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
+                <h2 className="text-2xl font-bold leading-none">
                 {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
                 </h2>
             </div>
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-black/20 p-1 border-2 border-black/30">
+          <div className="flex bg-[#F5F7FA] dark:bg-white/5 p-1 rounded-[10px]">
               {(['month', 'week', 'day'] as ViewType[]).map(v => (
-                  <button 
+                  <button
                     key={v}
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
-                        "px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-all",
-                        viewType === v ? "bg-white text-black shadow-[2px_2px_0px_0px_#000]" : "text-white/70"
+                        "px-3 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all",
+                        viewType === v ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
                     )}
                   >
-                      {v}
+                      {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
                   </button>
               ))}
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-3 bg-white text-black border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronLeft size={18} strokeWidth={3} /></button>
-            <button onClick={() => navigate('next')} className="p-3 bg-white text-black border-2 border-black transition-all shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"><ChevronRight size={18} strokeWidth={3}/></button>
+            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
+            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 p-3 bg-white text-black border-2 border-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-[#F5F7FA] dark:hover:bg-white/10 transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>
@@ -323,9 +320,9 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       </div>
 
       {viewType !== 'day' && (
-        <div className="grid grid-cols-7 border-b-2 border-black dark:border-white transition-colors bg-zinc-100 dark:bg-zinc-900 font-mono">
-            {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-            <div key={day} className="p-3 text-center border-r-2 border-black dark:border-white last:border-r-0 font-black text-[9px] tracking-widest text-black dark:text-white uppercase">{day}</div>
+        <div className="grid grid-cols-7 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
+            {[t('Sun','Dim'), t('Mon','Lun'), t('Tue','Mar'), t('Wed','Mer'), t('Thu','Jeu'), t('Fri','Ven'), t('Sat','Sam')].map((day, i) => (
+            <div key={i} className="p-3 text-center font-semibold text-xs text-[#8E8E8E]">{day}</div>
             ))}
         </div>
       )}
@@ -335,7 +332,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className={cn(
-                "grid bg-black dark:bg-white gap-[2px]",
+                "grid gap-px bg-black/5 dark:bg-white/5",
                 viewType === 'day' ? "grid-cols-1" : "grid-cols-7 auto-rows-fr"
             )}>
             {days.map((day) => {
@@ -346,8 +343,8 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                 const isCurrentMonth = isSameMonth(day, currentDate);
 
                 return (
-                <CalendarCell 
-                    key={dayStr} 
+                <CalendarCell
+                    key={dayStr}
                     id={dayStr}
                     dayNum={format(day, 'd')}
                     dayLabel={viewType === 'day' ? format(day, 'EEEE MMMM yyyy') : null}
@@ -356,7 +353,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
-                        !isCurrentMonth && viewType === 'month' ? 'bg-gray-100 dark:bg-zinc-800 opacity-40' : 'bg-white dark:bg-zinc-900'
+                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F5F7FA] dark:bg-white/[0.02] opacity-50' : 'bg-white dark:bg-[#0A0A2E]'
                     )}
                 >
                     <div className={cn(

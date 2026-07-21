@@ -55,30 +55,30 @@ function PanelHeader({
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between px-4 py-2 border-t-2 border-black dark:border-white bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+      className="w-full flex items-center justify-between px-4 py-2.5 border-t border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.02] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
     >
       <div className="flex items-center gap-2">
         <PlatformIcon platform={platform} size={12} />
-        <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">
+        <span className="text-xs font-semibold text-[#040028] dark:text-white">
           {label}
         </span>
         {badge && (
-          <span className="flex items-center gap-0.5 text-[9px] font-black uppercase text-yellow-600 dark:text-yellow-400">
-            <AlertTriangle size={9} /> {badge}
+          <span className="flex items-center gap-1 text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
+            <AlertTriangle size={10} /> {badge}
           </span>
         )}
       </div>
       {expanded ? (
-        <ChevronDown size={14} className="text-black dark:text-white" />
+        <ChevronDown size={14} className="text-[#8E8E8E]" />
       ) : (
-        <ChevronRight size={14} className="text-black dark:text-white" />
+        <ChevronRight size={14} className="text-[#8E8E8E]" />
       )}
     </button>
   );
 }
 
 const inputCls =
-  'w-full border-2 border-black dark:border-white bg-white dark:bg-zinc-800 text-black dark:text-white px-3 py-2 font-mono text-xs focus:outline-none placeholder:text-gray-400 dark:placeholder:text-zinc-600';
+  'w-full rounded-[10px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 text-[#040028] dark:text-white px-3 py-2 text-sm focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 placeholder:text-[#8E8E8E]';
 
 export function PlatformSpecificPanels({
   platformMode,
@@ -138,24 +138,24 @@ export function PlatformSpecificPanels({
             onToggle={() => onTogglePanel('youtube')}
           />
           {expandedPanels.has('youtube') && (
-            <div className="px-4 py-4 space-y-3 border-t-0 bg-white dark:bg-zinc-900">
+            <div className="px-4 py-4 space-y-3 bg-white dark:bg-[#0A0A2E]">
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  {t('Video Title', 'Titre de la vidéo')} <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
+                  {t('Video title', 'Titre de la vidéo')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={ytTitle}
                   onChange={(e) => setYtTitle(e.target.value)}
                   placeholder={t('e.g. How to grow on Instagram in 2026', 'ex. Comment grandir sur Instagram en 2026')}
-                  className={`${inputCls} ${submitAttempted && !ytTitle ? 'border-red-600' : ''}`}
+                  className={`${inputCls} ${submitAttempted && !ytTitle ? '!border-red-600' : ''}`}
                 />
                 {submitAttempted && !ytTitle && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Title is required for YouTube', 'Le titre est requis pour YouTube')}</p>
+                  <p className="text-xs text-red-600 font-medium mt-1">{t('Title is required for YouTube', 'Le titre est requis pour YouTube')}</p>
                 )}
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Category', 'Catégorie')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Category', 'Catégorie')}</label>
                 <select
                   value={ytCategory}
                   onChange={(e) => setYtCategory(e.target.value)}
@@ -168,7 +168,7 @@ export function PlatformSpecificPanels({
                 </select>
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Tags', 'Tags')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Tags', 'Tags')}</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -178,14 +178,14 @@ export function PlatformSpecificPanels({
                     placeholder={t('Add tag, press Enter', 'Ajouter un tag, appuyez sur Entrée')}
                     className={`${inputCls} flex-1`}
                   />
-                  <button type="button" onClick={addTag} className="px-3 py-1 border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase">+</button>
+                  <button type="button" onClick={addTag} className="px-4 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold hover:bg-[#123a9e] transition-all">+</button>
                 </div>
                 {ytTags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {ytTags.map((t) => (
-                      <span key={t} className="flex items-center gap-1 px-2 py-0.5 border border-black dark:border-white text-[9px] font-black uppercase bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white">
-                        #{t}
-                        <button type="button" onClick={() => setYtTags(ytTags.filter((x) => x !== t))} className="opacity-60 hover:opacity-100">×</button>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {ytTags.map((tag) => (
+                      <span key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                        #{tag}
+                        <button type="button" onClick={() => setYtTags(ytTags.filter((x) => x !== tag))} className="opacity-60 hover:opacity-100">×</button>
                       </span>
                     ))}
                   </div>
@@ -205,17 +205,17 @@ export function PlatformSpecificPanels({
             onToggle={() => onTogglePanel('pinterest')}
           />
           {expandedPanels.has('pinterest') && (
-            <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
+            <div className="px-4 py-4 space-y-3 bg-white dark:bg-[#0A0A2E]">
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Board', 'Tableau')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Board', 'Tableau')}</label>
                 <input type="text" value={pinBoard} onChange={(e) => setPinBoard(e.target.value)} placeholder={t('e.g. African Fashion', 'ex. Mode Africaine')} className={inputCls} />
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Pin Title', "Titre de l'épingle")}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Pin title', "Titre de l'épingle")}</label>
                 <input type="text" value={pinTitle} onChange={(e) => setPinTitle(e.target.value)} placeholder={t('e.g. Top 10 African Tech Startups', 'ex. Top 10 des startups tech africaines')} className={inputCls} />
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Destination URL', 'URL de destination')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Destination URL', 'URL de destination')}</label>
                 <input type="url" value={pinDestUrl} onChange={(e) => setPinDestUrl(e.target.value)} placeholder="https://yoursite.com/article" className={inputCls} />
               </div>
             </div>
@@ -232,25 +232,25 @@ export function PlatformSpecificPanels({
             onToggle={() => onTogglePanel('linkedin')}
           />
           {expandedPanels.has('linkedin') && (
-            <div className="px-4 py-4 bg-white dark:bg-zinc-900">
-              <div className="flex items-center gap-0">
+            <div className="px-4 py-4 bg-white dark:bg-[#0A0A2E]">
+              <div className="flex bg-[#F5F7FA] dark:bg-white/5 rounded-[10px] p-1 w-fit">
                 <button
                   type="button"
                   onClick={() => setLiArticleMode(false)}
-                  className={`px-4 py-2 border-2 border-black dark:border-white text-[10px] font-black uppercase transition-all ${!liArticleMode ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
+                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${!liArticleMode ? 'bg-[#174CD2] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
                 >
                   {t('Post', 'Post')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setLiArticleMode(true)}
-                  className={`px-4 py-2 border-2 border-l-0 border-black dark:border-white text-[10px] font-black uppercase transition-all ${liArticleMode ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-white dark:bg-zinc-900 text-black dark:text-white'}`}
+                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${liArticleMode ? 'bg-[#174CD2] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
                 >
                   {t('Article', 'Article')}
                 </button>
               </div>
               {liArticleMode && (
-                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 uppercase mt-2">
+                <p className="text-xs text-[#8E8E8E] mt-2">
                   {t('Content will be published as a LinkedIn article (long-form)', 'Le contenu sera publié comme un article LinkedIn (format long)')}
                 </p>
               )}
@@ -268,10 +268,10 @@ export function PlatformSpecificPanels({
             onToggle={() => onTogglePanel('instagram')}
           />
           {expandedPanels.has('instagram') && (
-            <div className="px-4 py-4 space-y-3 bg-white dark:bg-zinc-900">
+            <div className="px-4 py-4 space-y-3 bg-white dark:bg-[#0A0A2E]">
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  {t('First Comment', 'Premier commentaire')}
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
+                  {t('First comment', 'Premier commentaire')}
                 </label>
                 <textarea
                   value={firstComment}
@@ -280,10 +280,10 @@ export function PlatformSpecificPanels({
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{firstComment.length}/2200 — {t('posted as a comment, not in caption', 'publié en commentaire, pas dans la légende')}</p>
+                <p className="text-xs text-[#8E8E8E] mt-1">{firstComment.length}/2200 — {t('posted as a comment, not in caption', 'publié en commentaire, pas dans la légende')}</p>
               </div>
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">{t('Alt Text (accessibility)', 'Texte alternatif (accessibilité)')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Alt text (accessibility)', 'Texte alternatif (accessibilité)')}</label>
                 <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder={t('Describe this image for screen readers', "Décrivez cette image pour les lecteurs d'écran")} className={inputCls} />
               </div>
             </div>
@@ -305,42 +305,42 @@ export function PlatformSpecificPanels({
             onToggle={() => onTogglePanel('tiktok')}
           />
           {expandedPanels.has('tiktok') && (
-            <div className="px-4 py-4 space-y-4 bg-white dark:bg-zinc-900">
+            <div className="px-4 py-4 space-y-4 bg-white dark:bg-[#0A0A2E]">
 
               {/* Point 1: Creator Info */}
               {tiktokCreatorNickname && (
-                <div className="flex items-center gap-2 px-3 py-2 border-2 border-black/20 dark:border-white/20 bg-zinc-50 dark:bg-zinc-800">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400">{t('Posting as:', 'Publication en tant que :')}</span>
-                  <span className="text-[10px] font-black text-black dark:text-white">@{tiktokCreatorNickname}</span>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5">
+                  <span className="text-xs font-semibold text-[#8E8E8E]">{t('Posting as:', 'Publication en tant que :')}</span>
+                  <span className="text-xs font-semibold text-[#040028] dark:text-white">@{tiktokCreatorNickname}</span>
                 </div>
               )}
 
               {/* Point 2: Post Title */}
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  {t('Post Title', 'Titre du post')} <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
+                  {t('Post title', 'Titre du post')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={tiktokTitle}
                   onChange={e => setTiktokTitle(e.target.value)}
                   placeholder={t('Describe your video...', 'Décrivez votre vidéo...')}
-                  className={`${inputCls} ${submitAttempted && !tiktokTitle ? 'border-red-600' : ''}`}
+                  className={`${inputCls} ${submitAttempted && !tiktokTitle ? '!border-red-600' : ''}`}
                 />
                 {submitAttempted && !tiktokTitle && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Title is required for TikTok', 'Le titre est requis pour TikTok')}</p>
+                  <p className="text-xs text-red-600 font-medium mt-1">{t('Title is required for TikTok', 'Le titre est requis pour TikTok')}</p>
                 )}
               </div>
 
               {/* Point 2: Privacy Status */}
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
-                  {t('Privacy Status', 'Confidentialité')} <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
+                  {t('Privacy status', 'Confidentialité')} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={tiktokPrivacyLevel}
                   onChange={e => setTiktokPrivacyLevel(e.target.value)}
-                  className={`${inputCls} ${submitAttempted && !tiktokPrivacyLevel ? 'border-red-600' : ''}`}
+                  className={`${inputCls} ${submitAttempted && !tiktokPrivacyLevel ? '!border-red-600' : ''}`}
                 >
                   <option value="">{t('Select privacy...', 'Choisir la confidentialité...')}</option>
                   <option value="PUBLIC_TO_EVERYONE">{t('Everyone', 'Tout le monde')}</option>
@@ -349,23 +349,23 @@ export function PlatformSpecificPanels({
                   {!tiktokBrandContent && <option value="SELF_ONLY">{t('Only me', 'Moi uniquement')}</option>}
                 </select>
                 {submitAttempted && !tiktokPrivacyLevel && (
-                  <p className="text-[9px] text-red-600 font-black uppercase mt-1">{t('Privacy is required for TikTok', 'La confidentialité est requise pour TikTok')}</p>
+                  <p className="text-xs text-red-600 font-medium mt-1">{t('Privacy is required for TikTok', 'La confidentialité est requise pour TikTok')}</p>
                 )}
               </div>
 
               {/* Point 2: Interaction Settings */}
               <div className="space-y-2">
-                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block">
-                  {t('Interaction Settings', "Paramètres d'interaction")}
+                <span className="text-xs font-semibold text-[#8E8E8E] block">
+                  {t('Interaction settings', "Paramètres d'interaction")}
                 </span>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={tiktokAllowComment}
                     onChange={e => setTiktokAllowComment(e.target.checked)}
-                    className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                    className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
                   />
-                  <span className="text-[10px] font-black text-black dark:text-white">{t('Allow Comment', 'Autoriser les commentaires')}</span>
+                  <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow comment', 'Autoriser les commentaires')}</span>
                 </label>
                 {tiktokHasVideo && (
                   <>
@@ -374,44 +374,44 @@ export function PlatformSpecificPanels({
                         type="checkbox"
                         checked={tiktokDuet}
                         onChange={e => setTiktokDuet(e.target.checked)}
-                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">Duet</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">Duet</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={tiktokStitch}
                         onChange={e => setTiktokStitch(e.target.checked)}
-                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">Stitch</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">Stitch</span>
                     </label>
                   </>
                 )}
               </div>
 
               {/* Point 2: Music Usage Declaration */}
-              <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[#8E8E8E] leading-relaxed">
                 By posting, you agree to TikTok&apos;s{' '}
                 <a
                   href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                  className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
                 >
                   Music Usage Confirmation
                 </a>
               </p>
 
               {/* Point 3: Content Disclosure Setting */}
-              <div className="border-2 border-black dark:border-white p-3 space-y-3">
+              <div className="rounded-[14px] bg-[#F5F7FA] dark:bg-white/5 p-3 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <span className="text-[10px] font-black uppercase text-black dark:text-white block">
-                      {t('Content Disclosure Setting', 'Divulgation de contenu')}
+                    <span className="text-xs font-semibold text-[#040028] dark:text-white block">
+                      {t('Content disclosure setting', 'Divulgation de contenu')}
                     </span>
-                    <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                    <p className="text-xs text-[#8E8E8E] mt-0.5 leading-relaxed">
                       {t('Indicate if content promotes yourself, a brand, product, or service', 'Indiquez si le contenu fait la promotion de vous-même, d\'une marque, d\'un produit ou d\'un service')}
                     </p>
                   </div>
@@ -420,30 +420,28 @@ export function PlatformSpecificPanels({
                     role="switch"
                     aria-checked={tiktokDisclosure}
                     onClick={() => setTiktokDisclosure(!tiktokDisclosure)}
-                    className={`relative flex-shrink-0 w-10 h-5 border-2 border-black dark:border-white transition-colors ${
-                      tiktokDisclosure ? 'bg-black dark:bg-white' : 'bg-white dark:bg-black'
+                    className={`relative flex-shrink-0 w-10 h-6 rounded-full transition-colors ${
+                      tiktokDisclosure ? 'bg-[#174CD2]' : 'bg-black/10 dark:bg-white/10'
                     }`}
                   >
                     <span
-                      className={`absolute top-0.5 w-3 h-3 border border-black dark:border-white transition-all ${
-                        tiktokDisclosure
-                          ? 'right-0.5 bg-white dark:bg-black'
-                          : 'left-0.5 bg-black dark:bg-white'
+                      className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${
+                        tiktokDisclosure ? 'right-0.5' : 'left-0.5'
                       }`}
                     />
                   </button>
                 </div>
 
                 {tiktokDisclosure && (
-                  <div className="space-y-2 pt-2 border-t-2 border-black/10 dark:border-white/10">
+                  <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/10">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={tiktokYourBrand}
                         onChange={e => setTiktokYourBrand(e.target.checked)}
-                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">{t('Your brand', 'Votre marque')}</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Your brand', 'Votre marque')}</span>
                     </label>
                     <label
                       className={`flex items-center gap-2 select-none ${
@@ -460,31 +458,31 @@ export function PlatformSpecificPanels({
                           setTiktokBrandContent(checked);
                           if (checked && tiktokPrivacyLevel === 'SELF_ONLY') setTiktokPrivacyLevel('');
                         }}
-                        className="w-3 h-3 accent-black dark:accent-white cursor-pointer disabled:cursor-not-allowed"
+                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <span className="text-[10px] font-black text-black dark:text-white">{t('Branded content', 'Contenu de marque')}</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Branded content', 'Contenu de marque')}</span>
                     </label>
 
                     {(tiktokYourBrand || tiktokBrandContent) ? (
-                      <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 italic">
+                      <p className="text-xs text-[#8E8E8E]">
                         {tiktokBrandContent
                           ? t("Your photo/video will be labeled as 'Paid partnership'", "Votre photo/vidéo sera étiquetée 'Partenariat rémunéré'")
                           : t("Your photo/video will be labeled as 'Promotional content'", "Votre photo/vidéo sera étiquetée 'Contenu promotionnel'")}
                       </p>
                     ) : (
-                      <p className="text-[9px] font-black uppercase text-red-500">
+                      <p className="text-xs font-medium text-red-500">
                         {t('Select at least one option above to continue', 'Sélectionnez au moins une option ci-dessus pour continuer')}
                       </p>
                     )}
 
                     {tiktokBrandContent && (
-                      <p className="text-[9px] font-mono text-gray-500 dark:text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-[#8E8E8E] leading-relaxed">
                         By posting, you agree to TikTok&apos;s{' '}
                         <a
                           href="https://www.tiktok.com/legal/page/global/bc-policy/en"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                          className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
                         >
                           Branded Content Policy
                         </a>
@@ -493,7 +491,7 @@ export function PlatformSpecificPanels({
                           href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline font-black text-black dark:text-white hover:opacity-70 transition-opacity"
+                          className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
                         >
                           Music Usage Confirmation
                         </a>
@@ -504,13 +502,13 @@ export function PlatformSpecificPanels({
               </div>
 
               {/* Point 5: Post-publish processing notice */}
-              <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 italic leading-relaxed">
+              <p className="text-xs text-[#8E8E8E] leading-relaxed">
                 {t('After you finish publishing your content, it may take a few minutes for the content to process and be visible on their profile.', 'Après la publication, le traitement du contenu peut prendre quelques minutes avant d\'être visible sur le profil.')}
               </p>
 
               {/* Hashtags */}
               <div>
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-400 block mb-1">
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
                   {t('Hashtags', 'Hashtags')}
                 </label>
                 <textarea
@@ -520,7 +518,7 @@ export function PlatformSpecificPanels({
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500 mt-1">{tiktokHashtags.length}/2200 — appended below caption</p>
+                <p className="text-xs text-[#8E8E8E] mt-1">{tiktokHashtags.length}/2200 — {t('appended below caption', 'ajouté sous la légende')}</p>
               </div>
             </div>
           )}

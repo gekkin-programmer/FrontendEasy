@@ -13,7 +13,7 @@ import { useLanguage } from '@/context/LanguageContext';
 // --- NEU COMPONENTS ---
 
 const NeuBadge = ({ children, className }: any) => (
-  <span className={cn("px-2 py-0.5 text-[10px] font-black uppercase border-2", className)}>
+  <span className={cn("px-2.5 py-1 rounded-full text-xs font-semibold", className)}>
     {children}
   </span>
 );
@@ -24,7 +24,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-black dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -69,20 +69,20 @@ interface PostFeedProps {
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
+  <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
-        <Skeleton className="w-8 h-8 border-2 border-black dark:border-white" />
+        <Skeleton className="w-8 h-8 rounded-full" />
         <div className="space-y-1">
-          <Skeleton className="h-2.5 w-24" />
-          <Skeleton className="h-2 w-16" />
+          <Skeleton className="h-2.5 w-24 rounded-[4px]" />
+          <Skeleton className="h-2 w-16 rounded-[4px]" />
         </div>
       </div>
-      <Skeleton className="h-5 w-16 border-2 border-black dark:border-white" />
+      <Skeleton className="h-5 w-16 rounded-full" />
     </div>
-    <div className="space-y-2 pl-3 border-l-2 border-gray-200 dark:border-zinc-700">
-      <Skeleton className="h-3 w-full" />
-      <Skeleton className="h-3 w-4/5" />
+    <div className="space-y-2 pl-3 border-l-2 border-black/5 dark:border-white/10">
+      <Skeleton className="h-3 w-full rounded-[4px]" />
+      <Skeleton className="h-3 w-4/5 rounded-[4px]" />
     </div>
   </div>
 );
@@ -108,10 +108,10 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   const getStatusColor = (status: string) => {
     switch (status) {
-        case 'SCHEDULED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
-        case 'PUBLISHED': return "bg-white dark:bg-zinc-800 text-black dark:text-white border-black dark:border-white";
-        case 'FAILED': return "bg-white dark:bg-zinc-900 text-black dark:text-white border-black dark:border-white";
-        default: return "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-600";
+        case 'SCHEDULED': return "bg-[#174CD2]/10 text-[#174CD2]";
+        case 'PUBLISHED': return "bg-green-100 text-green-700";
+        case 'FAILED': return "bg-red-100 text-red-700";
+        default: return "bg-[#F5F7FA] dark:bg-white/10 text-[#8E8E8E]";
     }
   };
 
@@ -125,12 +125,12 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       draggable={draggable}
       onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-white dark:bg-zinc-900 border-2 border-black dark:border-white p-4 transition-all shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] dark:hover:shadow-[2px_2px_0px_0px_#fff] rounded-lg",
-        draggable ? "cursor-grab active:cursor-grabbing hover:bg-zinc-50 dark:hover:bg-zinc-800" : ""
+        "group relative bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all rounded-[16px]",
+        draggable ? "cursor-grab active:cursor-grabbing" : ""
       )}
     >
       {draggable && (
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8E8E8E] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
           <GripVertical size={16} />
         </div>
       )}
@@ -139,17 +139,17 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {socialAccounts.map((sa: any, idx: number) => (
-                <div key={idx} className="w-8 h-8 rounded-none bg-white dark:bg-zinc-900 border-2 border-black dark:border-white flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] transition-all z-[1]">
+                <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center transition-all z-[1]">
                     <PlatformIcon platform={sa.socialAccount?.platform} />
                 </div>
             ))}
           </div>
           <div className="text-xs">
-            <p className="font-black uppercase text-black dark:text-white">
-                {firstAccount?.username || firstAccount?.platformUsername || "Draft_Node"}
+            <p className="font-semibold text-[#040028] dark:text-white">
+                {firstAccount?.username || firstAccount?.platformUsername || t("Draft", "Brouillon")}
             </p>
-            <p className="opacity-70 text-[10px] font-mono text-black dark:text-white">
-                {socialAccounts.length > 1 ? `${socialAccounts.length}_TARGETS` : (firstAccount?.platform || "LOCAL")}
+            <p className="text-[#8E8E8E] mt-0.5 capitalize">
+                {socialAccounts.length > 1 ? t(`${socialAccounts.length} targets`, `${socialAccounts.length} cibles`) : (firstAccount?.platform?.toLowerCase() || t("Local", "Local"))}
             </p>
           </div>
         </div>
@@ -163,14 +163,14 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         {post.media && post.media.length > 0 && (
           <div className="shrink-0 flex flex-col gap-1.5">
             <div className={cn(
-              "grid gap-1 relative overflow-hidden shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]",
+              "grid gap-1 relative overflow-hidden rounded-[10px]",
               post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
             )}>
               {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
                 pm.media.mimeType?.startsWith('video/') ? (
-                  <video key={i} src={pm.media.url} className="w-full h-full object-cover border border-black dark:border-white" muted playsInline />
+                  <video key={i} src={pm.media.url} className="w-full h-full object-cover" muted playsInline />
                 ) : (
-                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover border border-black dark:border-white" />
+                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover" />
                 )
               ))}
             </div>
@@ -178,100 +178,96 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
               {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
                 <div key={i} className="flex items-center gap-1 min-w-0">
                   <span className={cn(
-                    "text-[6px] font-black px-0.5 border border-black dark:border-white flex-shrink-0",
-                    pm.media.mimeType?.startsWith('video/') ? "bg-black text-white dark:bg-white dark:text-black" : "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
+                    "text-[8px] font-semibold px-1 rounded-[3px] flex-shrink-0",
+                    pm.media.mimeType?.startsWith('video/') ? "bg-[#040028] text-white" : "bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white"
                   )}>
-                    {pm.media.mimeType?.startsWith('video/') ? 'VID' : 'IMG'}
+                    {pm.media.mimeType?.startsWith('video/') ? t('Video', 'Vidéo') : t('Image', 'Image')}
                   </span>
-                  <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500 truncate">{pm.media.filename}</span>
+                  <span className="text-[9px] text-[#8E8E8E] truncate">{pm.media.filename}</span>
                 </div>
               ))}
               {post.media.length > 2 && (
-                <span className="text-[7px] font-mono text-gray-400 dark:text-zinc-500">+{post.media.length - 2} more</span>
+                <span className="text-[9px] text-[#8E8E8E]">+{post.media.length - 2} {t('more', 'de plus')}</span>
               )}
             </div>
           </div>
         )}
         <div className="flex-1 min-w-0 space-y-1">
-          {post.title && <h4 className="font-bold text-sm text-black dark:text-white uppercase truncate">{post.title}</h4>}
-          <p className="text-sm font-medium text-black dark:text-white line-clamp-2 leading-relaxed border-l-2 border-gray-200 dark:border-zinc-700 pl-3">
+          {post.title && <h4 className="font-semibold text-sm text-[#040028] dark:text-white truncate">{post.title}</h4>}
+          <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-2 leading-relaxed border-l-2 border-black/5 dark:border-white/10 pl-3">
             {post.content}
           </p>
-          {post.description && <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-2 mt-1 italic">{post.description}</p>}
+          {post.description && <p className="text-xs text-[#8E8E8E] line-clamp-2 mt-1">{post.description}</p>}
         </div>
       </div>
 
       {post.status === 'FAILED' && post.errorMessage && (
-        <div className="mt-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-[10px] font-bold text-red-600 dark:text-red-400 uppercase font-mono">
-          <AlertTriangle size={10} className="inline mr-1" />
+        <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400">
+          <AlertTriangle size={12} className="inline mr-1.5" />
           {post.errorMessage}
         </div>
       )}
 
-      <div className={cn("mt-4 py-3 border-t-2 border-black dark:border-white flex justify-between items-center", draggable && "pl-4")}>
-        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-black dark:text-white">
-           {isQueued ? <CalendarCheck className="w-3.5 h-3.5 text-black dark:text-white" /> : <Edit2 className="w-3.5 h-3.5 text-black dark:text-white" />}
-           <span className="text-black dark:text-white">
-             {post.scheduledFor 
-               ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) 
-               : 'NO_DATE_SET'}
+      <div className={cn("mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center", draggable && "pl-4")}>
+        <div className="flex items-center gap-1.5 text-xs font-medium text-[#8E8E8E]">
+           {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
+           <span>
+             {post.scheduledFor
+               ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'})
+               : t('No date set', 'Aucune date')}
            </span>
         </div>
-        
+
         <div className="flex gap-1">
           {post.status === 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
               title={t('Repost', 'Republier')}
-              className="bg-white hover:bg-white border-black hover:border-black"
             >
-              <RefreshCw size={14} className="text-black dark:text-white" />
+              <RefreshCw size={14} />
             </NeuButton>
           )}
 
           {post.status === 'FAILED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
-              title={t('Retry Publication', 'Réessayer la publication')}
-              className="bg-white hover:bg-white border-black hover:border-black"
+              title={t('Retry publication', 'Réessayer la publication')}
             >
-              <RefreshCw size={14} className="text-black" />
+              <RefreshCw size={14} />
             </NeuButton>
           )}
 
           {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
-              title={t('Publish Now', 'Publier maintenant')}
-              className="bg-white hover:bg-white border-black hover:border-black"
+              title={t('Publish now', 'Publier maintenant')}
             >
-              <Send size={14} className="text-black dark:text-white" />
+              <Send size={14} />
             </NeuButton>
           )}
 
           {isQueued && post.status === 'SCHEDULED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
-              title={t('Cancel Schedule', 'Annuler la planification')}
-              className="bg-white hover:bg-white border-black hover:border-black"
+              title={t('Cancel schedule', 'Annuler la planification')}
             >
-              <Clock size={14} className="text-black dark:text-white" />
+              <Clock size={14} />
             </NeuButton>
           )}
 
           {post.status !== 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
-              title={t('Edit Post', 'Modifier le post')}
+              title={t('Edit post', 'Modifier le post')}
             >
-              <Edit2 size={14} className="text-black dark:text-white" />
+              <Edit2 size={14} />
             </NeuButton>
           )}
 
           <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
-            title={t('Delete Post', 'Supprimer le post')}
-            className="p-2 border-2 border-black dark:border-white bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff] hover:bg-red-500 hover:border-red-600 hover:text-white hover:shadow-[2px_2px_0px_0px_#991b1b] dark:hover:bg-red-500 dark:hover:border-red-600 dark:hover:text-white transition-all"
+            title={t('Delete post', 'Supprimer le post')}
+            className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-500 hover:text-white transition-all"
           >
             <Trash2 size={14} />
           </button>
@@ -363,11 +359,11 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-black dark:text-white transition-colors">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
       <div className="flex flex-col gap-4">
-        <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-white flex items-center justify-between w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-            <h3 className="font-black text-sm uppercase flex items-center gap-2 text-white dark:text-black">
-              <FileText className="w-4 h-4" /> {t("Drafts", "Brouillons")} ({drafts.length})
+        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
+            <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
+              <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")}
             </h3>
             {drafts.length > 0 && (
                 <button
@@ -376,13 +372,13 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                             for(const d of drafts) await publishPost(d.id);
                         }
                     }}
-                    className="bg-black text-white text-[10px] font-bold px-2 py-1 border border-white hover:bg-white hover:text-black transition-all"
+                    className="bg-[#174CD2] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#123a9e] transition-all"
                 >
-                    {t("PUBLISH ALL", "TOUT PUBLIER")}
+                    {t("Publish all", "Tout publier")}
                 </button>
             )}
         </div>
-        
+
         <div className="space-y-4 min-h-[200px]">
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
@@ -401,7 +397,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
             ))}
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
-            <div className="text-center p-8 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
+            <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
               {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
             </div>
           )}
@@ -409,9 +405,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       </div>
 
       <div onDrop={handleDropToQueue} onDragOver={handleDragOver} className="relative group flex flex-col gap-4">
-        <div className="bg-black dark:bg-white text-white dark:text-black p-2 border-2 border-black dark:border-white inline-block w-full shadow-[4px_4px_0px_0px_#000] dark:shadow-[4px_4px_0px_0px_#fff]">
-            <h3 className="font-black text-sm uppercase flex items-center gap-2">
-              <Clock className="w-4 h-4" /> {t("Queue / Scheduled", "File / Programmé")} ({queued.length})
+        <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
+            <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
+              <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
             </h3>
         </div>
         <div className="space-y-4 min-h-[200px] z-10">
@@ -432,7 +428,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
             ))}
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
-             <div className="text-center p-12 border-2 border-dashed border-black dark:border-white bg-white dark:bg-zinc-900 text-sm font-bold uppercase text-gray-400 transition-colors">
+             <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
                {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
              </div>
           )}

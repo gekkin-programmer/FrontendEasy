@@ -8,7 +8,7 @@ export default function ImpactSection() {
   const { t } = useLanguage();
   return (
     <section className="w-full bg-white border-b-[4px] border-[#D9D9D9] rounded-t-[30px] min-h-[400px] md:min-h-[600px] flex items-center overflow-hidden">
-      <div className="max-w-[1440px] mx-auto w-full flex flex-col xl:flex-row items-center justify-between py-[40px] md:py-[80px] px-[16px] md:px-[20px] lg:px-[52px] gap-10 xl:gap-20">
+      <div className="max-w-[1440px] 3xl:max-w-[1900px] mx-auto w-full flex flex-col xl:flex-row items-center justify-between py-[40px] md:py-[80px] px-[16px] md:px-[20px] lg:px-[52px] 3xl:gap-32 gap-10 xl:gap-20">
         
         {/* Left Side: Titles */}
         <div className="flex flex-col relative flex-shrink-0">
