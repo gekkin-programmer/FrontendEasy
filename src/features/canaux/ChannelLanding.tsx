@@ -117,7 +117,7 @@ function SplitSection({
 }) {
   return (
     <section className="w-full" style={{ backgroundColor: bg }}>
-      <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[64px] pb-[100px] lg:pt-[88px] lg:pb-[128px]">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[48px] pb-[48px] lg:pt-[72px] lg:pb-[72px]">
         <div className={`flex flex-col ${imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-[48px] lg:gap-[80px]`}>
           <div className="flex-1 max-w-[664px]">
             <h2
@@ -213,7 +213,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Hero — white */}
       <section className="w-full bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[72px] pb-[100px] lg:pt-[112px] lg:pb-[150px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[56px] pb-[56px] lg:pt-[80px] lg:pb-[80px]">
           <div className="flex flex-col lg:flex-row items-center gap-[48px] lg:gap-[16px]">
             <div className="flex-1 max-w-[664px]">
               <h1 className="font-extrabold text-[42px] leading-[46px] lg:text-[56px] lg:leading-[59px] tracking-[-1.12px] text-[#040028]">
@@ -244,14 +244,14 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Social proof + creators marquee — white */}
       <section className="w-full overflow-hidden bg-white">
-        <div className="pt-[128px]">
+        <div className="pt-[64px]">
           <RatingRow label={t('Excellent', 'Excellent')} />
           <h2 className="mt-[36px] text-center font-extrabold text-[38px] leading-[44px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
             {t('EazyPost is for', 'EazyPost est fait pour les')}{' '}
             <span className="text-[#2665D6]">{t('creators', 'créateurs')}</span>
           </h2>
         </div>
-        <div className="mt-[64px] pb-[128px]">
+        <div className="mt-[48px] pb-[64px]">
           <div
             className="flex w-max gap-[16px]"
             style={{ animation: 'canaux-marquee 40s linear infinite' }}
@@ -346,7 +346,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Feature grid — grey */}
       <section className="w-full" style={{ backgroundColor: GREY }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] py-[128px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] py-[64px] lg:py-[96px]">
           <h2 className="text-center font-extrabold text-[38px] leading-[44px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px] max-w-[1018px] mx-auto" style={{ color: INK }}>
             {t('Everything you need to grow on', 'Tout ce qu’il faut pour grandir sur')} {channelName}
           </h2>
@@ -435,7 +435,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Testimonial — grey */}
       <section className="w-full" style={{ backgroundColor: GREY }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[128px] flex flex-col items-center gap-[64px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[64px] lg:pb-[96px] flex flex-col items-center gap-[64px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/assets/influence.png" alt="" className="w-full max-w-[830px] h-[300px] lg:h-[420px] object-cover rounded-full" />
           <div className="max-w-[1065px] text-center">
@@ -456,7 +456,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Paid plan cards — grey */}
       <section className="w-full" style={{ backgroundColor: GREY }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[128px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[64px] lg:pb-[96px]">
           <h2 className="text-center font-extrabold text-[38px] leading-[44px] lg:text-[54px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
             {t('Do more, get more on a paid plan.', 'Faites plus, obtenez plus avec un plan payant.')}
           </h2>
@@ -509,7 +509,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Compare plans banner — grey bg, pink pill */}
       <section className="w-full" style={{ backgroundColor: GREY }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[64px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pb-[48px]">
           <Link
             href="/tarifs"
             className="relative block rounded-full h-[240px] lg:h-[436px]"

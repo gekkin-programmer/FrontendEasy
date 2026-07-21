@@ -78,6 +78,10 @@ jobs:
           tags: ghcr.io/gekkin-programmer/eazypost-frontend:latest
           build-args: |
             NODE_OPTIONS=--max-old-space-size=4096
+            NEXT_PUBLIC_API_URL=https://backend-eazypost.mbokofit.com
+            NEXT_PUBLIC_APP_URL=https://eazypost.cm
+            NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_sfHAxeZDRp84KG8Hcd4c6bgZhrfjvzv46W3EAjjub2yQ
+            NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

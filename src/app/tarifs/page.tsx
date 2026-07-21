@@ -190,7 +190,7 @@ export default function TarifsPage() {
       </div>
 
       {/* Pricing Header */}
-      <section className="w-full flex flex-col items-center px-4 pt-[120px] md:pt-[217px]">
+      <section className="w-full flex flex-col items-center px-4 pt-[80px] md:pt-[120px]">
         {/* Heading + decorative swash */}
         <div className="relative w-full max-w-[920px] text-center">
           <h1 className="text-[#000B33] font-black text-[44px] leading-[52px] md:text-[72px] md:leading-[82px]">
@@ -237,7 +237,7 @@ export default function TarifsPage() {
         </p>
 
         {/* Billing cycle toggle + currency dropdown */}
-        <div className="relative w-full flex flex-col items-center gap-[24px] mt-[80px]">
+        <div className="relative w-full flex flex-col items-center gap-[24px] mt-[56px]">
         <div className="flex items-center">
           <button
             type="button"
@@ -322,7 +322,7 @@ export default function TarifsPage() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="relative w-full flex justify-center px-4 mt-[84px] lg:mt-[155px] pb-[60px]">
+      <section className="relative w-full flex justify-center px-4 mt-[64px] lg:mt-[100px] pb-[60px]">
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-[36px]">
           <PlanCard
             badge={t('FREE', 'Gratuit')}
@@ -436,7 +436,7 @@ export default function TarifsPage() {
       </section>
 
       {/* Plan comparison table */}
-      <section className="w-full flex justify-center px-4 pb-[140px]">
+      <section className="w-full flex justify-center px-4 pb-[64px]">
         <div className="w-full max-w-[1500px] overflow-x-auto">
           <div className="min-w-[1000px]">
             <h2 className="text-black font-bold text-[48px] leading-[57px] mb-[20px]">
@@ -597,7 +597,7 @@ export default function TarifsPage() {
       </section>
 
       {/* Payment methods */}
-      <section className="w-full flex flex-col items-center px-4 pb-[140px]">
+      <section className="w-full flex flex-col items-center px-4 pb-[64px]">
         <h3 className="text-[#0D0303] text-[25px] leading-[26px] text-center">
           {t('Payment Methods', 'Moyens de paiement')}
         </h3>

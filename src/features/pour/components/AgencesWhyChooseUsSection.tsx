@@ -30,7 +30,7 @@ export default function AgencesWhyChooseUsSection({ hideBackground = false }: { 
     }
   ];
   return (
-    <section className={`w-full ${hideBackground ? 'bg-transparent' : 'bg-white'} relative font-sans overflow-hidden py-[40px] max-[375px]:py-[32px] max-[540px]:py-[24px] md:pt-[100px] md:pb-[80px] lg:pt-[100px] xl:pt-[160px] 3xl:pt-[200px] lg:pb-[100px] xl:pb-[160px] 3xl:pb-[200px] flex flex-col items-center`}>
+    <section className={`w-full ${hideBackground ? 'bg-transparent' : 'bg-white'} relative font-sans overflow-hidden py-[40px] max-[375px]:py-[32px] max-[540px]:py-[24px] md:pt-[80px] md:pb-[64px] lg:pt-[80px] xl:pt-[100px] 3xl:pt-[120px] lg:pb-[80px] xl:pb-[100px] 3xl:pb-[120px] flex flex-col items-center`}>
       
       {/* Decorative SVG - Top Left */}
       <div className="absolute top-0 left-0 z-0 pointer-events-none opacity-40 md:opacity-100 max-[375px]:w-[80px] max-[375px]:overflow-hidden">
