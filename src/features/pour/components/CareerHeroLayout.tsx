@@ -16,7 +16,7 @@ export default function CareerHeroLayout({
 }) {
   const { t } = useLanguage();
   return (
-    <section className="w-full relative bg-transparent overflow-hidden flex justify-center items-start xl:min-h-[calc(100vh-172px)]">
+    <section className="w-full relative bg-transparent overflow-hidden flex justify-center items-start">
       
      
 
