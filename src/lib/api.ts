@@ -4,7 +4,7 @@ import { getCookie, deleteCookie } from 'cookies-next';
 
 // 1. Ensure the URL doesn't have a trailing slash to avoid double slashes (e.g., //posts)
 const BASE_URL =
-  (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+  (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com')
     .replace(/\/$/, '')
     .replace(/\/api$/, '') + '/api';
 
