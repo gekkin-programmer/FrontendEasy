@@ -5,9 +5,9 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { LanguageProvider } from "@/context/LanguageContext";
-import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/providers/query-provider";
 import AgentationLoader from "@/components/common/AgentationLoader";
+import AppLayoutShell from "@/components/layout/AppLayoutShell";
 
 const rubik = Rubik({
   subsets: ["latin"],
@@ -92,11 +92,7 @@ export default function RootLayout({
             /> 
             
             {/* Layout */}
-            <main className="min-h-screen pt-16 md:pt-1">
-              {children}
-            </main>
-
-            <Footer />
+            <AppLayoutShell>{children}</AppLayoutShell>
             <AgentationLoader />
 
           </LanguageProvider>
