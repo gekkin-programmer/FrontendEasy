@@ -53,7 +53,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[150px]">
+    <section className="w-full bg-white relative flex flex-col items-center pt-[100px] pb-[60px]">
       <div className="w-full max-w-[1440px] 3xl:max-w-[1900px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[20px] md:px-[52px] xl:px-[157px] gap-[40px] lg:gap-[60px]">
 
         {/* Left Side: Text */}

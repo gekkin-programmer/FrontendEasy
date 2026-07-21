@@ -3,8 +3,8 @@ import { ArrowRight, BarChart2, TrendingUp, Search } from 'lucide-react';
 
 export default function PmeFeaturesSection() {
   return (
-    <section className="relative w-full py-[100px] max-[540px]:py-[40px] md:py-[150px] flex justify-center bg-white overflow-hidden">
-      <div className="relative w-full max-w-[1296px] px-6 flex flex-col gap-[150px] max-[540px]:gap-[60px] z-10">
+    <section className="relative w-full py-[64px] max-[540px]:py-[40px] md:py-[96px] flex justify-center bg-white overflow-hidden">
+      <div className="relative w-full max-w-[1296px] px-6 flex flex-col gap-[80px] max-[540px]:gap-[48px] z-10">
         
         {/* Header Content */}
         <div className="flex flex-col gap-6 max-w-[636px]">

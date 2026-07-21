@@ -173,7 +173,7 @@ const profileTypes = [
 ];
 
   return (
-    <section className="w-full bg-white relative flex flex-col items-center pt-[60px] md:pt-[80px] pb-[150px]">
+    <section className="w-full bg-white relative flex flex-col items-center pt-[60px] md:pt-[80px]">
       
       {/* 
         The section uses a relative wrapper that explicitly matches the Figma width structure 

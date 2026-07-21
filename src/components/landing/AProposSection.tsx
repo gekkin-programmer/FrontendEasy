@@ -6,7 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 export default function AProposSection() {
   const { t } = useLanguage();
   return (
-    <section className="w-full bg-white flex flex-col items-center py-12 px-4 relative">
+    <section className="w-full bg-white flex flex-col items-center pt-12 px-4 relative">
       {/* Title */}
       <div className="w-full flex flex-col items-center text-center mb-12">
         <h2
