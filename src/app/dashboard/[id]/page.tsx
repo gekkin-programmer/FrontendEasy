@@ -149,9 +149,6 @@ function InstagramPreview({ text, media, account }: { text: string; media: strin
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden" style={{ background: '#7797D7' }}>
                         {account?.avatar && <img src={account.avatar} className="w-full h-full object-cover" alt="" />}
-                        <div className="absolute -bottom-0.5 -right-0.5">
-                            <svg width="16" height="16" viewBox="0 0 31 31" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="15.5" cy="15.5" r="14.5" fill="#4192EF" stroke="white" strokeWidth="2"/><path d="M15.5 11L15.5 20" stroke="white" strokeWidth="2" strokeLinecap="round"/><path d="M11 15.4859H20" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
-                        </div>
                     </div>
                     <span className="text-[9px] text-[#121212] truncate max-w-[48px]">Your story</span>
                 </div>

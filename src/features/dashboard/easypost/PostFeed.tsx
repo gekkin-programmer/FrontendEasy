@@ -24,7 +24,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-[#E5E5E5] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
