@@ -1,13 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import { FaTiktok, FaYoutube, FaDiscord, FaTelegram, FaWhatsapp, FaSnapchatGhost, FaPinterestP, FaRedditAlien } from 'react-icons/fa';
+import { InstagramIcon } from '@/components/icons/PlatformIcons';
 
 export function PlatformIcon({ platform, size = 14 }: { platform?: string; size?: number }) {
   switch (platform?.toLowerCase()) {
     case 'facebook':  return <Facebook size={size} className="text-blue-600 fill-blue-600" />;
-    case 'instagram': return <Instagram size={size} className="text-pink-600" />;
+    case 'instagram': return <InstagramIcon size={size} />;
     case 'linkedin':  return <Linkedin size={size} className="text-blue-700 fill-blue-700" />;
     case 'twitter':   return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />;
     case 'tiktok':    return <FaTiktok size={size} className="text-black dark:text-white" />;
