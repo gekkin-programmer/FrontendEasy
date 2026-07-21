@@ -71,7 +71,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="w-full bg-[#F7F8FC] relative flex flex-col items-center px-[20px] py-[80px] md:py-[120px]">
+    <section className="w-full bg-white relative flex flex-col items-center px-[20px] py-[80px] md:py-[120px]">
       <div className="w-full max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start justify-between gap-[40px] lg:gap-[60px]">
         <div className="flex flex-col w-full lg:w-[35%] gap-4 lg:sticky lg:top-24">
           <div className="inline-flex w-fit items-center rounded-full px-3 py-1">
@@ -80,7 +80,7 @@ export default function FaqSection() {
             </span>
           </div>
 
-         {/* <div className="space-y-2">
+        {/* <div className="space-y-2">
             <h2 className="text-[#000000] text-[28px] md:text-[32px] xl:text-[36px] leading-tight font-normal" style={{ fontFamily: "'Rubik One', sans-serif" }}>
               {t('Frequently Asked', 'Foire aux')}
             </h2>
@@ -109,8 +109,8 @@ export default function FaqSection() {
                 'Notre équipe peut t’aider à configurer ta première campagne ou à répondre à toute question précise.'
               )}
             </p>
-          </div>*/}
-        </div> 
+          </div> */}
+        </div>
 
         <div className="w-full lg:w-[65%] max-w-[1000px] flex flex-col gap-[16px]">
           {faqs.map((faq, index) => {
