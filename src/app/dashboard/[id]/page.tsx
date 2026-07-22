@@ -53,25 +53,6 @@ type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'se
 
 interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string; }
 
-// TEMP DESIGN MOCK — flip to false (or delete this block) once the "all connected" review is done.
-const MOCK_ALL_PLATFORMS_CONNECTED = true;
-const MOCK_PLATFORM_ACCOUNTS = [
-  { id: 'mock-facebook', platform: 'FACEBOOK', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-instagram', platform: 'INSTAGRAM', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-twitter', platform: 'TWITTER', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-linkedin', platform: 'LINKEDIN', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-tiktok', platform: 'TIKTOK', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-youtube', platform: 'YOUTUBE', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-pinterest', platform: 'PINTEREST', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-whatsapp', platform: 'WHATSAPP', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-medium', platform: 'MEDIUM', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-snapchat', platform: 'SNAPCHAT', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-telegram', platform: 'TELEGRAM', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-discord', platform: 'DISCORD', username: 'EazyPost', avatar: null, isActive: true },
-  { id: 'mock-twitch', platform: 'TWITCH', username: 'eazypost', avatar: null, isActive: true },
-  { id: 'mock-threads', platform: 'THREADS', username: 'eazypost', avatar: null, isActive: true },
-];
-
 const PLATFORM_COLORS: Record<string, string> = {
     INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
     LINKEDIN: '#0A66C2', TIKTOK: '#010101', YOUTUBE: '#FF0000', DISCORD: '#5865F2',
@@ -531,12 +512,6 @@ function DashboardContent() {
         queryKey: ['social-accounts', workspaceId],
         queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
-        select: (data) => {
-            if (!MOCK_ALL_PLATFORMS_CONNECTED) return data;
-            const connectedPlatforms = new Set(data.map((a: any) => a.platform?.toUpperCase()));
-            const missing = MOCK_PLATFORM_ACCOUNTS.filter(a => !connectedPlatforms.has(a.platform));
-            return [...data, ...missing];
-        },
     });
 
     const { data: posts = [], refetch: refetchPosts, isLoading: postsLoading } = useQuery({
