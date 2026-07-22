@@ -1,24 +1,32 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Linkedin, Twitter } from 'lucide-react';
-import { FaTiktok, FaYoutube, FaDiscord, FaTelegram, FaWhatsapp, FaSnapchatGhost, FaPinterestP, FaRedditAlien } from 'react-icons/fa';
-import { InstagramIcon } from '@/components/icons/PlatformIcons';
+import { FaSnapchat, FaMedium, FaThreads } from 'react-icons/fa6';
+import {
+  FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon,
+  TiktokIcon, YoutubeIcon, PinterestIcon, WhatsappIcon,
+  TelegramIcon, DiscordIcon, TwitchIcon, RedditIcon,
+} from '@/components/icons/PlatformIcons';
 
 export function PlatformIcon({ platform, size = 14 }: { platform?: string; size?: number }) {
   switch (platform?.toLowerCase()) {
-    case 'facebook':  return <Facebook size={size} className="text-blue-600 fill-blue-600" />;
+    case 'facebook':  return <FacebookIcon size={size} />;
     case 'instagram': return <InstagramIcon size={size} />;
-    case 'linkedin':  return <Linkedin size={size} className="text-blue-700 fill-blue-700" />;
-    case 'twitter':   return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />;
-    case 'tiktok':    return <FaTiktok size={size} className="text-black dark:text-white" />;
-    case 'youtube':   return <FaYoutube size={size} className="text-red-600" />;
-    case 'discord':   return <FaDiscord size={size} className="text-[#5865F2]" />;
-    case 'telegram':  return <FaTelegram size={size} className="text-[#26A5E4]" />;
-    case 'whatsapp':  return <FaWhatsapp size={size} className="text-[#25D366]" />;
-    case 'snapchat':  return <FaSnapchatGhost size={size} className="text-yellow-400" />;
-    case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />;
-    case 'reddit':    return <FaRedditAlien size={size} className="text-[#FF4500]" />;
+    case 'linkedin':  return <LinkedinIcon size={size} />;
+    case 'twitter':
+    case 'x':         return <TwitterIcon size={size} />;
+    case 'tiktok':    return <TiktokIcon size={size} />;
+    case 'youtube':
+    case 'google':    return <YoutubeIcon size={size} />;
+    case 'discord':   return <DiscordIcon size={size} />;
+    case 'telegram':  return <TelegramIcon size={size} />;
+    case 'whatsapp':  return <WhatsappIcon size={size} />;
+    case 'pinterest': return <PinterestIcon size={size} />;
+    case 'twitch':    return <TwitchIcon size={size} />;
+    case 'reddit':    return <RedditIcon size={size} />;
+    case 'medium':    return <FaMedium size={size} className="text-black dark:text-white" />;
+    case 'threads':   return <FaThreads size={size} className="text-black dark:text-white" />;
+    case 'snapchat':  return <FaSnapchat size={size} className="text-yellow-400" />;
     default:          return <div style={{ width: size, height: size }} className="bg-gray-400 rounded-full" />;
   }
 }

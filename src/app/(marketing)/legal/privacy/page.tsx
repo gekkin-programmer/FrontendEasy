@@ -114,7 +114,7 @@ export default function PrivacyPage() {
                   </a>{' '}
                   with the subject line <strong className="text-gray-100">&ldquo;Data Deletion Request&rdquo;</strong> and your registered email address, or follow the steps at{' '}
                   <a href="/legal/data-deletion" className="text-blue-400 hover:underline">
-                    eazypost.cm/legal/data-deletion
+                    eazlypost.com/legal/data-deletion
                   </a>.
                 </p>
               </div>

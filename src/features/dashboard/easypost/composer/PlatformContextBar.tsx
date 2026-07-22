@@ -24,7 +24,7 @@ export function PlatformContextBar({
   if (activePlatforms.length === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-2 border-b border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.02] scrollbar-hide">
+    <div className="flex flex-wrap gap-2 px-4 py-2 border-b border-black/5 dark:border-white/5 bg-[#F7F6F3] dark:bg-white/[0.02]">
       {activePlatforms.map((p) => {
         const isBroadcast = broadcastPlatforms.some((b) => b.id === p.id);
         const count = isBroadcast ? broadcastLength : textLength;
@@ -39,7 +39,7 @@ export function PlatformContextBar({
                 ? 'bg-red-50 dark:bg-red-950/30'
                 : isWarn
                   ? 'bg-yellow-50 dark:bg-yellow-950/30'
-                  : 'bg-white dark:bg-[#0A0A2E]'
+                  : 'bg-[#F7F6F3] dark:bg-[#0A0A2E]'
             }`}
           >
             <PlatformIcon platform={p.id} size={12} />
@@ -62,7 +62,7 @@ export function PlatformContextBar({
                     ? 'text-red-600 font-semibold animate-pulse'
                     : isWarn
                       ? 'text-yellow-600 dark:text-yellow-400'
-                      : 'text-[#8E8E8E]'
+                      : 'text-[#040028] dark:text-white'
                 }`}
               >
                 {count}/{p.charLimit}
@@ -76,7 +76,7 @@ export function PlatformContextBar({
             )}
 
             {p.requiresVideo && (
-              <span className="text-[10px] font-semibold rounded-full bg-[#174CD2] text-white px-1.5">
+              <span className="text-[10px] font-semibold rounded-full bg-[#040028] text-white px-1.5">
                 {t('Video', 'Vidéo')}
               </span>
             )}

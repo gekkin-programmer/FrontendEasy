@@ -7,7 +7,7 @@ import { api } from '@/lib/api';
 import { getCookie } from 'cookies-next';
 import { cn } from '@/lib/utils';
 import {
-  Trash2, Check, X, Copy, CheckCheck
+  X, Copy, CheckCheck
 } from 'lucide-react';
 import { FaMedium, FaSnapchat, FaThreads } from 'react-icons/fa6';
 import {
@@ -23,9 +23,10 @@ interface QuickConnectSidebarProps {
   workspaceId: string;
   refreshData: () => void;
   currentWorkspace: any;
+  onManageChannels?: () => void;
 }
 
-export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: QuickConnectSidebarProps) => {
+export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onManageChannels }: QuickConnectSidebarProps) => {
     const { t } = useLanguage();
     const queryClient = useQueryClient();
     const [telegramModal, setTelegramModal] = useState(false);
@@ -49,7 +50,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
         { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white' },
     ];
 
-    const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+    const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com')
         .replace(/\/$/, '')
         .replace(/\/api$/, '') + '/api';
 
@@ -81,46 +82,19 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const disconnectMutation = useMutation({
-        mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
-        onSuccess: () => refreshData(),
-        onError: () => {},
-    });
-
-
     return (
         <>
-            <div className="grid grid-cols-3 gap-2 w-full p-3 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10">
+            <div className="flex flex-col w-full">
+            <div className="grid grid-cols-3 gap-2 w-full p-3 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10">
                 {platforms.map((p) => {
                         const connected = accounts.find((a:any) => a.platform?.toLowerCase() === p.id.toLowerCase());
 
                         return (
                             <div key={p.id} className="relative group flex-shrink-0">
                                 {connected ? (
-                                    <>
-                                        {/* Base layer: platform icon */}
-                                        <button className="w-12 h-12 rounded-[10px] flex items-center justify-center cursor-default transition-colors">
-                                            <p.Icon size={24} className={cn(p.color, "opacity-60")} />
-                                        </button>
-
-                                        {/* Hover overlay: disconnect only */}
-                                        <div className="absolute inset-0 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex">
-                                            <button
-                                                onClick={() => disconnectMutation.mutate(connected.id)}
-                                                className="w-full rounded-[10px] flex items-center justify-center hover:bg-red-50 transition-colors cursor-pointer"
-                                                title={t("Disconnect", "Déconnecter")}
-                                            >
-                                                <Trash2 size={12} className="text-red-500" />
-                                            </button>
-                                        </div>
-
-                                        {/* Status dot: always green */}
-                                        <div className="absolute -top-1 -right-1 pointer-events-none z-20">
-                                            <div className="w-3.5 h-3.5 bg-green-500 rounded-full ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center text-white">
-                                                <Check size={8} />
-                                            </div>
-                                        </div>
-                                    </>
+                                    <button className="w-12 h-12 rounded-[10px] flex items-center justify-center cursor-default transition-colors" title={connected.username}>
+                                        <p.Icon size={24} className={p.color} />
+                                    </button>
                                 ) : (
                                     <button
                                         onClick={() => handleConnect(p.id, (p as any).comingSoon)}
@@ -143,6 +117,16 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData }: Quic
                             </div>
                         );
                 })}
+            </div>
+
+            {onManageChannels && (
+                <button
+                    onClick={onManageChannels}
+                    className="self-center text-center text-xs font-semibold text-[#040028] dark:text-white px-1.5 py-0.5 mt-2"
+                >
+                    {t('Manage your channels', 'Gérer vos canaux')}
+                </button>
+            )}
             </div>
 
             {/* TELEGRAM LINK MODAL */}

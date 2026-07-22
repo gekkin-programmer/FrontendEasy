@@ -53,6 +53,25 @@ type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'se
 
 interface PreviewData { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string; }
 
+// TEMP DESIGN MOCK — flip to false (or delete this block) once the "all connected" review is done.
+const MOCK_ALL_PLATFORMS_CONNECTED = true;
+const MOCK_PLATFORM_ACCOUNTS = [
+  { id: 'mock-facebook', platform: 'FACEBOOK', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-instagram', platform: 'INSTAGRAM', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-twitter', platform: 'TWITTER', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-linkedin', platform: 'LINKEDIN', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-tiktok', platform: 'TIKTOK', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-youtube', platform: 'YOUTUBE', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-pinterest', platform: 'PINTEREST', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-whatsapp', platform: 'WHATSAPP', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-medium', platform: 'MEDIUM', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-snapchat', platform: 'SNAPCHAT', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-telegram', platform: 'TELEGRAM', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-discord', platform: 'DISCORD', username: 'EazyPost', avatar: null, isActive: true },
+  { id: 'mock-twitch', platform: 'TWITCH', username: 'eazypost', avatar: null, isActive: true },
+  { id: 'mock-threads', platform: 'THREADS', username: 'eazypost', avatar: null, isActive: true },
+];
+
 const PLATFORM_COLORS: Record<string, string> = {
     INSTAGRAM: '#E4405F', FACEBOOK: '#1877F2', TWITTER: '#000000', X: '#000000',
     LINKEDIN: '#0A66C2', TIKTOK: '#010101', YOUTUBE: '#FF0000', DISCORD: '#5865F2',
@@ -512,6 +531,12 @@ function DashboardContent() {
         queryKey: ['social-accounts', workspaceId],
         queryFn: () => api.get<any[]>(`/social-accounts?workspaceId=${workspaceId}`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
         enabled: !!workspaceId,
+        select: (data) => {
+            if (!MOCK_ALL_PLATFORMS_CONNECTED) return data;
+            const connectedPlatforms = new Set(data.map((a: any) => a.platform?.toUpperCase()));
+            const missing = MOCK_PLATFORM_ACCOUNTS.filter(a => !connectedPlatforms.has(a.platform));
+            return [...data, ...missing];
+        },
     });
 
     const { data: posts = [], refetch: refetchPosts, isLoading: postsLoading } = useQuery({
@@ -741,7 +766,7 @@ function DashboardContent() {
                 </header>
 
                 {/* Desktop left rail — nav, docked below the header */}
-                <aside className="hidden lg:flex flex-col fixed left-0 top-16 bottom-0 w-72 isolate transform-gpu will-change-transform bg-white dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-hidden z-20">
+                <aside className="hidden lg:flex flex-col fixed left-0 top-16 bottom-0 w-72 isolate transform-gpu will-change-transform bg-[#F7F6F3] dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-hidden z-20">
                     <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] border transition-all duration-200 group ${activeTab === item.id ? 'bg-white dark:bg-white/5 border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white' : 'border-transparent text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div></button>))}</nav>
 
                     <div className="flex-1 flex items-center justify-center py-4">
@@ -753,10 +778,11 @@ function DashboardContent() {
                                 refetchAccounts();
                                 queryClient.invalidateQueries({ queryKey: ['social-accounts', workspaceId] });
                             }}
+                            onManageChannels={() => setActiveTab('settings')}
                         />
                     </div>
 
-                    <div className="mt-6 p-5 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028] dark:text-white mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
+                    <div className="mt-6 mb-4 p-5 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028] dark:text-white mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
   className={`text-xl font-bold ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
@@ -770,7 +796,7 @@ function DashboardContent() {
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] transition-colors">{t("Manage", "Gérer")}</button></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] hover:bg-[#E5E5E5] dark:hover:bg-white/10 rounded-[4px] px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors">{t("Manage", "Gérer")}</button></div></div>
                 </aside>
 
                 <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-72">

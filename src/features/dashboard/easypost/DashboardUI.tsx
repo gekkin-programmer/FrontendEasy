@@ -23,7 +23,7 @@ export const NeuButton = ({ children, onClick, active, className = "", disabled 
 );
 
 export const NeuCard = ({ children, className = "" }: any) => (
-  <div className={cn('bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-6 text-[#040028] dark:text-white', className)}>
+  <div className={cn('bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-6 text-[#040028] dark:text-white', className)}>
     {children}
   </div>
 );

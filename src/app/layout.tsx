@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 
 // ➤ 2. ROBUST SEO METADATA
 export const metadata: Metadata = {
-  metadataBase: new URL('https://eazypost.cm'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com'),
   title: {
     template: '%s | EazyPost Africa',
     default: 'EazyPost - The Digital Engine for African Creators',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://eazypost.cm',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com',
     siteName: 'EazyPost Africa',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },

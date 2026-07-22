@@ -7,11 +7,10 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send,
-  Facebook, Instagram, Linkedin, Twitter, Tag, LayoutGrid, Plus, Copy,
+  Tag, LayoutGrid, Plus, Copy,
   ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Loader2,
   Sparkles, AlertTriangle, MessageCircle, RefreshCw
 } from 'lucide-react';
-import { FaTiktok, FaYoutube, FaDiscord, FaTelegram, FaWhatsapp, FaSnapchat, FaPinterestP } from 'react-icons/fa6';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,6 +23,7 @@ import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
 import { BroadcastPanel } from './composer/BroadcastPanel';
 import { PlatformSpecificPanels } from './composer/PlatformSpecificPanels';
+import { PlatformIcon } from './composer/PlatformIcon';
 import { BROADCAST_IDS } from './composer/platformConfig';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -97,8 +97,7 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
     <span className="text-[11px] font-medium text-center max-w-full truncate w-full text-[#040028] dark:text-white">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 transition-all text-[#040028] dark:text-white"><Icon size={18} /></button>);
-const PlatformIcon = ({ platform, size = 14 }: { platform?: string, size?: number }) => { switch (platform?.toLowerCase()) { case 'facebook': return <Facebook size={size} className="text-blue-600 fill-blue-600" />; case 'linkedin': return <Linkedin size={size} className="text-blue-700 fill-blue-700" />; case 'twitter': return <Twitter size={size} className="text-black dark:text-white fill-black dark:fill-white" />; case 'instagram': return <Instagram size={size} className="text-pink-600" />; case 'tiktok': return <FaTiktok size={size} className="text-black dark:text-white" />; case 'youtube': case 'google': return <FaYoutube size={size} className="text-red-600" />; case 'discord': return <FaDiscord size={size} className="text-[#5865F2]" />; case 'telegram': return <FaTelegram size={size} className="text-[#26A5E4]" />; case 'whatsapp': return <FaWhatsapp size={size} className="text-[#25D366]" />; case 'snapchat': return <FaSnapchat size={size} className="text-yellow-400" />; case 'pinterest': return <FaPinterestP size={size} className="text-[#BD081C]" />; default: return <div style={{width: size, height: size}} className="bg-gray-400 rounded-full" />; }};
+const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white"><Icon size={18} /></button>);
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
   const { t } = useLanguage();
@@ -251,17 +250,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // Derived platform mode
   const platformMode = usePlatformMode(selectedAccountIds, accounts, text);
 
-  // Auto-expand the single platform panel when only one panel-eligible platform is selected
+  // Collapse platform-specific panels whenever the selected targets change — never auto-expand
   useEffect(() => {
-    const ids = platformMode.postPlatforms.map((p) => p.id);
-    const panels: string[] = [];
-    if (ids.includes('youtube')) panels.push('youtube');
-    if (ids.includes('pinterest')) panels.push('pinterest');
-    if (ids.includes('linkedin')) panels.push('linkedin');
-    if (ids.includes('instagram')) panels.push('instagram');
-    if (ids.includes('tiktok')) panels.push('tiktok');
-    setExpandedPanels(panels.length === 1 ? new Set(panels) : new Set());
-  }, [selectedAccountIds]); // eslint-disable-line react-hooks/exhaustive-deps
+    setExpandedPanels(new Set());
+  }, [selectedAccountIds]);
 
   // ➤ LOGIC: FETCH MEDIA LIBRARY
   const fetchLibrary = async () => {
@@ -460,7 +452,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (isSelling && price) {
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const label = productName || t("Buy now", "Acheter maintenant");
-            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\nhttps://eazypost.cm/pay/${shortId}`;
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com';
+            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\n${appUrl}/pay/${shortId}`;
             finalContent += commerceLink;
         }
 
@@ -517,7 +510,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* HEADER */}
@@ -571,7 +564,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className="flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10">
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
           </div>
@@ -652,7 +645,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               onBroadcast={handleBroadcast}
             />
             {/* Post lane header + sync link */}
-            <div className="flex items-center justify-between px-4 py-2 border-t border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-black/20">
+            <div className="flex items-center justify-between px-4 py-2 border-t border-black/5 dark:border-white/5 bg-[#F7F6F3] dark:bg-black/20">
               <div className="flex items-center gap-2">
                 {platformMode.postPlatforms.map(p => (
                   <span key={p.id} className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E8E]">{p.label}</span>
@@ -665,7 +658,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="px-6 pt-6 pb-8 bg-white dark:bg-[#0A0A2E] transition-colors">
+        <div className="px-6 pt-6 pb-2 bg-white dark:bg-[#0A0A2E] transition-colors">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[340px]")} />
 
           {mediaPreviews.length > 0 && (
@@ -715,12 +708,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             tiktokHasVideo={tiktokHasVideo}
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 pt-4 border-t border-black/5 dark:border-white/5 gap-4 transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 py-4 px-6 -mx-6 border-t border-black/5 dark:border-white/5 gap-4 bg-[#F7F6F3] dark:bg-transparent transition-colors">
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-[10px] transition-all", isSelling ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10")}><ShoppingBag size={12} /> {isSelling ? t('Commerce: on', 'Commerce: actif') : t('Commerce: off', 'Commerce: inactif')}</button>
-              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#FAFAFA] dark:bg-white/5' : 'hover:bg-black/5 dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
+              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-[10px] transition-all", isSelling ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}><ShoppingBag size={12} /> {isSelling ? t('Commerce: on', 'Commerce: actif') : t('Commerce: off', 'Commerce: inactif')}</button>
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#FAFAFA] dark:bg-white/5' : 'hover:bg-black/5 dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
             </div>
                         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                           {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
@@ -746,12 +739,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           </Popover>
                           )}
 
-                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
+                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="bg-white dark:bg-[#0A0A2E] p-3 text-[#040028] dark:text-white" /><div className="p-3 border-t border-black/5 dark:border-white/5 flex items-center gap-2"><Clock size={16} className="text-[#040028] dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-semibold text-[#040028] dark:text-white border-b border-black/20 dark:border-white/20 focus:border-[#174CD2]" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
-                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10")}>{t("Preview", "Aperçu")}</button>
-                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-white dark:hover:bg-[#0A0A2E]">
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </NeuButton>
@@ -789,7 +782,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                   {price && (
                     <div className="flex items-center gap-2 bg-[#F5F7FA] dark:bg-white/5 rounded-[10px] px-3 py-2">
                       <span className="text-[10px] font-semibold uppercase text-[#8E8E8E] whitespace-nowrap">{t("Link preview", "Aperçu")}</span>
-                      <span className="text-xs text-[#174CD2] dark:text-blue-400 truncate">https://eazypost.cm/pay/XXXXXX</span>
+                      <span className="text-xs text-[#174CD2] dark:text-blue-400 truncate">{process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com'}/pay/XXXXXX</span>
                     </div>
                   )}
                   <p className="text-[11px] text-[#8E8E8E]">{t("A unique payment link will be appended to your post. Customers pay via Mobile Money.", "Un lien de paiement unique sera joint à votre post. Les clients paient via Mobile Money.")}</p>

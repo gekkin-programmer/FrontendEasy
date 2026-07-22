@@ -132,7 +132,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   const canvaEditUrl = (designId: string) => {
     const returnUrl = typeof window !== 'undefined'
       ? `${window.location.origin}/dashboard/${workspaceId}?canva=returned`
-      : `https://eazypost.cm/dashboard/${workspaceId}?canva=returned`;
+      : `${process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com'}/dashboard/${workspaceId}?canva=returned`;
     return `https://www.canva.com/design/${designId}/edit?return_url=${encodeURIComponent(returnUrl)}`;
   };
 

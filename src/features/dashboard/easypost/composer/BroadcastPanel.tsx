@@ -25,31 +25,26 @@ function insertMarkdown(
   textarea: HTMLTextAreaElement,
   before: string,
   after: string,
+  placeholder: string,
   setText: (v: string) => void,
 ) {
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const val = textarea.value;
-  const selected = val.slice(start, end);
+  const hasSelection = end > start;
+  const inserted = hasSelection ? val.slice(start, end) : placeholder;
   const newVal =
-    val.slice(0, start) + before + selected + after + val.slice(end);
+    val.slice(0, start) + before + inserted + after + val.slice(end);
   setText(newVal);
-  // Restore selection after React re-render
+  // Restore selection after React re-render — highlight the inserted/placeholder text so typing replaces it
   requestAnimationFrame(() => {
     textarea.focus();
     textarea.setSelectionRange(
       start + before.length,
-      start + before.length + selected.length,
+      start + before.length + inserted.length,
     );
   });
 }
-
-const MD_ACTIONS = [
-  { label: 'B', title: 'Bold', before: '**', after: '**', className: 'font-bold' },
-  { label: 'I', title: 'Italic', before: '_', after: '_', className: 'italic' },
-  { label: '`', title: 'Code', before: '`', after: '`', className: 'font-mono' },
-  { label: '~~', title: 'Strikethrough', before: '~~', after: '~~', className: 'line-through' },
-];
 
 export function BroadcastPanel({
   broadcastPlatforms,
@@ -66,6 +61,13 @@ export function BroadcastPanel({
 }: BroadcastPanelProps) {
   const { t } = useLanguage();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const MD_ACTIONS = [
+    { label: 'B', title: t('Bold — wraps the selected text in **bold**', 'Gras — encadre le texte sélectionné avec **gras**'), before: '**', after: '**', placeholder: t('bold text', 'texte en gras'), className: 'font-bold' },
+    { label: 'I', title: t('Italic — wraps the selected text in _italic_', 'Italique — encadre le texte sélectionné avec _italique_'), before: '_', after: '_', placeholder: t('italic text', 'texte en italique'), className: 'italic' },
+    { label: '`', title: t('Code — wraps the selected text in `code`', 'Code — encadre le texte sélectionné avec des `backticks`'), before: '`', after: '`', placeholder: t('code', 'code'), className: 'font-mono' },
+    { label: '~~', title: t('Strikethrough — wraps the selected text in ~~strikethrough~~', 'Barré — encadre le texte sélectionné avec ~~barré~~'), before: '~~', after: '~~', placeholder: t('strikethrough text', 'texte barré'), className: 'line-through' },
+  ];
 
   const primaryPlatform = broadcastPlatforms[0];
   const primaryColor = primaryPlatform?.color ?? '#26A5E4';
@@ -101,7 +103,7 @@ export function BroadcastPanel({
             title={action.title}
             onClick={() => {
               if (textareaRef.current) {
-                insertMarkdown(textareaRef.current, action.before, action.after, setText);
+                insertMarkdown(textareaRef.current, action.before, action.after, action.placeholder, setText);
               }
             }}
             className={`w-7 h-7 rounded-[8px] flex items-center justify-center text-xs text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all ${action.className}`}
@@ -124,7 +126,7 @@ export function BroadcastPanel({
         ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={t('Write your broadcast message... (Markdown supported)', 'Écrivez votre message de diffusion... (Markdown pris en charge)')}
+        placeholder=""
         rows={10}
         className="w-full px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white text-sm resize-none focus:outline-none placeholder:text-[#8E8E8E] min-h-[240px]"
       />
@@ -142,8 +144,8 @@ export function BroadcastPanel({
 
       {/* Channel context */}
       {broadcastAccounts.length > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.02]">
-          <span className="text-xs font-semibold text-[#8E8E8E] flex-shrink-0">
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/5 dark:border-white/5 bg-[#F7F6F3] dark:bg-white/[0.02]">
+          <span className="text-xs font-semibold text-[#040028] dark:text-white flex-shrink-0">
             {t('Sending to:', 'Envoi à :')}
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -169,8 +171,8 @@ export function BroadcastPanel({
             onClick={() => setSendNow(true)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${
               sendNow
-                ? 'bg-[#174CD2] text-white'
-                : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'
+                ? 'bg-[#040028] text-white'
+                : 'bg-[#F7F6F3] dark:bg-transparent text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'
             }`}
           >
             <Send size={12} /> {t('Send now', 'Envoyer')}
@@ -180,8 +182,8 @@ export function BroadcastPanel({
             onClick={() => setSendNow(false)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${
               !sendNow
-                ? 'bg-[#174CD2] text-white'
-                : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'
+                ? 'bg-[#040028] text-white'
+                : 'bg-[#F7F6F3] dark:bg-transparent text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'
             }`}
           >
             <Clock size={12} /> {t('Schedule', 'Planifier')}
@@ -190,7 +192,7 @@ export function BroadcastPanel({
 
         {/* Inline time picker when schedule is selected */}
         {!sendNow && (
-          <div className="flex items-center rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 overflow-hidden">
+          <div className="flex items-center rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 overflow-hidden">
             <div className="text-xs font-semibold text-[#8E8E8E] px-3 whitespace-nowrap select-none">
               {t('Schedule', 'Planifier')}
             </div>
@@ -211,7 +213,7 @@ export function BroadcastPanel({
           onClick={onBroadcast}
           disabled={isSubmitting}
           className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold text-sm text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ backgroundColor: primaryColor }}
+          style={{ backgroundColor: '#040028' }}
         >
           <Send size={14} />
           {sendNow ? t('Broadcast', 'Diffuser') : t('Schedule broadcast', 'Planifier la diffusion')}
