@@ -73,7 +73,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
             <div className="flex items-center gap-2">
                 <span className={cn(
                     "text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors",
-                    isToday ? 'bg-[#040028] text-white dark:bg-white dark:text-[#040028]' : 'text-[#040028] dark:text-white'
+                    isToday ? 'bg-[#040028] text-white dark:bg-white dark:text-[#040028]' : 'bg-[#F7F6F3] dark:bg-transparent text-[#040028] dark:text-white'
                 )}>
                     {dayNum}
                 </span>
@@ -290,7 +290,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-[#F5F7FA] dark:bg-white/5 p-1 rounded-[10px]">
+          <div className="flex bg-[#F7F6F3] dark:bg-white/5 p-1 rounded-[10px]">
               {(['month', 'week', 'day'] as ViewType[]).map(v => (
                   <button
                     key={v}
@@ -306,8 +306,8 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
-            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
+            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
+            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
           </div>
 
           <button
