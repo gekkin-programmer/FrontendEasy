@@ -238,7 +238,7 @@ export default function MediaGallery({
     <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
+      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-[#F7F6F3] dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -260,13 +260,13 @@ export default function MediaGallery({
           <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
               >
                   <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
               >
                   <FiUploadCloud size={14} />
                   {uploadProgress
@@ -275,14 +275,14 @@ export default function MediaGallery({
               </button>
               <button
                 onClick={handleCanvaClick}
-                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Canva", "Importer depuis Canva")}
               >
                   <SiCanva size={13} /> Canva
               </button>
               <button
                 onClick={() => toast.info(t("Dropbox import — coming soon", "Import Dropbox — bientôt disponible"))}
-                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
                   <SiDropbox size={13} /> Dropbox
@@ -293,12 +293,12 @@ export default function MediaGallery({
       {/* Storage & Folder Creator */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!hideUsage && (
-            <div className="bg-white dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
+            <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
                 <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
                     <span>{t("Usage", "Utilisation")}</span>
                     <span>{formatSize(usage)} / 100MB</span>
                 </div>
-                <div className="h-2 rounded-full bg-[#F5F7FA] dark:bg-white/10 overflow-hidden">
+                <div className="h-2 rounded-full bg-[#E5E5E5] dark:bg-white/10 overflow-hidden">
                     <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
                 </div>
             </div>
@@ -355,7 +355,7 @@ export default function MediaGallery({
                         transition={{ duration: 0.15 }}
                         key={folder.id}
                         onClick={() => { if (renamingFolderId !== folder.id) enterFolder(folder); }}
-                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:bg-black/10 dark:hover:bg-white/10 hover:border-[#040028]/20 dark:hover:border-white/20 transition-all relative"
+                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:border-[#040028]/20 dark:hover:border-white/20 transition-all relative"
                     >
                         {pinnedFolderIds.includes(folder.id) && (
                             <div className="absolute top-1 left-1 text-[#040028] dark:text-white" title={t('Pinned', 'Épinglé')}>

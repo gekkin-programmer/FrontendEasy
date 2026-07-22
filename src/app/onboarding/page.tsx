@@ -54,7 +54,7 @@ export default function OnboardingPage() {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // 🌍 Config
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api';
 
   // --- AUTH CHECK ---
   useEffect(() => {

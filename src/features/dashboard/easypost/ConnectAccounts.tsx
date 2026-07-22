@@ -16,7 +16,7 @@ import { jwtDecode } from 'jwt-decode';
 import { cn } from "@/lib/utils";
 import { useLanguage } from '@/context/LanguageContext';
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com')
   .replace(/\/$/, '')
   .replace(/\/api$/, '') + '/api';
 

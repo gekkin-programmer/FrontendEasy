@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertTriangle, Check } from 'lucide-react';
 import { PlatformModeResult } from './usePlatformMode';
 import { PlatformIcon } from './PlatformIcon';
 import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const YT_CATEGORIES = [
   'Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals',
@@ -55,7 +57,7 @@ function PanelHeader({
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between px-4 py-2.5 border-t border-black/5 dark:border-white/5 bg-[#F5F7FA] dark:bg-white/[0.02] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+      className="w-full flex items-center justify-between px-4 py-2.5 border-t border-black/5 dark:border-white/5 bg-[#F7F6F3] dark:bg-white/[0.02] transition-colors"
     >
       <div className="flex items-center gap-2">
         <PlatformIcon platform={platform} size={12} />
@@ -78,7 +80,53 @@ function PanelHeader({
 }
 
 const inputCls =
-  'w-full rounded-[10px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 text-[#040028] dark:text-white px-3 py-2 text-sm focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 placeholder:text-[#8E8E8E]';
+  'w-full rounded-[10px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 text-[#040028] dark:text-white px-3 py-2 text-sm focus:outline-none placeholder:text-[#8E8E8E]';
+
+function SelectDropdown({
+  value, onChange, options, placeholder, error,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+  error?: boolean;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const selectedLabel = options.find((o) => o.value === value)?.label;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(inputCls, 'flex items-center justify-between gap-2 text-left cursor-pointer', error && '!border-red-600')}
+        >
+          <span className={cn('truncate', !selectedLabel && 'text-[#8E8E8E]')}>{selectedLabel || placeholder}</span>
+          <ChevronDown size={14} className={cn('opacity-50 transition-transform flex-shrink-0', open && 'rotate-180')} />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[max(var(--radix-popover-trigger-width),320px)] p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 max-h-64 overflow-y-auto"
+        align="start"
+      >
+        {options.map((o) => (
+          <button
+            key={o.value || 'placeholder'}
+            type="button"
+            onClick={() => { onChange(o.value); setOpen(false); }}
+            className={cn(
+              'w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white',
+              o.value === value ? 'bg-[#FAFAFA] dark:bg-white/5' : 'hover:bg-black/5 dark:hover:bg-white/10',
+            )}
+          >
+            <span className="flex-1 truncate">{o.label}</span>
+            {o.value === value && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export function PlatformSpecificPanels({
   platformMode,
@@ -156,34 +204,28 @@ export function PlatformSpecificPanels({
               </div>
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Category', 'Catégorie')}</label>
-                <select
+                <SelectDropdown
                   value={ytCategory}
-                  onChange={(e) => setYtCategory(e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="">{t('Select category...', 'Choisir une catégorie...')}</option>
-                  {YT_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                  onChange={setYtCategory}
+                  placeholder={t('Select category...', 'Choisir une catégorie...')}
+                  options={YT_CATEGORIES.map((c) => ({ value: c, label: c }))}
+                />
               </div>
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Tags', 'Tags')}</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); } }}
-                    placeholder={t('Add tag, press Enter', 'Ajouter un tag, appuyez sur Entrée')}
-                    className={`${inputCls} flex-1`}
-                  />
-                  <button type="button" onClick={addTag} className="px-4 rounded-[10px] bg-[#174CD2] text-white text-sm font-semibold hover:bg-[#123a9e] transition-all">+</button>
-                </div>
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); } }}
+                  onBlur={addTag}
+                  placeholder={t('Add tag, press Enter', 'Ajouter un tag, appuyez sur Entrée')}
+                  className={inputCls}
+                />
                 {ytTags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {ytTags.map((tag) => (
-                      <span key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                      <span key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F7F6F3] dark:bg-white/10 text-[#040028] dark:text-white">
                         #{tag}
                         <button type="button" onClick={() => setYtTags(ytTags.filter((x) => x !== tag))} className="opacity-60 hover:opacity-100">×</button>
                       </span>
@@ -233,18 +275,18 @@ export function PlatformSpecificPanels({
           />
           {expandedPanels.has('linkedin') && (
             <div className="px-4 py-4 bg-white dark:bg-[#0A0A2E]">
-              <div className="flex bg-[#F5F7FA] dark:bg-white/5 rounded-[10px] p-1 w-fit">
+              <div className="flex bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] p-1 w-fit">
                 <button
                   type="button"
                   onClick={() => setLiArticleMode(false)}
-                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${!liArticleMode ? 'bg-[#174CD2] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${!liArticleMode ? 'bg-[#040028] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
                 >
                   {t('Post', 'Post')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setLiArticleMode(true)}
-                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${liArticleMode ? 'bg-[#174CD2] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-[8px] text-xs font-semibold transition-all ${liArticleMode ? 'bg-[#040028] text-white' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
                 >
                   {t('Article', 'Article')}
                 </button>
@@ -280,7 +322,7 @@ export function PlatformSpecificPanels({
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-xs text-[#8E8E8E] mt-1">{firstComment.length}/2200 — {t('posted as a comment, not in caption', 'publié en commentaire, pas dans la légende')}</p>
+                <p className="text-xs text-[#8E8E8E] mt-1">{firstComment.length}/2200</p>
               </div>
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Alt text (accessibility)', 'Texte alternatif (accessibilité)')}</label>
@@ -309,7 +351,7 @@ export function PlatformSpecificPanels({
 
               {/* Point 1: Creator Info */}
               {tiktokCreatorNickname && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5">
                   <span className="text-xs font-semibold text-[#8E8E8E]">{t('Posting as:', 'Publication en tant que :')}</span>
                   <span className="text-xs font-semibold text-[#040028] dark:text-white">@{tiktokCreatorNickname}</span>
                 </div>
@@ -337,17 +379,18 @@ export function PlatformSpecificPanels({
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
                   {t('Privacy status', 'Confidentialité')} <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SelectDropdown
                   value={tiktokPrivacyLevel}
-                  onChange={e => setTiktokPrivacyLevel(e.target.value)}
-                  className={`${inputCls} ${submitAttempted && !tiktokPrivacyLevel ? '!border-red-600' : ''}`}
-                >
-                  <option value="">{t('Select privacy...', 'Choisir la confidentialité...')}</option>
-                  <option value="PUBLIC_TO_EVERYONE">{t('Everyone', 'Tout le monde')}</option>
-                  <option value="MUTUAL_FOLLOW_FRIENDS">{t('Friends', 'Amis')}</option>
-                  <option value="FOLLOWER_OF_CREATOR">{t('Followers', 'Abonnés')}</option>
-                  {!tiktokBrandContent && <option value="SELF_ONLY">{t('Only me', 'Moi uniquement')}</option>}
-                </select>
+                  onChange={setTiktokPrivacyLevel}
+                  placeholder={t('Select privacy...', 'Choisir la confidentialité...')}
+                  error={submitAttempted && !tiktokPrivacyLevel}
+                  options={[
+                    { value: 'PUBLIC_TO_EVERYONE', label: t('Everyone', 'Tout le monde') },
+                    { value: 'MUTUAL_FOLLOW_FRIENDS', label: t('Friends', 'Amis') },
+                    { value: 'FOLLOWER_OF_CREATOR', label: t('Followers', 'Abonnés') },
+                    ...(!tiktokBrandContent ? [{ value: 'SELF_ONLY', label: t('Only me', 'Moi uniquement') }] : []),
+                  ]}
+                />
                 {submitAttempted && !tiktokPrivacyLevel && (
                   <p className="text-xs text-red-600 font-medium mt-1">{t('Privacy is required for TikTok', 'La confidentialité est requise pour TikTok')}</p>
                 )}
@@ -363,7 +406,7 @@ export function PlatformSpecificPanels({
                     type="checkbox"
                     checked={tiktokAllowComment}
                     onChange={e => setTiktokAllowComment(e.target.checked)}
-                    className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
+                    className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
                   />
                   <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow comment', 'Autoriser les commentaires')}</span>
                 </label>
@@ -374,7 +417,7 @@ export function PlatformSpecificPanels({
                         type="checkbox"
                         checked={tiktokDuet}
                         onChange={e => setTiktokDuet(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
                       />
                       <span className="text-xs font-medium text-[#040028] dark:text-white">Duet</span>
                     </label>
@@ -383,7 +426,7 @@ export function PlatformSpecificPanels({
                         type="checkbox"
                         checked={tiktokStitch}
                         onChange={e => setTiktokStitch(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
                       />
                       <span className="text-xs font-medium text-[#040028] dark:text-white">Stitch</span>
                     </label>
@@ -398,14 +441,14 @@ export function PlatformSpecificPanels({
                   href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
+                  className="underline font-semibold text-[#040028] dark:text-white transition-colors"
                 >
                   Music Usage Confirmation
                 </a>
               </p>
 
               {/* Point 3: Content Disclosure Setting */}
-              <div className="rounded-[14px] bg-[#F5F7FA] dark:bg-white/5 p-3 space-y-3">
+              <div className="rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 p-3 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1">
                     <span className="text-xs font-semibold text-[#040028] dark:text-white block">
@@ -421,7 +464,7 @@ export function PlatformSpecificPanels({
                     aria-checked={tiktokDisclosure}
                     onClick={() => setTiktokDisclosure(!tiktokDisclosure)}
                     className={`relative flex-shrink-0 w-10 h-6 rounded-full transition-colors ${
-                      tiktokDisclosure ? 'bg-[#174CD2]' : 'bg-black/10 dark:bg-white/10'
+                      tiktokDisclosure ? 'bg-[#040028]' : 'bg-black/10 dark:bg-white/10'
                     }`}
                   >
                     <span
@@ -439,7 +482,7 @@ export function PlatformSpecificPanels({
                         type="checkbox"
                         checked={tiktokYourBrand}
                         onChange={e => setTiktokYourBrand(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
                       />
                       <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Your brand', 'Votre marque')}</span>
                     </label>
@@ -458,7 +501,7 @@ export function PlatformSpecificPanels({
                           setTiktokBrandContent(checked);
                           if (checked && tiktokPrivacyLevel === 'SELF_ONLY') setTiktokPrivacyLevel('');
                         }}
-                        className="w-3.5 h-3.5 accent-[#174CD2] cursor-pointer disabled:cursor-not-allowed"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer disabled:cursor-not-allowed"
                       />
                       <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Branded content', 'Contenu de marque')}</span>
                     </label>
@@ -482,7 +525,7 @@ export function PlatformSpecificPanels({
                           href="https://www.tiktok.com/legal/page/global/bc-policy/en"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
+                          className="underline font-semibold text-[#040028] dark:text-white transition-colors"
                         >
                           Branded Content Policy
                         </a>
@@ -491,7 +534,7 @@ export function PlatformSpecificPanels({
                           href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline font-semibold text-[#040028] dark:text-white hover:text-[#174CD2] transition-colors"
+                          className="underline font-semibold text-[#040028] dark:text-white transition-colors"
                         >
                           Music Usage Confirmation
                         </a>
@@ -518,7 +561,7 @@ export function PlatformSpecificPanels({
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-xs text-[#8E8E8E] mt-1">{tiktokHashtags.length}/2200 — {t('appended below caption', 'ajouté sous la légende')}</p>
+                <p className="text-xs text-[#8E8E8E] mt-1">{tiktokHashtags.length}/2200</p>
               </div>
             </div>
           )}
