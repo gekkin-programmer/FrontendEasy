@@ -169,7 +169,7 @@ export default function CommunityPage() {
                             className="space-y-8"
                         >
                             {/* Filters */}
-                            <div className="flex gap-3 overflow-x-auto pb-2">
+                            <div className="flex flex-wrap gap-2 md:gap-3 pb-2">
                                 {['All', 'Planned', 'In Progress', 'Shipped'].map(f => (
                                     <button key={f} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-900 border-2 border-black dark:border-white text-xs font-black uppercase tracking-widest hover:bg-[#3C48F5] hover:text-white hover:border-[#3C48F5] transition-colors">
                                         {t(f, f)}
