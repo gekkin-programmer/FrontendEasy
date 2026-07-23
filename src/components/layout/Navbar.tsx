@@ -27,9 +27,8 @@ export default function Navbar() {
       <div className="w-full h-full max-w-[1440px] 2xl:max-w-[2200px] 3xl:max-w-[2200px] mx-auto flex items-center justify-between px-[16px] lg:px-[12px] xl:px-[40px] 2xl:px-[60px] 3xl:px-[120px]">
       
       {/* Logo (Left Aligned) — lien vers l'accueil */}
-      <Link href="/" className="flex items-center justify-start gap-[4px] lg:gap-[6px] 2xl:gap-[8px] 3xl:gap-[10px] cursor-pointer">
-        <img src="/assets/WiggleLogo.png" alt="Wiggle Logo" className="w-[36px] h-[36px] md:w-[48px] md:h-[48px] object-contain" />
-        <span className="font-['Rubik_One'] font-normal text-[22px] md:text-[28px] lg:text-[20px] xl:text-[28px] 2xl:text-[32px] 3xl:text-[36px] tracking-tight">azypost</span>
+      <Link href="/" className="flex items-center justify-start cursor-pointer">
+        <img src="/assets/eazypost-logo-primary-lockup-white.png" alt="EazyPost" className="h-[36px] md:h-[44px] 2xl:h-[52px] 3xl:h-[56px] w-auto object-contain" />
       </Link>
 
       {/* Nav Links (Perfectly Centered) */}
