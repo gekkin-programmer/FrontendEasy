@@ -244,14 +244,14 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Social proof + creators marquee — white */}
       <section className="w-full overflow-hidden bg-white">
-        <div className="pt-[64px]">
+        <div className="pt-[48px]">
           <RatingRow label={t('Excellent', 'Excellent')} />
           <h2 className="mt-[36px] text-center font-extrabold text-[38px] leading-[44px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
             {t('EazyPost is for', 'EazyPost est fait pour les')}{' '}
             <span className="text-[#2665D6]">{t('creators', 'créateurs')}</span>
           </h2>
         </div>
-        <div className="mt-[48px] pb-[64px]">
+        <div className="mt-[32px] lg:mt-[48px] pb-[80px] lg:pb-[100px]">
           <div
             className="flex w-max gap-[16px]"
             style={{ animation: 'canaux-marquee 40s linear infinite' }}

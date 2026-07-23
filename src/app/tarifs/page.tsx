@@ -59,7 +59,7 @@ function PlanCard({
 }) {
   return (
     <div
-      className={`w-[364px] rounded-[9px] px-[40px] py-[43px] flex flex-col gap-[28px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] ${
+      className={`w-full max-w-[364px] rounded-[9px] px-[40px] py-[43px] flex flex-col gap-[28px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] ${
         dark ? 'bg-[#184CD1] lg:-translate-y-[71px] pb-[60px]' : 'bg-white'
       }`}
     >
@@ -580,7 +580,7 @@ export default function TarifsPage() {
         <h2 className="text-[#000B33] font-bold text-[32px] leading-[40px] md:text-[48px] md:leading-[58px] tracking-[-0.5px] text-center">
           {t('Try our 100% free Plan', 'Essayez notre plan 100% gratuit')}
         </h2>
-        <div className="w-full max-w-[887px] bg-white rounded-full border border-black/10 mt-[22px] px-[54px] py-[24px] flex flex-col md:flex-row items-center justify-between gap-[20px]">
+        <div className="w-full max-w-[887px] bg-white rounded-[24px] md:rounded-full border border-black/10 mt-[22px] px-[54px] py-[24px] flex flex-col md:flex-row items-center justify-between gap-[20px]">
           <p className="text-black text-[16px] leading-[26px] text-center md:text-left">
             {t(
               'Get started with our free plan and make 10 lookups per month absolutely free!',
