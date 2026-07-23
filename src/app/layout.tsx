@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${rubik.variable} font-sans antialiased bg-white text-black transition-colors duration-300 overflow-x-hidden w-full`}>
+      <body className={`${rubik.variable} font-sans antialiased bg-white text-black transition-colors duration-300 overflow-x-hidden overflow-y-visible w-full`}>
         <Script src="https://cdn.lordicon.com/lordicon.js" strategy="afterInteractive" />
         
         <QueryProvider>

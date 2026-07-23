@@ -138,7 +138,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
 
       <span className="truncate flex-1 ml-1 text-[#040028] dark:text-white">{post.content || t('No content', 'Aucun contenu')}</span>
 
-      {post.status !== 'PUBLISHED' && (
+      {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
         <button
           onClick={(e) => { e.stopPropagation(); onClick(post); }}
           className="opacity-0 group-hover:opacity-100 p-0.5 text-[#8E8E8E] hover:text-[#174CD2] transition-opacity shrink-0"
@@ -226,7 +226,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         const post = posts.find(p => p.id === postId);
         if (!post) return;
 
-        if (post.status === 'PUBLISHED') {
+        if (post.status === 'PUBLISHED' || post.status === 'PUBLISHING') {
             toast.info(t("Published posts cannot be rescheduled", "Les publications publiées ne peuvent pas être replanifiées"));
             return;
         }

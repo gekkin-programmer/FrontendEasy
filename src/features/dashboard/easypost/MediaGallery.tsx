@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2
+    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
 } from 'react-icons/fi';
 import { SiCanva, SiDropbox } from 'react-icons/si';
 import { toast } from 'sonner';
@@ -36,7 +36,21 @@ export default function MediaGallery({
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{id: string} | null>(null);
+  const [playingAssetId, setPlayingAssetId] = useState<string | null>(null);
+  const [optionsMenuOpenFor, setOptionsMenuOpenFor] = useState<string | null>(null);
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
+  const togglePlayback = (assetId: string) => {
+      const video = videoRefs.current[assetId];
+      if (!video) return;
+      if (video.paused) {
+          video.play();
+          setPlayingAssetId(assetId);
+      } else {
+          video.pause();
+          setPlayingAssetId(null);
+      }
+  };
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
   useEffect(() => {
@@ -125,7 +139,7 @@ export default function MediaGallery({
     queryFn: async () => {
         const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
         return api.get<{ folders: any[], assets: any[] }>(url);
-    }
+    },
   });
 
   const assets = data?.assets || [];
@@ -238,7 +252,7 @@ export default function MediaGallery({
     <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap gap-4 items-center justify-between bg-[#F7F6F3] dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
+      <div className="sticky top-0 isolate z-20 flex flex-wrap gap-4 items-center justify-between bg-[#F7F6F3] dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -355,14 +369,14 @@ export default function MediaGallery({
                         transition={{ duration: 0.15 }}
                         key={folder.id}
                         onClick={() => { if (renamingFolderId !== folder.id) enterFolder(folder); }}
-                        className="group cursor-pointer flex flex-col items-center gap-2 p-4 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:border-[#040028]/20 dark:hover:border-white/20 transition-all relative"
+                        className="group cursor-pointer flex flex-col items-center justify-center gap-2 p-4 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 hover:border-[#040028]/20 dark:hover:border-white/20 transition-all relative"
                     >
                         {pinnedFolderIds.includes(folder.id) && (
                             <div className="absolute top-1 left-1 text-[#040028] dark:text-white" title={t('Pinned', 'Épinglé')}>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a1 1 0 0 1 1 1v6.5l2.6 3.9a1 1 0 0 1-.83 1.6H13v6l-1 2-1-2v-6H5.23a1 1 0 0 1-.83-1.6L7 10.5V4a1 1 0 0 1 1-1h8Z"/></svg>
                             </div>
                         )}
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round"/><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round"/></svg>
+                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round"/><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round"/></svg>
                         {renamingFolderId === folder.id ? (
                             <input
                                 autoFocus
@@ -422,49 +436,67 @@ export default function MediaGallery({
                         className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 transition-all overflow-hidden"
                     >
                         {asset.mimeType?.startsWith('video/') ? (
-                            <video src={asset.url} className="w-full h-full object-cover" muted playsInline />
+                            <video
+                                ref={(el) => { videoRefs.current[asset.id] = el; }}
+                                src={asset.url}
+                                className="w-full h-full object-cover"
+                                playsInline
+                                onEnded={() => setPlayingAssetId(null)}
+                                onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
+                            />
                         ) : (
                             <img src={asset.url} className="w-full h-full object-cover" alt="" />
                         )}
                         {asset.mimeType?.startsWith('video/') && (
-                            <div className="absolute top-2 left-2 rounded-full bg-[#040028]/70 text-white text-[10px] font-semibold px-2 py-0.5 pointer-events-none">
-                                {t('Video', 'Vidéo')}
-                            </div>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
+                                className={cn(
+                                    "absolute inset-0 m-auto w-10 h-10 rounded-full bg-white/90 text-[#040028] flex items-center justify-center transition-opacity",
+                                    playingAssetId === asset.id ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                                )}
+                            >
+                                {playingAssetId === asset.id ? <FiPause size={16} /> : <FiPlay size={16} className="ml-0.5" />}
+                            </button>
                         )}
 
                         <div
                             className={cn(
-                                "absolute inset-0 bg-[#040028]/0 group-hover:bg-[#040028]/10 transition-all flex flex-col justify-between p-2",
-                                sectionMenuFor === asset.id ? "opacity-100 bg-[#040028]/10" : "opacity-0 group-hover:opacity-100"
+                                "absolute inset-0 transition-all flex flex-col justify-between p-2 pointer-events-none [&>*]:pointer-events-auto",
+                                sectionMenuFor === asset.id || optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
-                            {/* Top row: Edit in Canva + Delete */}
-                            <div className="flex justify-end gap-1.5">
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); editInCanva(asset); }}
-                                    disabled={canvaUploading === asset.id}
-                                    title={t('Edit in Canva', 'Modifier dans Canva')}
-                                    className="p-1.5 rounded-full bg-white text-[#040028]"
-                                >
-                                    {canvaUploading === asset.id
-                                        ? <FiLoader size={11} className="animate-spin" />
-                                        : <FiEdit2 size={11} />
-                                    }
-                                </button>
-                                {deleteConfirm?.id === asset.id ? (
-                                    <>
-                                        <button onClick={(e) => { e.stopPropagation(); deleteAssetMutation.mutate(asset.id); setDeleteConfirm(null); }} className="px-2 py-1 rounded-[6px] bg-red-500 text-white text-[10px] font-semibold">{t('Delete?', 'Suppr.?')}</button>
-                                        <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null); }} className="p-1.5 rounded-full bg-white text-[#040028]">✕</button>
-                                    </>
-                                ) : (
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm({id: asset.id}); }}
-                                        title={t('Delete', 'Supprimer')}
-                                        className="p-1.5 rounded-full bg-white text-red-500"
-                                    >
-                                        <FiTrash2 size={11} />
-                                    </button>
-                                )}
+                            {/* Top row: overflow menu (Edit in Canva / Delete) */}
+                            <div className="flex justify-end">
+                                <Popover open={optionsMenuOpenFor === asset.id} onOpenChange={(open) => setOptionsMenuOpenFor(open ? asset.id : null)}>
+                                    <PopoverTrigger asChild>
+                                        <button
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="p-1.5 rounded-full bg-white text-[#040028] hover:bg-[#F7F6F3] transition-colors"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); editInCanva(asset); }}
+                                            disabled={canvaUploading === asset.id}
+                                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50"
+                                        >
+                                            {canvaUploading === asset.id
+                                                ? <FiLoader size={14} className="animate-spin" />
+                                                : <FiEdit2 size={14} />
+                                            }
+                                            {t('Edit in Canva', 'Retoucher sur Canva')}
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); deleteAssetMutation.mutate(asset.id); }}
+                                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-red-500 hover:bg-black/5 dark:hover:bg-white/10"
+                                        >
+                                            <FiTrash2 size={14} />
+                                            {t('Delete', 'Supprimer')}
+                                        </button>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
 
                             {/* Bottom: Use / section selector */}
@@ -473,7 +505,7 @@ export default function MediaGallery({
                                     {sections.map(s => (
                                         <button
                                             key={s.id}
-                                            className="w-full rounded-[6px] bg-[#174CD2] text-white py-1.5 text-[10px] font-semibold hover:bg-[#123a9e] transition-colors"
+                                            className="w-full rounded-[6px] bg-[#174CD2] text-white py-1.5 text-[10px] font-semibold hover:bg-[#040028] transition-colors"
                                             onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
                                         >
                                             {s.label}
@@ -488,7 +520,7 @@ export default function MediaGallery({
                                 </div>
                             ) : (
                                 <button
-                                    className="w-full rounded-[8px] bg-white text-[#040028] py-1.5 text-xs font-semibold hover:bg-white/90 transition-colors"
+                                    className="w-full rounded-[8px] bg-white text-[#040028] py-1.5 text-xs font-semibold hover:bg-[#E5E5E5] transition-colors"
                                     onClick={() => {
                                         if (onUse) {
                                             setSectionMenuFor(asset.id);
