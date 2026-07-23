@@ -86,12 +86,12 @@ export default function ForgotPasswordPage() {
 
         {/* Content Wrapper */}
         <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
-          
+
           {/* Illustration Image */}
           <div className="w-full flex justify-center">
-            <img 
-              src="/assets/Forgot%20password-pana.svg" 
-              alt="Forgot Password Illustration" 
+            <img
+              src="/assets/Forgot%20password-pana.svg"
+              alt="Forgot Password Illustration"
               className="w-full h-auto max-h-[80vh] object-contain scale-110 2xl:scale-125"
             />
           </div>
