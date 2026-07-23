@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { FaXTwitter, FaLinkedinIn, FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
 import { useLanguage } from '@/context/LanguageContext';
+import {
+  FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon, TiktokIcon, YoutubeIcon,
+} from '@/components/icons/PlatformIcons';
 
 // --- NEU COMPONENTS ---
 
@@ -24,7 +26,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-[#E5E5E5] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 rounded-[10px] bg-white dark:bg-white/5 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -42,7 +44,7 @@ interface PostMediaItem {
 interface Post {
   id: string;
   content: string;
-  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'FAILED';
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHING' | 'PUBLISHED' | 'FAILED';
   scheduledFor?: string;
   socialAccounts?: any[];
   media?: PostMediaItem[];
@@ -90,12 +92,13 @@ const SkeletonCard = () => (
 // 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
   switch (platform?.toLowerCase()) {
-    case 'twitter': return <FaXTwitter className="text-black dark:text-white text-sm" />;
-    case 'linkedin': return <FaLinkedinIn className="text-[#0077b5] text-sm" />;
-    case 'instagram': return <FaInstagram className="text-[#e1306c] text-sm" />;
-    case 'facebook': return <FaFacebookF className="text-[#1877f2] text-sm" />;
-    case 'tiktok': return <FaTiktok className="text-black dark:text-white text-sm" />;
-    case 'youtube': return <FaYoutube className="text-[#ff0000] text-sm" />;
+    case 'twitter':
+    case 'x': return <TwitterIcon size={16} />;
+    case 'linkedin': return <LinkedinIcon size={16} />;
+    case 'instagram': return <InstagramIcon size={16} />;
+    case 'facebook': return <FacebookIcon size={16} />;
+    case 'tiktok': return <TiktokIcon size={16} />;
+    case 'youtube': return <YoutubeIcon size={16} />;
     default: return <span className="text-gray-400 dark:text-zinc-500 text-[10px]">#</span>;
   }
 };
@@ -109,9 +112,21 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   const getStatusColor = (status: string) => {
     switch (status) {
         case 'SCHEDULED': return "bg-[#174CD2]/10 text-[#174CD2]";
+        case 'PUBLISHING': return "bg-green-100 text-green-700";
         case 'PUBLISHED': return "bg-green-100 text-green-700";
         case 'FAILED': return "bg-red-100 text-red-700";
         default: return "bg-[#F5F7FA] dark:bg-white/10 text-[#8E8E8E]";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'DRAFT': return t('Draft', 'Brouillon');
+        case 'SCHEDULED': return t('Scheduled', 'Planifié');
+        case 'PUBLISHING': return t('Publishing…', 'Publication…');
+        case 'PUBLISHED': return t('Published', 'Publié');
+        case 'FAILED': return t('Failed', 'Échec');
+        default: return status;
     }
   };
 
@@ -155,7 +170,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
 
         <NeuBadge className={getStatusColor(post.status)}>
-          {post.status}
+          {getStatusLabel(post.status)}
         </NeuBadge>
       </div>
 
@@ -237,7 +252,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && (
+          {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && post.status !== 'PUBLISHING' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
               title={t('Publish now', 'Publier maintenant')}
@@ -255,7 +270,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </NeuButton>
           )}
 
-          {post.status !== 'PUBLISHED' && (
+          {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
               title={t('Edit post', 'Modifier le post')}
@@ -267,7 +282,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
             title={t('Delete post', 'Supprimer le post')}
-            className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-500 hover:text-white transition-all"
+            className="p-2 rounded-[10px] bg-white dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-500 hover:text-white transition-all"
           >
             <Trash2 size={14} />
           </button>

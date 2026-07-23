@@ -471,6 +471,11 @@ function DashboardContent() {
         document.documentElement.classList.toggle('dark', isDark);
     }, [isDark]);
 
+    // Switching tabs should land at the top, not keep the previous tab's scroll position
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [activeTab]);
+
     // Load Meta FB SDK for WhatsApp Embedded Signup
     useEffect(() => {
         if (typeof window === 'undefined' || (window as any).FB) return;
@@ -533,6 +538,10 @@ function DashboardContent() {
 
         socket.on('post_updated', (updatedPost) => {
             addNotification('info', `Post updated: "${updatedPost.content.substring(0, 50)}${updatedPost.content.length > 50 ? '…' : ''}"`);
+            // Patch the cache immediately so the card flips status live, without waiting on the refetch round-trip
+            queryClient.setQueryData(['posts', workspaceId, searchTerm], (old: any[] = []) =>
+                old.map((p) => (p.id === updatedPost.id ? { ...p, ...updatedPost } : p))
+            );
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
         });
@@ -548,7 +557,7 @@ function DashboardContent() {
             socket.off('post_updated');
             socket.off('post_deleted');
         };
-    }, [socket, workspaceId, queryClient, refetchPosts]);
+    }, [socket, workspaceId, searchTerm, queryClient, refetchPosts]);
 
     // 🟢 MANUAL UPDATE HELPER (Optimistic UI)
     const manuallyAddAccount = (newAccount: any) => {
@@ -715,7 +724,7 @@ function DashboardContent() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#040028] font-sans text-[#040028] dark:text-white relative transition-colors duration-300">
+        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#040028] font-sans text-[#040028] dark:text-white relative transition-colors duration-300 -mt-16 md:-mt-1">
 
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-[#0A0A2E] border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
@@ -732,7 +741,7 @@ function DashboardContent() {
 
             {/* Main Layout */}
             <main className="relative z-10 flex flex-col min-h-screen">
-                <header className="hidden lg:flex sticky top-0 z-30 h-16 shrink-0 isolate transform-gpu will-change-transform bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
+                <header className="hidden lg:flex sticky top-0 z-30 h-16 shrink-0 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8 self-stretch -ml-8">
                         <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="w-72 h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
                             <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-3 right-3 mt-2 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 origin-top overflow-hidden">{myWorkspaces.map((ws: any) => { const isSelected = currentWorkspace?.id === ws.id; return (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className={cn("w-full flex items-center gap-3 h-12 px-4 text-left transition-colors", isSelected ? "bg-[#FAFAFA] dark:bg-white/5" : "hover:bg-black/5 dark:hover:bg-white/10")}><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10 flex-shrink-0"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 text-base font-medium truncate text-[#171717] dark:text-white">{ws.name}</span>{isSelected && <Check size={20} className="text-[#171717] dark:text-white flex-shrink-0"/>}</button>); })}<div className="h-px bg-black/5 dark:bg-white/10 my-1"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"><Plus size={20}/> {t("New workspace", "Nouvel espace")}</button><div className="h-px bg-black/5 dark:bg-white/10 my-1"/><div className="px-4 py-2 text-sm text-gray-400 truncate">{currentUser?.email}</div><button onClick={handleLogout} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 7L21 12L16 17M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> {t("Log out", "Déconnexion")}</button></motion.div>)}</AnimatePresence>
@@ -741,7 +750,7 @@ function DashboardContent() {
                 </header>
 
                 {/* Desktop left rail — nav, docked below the header */}
-                <aside className="hidden lg:flex flex-col fixed left-0 top-16 bottom-0 w-72 isolate transform-gpu will-change-transform bg-[#F7F6F3] dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-hidden z-20">
+                <aside className="hidden lg:flex flex-col fixed left-0 top-16 bottom-0 w-72 bg-[#F7F6F3] dark:bg-[#0A0A2E] border-r border-gray-200 dark:border-white/10 p-4 overflow-hidden z-20">
                     <nav className="space-y-1.5">{navItems.map((item) => (<button key={item.id} onClick={() => setActiveTab(item.id as TabType)} className={`w-full flex items-center justify-between px-4 py-3 rounded-[10px] border transition-all duration-200 group ${activeTab === item.id ? 'bg-white dark:bg-white/5 border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white' : 'border-transparent text-[#040028] dark:text-white hover:bg-[#174CD2]/8'}`}><div className="flex items-center gap-3"><item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} /><span className="font-semibold text-sm">{item.label}</span></div></button>))}</nav>
 
                     <div className="flex-1 flex items-center justify-center py-4">
@@ -818,8 +827,8 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'analytics' && <NeuCard className="min-h-[600px]"><Analytics /></NeuCard>}
-                                    {activeTab === 'engagement' && <NeuCard className="min-h-[600px]"><EngagementWithTabs /></NeuCard>}
+                                    {activeTab === 'analytics' && <NeuCard className="min-h-[680px]"><Analytics /></NeuCard>}
+                                    {activeTab === 'engagement' && <NeuCard className="min-h-[680px]"><EngagementWithTabs /></NeuCard>}
                                     {activeTab === 'team' && <Team workspaceId={workspaceId} />}
                                     {activeTab === 'settings' && <NeuCard className="p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></NeuCard>}
                                 </motion.div>
