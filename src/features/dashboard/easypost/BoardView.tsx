@@ -144,7 +144,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
       </div>
 
       {boards.length === 0 ? (
-        <div className="py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10">
+        <div className="py-20 text-center rounded-[16px] bg-[#F7F6F3] dark:bg-white/5 border border-dashed border-black/10 dark:border-white/10">
           <Layout size={40} className="mx-auto text-[#040028] dark:text-white mb-4" />
           <h3 className="text-lg font-semibold text-[#8E8E8E]">{t("No boards found in this workspace", "Aucun tableau trouvé dans cet espace")}</h3>
           <button

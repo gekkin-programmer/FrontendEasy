@@ -599,6 +599,7 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {
+            toast.success(t('Social account connected successfully', 'Compte social connecté avec succès'));
             setTimeout(() => addNotification('success', 'Social account connected successfully'), 0);
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
@@ -641,12 +642,13 @@ function DashboardContent() {
                 ],
             };
             const [en, fr] = oauthErrors[error] ?? [error, error];
+            toast.error(t(en, fr), { duration: 8000 });
             setTimeout(() => addNotification('error', t(en, fr)), 0);
             const url = new URL(window.location.href);
             url.searchParams.delete('error');
             window.history.replaceState(null, '', url.pathname);
         }
-    }, [searchParams, queryClient, workspaceId, refetchAccounts]);
+    }, [searchParams, queryClient, workspaceId, refetchAccounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     // --- MUTATIONS ---
@@ -744,7 +746,7 @@ function DashboardContent() {
                 <header className="hidden lg:flex sticky top-0 z-30 h-16 shrink-0 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8 self-stretch -ml-8">
                         <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="w-72 h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
-                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-3 right-3 mt-2 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 origin-top overflow-hidden">{myWorkspaces.map((ws: any) => { const isSelected = currentWorkspace?.id === ws.id; return (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className={cn("w-full flex items-center gap-3 h-12 px-4 text-left transition-colors", isSelected ? "bg-[#FAFAFA] dark:bg-white/5" : "hover:bg-black/5 dark:hover:bg-white/10")}><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10 flex-shrink-0"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 text-base font-medium truncate text-[#171717] dark:text-white">{ws.name}</span>{isSelected && <Check size={20} className="text-[#171717] dark:text-white flex-shrink-0"/>}</button>); })}<div className="h-px bg-black/5 dark:bg-white/10 my-1"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"><Plus size={20}/> {t("New workspace", "Nouvel espace")}</button><div className="h-px bg-black/5 dark:bg-white/10 my-1"/><div className="px-4 py-2 text-sm text-gray-400 truncate">{currentUser?.email}</div><button onClick={handleLogout} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 7L21 12L16 17M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> {t("Log out", "Déconnexion")}</button></motion.div>)}</AnimatePresence>
+                            <AnimatePresence>{isAccountMenuOpen && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-3 right-3 mt-2 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 origin-top overflow-hidden">{myWorkspaces.map((ws: any) => { const isSelected = currentWorkspace?.id === ws.id; return (<button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); }} className={cn("w-full flex items-center gap-3 h-12 px-4 text-left transition-colors", isSelected ? "bg-[#F7F6F3] dark:bg-white/5" : "hover:bg-[#F7F6F3] dark:hover:bg-white/10")}><div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10 flex-shrink-0"><img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" /></div><span className="flex-1 text-base font-medium truncate text-[#171717] dark:text-white">{ws.name}</span>{isSelected && <Check size={20} className="text-[#171717] dark:text-white flex-shrink-0"/>}</button>); })}<div className="h-px bg-black/5 dark:bg-white/10 my-1"/><button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); }} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-colors"><Plus size={20}/> {t("New workspace", "Nouvel espace")}</button><div className="h-px bg-black/5 dark:bg-white/10 my-1"/><div className="px-4 py-2 text-sm text-gray-400 truncate">{currentUser?.email}</div><button onClick={handleLogout} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-colors"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 7L21 12L16 17M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> {t("Log out", "Déconnexion")}</button></motion.div>)}</AnimatePresence>
                         </div>
                     </div>
                 </header>
@@ -766,8 +768,8 @@ function DashboardContent() {
                         />
                     </div>
 
-                    <div className="mt-6 mb-4 p-5 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028] dark:text-white mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end text-[#040028] dark:text-white"><span
-  className={`text-xl font-bold ${
+                    <div className="mt-6 mb-4 p-5 rounded-[14px] bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-dashed border-black/10 dark:border-white/15 transition-colors"><p className="text-xs font-semibold text-[#040028] dark:text-white mb-2 uppercase tracking-wider">{t("Subscription", "Abonnement")}</p><div className="flex justify-between items-end gap-3 text-[#040028] dark:text-white"><span
+  className={`text-xl font-bold truncate min-w-0 ${
     !currentWorkspace?.owner?.planType || currentWorkspace.owner.planType === 'FREE'
       ? 'text-gray-400'
       : currentWorkspace.owner.planType === 'STARTER'
@@ -780,12 +782,12 @@ function DashboardContent() {
       ? 'bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse'
       : 'text-green-600'
   }`}
->{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="text-xs font-semibold underline hover:text-[#174CD2] hover:bg-[#E5E5E5] dark:hover:bg-white/10 rounded-[4px] px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors">{t("Manage", "Gérer")}</button></div></div>
+>{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="flex-shrink-0 text-xs font-semibold underline hover:text-[#174CD2] hover:bg-[#E5E5E5] dark:hover:bg-white/10 rounded-[4px] px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors">{t("Manage", "Gérer")}</button></div></div>
                 </aside>
 
-                <div className="flex-1 px-4 md:px-8 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-72">
-                    <div className="max-w-[1600px] mx-auto flex gap-8 items-start">
-                        <div className="flex-1 min-w-0">
+                <div className="flex-1 pl-4 md:pl-8 pr-2 md:pr-4 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-72">
+                    <div className="max-w-[1600px] mx-auto">
+                        <div className="min-w-0">
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="ml-4">

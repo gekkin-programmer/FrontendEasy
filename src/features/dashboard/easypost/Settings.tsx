@@ -44,7 +44,7 @@ const NeuButton = ({ children, onClick, className = "", variant = "primary", dis
   const baseStyles = "relative font-semibold text-sm transition-all duration-200 rounded-[10px] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 px-4 py-2.5";
   const variants = {
     primary: "bg-[#174CD2] text-white hover:bg-[#123a9e]",
-    secondary: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40",
+    secondary: "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]",
     danger: "bg-red-600 text-white hover:bg-red-700"
   };
   return (
@@ -78,7 +78,7 @@ function TabBtn({ tab, activeTab, setActiveTab }: { tab: { id: SettingsTab; labe
         "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-[10px] transition-all duration-200",
         activeTab === tab.id
           ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]"
-          : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40"
+          : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]"
       )}
     >
       <span>{tab.icon}</span>
@@ -266,6 +266,8 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
     );
 }
 
+const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4`;
+
 // --- SUB-COMPONENT: PROFILE SETTINGS ---
 function ProfileSettings() {
   const { t } = useLanguage();
@@ -347,7 +349,7 @@ function ProfileSettings() {
         <div className="flex flex-col md:flex-row items-start gap-8 transition-colors">
           <div className="flex-shrink-0 flex flex-col items-center gap-3">
             <div className="relative w-28 h-28 rounded-full bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 flex items-center justify-center text-[#040028] dark:text-white text-4xl font-bold overflow-hidden group transition-all">
-               {formData.avatar ? <img src={formData.avatar} className="w-full h-full object-cover" /> : (formData.firstName ? <span>{formData.firstName.charAt(0).toUpperCase()}</span> : <FiUser size={40} strokeWidth={1.5} />)}
+               <img src={formData.avatar || getAvatarUrl(formData.firstName || formData.email || 'User')} className="w-full h-full object-cover" />
                {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white"><FiLoader className="animate-spin text-2xl" /></div>}
             </div>
             <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} className="hidden" accept="image/*" />
@@ -368,7 +370,7 @@ function ProfileSettings() {
       <NeuCard title={t('Account security', 'Sécurité du compte')} description={t('Used for login & alerts', 'Utilisé pour la connexion et les alertes')}>
          <div className="max-w-lg space-y-4">
              <NeuInput label={t('Email address', 'Adresse e-mail')} value={formData.email} disabled type="email" />
-             <div className="flex items-center justify-between p-3 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 transition-colors">
+             <div className="flex items-center justify-between p-3 rounded-[10px] bg-white dark:bg-[#0A0A2E] transition-colors">
                  <div className="text-sm text-[#040028] dark:text-white"><p className="font-semibold">{t('Email verified', 'E-mail vérifié')}</p><p className="text-xs text-[#8E8E8E]">{t('Managed by provider', 'Géré par le fournisseur')}</p></div>
                  <div className="bg-[#174CD2] text-white p-2 rounded-full transition-colors"><FiShield size={14} /></div>
              </div>

@@ -290,7 +290,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-[#F7F6F3] dark:bg-white/5 p-1 rounded-[10px]">
+          <div className="flex bg-[#F7F6F3] dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 p-1 rounded-[10px]">
               {(['month', 'week', 'day'] as ViewType[]).map(v => (
                   <button
                     key={v}
@@ -306,13 +306,13 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
-            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
+            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
+            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
           </div>
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-[#F5F7FA] dark:hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all"
           >
             <Download size={16} /> {t("Export", "Exporter")}
           </button>

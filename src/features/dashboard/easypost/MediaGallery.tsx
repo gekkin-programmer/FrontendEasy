@@ -6,7 +6,7 @@ import {
     FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
     FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
 } from 'react-icons/fi';
-import { SiCanva, SiDropbox } from 'react-icons/si';
+import { SiCanva, SiDropbox, SiGoogledrive } from 'react-icons/si';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +16,8 @@ import { format } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import CanvaImportModal from './CanvaImportModal';
+import DropboxBrowserModal from './DropboxBrowserModal';
+import { openGoogleDrivePicker } from '@/lib/googleDrivePicker';
 
 interface Section { id: string; label: string; }
 
@@ -36,6 +38,8 @@ export default function MediaGallery({
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
+  const [dropboxModalOpen, setDropboxModalOpen] = useState(false);
+  const [googleDriveImporting, setGoogleDriveImporting] = useState(false);
   const [playingAssetId, setPlayingAssetId] = useState<string | null>(null);
   const [optionsMenuOpenFor, setOptionsMenuOpenFor] = useState<string | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
@@ -73,6 +77,64 @@ export default function MediaGallery({
       window.history.replaceState({}, '', url.toString());
     }
   }, []);
+
+  // Detect ?dropbox=connected (OAuth callback) or ?dropbox=error
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const dropboxParam = params.get('dropbox');
+    if (dropboxParam === 'connected') {
+      toast.success(t('Dropbox connected!', 'Dropbox connecté !'));
+      setDropboxModalOpen(true);
+    } else if (dropboxParam === 'error') {
+      const errMsg = params.get('dropbox_error') ?? 'Authorization failed';
+      toast.error(t(`Dropbox: ${errMsg}`, `Dropbox : ${errMsg}`));
+    }
+    if (dropboxParam === 'connected' || dropboxParam === 'error') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('dropbox');
+      url.searchParams.delete('dropbox_error');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  const handleDropboxClick = async () => {
+    if (!workspaceId) { toast.error('No workspace'); return; }
+    try {
+      const res: any = await api.get(`/dropbox/status?workspaceId=${workspaceId}`);
+      const connected = res?.data?.connected ?? res?.connected;
+      if (connected) {
+        setDropboxModalOpen(true);
+      } else {
+        const authRes: any = await api.get(`/dropbox/auth?workspaceId=${workspaceId}`);
+        window.location.href = authRes?.data?.url ?? authRes?.url;
+      }
+    } catch {
+      toast.error(t('Could not connect to Dropbox', 'Impossible de connecter Dropbox'));
+    }
+  };
+
+  const handleGoogleDriveClick = async () => {
+    if (!workspaceId) { toast.error('No workspace'); return; }
+    setGoogleDriveImporting(true);
+    try {
+      const picked = await openGoogleDrivePicker();
+      if (!picked) { setGoogleDriveImporting(false); return; }
+      await api.post('/google-drive/import', {
+        workspaceId,
+        fileId: picked.fileId,
+        accessToken: picked.accessToken,
+        folderId: currentFolderId,
+      });
+      toast.success(t('Imported to media library!', 'Importé dans la médiathèque !'));
+      queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    } catch (err: any) {
+      toast.error(t(`Google Drive: ${err?.message || 'Import failed'}`, `Google Drive : ${err?.message || "Échec de l'import"}`));
+    } finally {
+      setGoogleDriveImporting(false);
+    }
+  };
 
   const handleCanvaClick = async () => {
     if (!workspaceId) { toast.error('No workspace'); return; }
@@ -295,11 +357,19 @@ export default function MediaGallery({
                   <SiCanva size={13} /> Canva
               </button>
               <button
-                onClick={() => toast.info(t("Dropbox import — coming soon", "Import Dropbox — bientôt disponible"))}
+                onClick={handleDropboxClick}
                 className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
                 title={t("Import from Dropbox", "Importer depuis Dropbox")}
               >
                   <SiDropbox size={13} /> Dropbox
+              </button>
+              <button
+                onClick={handleGoogleDriveClick}
+                disabled={googleDriveImporting}
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all disabled:opacity-50"
+                title={t("Import from Google Drive", "Importer depuis Google Drive")}
+              >
+                  {googleDriveImporting ? <FiLoader size={13} className="animate-spin" /> : <SiGoogledrive size={13} />} Google Drive
               </button>
           </div>
       </div>
@@ -556,6 +626,19 @@ export default function MediaGallery({
             queryClient.invalidateQueries({ queryKey: ['media'] });
             setCanvaModalOpen(false);
           }}
+        />
+      )}
+
+      {dropboxModalOpen && workspaceId && (
+        <DropboxBrowserModal
+          isOpen={dropboxModalOpen}
+          onClose={() => setDropboxModalOpen(false)}
+          workspaceId={workspaceId}
+          onImported={() => {
+            queryClient.invalidateQueries({ queryKey: ['media'] });
+            queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+          }}
+          onDisconnected={() => setDropboxModalOpen(false)}
         />
       )}
     </div>
