@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useSocket } from '@/context/SocketContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { formatFullDateTimeInTz } from '@/lib/timezone';
 
 // Icons
 import {
@@ -110,9 +111,22 @@ export default function Team({ workspaceId }: TeamProps) {
     enabled: !!workspaceId,
   });
 
+  const { data: pendingApprovalPosts = [], isLoading: pendingApprovalLoading, refetch: refetchPendingApproval } = useQuery({
+    queryKey: ['pending-approval-posts', workspaceId],
+    gcTime: 0,
+    queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&status=PENDING_APPROVAL`).then(res => Array.isArray(res) ? res : (res as any)?.data || []),
+    enabled: !!workspaceId,
+  });
+
+  // Both "REVIEW" (author-submitted) and "PENDING_APPROVAL" (workspace-gated) posts land in the
+  // same Approvals tab and share the same approve/reject actions.
+  const approvalPosts = [...reviewPosts, ...pendingApprovalPosts];
+  const approvalsLoading = reviewsLoading || pendingApprovalLoading;
+  const refetchApprovals = () => { refetchReviews(); refetchPendingApproval(); };
+
   // Surface pending approvals first — that's the item most likely to need action right now —
   // until the user picks a tab themselves, at which point their choice always wins.
-  const activeTab = activeTabOverride ?? (reviewPosts.length > 0 ? 'approvals' : 'members');
+  const activeTab = activeTabOverride ?? (approvalPosts.length > 0 ? 'approvals' : 'members');
 
   // ── MUTATIONS ─────────────────────────────────────────────────────────
   const inviteMutation = useMutation({
@@ -125,7 +139,7 @@ export default function Team({ workspaceId }: TeamProps) {
     mutationFn: (postId: string) => api.post(`/posts/${postId}/approve`, {}),
     onSuccess: () => {
       toast.success(t('Content approved and live', 'Contenu approuvé et en ligne'));
-      refetchReviews();
+      refetchApprovals();
       queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
       queryClient.invalidateQueries({ queryKey: ['calendar'] });
     },
@@ -134,7 +148,7 @@ export default function Team({ workspaceId }: TeamProps) {
 
   const rejectMutation = useMutation({
     mutationFn: (postId: string) => api.patch(`/posts/${postId}`, { status: 'DRAFT' }),
-    onSuccess: () => { toast.warning(t('Sent back to draft', 'Renvoyé en brouillon')); refetchReviews(); },
+    onSuccess: () => { toast.warning(t('Sent back to draft', 'Renvoyé en brouillon')); refetchApprovals(); },
   });
 
   const removeMemberMutation = useMutation({
@@ -393,7 +407,7 @@ export default function Team({ workspaceId }: TeamProps) {
               onClick={() => setActiveTab('approvals')}
               className={`px-6 py-4 text-xs font-semibold transition-all flex items-center gap-2 ${activeTab === 'approvals' ? 'text-[#174CD2] border-b-2 border-[#174CD2] -mb-px' : 'text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white'}`}
             >
-              {t('Waiting approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${activeTab === 'approvals' ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white'}`}>{reviewPosts.length}</span>
+              {t('Waiting approval', 'En attente d\'approbation')} <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${activeTab === 'approvals' ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white'}`}>{approvalPosts.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('members')}
@@ -408,7 +422,7 @@ export default function Team({ workspaceId }: TeamProps) {
               {t('Pending', 'En attente')} <span className="bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white px-1.5 py-0.5 rounded-full text-[10px] font-semibold">{pendingInvites.length}</span>
             </button>
             <button
-              onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchReviews(); }}
+              onClick={() => { refetchMembers(); if (activeTab === 'approvals') refetchApprovals(); }}
               className="ml-auto px-5 py-4 hover:bg-black/[0.03] dark:hover:bg-white/5 text-[#8E8E8E] hover:text-[#174CD2] transition-colors"
               title={t('Refresh', 'Actualiser')}
             >
@@ -478,14 +492,14 @@ export default function Team({ workspaceId }: TeamProps) {
             {/* APPROVALS */}
             {activeTab === 'approvals' && (
               <div className="space-y-6">
-                {reviewsLoading ? <div className="py-10 flex justify-center"><RefreshCw className="animate-spin text-[#174CD2]" /></div> : null}
-                {reviewPosts.length === 0 && !reviewsLoading && (
+                {approvalsLoading ? <div className="py-10 flex justify-center"><RefreshCw className="animate-spin text-[#174CD2]" /></div> : null}
+                {approvalPosts.length === 0 && !approvalsLoading && (
                   <div className="py-20 text-center rounded-[14px] border border-dashed border-black/10 dark:border-white/10">
                     <CheckCircle2 size={44} className="mx-auto text-green-500 mb-4 opacity-70" />
                     <p className="font-semibold text-[#8E8E8E] text-xl">{t('All clear — no pending reviews', 'Tout est bon — Aucune révision en attente')}</p>
                   </div>
                 )}
-                {reviewPosts.map((post: any) => (
+                {approvalPosts.map((post: any) => (
                   <div key={post.id} className="rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] overflow-hidden flex flex-col sm:flex-row transition-all">
                     <div className="w-full sm:w-1/3 bg-[#F5F7FA] dark:bg-black/20 p-4 flex flex-col gap-3">
                       <div className="flex items-center justify-between mb-2">
@@ -508,13 +522,15 @@ export default function Team({ workspaceId }: TeamProps) {
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-[#174CD2]"></div>
-                            <span className="font-semibold text-xs text-[#040028] dark:text-white">{t('Post review request', 'Demande de révision')}</span>
+                            <span className="font-semibold text-xs text-[#040028] dark:text-white">
+                              {post.status === 'PENDING_APPROVAL' ? t('Pending approval', 'En attente d\'approbation') : t('Post review request', 'Demande de révision')}
+                            </span>
                           </div>
-                          <span className="text-xs text-[#8E8E8E]">{format(parseISO(post.createdAt), 'MMM d, HH:mm')}</span>
+                          <span className="text-xs text-[#8E8E8E]">{formatFullDateTimeInTz(post.createdAt, workspace?.timezone || 'UTC')}</span>
                         </div>
                         <p className="text-sm font-medium leading-relaxed italic border-l-2 border-[#174CD2]/30 pl-4 text-[#040028] dark:text-white">{post.content}</p>
                         <div className="flex items-center gap-2 text-xs font-medium text-[#8E8E8E]">
-                          <Clock size={12} /> {t('Scheduled for', 'Planifié pour')}: {post.scheduledFor ? format(parseISO(post.scheduledFor), 'EEEE, MMMM d @ HH:mm') : t('Immediate', 'Immédiat')}
+                          <Clock size={12} /> {t('Scheduled for', 'Planifié pour')}: {post.scheduledFor ? formatFullDateTimeInTz(post.scheduledFor, workspace?.timezone || 'UTC') : t('Immediate', 'Immédiat')}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4 mt-8">

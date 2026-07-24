@@ -121,7 +121,7 @@ export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onIm
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#040028]/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#333333]/20 backdrop-blur-sm p-4">
       <motion.div
         initial={{ scale: 0.96, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}

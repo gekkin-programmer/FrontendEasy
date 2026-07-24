@@ -2,12 +2,13 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw } from 'lucide-react';
+import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/context/LanguageContext';
+import { formatDateTimeInTz } from '@/lib/timezone';
 import {
   FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon, TiktokIcon, YoutubeIcon,
 } from '@/components/icons/PlatformIcons';
@@ -44,7 +45,7 @@ interface PostMediaItem {
 interface Post {
   id: string;
   content: string;
-  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHING' | 'PUBLISHED' | 'FAILED';
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHING' | 'PUBLISHED' | 'FAILED' | 'PENDING_APPROVAL' | 'REVIEW';
   scheduledFor?: string;
   socialAccounts?: any[];
   media?: PostMediaItem[];
@@ -66,6 +67,8 @@ interface PostFeedProps {
   workspaceId: string;
   onEdit?: (post: Post) => void;
   isLoading?: boolean;
+  canApprove?: boolean;
+  workspaceTimezone?: string;
 }
 
 import { Skeleton } from '@/components/ui/skeleton';
@@ -104,7 +107,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 };
 
 // 🟢 SINGLE POST CARD COMPONENT
-const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, isQueued, draggable, onDragStart }: any) => {
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, onApprove, isQueued, draggable, onDragStart, canApprove, workspaceTimezone }: any) => {
   const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
@@ -115,6 +118,8 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         case 'PUBLISHING': return "bg-green-100 text-green-700";
         case 'PUBLISHED': return "bg-green-100 text-green-700";
         case 'FAILED': return "bg-red-100 text-red-700";
+        case 'PENDING_APPROVAL': return "bg-yellow-100 text-yellow-800";
+        case 'REVIEW': return "bg-yellow-100 text-yellow-800";
         default: return "bg-[#F5F7FA] dark:bg-white/10 text-[#8E8E8E]";
     }
   };
@@ -126,6 +131,8 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         case 'PUBLISHING': return t('Publishing…', 'Publication…');
         case 'PUBLISHED': return t('Published', 'Publié');
         case 'FAILED': return t('Failed', 'Échec');
+        case 'PENDING_APPROVAL': return t('Pending approval', 'En attente d\'approbation');
+        case 'REVIEW': return t('In review', 'En révision');
         default: return status;
     }
   };
@@ -228,12 +235,22 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
            <span>
              {post.scheduledFor
-               ? new Date(post.scheduledFor).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'})
+               ? formatDateTimeInTz(post.scheduledFor, workspaceTimezone)
                : t('No date set', 'Aucune date')}
            </span>
         </div>
 
         <div className="flex gap-1">
+          {(post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW') && canApprove && (
+            <NeuButton
+              onClick={(e: any) => { e.stopPropagation(); onApprove?.(); }}
+              title={t('Approve & publish', 'Approuver et publier')}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <FileCheck size={14} />
+            </NeuButton>
+          )}
+
           {post.status === 'PUBLISHED' && (
             <NeuButton
               onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
@@ -292,7 +309,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   );
 };
 
-export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false }: PostFeedProps) {
+export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false, canApprove = false, workspaceTimezone = 'UTC' }: PostFeedProps) {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
   const drafts = posts.filter(p => p.status === 'DRAFT');
@@ -328,6 +345,17 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     } catch (e) {
       toast.dismiss();
       toast.error(t("Repost failed", "Échec de la republication"));
+    }
+  };
+
+  const approvePost = async (postId: string) => {
+    try {
+        await api.post(`/posts/${postId}/approve`, {});
+        toast.success(t("Approved and published", "Approuvé et publié"));
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
+    } catch (e) {
+        toast.error(t("Approval failed", "Échec de l'approbation"));
     }
   };
 
@@ -406,6 +434,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
                 onRepost={() => repostPost(post.id)}
+                onApprove={() => approvePost(post.id)}
+                canApprove={canApprove}
+                workspaceTimezone={workspaceTimezone}
                 draggable={true}
                 onDragStart={(e: any) => handleDragStart(e, post.id)}
               />
@@ -438,6 +469,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 onPublishNow={() => publishPost(post.id)}
                 onRetry={() => publishPost(post.id)}
                 onRepost={() => repostPost(post.id)}
+                onApprove={() => approvePost(post.id)}
+                canApprove={canApprove}
+                workspaceTimezone={workspaceTimezone}
                 isQueued
               />
             ))}

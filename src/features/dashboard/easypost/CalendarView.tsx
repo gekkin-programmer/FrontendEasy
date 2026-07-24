@@ -9,7 +9,8 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil, FileCheck } from 'lucide-react';
+import { formatTimeInTz } from '@/lib/timezone';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
@@ -91,8 +92,9 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
 };
 
 // 🟢 DRAGGABLE ITEM COMPONENT
-const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post: any) => void, viewType: ViewType }) => {
+const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone, onApprove }: { post: any, onClick: (post: any) => void, viewType: ViewType, canApprove?: boolean, workspaceTimezone?: string, onApprove?: (post: any) => void }) => {
   const { t } = useLanguage();
+  const needsApproval = post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW';
   const {
     attributes,
     listeners,
@@ -138,6 +140,22 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
 
       <span className="truncate flex-1 ml-1 text-[#040028] dark:text-white">{post.content || t('No content', 'Aucun contenu')}</span>
 
+      {needsApproval && (
+        <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[8px] font-semibold uppercase bg-yellow-100 text-yellow-800">
+          {t('Pending', 'En attente')}
+        </span>
+      )}
+
+      {needsApproval && canApprove && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onApprove?.(post); }}
+          title={t('Approve & publish', 'Approuver et publier')}
+          className="p-0.5 text-green-600 hover:text-green-700 transition-colors shrink-0"
+        >
+          <FileCheck size={viewType === 'day' ? 12 : 8} />
+        </button>
+      )}
+
       {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
         <button
           onClick={(e) => { e.stopPropagation(); onClick(post); }}
@@ -156,12 +174,18 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
               </div>
               <div className="flex justify-between">
                 <span>{t('Time:', 'Heure:')}</span>
-                <span>{post.scheduledFor ? format(parseISO(post.scheduledFor), 'HH:mm') : 'N/A'}</span>
+                <span>{post.scheduledFor ? formatTimeInTz(post.scheduledFor, workspaceTimezone || 'UTC') : 'N/A'}</span>
               </div>
               {post.status === 'PUBLISHED' && (
                 <div className="flex justify-between text-green-400">
                   <span>{t('Status', 'Statut')}</span>
                   <span>{t('Published', 'Publié')}</span>
+                </div>
+              )}
+              {needsApproval && (
+                <div className="flex justify-between text-yellow-400">
+                  <span>{t('Status', 'Statut')}</span>
+                  <span>{t('Pending approval', 'En attente d\'approbation')}</span>
                 </div>
               )}
           </div>
@@ -170,7 +194,7 @@ const DraggablePost = ({ post, onClick, viewType }: { post: any, onClick: (post:
   );
 };
 
-export default function CalendarView({ workspaceId, onPostClick }: { workspaceId: string, onPostClick?: (post: any) => void }) {
+export default function CalendarView({ workspaceId, onPostClick, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, canApprove?: boolean, workspaceTimezone?: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
   const queryClient = useQueryClient();
@@ -206,6 +230,18 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
     },
     onError: () => toast.error(t("Reschedule failed", "Échec de la replanification"))
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: (postId: string) => api.post(`/posts/${postId}/approve`, {}),
+    onSuccess: () => {
+        toast.success(t("Approved and published", "Approuvé et publié"));
+    },
+    onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['calendar'] });
+        queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+    },
+    onError: () => toast.error(t("Approval failed", "Échec de l'approbation"))
   });
 
   const days = eachDayOfInterval({ start, end });
@@ -290,14 +326,14 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-[#F7F6F3] dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 p-1 rounded-[10px]">
+          <div className="flex bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 p-1 rounded-[10px]">
               {(['month', 'week', 'day'] as ViewType[]).map(v => (
                   <button
                     key={v}
                     onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
                     className={cn(
                         "px-3 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all",
-                        viewType === v ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
+                        viewType === v ? "bg-[#F7F6F3] dark:bg-[#0A0A2E] text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
                     )}
                   >
                       {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
@@ -353,7 +389,7 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
-                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F5F7FA] dark:bg-white/[0.02] opacity-50' : 'bg-white dark:bg-[#0A0A2E]'
+                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F5F7FA] dark:bg-white/[0.02] opacity-50' : 'bg-[#F7F6F3] dark:bg-[#0A0A2E]'
                     )}
                 >
                     <div className={cn(
@@ -362,7 +398,15 @@ export default function CalendarView({ workspaceId, onPostClick }: { workspaceId
                     )}>
                         <SortableContext items={dayPosts.map(p => p.id)} strategy={verticalListSortingStrategy}>
                             {dayPosts.map((post: any) => (
-                                <DraggablePost key={post.id} post={post} onClick={onPostClick || (() => {})} viewType={viewType} />
+                                <DraggablePost
+                                    key={post.id}
+                                    post={post}
+                                    onClick={onPostClick || (() => {})}
+                                    viewType={viewType}
+                                    canApprove={canApprove}
+                                    workspaceTimezone={workspaceTimezone}
+                                    onApprove={(p) => approveMutation.mutate(p.id)}
+                                />
                             ))}
                         </SortableContext>
                     </div>

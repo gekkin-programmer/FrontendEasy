@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send,
@@ -18,6 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { formatDateTimeInTz } from '@/lib/timezone';
 import MediaGallery from './MediaGallery';
 import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
@@ -39,6 +39,7 @@ interface ComposerProps {
   isPreviewActive?: boolean;
   onPreviewToggle?: () => void;
   onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string }) => void;
+  workspaceTimezone?: string;
   onSchedule: (
     content: string,
     date?: Date,
@@ -147,7 +148,7 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
   );
 };
 
-export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange }: ComposerProps) {
+export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange, workspaceTimezone = 'UTC' }: ComposerProps) {
   const { t } = useLanguage();
 
   /* ---- State ---- */
@@ -739,7 +740,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           </Popover>
                           )}
 
-                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? format(date, 'MMM d, HH:mm') : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
+                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? formatDateTimeInTz(date, workspaceTimezone) : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
             <PopoverContent className="w-auto p-0 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="bg-white dark:bg-[#0A0A2E] p-3 text-[#040028] dark:text-white" /><div className="p-3 border-t border-black/5 dark:border-white/5 flex items-center gap-2"><Clock size={16} className="text-[#040028] dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-semibold text-[#040028] dark:text-white border-b border-black/20 dark:border-white/20 focus:border-[#174CD2]" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
               <div className="flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
