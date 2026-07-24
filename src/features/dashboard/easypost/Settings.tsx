@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
+import { getBrowserTimezone, getSupportedTimezones } from '@/lib/timezone';
 import ConnectAccounts from './ConnectAccounts';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -160,7 +161,9 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
         name: initialName,
         description: '',
         website: '',
-        logo: ''
+        logo: '',
+        timezone: getBrowserTimezone(),
+        requiresApproval: false
     });
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -174,7 +177,9 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                     name: data.name || '',
                     description: data.description || '',
                     website: data.website || '',
-                    logo: data.logo || ''
+                    logo: data.logo || '',
+                    timezone: data.timezone || getBrowserTimezone(),
+                    requiresApproval: !!data.requiresApproval
                 });
             } catch (e) { console.error("Workspace fetch error", e); }
         };
@@ -251,6 +256,22 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
                         <NeuInput label={t('Website URL', 'URL du site web')} value={formData.website} onChange={(e:any) => setFormData({...formData, website: e.target.value})} placeholder="https://easy.cm" />
                         <div className="absolute top-7 right-3 text-[#8E8E8E] pointer-events-none"><FiGlobe /></div>
                     </div>
+                    <div>
+                        <label className="block text-xs font-semibold mb-1 text-[#040028] dark:text-white">{t('Timezone', 'Fuseau horaire')}</label>
+                        <select
+                            value={formData.timezone}
+                            onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                            className="w-full px-3 py-2.5 bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] font-medium text-sm focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
+                        >
+                            {getSupportedTimezones().map((tz) => <option key={tz} value={tz}>{tz}</option>)}
+                        </select>
+                    </div>
+                    <NotifRow
+                        label={t('Require approval before publishing', 'Exiger une approbation avant publication')}
+                        desc={t('Posts from non-owner/admin members need approval first', "Les publications des membres non-propriétaires/admins doivent d'abord être approuvées")}
+                        value={formData.requiresApproval}
+                        onToggle={() => setFormData({ ...formData, requiresApproval: !formData.requiresApproval })}
+                    />
                     <div className="flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
                         <NeuButton onClick={handleUpdate} disabled={loading || uploading} icon={<FiSave />}>{loading ? t('Saving...', 'Sauvegarde...') : t('Save changes', 'Enregistrer')}</NeuButton>
                     </div>
@@ -643,7 +664,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#040028]/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#333333]/20 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.25)] w-full max-w-sm overflow-hidden">
         <div className="bg-[#174CD2] text-white px-6 py-4 flex items-center justify-between">
           <span className="font-bold text-sm">{t('Add Mobile Money', 'Ajouter Mobile Money')}</span>

@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { deleteCookie } from 'cookies-next';
+import { getBrowserTimezone, getSupportedTimezones } from '@/lib/timezone';
 
 // ICONS
 import {
@@ -15,7 +16,8 @@ import {
   Check, Plus, Users, Menu, X,
   ExternalLink, Calendar as CalendarIcon,
   AlertTriangle, Crown, MessageCircle, Layout,
-  Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp
+  Heart, Bookmark, Share2, Music, Repeat2, MoreHorizontal, ThumbsUp,
+  ChevronDown
 } from 'lucide-react';
 import { FaTiktok } from 'react-icons/fa6';
 
@@ -443,6 +445,10 @@ function DashboardContent() {
         () => searchParams.get('exchange_token') ?? ""
     );
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
+    const [newWorkspaceTimezone, setNewWorkspaceTimezone] = useState(() => getBrowserTimezone());
+    const [newWorkspaceRequiresApproval, setNewWorkspaceRequiresApproval] = useState(false);
+    const [isTimezoneOpen, setIsTimezoneOpen] = useState(false);
+    const [timezoneSearch, setTimezoneSearch] = useState("");
     const [searchTerm] = useState("");
 
     // Notifications
@@ -512,6 +518,16 @@ function DashboardContent() {
         queryFn: () => api.get<any>(`/workspaces/${workspaceId}`).then(res => res?.data || res),
         enabled: !!workspaceId,
     });
+
+    const { data: members = [] } = useQuery({
+        queryKey: ['team-members', workspaceId],
+        queryFn: () => api.get<any[]>(`/workspaces/${workspaceId}/members`).then(res => res || []),
+        enabled: !!workspaceId,
+    });
+
+    const workspaceTimezone = currentWorkspace?.timezone || 'UTC';
+    const currentUserMember = members.find((m: any) => m.user?.id === currentUser?.id || m.user?.email === currentUser?.email);
+    const canApprove = currentUserMember?.role === 'OWNER' || currentUserMember?.role === 'ADMIN' || currentWorkspace?.ownerId === currentUser?.id;
 
     const { data: accounts = [], refetch: refetchAccounts } = useQuery({
         queryKey: ['social-accounts', workspaceId],
@@ -653,10 +669,12 @@ function DashboardContent() {
 
     // --- MUTATIONS ---
     const createWorkspaceMutation = useMutation({
-        mutationFn: (name: string) => api.post<any>('/workspaces', { name }),
+        mutationFn: (payload: { name: string; timezone: string; requiresApproval: boolean }) => api.post<any>('/workspaces', payload),
         onSuccess: (res) => {
             setIsCreateModalOpen(false);
             setNewWorkspaceName("");
+            setNewWorkspaceTimezone(getBrowserTimezone());
+            setNewWorkspaceRequiresApproval(false);
             queryClient.invalidateQueries({ queryKey: ['workspaces'] });
             router.push(`/dashboard/${res.data.id}`);
         },
@@ -682,7 +700,11 @@ function DashboardContent() {
 
     const handleCreateWorkspace = () => {
         if (!newWorkspaceName.trim()) return;
-        createWorkspaceMutation.mutate(newWorkspaceName);
+        createWorkspaceMutation.mutate({
+            name: newWorkspaceName,
+            timezone: newWorkspaceTimezone,
+            requiresApproval: newWorkspaceRequiresApproval,
+        });
     };
 
     const handleAddPost = async (content: string, date?: Date, mediaIds?: string[], status: 'DRAFT' | 'SCHEDULED' | 'REVIEW' = 'DRAFT', selectedAccountIds?: string[], postId?: string, targetWorkspaceId?: string, platformMeta?: Record<string, any>) => {
@@ -804,9 +826,10 @@ function DashboardContent() {
                                     isPreviewActive={isPreviewMode}
                                     onPreviewToggle={() => setIsPreviewMode(v => !v)}
                                     onPreviewDataChange={setPreviewData}
+                                    workspaceTimezone={workspaceTimezone}
                                 />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} /></div>
+                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
@@ -817,6 +840,8 @@ function DashboardContent() {
                                             </div>
                                             <CalendarView
                                                 workspaceId={workspaceId}
+                                                canApprove={canApprove}
+                                                workspaceTimezone={workspaceTimezone}
                                                 onPostClick={(post) => {
                                                     if (post.status === 'PUBLISHED') {
                                                         toast.info(t('Published posts cannot be edited', 'Les publications publiées ne peuvent pas être modifiées'));
@@ -852,7 +877,87 @@ function DashboardContent() {
                 </div>
             </main>
 
-            <NeuModal title={t("Create workspace", "Créer un espace")} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}><div className="space-y-4"><div><label className="text-xs font-semibold mb-1.5 block text-[#040028] dark:text-white">{t("Workspace name", "Nom de l'espace")}</label><NeuInput value={newWorkspaceName} onChange={(e: any) => setNewWorkspaceName(e.target.value)} placeholder={t("e.g. Digital Agency", "ex : Agence digitale")} autoFocus /></div><div className="flex justify-end gap-2"><NeuButton onClick={() => setIsCreateModalOpen(false)}>{t("Cancel", "Annuler")}</NeuButton><NeuButton onClick={handleCreateWorkspace} active>{t("Create", "Créer")}</NeuButton></div></div></NeuModal>
+            <NeuModal
+                title={t("Create workspace", "Créer un espace")}
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                headerClassName="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white"
+                iconClassName="text-[#040028]/70 hover:text-[#040028] dark:text-white/70 dark:hover:text-white"
+                maxWidth="max-w-2xl"
+                className="min-h-[520px]"
+            >
+                <div className="flex flex-col h-full space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label className="text-xs font-semibold mb-1.5 block text-[#040028] dark:text-white">{t("Workspace name", "Nom de l'espace")}</label>
+                            <NeuInput
+                                value={newWorkspaceName}
+                                onChange={(e: any) => setNewWorkspaceName(e.target.value)}
+                                placeholder={t("e.g. Digital Agency", "ex : Agence digitale")}
+                                className="focus:border-[#040028] focus:ring-[#040028]/15"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold mb-1.5 block text-[#040028] dark:text-white">{t("Timezone", "Fuseau horaire")}</label>
+                            <Popover open={isTimezoneOpen} onOpenChange={(open) => { setIsTimezoneOpen(open); if (!open) setTimezoneSearch(""); }}>
+                                <PopoverTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="w-full flex items-center justify-between bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] px-3 py-2.5 font-medium text-sm text-left text-[#040028] dark:text-white hover:border-[#040028]/40 focus:outline-none focus:border-[#040028] focus:ring-2 focus:ring-[#040028]/15 transition-all"
+                                    >
+                                        <span className="truncate">{newWorkspaceTimezone}</span>
+                                        <ChevronDown size={14} className={cn("shrink-0 opacity-50 transition-transform", isTimezoneOpen && "rotate-180")} />
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[110] overflow-hidden" align="start">
+                                    <div className="p-2 border-b border-black/5 dark:border-white/5">
+                                        <NeuInput
+                                            value={timezoneSearch}
+                                            onChange={(e: any) => setTimezoneSearch(e.target.value)}
+                                            placeholder={t("Search timezone...", "Rechercher un fuseau...")}
+                                            className="focus:border-[#040028] focus:ring-[#040028]/15"
+                                        />
+                                    </div>
+                                    <div className="max-h-60 overflow-y-auto py-1">
+                                        {getSupportedTimezones().filter(tz => tz.toLowerCase().includes(timezoneSearch.toLowerCase())).map((tz) => (
+                                            <button
+                                                key={tz}
+                                                type="button"
+                                                onClick={() => { setNewWorkspaceTimezone(tz); setIsTimezoneOpen(false); setTimezoneSearch(""); }}
+                                                className={cn(
+                                                    "w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#040028] dark:text-white",
+                                                    tz === newWorkspaceTimezone ? "bg-[#F7F6F3] dark:bg-white/5" : "hover:bg-[#F7F6F3] dark:hover:bg-white/10"
+                                                )}
+                                            >
+                                                <span className="flex-1 truncate">{tz}</span>
+                                                {tz === newWorkspaceTimezone && <Check size={16} className="shrink-0" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 rounded-[10px] border border-black/5 dark:border-white/5 bg-[#F7F6F3] dark:bg-white/5">
+                        <div>
+                            <p className="text-sm font-semibold text-[#040028] dark:text-white">{t("Require approval before publishing", "Exiger une approbation avant publication")}</p>
+                            <p className="text-xs text-[#8E8E8E] mt-0.5">{t("Posts from non-owner/admin members need approval first", "Les publications des membres non-propriétaires/admins doivent d'abord être approuvées")}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setNewWorkspaceRequiresApproval(v => !v)}
+                            className={cn("flex-shrink-0 ml-4 w-11 h-6 rounded-full transition-colors relative", newWorkspaceRequiresApproval ? "bg-[#040028]" : "bg-[#D9D9D9] dark:bg-white/10")}
+                        >
+                            <span className={cn("absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform", newWorkspaceRequiresApproval && "translate-x-5")} />
+                        </button>
+                    </div>
+                    <div className="flex-1" />
+                    <div className="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                        <NeuButton onClick={() => setIsCreateModalOpen(false)} className="hover:border-[#040028]/40">{t("Cancel", "Annuler")}</NeuButton>
+                        <NeuButton onClick={handleCreateWorkspace} active className="bg-[#040028] hover:bg-[#040028]/90">{t("Create", "Créer")}</NeuButton>
+                    </div>
+                </div>
+            </NeuModal>
             
             <FacebookPageSelector 
                 isOpen={isFbPageSelectorOpen} 
