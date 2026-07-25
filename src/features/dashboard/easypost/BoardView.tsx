@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { boardApi, Board, BoardColumn, Card } from '@/services/boardApi';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { useLanguage } from '@/context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -96,6 +96,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [newBoardName, setNewBoardName] = useState('');
   const { t } = useLanguage();
+  const toast = useAppToast();
 
   const queryClient = useQueryClient();
 
@@ -223,6 +224,7 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
 function KanbanBoard({ boardId, boardName, onBack }: { boardId: string, boardName: string, onBack: () => void }) {
   const queryClient = useQueryClient();
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -677,6 +679,7 @@ function KanbanCard({ card, columnId, onClick }: { card: Card, columnId: string,
 
 function CardDetailsModal({ cardId, isOpen, onClose }: { cardId: string, isOpen: boolean, onClose: () => void }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
 

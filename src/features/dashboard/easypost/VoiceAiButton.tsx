@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Mic, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -15,6 +15,7 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { t } = useLanguage();
+  const toast = useAppToast();
 
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);

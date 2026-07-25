@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
@@ -65,6 +65,7 @@ const SENTIMENT_DOT: Record<string, string> = {
 
 export default function Engagement() {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const params = useParams();
   const workspaceId = params.id as string;
   const queryClient = useQueryClient();

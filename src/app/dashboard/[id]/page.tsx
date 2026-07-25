@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Toaster, toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -421,6 +421,7 @@ function DashboardContent() {
     const params = useParams();
     const router = useRouter();
     const { t } = useLanguage();
+    const toast = useAppToast();
     const searchParams = useSearchParams();
     const workspaceId = typeof params?.id === 'string' ? params.id : '';
     const queryClient = useQueryClient();

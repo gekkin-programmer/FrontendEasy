@@ -7,7 +7,7 @@ import {
     FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
 } from 'react-icons/fi';
 import { SiCanva, SiDropbox, SiGoogledrive } from 'react-icons/si';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
@@ -33,6 +33,7 @@ export default function MediaGallery({
   workspaceId?: string;
 }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export default function MediaGallery({
   const [googleDriveImporting, setGoogleDriveImporting] = useState(false);
   const [playingAssetId, setPlayingAssetId] = useState<string | null>(null);
   const [optionsMenuOpenFor, setOptionsMenuOpenFor] = useState<string | null>(null);
+  const [folderMenuOpenFor, setFolderMenuOpenFor] = useState<string | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const togglePlayback = (assetId: string) => {
@@ -176,8 +178,6 @@ export default function MediaGallery({
   // Navigation State
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
@@ -233,14 +233,26 @@ export default function MediaGallery({
   });
 
   const createFolderMutation = useMutation({
-      mutationFn: (name: string) => api.post('/media/folders', { name, parentId: currentFolderId }),
-      onSuccess: () => {
-          toast.success(t("Folder created", "Dossier créé"));
-          setIsCreatingFolder(false);
-          setNewFolderName("");
+      mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId }),
+      onSuccess: (res) => {
+          const created = res?.data ?? res;
           queryClient.invalidateQueries({ queryKey: ['media'] });
+          if (created?.id) {
+              setRenamingFolderId(created.id);
+              setRenameValue(created.name || "");
+          }
       }
   });
+
+  const nextFolderName = () => {
+      const base = t("Folder", "Dossier");
+      const pattern = new RegExp(`^${base} (\\d+)$`);
+      const usedNumbers = folders
+          .map((f: any) => { const m = f.name?.match(pattern); return m ? parseInt(m[1], 10) : null; })
+          .filter((n: number | null): n is number => n !== null);
+      const next = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
+      return `${base} ${next}`;
+  };
 
   const deleteAssetMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/${id}`),
@@ -261,7 +273,6 @@ export default function MediaGallery({
   const renameFolderMutation = useMutation({
     mutationFn: ({ id, name }: { id: string; name: string }) => api.patch(`/media/folders/${id}`, { name }),
     onSuccess: () => {
-        toast.success(t("Folder renamed", "Dossier renommé"));
         setRenamingFolderId(null);
         queryClient.invalidateQueries({ queryKey: ['media'] });
     }
@@ -272,20 +283,35 @@ export default function MediaGallery({
     if (files.length === 0) return;
     setUploadProgress({ done: 0, total: files.length });
     let done = 0;
-    await Promise.all(
+    const results = await Promise.allSettled(
       files.map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
         if (currentFolderId) formData.append('folderId', currentFolderId);
-        await api.post('/media/upload', formData);
+        try {
+          await api.post('/media/upload', formData);
+        } catch (err: any) {
+          console.error('[MediaGallery] Upload failed', { fileName: file.name, fileType: file.type, err });
+          throw new Error(`${file.name}: ${err?.message || 'Unknown error'}`);
+        }
         done++;
         setUploadProgress({ done, total: files.length });
       })
     );
     setUploadProgress(null);
-    toast.success(t(`Upload complete: ${files.length} file${files.length > 1 ? 's' : ''}`, `Téléchargement terminé: ${files.length} fichier${files.length > 1 ? 's' : ''}`));
-    queryClient.invalidateQueries({ queryKey: ['media'] });
-    queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+
+    const succeeded = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+
+    if (succeeded > 0) {
+      toast.success(t(`Upload complete: ${succeeded} file${succeeded > 1 ? 's' : ''}`, `Téléchargement terminé: ${succeeded} fichier${succeeded > 1 ? 's' : ''}`));
+      queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+    }
+    if (failed.length > 0) {
+      const details = failed.map(f => f.reason?.message || 'Unknown error').join('; ');
+      toast.error(t(`${failed.length} file${failed.length > 1 ? 's' : ''} failed: ${details}`, `${failed.length} fichier${failed.length > 1 ? 's' : ''} en échec : ${details}`));
+    }
     // reset input so same files can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -335,8 +361,9 @@ export default function MediaGallery({
 
           <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                onClick={() => createFolderMutation.mutate(nextFolderName())}
+                disabled={createFolderMutation.isPending}
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all disabled:opacity-50"
               >
                   <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
               </button>
@@ -347,7 +374,7 @@ export default function MediaGallery({
                   <FiUploadCloud size={14} />
                   {uploadProgress
                     ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
-                    : t("Upload asset", "Télécharger un média")}
+                    : t("Upload asset", "Importer un média")}
               </button>
               <button
                 onClick={handleCanvaClick}
@@ -374,48 +401,20 @@ export default function MediaGallery({
           </div>
       </div>
 
-      {/* Storage & Folder Creator */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {!hideUsage && (
-            <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
-                <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
-                    <span>{t("Usage", "Utilisation")}</span>
-                    <span>{formatSize(usage)} / 100MB</span>
-                </div>
-                <div className="h-2 rounded-full bg-[#E5E5E5] dark:bg-white/10 overflow-hidden">
-                    <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
-                </div>
+      {/* Storage */}
+      {!hideUsage && (
+        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
+            <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
+                <span>{t("Usage", "Utilisation")}</span>
+                <span>{formatSize(usage)} / 100MB</span>
             </div>
-          )}
+            <div className="h-2 rounded-full bg-[#E5E5E5] dark:bg-white/10 overflow-hidden">
+                <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+            </div>
+        </div>
+      )}
 
-          <AnimatePresence>
-              {isCreatingFolder && (
-                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex gap-2">
-                      <input
-                        autoFocus
-                        value={newFolderName}
-                        onChange={e => setNewFolderName(e.target.value)}
-                        placeholder={t("Folder name...", "Nom du dossier...")}
-                        className="flex-1 bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] px-3 text-sm font-medium placeholder:text-[#8E8E8E] focus:outline-none focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
-                      />
-                      <button
-                        onClick={() => createFolderMutation.mutate(newFolderName)}
-                        className="px-4 rounded-[10px] bg-[#040028] dark:bg-white text-white dark:text-[#040028] font-semibold text-xs transition-all"
-                      >
-                          {t("OK", "OK")}
-                      </button>
-                      <button
-                        onClick={() => setIsCreatingFolder(false)}
-                        className="px-4 rounded-[10px] bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 font-semibold text-xs hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-                      >
-                          {t("Cancel", "Annuler")}
-                      </button>
-                  </motion.div>
-              )}
-          </AnimatePresence>
-      </div>
-
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,image/gif" multiple />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,application/pdf" multiple />
 
       {/* Explorer Grid — independently scrollable */}
       <div className="overflow-y-auto scrollbar-hide min-h-[160px]">
@@ -452,6 +451,7 @@ export default function MediaGallery({
                                 autoFocus
                                 value={renameValue}
                                 onClick={(e) => e.stopPropagation()}
+                                onFocus={(e) => e.target.select()}
                                 onChange={(e) => setRenameValue(e.target.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && renameValue.trim()) renameFolderMutation.mutate({ id: folder.id, name: renameValue.trim() });
@@ -463,31 +463,34 @@ export default function MediaGallery({
                         ) : (
                             <span className="text-xs font-semibold text-center truncate w-full text-[#040028] dark:text-white">{folder.name}</span>
                         )}
-                        <Popover>
+                        <Popover open={folderMenuOpenFor === folder.id} onOpenChange={(open) => setFolderMenuOpenFor(open ? folder.id : null)}>
                             <PopoverTrigger asChild>
                                 <button
                                     onClick={(e) => e.stopPropagation()}
-                                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-[8px] bg-white hover:bg-black/5 transition-opacity"
+                                    className={cn(
+                                        "absolute top-1 right-1 px-2.5 py-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all",
+                                        folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                    )}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
                                 >
                                     {t('Rename', 'Renommer')}
                                 </button>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); togglePinFolder(folder.id); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); togglePinFolder(folder.id); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
                                 >
                                     {pinnedFolderIds.includes(folder.id) ? t('Unpin', 'Désépingler') : t('Pin to top', 'Épingler en haut')}
                                 </button>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); deleteFolderMutation.mutate(folder.id); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); deleteFolderMutation.mutate(folder.id); }}
+                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
                                 >
                                     {t('Delete', 'Supprimer')}
                                 </button>

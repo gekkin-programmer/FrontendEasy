@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
-import { Toaster } from "sonner"; // ➤ IMPORTANT: For toasts to work
 import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { LanguageProvider } from "@/context/LanguageContext";
 import QueryProvider from "@/providers/query-provider";
+import AstryxProvider from "@/providers/astryx-provider";
 import AgentationLoader from "@/components/common/AgentationLoader";
 import AppLayoutShell from "@/components/layout/AppLayoutShell";
 
@@ -71,30 +71,12 @@ export default function RootLayout({
         
         <QueryProvider>
           <LanguageProvider>
-            {/* 🚀 NEUBRUTALIST GLOBAL TOASTER */}
-            <Toaster 
-              position="bottom-right" 
-              expand={false}
-              richColors 
-              closeButton 
-              toastOptions={{
-                style: {
-                  borderRadius: '0px',
-                  border: '3px solid black',
-                  fontFamily: 'var(--font-rubik)',
-                  fontSize: '12px',
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
-                },
-                className: "dark:!border-white shadow-[6px_6px_0px_0px_#000] dark:shadow-[6px_6px_0px_0px_#fff] !bg-white dark:!bg-zinc-900 !text-black dark:!text-white",
-              }}
-            /> 
-            
+          <AstryxProvider>
             {/* Layout */}
             <AppLayoutShell>{children}</AppLayoutShell>
             <AgentationLoader />
 
+          </AstryxProvider>
           </LanguageProvider>
         </QueryProvider>
 

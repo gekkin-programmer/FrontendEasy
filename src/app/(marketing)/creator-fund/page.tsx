@@ -10,7 +10,7 @@ import {
 import { SiTiktok } from 'react-icons/si';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import SpinningLoader from '@/components/common/SpinningLoader';
 import { getCookie } from 'cookies-next';
@@ -27,6 +27,7 @@ interface Application {
 
 export default function CreatorFundPage() {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [activeTab, setActiveTab] = useState<'benefits' | 'apply'>('benefits');
   const [application, setApplication] = useState<Application | null>(null);
   const [isLoadingApp, setIsLoadingApp] = useState(true);

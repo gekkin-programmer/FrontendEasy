@@ -7,8 +7,7 @@ import {
   Check, X, ThumbsUp, Filter, Search, Loader2, Send
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
-import { toast } from 'sonner';
-import { api } from '@/lib/api'; 
+import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
 // --- TYPES ---

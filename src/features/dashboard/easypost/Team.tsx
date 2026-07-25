@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { parseISO, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -73,6 +73,7 @@ interface TeamProps {
 
 export default function Team({ workspaceId }: TeamProps) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const ROLE_DESCRIPTIONS: Record<string, string> = {
     OWNER: t('Full control — billing, workspace settings, and can remove anyone.', 'Contrôle total — facturation, paramètres de l\'espace, et peut retirer n\'importe qui.'),
     ADMIN: t('Can manage members and approve content — no billing access.', 'Peut gérer les membres et approuver le contenu — pas d\'accès à la facturation.'),

@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, Smartphone } from 'lucide-react';
 import { api } from '@/lib/api';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import Link from 'next/link';
 import { getCookie } from 'cookies-next';
 import { useLanguage } from '@/context/LanguageContext';
@@ -36,6 +36,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { t } = useLanguage();
+  const toast = useAppToast();
 
   // Checkout requires an account — bounce to login and come back with the same plan params.
   // ➤ TEMPORARILY DISABLED for presentation/demo. Re-enable by removing the `if (false)` guard.

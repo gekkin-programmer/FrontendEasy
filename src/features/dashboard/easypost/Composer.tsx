@@ -1,23 +1,24 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Image as ImageIcon, Video, Calendar as CalendarIcon, X, Clock, Send,
+  Image as ImageIcon, Video, X, Clock, Send,
   Tag, LayoutGrid, Plus, Copy,
-  ChevronDown, Check, ShoppingBag, CornerLeftUp, Wand2, Loader2,
+  ChevronDown, Check, CornerLeftUp, Wand2, Loader2,
   Sparkles, AlertTriangle, MessageCircle, RefreshCw
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { formatDateTimeInTz } from '@/lib/timezone';
+import { zonedTimeToUtc, utcToZonedNaiveISO } from '@/lib/timezone';
+import { DateInput } from '@astryxdesign/core/DateInput';
+import { type ISODateString } from '@astryxdesign/core/Calendar';
 import MediaGallery from './MediaGallery';
 import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
@@ -53,6 +54,18 @@ interface ComposerProps {
 }
 
 const CATEGORIES = ['General', 'Technology', 'Marketing', 'Personal', 'News', 'Meme', 'Educational'];
+
+// 15-minute increments, 12h display — click-to-select only, no typing.
+const TIME_SLOTS: { value: string; label: string }[] = Array.from({ length: 96 }, (_, i) => {
+  const totalMinutes = i * 15;
+  const hour24 = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  const value = `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  const period = hour24 < 12 ? 'AM' : 'PM';
+  const label = `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+  return { value, label };
+});
 
 const AI_TONES = [
   { id: 'PROFESSIONAL', label: 'PROFESSIONAL ' },
@@ -150,10 +163,12 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
 
 export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange, workspaceTimezone = 'UTC' }: ComposerProps) {
   const { t } = useLanguage();
+  const toast = useAppToast();
 
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  const [isTimeOpen, setIsTimeOpen] = useState(false);
 
   // Populate from postToEdit
   useEffect(() => {
@@ -184,7 +199,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // UI State
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const [isSelling, setIsSelling] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -387,10 +401,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     }
   };
 
-  // Commerce State
-  const [price, setPrice] = useState("");
-  const [productName, setProductName] = useState("");
-
   // TikTok derived values
   const tiktokAccount = accounts.find(a => selectedAccountIds.includes(a.id) && a.platform === 'TIKTOK');
   const tiktokCreatorNickname = tiktokAccount?.username as string | undefined;
@@ -407,6 +417,23 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     staleTime: 5 * 60 * 1000,
   });
   const hasSchedulingData = (schedulingHints?.suggestions?.length ?? 0) > 0;
+
+  // ➤ SCHEDULE DATE/TIME — split into a real calendar DateInput plus a
+  // click-only time dropdown (no typing), both operating in workspace tz.
+  const naiveScheduled = date ? utcToZonedNaiveISO(date, workspaceTimezone) : undefined;
+  const scheduleDateOnly = naiveScheduled ? naiveScheduled.slice(0, 10) : undefined;
+  const scheduleTimeOnly = naiveScheduled ? naiveScheduled.slice(11, 16) : undefined;
+  const selectedTimeSlot = TIME_SLOTS.find(s => s.value === scheduleTimeOnly);
+
+  const handleScheduleDateChange = (value: string | undefined) => {
+    if (!value) { setDate(undefined); return; }
+    setDate(zonedTimeToUtc(`${value}T${scheduleTimeOnly || '09:00'}`, workspaceTimezone));
+  };
+  const handleScheduleTimeChange = (value: string) => {
+    const day = scheduleDateOnly || utcToZonedNaiveISO(new Date(), workspaceTimezone).slice(0, 10);
+    setDate(zonedTimeToUtc(`${day}T${value}`, workspaceTimezone));
+    setIsTimeOpen(false);
+  };
 
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
@@ -447,16 +474,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
     setIsSubmitting(true);
     try {
         const finalMediaIds = [...selectedMediaIds];
-        let finalContent = text;
-
-        // Commerce Logic: Generate One-Time Payment Link
-        if (isSelling && price) {
-            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const label = productName || t("Buy now", "Acheter maintenant");
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com';
-            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\n${appUrl}/pay/${shortId}`;
-            finalContent += commerceLink;
-        }
+        const finalContent = text;
 
         // Upload local files
         if (localFiles.length > 0) {
@@ -502,7 +520,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             Object.keys(platformMeta).length > 0 ? platformMeta : undefined,
         );
 
-        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setMediaTypes([]); setPrice(""); setIsSelling(false);
+        setText(''); setDate(undefined); setLocalFiles([]); setSelectedMediaIds([]); setMediaPreviews([]); setMediaTypes([]);
         setTiktokTitle(''); setTiktokPrivacyLevel(''); setTiktokAllowComment(false); setTiktokDuet(false); setTiktokStitch(false);
         setTiktokDisclosure(false); setTiktokYourBrand(false); setTiktokBrandContent(false); setTiktokHashtags('');
         setSubmitAttempted(false);
@@ -713,10 +731,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 pl-1">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <button onClick={() => setIsSelling(!isSelling)} className={cn("flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-[10px] transition-all", isSelling ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}><ShoppingBag size={12} /> {isSelling ? t('Commerce: on', 'Commerce: actif') : t('Commerce: off', 'Commerce: inactif')}</button>
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
             </div>
-                        <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
                           {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
                           {hasSchedulingData && (
                           <Popover>
@@ -740,8 +757,47 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                           </Popover>
                           )}
 
-                          <Popover><PopoverTrigger asChild><NeuButton className="px-3 hover:border-black/10 dark:hover:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10"><CalendarIcon className="mr-2 h-4 w-4" /> {date ? formatDateTimeInTz(date, workspaceTimezone) : t('Now', 'Maintenant')}</NeuButton></PopoverTrigger>
-            <PopoverContent className="w-auto p-0 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="center" side="top" sideOffset={12}><Calendar mode="single" selected={date} onSelect={setDate} initialFocus className="bg-white dark:bg-[#0A0A2E] p-3 text-[#040028] dark:text-white" /><div className="p-3 border-t border-black/5 dark:border-white/5 flex items-center gap-2"><Clock size={16} className="text-[#040028] dark:text-white" /><input type="time" className="flex-1 text-sm bg-transparent outline-none font-semibold text-[#040028] dark:text-white border-b border-black/20 dark:border-white/20 focus:border-[#174CD2]" onChange={e => { if (!e.target.value) return; const [h, m] = e.target.value.split(':'); const newDate = date || new Date(); newDate.setHours(parseInt(h)); newDate.setMinutes(parseInt(m)); setDate(newDate); }} /></div></PopoverContent></Popover>
+                          <DateInput
+                            label={t('Date', 'Date')}
+                            isLabelHidden
+                            size="md"
+                            hasClear
+                            placeholder={t('Now', 'Maintenant')}
+                            value={scheduleDateOnly as ISODateString | undefined}
+                            onChange={(value) => handleScheduleDateChange(value)}
+                          />
+
+                          {/* Click-only time dropdown — no text entry, matches "we don't type" */}
+                          <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white transition-all"
+                              >
+                                <Clock size={12} />
+                                {selectedTimeSlot ? selectedTimeSlot.label : t('Select a time', 'Choisir une heure')}
+                                <ChevronDown size={12} className={cn('opacity-50 transition-transform', isTimeOpen && 'rotate-180')} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 overflow-hidden" align="start">
+                              <div className="max-h-60 overflow-y-auto py-1">
+                                {TIME_SLOTS.map((slot) => (
+                                  <button
+                                    key={slot.value}
+                                    type="button"
+                                    onClick={() => handleScheduleTimeChange(slot.value)}
+                                    className={cn(
+                                      'w-full flex items-center justify-between gap-2 h-8 px-3 text-left transition-colors text-xs font-medium text-[#040028] dark:text-white',
+                                      slot.value === scheduleTimeOnly ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10'
+                                    )}
+                                  >
+                                    <span>{slot.label}</span>
+                                    {slot.value === scheduleTimeOnly && <Check size={14} className="shrink-0" />}
+                                  </button>
+                                ))}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
               <div className="flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
@@ -752,45 +808,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
               </div>
             </div>
           </div>
-          <AnimatePresence>
-            {isSelling && (
-              <motion.div
-                initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                animate={{ height: 'auto', opacity: 1, marginTop: 12 }}
-                exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                className="overflow-hidden rounded-none border border-black/10 dark:border-white/10"
-              >
-                <div className="bg-[#040028] text-white px-3 py-2 flex items-center gap-2">
-                  <span className="text-xs font-semibold">{t("Payment link", "Lien de paiement")}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] p-3 flex flex-col gap-2">
-                  <NeuInput
-                    type="text"
-                    value={productName}
-                    onChange={(e: any) => setProductName(e.target.value)}
-                    placeholder={t("Product name (e.g. Design Pack)", "Nom du produit (ex. Design Pack)")}
-                  />
-                  <div className="flex gap-0">
-                    <div className="bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold px-3 py-2.5 rounded-l-[10px] border border-r-0 border-[#D9D9D9] dark:border-white/10 whitespace-nowrap">XAF</div>
-                    <input
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      placeholder={t("Price (e.g. 5000)", "Prix (ex. 5000)")}
-                      className="flex-1 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#040028] dark:text-white outline-none px-3 py-2.5 rounded-r-[10px] border border-[#D9D9D9] dark:border-white/10 placeholder:text-[#8E8E8E] focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 transition-all"
-                    />
-                  </div>
-                  {price && (
-                    <div className="flex items-center gap-2 bg-[#F5F7FA] dark:bg-white/5 rounded-[10px] px-3 py-2">
-                      <span className="text-[10px] font-semibold uppercase text-[#8E8E8E] whitespace-nowrap">{t("Link preview", "Aperçu")}</span>
-                      <span className="text-xs text-[#174CD2] dark:text-blue-400 truncate">{process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com'}/pay/XXXXXX</span>
-                    </div>
-                  )}
-                  <p className="text-[11px] text-[#8E8E8E]">{t("A unique payment link will be appended to your post. Customers pay via Mobile Money.", "Un lien de paiement unique sera joint à votre post. Les clients paient via Mobile Money.")}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
         )}
       </div>

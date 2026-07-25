@@ -29,7 +29,7 @@ import {
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 
 const ICONS: Record<string, any> = {
@@ -199,6 +199,7 @@ export default function CalendarView({ workspaceId, onPostClick, canApprove = fa
   const [viewType, setViewType] = useState<ViewType>('month');
   const queryClient = useQueryClient();
   const { t } = useLanguage();
+  const toast = useAppToast();
 
   const { start, end } = useMemo(() => {
     if (viewType === 'month') {
@@ -389,7 +390,7 @@ export default function CalendarView({ workspaceId, onPostClick, canApprove = fa
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
-                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F5F7FA] dark:bg-white/[0.02] opacity-50' : 'bg-[#F7F6F3] dark:bg-[#0A0A2E]'
+                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F7F6F3] dark:bg-white/[0.02] opacity-50' : 'bg-white dark:bg-[#0A0A2E]'
                     )}
                 >
                     <div className={cn(

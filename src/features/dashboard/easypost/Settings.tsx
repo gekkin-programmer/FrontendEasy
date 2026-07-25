@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
@@ -157,6 +157,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
 // --- SUB-COMPONENT: WORKSPACE SETTINGS ---
 function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, initialName: string }) {
     const { t } = useLanguage();
+    const toast = useAppToast();
     const [formData, setFormData] = useState({
         name: initialName,
         description: '',
@@ -292,6 +293,7 @@ const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/
 // --- SUB-COMPONENT: PROFILE SETTINGS ---
 function ProfileSettings() {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', avatar: '' });
   const [loading, setLoading] = useState(false);
@@ -425,6 +427,7 @@ function NotifRow({ label, desc, value, onToggle }: { label: string; desc: strin
 // --- SUB-COMPONENT: NOTIFICATIONS SETTINGS ---
 function NotificationsSettings() {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [prefs, setPrefs] = useState<NotifPrefs>({
     emailPostPublished: true, emailPostFailed: true, emailWeeklyReport: false,
     emailTeamInvite: true, pushNewComment: true, pushScheduleReminder: true, pushPlatformAlert: true,
@@ -469,6 +472,7 @@ function NotificationsSettings() {
 // --- SUB-COMPONENT: MEMBERS SETTINGS ---
 function MembersSettings({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -575,6 +579,7 @@ const PLAN_LABEL: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', P
 // --- SUB-COMPONENT: STRIPE CARD FORM ---
 function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -637,6 +642,7 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
 // --- SUB-COMPONENT: ADD MOBILE MONEY MODAL ---
 function MobileMoneyModal({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [msisdn, setMsisdn] = useState('');
   const [label, setLabel] = useState('');
   const [loading, setLoading] = useState(false);
@@ -717,6 +723,7 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
 // --- SUB-COMPONENT: PAYMENT METHODS CARD ---
 function PaymentMethodsCard() {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const qc = useQueryClient();
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showCardForm, setShowCardForm] = useState(false);

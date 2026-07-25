@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import {
   FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaTelegram, FaThreads
@@ -35,6 +35,7 @@ const PLATFORMS = [
 
 function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; workspaceId: string }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -128,6 +129,7 @@ function TelegramLinkModal({ onClose, workspaceId }: { onClose: () => void; work
 
 export default function ConnectAccounts({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [waConnecting, setWaConnecting] = useState(false);

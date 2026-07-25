@@ -12,7 +12,7 @@ import {
   FaTwitter, FaInstagram, FaFacebookF, FaLinkedinIn, FaTiktok, FaYoutube
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -27,6 +27,7 @@ type TimeRange = '7d' | '30d' | '90d';
 export default function EngagementAnalytics() {
   const params = useParams();
   const { t } = useLanguage();
+  const toast = useAppToast();
   const workspaceId = typeof params?.id === 'string' ? params.id : '';
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 

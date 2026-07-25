@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSocket } from '@/context/SocketContext';
@@ -21,6 +21,7 @@ interface CanvaImportModalProps {
 
 export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImported }: CanvaImportModalProps) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const { socket } = useSocket();
   const [tab, setTab] = useState<Tab>('designs');
   const [designs, setDesigns] = useState<any[]>([]);
