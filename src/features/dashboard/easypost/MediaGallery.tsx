@@ -21,6 +21,15 @@ import { openGoogleDrivePicker } from '@/lib/googleDrivePicker';
 
 interface Section { id: string; label: string; }
 
+// Per-plan cumulative storage quota, confirmed with backend
+const STORAGE_QUOTA_BYTES: Record<string, number> = {
+  FREE: 100 * 1024 * 1024,
+  STARTER: 500 * 1024 * 1024,
+  PROFESSIONAL: 2 * 1024 * 1024 * 1024,
+  BUSINESS: 10 * 1024 * 1024 * 1024,
+  ENTERPRISE: 100 * 1024 * 1024 * 1024,
+};
+
 export default function MediaGallery({
   hideUsage = false,
   onUse,
@@ -141,12 +150,13 @@ export default function MediaGallery({
   const handleCanvaClick = async () => {
     if (!workspaceId) { toast.error('No workspace'); return; }
     try {
-      const { data } = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
-      if (data?.connected) {
+      const statusRes = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
+      const connected = statusRes?.data?.connected ?? statusRes?.connected;
+      if (connected) {
         setCanvaModalOpen(true);
       } else {
         const authRes = await (api as any).get(`/canva/auth?workspaceId=${workspaceId}`);
-        window.location.href = authRes.data?.url ?? authRes.url;
+        window.location.href = authRes?.data?.url ?? authRes?.url;
       }
     } catch {
       toast.error(t('Could not connect to Canva', 'Impossible de connecter Canva'));
@@ -195,12 +205,19 @@ export default function MediaGallery({
   };
 
   // 1. Fetch Media & Folders
+  // placeholderData keeps the previous folder's cards on screen while a new
+  // folder loads, instead of collapsing to a fixed-count skeleton grid that
+  // doesn't match the real item count — isLoading only fires on true first load.
   const { data, isLoading } = useQuery({
-    queryKey: ['media', currentFolderId],
+    queryKey: ['media', workspaceId, currentFolderId],
     gcTime: 0,
+    placeholderData: (previousData) => previousData,
     queryFn: async () => {
-        const url = currentFolderId ? `/media?folderId=${currentFolderId}` : '/media';
-        return api.get<{ folders: any[], assets: any[] }>(url);
+        const params = new URLSearchParams();
+        if (workspaceId) params.set('workspaceId', workspaceId);
+        if (currentFolderId) params.set('folderId', currentFolderId);
+        const qs = params.toString();
+        return api.get<{ folders: any[], assets: any[] }>(qs ? `/media?${qs}` : '/media');
     },
   });
 
@@ -209,13 +226,24 @@ export default function MediaGallery({
 
   // 2. Fetch Storage Usage
   const { data: usage = 0 } = useQuery({
-    queryKey: ['media-usage'],
+    queryKey: ['media-usage', workspaceId],
     gcTime: 0,
     queryFn: async () => {
-        const res = await api.get<number>('/media/usage');
+        const url = workspaceId ? `/media/usage?workspaceId=${workspaceId}` : '/media/usage';
+        const res = await api.get<number>(url);
         return typeof res === 'number' ? res : (res as any).data || 0;
     }
   });
+
+  // 2b. Fetch workspace plan to compute the correct storage quota
+  const { data: workspace } = useQuery({
+    queryKey: ['workspace-billing', workspaceId],
+    gcTime: 0,
+    enabled: !hideUsage && !!workspaceId,
+    queryFn: () => api.get<any>(`/workspaces/${workspaceId}`),
+  });
+  const planType: string = workspace?.owner?.planType ?? workspace?.planType ?? 'FREE';
+  const storageQuota = STORAGE_QUOTA_BYTES[planType] ?? STORAGE_QUOTA_BYTES.FREE;
 
   // 3. Mutations
   const uploadMutation = useMutation({
@@ -223,6 +251,7 @@ export default function MediaGallery({
         const formData = new FormData();
         formData.append('file', file);
         if (currentFolderId) formData.append('folderId', currentFolderId);
+        if (workspaceId) formData.append('workspaceId', workspaceId);
         return api.post('/media/upload', formData);
     },
     onSuccess: () => {
@@ -233,7 +262,7 @@ export default function MediaGallery({
   });
 
   const createFolderMutation = useMutation({
-      mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId }),
+      mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId, workspaceId }),
       onSuccess: (res) => {
           const created = res?.data ?? res;
           queryClient.invalidateQueries({ queryKey: ['media'] });
@@ -255,7 +284,7 @@ export default function MediaGallery({
   };
 
   const deleteAssetMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/media/${id}`),
+    mutationFn: (id: string) => api.delete(`/media/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
         toast.success(t("Asset deleted", "Média supprimé"));
         queryClient.invalidateQueries({ queryKey: ['media'] });
@@ -263,7 +292,7 @@ export default function MediaGallery({
   });
 
   const deleteFolderMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/media/folders/${id}`),
+    mutationFn: (id: string) => api.delete(`/media/folders/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
         toast.success(t("Folder deleted", "Dossier supprimé"));
         queryClient.invalidateQueries({ queryKey: ['media'] });
@@ -271,12 +300,14 @@ export default function MediaGallery({
   });
 
   const renameFolderMutation = useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) => api.patch(`/media/folders/${id}`, { name }),
+    mutationFn: ({ id, name }: { id: string; name: string }) => api.patch(`/media/folders/${id}`, { name, workspaceId }),
     onSuccess: () => {
         setRenamingFolderId(null);
         queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
+
+  const MAX_FILE_SIZE = 500 * 1024 * 1024; // matches backend MaxFileSizeValidator
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -285,9 +316,13 @@ export default function MediaGallery({
     let done = 0;
     const results = await Promise.allSettled(
       files.map(async (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          throw new Error(`${file.name}: ${t('File too large. Maximum size is 500 MB.', 'Fichier trop volumineux. Taille maximale : 500 Mo.')}`);
+        }
         const formData = new FormData();
         formData.append('file', file);
         if (currentFolderId) formData.append('folderId', currentFolderId);
+        if (workspaceId) formData.append('workspaceId', workspaceId);
         try {
           await api.post('/media/upload', formData);
         } catch (err: any) {
@@ -406,15 +441,15 @@ export default function MediaGallery({
         <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
             <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
                 <span>{t("Usage", "Utilisation")}</span>
-                <span>{formatSize(usage)} / 100MB</span>
+                <span>{formatSize(usage)} / {formatSize(storageQuota)}</span>
             </div>
             <div className="h-2 rounded-full bg-[#E5E5E5] dark:bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / (100 * 1024 * 1024)) * 100, 100)}%` }} />
+                <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / storageQuota) * 100, 100)}%` }} />
             </div>
         </div>
       )}
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*,application/pdf" multiple />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
       {/* Explorer Grid — independently scrollable */}
       <div className="overflow-y-auto scrollbar-hide min-h-[160px]">
@@ -501,12 +536,9 @@ export default function MediaGallery({
 
                 {/* 2. Assets */}
                 {assets.map((asset: any) => (
-                    <motion.div
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                    <div
                         key={asset.id}
-                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 transition-all overflow-hidden"
+                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/[0.02] dark:border-white/[0.02] transition-all overflow-hidden"
                     >
                         {asset.mimeType?.startsWith('video/') ? (
                             <video
@@ -607,7 +639,7 @@ export default function MediaGallery({
                                 </button>
                             )}
                         </div>
-                    </motion.div>
+                    </div>
                 ))}
             </AnimatePresence>
          )}

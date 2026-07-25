@@ -762,7 +762,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                             isLabelHidden
                             size="md"
                             hasClear
-                            placeholder={t('Now', 'Maintenant')}
+                            placeholder="DD/MM/YYYY"
                             value={scheduleDateOnly as ISODateString | undefined}
                             onChange={(value) => handleScheduleDateChange(value)}
                           />
