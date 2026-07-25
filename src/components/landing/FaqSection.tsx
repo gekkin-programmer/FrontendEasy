@@ -73,9 +73,9 @@ export default function FaqSection() {
   return (
     <section className="w-full bg-white relative flex flex-col items-center px-[20px] py-[80px] md:py-[120px]">
       <div className="w-full max-w-[1440px] mx-auto flex flex-col lg:flex-row items-start justify-between gap-[40px] lg:gap-[60px]">
-        <div className="flex flex-col w-full lg:w-[35%] gap-4 lg:sticky lg:top-24">
-          <div className="inline-flex w-fit items-center rounded-full px-3 py-1">
-            <span className="text-[14px] md:text-[70px] font-semibold uppercase tracking-[0.24em] text-[#174CD2]" style={{ fontFamily: "'Rubik One', sans-serif" }}>
+        <div className="flex flex-col w-full lg:w-[35%] gap-4 lg:sticky lg:top-24 items-center">
+          <div className="inline-flex w-fit items-center justify-center rounded-full px-3 py-1">
+            <span className="text-[40px] md:text-[90px] font-semibold uppercase tracking-[0.24em] text-[#174CD2]" style={{ fontFamily: "'Rubik One', sans-serif" }}>
               {t('FAQ', 'FAQ')}
             </span>
           </div>

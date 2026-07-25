@@ -43,6 +43,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
     <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px]">
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
+        <div className="w-full flex flex-col items-center md:items-start text-center md:text-left">
         {/* Title Area */}
         <div className="w-full flex flex-col gap-1 mb-6">
           <h2 
@@ -52,7 +53,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
             {t("Manage all your", "Pilotez tous vos")}
           </h2>
           <h1 
-            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[60px] 2xl:text-[70px] leading-tight -ml-[4px]"
+            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[60px] 2xl:text-[70px] leading-tight md:-ml-[4px]"
             style={{ fontFamily: "'Rubik One', sans-serif" }}
           >
             {t("Social networks", "Reseaux sociaux")}
@@ -70,6 +71,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
         >
           {t("Create your content, schedule your posts, collaborate with your team, and analyze your statistics directly from a single application.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}
         </p>
+        </div>
 
         {/* Blue Block Container */}
         <div className="w-full max-w-full bg-[#174CD2] rounded-[10px] shadow-[0px_15px_40px_15px_rgba(0,0,0,0.35)] relative py-[40px] md:py-[80px] px-0 flex flex-col">
