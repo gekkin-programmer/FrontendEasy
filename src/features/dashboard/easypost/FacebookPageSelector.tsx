@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { Loader2, Plus } from 'lucide-react';
 import { FaFacebookF } from 'react-icons/fa6';
@@ -19,6 +19,7 @@ interface FacebookPageSelectorProps {
 
 export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exchangeToken }: FacebookPageSelectorProps) => {
     const { t } = useLanguage();
+    const toast = useAppToast();
 
     const { data: pages = [], isLoading } = useQuery<any[]>({
         queryKey: ['facebook-pages', exchangeToken],

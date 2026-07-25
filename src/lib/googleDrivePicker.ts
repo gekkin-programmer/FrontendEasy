@@ -40,19 +40,38 @@ async function ensureGoogleScripts(): Promise<void> {
 
 function requestAccessToken(clientId: string): Promise<string> {
   return new Promise((resolve, reject) => {
+    // Google's own OAuth errors (e.g. origin_mismatch) render as a blocking
+    // error PAGE inside the popup itself — they never reach us as a
+    // distinguishable error type. All we see back here is that the popup
+    // closed, indistinguishable from the user deliberately cancelling. Log
+    // full context so this is debuggable from the console, and surface a
+    // message that points at the likely cause instead of the bare code.
+    const handleError = (source: 'token' | 'popup', detail: any) => {
+      const type = detail?.type || detail?.error || 'unknown_error';
+      console.error('[GoogleDrivePicker] OAuth failed', {
+        source,
+        type,
+        detail,
+        origin: window.location.origin,
+        clientId,
+      });
+      const message = type === 'popup_closed'
+        ? `Sign-in window closed unexpectedly (popup_closed). This usually means Google rejected the request before you could act — most commonly an origin_mismatch: the current origin (${window.location.origin}) isn't registered as an Authorized JavaScript origin for this OAuth client in Google Cloud Console. Check the browser console for the actual Google error page contents.`
+        : `Google sign-in failed: ${type}`;
+      reject(new Error(message));
+    };
+
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: clientId,
       scope: DRIVE_SCOPE,
       callback: (response: any) => {
         if (response.error) {
-          reject(new Error(response.error));
+          handleError('token', response);
         } else {
           resolve(response.access_token);
         }
       },
-      error_callback: (err: any) => {
-        reject(new Error(err?.type || 'Google auth failed'));
-      },
+      error_callback: (err: any) => handleError('popup', err),
     });
     tokenClient.requestAccessToken();
   });
@@ -94,6 +113,7 @@ export async function openGoogleDrivePicker(): Promise<DrivePickedFile | null> {
         .build();
       picker.setVisible(true);
     } catch (err) {
+      console.error('[GoogleDrivePicker] Failed to build/show picker', err);
       reject(err);
     }
   });

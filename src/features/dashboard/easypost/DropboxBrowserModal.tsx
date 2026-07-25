@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, RefreshCw, Download, Folder, File as FileIcon, ChevronLeft, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -31,6 +31,7 @@ function normalizeEntry(raw: any): DropboxEntry {
 
 export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onImported, onDisconnected }: DropboxBrowserModalProps) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [entries, setEntries] = useState<DropboxEntry[]>([]);
   const [pathStack, setPathStack] = useState<{ path: string; name: string }[]>([]);

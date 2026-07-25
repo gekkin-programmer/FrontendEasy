@@ -1,8 +1,84 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+One&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Cascade layer order, lowest → highest priority. Astryx's reset.css /
+   astryx.css / theme.css self-declare into `reset` / `astryx-base` /
+   `astryx-theme` layers (documented: "consumer unlayered styles always
+   override all Astryx layers"). Tailwind v3's @tailwind directives are
+   unlayered by default, which means Tailwind's *preflight* — not just our
+   intentional utility overrides — unconditionally wins over EVERY Astryx
+   component style for any shared CSS property (border-width:0 on `*`,
+   color:inherit on all inputs, background reset on buttons). That breaks
+   every Astryx form control site-wide, not just one. Wrapping Tailwind's own
+   base layer here keeps Astryx's component styles intact, while tw-utilities
+   stays on top so our own className overrides still win when we want them to. */
+@layer tw-base, reset, astryx-base, astryx-theme, tw-utilities;
+
+@layer tw-base {
+  @tailwind base;
+}
+
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
+/* Pre-built brand theme (astryx theme build), not the runtime-injected
+   theme-neutral default — runtime `<Theme>` injection only happens client-side
+   after hydration, so SSR'd pages had zero theme CSS on first paint. This
+   static file is scoped to [data-astryx-theme="eazypost"] and is present
+   immediately, matching Astryx's own SSR guidance. Rebuild after editing
+   src/lib/astryxTheme.ts: `npx @astryxdesign/cli theme build src/lib/astryxTheme.ts`. */
+@import '../lib/eazypost.css';
+
+@layer tw-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
+
+/* Astryx's ToastViewport promotes itself via the native Popover API
+   (popover="manual"), which browsers give a default background/border/padding
+   unless explicitly reset — Astryx's own reset.css doesn't cover this, so the
+   viewport (and its per-toast wrapper divs) show as a plain box behind the
+   actual toast card. Unlayered here, so it wins over both the UA defaults and
+   Astryx's @layer'd styles regardless of import order. */
+[popover] {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  overflow: visible;
+}
+[data-toast-id],
+[data-toast-id] > div {
+  background: transparent;
+}
+
+/* DateInput's field box turns the border accent-blue and adds a glow ring
+   on focus/hover (Field's shared inputWrapperStyles state styles) — product
+   call: keep the border neutral grey always, no accent color or glow, in
+   any interaction state. !important since these are pseudo-class states
+   competing with StyleX's own state-scoped declarations. */
+.astryx-date-input {
+  border-color: var(--color-border-emphasized) !important;
+  box-shadow: none !important;
+}
+
+/* Placeholder text defaults to --color-text-secondary (muted grey) — product
+   call: keep it the same brand-ink navy/white as real text, no washed-out
+   placeholder styling in this field. Font weight bumped to match the other
+   toolbar buttons (font-semibold) — at the default weight, thin anti-aliased
+   strokes of near-black #040028 visually read as blue against white. */
+.astryx-date-input input {
+  font-weight: 600 !important;
+}
+.astryx-date-input input::placeholder {
+  color: var(--color-text-primary) !important;
+}
+
+/* Calendar icon renders with color="secondary" (muted grey icon token) —
+   product call: match the navy/white brand ink used everywhere else here. */
+.astryx-date-input svg {
+  color: var(--color-icon-primary) !important;
+  stroke: var(--color-icon-primary) !important;
+}
 
 @layer base {
   :root {

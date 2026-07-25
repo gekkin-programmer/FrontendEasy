@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { ShieldCheck, UserPlus, Clock, Info, Send, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 
 export default function AdminGrants() {
+  const toast = useAppToast();
   const [formData, setFormData] = useState({
     userId: '',
     email: '',

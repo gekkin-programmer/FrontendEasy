@@ -7,7 +7,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import SpinningLoader from '@/components/common/SpinningLoader';
 import { 
   Popover,
@@ -33,6 +33,7 @@ interface User {
 }
 
 export default function AdminUsers() {
+  const toast = useAppToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

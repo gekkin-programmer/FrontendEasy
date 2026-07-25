@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { toast } from 'sonner';
+import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/context/LanguageContext';
@@ -311,6 +311,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
 export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false, canApprove = false, workspaceTimezone = 'UTC' }: PostFeedProps) {
   const { t } = useLanguage();
+  const toast = useAppToast();
   const queryClient = useQueryClient();
   const drafts = posts.filter(p => p.status === 'DRAFT');
   const queued = posts.filter(p => p.status !== 'DRAFT');
