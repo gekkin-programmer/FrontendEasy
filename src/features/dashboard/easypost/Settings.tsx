@@ -17,16 +17,17 @@ import {
   FiUser, FiShield, FiBell, FiUsers, FiCreditCard,
   FiTrash2, FiSave, FiBriefcase, FiGlobe, FiImage, FiUploadCloud, FiLoader, FiDatabase,
   FiCheck, FiZap, FiStar, FiTrendingUp, FiMail, FiSmartphone, FiToggleLeft, FiToggleRight,
-  FiX, FiPlus, FiPhone, FiLock
+  FiX, FiPlus, FiPhone, FiLock, FiKey, FiCopy
 } from 'react-icons/fi';
 import MediaGallery from './MediaGallery';
+import { NeuModal } from './DashboardUI';
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PK
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK)
   : null;
 
 // --- CONFIG ---
-type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage'; // ➤ Added storage
+type SettingsTab = 'profile' | 'workspace' | 'account' | 'notifications' | 'team' | 'billing' | 'storage' | 'apiTokens';
 
 // --- NEU COMPONENTS (Reused) ---
 const NeuCard = ({ title, description, children, className = "" }: any) => (
@@ -103,6 +104,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
     { id: 'account', label: t('Connections', 'Connexions'), icon: <FiShield size={15} /> },
     { id: 'storage', label: t('Storage', 'Stockage'), icon: <FiDatabase size={15} /> },
     { id: 'team', label: t('Members', 'Membres'), icon: <FiUsers size={15} /> },
+    { id: 'apiTokens', label: t('API Tokens', 'Jetons API'), icon: <FiKey size={15} /> },
   ];
 
   const activeLabel = [...ACCOUNT_TABS, ...WORKSPACE_TABS].find(t => t.id === activeTab)?.label || '';
@@ -148,6 +150,7 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
           {activeTab === 'notifications' && <NotificationsSettings />}
           {activeTab === 'team' && <MembersSettings workspaceId={workspaceId} />}
           {activeTab === 'billing' && <BillingSettings workspaceId={workspaceId} />}
+          {activeTab === 'apiTokens' && <div className="animate-in fade-in duration-300"><ApiTokensSettings workspaceId={workspaceId} /></div>}
         </main>
       </div>
     </div>
@@ -564,6 +567,158 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
           </div>
         )}
       </NeuCard>
+    </div>
+  );
+}
+
+// --- SUB-COMPONENT: API TOKENS SETTINGS ---
+function ApiTokensSettings({ workspaceId }: { workspaceId: string }) {
+  const { t } = useLanguage();
+  const toast = useAppToast();
+  const queryClient = useQueryClient();
+  const [tokenName, setTokenName] = useState('');
+  const [expiresInDays, setExpiresInDays] = useState('90');
+  const [newToken, setNewToken] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const { data: tokens = [], isLoading } = useQuery({
+    queryKey: ['api-tokens', workspaceId],
+    queryFn: async () => {
+      const res = await api.get<any>(`/settings/tokens?workspaceId=${workspaceId}`);
+      return Array.isArray(res) ? res : (res as any)?.data || [];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => api.post<any>('/settings/tokens', {
+      name: tokenName,
+      workspaceId,
+      expiresInDays: Number(expiresInDays),
+    }),
+    onSuccess: (res) => {
+      const created = (res as any)?.data ?? res;
+      setNewToken(created.token);
+      setTokenName('');
+      queryClient.invalidateQueries({ queryKey: ['api-tokens', workspaceId] });
+    },
+    onError: (e: any) => toast.error(e?.message || t('Failed to create token', 'Échec de la création du jeton')),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/settings/tokens/${id}`),
+    onSuccess: () => {
+      toast.success(t('Token revoked', 'Jeton révoqué'));
+      queryClient.invalidateQueries({ queryKey: ['api-tokens', workspaceId] });
+    },
+    onError: () => toast.error(t('Failed to revoke token', 'Échec de la révocation du jeton')),
+  });
+
+  const handleCopy = () => {
+    if (!newToken) return;
+    navigator.clipboard.writeText(newToken);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <NeuCard
+        title={t('API tokens', 'Jetons API')}
+        description={t(
+          'Generate a token to connect third-party integrations (e.g. the Canva app) to this workspace.',
+          'Générez un jeton pour connecter des intégrations tierces (ex. l\'application Canva) à cet espace.',
+        )}
+      >
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="flex-1">
+            <NeuInput
+              placeholder={t('Token name (e.g. Canva app)', 'Nom du jeton (ex. Application Canva)')}
+              value={tokenName}
+              onChange={(e: any) => setTokenName(e.target.value)}
+            />
+          </div>
+          <select
+            value={expiresInDays}
+            onChange={(e) => setExpiresInDays(e.target.value)}
+            className="px-3 py-2.5 bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] font-medium text-sm text-[#040028] dark:text-white focus:outline-none focus:border-[#174CD2]"
+          >
+            <option value="30">{t('Expires in 30 days', 'Expire dans 30 jours')}</option>
+            <option value="90">{t('Expires in 90 days', 'Expire dans 90 jours')}</option>
+            <option value="365">{t('Expires in 1 year', 'Expire dans 1 an')}</option>
+          </select>
+          <NeuButton
+            onClick={() => createMutation.mutate()}
+            disabled={tokenName.trim().length === 0 || createMutation.isPending}
+            icon={createMutation.isPending ? <FiLoader className="animate-spin" size={14} /> : <FiPlus size={14} />}
+          >
+            {t('Generate', 'Générer')}
+          </NeuButton>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-3">
+            {[0, 1].map(i => <Skeleton key={i} className="h-16 w-full rounded-[14px]" />)}
+          </div>
+        ) : tokens.length === 0 ? (
+          <div className="text-center py-12 rounded-[14px] border border-dashed border-black/10 dark:border-white/10">
+            <FiKey size={32} className="mx-auto mb-3 text-[#D9D9D9] dark:text-zinc-700" />
+            <p className="text-xs font-semibold text-[#8E8E8E]">{t('No tokens yet', 'Aucun jeton pour l\'instant')}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {tokens.map((tk: any) => {
+              const isRevoked = !!tk.revokedAt;
+              const isExpired = !isRevoked && tk.expiresAt && new Date(tk.expiresAt) < new Date();
+              return (
+                <div key={tk.id} className="flex items-center justify-between gap-4 p-4 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm text-[#040028] dark:text-white truncate">{tk.name}</p>
+                      {isRevoked && <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-red-100 text-red-600">{t('Revoked', 'Révoqué')}</span>}
+                      {isExpired && <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-yellow-100 text-yellow-700">{t('Expired', 'Expiré')}</span>}
+                    </div>
+                    <p className="text-xs text-[#8E8E8E] font-mono mt-0.5">{tk.prefix}</p>
+                    <p className="text-[10px] text-[#8E8E8E] mt-1">
+                      {t('Created', 'Créé')} {new Date(tk.createdAt).toLocaleDateString()}
+                      {tk.lastUsedAt && ` · ${t('Last used', 'Dernière utilisation')} ${new Date(tk.lastUsedAt).toLocaleDateString()}`}
+                      {tk.expiresAt && ` · ${t('Expires', 'Expire')} ${new Date(tk.expiresAt).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                  {!isRevoked && (
+                    <NeuButton
+                      variant="danger"
+                      onClick={() => {
+                        if (!confirm(t('Revoke this token? Any integration using it will stop working immediately.', 'Révoquer ce jeton ? Toute intégration qui l\'utilise cessera de fonctionner immédiatement.'))) return;
+                        revokeMutation.mutate(tk.id);
+                      }}
+                      disabled={revokeMutation.isPending}
+                    >
+                      {t('Revoke', 'Révoquer')}
+                    </NeuButton>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </NeuCard>
+
+      <NeuModal isOpen={!!newToken} onClose={() => setNewToken(null)} title={t('Token created', 'Jeton créé')}>
+        <div className="space-y-4">
+          <p className="text-sm text-[#8E8E8E]">
+            {t('Copy this token now — you won\'t be able to see it again.', 'Copiez ce jeton maintenant — vous ne pourrez plus le revoir.')}
+          </p>
+          <div className="flex items-center gap-2 p-3 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 border border-black/10 dark:border-white/10">
+            <code className="flex-1 text-xs font-mono break-all text-[#040028] dark:text-white">{newToken}</code>
+            <button onClick={handleCopy} className="p-2 rounded-[8px] hover:bg-white dark:hover:bg-white/10 transition-colors flex-shrink-0">
+              {copied ? <FiCheck size={16} className="text-green-600" /> : <FiCopy size={16} />}
+            </button>
+          </div>
+          <NeuButton onClick={() => setNewToken(null)} className="w-full">
+            {t('Done', 'Terminé')}
+          </NeuButton>
+        </div>
+      </NeuModal>
     </div>
   );
 }

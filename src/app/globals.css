@@ -57,8 +57,13 @@
    any interaction state. !important since these are pseudo-class states
    competing with StyleX's own state-scoped declarations. */
 .astryx-date-input {
-  border-color: var(--color-border-emphasized) !important;
+  border: 1px solid rgba(53, 65, 90, 0.2) !important;
+  border-radius: 12px !important;
   box-shadow: none !important;
+  width: 240px !important;
+  height: 40px !important;
+  padding: 4px 4px 4px 12px !important;
+  gap: 8px !important;
 }
 
 /* Placeholder text defaults to --color-text-secondary (muted grey) — product
@@ -67,17 +72,31 @@
    toolbar buttons (font-semibold) — at the default weight, thin anti-aliased
    strokes of near-black #040028 visually read as blue against white. */
 .astryx-date-input input {
-  font-weight: 600 !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  color: #040028 !important;
+  /* Clicking opens the calendar popover — typing does nothing, so hide the
+     blinking caret and text-select cursor that otherwise invite it. */
+  caret-color: transparent !important;
+  cursor: pointer !important;
+  user-select: none !important;
 }
 .astryx-date-input input::placeholder {
-  color: var(--color-text-primary) !important;
+  color: rgba(19, 22, 32, 0.6) !important;
 }
 
 /* Calendar icon renders with color="secondary" (muted grey icon token) —
-   product call: match the navy/white brand ink used everywhere else here. */
+   product call: match the navy/white brand ink used everywhere else. Moved
+   to the trailing edge of the field (Astryx renders it leading by default,
+   with no iconPosition prop, so this is a flex `order` override on its
+   stable .astryx-icon class rather than the input's own order). */
 .astryx-date-input svg {
-  color: var(--color-icon-primary) !important;
-  stroke: var(--color-icon-primary) !important;
+  color: #040028 !important;
+  stroke: #040028 !important;
+}
+.astryx-date-input .astryx-icon {
+  order: 1;
 }
 
 @layer base {
