@@ -10,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 export default function DashboardRootPage() {
   const router = useRouter();
   const searchParams = useSearchParams(); // 🟢 Hook to get URL params
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eazlypostv2.onrender.com/api';
   const [status, setStatus] = useState('loading');
   const { t } = useLanguage();
 

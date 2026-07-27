@@ -9,14 +9,14 @@ export default function FaqSection() {
 
   const faqs = [
     {
-      question: t("What exactly is Eazypost?", "Qu’est-ce qu’Eazypost exactement ?"),
+      question: t("What exactly is Eazlypost?", "Qu’est-ce qu’Eazlypost exactement ?"),
       answer: t(
-        "Eazypost is a web platform that helps you manage your social networks from one place: create, plan, publish and track performance from a single dashboard.",
-        "Eazypost est une plateforme web qui t’aide à gérer tes réseaux sociaux depuis un seul endroit : créer, planifier, publier et suivre les performances depuis un tableau de bord unique."
+        "Eazlypost is a web platform that helps you manage your social networks from one place: create, plan, publish and track performance from a single dashboard.",
+        "Eazlypost est une plateforme web qui t’aide à gérer tes réseaux sociaux depuis un seul endroit : créer, planifier, publier et suivre les performances depuis un tableau de bord unique."
       ),
     },
     {
-      question: t("How is Eazypost different from its competitors?", "En quoi Eazypost est différent de ses concurrents ?"),
+      question: t("How is Eazlypost different from its competitors?", "En quoi Eazlypost est différent de ses concurrents ?"),
       answer: t(
         "It combines simplicity, clarity and speed. You get the essentials without the clutter of overly complex tools, while keeping a strong focus on daily use.",
         "Il combine simplicité, clarté et rapidité. Tu obtiens l’essentiel sans le surplus d’outils trop complexes, tout en gardant un fort focus sur l’utilisation au quotidien."
@@ -25,12 +25,12 @@ export default function FaqSection() {
     {
       question: t("Which social networks can I connect?", "Quels réseaux sociaux puis-je connecter ?"),
       answer: t(
-        "Eazypost is built for the main networks you already use daily, including Facebook, Instagram, TikTok, YouTube, LinkedIn, WhatsApp, Discord, X and Telegram.",
-        "Eazypost est pensé pour les principaux réseaux que tu utilises déjà au quotidien, notamment Facebook, Instagram, TikTok, YouTube, LinkedIn, WhatsApp, Discord, X et Telegram."
+        "Eazlypost is built for the main networks you already use daily, including Facebook, Instagram, TikTok, YouTube, LinkedIn, WhatsApp, Discord, X and Telegram.",
+        "Eazlypost est pensé pour les principaux réseaux que tu utilises déjà au quotidien, notamment Facebook, Instagram, TikTok, YouTube, LinkedIn, WhatsApp, Discord, X et Telegram."
       ),
     },
     {
-      question: t("Who is Eazypost made for?", "À qui s’adresse Eazypost ?"),
+      question: t("Who is Eazlypost made for?", "À qui s’adresse Eazlypost ?"),
       answer: t(
         "It is designed for creators, SMEs, agencies, organizations and teams that want a simple way to organize their communication without becoming social media experts.",
         "Il est pensé pour les créateurs, PME, agences, organisations et équipes qui veulent un moyen simple d’organiser leur communication sans devenir experts en social media."
@@ -46,19 +46,19 @@ export default function FaqSection() {
     {
       question: t("Can I invite my team?", "Puis-je inviter mon équipe ?"),
       answer: t(
-        "Yes. Eazypost is built to support collaborative use so that several people can work together on planning and publishing.",
-        "Oui. Eazypost est pensé pour soutenir un usage collaboratif afin que plusieurs personnes puissent travailler ensemble sur la planification et la publication."
+        "Yes. Eazlypost is built to support collaborative use so that several people can work together on planning and publishing.",
+        "Oui. Eazlypost est pensé pour soutenir un usage collaboratif afin que plusieurs personnes puissent travailler ensemble sur la planification et la publication."
       ),
     },
     {
       question: t("Is my data secure?", "Mes données sont-elles sécurisées ?"),
       answer: t(
-        "Yes. Eazypost uses official platform authorizations and modern security practices to protect your accesses and your data.",
-        "Oui. Eazypost utilise les autorisations officielles des plateformes et des pratiques de sécurité modernes pour protéger tes accès et tes données."
+        "Yes. Eazlypost uses official platform authorizations and modern security practices to protect your accesses and your data.",
+        "Oui. Eazlypost utilise les autorisations officielles des plateformes et des pratiques de sécurité modernes pour protéger tes accès et tes données."
       ),
     },
     {
-      question: t("Can I test Eazypost before subscribing?", "Puis-je tester Eazypost avant de m’abonner ?"),
+      question: t("Can I test Eazlypost before subscribing?", "Puis-je tester Eazlypost avant de m’abonner ?"),
       answer: t(
         "Yes. You can explore the main features and evaluate the experience before choosing a more complete plan.",
         "Oui. Tu peux explorer les principales fonctionnalités et évaluer l’expérience avant de choisir un plan plus complet."
@@ -94,8 +94,8 @@ export default function FaqSection() {
 
           <p className="text-[16px] leading-7 text-slate-600">
             {t(
-              'Everything you need to know before starting with Eazypost, from onboarding to pricing and support.',
-              'Tout ce qu’il faut savoir avant de commencer avec Eazypost, de l’intégration au prix en passant par l’accompagnement.'
+              'Everything you need to know before starting with Eazlypost, from onboarding to pricing and support.',
+              'Tout ce qu’il faut savoir avant de commencer avec Eazlypost, de l’intégration au prix en passant par l’accompagnement.'
             )}
           </p>
 

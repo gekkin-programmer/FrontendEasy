@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
       <div className="hidden lg:flex flex-col justify-between bg-[#050505] p-12 text-white relative overflow-hidden h-screen">
         <div className="relative z-10">
           <Link href="/" className="inline-block mb-8 opacity-90 hover:opacity-100 transition-opacity">
-            <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" width={48} height={48} className="object-contain" priority />
+            <Image src="/assets/WiggleLogo.png" alt="Eazlypost Logo" width={48} height={48} className="object-contain" priority />
           </Link>
           <h1 className="text-4xl font-bold leading-tight mb-4 tracking-tight">{t("Choose a strong password you'll actually remember.", 'Choisissez un mot de passe fort dont vous vous souviendrez.')}</h1>
           <p className="text-gray-400 text-lg">{t('Min. 8 characters. Mix letters, numbers, and symbols.', 'Min. 8 caractères. Mélangez lettres, chiffres et symboles.')}</p>
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
           <div className="mb-10 lg:hidden">
             <Link href="/" className="inline-block">
               <div className="relative w-10 h-10">
-                <Image src="/assets/WiggleLogo.png" alt="EazyPost Logo" fill className="object-contain" priority />
+                <Image src="/assets/WiggleLogo.png" alt="Eazlypost Logo" fill className="object-contain" priority />
               </div>
             </Link>
           </div>

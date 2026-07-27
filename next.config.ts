@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://backend-eazypost.mbokofit.com/api/:path*",
+        destination: "https://backend-eazlypost.mbokofit.com/api/:path*",
       },
     ];
   },
@@ -33,7 +33,7 @@ const hasSentryAuth = Boolean(process.env.SENTRY_AUTH_TOKEN);
 
 export default withSentryConfig(nextConfig, {
   silent: true,
-  org: "easypost",
+  org: "eazlypost",
   project: "frontend",
   // Only upload wider source maps when auth is available (CI/CD), not during Docker builds
   widenClientFileUpload: hasSentryAuth,

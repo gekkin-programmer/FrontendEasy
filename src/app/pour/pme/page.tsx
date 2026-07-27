@@ -26,7 +26,7 @@ export default function PmePage() {
           titleNode={
             <h1 className="flex flex-col font-['Rubik_One'] font-normal m-0 w-full gap-[4px] md:gap-[8px]">
               <span className="text-[#000000] text-[24px] md:text-[36px] leading-tight">
-                {t("EazyPost for", "EazyPost pour les")}
+                {t("Eazlypost for", "Eazlypost pour les")}
               </span>
               <span className="text-[#174CD2] text-[40px] md:text-[70px] leading-[1.1] capitalize">
                 {t("Small", "Petites")}

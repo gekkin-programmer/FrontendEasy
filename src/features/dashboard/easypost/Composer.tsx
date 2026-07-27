@@ -453,7 +453,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
         if (isSelling && price) {
             const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const label = productName || t("Buy now", "Acheter maintenant");
-            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\nhttps://eazypost.cm/pay/${shortId}`;
+            const commerceLink = `\n\n📦 ${label} — ${price} XAF:\nhttps://eazlypost.cm/pay/${shortId}`;
             finalContent += commerceLink;
         }
 
@@ -784,7 +784,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
                   {price && (
                     <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border border-black/20 dark:border-white/20 px-3 py-1.5">
                       <span className="text-[9px] font-black uppercase text-gray-400 dark:text-zinc-500 whitespace-nowrap">{t("LINK PREVIEW", "APERÇU")}</span>
-                      <span className="text-[9px] font-mono text-black dark:text-white dark:text-blue-400 truncate">https://eazypost.cm/pay/XXXXXX</span>
+                      <span className="text-[9px] font-mono text-black dark:text-white dark:text-blue-400 truncate">https://eazlypost.cm/pay/XXXXXX</span>
                     </div>
                   )}
                   <p className="text-[9px] font-mono text-gray-400 dark:text-zinc-500">{t("A unique payment link will be appended to your post. Customers pay via Mobile Money.", "Un lien de paiement unique sera joint à votre post. Les clients paient via Mobile Money.")}</p>

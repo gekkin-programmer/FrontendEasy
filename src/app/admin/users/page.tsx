@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { NeuModal, NeuButton } from '@/features/dashboard/easypost/DashboardUI';
+import { NeuModal, NeuButton } from '@/features/dashboard/eazlypost/DashboardUI';
 
 interface User {
   id: string;

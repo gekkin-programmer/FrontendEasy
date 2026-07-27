@@ -18,7 +18,7 @@ export default function CreateursFeatures() {
           
           {/* Main Title */}
           <h2 className="font-['Rubik_One'] font-normal text-[36px] md:text-[46px] leading-[1.2] text-[#1A202C] mb-[20px]">
-            EazyPost pour les createurs de contenu et influenceurs
+            Eazlypost pour les createurs de contenu et influenceurs
           </h2>
           
           {/* Paragraph */}

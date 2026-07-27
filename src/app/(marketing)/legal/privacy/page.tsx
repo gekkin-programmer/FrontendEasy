@@ -12,7 +12,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Introduction</h2>
             <p>
-              Welcome to EazyPost (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it. Our use of information received from Google APIs adheres to the{' '}
+              Welcome to Eazlypost (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it. Our use of information received from Google APIs adheres to the{' '}
               <a
                 href="https://developers.google.com/terms/api-services-user-data-policy"
                 className="text-blue-400 hover:underline"
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               3. Google API Services &amp; User Data
             </h2>
             <p className="mb-4">
-              EazyPost uses Google Sign-In (OAuth 2.0) solely to authenticate users. The following sections describe exactly how we interact with Google user data.
+              Eazlypost uses Google Sign-In (OAuth 2.0) solely to authenticate users. The following sections describe exactly how we interact with Google user data.
             </p>
 
             <div className="space-y-5">
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-gray-100 mb-1">3b. Data Usage</h3>
                 <p>Google user data is used exclusively for the following purposes:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
-                  <li>Creating or identifying your EazyPost account (account registration and login).</li>
+                  <li>Creating or identifying your Eazlypost account (account registration and login).</li>
                   <li>Pre-filling your display name and avatar in the application.</li>
                   <li>Sending transactional emails (password resets, workspace invitations) to your Google email address.</li>
                 </ul>
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">3e. Data Retention &amp; Deletion</h3>
                 <p>
-                  Google user data (name, email, profile photo URL, Google account ID) is retained for as long as your EazyPost account is active. If you delete your account or submit a deletion request:
+                  Google user data (name, email, profile photo URL, Google account ID) is retained for as long as your Eazlypost account is active. If you delete your account or submit a deletion request:
                 </p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li>All personal data associated with your account is permanently deleted from our database within <strong className="text-gray-100">48 hours</strong>.</li>
@@ -109,12 +109,12 @@ export default function PrivacyPage() {
                 </ul>
                 <p className="mt-2">
                   To request deletion, email{' '}
-                  <a href="mailto:support@eazypost.cm" className="text-blue-400 hover:underline">
-                    support@eazypost.cm
+                  <a href="mailto:support@eazlypost.cm" className="text-blue-400 hover:underline">
+                    support@eazlypost.cm
                   </a>{' '}
                   with the subject line <strong className="text-gray-100">&ldquo;Data Deletion Request&rdquo;</strong> and your registered email address, or follow the steps at{' '}
                   <a href="/legal/data-deletion" className="text-blue-400 hover:underline">
-                    eazypost.cm/legal/data-deletion
+                    eazlypost.cm/legal/data-deletion
                   </a>.
                 </p>
               </div>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
               3b. TikTok API &amp; User Data
             </h2>
             <p className="mb-4">
-              EazyPost integrates with the TikTok Content Posting API to allow you to schedule and publish videos to your TikTok account. The following describes exactly how we interact with TikTok user data. Our use of TikTok APIs complies with the{' '}
+              Eazlypost integrates with the TikTok Content Posting API to allow you to schedule and publish videos to your TikTok account. The following describes exactly how we interact with TikTok user data. Our use of TikTok APIs complies with the{' '}
               <a
                 href="https://developers.tiktok.com/doc/tiktok-api-developer-policy"
                 className="text-blue-400 hover:underline"
@@ -153,18 +153,18 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
                 <p>When you connect your TikTok account, we request the following OAuth 2.0 scopes:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
-                  <li><strong className="text-gray-100">user.info.basic</strong> — your TikTok Open ID and display name, used to identify your connected account in EazyPost.</li>
+                  <li><strong className="text-gray-100">user.info.basic</strong> — your TikTok Open ID and display name, used to identify your connected account in Eazlypost.</li>
                   <li><strong className="text-gray-100">video.list</strong> — read-only access to your public video list, used solely to display your connected account&apos;s activity.</li>
-                  <li><strong className="text-gray-100">video.publish</strong> — allows EazyPost to upload and publish videos to TikTok on your behalf, exclusively when you schedule or manually trigger a post.</li>
+                  <li><strong className="text-gray-100">video.publish</strong> — allows Eazlypost to upload and publish videos to TikTok on your behalf, exclusively when you schedule or manually trigger a post.</li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
-                  <li>We retrieve your TikTok <strong className="text-gray-100">Open ID</strong> and <strong className="text-gray-100">display name</strong> to label your connected account inside EazyPost.</li>
+                  <li>We retrieve your TikTok <strong className="text-gray-100">Open ID</strong> and <strong className="text-gray-100">display name</strong> to label your connected account inside Eazlypost.</li>
                   <li>We store your TikTok <strong className="text-gray-100">OAuth access token</strong> (encrypted at rest) to authenticate publishing requests on your behalf.</li>
-                  <li>Video files and captions you schedule are transmitted directly to TikTok&apos;s servers via the Content Posting API and are <strong className="text-gray-100">not</strong> permanently stored by EazyPost after publishing.</li>
+                  <li>Video files and captions you schedule are transmitted directly to TikTok&apos;s servers via the Content Posting API and are <strong className="text-gray-100">not</strong> permanently stored by Eazlypost after publishing.</li>
                   <li>TikTok user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
                 </ul>
               </div>
@@ -179,7 +179,7 @@ export default function PrivacyPage() {
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
                 <p>
-                  You can disconnect your TikTok account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in TikTok under{' '}
+                  You can disconnect your TikTok account at any time from the Eazlypost dashboard (Connected Accounts page). Alternatively, revoke access directly in TikTok under{' '}
                   <em>Settings &amp; Privacy → Security → Manage Account Access</em>. Upon disconnection, your stored TikTok access token is deleted from our database immediately.
                 </p>
               </div>
@@ -193,7 +193,7 @@ export default function PrivacyPage() {
               3c. Snapchat Login Kit &amp; User Data
             </h2>
             <p className="mb-4">
-              EazyPost integrates with Snapchat&apos;s Login Kit (OAuth 2.0) to allow you to connect your Snapchat account to your EazyPost workspace. Our use of Snapchat APIs complies with the{' '}
+              Eazlypost integrates with Snapchat&apos;s Login Kit (OAuth 2.0) to allow you to connect your Snapchat account to your Eazlypost workspace. Our use of Snapchat APIs complies with the{' '}
               <a
                 href="https://snap.com/en-US/terms/snap-kit"
                 className="text-blue-400 hover:underline"
@@ -218,8 +218,8 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
                 <p>When you connect your Snapchat account, we request the following Login Kit permissions:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
-                  <li><strong className="text-gray-100">user.display_name</strong> — your Snapchat display name, used to label your connected account inside EazyPost.</li>
-                  <li><strong className="text-gray-100">user.bitmoji.avatar</strong> — your Bitmoji avatar image URL, used as a profile picture for your connected Snapchat account in the EazyPost dashboard.</li>
+                  <li><strong className="text-gray-100">user.display_name</strong> — your Snapchat display name, used to label your connected account inside Eazlypost.</li>
+                  <li><strong className="text-gray-100">user.bitmoji.avatar</strong> — your Bitmoji avatar image URL, used as a profile picture for your connected Snapchat account in the Eazlypost dashboard.</li>
                 </ul>
                 <p className="mt-2">
                   We do not request access to your Snaps, Stories, contacts, location, or any other Snapchat data beyond the identity information listed above.
@@ -230,7 +230,7 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li>We retrieve your Snapchat <strong className="text-gray-100">display name</strong> and <strong className="text-gray-100">external ID</strong> to identify your connected account.</li>
-                  <li>Your Bitmoji avatar URL is stored to display a recognizable account icon in the EazyPost dashboard.</li>
+                  <li>Your Bitmoji avatar URL is stored to display a recognizable account icon in the Eazlypost dashboard.</li>
                   <li>We store your Snapchat <strong className="text-gray-100">OAuth access token</strong> (encrypted at rest) to maintain the connection on your behalf.</li>
                   <li>Snapchat user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
                 </ul>
@@ -246,14 +246,14 @@ export default function PrivacyPage() {
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Content &amp; Publishing</h3>
                 <p>
-                  EazyPost may use your connected Snapchat account to publish content (images, videos, captions) to Snapchat on your behalf, exclusively when you schedule or manually trigger a post. Content is transmitted directly to Snapchat&apos;s servers via their official APIs and is not permanently stored by EazyPost after publishing.
+                  Eazlypost may use your connected Snapchat account to publish content (images, videos, captions) to Snapchat on your behalf, exclusively when you schedule or manually trigger a post. Content is transmitted directly to Snapchat&apos;s servers via their official APIs and is not permanently stored by Eazlypost after publishing.
                 </p>
               </div>
 
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
                 <p>
-                  You can disconnect your Snapchat account at any time from the EazyPost dashboard (Connected Accounts page). Alternatively, revoke access directly in Snapchat under{' '}
+                  You can disconnect your Snapchat account at any time from the Eazlypost dashboard (Connected Accounts page). Alternatively, revoke access directly in Snapchat under{' '}
                   <em>Settings → Privacy Controls → Connected Apps</em>. Upon disconnection, your stored Snapchat access token is deleted from our database immediately.
                 </p>
               </div>
@@ -267,7 +267,7 @@ export default function PrivacyPage() {
               3d. Meta Platform APIs &amp; User Data
             </h2>
             <p className="mb-4">
-              EazyPost integrates with Meta&apos;s platform APIs — including Facebook Login, the Instagram Graph API, the WhatsApp Business API, and Meta Webhooks — to allow you to connect and publish content to your Facebook Pages, Instagram Business accounts, and WhatsApp Business number. Our use of Meta APIs complies with{' '}
+              Eazlypost integrates with Meta&apos;s platform APIs — including Facebook Login, the Instagram Graph API, the WhatsApp Business API, and Meta Webhooks — to allow you to connect and publish content to your Facebook Pages, Instagram Business accounts, and WhatsApp Business number. Our use of Meta APIs complies with{' '}
               <a
                 href="https://developers.facebook.com/terms/"
                 className="text-blue-400 hover:underline"
@@ -293,13 +293,13 @@ export default function PrivacyPage() {
                 <p>When you connect your Facebook account, we request the following permissions:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li><strong className="text-gray-100">email</strong> — your Facebook email address, used to identify your account.</li>
-                  <li><strong className="text-gray-100">public_profile</strong> — your name and profile picture, used to label your connected account in EazyPost.</li>
+                  <li><strong className="text-gray-100">public_profile</strong> — your name and profile picture, used to label your connected account in Eazlypost.</li>
                   <li><strong className="text-gray-100">pages_show_list</strong> — the list of Facebook Pages you manage, so you can select which Page to connect.</li>
                   <li><strong className="text-gray-100">pages_read_engagement</strong> — read-only access to Page engagement data (likes, comments, reach) for analytics.</li>
-                  <li><strong className="text-gray-100">pages_manage_posts</strong> — allows EazyPost to create and schedule posts to your Facebook Page on your behalf.</li>
+                  <li><strong className="text-gray-100">pages_manage_posts</strong> — allows Eazlypost to create and schedule posts to your Facebook Page on your behalf.</li>
                   <li><strong className="text-gray-100">pages_read_user_content</strong> — read-only access to content on your Page (comments, posts by visitors) for moderation and analytics.</li>
                   <li><strong className="text-gray-100">instagram_basic</strong> — basic access to your linked Instagram Business account.</li>
-                  <li><strong className="text-gray-100">instagram_content_publish</strong> — allows EazyPost to publish photos, videos, and Reels to your Instagram account on your behalf.</li>
+                  <li><strong className="text-gray-100">instagram_content_publish</strong> — allows Eazlypost to publish photos, videos, and Reels to your Instagram account on your behalf.</li>
                 </ul>
               </div>
 
@@ -308,7 +308,7 @@ export default function PrivacyPage() {
                 <p>When you connect your Instagram Business account directly, we request:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li><strong className="text-gray-100">instagram_business_basic</strong> — your Instagram Business profile (ID, username, profile picture).</li>
-                  <li><strong className="text-gray-100">instagram_business_content_publish</strong> — allows EazyPost to publish posts, Reels, and Stories to your Instagram account on your behalf.</li>
+                  <li><strong className="text-gray-100">instagram_business_content_publish</strong> — allows Eazlypost to publish posts, Reels, and Stories to your Instagram account on your behalf.</li>
                   <li><strong className="text-gray-100">instagram_business_manage_comments</strong> — allows reading and responding to comments on your posts for moderation.</li>
                   <li><strong className="text-gray-100">instagram_business_manage_insights</strong> — read-only access to account and post-level analytics (reach, impressions, engagement).</li>
                 </ul>
@@ -319,15 +319,15 @@ export default function PrivacyPage() {
                 <p>When you connect your WhatsApp Business number, we request:</p>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li><strong className="text-gray-100">whatsapp_business_management</strong> — manage your WhatsApp Business account settings and phone number registration.</li>
-                  <li><strong className="text-gray-100">whatsapp_business_messaging</strong> — send and receive messages via your WhatsApp Business number on your behalf, exclusively when triggered by you through EazyPost.</li>
+                  <li><strong className="text-gray-100">whatsapp_business_messaging</strong> — send and receive messages via your WhatsApp Business number on your behalf, exclusively when triggered by you through Eazlypost.</li>
                 </ul>
-                <p className="mt-2">WhatsApp messages are transmitted directly to Meta&apos;s servers and are not stored by EazyPost beyond what is necessary to display sent/received status in the dashboard.</p>
+                <p className="mt-2">WhatsApp messages are transmitted directly to Meta&apos;s servers and are not stored by Eazlypost beyond what is necessary to display sent/received status in the dashboard.</p>
               </div>
 
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Meta Webhooks</h3>
                 <p>
-                  EazyPost subscribes to Meta Webhooks to receive real-time notifications about activity on your connected Facebook Pages and Instagram accounts (e.g., new comments, message deliveries). Webhook payloads are verified using a cryptographic secret token to ensure they originate from Meta. We process only the events relevant to features you have enabled and do not store raw webhook payloads beyond 24 hours.
+                  Eazlypost subscribes to Meta Webhooks to receive real-time notifications about activity on your connected Facebook Pages and Instagram accounts (e.g., new comments, message deliveries). Webhook payloads are verified using a cryptographic secret token to ensure they originate from Meta. We process only the events relevant to features you have enabled and do not store raw webhook payloads beyond 24 hours.
                 </p>
               </div>
 
@@ -335,8 +335,8 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-gray-100 mb-1">Data Usage</h3>
                 <ul className="list-disc pl-5 space-y-1 mt-2">
                   <li>Meta OAuth tokens (access tokens) are stored encrypted in our database solely to authenticate publishing and analytics requests on your behalf.</li>
-                  <li>Page IDs and Instagram Business account IDs are stored to identify which accounts are connected to your EazyPost workspace.</li>
-                  <li>Media files (images, videos) you schedule are transmitted to Meta&apos;s servers when your post is published and are not permanently stored by EazyPost after successful delivery.</li>
+                  <li>Page IDs and Instagram Business account IDs are stored to identify which accounts are connected to your Eazlypost workspace.</li>
+                  <li>Media files (images, videos) you schedule are transmitted to Meta&apos;s servers when your post is published and are not permanently stored by Eazlypost after successful delivery.</li>
                   <li>Meta user data is <strong className="text-gray-100">never</strong> used to train AI or machine-learning models, shared with advertisers, or sold to third parties.</li>
                 </ul>
               </div>
@@ -351,7 +351,7 @@ export default function PrivacyPage() {
               <div>
                 <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
                 <p>
-                  You can disconnect your Facebook, Instagram, or WhatsApp account at any time from the EazyPost dashboard (Connected Accounts page). You may also revoke access directly via Facebook under{' '}
+                  You can disconnect your Facebook, Instagram, or WhatsApp account at any time from the Eazlypost dashboard (Connected Accounts page). You may also revoke access directly via Facebook under{' '}
                   <em>Settings &amp; Privacy → Settings → Apps and Websites</em>. Upon disconnection, your stored Meta access tokens are deleted from our database immediately.
                 </p>
               </div>
@@ -385,8 +385,8 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-white mb-3">6. Your Rights</h2>
             <p>
               Depending on your location, you may have the right to access, rectify, or delete your personal data at any time. To exercise these rights, contact us at{' '}
-              <a href="mailto:support@eazypost.cm" className="text-blue-400 hover:underline">
-                support@eazypost.cm
+              <a href="mailto:support@eazlypost.cm" className="text-blue-400 hover:underline">
+                support@eazlypost.cm
               </a>{' '}
               or visit our{' '}
               <a href="/legal/data-deletion" className="text-blue-400 hover:underline">
@@ -398,8 +398,8 @@ export default function PrivacyPage() {
           <section className="border-t border-gray-700 pt-8 mt-8">
             <p className="text-sm">
               If you have questions about this policy, please contact us at{' '}
-              <a href="mailto:support@eazypost.cm" className="text-blue-400 hover:underline">
-                support@eazypost.cm
+              <a href="mailto:support@eazlypost.cm" className="text-blue-400 hover:underline">
+                support@eazlypost.cm
               </a>.
             </p>
           </section>

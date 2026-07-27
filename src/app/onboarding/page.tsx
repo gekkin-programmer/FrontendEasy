@@ -129,7 +129,7 @@ export default function OnboardingPage() {
   const renderCategoryStep = () => (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">{t('How will you use EasyPost?', 'Comment allez-vous utiliser EasyPost ?')}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('How will you use Eazlypost?', 'Comment allez-vous utiliser Eazlypost ?')}</h1>
         <p className="text-gray-500 mt-2">{t("We'll customize your experience based on your needs.", 'Nous personnaliserons votre expérience selon vos besoins.')}</p>
       </div>
 

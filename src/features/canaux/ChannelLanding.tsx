@@ -224,8 +224,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
               </h1>
               <p className="mt-[24px] font-medium text-[20px] leading-[30px] tracking-[-0.4px] max-w-[562px] text-[#040028]">
                 {t(
-                  'Schedule your posts, manage your account and grow your community. EazyPost brings your whole social presence into one simple place.',
-                  'Programmez vos publications, gérez votre compte et développez votre communauté. EazyPost réunit toute votre présence sociale en un seul endroit.'
+                  'Schedule your posts, manage your account and grow your community. Eazlypost brings your whole social presence into one simple place.',
+                  'Programmez vos publications, gérez votre compte et développez votre communauté. Eazlypost réunit toute votre présence sociale en un seul endroit.'
                 )}
               </p>
               <div className="mt-[42px]">
@@ -236,7 +236,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
             <div className="flex-1 w-full max-w-[664px]">
               {/* Figma frame: 664 × 723.66, transparent image — no background card */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/representations-facebook.png" alt="EazyPost dashboard" className="w-full h-[420px] lg:h-[724px] object-contain" />
+              <img src="/assets/representations-facebook.png" alt="Eazlypost dashboard" className="w-full h-[420px] lg:h-[724px] object-contain" />
             </div>
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         <div className="pt-[48px]">
           <RatingRow label={t('Excellent', 'Excellent')} />
           <h2 className="mt-[36px] text-center font-extrabold text-[38px] leading-[44px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
-            {t('EazyPost is for', 'EazyPost est fait pour les')}{' '}
+            {t('Eazlypost is for', 'Eazlypost est fait pour les')}{' '}
             <span className="text-[#2665D6]">{t('creators', 'créateurs')}</span>
           </h2>
         </div>
@@ -277,15 +277,15 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         textColor={INK}
         title={t('Share every kind of content', 'Partagez tous vos formats de contenu')}
         text={t(
-          'Photos, videos, Reels, links, events… Prepare everything in advance, preview exactly how it will look, and let EazyPost publish at the perfect time.',
-          'Photos, vidéos, Reels, liens, événements… Préparez tout à l’avance, prévisualisez le rendu exact et laissez EazyPost publier au moment parfait.'
+          'Photos, videos, Reels, links, events… Prepare everything in advance, preview exactly how it will look, and let Eazlypost publish at the perfect time.',
+          'Photos, vidéos, Reels, liens, événements… Préparez tout à l’avance, prévisualisez le rendu exact et laissez Eazlypost publier au moment parfait.'
         )}
         ctaLabel={startCta}
         ctaHref="/signup"
         ctaBg="#184CD1"
         ctaColor="#FFFFFF"
         image="/assets/image-face.png"
-        imageAlt="EazyPost content board"
+        imageAlt="Eazlypost content board"
         imageLeft
       />
 
@@ -296,8 +296,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         textColor="#FFFFFF"
         title={t('Get more eyes on every post', 'Plus de visibilité sur chaque publication')}
         text={t(
-          'Publish consistently, at the times your audience is actually online. Consistency is what turns visitors into followers — EazyPost makes it automatic.',
-          'Publiez régulièrement, aux heures où votre audience est vraiment en ligne. C’est la régularité qui transforme les visiteurs en abonnés — EazyPost la rend automatique.'
+          'Publish consistently, at the times your audience is actually online. Consistency is what turns visitors into followers — Eazlypost makes it automatic.',
+          'Publiez régulièrement, aux heures où votre audience est vraiment en ligne. C’est la régularité qui transforme les visiteurs en abonnés — Eazlypost la rend automatique.'
         )}
         ctaLabel={startCta}
         ctaHref="/signup"
@@ -322,7 +322,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         ctaBg="#184CD1"
         ctaColor="#FFFFFF"
         image="/assets/LandingPage.png"
-        imageAlt="EazyPost dashboard"
+        imageAlt="Eazlypost dashboard"
         imageLeft
       />
 
@@ -341,7 +341,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
         ctaBg="#FFFFFF"
         ctaColor="#061492"
         image="/Image Publier.png"
-        imageAlt="EazyPost integrations"
+        imageAlt="Eazlypost integrations"
       />
 
       {/* Feature grid — grey */}
@@ -385,8 +385,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
               image="/assets/tout3.png"
               title={t('Best time to post', 'Meilleur moment pour publier')}
               text={t(
-                'Let EazyPost pick the time slots where your audience is most active, so every post lands when it matters.',
-                'Laissez EazyPost choisir les créneaux où votre audience est la plus active, pour que chaque publication tombe au bon moment.'
+                'Let Eazlypost pick the time slots where your audience is most active, so every post lands when it matters.',
+                'Laissez Eazlypost choisir les créneaux où votre audience est la plus active, pour que chaque publication tombe au bon moment.'
               )}
               plans={[planEssential, planAdvanced]}
             />
@@ -441,8 +441,8 @@ export default function ChannelLanding({ channelName }: { channelName: string })
           <div className="max-w-[1065px] text-center">
             <blockquote className="font-extrabold text-[34px] leading-[40px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
               {t(
-                '“EazyPost changed how I run my page, everything lives in one place and it saves me hours every week.”',
-                '« EazyPost a changé ma façon de gérer ma page, tout est au même endroit et je gagne des heures chaque semaine. »'
+                '“Eazlypost changed how I run my page, everything lives in one place and it saves me hours every week.”',
+                '« Eazlypost a changé ma façon de gérer ma page, tout est au même endroit et je gagne des heures chaque semaine. »'
               )}
             </blockquote>
             <p className="mt-[24px] text-[20px] leading-[30px] tracking-[-0.4px] text-[#676B5F]">

@@ -131,7 +131,7 @@ export default function CommunityPage() {
           </motion.div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
             {t('Build ', 'Construisez ')}<br/>
-            <span className="text-black dark:text-transparent dark:text-stroke-white italic">EasyPost</span> {t('With Us.', 'Avec Nous.')}
+            <span className="text-black dark:text-transparent dark:text-stroke-white italic">Eazlypost</span> {t('With Us.', 'Avec Nous.')}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-bold">
             {t('Vote on features, report bugs, and chat with the team. We ship updates every week based on your feedback.', 'Votez pour les fonctionnalités, signalez des bugs et discutez avec l\'équipe. Nous publions des mises à jour chaque semaine.')}

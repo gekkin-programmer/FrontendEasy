@@ -44,7 +44,7 @@ export default function AProposSection() {
 
     {/* Paragraph 2 */}
     <p className="text-center text-black font-normal text-base md:text-lg leading-relaxed max-w-[580px]" style={{ fontFamily: "'Rubik', sans-serif" }}>
-      {t("At the heart of its SaaS department, BEST-CORP develops several solutions including Eazypost, a social media management platform designed primarily for African realities: multi-platform, easy to learn, affordable and tailored for creators, SMEs, agencies and organizations on the continent.", "Au cœur de son département SaaS, BEST‑CORP développe plusieurs solutions dont Eazypost, une plateforme de gestion des réseaux sociaux pensée d’abord pour les réalités africaines : multi‑plateforme, simple à prendre en main, accessible en prix et taillée pour les créateurs, PME, agences et organisations du continent.")}
+      {t("At the heart of its SaaS department, BEST-CORP develops several solutions including Eazlypost, a social media management platform designed primarily for African realities: multi-platform, easy to learn, affordable and tailored for creators, SMEs, agencies and organizations on the continent.", "Au cœur de son département SaaS, BEST‑CORP développe plusieurs solutions dont Eazlypost, une plateforme de gestion des réseaux sociaux pensée d’abord pour les réalités africaines : multi‑plateforme, simple à prendre en main, accessible en prix et taillée pour les créateurs, PME, agences et organisations du continent.")}
     </p>
   </div>
 

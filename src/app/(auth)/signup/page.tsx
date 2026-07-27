@@ -105,7 +105,7 @@ export default function SignupPage() {
               {/* Header Texts */}
               <div className="flex flex-col gap-[2px] mb-[10px] [@media(min-height:740px)]:mb-[16px] [@media(min-height:840px)]:mb-[24px] lg:mb-[16px] 3xl:mb-[40px]">
                 <Link href="/" className="hidden md:block">
-                  <img src="/assets/WiggleLogo.png" alt="Eazypost Logo" className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] 3xl:w-[48px] 3xl:h-[48px] object-contain mb-[4px] lg:mb-[10px] cursor-pointer" />
+                  <img src="/assets/WiggleLogo.png" alt="Eazlypost Logo" className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] 3xl:w-[48px] 3xl:h-[48px] object-contain mb-[4px] lg:mb-[10px] cursor-pointer" />
                 </Link>
                 <h1 className="font-sans font-medium text-[clamp(24px,4vw,32px)] leading-[clamp(32px,5vw,48px)] text-[#000000]">
                   {t('Get Started Now', 'Commencer maintenant')}

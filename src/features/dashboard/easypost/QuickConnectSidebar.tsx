@@ -50,7 +50,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, curren
         { id: 'threads', Icon: FaThreads, color: 'text-black dark:text-white' },
     ];
 
-    const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://easypostv2.onrender.com')
+    const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://eazlypostv2.onrender.com')
         .replace(/\/$/, '')
         .replace(/\/api$/, '') + '/api';
 

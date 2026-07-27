@@ -15,7 +15,7 @@ export default function CreateursHero() {
         <div className="w-full lg:w-[422px] flex flex-col justify-center gap-[20px] lg:pl-[12px] z-20">
           <div className="flex flex-col">
             <h2 className="text-[#000000] text-[24px] md:text-[36px] leading-[45px] font-['Rubik_One'] font-normal -mb-2">
-              {t("EazyPost For", "EazyPost Pour les")}
+              {t("Eazlypost For", "Eazlypost Pour les")}
             </h2>
             <h1 className="text-[#174CD2] text-[40px] md:text-[70px] leading-[87px] font-['Rubik_One'] font-normal">
               {t("Creators", "Créateurs")}

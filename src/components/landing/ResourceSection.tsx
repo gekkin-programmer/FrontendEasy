@@ -12,7 +12,7 @@ const ResourcesSection: React.FC = () => {
             World-class guides, data, and benchmarks for modern marketers
           </h2>
           <p className="mt-4 text-lg text-slate-600 dark:text-gray-400">
-            Learn from best-in-class playbooks and bring EAsyPost into a scalable marketing workflow.
+            Learn from best-in-class playbooks and bring EAzlYpost into a scalable marketing workflow.
           </p>
         </div>
 

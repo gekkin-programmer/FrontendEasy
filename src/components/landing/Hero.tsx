@@ -207,7 +207,7 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 relative z-20 w-full sm:w-auto px-4"
         >
             <div className="relative group w-full sm:w-auto">
-                <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api'}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center gap-2">
+                <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazlypost.mbokofit.com/api'}/auth/google`} className="relative z-10 w-full sm:w-auto justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-xl shadow-md hover:shadow-lg transition-shadow flex items-center gap-2">
                     {t("Start Free Trial", "Essai Gratuit")} <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </a>
                 {/* Button decoration */}

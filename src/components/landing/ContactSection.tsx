@@ -45,7 +45,7 @@ export default function ContactSection() {
             <div className="flex items-center gap-[25px]">
               <Mail className="w-[24px] h-[24px] text-white shrink-0" fill="white" />
               <span className="text-white font-sans font-normal text-[16px] leading-[24px]">
-                support@eazypost.cm
+                support@eazlypost.cm
               </span>
             </div>
 

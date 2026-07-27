@@ -33,7 +33,7 @@ interface Step {
   onAction: () => void;
 }
 
-const GUIDE_KEY = (workspaceId: string) => `eazypost_guide_${workspaceId}`;
+const GUIDE_KEY = (workspaceId: string) => `eazlypost_guide_${workspaceId}`;
 
 export default function OnboardingGuide({
   workspaceId,
@@ -72,7 +72,7 @@ export default function OnboardingGuide({
   const hasScheduled = posts.some(p => p.status === 'SCHEDULED' || p.scheduledFor || p.scheduledAt);
   const hasAnalytics = (() => {
     if (typeof window === 'undefined') return false;
-    try { return localStorage.getItem(`eazypost_guide_analytics_${workspaceId}`) === '1'; } catch { return false; }
+    try { return localStorage.getItem(`eazlypost_guide_analytics_${workspaceId}`) === '1'; } catch { return false; }
   })();
   const hasMember = (currentWorkspace?.currentMemberCount ?? 1) > 1;
 
@@ -128,7 +128,7 @@ export default function OnboardingGuide({
       done: hasAnalytics,
       onAction: () => {
         onSwitchTab('analytics');
-        try { localStorage.setItem(`eazypost_guide_analytics_${workspaceId}`, '1'); } catch {}
+        try { localStorage.setItem(`eazlypost_guide_analytics_${workspaceId}`, '1'); } catch {}
       },
     },
     {

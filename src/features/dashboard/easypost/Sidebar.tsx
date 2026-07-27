@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,8 +21,8 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
     { icon: Calendar, label: t('Calendar', 'Calendrier'), path: '/dashboard/calendar' },
     { icon: PenTool, label: t('Composer', 'Compositeur'), path: '/dashboard/composer' },
     { icon: BarChart3, label: t('Analytics', 'Analytique'), path: '/dashboard/analytics' },
-    { icon: Users, label: t('Team', 'Équipe'), path: '/dashboard/team' },
-    { icon: Settings, label: t('Settings', 'Paramètres'), path: '/dashboard/settings' },
+    { icon: Users, label: t('Team', '�quipe'), path: '/dashboard/team' },
+    { icon: Settings, label: t('Settings', 'Param�tres'), path: '/dashboard/settings' },
   ];
 
   return (
@@ -32,7 +32,7 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
       <div className="h-16 flex items-center justify-between px-6 border-b-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black border-2 border-transparent">E</div>
-          <span className="font-black text-xl tracking-tighter text-black dark:text-white">EASYPOST.</span>
+          <span className="font-black text-xl tracking-tighter text-black dark:text-white">EAZLYPOST.</span>
         </div>
         {isMobile && (
           <button onClick={onClose} className="p-1 border-2 border-black dark:border-white bg-white dark:bg-zinc-900 hover:bg-red-500 hover:text-white transition-colors text-black dark:text-white">
@@ -68,7 +68,7 @@ export default function Sidebar({ isMobile, onClose }: SidebarProps) {
       <div className="p-4 border-t-2 border-black dark:border-white bg-white dark:bg-zinc-900 transition-colors">
         <button className="flex items-center gap-3 w-full px-4 py-3 font-bold text-sm uppercase text-red-600 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
           <LogOut size={18} strokeWidth={2.5} />
-          {t('Logout', 'Déconnexion')}
+          {t('Logout', 'D�connexion')}
         </button>
       </div>
     </div>

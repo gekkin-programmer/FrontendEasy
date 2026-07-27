@@ -554,7 +554,7 @@ export default function TarifsPage() {
                 },
                 {
                   name: t('Browser extension', 'Extension de navigateur'),
-                  desc: t('Open EazyPost on any web page and add content directly to your queue.', 'Ouvrez EazyPost sur n’importe quelle page web et ajoutez du contenu directement à votre file d’attente.'),
+                  desc: t('Open Eazlypost on any web page and add content directly to your queue.', 'Ouvrez Eazlypost sur n’importe quelle page web et ajoutez du contenu directement à votre file d’attente.'),
                   values: ['check', 'check', 'check'],
                 },
                 { header: t('Publishing', 'Publication') },

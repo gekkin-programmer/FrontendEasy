@@ -28,7 +28,7 @@ export default function AuthCallbackPage() {
 
       if (code) {
         try {
-          const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazypost.mbokofit.com/api').replace(/\/$/, '').replace(/\/api$/, '') + '/api';
+          const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-eazlypost.mbokofit.com/api').replace(/\/$/, '').replace(/\/api$/, '') + '/api';
           
           const res = await fetch(`${API_URL}/auth/exchange-code`, {
             method: 'POST',

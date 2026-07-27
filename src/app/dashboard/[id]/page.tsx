@@ -21,21 +21,21 @@ import {
 import { FaTiktok } from 'react-icons/fa6';
 
 // COMPONENTS
-import Composer from '@/features/dashboard/easypost/Composer';
-import PostFeed from '@/features/dashboard/easypost/PostFeed';
-import Analytics from '@/features/dashboard/easypost/Analytics';
-import Settings from '@/features/dashboard/easypost/Settings';
-import Team from '@/features/dashboard/easypost/Team';
-import VoiceAiButton from '@/features/dashboard/easypost/VoiceAiButton';
-import CalendarView from '@/features/dashboard/easypost/CalendarView';
+import Composer from '@/features/dashboard/eazlypost/Composer';
+import PostFeed from '@/features/dashboard/eazlypost/PostFeed';
+import Analytics from '@/features/dashboard/eazlypost/Analytics';
+import Settings from '@/features/dashboard/eazlypost/Settings';
+import Team from '@/features/dashboard/eazlypost/Team';
+import VoiceAiButton from '@/features/dashboard/eazlypost/VoiceAiButton';
+import CalendarView from '@/features/dashboard/eazlypost/CalendarView';
 import SpinningLoader from '@/components/common/SpinningLoader';
 
 // EXTRACTED COMPONENTS
-import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/features/dashboard/easypost/DashboardUI';
-import { QuickConnectSidebar } from '@/features/dashboard/easypost/QuickConnectSidebar';
-import { FacebookPageSelector } from '@/features/dashboard/easypost/FacebookPageSelector';
-import { SidebarItem } from '@/features/dashboard/easypost/SidebarItem';
-import { EngagementWithTabs } from '@/features/dashboard/easypost/EngagementWithTabs';
+import { NeuButton, NeuCard, NeuInput, NeuModal } from '@/features/dashboard/eazlypost/DashboardUI';
+import { QuickConnectSidebar } from '@/features/dashboard/eazlypost/QuickConnectSidebar';
+import { FacebookPageSelector } from '@/features/dashboard/eazlypost/FacebookPageSelector';
+import { SidebarItem } from '@/features/dashboard/eazlypost/SidebarItem';
+import { EngagementWithTabs } from '@/features/dashboard/eazlypost/EngagementWithTabs';
 
 // SOCKET
 import { SocketProvider, useSocket } from '@/context/SocketContext';
@@ -47,8 +47,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import BoardView from '@/features/dashboard/easypost/BoardView';
-import OnboardingGuide from '@/features/dashboard/easypost/OnboardingGuide';
+import BoardView from '@/features/dashboard/eazlypost/BoardView';
+import OnboardingGuide from '@/features/dashboard/eazlypost/OnboardingGuide';
 
 type TabType = 'queue' |'calendar' | 'boards' | 'analytics' | 'engagement' | 'settings' | 'team';
 
@@ -398,16 +398,16 @@ function DashboardContent() {
 
     // Notifications
     type AppNotif = { id: string; type: 'success' | 'error' | 'info'; message: string; time: string; read: boolean };
-    const notifKey = `eazypost_notifs_${workspaceId}`;
+    const notifKey = `eazlypost_notifs_${workspaceId}`;
     const [notifications, setNotifications] = useState<AppNotif[]>(() => {
         if (typeof window === 'undefined') return [];
-        try { return JSON.parse(localStorage.getItem(`eazypost_notifs_${workspaceId}`) || '[]'); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem(`eazlypost_notifs_${workspaceId}`) || '[]'); } catch { return []; }
     });
     const addNotification = useCallback((type: AppNotif['type'], message: string) => {
         const notif: AppNotif = { id: Date.now().toString(), type, message, time: new Date().toISOString(), read: false };
         setNotifications(prev => {
             const next = [notif, ...prev].slice(0, 50);
-            try { localStorage.setItem(`eazypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
+            try { localStorage.setItem(`eazlypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
             return next;
         });
     }, [workspaceId]);
@@ -415,13 +415,13 @@ function DashboardContent() {
     const markAllRead = useCallback(() => {
         setNotifications(prev => {
             const next = prev.map(n => ({ ...n, read: true }));
-            try { localStorage.setItem(`eazypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
+            try { localStorage.setItem(`eazlypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
             return next;
         });
     }, [workspaceId]);
     const clearNotifications = useCallback(() => {
         setNotifications([]);
-        try { localStorage.removeItem(`eazypost_notifs_${workspaceId}`); } catch {}
+        try { localStorage.removeItem(`eazlypost_notifs_${workspaceId}`); } catch {}
     }, [workspaceId]);
 
     // Load Meta FB SDK for WhatsApp Embedded Signup
@@ -585,8 +585,8 @@ function DashboardContent() {
                     "Aucune Page Facebook trouvée — les permissions ont été réinitialisées. Cliquez à nouveau sur Connecter Facebook et accordez l'accès à votre Page sur l'écran de consentement.",
                 ],
                 FB_PERMISSION_DENIED: [
-                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow EazyPost to manage your Page.',
-                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser EazyPost à gérer votre Page.",
+                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow Eazlypost to manage your Page.',
+                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser Eazlypost à gérer votre Page.",
                 ],
                 FB_NO_PAGES_EXISTS: [
                     'No Facebook Pages found on your account. To connect Facebook, you need a Facebook Page (not a personal profile). Create one at facebook.com/pages/create, then try again.',
@@ -690,7 +690,7 @@ function DashboardContent() {
 
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-black border-b-2 border-black dark:border-white z-40 flex items-center justify-between px-4">
-                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EASYPOST.</div></div>
+                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 border-2 border-transparent active:bg-yellow-100 dark:active:bg-zinc-800"><Menu size={24} className="text-black dark:text-white" /></button><div className="font-black text-xl tracking-tighter italic text-black dark:text-white">EAZLYPOST.</div></div>
                 <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-none border-2 border-black dark:border-white overflow-hidden bg-white dark:bg-black"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
@@ -717,7 +717,7 @@ function DashboardContent() {
                                 <div className="w-10 h-10 border-2 border-black dark:border-white bg-white dark:bg-black overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
                                     <Image 
                                         src="/applogo.png" 
-                                        alt="EasyPost Logo" 
+                                        alt="Eazlypost Logo" 
                                         width={40} 
                                         height={40} 
                                         className="object-contain p-1" 
