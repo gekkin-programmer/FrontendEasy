@@ -59,8 +59,8 @@ function PlanCard({
 }) {
   return (
     <div
-      className={`w-full h-full rounded-[9px] px-[20px] md:px-[30px] lg:px-[40px] py-[30px] md:py-[43px] flex flex-col gap-[20px] md:gap-[28px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] ${
-        dark ? 'bg-[#184CD1] xl:-translate-y-[71px] pb-[40px] md:pb-[60px]' : 'bg-white'
+      className={`w-full h-full rounded-[9px] px-[20px] md:px-[30px] lg:px-[40px] py-[30px] md:py-[43px] flex flex-col gap-[20px] md:gap-[28px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] max-w-[340px] lg:max-w-[364px] mx-auto ${
+        dark ? 'bg-[#184CD1] lg:-translate-y-[71px] pb-[40px] md:pb-[60px]' : 'bg-white'
       }`}
     >
       {/* Badge block */}
@@ -238,7 +238,7 @@ export default function TarifsPage() {
         </p>
 
         {/* Billing cycle toggle + currency dropdown — plain flex, no absolute hacks so it holds up at any width */}
-        <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-[16px] md:gap-[24px] mt-[48px] sm:mt-[60px] md:mt-[80px]">
+        <div className="w-full flex flex-col sm:flex-row items-center justify-center sm:justify-center gap-[16px] md:gap-[24px] mt-[48px] sm:mt-[60px] md:mt-[80px]">
           <div className="flex items-center flex-nowrap">
             <button
               type="button"
@@ -270,7 +270,7 @@ export default function TarifsPage() {
           </div>
 
           {/* Currency dropdown */}
-          <div className="relative">
+          <div className="relative xl:hidden">
             {currencyOpen && (
               <div className="fixed inset-0 z-10" onClick={() => setCurrencyOpen(false)} aria-hidden="true" />
             )}
@@ -322,11 +322,11 @@ export default function TarifsPage() {
         </div>
       </section>
 
-      {/* Pricing Cards + Social accounts stepper — flex layout that adapts at every width instead of a fixed absolute offset */}
+      {/* Pricing Cards + Social accounts stepper */}
       <section className="relative w-full flex flex-col items-center px-4 mt-[48px] md:mt-[80px] pb-[40px] md:pb-[60px]">
-        <div className="w-full max-w-[1320px] mx-auto flex flex-col xl:flex-row xl:items-start gap-[32px] xl:gap-[28px]">
-          {/* Stepper: sits above the cards on mobile/tablet, as a side column on xl+ */}
-          <div className="order-1 xl:order-2 flex flex-col items-center gap-[16px] xl:w-[170px] xl:pt-[8px] xl:flex-shrink-0">
+        <div className="w-full max-w-[1320px] mx-auto flex flex-col xl:flex-row xl:items-start gap-[32px] xl:gap-[28px] relative">
+          {/* Stepper: sits above the cards on mobile/tablet, as a right side column on xl+ */}
+          <div className="order-1 xl:order-3 flex flex-col items-center gap-[16px] xl:gap-[8px] xl:w-[170px] xl:pt-[8px] xl:flex-shrink-0 xl:absolute xl:right-0 xl:-top-[340px]">
             <h3 className="text-[#000B33] font-semibold text-[16px] md:text-[18px] leading-[22px] md:leading-[24px] text-center">
               {t('Social accounts', 'Comptes sociaux')}
             </h3>
@@ -352,10 +352,49 @@ export default function TarifsPage() {
                 +
               </button>
             </div>
+            {/* Desktop currency selector: positioned under the social accounts control. */}
+            <div className="hidden xl:block relative mt-[48px]">
+              {currencyOpen && (
+                <div className="fixed inset-0 z-10" onClick={() => setCurrencyOpen(false)} aria-hidden="true" />
+              )}
+              <div className="relative z-30">
+                <button
+                  type="button"
+                  onClick={() => setCurrencyOpen((o) => !o)}
+                  aria-haspopup="listbox"
+                  aria-expanded={currencyOpen}
+                  aria-label={t('Currency', 'Devise')}
+                  className="w-[134px] h-[51px] bg-white border border-black/50 rounded-[10px] flex items-center justify-center gap-[10px] font-medium text-[24px] leading-[28px] text-black"
+                >
+                  {currency}
+                  <svg width="24" height="24" className="transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M6 9L12 15L18 9" stroke="#171717" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {currencyOpen && (
+                  <ul role="listbox" className="absolute top-full left-0 mt-[6px] w-[134px] bg-white border border-black/50 rounded-[10px] overflow-hidden z-30 shadow-[0px_10px_40px_rgba(0,0,0,0.08)]">
+                    {CURRENCIES.map((c) => (
+                      <li key={c} role="option" aria-selected={c === currency}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCurrency(c);
+                            setCurrencyOpen(false);
+                          }}
+                          className="w-full h-[44px] font-medium text-[20px] leading-[28px] text-center text-black"
+                        >
+                          {c}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Cards: 1 col mobile → 2 cols tablet → 3 cols desktop, via CSS grid instead of flex-wrap */}
-          <div className="order-2 xl:order-1 flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[24px] md:gap-[32px] items-stretch">
+          {/* Cards: 1 col mobile → 2 cols tablet → 3 cols desktop, via CSS grid */}
+          <div className="order-2 xl:order-1 flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[24px] md:gap-[32px] items-stretch max-w-[1100px] xl:mx-auto">
             <PlanCard
               badge={t('FREE', 'Gratuit')}
               description={t(
@@ -408,36 +447,32 @@ export default function TarifsPage() {
               ctaHref={checkoutHref('ESSENTIEL')}
               soonLabel={t('Coming Soon', 'Bientôt disponible')}
             />
-            {/* Wrapped so it can span both columns and center itself in the 2-col tablet layout,
-                then fall back to a normal single column once we hit the 3-col desktop layout */}
-            <div className="sm:col-span-2 sm:max-w-[420px] sm:mx-auto xl:col-span-1 xl:max-w-none xl:mx-0 w-full">
-              <PlanCard
-                badge={t('ADVANCED', 'AVANCÉ')}
-                description={t(
-                  'For all individuals and starters who want to start with domaining.',
-                  'Pour tous les particuliers et débutants qui veulent se lancer.'
-                )}
-                price={planPrice(5000)}
-                perLabel={t('Per member, per Month', 'Par membre, par mois')}
-                features={[
-                  { label: t('Unlimited scheduled posts per channel', 'Publications programmées illimitées par canal'), state: 'check' },
-                  { label: t('Unlimited ideas', 'Idées illimitées'), state: 'check' },
-                  { label: t('250 tags', '250 étiquettes'), state: 'check' },
-                  { label: t('Unlimited drafts', 'Brouillons illimités'), state: 'check' },
-                  { label: t('Templates', 'Modèles'), state: 'check' },
-                  { label: t('Board view', 'Vue tableau'), state: 'check' },
-                  { label: t('1 user account', '1 compte utilisateur·rice'), state: 'check' },
-                  { label: t('Advanced analytics', 'Analyses avancées'), state: 'check' },
-                  { label: t('Community Inbox', 'Boîte de réception communauté'), state: 'check' },
-                  { label: t('Hashtag manager', 'Gestionnaire de hashtags'), state: 'check' },
-                  { label: t('First comment scheduling', 'Programmation du premier commentaire'), state: 'check' },
-                  { label: t('Top-tier customer support', 'Support client de premier ordre'), state: 'check' },
-                ]}
-                cta={t('Get Started', 'Commencer')}
-                ctaHref={checkoutHref('AVANCE')}
-                soonLabel={t('Coming Soon', 'Bientôt disponible')}
-              />
-            </div>
+            <PlanCard
+              badge={t('ADVANCED', 'AVANCÉ')}
+              description={t(
+                'For all individuals and starters who want to start with domaining.',
+                'Pour tous les particuliers et débutants qui veulent se lancer.'
+              )}
+              price={planPrice(5000)}
+              perLabel={t('Per member, per Month', 'Par membre, par mois')}
+              features={[
+                { label: t('Unlimited scheduled posts per channel', 'Publications programmées illimitées par canal'), state: 'check' },
+                { label: t('Unlimited ideas', 'Idées illimitées'), state: 'check' },
+                { label: t('250 tags', '250 étiquettes'), state: 'check' },
+                { label: t('Unlimited drafts', 'Brouillons illimités'), state: 'check' },
+                { label: t('Templates', 'Modèles'), state: 'check' },
+                { label: t('Board view', 'Vue tableau'), state: 'check' },
+                { label: t('1 user account', '1 compte utilisateur·rice'), state: 'check' },
+                { label: t('Advanced analytics', 'Analyses avancées'), state: 'check' },
+                { label: t('Community Inbox', 'Boîte de réception communauté'), state: 'check' },
+                { label: t('Hashtag manager', 'Gestionnaire de hashtags'), state: 'check' },
+                { label: t('First comment scheduling', 'Programmation du premier commentaire'), state: 'check' },
+                { label: t('Top-tier customer support', 'Support client de premier ordre'), state: 'check' },
+              ]}
+              cta={t('Get Started', 'Commencer')}
+              ctaHref={checkoutHref('AVANCE')}
+              soonLabel={t('Coming Soon', 'Bientôt disponible')}
+            />
           </div>
         </div>
       </section>
@@ -451,7 +486,7 @@ export default function TarifsPage() {
             </h2>
 
             {/* Plan name headers — full 3-column row, desktop only (lg+) */}
-            <div className="hidden lg:grid grid-cols-[minmax(280px,1fr)_300px_300px_300px] gap-x-[38px] items-end pb-[18px]">
+            <div className="hidden lg:grid grid-cols-[minmax(280px,1fr)_280px_280px_280px] gap-x-[30px] items-end pb-[18px]">
               <div />
               <div className="text-black font-medium text-[24px] leading-[29px] text-center">{t('Free', 'Gratuit')}</div>
               <div className="text-black font-medium text-[24px] leading-[29px] text-center">{t('Essential', 'Essentiel')}</div>
@@ -576,7 +611,7 @@ export default function TarifsPage() {
                 ) : (
                   <div
                     key={row.name}
-                    className="grid grid-cols-[minmax(0,1fr)_90px] sm:grid-cols-[minmax(0,1fr)_120px] md:grid-cols-[minmax(0,1fr)_150px] lg:grid-cols-[minmax(280px,1fr)_300px_300px_300px] gap-x-[10px] sm:gap-x-[16px] md:gap-x-[24px] lg:gap-x-[38px] items-center px-[12px] md:px-[20px] lg:px-[27px] py-[14px] md:py-[20px] lg:py-[28px] border-t border-black/10 first:border-t-0"
+                    className="grid grid-cols-[minmax(0,1fr)_90px] sm:grid-cols-[minmax(0,1fr)_120px] md:grid-cols-[minmax(0,1fr)_150px] lg:grid-cols-[minmax(280px,1fr)_280px_280px_280px] gap-x-[10px] sm:gap-x-[16px] md:gap-x-[24px] lg:gap-x-[30px] items-center px-[12px] md:px-[20px] lg:px-[27px] py-[14px] md:py-[20px] lg:py-[28px] border-t border-black/10 first:border-t-0"
                   >
                     <div className="pl-[8px] md:pl-[16px] lg:pl-[23px]">
                       <h4 className="text-black text-[16px] md:text-[22px] lg:text-[28px] leading-[20px] md:leading-[33px]">{row.name}</h4>
