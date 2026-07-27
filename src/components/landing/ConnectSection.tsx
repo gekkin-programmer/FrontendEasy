@@ -143,7 +143,7 @@ export default function ConnectSection() {
                 </g>
                 <defs>
                 <clipPath id="clip0_137_206">
-                <rect width="38" height="38" fill="white"/>
+                <rect width="60" height="60" fill="white"/>
                 </clipPath>
                 </defs>
              </svg>
