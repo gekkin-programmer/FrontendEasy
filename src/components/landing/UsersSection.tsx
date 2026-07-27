@@ -315,7 +315,7 @@ const profileTypes = [
 ];
 
   return (
-    <section className="w-full bg-white relative flex flex-col items-center pt-[60px] md:pt-[80px]">
+    <section className="w-full bg-white relative flex flex-col items-center pt-[32px] md:pt-[48px]">
       
       {/* 
         The section uses a relative wrapper that explicitly matches the Figma width structure 
@@ -325,12 +325,12 @@ const profileTypes = [
         
         {/* New Header Text - Aligned with global page max-width */}
         <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto px-6 sm:px-[52px] pt-[40px] md:pt-[60px] relative z-10 flex flex-col">
-          <span className="font-sans font-black text-[22px] sm:text-[28px] md:text-[32px] lg:text-[36px] leading-[1.25] text-[#000000]">
+          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             EazyPost
-          </span>
-          <h2 className="font-sans font-black text-[34px] sm:text-[44px] md:text-[56px] lg:text-[70px] leading-[1.15] lg:leading-[87px] text-[#174CD2] mt-[-2px] lg:mt-[-5px]">
-            {t("for all types of profiles", "pour tout types de profils")}
           </h2>
+          <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
+            {t("for all types of profiles", "pour tout types de profils")}
+          </h1>
         </div>
 
         {/* Main Container for Cards and Blue Bg (desktop absolute-position collage — 1280px+ only) */}
@@ -339,7 +339,7 @@ const profileTypes = [
           <div className="absolute top-0 md:top-[188px] bottom-0 md:bottom-auto left-0 w-full h-auto md:h-[673px] bg-[#174CD2] rounded-t-[50px] z-0 border-t border-black/15 box-border"></div>
 
           {/* Inner Constraints for Cards & Images */}
-          <div className="w-full max-w-[1438px] 3xl:max-w-[1900px] mx-auto relative h-full z-10">
+          <div className="w-full max-w-[1438px] 2xl:max-w-[1700px] 3xl:max-w-[1900px] mx-auto relative h-full z-10">
             
             {/* Desktop Audience Cards Group */}
             <div className="hidden md:block absolute inset-0 z-10">

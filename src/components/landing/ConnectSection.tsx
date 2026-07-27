@@ -8,16 +8,10 @@ export default function ConnectSection() {
       <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col relative px-[16px] md:px-[52px]">
 
         <div className="flex flex-col items-center justify-center w-full text-center mb-[60px]">
-          <h2
-            className="text-[#000000] text-[28px] md:text-[36px] 3xl:text-[44px] leading-[1.2] -mb-2"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             {t("Connect Your", "Connectez Vos")}
           </h2>
-          <h1
-            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[70px] 3xl:text-[88px] leading-[1.2]"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+          <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
             {t("Social networks", "Réseaux sociaux")}
           </h1>
         </div>

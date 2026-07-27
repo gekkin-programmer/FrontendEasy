@@ -44,23 +44,14 @@ const tabContent: Record<string, { title: string; description: string }> = {
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
         {/* Title Area */}
-        <div className="w-full flex flex-col gap-1 mb-6">
-          <h2
-            className="text-[#000000] text-[24px] md:text-[32px] 3xl:text-[40px] leading-tight"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+        <div className="w-full flex flex-col mb-6">
+          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             {t("Manage all your", "Pilotez tous vos")}
           </h2>
-          <h1
-            className="text-[#174CD2] text-[40px] md:text-[60px] xl:text-[60px] 2xl:text-[70px] 3xl:text-[88px] leading-tight -ml-[4px]"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+          <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
             {t("Social networks", "Reseaux sociaux")}
           </h1>
-          <h2
-            className="text-[#000000] text-[20px] md:text-[32px] 3xl:text-[40px] leading-tight tracking-[0.15em] md:tracking-[0.3em]"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             {t("in one place", "au meme endroit")}
           </h2>
         </div>

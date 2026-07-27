@@ -258,6 +258,19 @@
   background-size: 200% 100%;
 }
 
+/* Media-thumbnail skeleton — built from the card's own bg (#F7F6F3 / #0A0A2E)
+   instead of generic grey, so the loading state blends into the card rather
+   than reading as a foreign placeholder box. */
+.media-skeleton {
+  background: linear-gradient(90deg, #EFEDE8 25%, #FFFFFF 50%, #EFEDE8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.dark .media-skeleton {
+  background: linear-gradient(90deg, #0A0A2E 25%, #1B1B4D 50%, #0A0A2E 75%);
+  background-size: 200% 100%;
+}
+
 /* --- HERO SECTION BACKGROUND --- */
 /* Conteneur principal de l'arrière-plan */
 .final-hero-bg {

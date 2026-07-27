@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck } from 'lucide-react';
+import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck, Image as ImageIcon } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
@@ -12,6 +12,20 @@ import { formatDateTimeInTz } from '@/lib/timezone';
 import {
   FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon, TiktokIcon, YoutubeIcon,
 } from '@/components/icons/PlatformIcons';
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDraggable,
+  useDroppable,
+  DragOverlay,
+  closestCorners,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { NeuModal } from './DashboardUI';
 
 // --- NEU COMPONENTS ---
 
@@ -27,7 +41,7 @@ const NeuButton = ({ onClick, children, className, disabled, title }: any) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "p-2 rounded-[10px] bg-white dark:bg-white/5 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
+      "p-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent hover:border-[#D9D9D9] dark:hover:border-white/20 transition-all text-[#040028] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed",
       className
     )}
   >
@@ -92,6 +106,51 @@ const SkeletonCard = () => (
   </div>
 );
 
+// 🟢 MEDIA THUMBNAIL — shows a skeleton until the asset actually loads, mock or real.
+// Both the skeleton and the media itself are absolutely positioned inside a wrapper
+// that is purely a grid cell (sized by the fixed-size grid it lives in), so nothing
+// here ever contributes to document flow — the card's height can't shift as media loads.
+const MediaThumbnail = ({ pm }: { pm: PostMediaItem }) => {
+  const [loaded, setLoaded] = useState(false);
+  const isVideo = pm.media.mimeType?.startsWith('video/');
+  return (
+    <div className="relative w-full h-full overflow-hidden">
+      <Skeleton
+        className={cn(
+          "media-skeleton absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-500",
+          loaded ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      >
+        <ImageIcon size={18} className="text-black/10 dark:text-white/15" strokeWidth={1.5} />
+      </Skeleton>
+      {isVideo ? (
+        <video
+          src={pm.media.url}
+          className={cn("absolute inset-0 w-full h-full object-cover transition-opacity duration-500", loaded ? "opacity-100" : "opacity-0")}
+          muted
+          playsInline
+          onLoadedData={() => setLoaded(true)}
+        />
+      ) : (
+        <img
+          src={pm.media.url}
+          alt={pm.media.filename}
+          className={cn("absolute inset-0 w-full h-full object-cover transition-opacity duration-500", loaded ? "opacity-100" : "opacity-0")}
+          onLoad={() => setLoaded(true)}
+        />
+      )}
+    </div>
+  );
+};
+
+// 🟢 QUEUE SORT — soonest/most recent date first, undated items last
+const byScheduledDateAsc = (a: Post, b: Post) => {
+  if (!a.scheduledFor && !b.scheduledFor) return 0;
+  if (!a.scheduledFor) return 1;
+  if (!b.scheduledFor) return -1;
+  return new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime();
+};
+
 // 🟢 PLATFORM ICON HELPER
 const PlatformIcon = ({ platform }: { platform?: string }) => {
   switch (platform?.toLowerCase()) {
@@ -107,7 +166,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 };
 
 // 🟢 SINGLE POST CARD COMPONENT
-const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, onApprove, isQueued, draggable, onDragStart, canApprove, workspaceTimezone }: any) => {
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, onApprove, isQueued, draggable, dragHandleProps, cardRef, isDraggingActive, canApprove, workspaceTimezone }: any) => {
   const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
@@ -139,20 +198,21 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
 
   return (
     <motion.div
+      ref={cardRef}
+      {...(draggable ? dragHandleProps : {})}
       layout
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
-      draggable={draggable}
-      onDragStart={onDragStart as any}
       className={cn(
-        "group relative bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all rounded-[16px]",
-        draggable ? "cursor-grab active:cursor-grabbing" : ""
+        "group relative bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all duration-150 rounded-[16px]",
+        draggable ? "cursor-grab active:cursor-grabbing touch-none" : "",
+        isDraggingActive ? "!opacity-40 !border-dashed !border-black/10 dark:!border-white/10 !shadow-none" : ""
       )}
     >
       {draggable && (
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8E8E8E] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8E8E8E] opacity-0 group-hover:opacity-100 transition-opacity">
           <GripVertical size={16} />
         </div>
       )}
@@ -189,11 +249,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
               post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
             )}>
               {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
-                pm.media.mimeType?.startsWith('video/') ? (
-                  <video key={i} src={pm.media.url} className="w-full h-full object-cover" muted playsInline />
-                ) : (
-                  <img key={i} src={pm.media.url} alt={pm.media.filename} className="w-full h-full object-cover" />
-                )
+                <MediaThumbnail key={i} pm={pm} />
               ))}
             </div>
             <div className="space-y-0.5 max-w-[128px]">
@@ -299,7 +355,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
           <button
             onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
             title={t('Delete post', 'Supprimer le post')}
-            className="p-2 rounded-[10px] bg-white dark:bg-white/5 text-[#040028] dark:text-white hover:bg-red-500 hover:text-white transition-all"
+            className="p-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent text-[#040028] dark:text-white hover:text-red-500 hover:border-red-500 transition-all"
           >
             <Trash2 size={14} />
           </button>
@@ -309,15 +365,194 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   );
 };
 
+// 🟢 DRAGGABLE WRAPPER — gives a card a floating, GitHub-style drag handle
+const DraggableCard = ({ id, children }: { id: string; children: (drag: { cardRef: (el: HTMLElement | null) => void; dragHandleProps: any; isDraggingActive: boolean }) => React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <>
+      {children({
+        cardRef: setNodeRef,
+        dragHandleProps: { ...attributes, ...listeners },
+        isDraggingActive: isDragging,
+      })}
+    </>
+  );
+};
+
+// 🟢 SORTABLE WRAPPER — same floating drag handle, but also registers the card as a
+// drop target so hovering over another card (not just the column) resolves to it,
+// which is what lets us compute an up/down reorder position. Visual reflow on reorder
+// is handled by PostCard's own framer-motion `layout` prop, not dnd-kit's transform.
+const SortableCard = ({ id, children }: { id: string; children: (drag: { cardRef: (el: HTMLElement | null) => void; dragHandleProps: any; isDraggingActive: boolean }) => React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, isDragging } = useSortable({ id });
+  return (
+    <>
+      {children({
+        cardRef: setNodeRef,
+        dragHandleProps: { ...attributes, ...listeners },
+        isDraggingActive: isDragging,
+      })}
+    </>
+  );
+};
+
+// 🟢 DROPPABLE COLUMN — accepts a card dragged in from the other column
+const DroppableList = ({ id, children }: { id: string; children: React.ReactNode }) => {
+  const { setNodeRef } = useDroppable({ id });
+  return (
+    <div ref={setNodeRef} className="space-y-4 min-h-[200px] z-10">
+      {children}
+    </div>
+  );
+};
+
+const REVERSIBLE_STATUSES = new Set(['SCHEDULED', 'PENDING_APPROVAL', 'REVIEW', 'FAILED']);
+const isReversibleStatus = (status: string) => REVERSIBLE_STATUSES.has(status);
+const oneHourFromNow = () => Date.now() + 3600000;
+
+// 🟢 DRAFTS MANUAL ORDER — user-dragged position within the Drafts column;
+// untouched/new items keep their natural (fetched) order and sort to the end
+const sortByManualOrder = (list: Post[], order: string[]) => {
+  if (order.length === 0) return list;
+  const rank = new Map(order.map((id, i) => [id, i]));
+  return [...list].sort((a, b) => {
+    const ra = rank.has(a.id) ? rank.get(a.id)! : Number.MAX_SAFE_INTEGER;
+    const rb = rank.has(b.id) ? rank.get(b.id)! : Number.MAX_SAFE_INTEGER;
+    return ra - rb;
+  });
+};
+
 export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoading = false, canApprove = false, workspaceTimezone = 'UTC' }: PostFeedProps) {
   const { t } = useLanguage();
   const toast = useAppToast();
   const queryClient = useQueryClient();
-  const drafts = posts.filter(p => p.status === 'DRAFT');
-  const queued = posts.filter(p => p.status !== 'DRAFT');
+  const [optimisticOverrides, setOptimisticOverrides] = useState<Record<string, Partial<Post>>>({});
+  const [manualDraftOrder, setManualDraftOrder] = useState<string[]>([]);
+  const displayPosts = posts.map(p => (optimisticOverrides[p.id] ? { ...p, ...optimisticOverrides[p.id] } : p));
+  const drafts = sortByManualOrder(displayPosts.filter(p => p.status === 'DRAFT'), manualDraftOrder);
+  const queued = displayPosts.filter(p => p.status !== 'DRAFT').sort(byScheduledDateAsc);
+  const [dismissedMockIds, setDismissedMockIds] = useState<Set<string>>(new Set());
+  const dismissMock = (id: string) => setDismissedMockIds(prev => new Set(prev).add(id));
+  // Single override map for every mock-card state change (drag to queue/drafts, cancel
+  // schedule, publish now) — replaces what used to be three separate id Sets.
+  const [mockStatusOverrides, setMockStatusOverrides] = useState<Record<string, Post['status']>>({});
+  const setMockStatus = (id: string, status: Post['status']) => setMockStatusOverrides(prev => ({ ...prev, [id]: status }));
+  const moveMockToDrafts = (id: string) => setMockStatus(id, 'DRAFT');
+  const moveMockToQueue = (id: string) => setMockStatus(id, 'SCHEDULED');
+  const publishMockNow = (id: string) => setMockStatus(id, 'PUBLISHED');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const deletePost = async (postId: string) => {
-    if (!confirm(t("Delete this post?", "Supprimer cette publication ?"))) return;
+  const mockDraftDefs: Post[] = [
+    {
+      id: 'mock-draft-1',
+      content: t('Excited to share our latest product update! Swipe to see what’s new. 🚀', 'Ravis de partager notre dernière mise à jour produit ! Swipez pour découvrir les nouveautés. 🚀'),
+      status: 'DRAFT',
+      socialAccounts: [{ socialAccount: { platform: 'instagram', username: '@yourbrand' } }],
+    },
+    {
+      id: 'mock-draft-2',
+      content: t('5 tips to grow your audience this month — thread below.', '5 astuces pour développer votre audience ce mois-ci — voir le fil.'),
+      status: 'DRAFT',
+      socialAccounts: [{ socialAccount: { platform: 'twitter', username: '@yourbrand' } }],
+    },
+    {
+      id: 'mock-draft-3',
+      content: t('New tutorial dropping this Friday — subscribe so you don’t miss it!', 'Nouveau tuto ce vendredi — abonnez-vous pour ne rien manquer !'),
+      status: 'DRAFT',
+      socialAccounts: [{ socialAccount: { platform: 'youtube', username: '@yourbrand' } }],
+    },
+    {
+      id: 'mock-draft-4',
+      content: t('We just hit a big milestone with the community — thank you all! 🎉', 'On vient de franchir une belle étape avec la communauté — merci à tous ! 🎉'),
+      status: 'DRAFT',
+      socialAccounts: [{ socialAccount: { platform: 'linkedin', username: '@yourbrand' } }],
+    },
+    {
+      id: 'mock-draft-5',
+      content: t('Quick poll: which feature should we build next?', 'Petit sondage : quelle fonctionnalité devrait-on développer ensuite ?'),
+      status: 'DRAFT',
+      socialAccounts: [
+        { socialAccount: { platform: 'facebook', username: '@yourbrand' } },
+        { socialAccount: { platform: 'instagram', username: '@yourbrand' } },
+      ],
+    },
+    {
+      id: 'mock-draft-6',
+      content: t('Sneak peek from this week’s shoot — full post coming soon.', 'Petit aperçu du tournage de la semaine — le post complet arrive bientôt.'),
+      status: 'DRAFT',
+      scheduledFor: '2026-07-29T14:00:00.000Z',
+      socialAccounts: [{ socialAccount: { platform: 'instagram', username: '@yourbrand' } }],
+      media: [{ id: 'mock-media-draft-1', order: 0, media: { id: 'mock-media-draft-1', url: '/assets/brutalism5.jpg', filename: 'sneak-peek.jpg', mimeType: 'image/jpeg' } }],
+    },
+  ];
+
+  const mockQueuedDefs: Post[] = [
+    {
+      id: 'mock-queued-1',
+      content: t('Behind the scenes of our latest photoshoot 📸', 'Les coulisses de notre dernier shooting photo 📸'),
+      status: 'SCHEDULED',
+      scheduledFor: '2026-07-28T10:00:00.000Z',
+      socialAccounts: [{ socialAccount: { platform: 'facebook', username: 'Your Brand' } }],
+    },
+    {
+      id: 'mock-queued-2',
+      content: t('Thank you to everyone who joined our live session today!', 'Merci à tous ceux qui ont rejoint notre session en direct aujourd’hui !'),
+      status: 'PUBLISHED',
+      scheduledFor: '2026-07-27T09:00:00.000Z',
+      socialAccounts: [{ socialAccount: { platform: 'linkedin', username: 'Your Brand' } }],
+    },
+    {
+      id: 'mock-queued-3',
+      content: t('New collection is live — check it out! ✨', 'La nouvelle collection est en ligne — venez voir ! ✨'),
+      status: 'SCHEDULED',
+      scheduledFor: '2026-07-29T16:00:00.000Z',
+      socialAccounts: [{ socialAccount: { platform: 'instagram', username: 'Your Brand' } }],
+      media: [{ id: 'mock-media-queued-1', order: 0, media: { id: 'mock-media-queued-1', url: '/assets/brutalism5.jpg', filename: 'new-collection.jpg', mimeType: 'image/jpeg' } }],
+    },
+  ];
+
+  const MOCK_SCHEDULE_OFFSET_HOURS: Record<string, number> = {
+    'mock-draft-1': 2,
+    'mock-draft-2': 5,
+    'mock-draft-3': 26,
+    'mock-draft-4': 30,
+    'mock-draft-5': 50,
+    'mock-draft-6': 55,
+  };
+
+  const MOCK_PUBLISH_FALLBACK_DATE = '2026-07-27T12:00:00.000Z';
+
+  const applyMockOverride = (post: Post): Post => {
+    const overrideStatus = mockStatusOverrides[post.id];
+    if (!overrideStatus) return post;
+    if (overrideStatus === 'DRAFT') return { ...post, status: 'DRAFT', scheduledFor: undefined };
+    if (overrideStatus === 'SCHEDULED') {
+      return {
+        ...post,
+        status: 'SCHEDULED',
+        scheduledFor: post.scheduledFor ?? new Date(Date.parse('2026-07-28T10:00:00.000Z') + (MOCK_SCHEDULE_OFFSET_HOURS[post.id] ?? 12) * 3600000).toISOString(),
+      };
+    }
+    if (overrideStatus === 'PUBLISHED') {
+      return { ...post, status: 'PUBLISHED', scheduledFor: post.scheduledFor ?? MOCK_PUBLISH_FALLBACK_DATE };
+    }
+    return { ...post, status: overrideStatus };
+  };
+
+  const mockAllEffective: Post[] = [...mockDraftDefs, ...mockQueuedDefs]
+    .filter(post => !dismissedMockIds.has(post.id))
+    .map(applyMockOverride);
+
+  const mockDrafts: Post[] = sortByManualOrder(mockAllEffective.filter(p => p.status === 'DRAFT'), manualDraftOrder);
+  const mockQueued: Post[] = mockAllEffective.filter(p => p.status !== 'DRAFT').sort(byScheduledDateAsc);
+
+  const activeDraftIds = (drafts.length > 0 ? drafts : mockDrafts).map(p => p.id);
+
+  const requestDelete = (postId: string) => setConfirmDeleteId(postId);
+  const confirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    const postId = confirmDeleteId;
+    setConfirmDeleteId(null);
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
         toast.success(t("Post deleted", "Publication supprimée"));
@@ -329,11 +564,18 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   };
 
   const cancelSchedule = async (postId: string) => {
+    setOptimisticOverrides(prev => ({ ...prev, [postId]: { status: 'DRAFT', scheduledFor: undefined } }));
     try {
         await api.post(`/posts/${postId}/cancel-schedule?workspaceId=${workspaceId}`, {});
         toast.success(t("Schedule cancelled", "Planification annulée"));
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] }),
+          queryClient.invalidateQueries({ queryKey: ['calendar'] }),
+        ]);
+        clearOptimisticOverride(postId);
     } catch (e) {
         toast.error(t("Cancellation failed", "Échec de l'annulation"));
+        clearOptimisticOverride(postId);
     }
   };
 
@@ -343,6 +585,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       await api.post(`/posts/${postId}/repost?workspaceId=${workspaceId}`, {});
       toast.dismiss();
       toast.success(t("Reposted!", "Republié !"));
+      queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['calendar'] });
     } catch (e) {
       toast.dismiss();
       toast.error(t("Repost failed", "Échec de la republication"));
@@ -361,48 +605,116 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   };
 
   const publishPost = async (postId: string) => {
+    setOptimisticOverrides(prev => ({ ...prev, [postId]: { status: 'PUBLISHED' } }));
     try {
         toast.loading(t("Publishing...", "Publication en cours..."));
         await api.post(`/posts/${postId}/publish?workspaceId=${workspaceId}`, {});
         toast.dismiss();
         toast.success(t("Published successfully", "Publié avec succès"));
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] }),
+          queryClient.invalidateQueries({ queryKey: ['calendar'] }),
+        ]);
+        clearOptimisticOverride(postId);
     } catch (e) {
         toast.dismiss();
         toast.error(t("Publish failed", "Échec de la publication"));
+        clearOptimisticOverride(postId);
     }
   };
 
-  const updateStatus = async (postId: string, status: string, scheduledFor: number) => {
+  const clearOptimisticOverride = (postId: string) => {
+    setOptimisticOverrides(prev => {
+        if (!(postId in prev)) return prev;
+        const next = { ...prev };
+        delete next[postId];
+        return next;
+    });
+  };
+
+  const updateStatus = async (postId: string, status: Post['status'], scheduledFor: number) => {
+    const scheduledForIso = new Date(scheduledFor).toISOString();
+    setOptimisticOverrides(prev => ({ ...prev, [postId]: { status, scheduledFor: scheduledForIso } }));
     try {
         await api.patch(`/posts/${postId}`, {
             status,
-            scheduledFor: new Date(scheduledFor).toISOString(),
+            scheduledFor: scheduledForIso,
             workspaceId
         });
         toast.success(t("Post scheduled", "Publication planifiée"));
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] }),
+          queryClient.invalidateQueries({ queryKey: ['calendar'] }),
+        ]);
+        clearOptimisticOverride(postId);
     } catch (e) {
         toast.error(t("Update failed", "Échec de la mise à jour"));
+        clearOptimisticOverride(postId);
     }
   };
 
-  // --- DRAG LOGIC ---
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    e.dataTransfer.setData("postId", id);
-    e.dataTransfer.effectAllowed = "move";
+  // --- DRAG LOGIC (dnd-kit) ---
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
+  const activeDragPost = activeDragId
+    ? [...drafts, ...mockDrafts, ...queued, ...mockQueued].find(p => p.id === activeDragId) ?? null
+    : null;
+
+  const handleDndDragStart = (event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string);
   };
 
-  const handleDropToQueue = async (e: React.DragEvent) => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("postId");
-    await updateStatus(id, 'SCHEDULED', Date.now() + 3600000);
-  };
+  const handleDndDragEnd = (event: DragEndEvent) => {
+    setActiveDragId(null);
+    const { active, over } = event;
+    if (!over) return;
+    const id = active.id as string;
+    const targetId = over.id as string;
+    if (id === targetId) return;
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    // Drafts cards are individually droppable (useSortable, for reordering), but Queue
+    // cards are only draggable — so `over` can resolve to a specific draft card's id
+    // (not just the 'drafts-droppable' container) when dropping a queue card onto one.
+    // Check list membership instead of the literal container id so both directions
+    // work regardless of whether the drop lands on empty space or on another card.
+    const isSourceInDrafts = drafts.some(p => p.id === id) || mockDrafts.some(p => p.id === id);
+    const isSourceInQueue = queued.some(p => p.id === id) || mockQueued.some(p => p.id === id);
+    const droppedOnQueue = targetId === 'queue-droppable' || queued.some(p => p.id === targetId) || mockQueued.some(p => p.id === targetId);
+    const droppedOnDrafts = targetId === 'drafts-droppable' || drafts.some(p => p.id === targetId) || mockDrafts.some(p => p.id === targetId);
+
+    if (isSourceInDrafts && droppedOnQueue) {
+      if (id.startsWith('mock-')) {
+        moveMockToQueue(id);
+        return;
+      }
+      updateStatus(id, 'SCHEDULED', oneHourFromNow());
+      return;
+    }
+
+    if (isSourceInQueue && droppedOnDrafts) {
+      if (id.startsWith('mock-')) {
+        moveMockToDrafts(id);
+        return;
+      }
+      cancelSchedule(id);
+      return;
+    }
+
+    // Otherwise it's a reorder within Drafts (dropped on another draft card)
+    if (isSourceInDrafts && droppedOnDrafts) {
+      const oldIndex = activeDraftIds.indexOf(id);
+      const newIndex = activeDraftIds.indexOf(targetId);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setManualDraftOrder(arrayMove(activeDraftIds, oldIndex, newIndex));
+      }
+    }
   };
 
   return (
+    <>
+    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDndDragStart} onDragEnd={handleDndDragEnd}>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
       <div className="flex flex-col gap-4">
         <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
@@ -423,67 +735,200 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
             )}
         </div>
 
-        <div className="space-y-4 min-h-[200px]">
+        <DroppableList id="drafts-droppable">
+          <SortableContext items={activeDraftIds} strategy={verticalListSortingStrategy}>
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && drafts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onDelete={() => deletePost(post.id)}
-                onEdit={() => onEdit?.(post)}
-                onPublishNow={() => publishPost(post.id)}
-                onRetry={() => publishPost(post.id)}
-                onRepost={() => repostPost(post.id)}
-                onApprove={() => approvePost(post.id)}
-                canApprove={canApprove}
-                workspaceTimezone={workspaceTimezone}
-                draggable={true}
-                onDragStart={(e: any) => handleDragStart(e, post.id)}
-              />
+              <SortableCard key={post.id} id={post.id}>
+                {(drag) => (
+                  <PostCard
+                    post={post}
+                    onDelete={() => requestDelete(post.id)}
+                    onEdit={() => onEdit?.(post)}
+                    onPublishNow={() => publishPost(post.id)}
+                    onRetry={() => publishPost(post.id)}
+                    onRepost={() => repostPost(post.id)}
+                    onApprove={() => approvePost(post.id)}
+                    canApprove={canApprove}
+                    workspaceTimezone={workspaceTimezone}
+                    draggable={true}
+                    dragHandleProps={drag.dragHandleProps}
+                    cardRef={drag.cardRef}
+                    isDraggingActive={drag.isDraggingActive}
+                  />
+                )}
+              </SortableCard>
             ))}
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
-            <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
-              {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
-            </div>
+            posts.length === 0 && mockDrafts.length > 0 ? (
+              <div className="relative">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[10px] font-semibold text-[#8E8E8E] px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
+                  {t("Example — create your first draft", "Exemple — créez votre premier brouillon")}
+                </div>
+                <div className="space-y-4 pt-3">
+                  <AnimatePresence mode="popLayout">
+                    {mockDrafts.map((post) => (
+                      <SortableCard key={post.id} id={post.id}>
+                        {(drag) => (
+                          <PostCard
+                            post={post}
+                            onDelete={() => dismissMock(post.id)}
+                            onEdit={() => onEdit?.(post)}
+                            onPublishNow={() => publishMockNow(post.id)}
+                            onRetry={() => publishMockNow(post.id)}
+                            workspaceTimezone={workspaceTimezone}
+                            draggable={true}
+                            dragHandleProps={drag.dragHandleProps}
+                            cardRef={drag.cardRef}
+                            isDraggingActive={drag.isDraggingActive}
+                          />
+                        )}
+                      </SortableCard>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+                {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
+              </div>
+            )
           )}
-        </div>
+          </SortableContext>
+        </DroppableList>
       </div>
 
-      <div onDrop={handleDropToQueue} onDragOver={handleDragOver} className="relative group flex flex-col gap-4">
+      <div className="relative group flex flex-col gap-4">
         <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
             </h3>
         </div>
-        <div className="space-y-4 min-h-[200px] z-10">
+        <DroppableList id="queue-droppable">
           {isLoading && [0,1,2].map(i => <SkeletonCard key={i} />)}
           <AnimatePresence mode="popLayout">
             {!isLoading && queued.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onDelete={() => deletePost(post.id)}
-                onEdit={() => onEdit?.(post)}
-                onCancelSchedule={() => cancelSchedule(post.id)}
-                onPublishNow={() => publishPost(post.id)}
-                onRetry={() => publishPost(post.id)}
-                onRepost={() => repostPost(post.id)}
-                onApprove={() => approvePost(post.id)}
-                canApprove={canApprove}
-                workspaceTimezone={workspaceTimezone}
-                isQueued
-              />
+              isReversibleStatus(post.status) ? (
+                <DraggableCard key={post.id} id={post.id}>
+                  {(drag) => (
+                    <PostCard
+                      post={post}
+                      onDelete={() => requestDelete(post.id)}
+                      onEdit={() => onEdit?.(post)}
+                      onCancelSchedule={() => cancelSchedule(post.id)}
+                      onPublishNow={() => publishPost(post.id)}
+                      onRetry={() => publishPost(post.id)}
+                      onRepost={() => repostPost(post.id)}
+                      onApprove={() => approvePost(post.id)}
+                      canApprove={canApprove}
+                      workspaceTimezone={workspaceTimezone}
+                      isQueued
+                      draggable={true}
+                      dragHandleProps={drag.dragHandleProps}
+                      cardRef={drag.cardRef}
+                      isDraggingActive={drag.isDraggingActive}
+                    />
+                  )}
+                </DraggableCard>
+              ) : (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onDelete={() => requestDelete(post.id)}
+                  onEdit={() => onEdit?.(post)}
+                  onCancelSchedule={() => cancelSchedule(post.id)}
+                  onPublishNow={() => publishPost(post.id)}
+                  onRetry={() => publishPost(post.id)}
+                  onRepost={() => repostPost(post.id)}
+                  onApprove={() => approvePost(post.id)}
+                  canApprove={canApprove}
+                  workspaceTimezone={workspaceTimezone}
+                  isQueued
+                />
+              )
             ))}
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
-             <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
-               {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
-             </div>
+            posts.length === 0 && mockQueued.length > 0 ? (
+              <div className="relative">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[10px] font-semibold text-[#8E8E8E] px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
+                  {t("Example — drag a draft here to schedule", "Exemple — glissez un brouillon ici pour planifier")}
+                </div>
+                <div className="space-y-4 pt-3">
+                  <AnimatePresence mode="popLayout">
+                    {mockQueued.map((post) => (
+                      isReversibleStatus(post.status) ? (
+                        <DraggableCard key={post.id} id={post.id}>
+                          {(drag) => (
+                            <PostCard
+                              post={post}
+                              onDelete={() => dismissMock(post.id)}
+                              onEdit={() => onEdit?.(post)}
+                              onCancelSchedule={() => moveMockToDrafts(post.id)}
+                              onPublishNow={() => publishMockNow(post.id)}
+                              onRetry={() => publishMockNow(post.id)}
+                              isQueued
+                              workspaceTimezone={workspaceTimezone}
+                              draggable={true}
+                              dragHandleProps={drag.dragHandleProps}
+                              cardRef={drag.cardRef}
+                              isDraggingActive={drag.isDraggingActive}
+                            />
+                          )}
+                        </DraggableCard>
+                      ) : (
+                        <PostCard key={post.id} post={post} onDelete={() => dismissMock(post.id)} onEdit={() => onEdit?.(post)} isQueued workspaceTimezone={workspaceTimezone} />
+                      )
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+                {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
+              </div>
+            )
           )}
-        </div>
+        </DroppableList>
       </div>
     </div>
+    <DragOverlay dropAnimation={null}>
+      {activeDragPost && (
+        <motion.div
+          initial={{ scale: 1, rotate: 0 }}
+          animate={{ scale: 1.03, rotate: 1.5 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+          className="shadow-2xl cursor-grabbing"
+        >
+          <PostCard post={activeDragPost} workspaceTimezone={workspaceTimezone} onDelete={() => {}} />
+        </motion.div>
+      )}
+    </DragOverlay>
+    </DndContext>
+    <NeuModal
+      isOpen={!!confirmDeleteId}
+      onClose={() => setConfirmDeleteId(null)}
+      title={t('Delete post?', 'Supprimer la publication ?')}
+    >
+      <div className="space-y-4">
+        <p className="text-sm text-[#8E8E8E]">
+          {t('This action cannot be undone.', 'Cette action est irréversible.')}
+        </p>
+        <div className="flex justify-end gap-3">
+          <NeuButton onClick={() => setConfirmDeleteId(null)}>
+            {t('Cancel', 'Annuler')}
+          </NeuButton>
+          <NeuButton
+            onClick={confirmDelete}
+            className="!bg-red-500 !text-white hover:!bg-red-600 !border-red-500"
+          >
+            {t('Delete', 'Supprimer')}
+          </NeuButton>
+        </div>
+      </div>
+    </NeuModal>
+    </>
   );
 }
