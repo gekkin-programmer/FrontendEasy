@@ -75,14 +75,11 @@ export default function FaqSection() {
       <div className="w-full max-w-[1440px] 3xl:max-w-[1900px] mx-auto flex flex-col lg:flex-row items-start justify-between px-[20px] md:px-[52px] xl:px-[157px] gap-[40px] lg:gap-[60px]">
 
         {/* Left Side: Text */}
-        <div className="flex flex-col w-full lg:w-[35%] gap-2 lg:sticky lg:top-32">
-          <h2 className="text-[#000000] text-[28px] md:text-[32px] xl:text-[36px] 3xl:text-[44px] leading-tight font-normal" style={{ fontFamily: "'Rubik One', sans-serif" }}>
+        <div className="flex flex-col w-full lg:w-[35%] lg:sticky lg:top-32">
+          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             {t("Frequently Asked", "Foire Aux")}
           </h2>
-          <h1
-            className="text-[#174CD2] text-[40px] md:text-[50px] xl:text-[70px] 3xl:text-[88px] leading-tight font-black"
-            style={{ fontFamily: "'Rubik One', sans-serif" }}
-          >
+          <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
             {t("Questions", "Questions")}
           </h1>
         </div>

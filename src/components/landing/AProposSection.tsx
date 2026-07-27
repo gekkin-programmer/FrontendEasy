@@ -9,16 +9,10 @@ export default function AProposSection() {
     <section className="w-full bg-white flex flex-col items-center pt-12 px-4 relative">
       {/* Title */}
       <div className="w-full flex flex-col items-center text-center mb-12">
-        <h2
-          className="text-black text-[24px] md:text-[36px] font-normal"
-          style={{ fontFamily: "'Rubik One', sans-serif" }}
-        >
+        <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
           {t("About Us Heading", "A propos de")}
         </h2>
-        <h1
-          className="text-[#174CD2] text-4xl md:text-6xl lg:text-7xl 3xl:text-8xl font-bold"
-          style={{ fontFamily: "'Rubik One', sans-serif" }}
-        >
+        <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
           {t("Us", "Nous")}
         </h1>
       </div>

@@ -438,7 +438,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
   // ➤ LOGIC: SUBMIT
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     setSubmitAttempted(true);
-    if (!text && mediaPreviews.length === 0) return;
+    if (!text && mediaPreviews.length === 0) {
+      toast.error(t('Write something or add media before publishing.', 'Ajoutez du texte ou un média avant de publier.'));
+      return;
+    }
     if (isPreviewActive && onPreviewToggle) onPreviewToggle();
 
     // YouTube title validation
@@ -457,6 +460,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
 
     // Past Date Validation
     if (date && date < new Date()) {
+        toast.error(t('The selected date is in the past.', 'La date sélectionnée est dans le passé.'));
         return;
     }
 
@@ -469,7 +473,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       : selectedAccountIds;
 
     const targets = postAccountIds.length > 0 ? postAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
-    if (targets.length === 0) return;
+    if (targets.length === 0) {
+      toast.error(t('Connect or select at least one social account before publishing.', 'Connectez ou sélectionnez au moins un compte social avant de publier.'));
+      return;
+    }
 
     setIsSubmitting(true);
     try {
