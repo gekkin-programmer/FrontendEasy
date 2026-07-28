@@ -37,7 +37,7 @@ export default function CtaSection() {
         
         {/* Paragraph */}
         <p className="text-white/80 text-[14px] max-[375px]:text-[12px] max-[540px]:text-[12px] max-[320px]:text-[11px] md:text-[16px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[26px] lg:leading-[26px] xl:leading-[28px] 3xl:leading-[36px] font-['Rubik'] max-w-[600px] 3xl:max-w-[780px] mb-[32px] max-[375px]:mb-[24px] max-[540px]:mb-[16px] md:mb-[32px] lg:mb-[24px] xl:mb-[40px] 3xl:mb-[56px]">
-          {t('Boost your online presence with EazyPost. Centralize, schedule and analyze your content across all your networks in just a few clicks.', 'Boostez votre présence en ligne avec EazyPost. Centralisez, planifiez et analysez vos contenus sur tous vos réseaux en quelques clics.')}
+          {t('Boost your online presence with Eazlypost. Centralize, schedule and analyze your content across all your networks in just a few clicks.', 'Boostez votre présence en ligne avec Eazlypost. Centralisez, planifiez et analysez vos contenus sur tous vos réseaux en quelques clics.')}
         </p>
         
         {/* Button Wrapper */}

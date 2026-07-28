@@ -26,8 +26,8 @@ export default function AboutPage() {
       name: 'Christian Mbouyemen',
       role: t('CEO — Best-Corp', 'PDG — Best-Corp'),
       bio: t(
-        'Serial entrepreneur and business strategist driving Best-Corp\'s vision across Central Africa. Christian turns bold market opportunities into structured, scalable ventures — EazyPost being his latest bet on the African creator economy.',
-        "Entrepreneur en série et stratège d'affaires, Christian pilote la vision de Best-Corp en Afrique Centrale. Il transforme les opportunités de marché en entreprises structurées et scalables — EazyPost étant son dernier pari sur l'économie créative africaine."
+        'Serial entrepreneur and business strategist driving Best-Corp\'s vision across Central Africa. Christian turns bold market opportunities into structured, scalable ventures — Eazlypost being his latest bet on the African creator economy.',
+        "Entrepreneur en série et stratège d'affaires, Christian pilote la vision de Best-Corp en Afrique Centrale. Il transforme les opportunités de marché en entreprises structurées et scalables — Eazlypost étant son dernier pari sur l'économie créative africaine."
       ),
       image: 'https://i.pravatar.cc/300?img=11',
       accent: 'bg-[#174CD2]',
@@ -37,8 +37,8 @@ export default function AboutPage() {
       name: 'Pene Nkouam Bryan',
       role: t('Lead Engineer & Co-Founder', 'Ingénieur Principal & Co-Fondateur'),
       bio: t(
-        'Full-stack architect and the technical backbone of EazyPost. Bryan designs and ships the systems that power scheduling, AI generation, and multi-platform publishing — obsessed with building things that actually work at scale.',
-        "Architecte full-stack et pilier technique d'EazyPost. Bryan conçoit et livre les systèmes qui alimentent la planification, la génération IA et la publication multi-plateforme — obsédé par la construction de choses qui fonctionnent vraiment à l'échelle."
+        'Full-stack architect and the technical backbone of Eazlypost. Bryan designs and ships the systems that power scheduling, AI generation, and multi-platform publishing — obsessed with building things that actually work at scale.',
+        "Architecte full-stack et pilier technique d'Eazlypost. Bryan conçoit et livre les systèmes qui alimentent la planification, la génération IA et la publication multi-plateforme — obsédé par la construction de choses qui fonctionnent vraiment à l'échelle."
       ),
       image: 'https://i.pravatar.cc/300?img=32',
       accent: 'bg-[#174CD2]',
@@ -110,7 +110,7 @@ export default function AboutPage() {
         <div className="absolute bottom-6 right-10 w-16 h-16 bg-[#174CD2] border-4 border-black dark:border-white/20 -rotate-6 hidden md:block" />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="inline-block bg-black dark:bg-white text-white dark:text-black px-4 py-1 text-xs font-black uppercase tracking-widest mb-6">
-            {t('THE TEAM BEHIND EASYPOST', "L'ÉQUIPE DERRIÈRE EASYPOST")}
+            {t('THE TEAM BEHIND EAZLYPOST', "L'ÉQUIPE DERRIÈRE EAZLYPOST")}
           </div>
           <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-black dark:text-white uppercase leading-[0.9] tracking-tighter mb-6">
             {t('MEET THE', 'RENCONTREZ LES')}<br />
@@ -328,7 +328,7 @@ export default function AboutPage() {
 
                       <div>
                         <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-zinc-500 mb-2">
-                          {t('Why EasyPost?', 'Pourquoi EasyPost ?')}
+                          {t('Why Eazlypost?', 'Pourquoi Eazlypost ?')}
                         </label>
                         <textarea
                           rows={3}

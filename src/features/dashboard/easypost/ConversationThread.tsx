@@ -92,7 +92,7 @@ const MOCK_CONVERSATION: Conversation = {
       id: 5,
       sender: 'team',
       author: { name: 'Jordan Lee', avatar: '👩‍💻' },
-      content: "Adding to Alex's message - here's the link to our bulk upload guide: docs.easypost.com/bulk-upload. Let us know if you have any questions!",
+      content: "Adding to Alex's message - here's the link to our bulk upload guide: docs.eazlypost.com/bulk-upload. Let us know if you have any questions!",
       timestamp: '55m ago',
       status: 'delivered',
       isInternal: false,
@@ -108,7 +108,7 @@ const MOCK_CONVERSATION: Conversation = {
     {
       id: 7,
       sender: 'customer',
-      content: "You guys are the best! Just tried it and it worked perfectly. Definitely recommending EasyPost to my network! 💙",
+      content: "You guys are the best! Just tried it and it worked perfectly. Definitely recommending Eazlypost to my network! 💙",
       timestamp: '30m ago',
     },
   ],

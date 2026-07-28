@@ -69,7 +69,7 @@ export default function AgencesWhyChooseUsSection({ hideBackground = false }: { 
           
           {/* Paragraph */}
           <p className="text-[#000000] text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[18px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[30px] lg:leading-[24px] xl:leading-[30px] 3xl:leading-[38px] font-['Rubik'] max-w-[500px] xl:max-w-none 3xl:max-w-none break-words w-full">
-            {t('Free your teams from repetitive tasks. EazyPost lets you centralize, plan and report the activity of all your clients from a single tool.', 'Libérez vos équipes des tâches répétitives. EazyPost vous permet de centraliser, planifier et reporter l\'activité de tous vos clients depuis un seul outil.')}
+            {t('Free your teams from repetitive tasks. Eazlypost lets you centralize, plan and report the activity of all your clients from a single tool.', 'Libérez vos équipes des tâches répétitives. Eazlypost vous permet de centraliser, planifier et reporter l\'activité de tous vos clients depuis un seul outil.')}
           </p>
 
           {/* List Items */}

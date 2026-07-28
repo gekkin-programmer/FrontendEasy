@@ -14,8 +14,8 @@ export const NeuButton = ({ children, onClick, active, className = "", disabled 
       active
         ? 'bg-[#174CD2] text-white'
         : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:border-[#174CD2]/40',
-      disabled ? 'opacity-50 cursor-not-allowed' : '',
-      className
+      className,
+      disabled ? '!bg-[#F5F5F5] dark:!bg-white/5 !text-[#B0B0B0] dark:!text-white/30 !border-transparent cursor-not-allowed pointer-events-none' : ''
     )}
   >
     {children}
@@ -67,3 +67,39 @@ export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-x
         </AnimatePresence>
     );
 };
+
+export const ConfirmModal = ({
+    isOpen, onClose, onConfirm, title, message, confirmLabel, cancelLabel, isConfirming = false,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    cancelLabel: string;
+    isConfirming?: boolean;
+}) => (
+    <NeuModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={title}
+        headerClassName="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white"
+        iconClassName="text-[#040028]/70 hover:text-[#040028] dark:text-white/70 dark:hover:text-white"
+    >
+        <div className="space-y-5">
+            <p className="text-sm text-[#040028]/80 dark:text-white/80 leading-relaxed">{message}</p>
+            <div className="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                <NeuButton onClick={onClose} className="hover:border-[#040028]/40">{cancelLabel}</NeuButton>
+                <NeuButton
+                    onClick={onConfirm}
+                    active
+                    disabled={isConfirming}
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                    {confirmLabel}
+                </NeuButton>
+            </div>
+        </div>
+    </NeuModal>
+);

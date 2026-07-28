@@ -151,7 +151,7 @@ export default function CreatorFundPage() {
 
                 {/* 3-COL GRID: BENEFITS */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    <BenefitCard title={t('Free Pro Access', 'Accès Pro gratuit')} desc={t('Unlock 12 months of EasyPost Pro Plan. Unlimited posts, deep analytics, and AI Magic included.', "Débloquez 12 mois d'EasyPost Pro. Posts illimités, statistiques avancées et IA Magique inclus.")} />
+                    <BenefitCard title={t('Free Pro Access', 'Accès Pro gratuit')} desc={t('Unlock 12 months of Eazlypost Pro Plan. Unlimited posts, deep analytics, and AI Magic included.', "Débloquez 12 mois d'Eazlypost Pro. Posts illimités, statistiques avancées et IA Magique inclus.")} />
                     <BenefitCard title={t('Cash Stipend', 'Allocation financière')} desc={t('Receive up to 50,000 FCFA/month to support your content production and gear.', "Recevez jusqu'à 50 000 FCFA/mois pour soutenir votre production de contenu et votre équipement.")} />
                     <BenefitCard title={t('Global Reach', 'Portée mondiale')} desc={t('We feature your profile and content across our social nodes reaching 100k+ users.', 'Nous mettons en avant votre profil et vos contenus sur nos réseaux touchant plus de 100 000 utilisateurs.')} />
                 </div>
@@ -172,7 +172,7 @@ export default function CreatorFundPage() {
                         <p className="text-xl text-gray-400 font-bold">{t('Joining the fund means becoming a partner. We grow together.', 'Rejoindre le fonds, c\'est devenir partenaire. Nous grandissons ensemble.')}</p>
                         <div className="space-y-4">
                             <CommitmentItem icon={<MessageSquare />} text={t('Active participation in our Discord community.', 'Participation active à notre communauté Discord.')} />
-                            <CommitmentItem icon={<CheckCircle />} text={t('2 posts per month mentioning EasyPost.', '2 posts par mois mentionnant EasyPost.')} />
+                            <CommitmentItem icon={<CheckCircle />} text={t('2 posts per month mentioning Eazlypost.', '2 posts par mois mentionnant Eazlypost.')} />
                             <CommitmentItem icon={<Target />} text={t('1 tutorial or platform review per quarter.', '1 tutoriel ou avis sur la plateforme par trimestre.')} />
                         </div>
                     </div>

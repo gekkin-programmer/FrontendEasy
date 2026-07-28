@@ -9,7 +9,7 @@ import {
   eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay, parseISO,
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil, FileCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil, FileCheck, Plus } from 'lucide-react';
 import { formatTimeInTz } from '@/lib/timezone';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
@@ -59,7 +59,7 @@ const trackAction = (action: string, metadata: any = {}) => {
 };
 
 // 🟢 DROPPABLE CELL COMPONENT
-const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, postCount }: any) => {
+const CalendarCell = ({ id, children, className, isToday, isPast, dayNum, dayLabel, postCount, onQuickCreate }: any) => {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -67,6 +67,7 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
       ref={setNodeRef}
       className={cn(
         className,
+        "group/cell",
         isOver && "ring-2 ring-[#174CD2] ring-inset bg-[#174CD2]/5 z-10"
       )}
     >
@@ -80,11 +81,23 @@ const CalendarCell = ({ id, children, className, isToday, dayNum, dayLabel, post
                 </span>
                 {dayLabel && <span className="text-xs font-semibold text-[#8E8E8E]">{dayLabel}</span>}
             </div>
-            {postCount > 0 && (
-                <span className="text-[10px] font-semibold rounded-full px-2 py-0.5 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
-                    {postCount}
-                </span>
-            )}
+            <div className="flex items-center gap-1.5">
+                {postCount > 0 && (
+                    <span className="text-[10px] font-semibold rounded-full px-2 py-0.5 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                        {postCount}
+                    </span>
+                )}
+                {!isPast && onQuickCreate && (
+                    <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onQuickCreate(); }}
+                        title="Quick post"
+                        className="opacity-0 group-hover/cell:opacity-100 w-5 h-5 flex items-center justify-center rounded-full bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white hover:bg-[#040028] hover:text-white dark:hover:bg-white dark:hover:text-[#040028] transition-all"
+                    >
+                        <Plus size={12} strokeWidth={2.5} />
+                    </button>
+                )}
+            </div>
         </div>
         {children}
     </div>
@@ -194,7 +207,7 @@ const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone,
   );
 };
 
-export default function CalendarView({ workspaceId, onPostClick, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, canApprove?: boolean, workspaceTimezone?: string }) {
+export default function CalendarView({ workspaceId, onPostClick, onDateClick, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, onDateClick?: (dateStr: string) => void, canApprove?: boolean, workspaceTimezone?: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
   const queryClient = useQueryClient();
@@ -378,6 +391,7 @@ export default function CalendarView({ workspaceId, onPostClick, canApprove = fa
                 const totalNodes = dayPosts.reduce((sum, p) => sum + (p.socialAccounts?.length || 0), 0);
                 const isToday = isSameDay(day, new Date());
                 const isCurrentMonth = isSameMonth(day, currentDate);
+                const isPast = day < startOfDay(new Date());
 
                 return (
                 <CalendarCell
@@ -386,7 +400,9 @@ export default function CalendarView({ workspaceId, onPostClick, canApprove = fa
                     dayNum={format(day, 'd')}
                     dayLabel={viewType === 'day' ? format(day, 'EEEE MMMM yyyy') : null}
                     isToday={isToday}
+                    isPast={isPast}
                     postCount={totalNodes}
+                    onQuickCreate={onDateClick ? () => onDateClick(dayStr) : undefined}
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
                         viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",

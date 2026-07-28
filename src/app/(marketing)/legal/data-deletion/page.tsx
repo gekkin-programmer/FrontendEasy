@@ -10,7 +10,7 @@ export default function DataDeletionPage() {
         <div className="space-y-8 text-gray-600 dark:text-gray-300 leading-relaxed">
           <section>
             <p>
-              According to the Facebook Platform rules, we provide User Data Deletion Callback URL or Data Deletion Instructions URL. If you want to delete your activities for EasyPost, you can remove your information by following these steps:
+              According to the Facebook Platform rules, we provide User Data Deletion Callback URL or Data Deletion Instructions URL. If you want to delete your activities for Eazlypost, you can remove your information by following these steps:
             </p>
           </section>
 
@@ -20,7 +20,7 @@ export default function DataDeletionPage() {
               <li>Go to your Facebook Account&apos;s &ldquo;Settings &amp; Privacy&rdquo;.</li>
               <li>Click &ldquo;Settings&rdquo;.</li>
               <li>Look for &ldquo;Apps and Websites&rdquo; and you will see all of the apps and websites you linked with your Facebook.</li>
-              <li>Search and Click &ldquo;EasyPost&rdquo; in the search bar.</li>
+              <li>Search and Click &ldquo;Eazlypost&rdquo; in the search bar.</li>
               <li>Scroll and click &ldquo;Remove&rdquo;.</li>
               <li>Congratulations, you have successfully removed your app activities.</li>
             </ol>
@@ -28,9 +28,9 @@ export default function DataDeletionPage() {
 
           <section className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Method 2: Permanent Account Deletion</h2>
-            <p className="mb-4">To request a full deletion of your EasyPost account and all associated data from our servers:</p>
+            <p className="mb-4">To request a full deletion of your Eazlypost account and all associated data from our servers:</p>
             <ol className="list-decimal pl-5 space-y-3">
-              <li>Send an email to <strong>support@easypost.cm</strong>.</li>
+              <li>Send an email to <strong>support@eazlypost.cm</strong>.</li>
               <li>Subject Line: <strong>&ldquo;Data Deletion Request&rdquo;</strong>.</li>
               <li>Include your registered email address.</li>
             </ol>

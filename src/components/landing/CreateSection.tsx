@@ -47,7 +47,7 @@ const doneCards: CardData[] = [
 const textsToType = [
   { en: "Create stunning posts effortlessly!", fr: "Créez des publications époustouflantes facilement !" },
   { en: "Plan, schedule, and post in seconds", fr: "Planifiez, programmez et publiez en quelques secondes" },
-  { en: "EasyPost makes posting fun and simple", fr: "EasyPost rend la publication amusante et simple" },
+  { en: "Eazlypost makes posting fun and simple", fr: "Eazlypost rend la publication amusante et simple" },
 ];
 
 const TYPE_SPEED = 70;
@@ -122,8 +122,8 @@ export default function CreateSection() {
 
           <p className="text-lg md:text-xl font-bold text-black dark:text-gray-300 border-l-2 border-[#174CD2] pl-6 leading-snug">
             {t(
-              "Whether you’re flying solo or working with a team, EasyPost has all the features to help you create, organize, and repurpose your content.",
-              "Que vous travailliez seul ou en équipe, EasyPost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
+              "Whether you’re flying solo or working with a team, Eazlypost has all the features to help you create, organize, and repurpose your content.",
+              "Que vous travailliez seul ou en équipe, Eazlypost dispose de toutes les fonctionnalités pour créer, organiser et recycler votre contenu."
             )}
           </p>
 

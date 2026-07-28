@@ -37,6 +37,7 @@ interface ComposerProps {
   workspaceId: string;
   accounts: any[];
   postToEdit?: any;
+  initialDate?: string;
   isPreviewActive?: boolean;
   onPreviewToggle?: () => void;
   onPreviewDataChange?: (data: { text: string; mediaPreviews: string[]; mediaTypes: ('image' | 'video')[]; selectedAccountIds: string[]; tiktokHashtags?: string }) => void;
@@ -161,7 +162,7 @@ const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: 
   );
 };
 
-export default function Composer({ onSchedule, accounts = [], postToEdit, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange, workspaceTimezone = 'UTC' }: ComposerProps) {
+export default function Composer({ onSchedule, accounts = [], postToEdit, initialDate, workspaceId, isPreviewActive, onPreviewToggle, onPreviewDataChange, workspaceTimezone = 'UTC' }: ComposerProps) {
   const { t } = useLanguage();
   const toast = useAppToast();
 
@@ -187,6 +188,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, worksp
       setText(''); setDate(undefined); setMediaPreviews([]); setMediaTypes([]);
     }
   }, [postToEdit]);
+
+  // Prefill the schedule date from a calendar "quick create" click — only when not editing an existing post
+  useEffect(() => {
+    if (!postToEdit && initialDate) {
+      setDate(zonedTimeToUtc(`${initialDate}T09:00`, workspaceTimezone));
+    }
+  }, [initialDate, postToEdit, workspaceTimezone]);
   const [category, setCategory] = useState('General');
 
   // Media State

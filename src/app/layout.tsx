@@ -32,13 +32,13 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com'),
   title: {
-    template: '%s | EazyPost Africa',
-    default: 'EazyPost - The Digital Engine for African Creators',
+    template: '%s | Eazlypost Africa',
+    default: 'Eazlypost - The Digital Engine for African Creators',
   },
   description: 'Manage Facebook, Instagram, and TikTok with local AI tools. Optimized for connectivity in Cameroon, Nigeria, and Ivory Coast.',
-  keywords: ['Social Media Manager', 'Cameroon Tech', 'EazyPost', 'Marketing AI', 'Douala', 'Lagos'],
-  authors: [{ name: 'EazyPost Team' }],
-  creator: 'EazyPost Inc.',
+  keywords: ['Social Media Manager', 'Cameroon Tech', 'Eazlypost', 'Marketing AI', 'Douala', 'Lagos'],
+  authors: [{ name: 'Eazlypost Team' }],
+  creator: 'Eazlypost Inc.',
   icons: {
     icon: '/applogo.png',
     shortcut: '/applogo.png',
@@ -48,12 +48,12 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: process.env.NEXT_PUBLIC_APP_URL || 'https://eazlypost.com',
-    siteName: 'EazyPost Africa',
+    siteName: 'Eazlypost Africa',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EazyPost - Automate Social Media in Africa',
+    title: 'Eazlypost - Automate Social Media in Africa',
     description: 'AI-powered scheduling for African creators.',
     images: ['/og-image.jpg'],
   },
