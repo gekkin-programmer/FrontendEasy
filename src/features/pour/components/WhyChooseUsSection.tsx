@@ -69,7 +69,7 @@ export default function WhyChooseUsSection({ hideBackground = false }: { hideBac
           
           {/* Paragraph */}
           <p className="text-[#000000] text-[14px] max-[375px]:text-[12px] max-[320px]:text-[11px] md:text-[18px] lg:text-[16px] xl:text-[18px] 3xl:text-[24px] font-normal leading-[22px] max-[375px]:leading-[18px] md:leading-[30px] lg:leading-[24px] xl:leading-[30px] 3xl:leading-[38px] font-['Rubik'] max-w-[500px] xl:max-w-none 3xl:max-w-none break-words w-full">
-            {t('Free yourself from time-consuming tasks. EazyPost lets you plan, centralize and optimize your online presence so you can focus on creation.', 'Libérez-vous des tâches chronophages. EazyPost vous permet de planifier, centraliser et optimiser votre présence en ligne pour vous concentrer sur la création.')}
+            {t('Free yourself from time-consuming tasks. Eazlypost lets you plan, centralize and optimize your online presence so you can focus on creation.', 'Libérez-vous des tâches chronophages. Eazlypost vous permet de planifier, centraliser et optimiser votre présence en ligne pour vous concentrer sur la création.')}
           </p>
 
           {/* List Items */}

@@ -47,7 +47,7 @@ export default function CareerHeroLayout({
               {titleNode ? titleNode : (
                 <h1 className="flex flex-col font-['Rubik_One'] font-normal m-0 w-full gap-[2px] md:gap-[4px] lg:gap-[4px] xl:gap-[8px] 3xl:gap-[12px]">
                   <span className="text-[#000000] text-[18px] max-[375px]:text-[16px] max-[320px]:text-[14px] md:text-[28px] lg:text-[28px] xl:text-[36px] 3xl:text-[48px] leading-tight">
-                    {t('EazyPost for', 'EazyPost pour les')}
+                    {t('Eazlypost for', 'Eazlypost pour les')}
                   </span>
                   <span className="text-[#174CD2] text-[28px] max-[375px]:text-[24px] max-[320px]:text-[20px] md:text-[56px] lg:text-[50px] xl:text-[70px] 3xl:text-[90px] leading-[1.1] capitalize">
                     {t('creators', 'créateurs')}

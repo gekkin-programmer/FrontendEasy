@@ -57,7 +57,7 @@ export default function AboutUsSection({ hideBackground = false }: { hideBackgro
               {t('What does', 'Que Fait')}
             </span>
             <h2 className="font-['Rubik_One'] font-normal text-[28px] max-[375px]:text-[24px] max-[320px]:text-[20px] md:text-[50px] lg:text-[50px] xl:text-[70px] 3xl:text-[90px] leading-tight text-[#174CD2] m-0 text-center">
-              EazyPost
+              Eazlypost
             </h2>
           </div>
 

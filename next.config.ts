@@ -40,7 +40,7 @@ const hasSentryAuth = Boolean(process.env.SENTRY_AUTH_TOKEN);
 
 export default withSentryConfig(nextConfig, {
   silent: true,
-  org: "easypost",
+  org: "eazlypost",
   project: "frontend",
   // Only upload wider source maps when auth is available (CI/CD), not during Docker builds
   widenClientFileUpload: hasSentryAuth,

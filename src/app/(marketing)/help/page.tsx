@@ -31,8 +31,8 @@ export default function HelpPage() {
         {
           q: t('How do I connect my social accounts?', 'Comment connecter mes comptes sociaux ?'),
           a: t(
-            'Go to Dashboard → Connect Accounts, then click the platform you want to add. You\'ll be redirected to authorize EasyPost.',
-            'Allez dans Tableau de bord → Connecter des comptes, puis cliquez sur la plateforme que vous souhaitez ajouter. Vous serez redirigé pour autoriser EasyPost.'
+            'Go to Dashboard → Connect Accounts, then click the platform you want to add. You\'ll be redirected to authorize Eazlypost.',
+            'Allez dans Tableau de bord → Connecter des comptes, puis cliquez sur la plateforme que vous souhaitez ajouter. Vous serez redirigé pour autoriser Eazlypost.'
           ),
         },
         {
@@ -137,8 +137,8 @@ export default function HelpPage() {
           </h1>
           <p className="text-gray-600 dark:text-zinc-400 text-lg font-bold max-w-md mx-auto">
             {t(
-              'Find answers to the most common questions about EasyPost.',
-              'Trouvez des réponses aux questions les plus fréquentes sur EasyPost.'
+              'Find answers to the most common questions about Eazlypost.',
+              'Trouvez des réponses aux questions les plus fréquentes sur Eazlypost.'
             )}
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function HelpPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:support@easypost.cm"
+              href="mailto:support@eazlypost.cm"
               className="inline-flex items-center justify-center gap-2 bg-[#174CD2] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all"
             >
               <Mail size={18} /> {t('Email Support', 'Contacter par Email')}

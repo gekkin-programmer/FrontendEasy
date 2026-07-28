@@ -454,16 +454,16 @@ function DashboardContent() {
 
     // Notifications
     type AppNotif = { id: string; type: 'success' | 'error' | 'info'; message: string; time: string; read: boolean };
-    const notifKey = `eazypost_notifs_${workspaceId}`;
+    const notifKey = `eazlypost_notifs_${workspaceId}`;
     const [, setNotifications] = useState<AppNotif[]>(() => {
         if (typeof window === 'undefined') return [];
-        try { return JSON.parse(localStorage.getItem(`eazypost_notifs_${workspaceId}`) || '[]'); } catch { return []; }
+        try { return JSON.parse(localStorage.getItem(`eazlypost_notifs_${workspaceId}`) || '[]'); } catch { return []; }
     });
     const addNotification = useCallback((type: AppNotif['type'], message: string) => {
         const notif: AppNotif = { id: Date.now().toString(), type, message, time: new Date().toISOString(), read: false };
         setNotifications(prev => {
             const next = [notif, ...prev].slice(0, 50);
-            try { localStorage.setItem(`eazypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
+            try { localStorage.setItem(`eazlypost_notifs_${workspaceId}`, JSON.stringify(next)); } catch {}
             return next;
         });
     }, [workspaceId]);
@@ -642,8 +642,8 @@ function DashboardContent() {
                     "Aucune Page Facebook trouvée — les permissions ont été réinitialisées. Cliquez à nouveau sur Connecter Facebook et accordez l'accès à votre Page sur l'écran de consentement.",
                 ],
                 FB_PERMISSION_DENIED: [
-                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow EazyPost to manage your Page.',
-                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser EazyPost à gérer votre Page.",
+                    'You denied access to your Facebook Pages. Please click Connect Facebook again and check the box to allow Eazlypost to manage your Page.',
+                    "Vous avez refusé l'accès à vos Pages Facebook. Cliquez à nouveau sur Connecter Facebook et cochez la case pour autoriser Eazlypost à gérer votre Page.",
                 ],
                 FB_NO_PAGES_EXISTS: [
                     'No Facebook Pages found on your account. To connect Facebook, you need a Facebook Page (not a personal profile). Create one at facebook.com/pages/create, then try again.',

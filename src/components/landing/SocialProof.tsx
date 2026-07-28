@@ -45,7 +45,7 @@ const SocialProof = () => {
         {/* Background "Noise" Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.05] overflow-hidden transition-opacity">
             <h1 className="text-[20vw] font-black uppercase text-black dark:text-white whitespace-nowrap leading-none">
-                EAZYPOST
+                EAZLYPOST
             </h1>
         </div>
 

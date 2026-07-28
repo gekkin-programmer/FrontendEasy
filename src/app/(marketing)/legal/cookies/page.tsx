@@ -12,7 +12,7 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. What Are Cookies?</h2>
             <p>
-              Cookies are small text files placed on your device when you visit a website. They allow the site to remember your preferences, keep you logged in, and understand how you interact with the service. EazyPost uses cookies and similar technologies to provide, improve, and secure the platform.
+              Cookies are small text files placed on your device when you visit a website. They allow the site to remember your preferences, keep you logged in, and understand how you interact with the service. Eazlypost uses cookies and similar technologies to provide, improve, and secure the platform.
             </p>
           </section>
 
@@ -34,7 +34,7 @@ export default function CookiesPage() {
               <div className="border border-gray-700 rounded-xl p-5">
                 <h3 className="font-semibold text-gray-100 mb-1">Analytics Cookies</h3>
                 <p className="text-sm">
-                  Help us understand how users navigate EazyPost so we can improve performance and usability. We use Sentry for error tracking. No personally identifiable information is shared with analytics providers.
+                  Help us understand how users navigate Eazlypost so we can improve performance and usability. We use Sentry for error tracking. No personally identifiable information is shared with analytics providers.
                 </p>
               </div>
             </div>
@@ -43,7 +43,7 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">3. Third-Party Cookies</h2>
             <p>
-              Some features on EazyPost may set cookies from third-party services:
+              Some features on Eazlypost may set cookies from third-party services:
             </p>
             <ul className="list-disc pl-5 space-y-2 mt-2">
               <li><strong className="text-gray-100">Google OAuth</strong> — sets a session cookie during sign-in to identify your Google account.</li>
@@ -57,7 +57,7 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">4. How to Manage Cookies</h2>
             <p>
-              You can control cookies through your browser settings. Most browsers allow you to view, delete, and block cookies. Note that disabling essential cookies will prevent you from using EazyPost.
+              You can control cookies through your browser settings. Most browsers allow you to view, delete, and block cookies. Note that disabling essential cookies will prevent you from using Eazlypost.
             </p>
             <ul className="list-disc pl-5 space-y-2 mt-3">
               <li>
@@ -78,15 +78,15 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">5. Changes to This Policy</h2>
             <p>
-              We may update this Cookie Policy from time to time. Any changes will be reflected on this page with an updated date. Continued use of EazyPost after changes constitutes acceptance of the updated policy.
+              We may update this Cookie Policy from time to time. Any changes will be reflected on this page with an updated date. Continued use of Eazlypost after changes constitutes acceptance of the updated policy.
             </p>
           </section>
 
           <section className="border-t border-gray-700 pt-8 mt-8">
             <p className="text-sm">
               Questions about our cookie practices? Contact us at{' '}
-              <a href="mailto:support@eazypost.cm" className="text-blue-400 hover:underline">
-                support@eazypost.cm
+              <a href="mailto:support@eazlypost.cm" className="text-blue-400 hover:underline">
+                support@eazlypost.cm
               </a>.
             </p>
           </section>

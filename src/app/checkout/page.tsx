@@ -479,7 +479,7 @@ function CheckoutContent() {
           />
         </svg>
         <h1 className="relative max-w-[453px] text-[30px] leading-[140.8%] tracking-[0.01em] text-white">
-          {t('EazyPost subscription', 'Abonnement EazyPost')} {planLabels[plan]}
+          {t('Eazlypost subscription', 'Abonnement Eazlypost')} {planLabels[plan]}
         </h1>
         <div className="mt-[26px] w-full max-w-[410px] h-[101px] border-2 border-white flex items-center justify-center gap-[12px] px-[16px]">
           <span className="text-[42px] leading-[59px] tracking-[0.085em] text-white whitespace-nowrap">{fmt(monthlyFcfa)}</span>

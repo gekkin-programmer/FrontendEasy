@@ -13,7 +13,7 @@ export default function ImpactSection() {
         {/* Left Side: Titles */}
         <div className="flex flex-col relative flex-shrink-0">
           <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
-            EazyPost
+            Eazlypost
           </h2>
           <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
             Impact

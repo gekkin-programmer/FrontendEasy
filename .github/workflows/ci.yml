@@ -75,7 +75,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/gekkin-programmer/eazypost-frontend:latest
+          tags: ghcr.io/gekkin-programmer/eazlypost-frontend:latest
           build-args: |
             NODE_OPTIONS=--max-old-space-size=4096
             NEXT_PUBLIC_API_URL=https://backend-eazypost.mbokofit.com

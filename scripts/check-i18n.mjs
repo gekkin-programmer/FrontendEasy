@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'src');
-const SKIP = /features[\\/]dashboard[\\/]eazypost/; // dead code folder
+const SKIP = /features[\\/]dashboard[\\/]eazlypost/; // dead code folder
 
 const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/en.json'), 'utf8'));
 const fr = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/fr.json'), 'utf8'));

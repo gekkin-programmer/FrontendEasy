@@ -43,8 +43,8 @@ export default function DevicesSection() {
           </h2>
           <p className="text-gray-600 dark:text-zinc-400 font-bold text-lg max-w-xl mx-auto">
             {t(
-              'EasyPost adapts to how you work — whether at your desk, on the couch, or on the go.',
-              'EasyPost s\'adapte à votre façon de travailler — que ce soit à votre bureau, sur le canapé ou en déplacement.'
+              'Eazlypost adapts to how you work — whether at your desk, on the couch, or on the go.',
+              'Eazlypost s\'adapte à votre façon de travailler — que ce soit à votre bureau, sur le canapé ou en déplacement.'
             )}
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function DevicesSection() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
           <Image
             src="/assets/Macbook-Air-localhost.png"
-            alt="EasyPost on MacBook Air"
+            alt="Eazlypost on MacBook Air"
             width={1200}
             height={750}
             className="w-full object-cover"
@@ -61,14 +61,14 @@ export default function DevicesSection() {
           />
           <Image
             src="/assets/iPad-PRO-11-localhost.png"
-            alt="EasyPost on iPad Pro"
+            alt="Eazlypost on iPad Pro"
             width={800}
             height={600}
             className="w-full object-cover"
           />
           <Image
             src="/assets/iPhone-13-PRO-localhost.png"
-            alt="EasyPost on iPhone 13 Pro"
+            alt="Eazlypost on iPhone 13 Pro"
             width={800}
             height={600}
             className="w-full object-cover"
