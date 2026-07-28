@@ -130,7 +130,7 @@ export default function LoginPage() {
             {/* Header Texts */}
             <div className="flex flex-col gap-[5px] mb-[24px] xl:mb-[40px] 2xl:mb-[58px]">
               <Link href="/">
-                <img src="/assets/WiggleLogo.png" alt="Eazlypost Logo" className="w-[36px] h-[36px] lg:w-[48px] lg:h-[48px] object-contain mb-[10px] lg:mb-[15px] cursor-pointer" />
+                <img src="/assets/logomark-monogram-royal-blue.svg" alt="Eazlypost Logo" className="w-[36px] h-[36px] lg:w-[48px] lg:h-[48px] object-contain mb-[10px] lg:mb-[15px] cursor-pointer" />
               </Link>
               <h1 className="font-sans font-medium text-[24px] lg:text-[28px] xl:text-[32px] leading-[32px] lg:leading-[40px] xl:leading-[48px] text-[#000000]">
                 {t('Welcome Back', 'Bon retour')}
