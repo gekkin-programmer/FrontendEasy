@@ -433,6 +433,7 @@ function DashboardContent() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<any>(null);
+    const [quickCreateDate, setQuickCreateDate] = useState<string | undefined>(undefined);
 
     // Composer preview panel state
     const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -692,6 +693,7 @@ function DashboardContent() {
             refetchPosts();
             queryClient.invalidateQueries({ queryKey: ['calendar'] });
             setEditingPost(null);
+            setQuickCreateDate(undefined);
             setIsPreviewMode(false);
         },
         onError: () => {
@@ -824,6 +826,7 @@ function DashboardContent() {
                                     onSchedule={handleAddPost}
                                     accounts={accounts}
                                     postToEdit={editingPost}
+                                    initialDate={quickCreateDate}
                                     isPreviewActive={isPreviewMode}
                                     onPreviewToggle={() => setIsPreviewMode(v => !v)}
                                     onPreviewDataChange={setPreviewData}
@@ -849,6 +852,11 @@ function DashboardContent() {
                                                         return;
                                                     }
                                                     setEditingPost(post);
+                                                    setActiveTab('queue');
+                                                }}
+                                                onDateClick={(date) => {
+                                                    setEditingPost(null);
+                                                    setQuickCreateDate(date);
                                                     setActiveTab('queue');
                                                 }}
                                             />

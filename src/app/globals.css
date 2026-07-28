@@ -196,6 +196,23 @@
   animation: rainbow-rtl 3s linear infinite;
 }
 
+/* AI "Generate" button — grey label at rest, blue/navy rainbow sweep on hover */
+.ai-generate-label {
+  color: #8E8E8E;
+  transition: color 0.2s ease;
+}
+.dark .ai-generate-label {
+  color: #8A8A96;
+}
+.group:hover .ai-generate-label {
+  color: transparent;
+  background: linear-gradient(to left, #040028, #174CD2, #5B8DFB, #040028);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: rainbow-rtl 3s linear infinite;
+}
+
 /* Hide Scrollbar but keep functionality */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -236,6 +253,20 @@
 }
 .dark .scrollbar-grey::-webkit-scrollbar-thumb:hover {
   background: #666666;
+}
+
+/* Kanban board panels: thin grey thumb, brand blue on hover */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #D9D9D9;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4A4A4A;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #174CD2;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #174CD2;
 }
 
 /* Glassmorphism */

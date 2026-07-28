@@ -114,8 +114,11 @@ export const boardApi = {
   updateCard: (cardId: string, data: Record<string, unknown>) =>
     api.patch<Card>(`/boards/cards/${cardId}`, data),
 
-  moveCard: (cardId: string, data: { columnId: string; order: number }) => 
+  moveCard: (cardId: string, data: { columnId: string; order: number }) =>
     api.patch<Card>(`/boards/cards/${cardId}/move`, data),
+
+  deleteCard: (cardId: string) =>
+    api.delete(`/boards/cards/${cardId}`),
 
   addComment: (cardId: string, content: string) => 
     api.post<CardComment>(`/boards/cards/${cardId}/comments`, { content }),

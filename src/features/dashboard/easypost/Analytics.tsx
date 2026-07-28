@@ -8,9 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 
 // Charting
-import { 
+import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell, PieChart, Pie, Legend, AreaChart, Area
+  BarChart, Bar, Cell, PieChart, Pie, Legend, AreaChart, Area,
+  LineChart, Line
 } from 'recharts';
 
 // Icons
@@ -18,27 +19,31 @@ import {
   ThumbsUp, MessageCircle, TrendingUp, TrendingDown,
   Eye, Search, AlertCircle, LayoutDashboard, List,
   Sparkles, Hash, Tag, Loader2, Heart, RefreshCw,
-  Activity, Share2, ExternalLink, type Icon as LucideIcon
+  Activity, Share2, ExternalLink, type Icon as LucideIcon,
+  FileText, Filter, Check, X as XIcon
 } from "lucide-react";
 import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 function AnalyticsGridSkeleton() {
   return (
-    <div className="h-full overflow-y-auto pr-2 pb-20">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 overflow-hidden">
-            <div className="p-4 border-b border-black/5 dark:border-white/5">
-              <Skeleton className="h-5 w-32 rounded" />
-            </div>
-            <div className="p-4 space-y-3">
-              <Skeleton className="h-10 w-24 rounded" />
-              <Skeleton className="h-3 w-full rounded" />
-              <Skeleton className="h-3 w-3/4 rounded" />
-            </div>
+    <div className="h-full overflow-y-auto pr-2 pb-20 space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4 space-y-3">
+            <Skeleton className="h-3 w-16 rounded" />
+            <Skeleton className="h-8 w-20 rounded" />
           </div>
         ))}
+      </div>
+      <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4">
+        <Skeleton className="h-5 w-28 rounded mb-4" />
+        <Skeleton className="h-40 w-full rounded" />
+      </div>
+      <div className="bg-white dark:bg-[#0A0A2E] rounded-[16px] border border-black/5 dark:border-white/5 p-4 space-y-3">
+        <Skeleton className="h-5 w-28 rounded mb-2" />
+        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-10 w-full rounded" />)}
       </div>
     </div>
   );
@@ -136,7 +141,7 @@ const NeuButton = ({ children, onClick, active, disabled, className = "" }: any)
 
 const NeuCard = ({ title, icon: Icon, children, className, action }: any) => (
   <div className={cn("bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] flex flex-col overflow-hidden", className)}>
-    <div className="flex justify-between items-center p-4 border-b border-black/5 dark:border-white/5">
+    <div className="flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
             {Icon && <Icon className="w-4 h-4 text-[#174CD2]" strokeWidth={2.5} />}
             <h3 className="text-base font-bold text-[#040028] dark:text-white">{title}</h3>
@@ -180,245 +185,448 @@ export default function Analytics() {
 }
 
 // ============================================================================
-// VIEW 1: STRATEGY (Deep Intelligence)
+// VIEW 1: STRATEGY (Summary + Top Posts + Performance)
 // ============================================================================
+type RangeKey = '7d' | '30d' | 'mtd' | 'custom';
+
+function getRangeDates(key: RangeKey, customFrom?: string, customTo?: string) {
+    const today = new Date();
+    let fromDate: Date;
+    if (key === '7d') fromDate = new Date(today.getTime() - 6 * 86400000);
+    else if (key === '30d') fromDate = new Date(today.getTime() - 29 * 86400000);
+    else if (key === 'mtd') fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    else fromDate = customFrom ? new Date(customFrom) : new Date(today.getTime() - 29 * 86400000);
+    const toDate = key === 'custom' && customTo ? new Date(customTo) : today;
+    return { from: fromDate.toISOString().slice(0, 10), to: toDate.toISOString().slice(0, 10) };
+}
+
+function formatRangeLabel(from: string, to: string) {
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    return `${new Date(from).toLocaleDateString('en-US', opts)} - ${new Date(to).toLocaleDateString('en-US', opts)}`;
+}
+
+const CHANNEL_COLORS = ['#7c3aed', '#174CD2', '#f59e0b', '#22c55e', '#ef4444', '#0891b2'];
+
 function StrategyView({ workspaceId }: { workspaceId: string }) {
     const { t } = useLanguage();
-    
-    // 1. Account Health
-    const healthQuery = useQuery({
-        queryKey: ['insights-health', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/health?workspaceId=${workspaceId}`) as any).data
-    });
+    const [range, setRange] = useState<RangeKey>('30d');
+    const [customFrom, setCustomFrom] = useState('');
+    const [customTo, setCustomTo] = useState('');
+    const [customOpen, setCustomOpen] = useState(false);
+    const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
+    const [channelFilterOpen, setChannelFilterOpen] = useState(false);
+    const [followersChartMode, setFollowersChartMode] = useState<'bar' | 'line' | 'growth'>('bar');
 
-    // 2. Growth Forecast
-    const forecastQuery = useQuery({
-        queryKey: ['insights-forecast', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/forecast?workspaceId=${workspaceId}`) as any).data
-    });
+    const { from, to } = getRangeDates(range, customFrom, customTo);
 
-    // 3. Best Time
-    const bestTimeQuery = useQuery({
-        queryKey: ['insights-best-time', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/best-time?workspaceId=${workspaceId}`) as any).data
-    });
-
-    // 4. Content Mix
-    const contentMixQuery = useQuery({
-        queryKey: ['insights-content-mix', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/content-mix?workspaceId=${workspaceId}`) as any).data
-    });
-
-    // 5. Smart Copy & Hashtags
-    const smartCopyQuery = useQuery({
-        queryKey: ['insights-smart-copy', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/smart-copy?workspaceId=${workspaceId}`) as any).data
-    });
-    const hashtagsQuery = useQuery({
-        queryKey: ['insights-hashtags', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/hashtags?workspaceId=${workspaceId}`) as any).data
-    });
-
-    // 6. Activity Timeline
-    const timelineQuery = useQuery({
-        queryKey: ['insights-timeline', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics/insights/timeline?workspaceId=${workspaceId}`) as any).data
-    });
-
-    // 7. Platform Comparison (reuse accounts analytics)
-    const platformQuery = useQuery({
-        queryKey: ['analytics-accounts', workspaceId],
-        gcTime: 0,
-        queryFn: async () => (await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS`) as any).data
-    });
-
-    // 8. Overview counts (promoted here from the Posts tab so the summary lives with the rest of the insights)
-    const overviewQuery = useQuery({
-        queryKey: ['analytics-overview', workspaceId],
+    // Connected accounts, for the channel filter + Followers/Posts breakdowns
+    const channelsQuery = useQuery({
+        queryKey: ['analytics-channels', workspaceId],
         gcTime: 0,
         queryFn: async () => {
-            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW`);
-            return res.overview || res.data?.overview || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
+            const res: any = await api.get(`/social-accounts?workspaceId=${workspaceId}`);
+            const payload = res.data || res;
+            return Array.isArray(payload) ? payload : [];
         }
     });
 
-    const isLoading = healthQuery.isLoading || forecastQuery.isLoading || timelineQuery.isLoading;
+    // Summary counts + follower totals for the selected range
+    const overviewQuery = useQuery({
+        queryKey: ['analytics-overview', workspaceId, from, to],
+        gcTime: 0,
+        queryFn: async () => {
+            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW&from=${from}&to=${to}`);
+            return res.overview || res.data?.overview || res.data || res || {};
+        }
+    });
 
-    if(isLoading) return <AnalyticsGridSkeleton />;
+    // Per-account performance rows for the selected range
+    const accountsQuery = useQuery({
+        queryKey: ['analytics-accounts', workspaceId, from, to],
+        gcTime: 0,
+        queryFn: async () => {
+            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS&from=${from}&to=${to}`);
+            const payload = res.data || res;
+            return Array.isArray(payload) ? payload : (payload.accounts || []);
+        }
+    });
 
-    const health = healthQuery.data || { healthScore: 0, consistencyStatus: 'N/A' };
-    const forecast = forecastQuery.data || { trend: 'Stable', forecastNextMonth: 0 };
-    const overview = overviewQuery.data || { totalPosts: 0, published: 0, scheduled: 0, drafts: 0 };
+    // Published posts in range, for the Top 5 Posts section
+    const postsQuery = useQuery({
+        queryKey: ['analytics-top-posts', workspaceId, from, to],
+        gcTime: 0,
+        queryFn: async () => {
+            const res: any = await api.get(`/posts?workspaceId=${workspaceId}&limit=100&status=PUBLISHED`);
+            const payload = res.data || res;
+            const rawPosts = payload.items || payload || [];
+            return rawPosts
+                .map((p: any) => ({
+                    ...p,
+                    mediaUrls: p.media?.map((pm: any) => pm.media?.url).filter(Boolean) ?? [],
+                    metrics: (p.socialAccounts ?? []).reduce((acc: any, psa: any) => ({
+                        likes: acc.likes + (psa.likes || 0),
+                        comments: acc.comments + (psa.comments || 0),
+                        shares: acc.shares + (psa.shares || 0),
+                        views: acc.views + (psa.views || 0),
+                    }), { likes: 0, comments: 0, shares: 0, views: 0 }),
+                }))
+                .filter((p: any) => p.publishedAt && p.publishedAt.slice(0, 10) >= from && p.publishedAt.slice(0, 10) <= to);
+        }
+    });
+
+    const isLoading = overviewQuery.isLoading || accountsQuery.isLoading || postsQuery.isLoading || channelsQuery.isLoading;
+    if (isLoading) return <AnalyticsGridSkeleton />;
+
+    const overview: any = overviewQuery.data || {};
+    const accounts: any[] = accountsQuery.data || [];
+    const posts: any[] = postsQuery.data || [];
+    const allChannels: any[] = channelsQuery.data || [];
+    const rangeLabel = formatRangeLabel(from, to);
+
+    const effectiveChannels = selectedChannelIds.length > 0
+        ? allChannels.filter((c: any) => selectedChannelIds.includes(c.id))
+        : allChannels;
+
+    // Followers: pair each channel with whatever range-scoped account stats we have (from the ACCOUNTS query)
+    const followerRows = effectiveChannels.map((c: any) => {
+        const stats = accounts.find((a: any) => a.id === c.id || a.socialAccountId === c.id);
+        const atStart = stats?.followersAtStart ?? 0;
+        const gained = stats?.followersGained ?? 0;
+        return {
+            id: c.id,
+            name: c.name || c.username || c.displayName || c.platform,
+            platform: c.platform,
+            atStart,
+            gained,
+            total: atStart + gained,
+            growthPct: atStart > 0 ? Math.round((gained / atStart) * 1000) / 10 : (gained > 0 ? 100 : 0),
+        };
+    }).filter((r: any) => r.total > 0);
+
+    // Posts: tally published posts in range per channel from the posts already fetched
+    const postCountByChannel: Record<string, number> = {};
+    posts.forEach((p: any) => {
+        (p.socialAccounts ?? []).forEach((psa: any) => {
+            const accId = psa.socialAccount?.id ?? psa.socialAccountId;
+            if (accId) postCountByChannel[accId] = (postCountByChannel[accId] || 0) + 1;
+        });
+    });
+    const postRows = effectiveChannels
+        .map((c: any) => ({
+            id: c.id,
+            name: c.name || c.username || c.displayName || c.platform,
+            platform: c.platform,
+            posts: postCountByChannel[c.id] || 0,
+        }))
+        .filter((r: any) => r.posts > 0);
+
+    const topPosts = [...posts]
+        .sort((a, b) => (b.metrics?.likes || 0) - (a.metrics?.likes || 0))
+        .slice(0, 5);
+
+    const summaryCards: { label: string; value: number | string; delta?: number }[] = [
+        { label: t('Posts', 'Publications'), value: overview.posts ?? posts.length },
+        { label: t('Total Followers', 'Abonnés totaux'), value: overview.totalFollowers ?? 0, delta: overview.followerDelta },
+        { label: t('Reactions', 'Réactions'), value: overview.reactions ?? 0 },
+        { label: t('Comments', 'Commentaires'), value: overview.comments ?? 0 },
+        { label: t('Eng. Rate', "Taux d'eng."), value: `${overview.engagementRate ?? 0}%` },
+        { label: t('Shares', 'Partages'), value: overview.shares ?? 0 },
+        { label: t('Reach', 'Portée'), value: overview.reach ?? 0 },
+        { label: t('Views', 'Vues'), value: overview.views ?? 0 },
+    ];
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full overflow-y-auto pr-2 pb-20 scrollbar-hide">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full overflow-y-auto pr-2 pb-20 scrollbar-hide space-y-6">
 
-            {/* 🟢 HERO: ACTIVITY TIMELINE */}
-            <NeuCard title={t("Activity timeline", "Chronologie d'activité")} className="mb-6">
-                <div className="h-[240px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={timelineQuery.data || []}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
-                            <XAxis dataKey="date" tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
-                            <YAxis tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
-                            <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)' }} />
-                            <Area type="monotone" dataKey="count" stroke="#174CD2" fill="#174CD2" fillOpacity={0.1} strokeWidth={2.5} />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-                <p className="text-xs font-medium mt-2 text-center text-[#8E8E8E]">{t("Post frequency (last 30 days)", "Fréquence publications (30 derniers jours)")}</p>
-            </NeuCard>
+            {/* Date range tabs */}
+            <div className="flex items-center gap-2 flex-wrap">
+                {(['7d', '30d', 'mtd'] as RangeKey[]).map((key) => (
+                    <button
+                        key={key}
+                        onClick={() => setRange(key)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-colors",
+                            range === key ? "bg-[#174CD2]/10 text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10"
+                        )}
+                    >
+                        {key === '7d' ? t('7 days', '7 jours') : key === '30d' ? t('30 days', '30 jours') : t('Month to date', 'Mois en cours')}
+                    </button>
+                ))}
+                <Popover open={customOpen} onOpenChange={setCustomOpen}>
+                    <PopoverTrigger asChild>
+                        <button
+                            onClick={() => setRange('custom')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-colors",
+                                range === 'custom' ? "bg-[#174CD2]/10 text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10"
+                            )}
+                        >
+                            {t('Custom', 'Personnalisé')}
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[10px] shadow-lg z-50" align="start">
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-[10px] font-semibold uppercase text-[#8E8E8E]">{t('From', 'Du')}</label>
+                                <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="w-full mt-1 px-2 py-1.5 text-xs rounded-[8px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white focus:outline-none focus:border-[#174CD2]" />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-semibold uppercase text-[#8E8E8E]">{t('To', 'Au')}</label>
+                                <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="w-full mt-1 px-2 py-1.5 text-xs rounded-[8px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white focus:outline-none focus:border-[#174CD2]" />
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover>
 
-            {/* 🟢 OVERVIEW COUNTS */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Total posts", "Total publications")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.totalPosts || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Published", "Publiées")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.published || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Scheduled", "Planifiées")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.scheduled || 0}</span>
-                </div>
-                <div className="bg-white dark:bg-[#0A0A2E] rounded-none border border-[#D9D9D9] dark:border-white/10 p-4 flex flex-col items-center justify-center text-center transition-all">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{t("Drafts", "Brouillons")}</span>
-                    <span className="text-4xl font-bold tabular-nums text-[#040028] dark:text-white">{overview.drafts || 0}</span>
-                </div>
+                <Popover open={channelFilterOpen} onOpenChange={setChannelFilterOpen}>
+                    <PopoverTrigger asChild>
+                        <button
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-colors ml-auto",
+                                selectedChannelIds.length > 0 ? "bg-[#174CD2]/10 text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10"
+                            )}
+                        >
+                            <Filter size={12} />
+                            {selectedChannelIds.length > 0
+                                ? t(`${selectedChannelIds.length} channel${selectedChannelIds.length > 1 ? 's' : ''}`, `${selectedChannelIds.length} canal${selectedChannelIds.length > 1 ? 'aux' : ''}`)
+                                : t('Filter by channel', 'Filtrer par canal')}
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[10px] shadow-lg z-50 overflow-hidden" align="end">
+                        {allChannels.length === 0 ? (
+                            <p className="px-4 py-3 text-xs text-[#8E8E8E]">{t('No connected channels yet.', 'Aucun canal connecté pour le moment.')}</p>
+                        ) : (
+                            <>
+                                <div className="max-h-64 overflow-y-auto py-1">
+                                    {allChannels.map((c: any) => {
+                                        const checked = selectedChannelIds.includes(c.id);
+                                        return (
+                                            <button
+                                                key={c.id}
+                                                onClick={() => setSelectedChannelIds(prev => checked ? prev.filter(id => id !== c.id) : [...prev, c.id])}
+                                                className="w-full h-9 px-4 flex items-center gap-2 text-left text-sm font-medium text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                                            >
+                                                <div className="w-5 h-5 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                    <PlatformIcon platform={(c.platform || '').toLowerCase()} size={11} />
+                                                </div>
+                                                <span className="flex-1 truncate">{c.name || c.username || c.displayName || c.platform}</span>
+                                                {checked && <Check size={14} className="text-[#174CD2] flex-shrink-0" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {selectedChannelIds.length > 0 && (
+                                    <button
+                                        onClick={() => setSelectedChannelIds([])}
+                                        className="w-full h-9 px-4 flex items-center gap-2 text-left text-sm font-medium text-red-500 border-t border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                                    >
+                                        <XIcon size={14} /> {t('Clear filter', 'Effacer le filtre')}
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </PopoverContent>
+                </Popover>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-
-                <NeuCard title={t("Account health", "Santé du compte")} className="bg-blue-50/50 dark:bg-blue-900/10">
-                    <div className="flex items-end justify-between mb-4">
-                        <div>
-                            <span className="text-5xl font-bold text-[#040028] dark:text-white">{health.healthScore}</span>
-                            <span className="text-xl font-semibold text-[#8E8E8E]">/100</span>
-                        </div>
-                        <span className="bg-[#040028] dark:bg-white text-white dark:text-[#040028] px-2.5 py-1 font-semibold text-xs rounded-full mb-2">{health.consistencyStatus}</span>
-                    </div>
-                    <div className="w-full bg-[#F5F7FA] dark:bg-white/10 h-2.5 rounded-full overflow-hidden">
-                        <div className="bg-[#174CD2] h-full rounded-full transition-all duration-1000" style={{ width: `${health.healthScore}%` }}></div>
-                    </div>
-                    <p className="mt-3 text-xs font-medium text-[#8E8E8E]">{t("Avg gap:", "Écart moy:")} {health.avgPostingGap || 'N/A'}</p>
-                </NeuCard>
-
-                <NeuCard title={t("AI forecast", "Prévision IA")}>
-                    <div className="flex flex-col h-full justify-between">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full", (forecast.trend || '').includes('Growing') ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white")}>
-                                    {forecast.trend}
-                                </span>
+            {/* Summary */}
+            <NeuCard title={t('Summary', 'Résumé')} action={<span className="text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {summaryCards.map((c, i) => (
+                        <div key={i} className="p-3">
+                            <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{c.label}</div>
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-bold tabular-nums text-[#040028] dark:text-white">{typeof c.value === 'number' ? c.value.toLocaleString() : c.value}</span>
+                                {!!c.delta && (
+                                    <span className={cn("flex items-center gap-0.5 text-[11px] font-semibold", c.delta > 0 ? "text-green-600 dark:text-green-400" : "text-red-500")}>
+                                        {c.delta > 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {c.delta > 0 ? '+' : ''}{c.delta}
+                                    </span>
+                                )}
                             </div>
-                            <p className="text-xs text-[#8E8E8E] font-medium">{t("Next month projection", "Projection mois prochain")}</p>
                         </div>
-                        <div className="mt-4">
-                            <span className="text-4xl font-bold text-[#040028] dark:text-white">~{forecast.forecastNextMonth?.toLocaleString()}</span>
-                            <span className="text-sm font-semibold ml-2 text-[#8E8E8E]">{t("Interactions", "Interactions")}</span>
-                        </div>
-                        <p className="mt-2 text-[11px] text-[#8E8E8E]">{t("Based on linear regression model", "Basé sur modèle de régression linéaire")}</p>
-                    </div>
-                </NeuCard>
+                    ))}
+                </div>
+            </NeuCard>
 
-                <NeuCard title={t("Content ROI", "ROI du contenu")}>
-                    <div className="h-[140px] w-full">
+            {/* Top 5 Posts */}
+            <NeuCard title={t('Top 5 Posts', 'Top 5 publications')}>
+                {topPosts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                        <div className="w-14 h-14 rounded-full bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-3">
+                            <Search className="w-6 h-6 text-[#8E8E8E]" />
+                        </div>
+                        <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No posts found in this date range.', 'Aucune publication trouvée sur cette période.')}</p>
+                        <p className="text-xs text-[#8E8E8E] mt-1">{t('Try another date range.', 'Essayez une autre période.')}</p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-black/5 dark:divide-white/5">
+                        {topPosts.map((p: any) => (
+                            <div key={p.id} className="flex items-center gap-3 py-3">
+                                <div className="w-10 h-10 rounded-[8px] bg-[#F5F7FA] dark:bg-white/5 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                    {p.mediaUrls?.[0] ? <img src={p.mediaUrls[0]} className="w-full h-full object-cover" alt="" /> : <FileText size={16} className="text-[#8E8E8E]" />}
+                                </div>
+                                <p className="flex-1 min-w-0 text-sm font-medium text-[#040028] dark:text-white truncate">{p.content || t('No text content', 'Aucun contenu textuel')}</p>
+                                <div className="flex items-center gap-4 text-xs font-semibold text-[#8E8E8E] flex-shrink-0">
+                                    <span className="flex items-center gap-1"><Heart size={12} /> {p.metrics?.likes || 0}</span>
+                                    <span className="flex items-center gap-1"><MessageCircle size={12} /> {p.metrics?.comments || 0}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </NeuCard>
+
+            {/* Performance table */}
+            <NeuCard title={t('Performance', 'Performance')} action={<span className="text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>}>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="text-left text-[11px] font-semibold uppercase tracking-wide text-[#8E8E8E] border-b border-black/5 dark:border-white/5">
+                                <th className="pb-2 font-semibold">{t('Channel', 'Canal')}</th>
+                                <th className="pb-2 font-semibold text-right">{t('Posts', 'Publications')}</th>
+                                <th className="pb-2 font-semibold text-right">{t('Reactions', 'Réactions')}</th>
+                                <th className="pb-2 font-semibold text-right">{t('Comments', 'Commentaires')}</th>
+                                <th className="pb-2 font-semibold text-right">{t('Eng. Rate', "Taux d'eng.")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {accounts.length === 0 ? (
+                                <tr><td colSpan={5} className="py-8 text-center text-xs font-medium text-[#8E8E8E]">{t('No connected accounts with data in this range.', 'Aucun compte connecté avec des données sur cette période.')}</td></tr>
+                            ) : accounts.map((a: any, i: number) => (
+                                <tr key={a.id || i} className="border-b border-black/5 dark:border-white/5 last:border-0">
+                                    <td className="py-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                <PlatformIcon platform={(a.platform || '').toLowerCase()} size={12} />
+                                            </div>
+                                            <span className="font-medium text-[#040028] dark:text-white truncate max-w-[220px]">{a.name || a.accountName || a.username || a.platform}</span>
+                                        </div>
+                                    </td>
+                                    <td className="py-3 text-right tabular-nums text-[#040028] dark:text-white">{a.posts ?? 0}</td>
+                                    <td className="py-3 text-right tabular-nums text-[#040028] dark:text-white">{a.reactions ?? a.totalEngagement ?? 0}</td>
+                                    <td className="py-3 text-right tabular-nums text-[#040028] dark:text-white">{a.comments ?? 0}</td>
+                                    <td className="py-3 text-right tabular-nums text-[#040028] dark:text-white">{a.engagementRate ?? 0}%</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </NeuCard>
+
+            {/* Followers */}
+            <NeuCard
+                title={t('Followers', 'Abonnés')}
+                action={
+                    <div className="flex bg-[#F5F7FA] dark:bg-white/5 rounded-[8px] p-0.5">
+                        {(['bar', 'line', 'growth'] as const).map((mode) => (
+                            <button
+                                key={mode}
+                                onClick={() => setFollowersChartMode(mode)}
+                                className={cn("px-3 py-1 text-xs font-semibold rounded-[6px] transition-colors", followersChartMode === mode ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "text-[#8E8E8E]")}
+                            >
+                                {mode === 'bar' ? t('Bar', 'Barres') : mode === 'line' ? t('Line', 'Ligne') : t('Growth', 'Croissance')}
+                            </button>
+                        ))}
+                    </div>
+                }
+            >
+                <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
+                    {rangeLabel} · {t('Showing', 'Affichage de')} {followerRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
+                    <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#174CD2] transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
+                </p>
+                {followerRows.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                        <div className="w-14 h-14 rounded-full bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-3">
+                            <Search className="w-6 h-6 text-[#8E8E8E]" />
+                        </div>
+                        <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
+                        <p className="text-xs text-[#8E8E8E] mt-1">
+                            {t('Try another date range', 'Essayez une autre période')}
+                            {selectedChannelIds.length > 0 && (
+                                <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
+                            )}
+                        </p>
+                    </div>
+                ) : followersChartMode === 'bar' ? (
+                    <div style={{ height: Math.max(120, followerRows.length * 48) }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={contentMixQuery.data || []} layout="vertical" margin={{ left: 0, right: 20 }}>
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="type" type="category" tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} width={60} axisLine={false} tickLine={false} />
-                                <Bar dataKey="avgEngagement" barSize={20} radius={[0,6,6,0]}>
-                                    {contentMixQuery.data?.map((e:any, i:number) => (
-                                        <Cell key={i} fill={['#174CD2', '#a855f7', '#facc15'][i % 3]} />
-                                    ))}
+                            <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} />
+                                <Bar dataKey="atStart" stackId="followers" name={t('At range start', 'Au début de la période')} fill="#040028" radius={[0, 0, 0, 0]} barSize={22} />
+                                <Bar dataKey="gained" stackId="followers" name={t('Gained in range', 'Gagnés sur la période')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={22} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                ) : followersChartMode === 'line' ? (
+                    <div className="h-[220px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                                data={[
+                                    { point: t('Start', 'Début'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.atStart])) },
+                                    { point: t('End', 'Fin'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.total])) },
+                                ]}
+                                margin={{ left: 0, right: 20 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+                                <XAxis dataKey="point" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} />
+                                <YAxis tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} />
+                                {followerRows.map((r: any, i: number) => (
+                                    <Line key={r.id} type="monotone" dataKey={r.id} name={r.name} stroke={CHANNEL_COLORS[i % CHANNEL_COLORS.length]} strokeWidth={2.5} dot={{ r: 4 }} />
+                                ))}
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                ) : (
+                    <div style={{ height: Math.max(120, followerRows.length * 48) }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} unit="%" />
+                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} formatter={(v: any) => `${v}%`} />
+                                <Bar dataKey="growthPct" name={t('Growth', 'Croissance')} radius={[0, 6, 6, 0]} barSize={22}>
+                                    {followerRows.map((r: any, i: number) => <Cell key={i} fill={r.growthPct >= 0 ? '#22c55e' : '#ef4444'} />)}
                                 </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-center text-xs font-medium mt-2 text-[#8E8E8E]">{t("Avg. engagement per type", "Eng. moy. par type")}</p>
-                </NeuCard>
-            </div>
+                )}
+            </NeuCard>
 
-            {/* 🟢 PLATFORM CHART */}
-            <div className="grid grid-cols-1 gap-6 mb-6">
-
-                <NeuCard title={t("Platform battle", "Bataille des plateformes")}>
-                    <div className="h-[200px] w-full">
+            {/* Posts per channel */}
+            <NeuCard title={t('Posts', 'Publications')} action={<span className="text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>}>
+                <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
+                    {rangeLabel} · {t('Showing', 'Affichage de')} {postRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
+                    <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#174CD2] transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
+                </p>
+                {postRows.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                        <div className="w-14 h-14 rounded-full bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-3">
+                            <Search className="w-6 h-6 text-[#8E8E8E]" />
+                        </div>
+                        <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
+                        <p className="text-xs text-[#8E8E8E] mt-1">
+                            {t('Try another date range', 'Essayez une autre période')}
+                            {selectedChannelIds.length > 0 && (
+                                <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
+                            )}
+                        </p>
+                    </div>
+                ) : (
+                    <div style={{ height: Math.max(120, postRows.length * 48) }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={platformQuery.data || []}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
-                                <XAxis dataKey="platform" tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
-                                <YAxis tick={{fontSize: 10, fontWeight: 500, fill: 'currentColor'}} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)' }} />
-                                <Bar dataKey="totalEngagement" name={t("Engagements", "Engagements")} fill="#174CD2" radius={[6,6,0,0]} />
+                            <BarChart data={postRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} />
+                                <Bar dataKey="posts" name={t('Posts', 'Publications')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={22} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-xs font-medium mt-2 text-center text-[#8E8E8E]">{t("Total engagement per node", "Engagement total par nœud")}</p>
-                </NeuCard>
-
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                <NeuCard title={t("Golden windows", "Créneaux en or")} className="lg:col-span-1">
-                    <div className="space-y-3">
-                        {bestTimeQuery.data?.slice(0, 4).map((slot: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between p-2.5 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 transition-all">
-                                <div className="flex items-center gap-3">
-                                    <span className="bg-[#174CD2] text-white w-6 h-6 rounded-full flex items-center justify-center font-semibold text-xs">{i+1}</span>
-                                    <div className="flex flex-col leading-none gap-1">
-                                        <span className="font-semibold text-sm text-[#040028] dark:text-white">{slot.day}</span>
-                                        <span className="text-xs text-[#8E8E8E]">{slot.hour}:00 - {slot.hour+1}:00</span>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="block font-bold text-green-600 dark:text-green-400">{slot.avgEngagement}</span>
-                                    <span className="text-[10px] font-medium text-[#8E8E8E]">{t("Avg. eng.", "Eng. moy.")}</span>
-                                </div>
-                            </div>
-                        ))}
-                        {(!bestTimeQuery.data || bestTimeQuery.data.length === 0) && <div className="text-center text-xs font-medium text-[#8E8E8E] py-4">{t("Need more data", "Plus de données nécessaires")}</div>}
-                    </div>
-                </NeuCard>
-
-                <NeuCard title={t("Power words", "Mots puissants")} className="lg:col-span-1">
-                    <div className="flex flex-wrap gap-2 content-start h-full">
-                        {smartCopyQuery.data?.map((item: any, i: number) => (
-                            <span
-                                key={i}
-                                className="px-2.5 py-1 rounded-full bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white font-medium text-xs hover:bg-[#174CD2]/15 transition-colors cursor-default"
-                                style={{ fontSize: Math.max(10, 10 + (item.impactScore / 2)) + 'px' }}
-                            >
-                                {item.word}
-                            </span>
-                        ))}
-                        {(!smartCopyQuery.data || smartCopyQuery.data.length === 0) && <div className="w-full text-center text-xs font-medium text-[#8E8E8E] py-4">{t("Analyzing text...", "Analyse du texte...")}</div>}
-                    </div>
-                </NeuCard>
-
-                <NeuCard title={t("Top hashtags", "Meilleurs hashtags")} className="lg:col-span-1">
-                    <div className="space-y-2">
-                        {hashtagsQuery.data?.slice(0, 5).map((tag: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center border-b border-black/5 dark:border-white/5 last:border-0 pb-2">
-                                <span className="font-semibold text-sm text-[#174CD2]">#{tag.tag}</span>
-                                <span className="text-xs font-medium text-[#040028] dark:text-white">{tag.avgEngagement} {t("eng.", "eng.")}</span>
-                            </div>
-                        ))}
-                        {(!hashtagsQuery.data || hashtagsQuery.data.length === 0) && <div className="text-center text-xs font-medium text-[#8E8E8E] py-4">{t("No hashtags found", "Aucun hashtag trouvé")}</div>}
-                    </div>
-                </NeuCard>
-
-            </div>
+                )}
+            </NeuCard>
         </motion.div>
     )
 }
