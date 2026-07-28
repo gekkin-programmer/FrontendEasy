@@ -119,7 +119,7 @@ function SplitSection({
     <section className="w-full" style={{ backgroundColor: bg }}>
       <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] py-[100px] lg:py-[128px]">
         <div className={`flex flex-col ${imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-[48px] lg:gap-[80px]`}>
-          <div className="flex-1 max-w-[664px]">
+          <div className="flex-1 max-w-[664px] flex flex-col items-center lg:items-start text-center lg:text-left">
             <h2
               className="font-extrabold text-[40px] leading-[44px] lg:text-[56px] lg:leading-[59px] tracking-[-1.12px]"
               style={{ color: titleColor }}
@@ -129,7 +129,7 @@ function SplitSection({
             <p className="mt-[40px] font-medium text-[18px] leading-[30px] tracking-[-0.4px] max-w-[577px]" style={{ color: textColor }}>
               {text}
             </p>
-            <div className="mt-[46px]">
+            <div className="mt-[46px] flex justify-center lg:justify-start w-full">
               <PillCta label={ctaLabel} href={ctaHref} bg={ctaBg} color={ctaColor} />
             </div>
           </div>
@@ -213,10 +213,10 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Hero — white */}
       <section className="w-full bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[100px] pb-[100px] lg:pt-[140px] lg:pb-[150px]">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-[48px] pt-[100px] pb-[40px] lg:pt-[140px] lg:pb-[150px]">
           <div className="flex flex-col lg:flex-row items-center gap-[48px] lg:gap-[16px]">
-            <div className="flex-1 max-w-[664px]">
-              <h1 className="font-extrabold text-[42px] leading-[46px] lg:text-[56px] lg:leading-[59px] tracking-[-1.12px] text-[#040028]">
+           <div className="flex-1 max-w-[664px]flex flex-col items-center lg:items-start text-center lg:text-left">
+             <h1 className="font-extrabold text-[42px] leading-[46px] lg:text-[56px] lg:leading-[59px] tracking-[-1.12px] text-[#040028] text-balance">
                 {t(
                   'The easiest way to plan and publish on',
                   'La façon la plus simple de planifier et publier sur'
@@ -228,13 +228,13 @@ export default function ChannelLanding({ channelName }: { channelName: string })
                   'Programmez vos publications, gérez votre compte et développez votre communauté. Eazlypost réunit toute votre présence sociale en un seul endroit.'
                 )}
               </p>
-              <div className="mt-[42px]">
+              <div className="mt-[42px] flex justify-center lg:justify-start w-full">
                 {/* User asked for #040028 text — unreadable on #061492, so white until confirmed */}
                 <PillCta label={startCta} href="/signup" bg="#061492" color="#FFFFFF" />
               </div>
             </div>
             <div className="flex-1 w-full max-w-[664px]">
-              {/* Figma frame: 664 × 723.66, transparent image — no background card */}
+              {/* Figma frame: 664 × 723.66, transparent image — no background card  flex flex-col items-center lg:items-start text-center lg:text-left */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/assets/representations-facebook.png" alt="Eazlypost dashboard" className="w-full h-[420px] lg:h-[724px] object-contain" />
             </div>
@@ -244,7 +244,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
       {/* Social proof + creators marquee — white */}
       <section className="w-full overflow-hidden bg-white">
-        <div className="pt-[48px]">
+        <div className="pt-[16px] lg:pt-[40px]">
           <RatingRow label={t('Excellent', 'Excellent')} />
           <h2 className="mt-[36px] text-center font-extrabold text-[38px] leading-[44px] lg:text-[55px] lg:leading-[59px] tracking-[-1.12px]" style={{ color: INK }}>
             {t('Eazlypost is for', 'Eazlypost est fait pour les')}{' '}
@@ -252,6 +252,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
           </h2>
         </div>
         <div className="mt-[32px] lg:mt-[48px] pb-[80px] lg:pb-[100px]">
+          {/* Marquee left untouched, as requested */}
           <div
             className="flex w-max gap-[16px]"
             style={{ animation: 'canaux-marquee 40s linear infinite' }}
@@ -516,7 +517,7 @@ export default function ChannelLanding({ channelName }: { channelName: string })
             style={{ backgroundColor: '#174CD2' }}
           >
             <span className="absolute inset-[6px] rounded-full border-2 border-white/30 pointer-events-none" />
-            <span className="absolute inset-0 flex items-center justify-center font-extrabold text-[26px] lg:text-[38px] leading-[52px] tracking-[-0.4px] text-white">
+            <span className="absolute inset-0 flex items-center justify-center text-center font-extrabold text-[26px] lg:text-[38px] leading-[32px] lg:leading-[52px] tracking-[-0.4px] text-white px-[24px]">
               {t('Compare paid plans', 'Comparer les plans payants')}
             </span>
           </Link>
