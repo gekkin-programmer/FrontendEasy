@@ -807,12 +807,17 @@ function DashboardContent() {
 >{currentWorkspace?.owner?.planType || 'FREE'}</span><button onClick={() => setActiveTab('settings')} className="flex-shrink-0 text-xs font-semibold underline hover:text-[#174CD2] hover:bg-[#E5E5E5] dark:hover:bg-white/10 rounded-[4px] px-1.5 py-0.5 -mx-1.5 -my-0.5 transition-colors">{t("Manage", "Gérer")}</button></div></div>
                 </aside>
 
-                <div className="flex-1 pl-4 md:pl-8 pr-2 md:pr-4 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-72">
+                <div className={cn(
+                    "flex-1 bg-white dark:bg-[#0A0A2E] lg:pl-72",
+                    activeTab === 'engagement'
+                        ? "p-0 pb-0 pt-0 md:pl-8 md:pr-4 md:pb-32 md:pt-8"
+                        : "px-3 sm:px-4 md:pl-8 md:pr-4 pb-32 pt-4 md:pt-8"
+                )}>
                     <div className="max-w-[1600px] mx-auto">
                         <div className="min-w-0">
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
-                                <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="ml-4">
+                                <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className={cn(activeTab === 'engagement' ? "m-0 md:ml-4" : "ml-0 md:ml-4")}>
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">

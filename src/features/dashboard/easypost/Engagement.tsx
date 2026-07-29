@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useAppToast } from '@/hooks/useAppToast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,9 +9,9 @@ import { useLanguage } from '@/context/LanguageContext';
 
 // Icons
 import {
-  FiMessageCircle, FiCheck, FiCheckCircle, FiMoreHorizontal,
+  FiMessageCircle, FiCheck, FiCheckCircle,
   FiSend, FiSmile, FiArchive,
-  FiChevronLeft, FiChevronRight
+  FiChevronLeft, FiChevronRight, FiSearch, FiX
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,16 @@ const SENTIMENT_STYLES: any = {
   neutral: 'bg-[#F5F7FA] text-[#040028]',
   question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
+
+const PLATFORM_FILTERS = [
+  { id: 'all', labelEn: 'All', labelFr: 'Tous' },
+  { id: 'unread', labelEn: 'Unread', labelFr: 'Non lus' },
+  { id: 'facebook', labelEn: 'Facebook', labelFr: 'Facebook' },
+  { id: 'instagram', labelEn: 'Instagram', labelFr: 'Instagram' },
+  { id: 'tiktok', labelEn: 'TikTok', labelFr: 'TikTok' },
+  { id: 'whatsapp', labelEn: 'WhatsApp', labelFr: 'WhatsApp' },
+  { id: 'youtube', labelEn: 'YouTube', labelFr: 'YouTube' },
+];
 
 // ---------------------------------------------------------------------------
 // TEMP PREVIEW DATA — remove once the API returns real engagement items.
@@ -51,6 +61,30 @@ export default function Engagement() {
   const [replyText, setReplyText] = useState('');
   const [isCannedOpen, setIsCannedOpen] = useState(false);
   const [inboxViewMode, setInboxViewMode] = useState<'list' | 'post'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [platformFilter, setPlatformFilter] = useState<'all' | 'unread' | 'facebook' | 'instagram' | 'tiktok' | 'whatsapp' | 'youtube'>('all');
+
+  // Handle browser back button on mobile view
+  useEffect(() => {
+    const handlePopState = () => {
+      if (activeId !== null && window.innerWidth < 768) {
+        setActiveId(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeId]);
+
+  const selectConversation = (id: string) => {
+    setActiveId(id);
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      window.history.pushState({ conversationId: id }, '');
+    }
+  };
+
+  const handleBackToList = () => {
+    setActiveId(null);
+  };
 
   // 🟢 1. FETCH ENGAGEMENT
   const { data: rawEngagements = [], isLoading } = useQuery({
@@ -63,7 +97,7 @@ export default function Engagement() {
   });
   const engagements = rawEngagements.length > 0 ? rawEngagements : MOCK_ENGAGEMENTS;
 
-  // 🟢 2. REPLY MUTATION (routes to WhatsApp or engagement endpoint based on type)
+  // 🟢 2. REPLY MUTATION
   const replyMutation = useMutation({
     mutationFn: async ({ id, text, type, platform, conversationId }: { id: string; text: string; type?: string; platform?: string; conversationId?: string }) => {
       if (type === 'dm' && platform === 'whatsapp' && conversationId) {
@@ -76,7 +110,7 @@ export default function Engagement() {
         toast.success(t('Reply sent', 'Réponse envoyée'));
         setReplyText('');
         queryClient.setQueryData(['engagement', workspaceId], (old: any[]) =>
-            old.map((e: any) => e._id === vars.id ? { ...e, status: 'replied' } : e)
+            old ? old.map((e: any) => e._id === vars.id ? { ...e, status: 'replied' } : e) : []
         );
         // Auto-advance to next item
         setActiveId((prev) => {
@@ -95,16 +129,36 @@ export default function Engagement() {
     },
     onSuccess: (_, variables) => {
         toast.success(t('Status updated', 'Statut mis à jour'));
-        if(variables.status === 'archived') setActiveId(null);
+        if (variables.status === 'archived') setActiveId(null);
         queryClient.invalidateQueries({ queryKey: ['engagement'] });
     }
   });
 
   // DERIVED STATE
   const activeEngagement = engagements.find((e: any) => e._id === activeId);
-  const filteredEngagements = engagements.filter((e: any) => e.status !== 'archived');
 
-  // Group by post for the "By post" inbox view — items without a postId fall under a shared bucket
+  const filteredEngagements = engagements.filter((e: any) => {
+    if (e.status === 'archived') return false;
+
+    // Platform & unread status filter
+    if (platformFilter === 'unread') {
+      if (e.status !== 'unread' && !(e.unreadCount > 0)) return false;
+    } else if (platformFilter !== 'all') {
+      if (e.platform?.toLowerCase() !== platformFilter) return false;
+    }
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = e.authorName?.toLowerCase().includes(q);
+      const contentMatch = e.content?.toLowerCase().includes(q);
+      if (!nameMatch && !contentMatch) return false;
+    }
+
+    return true;
+  });
+
+  // Group by post for the "By post" inbox view
   const postGroups: { key: string; caption: string; items: any[] }[] = [];
   filteredEngagements.forEach((e: any) => {
     const key = e.postId ?? 'no-post';
@@ -121,10 +175,10 @@ export default function Engagement() {
   const hasNext = activeIndex >= 0 && activeIndex < filteredEngagements.length - 1;
 
   const goNext = () => {
-    if (hasNext) { setActiveId(filteredEngagements[activeIndex + 1]._id); setReplyText(''); }
+    if (hasNext) { selectConversation(filteredEngagements[activeIndex + 1]._id); setReplyText(''); }
   };
   const goPrev = () => {
-    if (hasPrev) { setActiveId(filteredEngagements[activeIndex - 1]._id); setReplyText(''); }
+    if (hasPrev) { selectConversation(filteredEngagements[activeIndex - 1]._id); setReplyText(''); }
   };
 
   const handleReply = () => {
@@ -146,12 +200,15 @@ export default function Engagement() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] font-sans text-[#040028] dark:text-white transition-colors">
+    <div className="flex flex-col h-[calc(100dvh-60px)] md:h-[calc(100vh-140px)] font-sans text-[#040028] dark:text-white transition-colors w-full max-w-full">
 
-      {/* PAGE HEADER */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <h2 className="text-lg font-bold text-[#040028] dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
-        <div className="flex bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] p-1">
+      {/* PAGE HEADER (Hidden on mobile when detail view is open to maximize screen space) */}
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between mb-2 md:mb-4 gap-2 flex-shrink-0 w-full px-3 sm:px-0", activeId !== null ? "hidden md:flex" : "flex")}>
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-[#040028] dark:text-white">{t('Discussions', 'Messages')}</h2>
+        </div>
+        
+        <div className="flex bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] p-1 self-start sm:self-auto">
             <button
               onClick={() => setInboxViewMode('post')}
               className={cn("px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all", inboxViewMode === 'post' ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-sm" : "text-[#8E8E8E]")}
@@ -167,170 +224,237 @@ export default function Engagement() {
         </div>
       </div>
 
-      <div className="flex flex-1 min-h-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] overflow-hidden animate-in fade-in transition-colors">
+      <div className="flex flex-1 min-h-0 bg-white dark:bg-[#0A0A2E] border-0 md:border md:border-black/5 dark:md:border-white/5 rounded-none md:rounded-[16px] shadow-none md:shadow-xs overflow-hidden animate-in fade-in transition-colors relative w-full max-w-full">
 
-      {/* LEFT PANEL: INBOX LIST */}
-      <div className="w-[380px] flex flex-col border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-colors">
+        {/* LEFT PANEL: INBOX LIST (Full-width on mobile when activeId === null, fixed column on desktop) */}
+        <div className={cn(
+          "flex flex-col border-r-0 md:border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-all w-full md:w-[340px] lg:w-[380px] shrink-0 h-full",
+          activeId !== null ? "hidden md:flex" : "flex"
+        )}>
 
-        {/* List */}
-        <div className="flex-1 overflow-y-auto bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors">
-          {isLoading && (
-            <div className="divide-y divide-black/5 dark:divide-white/5">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex items-start gap-3 p-4">
-                  <Skeleton width={36} height={36} radius="rounded" className="flex-shrink-0" index={i} />
-                  <div className="flex-1 space-y-2">
-                    <div className="flex justify-between">
-                      <Skeleton width={112} height={12} radius={1} index={i} />
-                      <Skeleton width={48} height={12} radius={1} index={i} />
+          {/* Search & Platform Filters */}
+          <div className="p-3 border-b border-black/5 dark:border-white/5 space-y-2 bg-white dark:bg-[#0A0A2E] w-full">
+            {/* Search Input */}
+            <div className="relative flex items-center w-full">
+              <FiSearch className="absolute left-3 text-[#8E8E8E]" size={15} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('Search conversations...', 'Rechercher une discussion...')}
+                className="w-full pl-9 pr-8 py-2 text-xs font-medium bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] border border-transparent focus:border-[#174CD2] focus:outline-none text-[#040028] dark:text-white placeholder:text-[#8E8E8E] transition-all"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2.5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white">
+                  <FiX size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Platform / Status Filters Bar (Horizontally scrollable on mobile) */}
+            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1 px-0.5 touch-pan-x select-none w-full">
+              {PLATFORM_FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setPlatformFilter(f.id as any)}
+                  className={cn(
+                    "shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#174CD2]/30",
+                    platformFilter === f.id
+                      ? "bg-[#174CD2] text-white shadow-xs"
+                      : "bg-[#F7F6F3] dark:bg-white/5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                  )}
+                >
+                  {f.id !== 'all' && f.id !== 'unread' && <PlatformIcon platform={f.id} size={12} />}
+                  <span>{t(f.labelEn, f.labelFr)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* List Content */}
+          <div className="flex-1 overflow-y-auto bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors">
+            {isLoading && (
+              <div className="divide-y divide-black/5 dark:divide-white/5">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4">
+                    <Skeleton width={36} height={36} radius="rounded" className="flex-shrink-0" index={i} />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between">
+                        <Skeleton width={112} height={12} radius={1} index={i} />
+                        <Skeleton width={48} height={12} radius={1} index={i} />
+                      </div>
+                      <Skeleton width="100%" height={12} radius={1} index={i} />
+                      <Skeleton width="75%" height={12} radius={1} index={i} />
                     </div>
-                    <Skeleton width="100%" height={12} radius={1} index={i} />
-                    <Skeleton width="75%" height={12} radius={1} index={i} />
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {!isLoading && inboxViewMode === 'list' && filteredEngagements.map((e: any) => (
-            <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => setActiveId(e._id)} t={t} />
-          ))}
-          {!isLoading && inboxViewMode === 'post' && postGroups.map((group) => (
-            <div key={group.key}>
-              <div className="px-4 py-2 bg-[#F7F6F3] dark:bg-white/5 text-xs font-semibold text-[#040028] dark:text-white truncate">
-                {group.caption}
+                ))}
               </div>
-              {group.items.map((e: any) => (
-                <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => setActiveId(e._id)} t={t} />
-              ))}
-            </div>
-          ))}
+            )}
+
+            {!isLoading && filteredEngagements.length === 0 && (
+              <div className="p-8 text-center text-[#8E8E8E]">
+                <FiMessageCircle size={32} className="mx-auto mb-2 opacity-40" />
+                <p className="text-xs font-semibold">{t('No discussions found', 'Aucune discussion trouvée')}</p>
+              </div>
+            )}
+
+            {!isLoading && inboxViewMode === 'list' && filteredEngagements.map((e: any) => (
+              <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => selectConversation(e._id)} t={t} />
+            ))}
+            {!isLoading && inboxViewMode === 'post' && postGroups.map((group) => (
+              <div key={group.key}>
+                <div className="px-4 py-2 bg-[#F7F6F3] dark:bg-white/5 text-xs font-semibold text-[#040028] dark:text-white truncate">
+                  {group.caption}
+                </div>
+                {group.items.map((e: any) => (
+                  <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => selectConversation(e._id)} t={t} />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* RIGHT PANEL: DETAIL VIEW */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-[#0A0A2E] min-w-0 relative transition-colors">
+        {/* RIGHT PANEL: DETAIL VIEW (Full-width on mobile when activeId !== null, flex-1 on desktop) */}
+        <div className={cn(
+          "flex-1 flex flex-col bg-white dark:bg-[#0A0A2E] min-w-0 relative transition-colors h-full",
+          activeId === null ? "hidden md:flex" : "flex"
+        )}>
 
-        {activeEngagement ? (
-           <>
-             {/* Toolbar */}
-             <div className="h-16 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-6 bg-white dark:bg-[#0A0A2E] z-10 transition-colors">
-                <div className="flex items-center gap-4">
-                   <div className="w-9 h-9 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center text-xs font-semibold text-[#040028] dark:text-white">
-                      {activeEngagement.authorName.charAt(0)}
-                   </div>
-                   <div>
-                       <div className="text-sm font-semibold leading-none text-[#040028] dark:text-white">{activeEngagement.authorName}</div>
-                       <div className="flex items-center gap-2 mt-1">
-                           <span className="text-xs text-[#8E8E8E] capitalize">{activeEngagement.platform}</span>
-                           {activeEngagement.sentiment && (
-                               <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize", SENTIMENT_STYLES[activeEngagement.sentiment])}>
-                                   {activeEngagement.sentiment}
-                               </span>
-                           )}
-                       </div>
-                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
-                    <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
-                    <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-2" />
-                    {/* Prev / Next navigation */}
-                    <span className="text-xs text-[#8E8E8E] select-none">
-                      {activeIndex + 1}/{filteredEngagements.length}
-                    </span>
-                    <button
-                      onClick={goPrev}
-                      disabled={!hasPrev}
-                      className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-                      title={t('Previous', 'Précédent')}
-                    >
-                      <FiChevronLeft size={16} />
-                    </button>
-                    <button
-                      onClick={goNext}
-                      disabled={!hasNext}
-                      className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-                      title={t('Next', 'Suivant')}
-                    >
-                      <FiChevronRight size={16} />
-                    </button>
-                </div>
-             </div>
+          {activeEngagement ? (
+             <>
+               {/* Header Toolbar with Back Button for Mobile */}
+               <div className="min-h-[56px] md:h-16 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-3 md:px-6 bg-white dark:bg-[#0A0A2E] z-10 transition-colors gap-2">
+                  <div className="flex items-center gap-2 md:gap-4 min-w-0">
+                     {/* Mobile Back Button */}
+                     <button
+                       onClick={handleBackToList}
+                       className="md:hidden p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white transition-all shrink-0 flex items-center gap-1 text-xs font-bold"
+                       aria-label={t('Back to discussions', 'Retour aux discussions')}
+                     >
+                       <FiChevronLeft size={18} />
+                       <span className="hidden xs:inline">{t('Discussions', 'Retour')}</span>
+                     </button>
 
-             {/* Content Area */}
-             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-[#F7F6F3] dark:bg-transparent transition-colors">
-                 <div className="max-w-3xl mx-auto space-y-8">
-
-                     <div className="flex gap-4">
-                         <div className="w-11 h-11 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex-shrink-0 flex items-center justify-center text-base font-semibold text-[#040028] dark:text-white">
-                            {activeEngagement.authorName.charAt(0)}
-                         </div>
-                         <div className="flex-1">
-                             <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-6 text-[#040028] dark:text-white transition-colors">
-                                <div className="flex justify-between mb-4 border-b border-black/5 dark:border-white/5 pb-3">
-                                     <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-sm">{activeEngagement.authorName}</span>
-                                        <span className="text-xs text-[#8E8E8E]">{new Date(activeEngagement.receivedAt).toLocaleTimeString()}</span>
-                                     </div>
-                                </div>
-                                <p className="text-[#040028] dark:text-white text-base font-medium leading-relaxed">{activeEngagement.content}</p>
-                             </div>
+                     <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex items-center justify-center text-xs font-semibold text-[#040028] dark:text-white shrink-0">
+                        {activeEngagement.authorName.charAt(0)}
+                     </div>
+                     <div className="min-w-0">
+                         <div className="text-xs md:text-sm font-semibold leading-none text-[#040028] dark:text-white truncate">{activeEngagement.authorName}</div>
+                         <div className="flex items-center gap-2 mt-1">
+                             <span className="text-[11px] text-[#8E8E8E] capitalize flex items-center gap-1">
+                               <PlatformIcon platform={activeEngagement.platform} size={10} />
+                               {activeEngagement.platform}
+                             </span>
+                             {activeEngagement.sentiment && (
+                                 <span className={cn("px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-semibold capitalize hidden sm:inline-block", SENTIMENT_STYLES[activeEngagement.sentiment])}>
+                                     {activeEngagement.sentiment}
+                                 </span>
+                             )}
                          </div>
                      </div>
-                 </div>
-             </div>
+                  </div>
+                  <div className="flex items-center gap-1 md:gap-2 shrink-0">
+                      <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
+                      <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
+                      <div className="w-px h-5 md:h-6 bg-black/10 dark:bg-white/10 mx-1 md:mx-2 hidden sm:block" />
+                      {/* Prev / Next navigation */}
+                      <span className="text-xs text-[#8E8E8E] select-none hidden sm:inline">
+                        {activeIndex + 1}/{filteredEngagements.length}
+                      </span>
+                      <button
+                        onClick={goPrev}
+                        disabled={!hasPrev}
+                        className="p-1.5 md:p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+                        title={t('Previous', 'Précédent')}
+                      >
+                        <FiChevronLeft size={16} />
+                      </button>
+                      <button
+                        onClick={goNext}
+                        disabled={!hasNext}
+                        className="p-1.5 md:p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+                        title={t('Next', 'Suivant')}
+                      >
+                        <FiChevronRight size={16} />
+                      </button>
+                  </div>
+               </div>
 
-             {/* Composer */}
-             <div className="p-6 bg-white dark:bg-[#0A0A2E] border-t border-black/5 dark:border-white/5 z-20 transition-colors">
-                <div className="max-w-3xl mx-auto">
-                    <div className="relative rounded-[14px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 focus-within:border-[#174CD2] focus-within:ring-2 focus-within:ring-[#174CD2]/15 transition-all">
-                        <textarea
-                           value={replyText}
-                           onChange={(e) => setReplyText(e.target.value)}
-                           className="w-full p-4 text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[100px] placeholder:text-[#8E8E8E] text-[#040028] dark:text-white"
-                           placeholder={`${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...`}
-                        />
-                        <div className="flex items-center justify-between p-2 border-t border-black/5 dark:border-white/5 transition-colors">
-                            <div className="flex gap-2 relative">
-                                <IconButton icon={<FiSmile />} />
-                                <IconButton icon={<FiMessageCircle />} onClick={() => setIsCannedOpen(v => !v)} />
-                                {isCannedOpen && (
-                                    <div className="absolute bottom-full left-0 mb-2 w-72 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden z-30">
-                                        {CANNED_REPLIES.map((reply, i) => (
-                                            <button
-                                                key={i}
-                                                type="button"
-                                                onClick={() => { setReplyText(reply); setIsCannedOpen(false); }}
-                                                className="w-full text-left px-4 py-3 text-xs font-medium text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors"
-                                            >
-                                                {reply}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <button
-                                onClick={handleReply}
-                                disabled={!replyText || replyMutation.isPending}
-                                className="bg-[#174CD2] text-white text-sm font-semibold px-5 py-2 rounded-[10px] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                <FiSend size={14} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-             </div>
-           </>
-        ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-colors">
-                <div className="w-16 h-16 rounded-[16px] bg-white dark:bg-white/5 flex items-center justify-center mb-6">
-                    <FiMessageCircle size={28} strokeWidth={1.5} className="text-[#040028] dark:text-white" />
-                </div>
-                <p className="text-lg font-semibold">{t('Select a message', 'Sélectionnez un message')}</p>
-                <p className="text-sm text-[#8E8E8E] mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
-            </div>
-        )}
-      </div>
+               {/* Content Area */}
+               <div className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0 bg-[#F7F6F3] dark:bg-transparent transition-colors">
+                   <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
+
+                       <div className="flex gap-3 md:gap-4">
+                           <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex-shrink-0 flex items-center justify-center text-sm md:text-base font-semibold text-[#040028] dark:text-white">
+                              {activeEngagement.authorName.charAt(0)}
+                           </div>
+                           <div className="flex-1 min-w-0">
+                               <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-4 md:p-6 text-[#040028] dark:text-white transition-colors shadow-xs">
+                                  <div className="flex justify-between items-center mb-3 border-b border-black/5 dark:border-white/5 pb-2.5">
+                                       <div className="flex items-center gap-2">
+                                          <span className="font-semibold text-xs md:text-sm">{activeEngagement.authorName}</span>
+                                          <span className="text-[11px] text-[#8E8E8E]">{new Date(activeEngagement.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                       </div>
+                                  </div>
+                                  <p className="text-[#040028] dark:text-white text-sm md:text-base font-medium leading-relaxed break-words">{activeEngagement.content}</p>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+               {/* Composer */}
+               <div className="p-3 md:p-6 bg-white dark:bg-[#0A0A2E] border-t border-black/5 dark:border-white/5 z-20 transition-colors">
+                  <div className="max-w-3xl mx-auto">
+                      <div className="relative rounded-[14px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 focus-within:border-[#174CD2] focus-within:ring-2 focus-within:ring-[#174CD2]/15 transition-all">
+                          <textarea
+                             value={replyText}
+                             onChange={(e) => setReplyText(e.target.value)}
+                             className="w-full p-3 md:p-4 text-xs md:text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[70px] md:min-h-[100px] placeholder:text-[#8E8E8E] text-[#040028] dark:text-white"
+                             placeholder={`${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...`}
+                          />
+                          <div className="flex items-center justify-between p-2 border-t border-black/5 dark:border-white/5 transition-colors gap-2">
+                              <div className="flex gap-1 md:gap-2 relative">
+                                  <IconButton icon={<FiSmile />} />
+                                  <IconButton icon={<FiMessageCircle />} onClick={() => setIsCannedOpen(v => !v)} />
+                                  {isCannedOpen && (
+                                      <div className="absolute bottom-full left-0 mb-2 w-64 md:w-72 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden z-30">
+                                          {CANNED_REPLIES.map((reply, i) => (
+                                              <button
+                                                  key={i}
+                                                  type="button"
+                                                  onClick={() => { setReplyText(reply); setIsCannedOpen(false); }}
+                                                  className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 text-xs font-medium text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors truncate"
+                                              >
+                                                  {reply}
+                                              </button>
+                                          ))}
+                                      </div>
+                                  )}
+                              </div>
+                              <button
+                                  onClick={handleReply}
+                                  disabled={!replyText || replyMutation.isPending}
+                                  className="bg-[#174CD2] text-white text-xs md:text-sm font-semibold px-4 md:px-5 py-2 rounded-[10px] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shrink-0"
+                              >
+                                  <FiSend size={14} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+               </div>
+             </>
+          ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-colors p-4">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-[16px] bg-white dark:bg-white/5 flex items-center justify-center mb-4 md:mb-6 shadow-xs">
+                      <FiMessageCircle size={28} strokeWidth={1.5} className="text-[#040028] dark:text-white" />
+                  </div>
+                  <p className="text-base md:text-lg font-semibold text-center">{t('Select a message', 'Sélectionnez un message')}</p>
+                  <p className="text-xs md:text-sm text-[#8E8E8E] mt-1 md:mt-2 text-center">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
+              </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -340,7 +464,7 @@ export default function Engagement() {
 const EngagementListItem = ({ e, active, onClick, t }: any) => (
     <div
       onClick={onClick}
-      className={`p-4 cursor-pointer border-b border-black/5 dark:border-white/5 transition-all group relative
+      className={`p-3 md:p-4 cursor-pointer border-b border-black/5 dark:border-white/5 transition-all group relative select-none
         ${active ? 'bg-[#174CD2]/8' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5'}`}
     >
       <div className="flex gap-3">
@@ -352,23 +476,23 @@ const EngagementListItem = ({ e, active, onClick, t }: any) => (
                     {e.authorName.charAt(0)}
                 </div>
             )}
-            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-white dark:border-[#0A0A2E] flex items-center justify-center shadow-sm">
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-white dark:border-[#0A0A2E] flex items-center justify-center shadow-xs">
                 <PlatformIcon platform={e.platform} size={9} />
             </div>
          </div>
          <div className="flex-1 min-w-0">
             <div className="flex justify-between items-baseline mb-1">
-                <span className={`flex items-center gap-1.5 text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
+                <span className={`flex items-center gap-1.5 text-xs md:text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
                     {e.authorName}
                 </span>
-                <span className="text-xs text-[#8E8E8E]">
+                <span className="text-[10px] md:text-xs text-[#8E8E8E] shrink-0 ml-2">
                     {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : t('Now', 'Maintenant')}
                 </span>
             </div>
-            <p className="text-xs line-clamp-2 text-[#8E8E8E]">
+            <p className="text-xs line-clamp-2 text-[#8E8E8E] leading-relaxed">
                 {e.content}
             </p>
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="flex gap-1.5 mt-2 flex-wrap items-center">
                  {e.type === 'dm' && (
                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
                          {t('DM', 'MP')}
@@ -391,13 +515,13 @@ const EngagementListItem = ({ e, active, onClick, t }: any) => (
 );
 
 const ActionButton = ({ icon, tooltip, onClick, variant = 'default' }: any) => (
-    <button onClick={onClick} className={`p-2 rounded-[10px] transition-all ${variant === 'danger' ? 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-red-500 hover:text-white' : 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white'}`} title={tooltip}>
+    <button onClick={onClick} className={`p-1.5 md:p-2 rounded-[10px] transition-all ${variant === 'danger' ? 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-red-500 hover:text-white' : 'bg-[#F5F7FA] dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 text-[#040028] dark:text-white'}`} title={tooltip}>
         {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );
 
 const IconButton = ({ icon, onClick }: { icon: React.ReactNode; onClick?: () => void }) => (
-    <button type="button" onClick={onClick} className="p-2 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#040028] dark:hover:text-white transition-all">
+    <button type="button" onClick={onClick} className="p-1.5 md:p-2 rounded-[8px] text-[#8E8E8E] hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#040028] dark:hover:text-white transition-all">
         {React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
     </button>
 );
