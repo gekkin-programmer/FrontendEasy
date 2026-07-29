@@ -30,5 +30,8 @@ export const brandTheme = defineTheme({
     '--color-background-body': ['#F7F6F3', '#040028'],
     '--color-border': ['#D9D9D9', 'rgba(255, 255, 255, 0.1)'],
     '--color-border-emphasized': ['#D9D9D9', 'rgba(255, 255, 255, 0.15)'],
+    // Toast's "inverted surface" (dark card in light mode / light card in dark
+    // mode) — brand ink instead of the neutral theme's default charcoal.
+    '--color-background-inverted': ['#040028', '#F7F6F3'],
   },
 });

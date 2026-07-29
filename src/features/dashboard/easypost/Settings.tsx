@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { api } from '@/lib/api';
 import { getBrowserTimezone, getSupportedTimezones } from '@/lib/timezone';
 import ConnectAccounts from './ConnectAccounts';
@@ -349,21 +349,21 @@ function ProfileSettings() {
     <div className="space-y-8">
       <NeuCard title={t('Public profile', 'Profil public')}>
         <div className="flex flex-col md:flex-row items-start gap-8">
-          <Skeleton className="w-28 h-28 rounded-full flex-shrink-0" />
+          <Skeleton width={112} height={112} radius="rounded" className="flex-shrink-0" />
           <div className="flex-1 space-y-4 w-full max-w-lg">
             <div className="grid grid-cols-2 gap-4">
-              <Skeleton className="h-10 rounded-[10px]" />
-              <Skeleton className="h-10 rounded-[10px]" />
+              <Skeleton height={40} radius={3} />
+              <Skeleton height={40} radius={3} />
             </div>
-            <Skeleton className="h-10 rounded-[10px]" />
-            <Skeleton className="h-10 w-1/2 rounded-[10px] ml-auto" />
+            <Skeleton height={40} radius={3} />
+            <Skeleton width="50%" height={40} radius={3} className="ml-auto" />
           </div>
         </div>
       </NeuCard>
       <NeuCard title={t('Account security', 'Sécurité du compte')}>
         <div className="max-w-lg space-y-4">
-          <Skeleton className="h-10 rounded-[10px]" />
-          <Skeleton className="h-12 rounded-[10px]" />
+          <Skeleton height={40} radius={3} />
+          <Skeleton height={48} radius={3} />
         </div>
       </NeuCard>
     </div>
@@ -507,12 +507,12 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
           <div className="space-y-3">
             {[0,1,2].map(i => (
               <div key={i} className="flex items-center gap-4 p-4 rounded-[14px] border border-black/5 dark:border-white/5">
-                <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                <Skeleton width={40} height={40} radius="rounded" className="flex-shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-2 w-48" />
+                  <Skeleton width={128} height={12} radius={1} />
+                  <Skeleton width={192} height={8} radius={1} />
                 </div>
-                <Skeleton className="h-6 w-16" />
+                <Skeleton width={64} height={24} radius={1} />
               </div>
             ))}
           </div>
@@ -657,7 +657,7 @@ function ApiTokensSettings({ workspaceId }: { workspaceId: string }) {
 
         {isLoading ? (
           <div className="space-y-3">
-            {[0, 1].map(i => <Skeleton key={i} className="h-16 w-full rounded-[14px]" />)}
+            {[0, 1].map(i => <Skeleton key={i} width="100%" height={64} radius={4} index={i} />)}
           </div>
         ) : tokens.length === 0 ? (
           <div className="text-center py-12 rounded-[14px] border border-dashed border-black/10 dark:border-white/10">
@@ -911,10 +911,10 @@ function PaymentMethodsCard() {
             {[0, 1].map(i => (
               <div key={i} className="flex items-center justify-between p-3 rounded-[10px] border border-black/5 dark:border-white/5">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="w-10 h-6" />
-                  <Skeleton className="h-4 w-32" />
+                  <Skeleton width={40} height={24} radius={1} />
+                  <Skeleton width={128} height={16} radius={1} />
                 </div>
-                <Skeleton className="h-8 w-20 rounded-[8px]" />
+                <Skeleton width={80} height={32} radius={2} />
               </div>
             ))}
           </div>

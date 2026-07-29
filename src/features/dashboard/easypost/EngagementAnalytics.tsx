@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { useAppToast } from '@/hooks/useAppToast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { useLanguage } from '@/context/LanguageContext';
 
 // --- CONFIG ---
@@ -77,43 +77,43 @@ export default function EngagementAnalytics() {
     <div className="max-w-6xl mx-auto space-y-8 p-2">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-4">
-        <Skeleton className="h-7 w-52 rounded-[8px]" />
+        <Skeleton width={208} height={28} radius={2} />
         <div className="flex gap-2">
           {['7D', '30D', '90D'].map((_, i) => (
-            <Skeleton key={i} className="h-8 w-12 rounded-[10px]" />
+            <Skeleton key={i} width={48} height={32} radius={3} index={i} />
           ))}
-          <Skeleton className="h-8 w-28 rounded-[10px]" />
+          <Skeleton width={112} height={32} radius={3} />
         </div>
       </div>
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] p-4 space-y-3">
-            <Skeleton className="h-3 w-20 rounded-[4px]" />
-            <Skeleton className="h-10 w-16 rounded-[6px]" />
-            <Skeleton className="h-5 w-14 rounded-full" />
+            <Skeleton width={80} height={12} radius={1} index={i} />
+            <Skeleton width={64} height={40} radius={2} index={i} />
+            <Skeleton width={56} height={20} radius="rounded" index={i} />
           </div>
         ))}
       </div>
       {/* Chart area */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] p-4">
-          <Skeleton className="h-5 w-32 mb-4 rounded-[6px]" />
+          <Skeleton width={128} height={20} radius={2} className="mb-4" />
           <div className="flex items-end gap-2 h-32">
             {[...Array(7)].map((_, i) => (
-              <Skeleton key={i} className="flex-1 rounded-t-[6px]" style={{ height: `${40 + (i * 13) % 60}%` }} />
+              <Skeleton key={i} width="100%" height={`${40 + (i * 13) % 60}%`} radius="none" className="flex-1 !rounded-t-[6px]" index={i} />
             ))}
           </div>
         </div>
         <div className="rounded-[16px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] p-4 space-y-4">
-          <Skeleton className="h-5 w-28 mb-2 rounded-[6px]" />
+          <Skeleton width={112} height={20} radius={2} className="mb-2" />
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Skeleton className="h-6 w-6 rounded-full" />
-                <Skeleton className="h-4 w-20 rounded-[4px]" />
+                <Skeleton width={24} height={24} radius="rounded" index={i} />
+                <Skeleton width={80} height={16} radius={1} index={i} />
               </div>
-              <Skeleton className="h-5 w-10 rounded-[4px]" />
+              <Skeleton width={40} height={20} radius={1} index={i} />
             </div>
           ))}
         </div>

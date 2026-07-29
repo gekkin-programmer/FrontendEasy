@@ -9,46 +9,16 @@ import { useLanguage } from '@/context/LanguageContext';
 
 // Icons
 import {
-  FiMessageCircle, FiCheck, FiCheckCircle, FiSearch, FiMoreHorizontal,
+  FiMessageCircle, FiCheck, FiCheckCircle, FiMoreHorizontal,
   FiSend, FiSmile, FiArchive,
-  FiRefreshCw, FiChevronLeft, FiChevronRight, FiLoader
+  FiChevronLeft, FiChevronRight
 } from 'react-icons/fi';
-import {
-  FaTwitter, FaInstagram, FaFacebook, FaLinkedin, FaTiktok, FaWhatsapp, FaYoutube
-} from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
+import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
 
 // --- CONFIGS ---
-const PLATFORM_ICONS: any = {
-  twitter:   <FaTwitter className="text-white" />,
-  instagram: <FaInstagram className="text-white" />,
-  facebook:  <FaFacebook className="text-white" />,
-  linkedin:  <FaLinkedin className="text-white" />,
-  tiktok:    <FaTiktok className="text-white" />,
-  youtube:   <FaYoutube className="text-white" />,
-  whatsapp:  <FaWhatsapp className="text-white" />,
-};
-
-const PLATFORM_BADGE_BG: Record<string, string> = {
-  facebook:  'bg-[#1877F2]',
-  instagram: 'bg-[#E4405F]',
-  tiktok:    'bg-black',
-  youtube:   'bg-[#FF0000]',
-  twitter:   'bg-black',
-  linkedin:  'bg-[#0077B5]',
-  whatsapp:  'bg-[#25D366]',
-};
-
-const PLATFORM_FILTERS = [
-  { id: 'facebook',  label: 'FB', icon: <FaFacebook  size={10} className="text-[#1877F2]" /> },
-  { id: 'instagram', label: 'IG', icon: <FaInstagram size={10} className="text-[#E4405F]" /> },
-  { id: 'tiktok',    label: 'TT', icon: <FaTiktok    size={10} /> },
-  { id: 'youtube',   label: 'YT', icon: <FaYoutube   size={10} className="text-[#FF0000]" /> },
-  { id: 'whatsapp',  label: 'WA', icon: <FaWhatsapp  size={10} className="text-[#25D366]" /> },
-];
-
 const SENTIMENT_STYLES: any = {
   positive: 'bg-green-100 text-green-700',
   negative: 'bg-red-100 text-red-700',
@@ -56,12 +26,18 @@ const SENTIMENT_STYLES: any = {
   question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
 
-const SENTIMENT_DOT: Record<string, string> = {
-  positive: 'bg-green-500',
-  negative: 'bg-red-500',
-  neutral: 'bg-[#8E8E8E]',
-  question: 'bg-[#174CD2]',
-};
+// ---------------------------------------------------------------------------
+// TEMP PREVIEW DATA — remove once the API returns real engagement items.
+// Only kicks in when the query comes back empty, so real data always wins.
+// ---------------------------------------------------------------------------
+const MOCK_ENGAGEMENTS = [
+  { _id: 'mock-1', authorName: 'Amara K.', authorAvatar: 'https://i.pravatar.cc/64?img=47', platform: 'instagram', content: 'Adore ce produit ! Où puis-je l\'acheter ?', receivedAt: new Date(Date.now() - 2 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'positive', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-2', authorName: 'Jason M.', authorAvatar: 'https://i.pravatar.cc/64?img=13', platform: 'facebook', content: 'Est-ce que la livraison est disponible au Cameroun ?', receivedAt: new Date(Date.now() - 5 * 3600000).toISOString(), status: 'unread', unreadCount: 2, sentiment: 'question', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-3', authorName: 'Sarah T.', authorAvatar: 'https://i.pravatar.cc/64?img=25', platform: 'tiktok', content: 'Ce n\'est pas arrivé comme prévu, un peu déçue.', receivedAt: new Date(Date.now() - 8 * 3600000).toISOString(), status: 'read', sentiment: 'negative', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+  { _id: 'mock-4', authorName: 'Kevin O.', authorAvatar: 'https://i.pravatar.cc/64?img=52', platform: 'whatsapp', content: 'Merci pour la réponse rapide !', receivedAt: new Date(Date.now() - 26 * 3600000).toISOString(), status: 'replied', sentiment: 'positive', type: 'dm', conversationId: 'mock-conv-4' },
+  { _id: 'mock-5', authorName: 'Linda P.', authorAvatar: 'https://i.pravatar.cc/64?img=31', platform: 'youtube', content: 'Super tuto, merci beaucoup 🙌', receivedAt: new Date(Date.now() - 30 * 3600000).toISOString(), status: 'read', sentiment: 'positive', type: 'comment', postId: 'post-3', postCaption: 'Nouveau tuto vidéo cette semaine' },
+  { _id: 'mock-6', authorName: 'Marc D.', authorAvatar: 'https://i.pravatar.cc/64?img=8', platform: 'facebook', content: 'Vous proposez ça aussi en taille XL ?', receivedAt: new Date(Date.now() - 48 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'question', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+];
 
 export default function Engagement() {
   const { t } = useLanguage();
@@ -73,13 +49,11 @@ export default function Engagement() {
   // STATE
   const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [filter, setFilter] = useState('all');
-  const [platformFilter, setPlatformFilter] = useState('all');
   const [isCannedOpen, setIsCannedOpen] = useState(false);
-  const [syncing, setSyncing] = useState(false);
+  const [inboxViewMode, setInboxViewMode] = useState<'list' | 'post'>('list');
 
   // 🟢 1. FETCH ENGAGEMENT
-  const { data: engagements = [], isLoading } = useQuery({
+  const { data: rawEngagements = [], isLoading } = useQuery({
     queryKey: ['engagement', workspaceId],
     gcTime: 0,
     queryFn: async () => {
@@ -87,6 +61,7 @@ export default function Engagement() {
         return res.data || [];
     }
   });
+  const engagements = rawEngagements.length > 0 ? rawEngagements : MOCK_ENGAGEMENTS;
 
   // 🟢 2. REPLY MUTATION (routes to WhatsApp or engagement endpoint based on type)
   const replyMutation = useMutation({
@@ -127,12 +102,18 @@ export default function Engagement() {
 
   // DERIVED STATE
   const activeEngagement = engagements.find((e: any) => e._id === activeId);
-  const filteredEngagements = engagements.filter((e: any) => {
-      if (filter === 'unread') return e.status === 'unread' || (e.unreadCount ?? 0) > 0;
-      if (filter === 'archived') return e.status === 'archived';
-      const notArchived = e.status !== 'archived';
-      if (platformFilter !== 'all') return notArchived && e.platform === platformFilter;
-      return notArchived;
+  const filteredEngagements = engagements.filter((e: any) => e.status !== 'archived');
+
+  // Group by post for the "By post" inbox view — items without a postId fall under a shared bucket
+  const postGroups: { key: string; caption: string; items: any[] }[] = [];
+  filteredEngagements.forEach((e: any) => {
+    const key = e.postId ?? 'no-post';
+    let group = postGroups.find(g => g.key === key);
+    if (!group) {
+      group = { key, caption: e.postId ? e.postCaption : t('Not linked to a post', 'Non liés à une publication'), items: [] };
+      postGroups.push(group);
+    }
+    group.items.push(e);
   });
 
   const activeIndex = filteredEngagements.findIndex((e: any) => e._id === activeId);
@@ -144,19 +125,6 @@ export default function Engagement() {
   };
   const goPrev = () => {
     if (hasPrev) { setActiveId(filteredEngagements[activeIndex - 1]._id); setReplyText(''); }
-  };
-
-  const handleSync = async () => {
-    setSyncing(true);
-    try {
-      await api.post(`/engagement/sync?workspaceId=${workspaceId}`, {});
-      queryClient.invalidateQueries({ queryKey: ['engagement', workspaceId] });
-      toast.success(t('Comments refreshed', 'Commentaires actualisés'));
-    } catch {
-      toast.error(t('Sync failed', 'Échec de la synchronisation'));
-    } finally {
-      setSyncing(false);
-    }
   };
 
   const handleReply = () => {
@@ -183,12 +151,18 @@ export default function Engagement() {
       {/* PAGE HEADER */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <h2 className="text-lg font-bold text-[#040028] dark:text-white">{t('Inbox', 'Boîte de réception')}</h2>
-        <div className="flex gap-2">
-            <button onClick={() => queryClient.invalidateQueries({queryKey:['engagement', workspaceId]})} className="p-2 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all" title={t('Refresh', 'Actualiser')}>
-              <FiRefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+        <div className="flex bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] p-1">
+            <button
+              onClick={() => setInboxViewMode('post')}
+              className={cn("px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all", inboxViewMode === 'post' ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-sm" : "text-[#8E8E8E]")}
+            >
+              {t('By post', 'Par publication')}
             </button>
-            <button onClick={() => void handleSync()} disabled={syncing} className="px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white text-xs font-semibold hover:bg-[#F5F7FA] dark:hover:bg-white/10 transition-all disabled:opacity-50" title={t('Sync comments from all platforms', 'Synchroniser les commentaires')}>
-              {syncing ? <FiLoader size={16} className="animate-spin" /> : t('Sync', 'Synchroniser')}
+            <button
+              onClick={() => setInboxViewMode('list')}
+              className={cn("px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all", inboxViewMode === 'list' ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-sm" : "text-[#8E8E8E]")}
+            >
+              {t('By list', 'Par liste')}
             </button>
         </div>
       </div>
@@ -198,103 +172,36 @@ export default function Engagement() {
       {/* LEFT PANEL: INBOX LIST */}
       <div className="w-[380px] flex flex-col border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-colors">
 
-        {/* Filters */}
-        <div className="p-4 border-b border-black/5 dark:border-white/5 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8E8E]" size={16} />
-            <input
-              type="text"
-              placeholder={t('Search messages...', 'Rechercher des messages...')}
-              className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-sm font-medium placeholder:text-[#8E8E8E] focus:outline-none focus:border-[#174CD2] focus:ring-2 focus:ring-[#174CD2]/15 transition-all text-[#040028] dark:text-white"
-            />
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-             <FilterBadge label={t('All', 'Tout')} active={filter === 'all' && platformFilter === 'all'} onClick={() => { setFilter('all'); setPlatformFilter('all'); }} />
-             <FilterBadge label={t('Unread', 'Non lu')} active={filter === 'unread'} count={engagements.filter((e:any) => e.status === 'unread' || (e.unreadCount ?? 0) > 0).length} onClick={() => { setFilter('unread'); setPlatformFilter('all'); }} />
-             {PLATFORM_FILTERS.map(pf => (
-               <FilterBadge
-                 key={pf.id}
-                 label={pf.label}
-                 icon={pf.icon}
-                 active={platformFilter === pf.id}
-                 count={engagements.filter((e: any) => e.platform === pf.id).length || undefined}
-                 onClick={() => { setFilter('all'); setPlatformFilter(platformFilter === pf.id ? 'all' : pf.id); }}
-               />
-             ))}
-          </div>
-        </div>
-
         {/* List */}
-        <div className="flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] transition-colors">
+        <div className="flex-1 overflow-y-auto bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors">
           {isLoading && (
             <div className="divide-y divide-black/5 dark:divide-white/5">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="flex items-start gap-3 p-4">
-                  <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
+                  <Skeleton width={36} height={36} radius="rounded" className="flex-shrink-0" index={i} />
                   <div className="flex-1 space-y-2">
                     <div className="flex justify-between">
-                      <Skeleton className="h-3 w-28 rounded-[4px]" />
-                      <Skeleton className="h-3 w-12 rounded-[4px]" />
+                      <Skeleton width={112} height={12} radius={1} index={i} />
+                      <Skeleton width={48} height={12} radius={1} index={i} />
                     </div>
-                    <Skeleton className="h-3 w-full rounded-[4px]" />
-                    <Skeleton className="h-3 w-3/4 rounded-[4px]" />
+                    <Skeleton width="100%" height={12} radius={1} index={i} />
+                    <Skeleton width="75%" height={12} radius={1} index={i} />
                   </div>
                 </div>
               ))}
             </div>
           )}
-          {!isLoading && filteredEngagements.length === 0 && (
-             <div className="p-8 text-center text-[#8E8E8E] text-sm font-medium">{t('No messages found', 'Aucun message trouvé')}</div>
-          )}
-          {!isLoading && filteredEngagements.map((e: any) => (
-            <div
-              key={e._id}
-              onClick={() => setActiveId(e._id)}
-              className={`p-4 cursor-pointer border-b border-black/5 dark:border-white/5 transition-all group relative
-                ${activeId === e._id ? 'bg-[#174CD2]/8' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5'}`}
-            >
-              {activeId === e._id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#174CD2]" />}
-              <div className="flex gap-3">
-                 <div className="flex-shrink-0 relative">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold overflow-hidden bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
-                        {e.authorAvatar ? <img src={e.authorAvatar} alt="" /> : e.authorName.charAt(0)}
-                    </div>
-                    <div className={`absolute -bottom-1 -right-1 p-0.5 rounded-full ring-2 ring-white dark:ring-[#0A0A2E] z-10 ${PLATFORM_BADGE_BG[e.platform.toLowerCase()] ?? 'bg-[#8E8E8E]'}`}>
-                        <span className="text-xs [&>svg]:text-white">{PLATFORM_ICONS[e.platform.toLowerCase()] || <FiMessageCircle className="text-white" />}</span>
-                    </div>
-                 </div>
-                 <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-baseline mb-1">
-                        <span className={`flex items-center gap-1.5 text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
-                            {e.sentiment && <span className={cn("w-2 h-2 rounded-full flex-shrink-0", SENTIMENT_DOT[e.sentiment])} title={e.sentiment} />}
-                            {e.authorName}
-                        </span>
-                        <span className="text-xs text-[#8E8E8E]">
-                            {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : t('Now', 'Maintenant')}
-                        </span>
-                    </div>
-                    <p className="text-xs line-clamp-2 text-[#8E8E8E]">
-                        {e.content}
-                    </p>
-                    <div className="flex gap-2 mt-2 flex-wrap">
-                         {e.type === 'dm' && (
-                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
-                                 {t('DM', 'MP')}
-                             </span>
-                         )}
-                         {(e.unreadCount ?? 0) > 0 && (
-                             <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#174CD2] text-white min-w-[20px]">
-                                 {e.unreadCount}
-                             </span>
-                         )}
-                         {e.status === 'replied' && (
-                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
-                                 <FiCheck size={10} strokeWidth={3} /> {t('Replied', 'Répondu')}
-                             </span>
-                         )}
-                    </div>
-                 </div>
+          {!isLoading && inboxViewMode === 'list' && filteredEngagements.map((e: any) => (
+            <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => setActiveId(e._id)} t={t} />
+          ))}
+          {!isLoading && inboxViewMode === 'post' && postGroups.map((group) => (
+            <div key={group.key}>
+              <div className="px-4 py-2 bg-[#F7F6F3] dark:bg-white/5 text-xs font-semibold text-[#040028] dark:text-white truncate">
+                {group.caption}
               </div>
+              {group.items.map((e: any) => (
+                <EngagementListItem key={e._id} e={e} active={activeId === e._id} onClick={() => setActiveId(e._id)} t={t} />
+              ))}
             </div>
           ))}
         </div>
@@ -351,7 +258,7 @@ export default function Engagement() {
              </div>
 
              {/* Content Area */}
-             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-[#F5F7FA]/40 dark:bg-transparent transition-colors">
+             <div className="flex-1 overflow-y-auto p-8 relative z-0 bg-[#F7F6F3] dark:bg-transparent transition-colors">
                  <div className="max-w-3xl mx-auto space-y-8">
 
                      <div className="flex gap-4">
@@ -416,8 +323,8 @@ export default function Engagement() {
            </>
         ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-colors">
-                <div className="w-16 h-16 rounded-[16px] bg-[#F5F7FA] dark:bg-white/5 flex items-center justify-center mb-6">
-                    <FiMessageCircle size={28} strokeWidth={1.5} className="text-[#8E8E8E]" />
+                <div className="w-16 h-16 rounded-[16px] bg-white dark:bg-white/5 flex items-center justify-center mb-6">
+                    <FiMessageCircle size={28} strokeWidth={1.5} className="text-[#040028] dark:text-white" />
                 </div>
                 <p className="text-lg font-semibold">{t('Select a message', 'Sélectionnez un message')}</p>
                 <p className="text-sm text-[#8E8E8E] mt-2">{t('Click an item from your inbox', 'Cliquez sur un élément de votre boîte de réception')}</p>
@@ -430,12 +337,57 @@ export default function Engagement() {
 }
 
 // --- SUB COMPONENTS ---
-const FilterBadge = ({ label, active, count, onClick, icon }: any) => (
-    <button onClick={onClick} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${active ? 'bg-[#174CD2] text-white' : 'bg-[#F5F7FA] dark:bg-white/5 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}>
-        {icon && <span>{icon}</span>}
-        {label}
-        {count !== undefined && <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${active ? 'bg-white/20 text-white' : 'bg-black/10 dark:bg-white/10 text-[#040028] dark:text-white'}`}>{count}</span>}
-    </button>
+const EngagementListItem = ({ e, active, onClick, t }: any) => (
+    <div
+      onClick={onClick}
+      className={`p-4 cursor-pointer border-b border-black/5 dark:border-white/5 transition-all group relative
+        ${active ? 'bg-[#174CD2]/8' : 'bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5'}`}
+    >
+      <div className="flex gap-3">
+         <div className="flex-shrink-0 relative w-10 h-10">
+            {e.authorAvatar ? (
+                <img src={e.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+            ) : (
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                    {e.authorName.charAt(0)}
+                </div>
+            )}
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-white dark:border-[#0A0A2E] flex items-center justify-center shadow-sm">
+                <PlatformIcon platform={e.platform} size={9} />
+            </div>
+         </div>
+         <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-baseline mb-1">
+                <span className={`flex items-center gap-1.5 text-sm font-semibold truncate text-[#040028] dark:text-white ${e.status === 'unread' ? '' : 'opacity-70'}`}>
+                    {e.authorName}
+                </span>
+                <span className="text-xs text-[#8E8E8E]">
+                    {e.receivedAt ? formatDistanceToNow(new Date(e.receivedAt), { addSuffix: true }) : t('Now', 'Maintenant')}
+                </span>
+            </div>
+            <p className="text-xs line-clamp-2 text-[#8E8E8E]">
+                {e.content}
+            </p>
+            <div className="flex gap-2 mt-2 flex-wrap">
+                 {e.type === 'dm' && (
+                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                         {t('DM', 'MP')}
+                     </span>
+                 )}
+                 {(e.unreadCount ?? 0) > 0 && (
+                     <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#174CD2] text-white min-w-[20px]">
+                         {e.unreadCount}
+                     </span>
+                 )}
+                 {e.status === 'replied' && (
+                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
+                         <FiCheck size={10} strokeWidth={3} /> {t('Replied', 'Répondu')}
+                     </span>
+                 )}
+            </div>
+         </div>
+      </div>
+    </div>
 );
 
 const ActionButton = ({ icon, tooltip, onClick, variant = 'default' }: any) => (
