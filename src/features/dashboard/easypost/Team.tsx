@@ -37,18 +37,18 @@ const NeuButton = ({ children, onClick, className = "", variant = "default", dis
   );
 };
 
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 
 const SkeletonMemberRow = () => (
   <div className="p-4 rounded-[14px] border border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0A0A2E]">
     <div className="flex items-center gap-4">
-      <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+      <Skeleton width={40} height={40} radius="rounded" className="flex-shrink-0" />
       <div className="space-y-2">
-        <Skeleton className="h-3 w-36" />
-        <Skeleton className="h-2 w-52" />
+        <Skeleton width={144} height={12} radius={1} />
+        <Skeleton width={208} height={8} radius={1} />
       </div>
     </div>
-    <Skeleton className="h-6 w-16" />
+    <Skeleton width={64} height={24} radius={1} />
   </div>
 );
 

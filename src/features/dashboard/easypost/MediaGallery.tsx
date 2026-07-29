@@ -9,7 +9,7 @@ import {
 import { SiCanva, SiDropbox, SiGoogledrive } from 'react-icons/si';
 import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -45,7 +45,6 @@ export default function MediaGallery({
   const toast = useAppToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [sectionMenuFor, setSectionMenuFor] = useState<string | null>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
   const [canvaUploading, setCanvaUploading] = useState<string | null>(null);
   const [dropboxModalOpen, setDropboxModalOpen] = useState(false);
@@ -374,8 +373,9 @@ export default function MediaGallery({
   return (
     <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
 
-      {/* Toolbar */}
-      <div className="sticky top-0 isolate z-20 flex flex-wrap gap-4 items-center justify-between bg-[#F7F6F3] dark:bg-[#0A0A2E] p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
+      {/* Toolbar + Storage — sticky as one unit so only the grid below scrolls */}
+      <div className="sticky top-0 isolate z-20 flex flex-col gap-4 bg-[#F7F6F3] dark:bg-[#0A0A2E] pb-1">
+      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -448,6 +448,7 @@ export default function MediaGallery({
             </div>
         </div>
       )}
+      </div>
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
@@ -458,8 +459,8 @@ export default function MediaGallery({
              <>
                {[...Array(10)].map((_, i) => (
                  <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-[14px] border border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
-                   <Skeleton className="w-full aspect-square rounded-[10px]" />
-                   <Skeleton className="h-2.5 w-3/4 rounded-[4px]" />
+                   <Skeleton width="100%" radius={3} className="aspect-square !h-auto" index={i} />
+                   <Skeleton width="75%" height={10} radius={1} index={i} />
                  </div>
                ))}
              </>
@@ -538,7 +539,7 @@ export default function MediaGallery({
                 {assets.map((asset: any) => (
                     <div
                         key={asset.id}
-                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-black/[0.02] dark:border-white/[0.02] transition-all overflow-hidden"
+                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 transition-all overflow-hidden"
                     >
                         {asset.mimeType?.startsWith('video/') ? (
                             <video
@@ -567,7 +568,7 @@ export default function MediaGallery({
                         <div
                             className={cn(
                                 "absolute inset-0 transition-all flex flex-col justify-between p-2 pointer-events-none [&>*]:pointer-events-auto",
-                                sectionMenuFor === asset.id || optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                             )}
                         >
                             {/* Top row: overflow menu (Edit in Canva / Delete) */}
@@ -604,40 +605,20 @@ export default function MediaGallery({
                                 </Popover>
                             </div>
 
-                            {/* Bottom: Use / section selector */}
-                            {onUse && sectionMenuFor === asset.id ? (
-                                <div className="bg-white dark:bg-[#0A0A2E] rounded-[10px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] flex flex-col gap-1 p-1.5">
-                                    {sections.map(s => (
-                                        <button
-                                            key={s.id}
-                                            className="w-full rounded-[6px] bg-[#174CD2] text-white py-1.5 text-[10px] font-semibold hover:bg-[#040028] transition-colors"
-                                            onClick={() => { onUse(asset, s.id); setSectionMenuFor(null); }}
-                                        >
-                                            {s.label}
-                                        </button>
-                                    ))}
-                                    <button
-                                        className="w-full rounded-[6px] bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white py-1.5 text-[10px] font-semibold"
-                                        onClick={() => setSectionMenuFor(null)}
-                                    >
-                                        {t("Cancel", "Annuler")}
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    className="w-full rounded-[8px] bg-white text-[#040028] py-1.5 text-xs font-semibold hover:bg-[#E5E5E5] transition-colors"
-                                    onClick={() => {
-                                        if (onUse) {
-                                            setSectionMenuFor(asset.id);
-                                        } else {
-                                            navigator.clipboard.writeText(asset.url).catch(() => {});
-                                            toast.success(t("URL copied", "URL copiée"));
-                                        }
-                                    }}
-                                >
-                                    {t("Use", "Utiliser")}
-                                </button>
-                            )}
+                            {/* Bottom: Use — attaches directly, no section picker */}
+                            <button
+                                className="w-full rounded-[8px] bg-[#F7F6F3] text-[#040028] py-1.5 text-xs font-semibold"
+                                onClick={() => {
+                                    if (onUse) {
+                                        onUse(asset, sections[0]?.id);
+                                    } else {
+                                        navigator.clipboard.writeText(asset.url).catch(() => {});
+                                        toast.success(t("URL copied", "URL copiée"));
+                                    }
+                                }}
+                            >
+                                {t("Use", "Utiliser")}
+                            </button>
                         </div>
                     </div>
                 ))}

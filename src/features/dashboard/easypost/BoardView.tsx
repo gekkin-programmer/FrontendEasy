@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { NeuButton, NeuInput, NeuModal, ConfirmModal } from './DashboardUI';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 function KanbanSkeleton() {
@@ -24,13 +24,13 @@ function KanbanSkeleton() {
       {[...Array(3)].map((_, col) => (
         <div key={col} className="w-72 flex-shrink-0 bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px]">
           <div className="p-3 border-b border-black/5 dark:border-white/5">
-            <Skeleton className="h-5 w-24 rounded-[6px]" />
+            <Skeleton width={96} height={20} radius={2} />
           </div>
           <div className="p-3 space-y-3">
             {[...Array(col + 2)].map((_, card) => (
               <div key={card} className="bg-[#F5F7FA] dark:bg-white/5 rounded-[12px] p-3 space-y-2">
-                <Skeleton className="h-4 w-full rounded-[4px]" />
-                <Skeleton className="h-3 w-2/3 rounded-[4px]" />
+                <Skeleton width="100%" height={16} radius={1} index={card} />
+                <Skeleton width="66.6667%" height={12} radius={1} index={card} />
               </div>
             ))}
           </div>

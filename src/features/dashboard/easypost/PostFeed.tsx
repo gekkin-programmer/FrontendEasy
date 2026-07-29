@@ -85,23 +85,23 @@ interface PostFeedProps {
   workspaceTimezone?: string;
 }
 
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 
 const SkeletonCard = () => (
   <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
-        <Skeleton className="w-8 h-8 rounded-full" />
+        <Skeleton width={32} height={32} radius="rounded" />
         <div className="space-y-1">
-          <Skeleton className="h-2.5 w-24 rounded-[4px]" />
-          <Skeleton className="h-2 w-16 rounded-[4px]" />
+          <Skeleton width={96} height={10} radius={1} />
+          <Skeleton width={64} height={8} radius={1} />
         </div>
       </div>
-      <Skeleton className="h-5 w-16 rounded-full" />
+      <Skeleton width={64} height={20} radius="rounded" />
     </div>
-    <div className="space-y-2 pl-3 border-l-2 border-black/5 dark:border-white/10">
-      <Skeleton className="h-3 w-full rounded-[4px]" />
-      <Skeleton className="h-3 w-4/5 rounded-[4px]" />
+    <div className="space-y-2">
+      <Skeleton width="100%" height={12} radius={1} />
+      <Skeleton width="80%" height={12} radius={1} />
     </div>
   </div>
 );
@@ -115,14 +115,17 @@ const MediaThumbnail = ({ pm }: { pm: PostMediaItem }) => {
   const isVideo = pm.media.mimeType?.startsWith('video/');
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <Skeleton
+      <div
         className={cn(
-          "media-skeleton absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-500",
+          "absolute inset-0 transition-opacity duration-500",
           loaded ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
       >
-        <ImageIcon size={18} className="text-black/10 dark:text-white/15" strokeWidth={1.5} />
-      </Skeleton>
+        <Skeleton radius="none" width="100%" height="100%" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <ImageIcon size={18} className="text-black/10 dark:text-white/15" strokeWidth={1.5} />
+        </div>
+      </div>
       {isVideo ? (
         <video
           src={pm.media.url}
@@ -272,7 +275,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         )}
         <div className="flex-1 min-w-0 space-y-1">
           {post.title && <h4 className="font-semibold text-sm text-[#040028] dark:text-white truncate">{post.title}</h4>}
-          <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-2 leading-relaxed border-l-2 border-black/5 dark:border-white/10 pl-3">
+          <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-2 leading-relaxed">
             {post.content}
           </p>
           {post.description && <p className="text-xs text-[#8E8E8E] line-clamp-2 mt-1">{post.description}</p>}
@@ -728,7 +731,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                             for(const d of drafts) await publishPost(d.id);
                         }
                     }}
-                    className="bg-[#174CD2] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#123a9e] transition-all"
+                    className="bg-[#040028] text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-[#040028]/90 transition-all"
                 >
                     {t("Publish all", "Tout publier")}
                 </button>
@@ -763,32 +766,27 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             posts.length === 0 && mockDrafts.length > 0 ? (
-              <div className="relative">
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[10px] font-semibold text-[#8E8E8E] px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
-                  {t("Example — create your first draft", "Exemple — créez votre premier brouillon")}
-                </div>
-                <div className="space-y-4 pt-3">
-                  <AnimatePresence mode="popLayout">
-                    {mockDrafts.map((post) => (
-                      <SortableCard key={post.id} id={post.id}>
-                        {(drag) => (
-                          <PostCard
-                            post={post}
-                            onDelete={() => dismissMock(post.id)}
-                            onEdit={() => onEdit?.(post)}
-                            onPublishNow={() => publishMockNow(post.id)}
-                            onRetry={() => publishMockNow(post.id)}
-                            workspaceTimezone={workspaceTimezone}
-                            draggable={true}
-                            dragHandleProps={drag.dragHandleProps}
-                            cardRef={drag.cardRef}
-                            isDraggingActive={drag.isDraggingActive}
-                          />
-                        )}
-                      </SortableCard>
-                    ))}
-                  </AnimatePresence>
-                </div>
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {mockDrafts.map((post) => (
+                    <SortableCard key={post.id} id={post.id}>
+                      {(drag) => (
+                        <PostCard
+                          post={post}
+                          onDelete={() => dismissMock(post.id)}
+                          onEdit={() => onEdit?.(post)}
+                          onPublishNow={() => publishMockNow(post.id)}
+                          onRetry={() => publishMockNow(post.id)}
+                          workspaceTimezone={workspaceTimezone}
+                          draggable={true}
+                          dragHandleProps={drag.dragHandleProps}
+                          cardRef={drag.cardRef}
+                          isDraggingActive={drag.isDraggingActive}
+                        />
+                      )}
+                    </SortableCard>
+                  ))}
+                </AnimatePresence>
               </div>
             ) : (
               <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
@@ -852,38 +850,33 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
             posts.length === 0 && mockQueued.length > 0 ? (
-              <div className="relative">
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[10px] font-semibold text-[#8E8E8E] px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
-                  {t("Example — drag a draft here to schedule", "Exemple — glissez un brouillon ici pour planifier")}
-                </div>
-                <div className="space-y-4 pt-3">
-                  <AnimatePresence mode="popLayout">
-                    {mockQueued.map((post) => (
-                      isReversibleStatus(post.status) ? (
-                        <DraggableCard key={post.id} id={post.id}>
-                          {(drag) => (
-                            <PostCard
-                              post={post}
-                              onDelete={() => dismissMock(post.id)}
-                              onEdit={() => onEdit?.(post)}
-                              onCancelSchedule={() => moveMockToDrafts(post.id)}
-                              onPublishNow={() => publishMockNow(post.id)}
-                              onRetry={() => publishMockNow(post.id)}
-                              isQueued
-                              workspaceTimezone={workspaceTimezone}
-                              draggable={true}
-                              dragHandleProps={drag.dragHandleProps}
-                              cardRef={drag.cardRef}
-                              isDraggingActive={drag.isDraggingActive}
-                            />
-                          )}
-                        </DraggableCard>
-                      ) : (
-                        <PostCard key={post.id} post={post} onDelete={() => dismissMock(post.id)} onEdit={() => onEdit?.(post)} isQueued workspaceTimezone={workspaceTimezone} />
-                      )
-                    ))}
-                  </AnimatePresence>
-                </div>
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {mockQueued.map((post) => (
+                    isReversibleStatus(post.status) ? (
+                      <DraggableCard key={post.id} id={post.id}>
+                        {(drag) => (
+                          <PostCard
+                            post={post}
+                            onDelete={() => dismissMock(post.id)}
+                            onEdit={() => onEdit?.(post)}
+                            onCancelSchedule={() => moveMockToDrafts(post.id)}
+                            onPublishNow={() => publishMockNow(post.id)}
+                            onRetry={() => publishMockNow(post.id)}
+                            isQueued
+                            workspaceTimezone={workspaceTimezone}
+                            draggable={true}
+                            dragHandleProps={drag.dragHandleProps}
+                            cardRef={drag.cardRef}
+                            isDraggingActive={drag.isDraggingActive}
+                          />
+                        )}
+                      </DraggableCard>
+                    ) : (
+                      <PostCard key={post.id} post={post} onDelete={() => dismissMock(post.id)} onEdit={() => onEdit?.(post)} isQueued workspaceTimezone={workspaceTimezone} />
+                    )
+                  ))}
+                </AnimatePresence>
               </div>
             ) : (
               <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">

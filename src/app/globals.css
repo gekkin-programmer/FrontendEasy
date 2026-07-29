@@ -99,6 +99,47 @@
   order: 1;
 }
 
+/* Typeahead's field box shows the neutral theme's default (near-black) border
+   and adds a focus-within color/glow change — brandTheme only overrides
+   --color-border for a handful of components, and Typeahead wasn't one of
+   them until now. Product call, same as .astryx-date-input above: keep the
+   border neutral grey always, no color change or glow, in any interaction
+   state. Also bumped height/radius and tightened padding to match the rest
+   of the toolbar. !important since these compete with StyleX's own
+   state-scoped declarations. */
+.astryx-typeahead {
+  border: 1px solid #D9D9D9 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  height: 44px !important;
+  transition: none !important;
+}
+.astryx-typeahead:focus-within,
+.astryx-typeahead:hover {
+  border-color: #D9D9D9 !important;
+  box-shadow: none !important;
+}
+
+/* Results dropdown renders through Astryx's Layer portal, outside this
+   component's own DOM subtree — a local wrapper selector can't reach it, so
+   this has to be a global rule. */
+.astryx-typeahead-dropdown {
+  padding: 4px !important;
+}
+
+/* DateRangeInput trigger ("Sur mesure" custom range button, Analytics tab):
+   hover/active background set via the component's className prop didn't take —
+   StyleX ships its own pseudo-class-scoped declarations for this state, which
+   won the cascade over an inline className hover:/active: variant (same class
+   of problem .astryx-date-input above works around). Global unlayered rule
+   instead. */
+.astryx-date-range-input:hover {
+  background-color: #F7F6F3 !important;
+}
+.astryx-date-range-input:active {
+  background-color: #E7EDFA !important;
+}
+
 @layer base {
   :root {
     /* --- BRAND: Eazlypost Blue #304AEB --- */
@@ -272,34 +313,6 @@
 /* Glassmorphism */
 .glass {
   @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
-}
-
-/* --- PREMIUM SKELETON SHIMMER --- */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.skeleton {
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-.dark .skeleton {
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-}
-
-/* Media-thumbnail skeleton — built from the card's own bg (#F7F6F3 / #0A0A2E)
-   instead of generic grey, so the loading state blends into the card rather
-   than reading as a foreign placeholder box. */
-.media-skeleton {
-  background: linear-gradient(90deg, #EFEDE8 25%, #FFFFFF 50%, #EFEDE8 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-.dark .media-skeleton {
-  background: linear-gradient(90deg, #0A0A2E 25%, #1B1B4D 50%, #0A0A2E 75%);
-  background-size: 200% 100%;
 }
 
 /* --- HERO SECTION BACKGROUND --- */
