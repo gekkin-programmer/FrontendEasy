@@ -10,11 +10,12 @@ import {
   addDays, subDays, startOfDay, endOfDay, setMinutes, setHours
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, GripVertical, Download, Pencil, FileCheck, Plus } from 'lucide-react';
-import { formatTimeInTz } from '@/lib/timezone';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
+import { motion } from 'framer-motion';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa6';
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -37,14 +38,33 @@ const ICONS: Record<string, any> = {
   LINKEDIN: FaLinkedinIn, TIKTOK: FaTiktok, YOUTUBE: FaYoutube, WHATSAPP: FaWhatsapp
 };
 
+// ---------------------------------------------------------------------------
+// TEMP PREVIEW DATA — remove once the API returns real calendar posts.
+// Only kicks in when the query comes back empty, so real data always wins.
+// Dates are relative to "today" so they always land inside the visible grid.
+// ---------------------------------------------------------------------------
+const acc = (platform: string) => [{ socialAccount: { platform } }];
+const MOCK_CALENDAR_POSTS = [
+  { id: 'mock-cal-1', content: 'Ravis de partager notre dernière mise à jour produit !', status: 'PUBLISHED', scheduledFor: addDays(new Date(), -3).toISOString(), socialAccounts: acc('INSTAGRAM') },
+  { id: 'mock-cal-2', content: '5 astuces pour développer votre audience ce mois-ci.', status: 'PUBLISHED', scheduledFor: addDays(new Date(), -2).toISOString(), socialAccounts: acc('TIKTOK') },
+  { id: 'mock-cal-3', content: 'Les coulisses de notre dernier shooting photo 📸', status: 'PUBLISHED', scheduledFor: addDays(new Date(), -1).toISOString(), socialAccounts: acc('FACEBOOK') },
+  { id: 'mock-cal-4', content: 'Merci à tous ceux qui ont rejoint notre session en direct !', status: 'SCHEDULED', scheduledFor: new Date().toISOString(), socialAccounts: acc('LINKEDIN') },
+  { id: 'mock-cal-5', content: 'La nouvelle collection est en ligne — venez voir ! ✨', status: 'SCHEDULED', scheduledFor: new Date().toISOString(), socialAccounts: acc('INSTAGRAM') },
+  { id: 'mock-cal-6', content: 'Petit sondage : quelle fonctionnalité devrait-on développer ensuite ?', status: 'PENDING_APPROVAL', scheduledFor: addDays(new Date(), 2).toISOString(), socialAccounts: acc('TWITTER') },
+  { id: 'mock-cal-7', content: 'Nouveau tuto vidéo cette semaine, restez connectés.', status: 'SCHEDULED', scheduledFor: addDays(new Date(), 4).toISOString(), socialAccounts: acc('YOUTUBE') },
+  { id: 'mock-cal-8', content: 'On recrute ! Rejoignez une équipe passionnée.', status: 'SCHEDULED', scheduledFor: addDays(new Date(), 6).toISOString(), socialAccounts: acc('FACEBOOK') },
+  { id: 'mock-cal-9', content: 'Behind-the-scenes de notre prochaine campagne.', status: 'SCHEDULED', scheduledFor: addDays(new Date(), 9).toISOString(), socialAccounts: acc('WHATSAPP') },
+  { id: 'mock-cal-10', content: 'Question du jour : votre fonctionnalité préférée ?', status: 'SCHEDULED', scheduledFor: addDays(new Date(), 12).toISOString(), socialAccounts: acc('TIKTOK') },
+];
+
 function CalendarSkeleton() {
   return (
     <div className="grid grid-cols-7 gap-px bg-black/5 dark:bg-white/5">
       {[...Array(35)].map((_, i) => (
         <div key={i} className="min-h-[100px] p-2 bg-white dark:bg-[#0A0A2E] space-y-2">
-          <Skeleton className="h-5 w-5 rounded-full" />
-          {i % 3 === 0 && <Skeleton className="h-8 w-full rounded-[8px]" />}
-          {i % 5 === 0 && <Skeleton className="h-8 w-full rounded-[8px]" />}
+          <Skeleton width={20} height={20} radius="rounded" />
+          {i % 3 === 0 && <Skeleton width="100%" height={32} radius={2} />}
+          {i % 5 === 0 && <Skeleton width="100%" height={32} radius={2} />}
         </div>
       ))}
     </div>
@@ -59,17 +79,13 @@ const trackAction = (action: string, metadata: any = {}) => {
 };
 
 // 🟢 DROPPABLE CELL COMPONENT
-const CalendarCell = ({ id, children, className, isToday, isPast, dayNum, dayLabel, postCount, onQuickCreate }: any) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
+const CalendarCell = ({ id, children, className, isToday, isPast, dayNum, dayLabel, onQuickCreate }: any) => {
+  const { setNodeRef } = useDroppable({ id });
 
   return (
     <div
       ref={setNodeRef}
-      className={cn(
-        className,
-        "group/cell",
-        isOver && "ring-2 ring-[#174CD2] ring-inset bg-[#174CD2]/5 z-10"
-      )}
+      className={cn(className, "group/cell")}
     >
         <div className="flex justify-between items-center mb-1">
             <div className="flex items-center gap-2">
@@ -82,11 +98,6 @@ const CalendarCell = ({ id, children, className, isToday, isPast, dayNum, dayLab
                 {dayLabel && <span className="text-xs font-semibold text-[#8E8E8E]">{dayLabel}</span>}
             </div>
             <div className="flex items-center gap-1.5">
-                {postCount > 0 && (
-                    <span className="text-[10px] font-semibold rounded-full px-2 py-0.5 bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
-                        {postCount}
-                    </span>
-                )}
                 {!isPast && onQuickCreate && (
                     <button
                         type="button"
@@ -105,7 +116,7 @@ const CalendarCell = ({ id, children, className, isToday, isPast, dayNum, dayLab
 };
 
 // 🟢 DRAGGABLE ITEM COMPONENT
-const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone, onApprove }: { post: any, onClick: (post: any) => void, viewType: ViewType, canApprove?: boolean, workspaceTimezone?: string, onApprove?: (post: any) => void }) => {
+const DraggablePost = ({ post, onClick, viewType, canApprove, onApprove }: { post: any, onClick: (post: any) => void, viewType: ViewType, canApprove?: boolean, onApprove?: (post: any) => void }) => {
   const { t } = useLanguage();
   const needsApproval = post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW';
   const {
@@ -130,12 +141,14 @@ const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone,
     <div
       ref={setNodeRef}
       style={style}
+      {...attributes}
+      {...listeners}
       className={cn(
-          "group relative flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 text-[10px] font-medium transition-all",
+          "group relative flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 text-[10px] font-medium transition-all cursor-grab active:cursor-grabbing",
           viewType === 'day' ? "p-3 text-xs" : ""
       )}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white shrink-0">
+      <div className="text-[#8E8E8E] shrink-0">
         <GripVertical size={viewType === 'day' ? 14 : 10} />
       </div>
 
@@ -172,37 +185,11 @@ const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone,
       {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
         <button
           onClick={(e) => { e.stopPropagation(); onClick(post); }}
-          className="opacity-0 group-hover:opacity-100 p-0.5 text-[#8E8E8E] hover:text-[#174CD2] transition-opacity shrink-0"
+          className="p-0.5 text-[#8E8E8E] hover:text-[#174CD2] transition-colors shrink-0"
         >
           <Pencil size={viewType === 'day' ? 12 : 8} />
         </button>
       )}
-
-      <div className="hidden group-hover:block absolute bottom-full left-0 w-48 rounded-[10px] bg-[#040028] text-white p-3 text-[10px] z-[100] mb-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
-          <p className="line-clamp-3 font-medium">{post.content}</p>
-          <div className="flex flex-col mt-2 pt-2 border-t border-white/10 text-[10px] text-white/70 gap-1">
-              <div className="flex justify-between">
-                <span>{t('Targets:', 'Cibles:')}</span>
-                <span>{socialAccounts.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t('Time:', 'Heure:')}</span>
-                <span>{post.scheduledFor ? formatTimeInTz(post.scheduledFor, workspaceTimezone || 'UTC') : 'N/A'}</span>
-              </div>
-              {post.status === 'PUBLISHED' && (
-                <div className="flex justify-between text-green-400">
-                  <span>{t('Status', 'Statut')}</span>
-                  <span>{t('Published', 'Publié')}</span>
-                </div>
-              )}
-              {needsApproval && (
-                <div className="flex justify-between text-yellow-400">
-                  <span>{t('Status', 'Statut')}</span>
-                  <span>{t('Pending approval', 'En attente d\'approbation')}</span>
-                </div>
-              )}
-          </div>
-      </div>
     </div>
   );
 };
@@ -210,6 +197,7 @@ const DraggablePost = ({ post, onClick, viewType, canApprove, workspaceTimezone,
 export default function CalendarView({ workspaceId, onPostClick, onDateClick, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, onDateClick?: (dateStr: string) => void, canApprove?: boolean, workspaceTimezone?: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
+  const [activePost, setActivePost] = useState<any>(null);
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const toast = useAppToast();
@@ -226,12 +214,13 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
     }
   }, [currentDate, viewType]);
 
-  const { data: posts = [], isLoading } = useQuery({
+  const { data: rawPosts = [], isLoading } = useQuery({
     queryKey: ['calendar', workspaceId, viewType, format(currentDate, 'yyyy-MM-dd')],
     queryFn: () => api.get<any[]>(`/posts?workspaceId=${workspaceId}&start=${format(start, 'yyyy-MM-dd')}&end=${format(end, 'yyyy-MM-dd')}`),
     enabled: !!workspaceId,
     gcTime: 0,
   });
+  const posts = rawPosts.length > 0 ? rawPosts : MOCK_CALENDAR_POSTS;
 
   const rescheduleMutation = useMutation({
     mutationFn: ({ id, date }: { id: string, date: string }) =>
@@ -265,7 +254,12 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  const handleDragStart = (event: any) => {
+    setActivePost(posts.find(p => p.id === event.active.id) || null);
+  };
+
   const handleDragEnd = (event: any) => {
+    setActivePost(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -380,7 +374,7 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
       {isLoading ? (
         <CalendarSkeleton />
       ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className={cn(
                 "grid gap-px bg-black/5 dark:bg-white/5",
                 viewType === 'day' ? "grid-cols-1" : "grid-cols-7 auto-rows-fr"
@@ -388,7 +382,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
             {days.map((day) => {
                 const dayStr = format(day, 'yyyy-MM-dd');
                 const dayPosts = posts.filter(p => p.scheduledFor && isSameDay(parseISO(p.scheduledFor), day));
-                const totalNodes = dayPosts.reduce((sum, p) => sum + (p.socialAccounts?.length || 0), 0);
                 const isToday = isSameDay(day, new Date());
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const isPast = day < startOfDay(new Date());
@@ -401,7 +394,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
                     dayLabel={viewType === 'day' ? format(day, 'EEEE MMMM yyyy') : null}
                     isToday={isToday}
                     isPast={isPast}
-                    postCount={totalNodes}
                     onQuickCreate={onDateClick ? () => onDateClick(dayStr) : undefined}
                     className={cn(
                         "transition-colors relative flex flex-col gap-2 p-2",
@@ -421,7 +413,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
                                     onClick={onPostClick || (() => {})}
                                     viewType={viewType}
                                     canApprove={canApprove}
-                                    workspaceTimezone={workspaceTimezone}
                                     onApprove={(p) => approveMutation.mutate(p.id)}
                                 />
                             ))}
@@ -431,6 +422,19 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
                 );
             })}
             </div>
+            <DragOverlay dropAnimation={null}>
+                {activePost && (
+                    <motion.div
+                        initial={{ scale: 1, rotate: 0 }}
+                        animate={{ scale: 1.03, rotate: 1.5 }}
+                        transition={{ duration: 0.15, ease: 'easeOut' }}
+                        className="flex items-center gap-1.5 p-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] shadow-2xl text-[10px] font-medium w-56 cursor-grabbing"
+                    >
+                        <GripVertical size={10} className="text-[#8E8E8E] shrink-0" />
+                        <span className="truncate flex-1 ml-1 text-[#040028] dark:text-white">{activePost.content || t('No content', 'Aucun contenu')}</span>
+                    </motion.div>
+                )}
+            </DragOverlay>
         </DndContext>
       )}
     </div>

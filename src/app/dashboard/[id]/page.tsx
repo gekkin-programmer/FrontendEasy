@@ -816,7 +816,7 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="relative overflow-hidden rounded-none border border-[#D9D9D9] dark:border-white/10">
+                                            <NeuCard className="relative overflow-hidden rounded-none border border-[#D9D9D9] dark:border-white/10 pt-4">
                                                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
@@ -860,8 +860,8 @@ function DashboardContent() {
                                         </div>
                                     )}
                                     {activeTab === 'boards' && <BoardView workspaceId={workspaceId} />}
-                                    {activeTab === 'analytics' && <NeuCard className="min-h-[680px]"><Analytics /></NeuCard>}
-                                    {activeTab === 'engagement' && <NeuCard className="min-h-[680px]"><EngagementWithTabs /></NeuCard>}
+                                    {activeTab === 'analytics' && <Analytics />}
+                                    {activeTab === 'engagement' && <EngagementWithTabs />}
                                     {activeTab === 'team' && <Team workspaceId={workspaceId} />}
                                     {activeTab === 'settings' && <NeuCard className="p-6 md:p-8"><Settings workspaceId={workspaceId} workspaceName={currentWorkspace?.name} /></NeuCard>}
                                 </motion.div>

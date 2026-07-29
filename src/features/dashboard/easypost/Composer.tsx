@@ -182,7 +182,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           /\.(mp4|webm|ogg|mov|avi|mkv|m4v)(\?|$|#)/i.test(url) ? 'video' : 'image'
         ));
       }
-      if (postToEdit.socialAccountIds) setSelectedAccountIds(postToEdit.socialAccountIds);
+      if (postToEdit.socialAccountIds) { hasAutoSelectedRef.current = true; setSelectedAccountIds(postToEdit.socialAccountIds); }
     } else {
       // Reset if null (e.g. cancelled edit)
       setText(''); setDate(undefined); setMediaPreviews([]); setMediaTypes([]);
@@ -203,6 +203,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [mediaTypes, setMediaTypes] = useState<('image' | 'video')[]>([]);
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+  const hasAutoSelectedRef = useRef(false);
 
   // UI State
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
@@ -256,9 +257,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const [broadcastSendNow, setBroadcastSendNow] = useState(true);
   const [broadcastScheduledTime, setBroadcastScheduledTime] = useState<Date | undefined>();
 
-  // Auto-select accounts
+  // Auto-select accounts — once, on first load only. Re-running this every time the
+  // `accounts` array changes (e.g. a new account gets connected elsewhere) would silently
+  // re-target every post at every active platform and pop open that platform's options
+  // panel unasked, so a newly-connected account no longer changes an already-touched selection.
   useEffect(() => {
-    if (accounts.length > 0 && selectedAccountIds.length === 0) {
+    if (!hasAutoSelectedRef.current && accounts.length > 0 && selectedAccountIds.length === 0) {
+      hasAutoSelectedRef.current = true;
       setSelectedAccountIds(accounts.filter(a => a.isActive !== false).map(a => a.id));
     }
   }, [accounts]);
@@ -554,18 +559,20 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
+                // TEMP PREVIEW — real accounts don't carry a profile picture from
+                // the platform yet (needs backend/OAuth work to fetch and store
+                // one); fall back to a placeholder instead of a bare letter.
+                const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
                 return (
                   <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
                     <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
-                    {acc.avatar && (
-                      <img
-                        src={acc.avatar}
-                        className="absolute inset-0 w-full h-full object-cover rounded-full"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        alt=""
-                      />
-                    )}
+                    <img
+                      src={avatarSrc}
+                      className="absolute inset-0 w-full h-full object-cover rounded-full"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      alt=""
+                    />
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
                     {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
                   </div>
@@ -830,7 +837,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
       {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors max-h-[420px]">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors max-h-[70vh]">
             <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0"><span className="text-sm font-semibold flex items-center gap-2"><LayoutGrid size={14} /> {t("Media library", "Bibliothèque de médias")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-1 transition-colors"><X size={14} /></button></div>
             <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-y-auto flex-1 min-h-0 scrollbar-grey">
                 <MediaGallery
