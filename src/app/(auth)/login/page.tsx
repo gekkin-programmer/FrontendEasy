@@ -107,6 +107,10 @@ export default function LoginPage() {
     window.location.href = `${API_URL}/auth/google`;
   };
 
+  const handleFacebookLogin = () => {
+    window.location.href = `${API_URL}/auth/facebook`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
       
@@ -129,8 +133,8 @@ export default function LoginPage() {
             
             {/* Header Texts */}
             <div className="flex flex-col gap-[5px] mb-[24px] xl:mb-[40px] 2xl:mb-[58px]">
-              <Link href="/">
-                <img src="/assets/logomark-monogram-royal-blue.svg" alt="Eazlypost Logo" className="w-[36px] h-[36px] lg:w-[48px] lg:h-[48px] object-contain mb-[10px] lg:mb-[15px] cursor-pointer" />
+              <Link href="/" className="block p-0 m-0 w-fit">
+                <img src="/assets/eazypost-logo-primary-lockup-black.png" alt="Eazlypost Logo" className="w-auto h-[64px] lg:h-[88px] object-contain cursor-pointer" />
               </Link>
               <h1 className="font-sans font-medium text-[24px] lg:text-[28px] xl:text-[32px] leading-[32px] lg:leading-[40px] xl:leading-[48px] text-[#000000]">
                 {t('Welcome Back', 'Bon retour')}
@@ -206,25 +210,17 @@ export default function LoginPage() {
 
             {/* Social Logins */}
             <div className="flex flex-col sm:flex-row gap-[10px] sm:gap-[15px] mt-[10px] w-full">
-              <button type="button" className="flex-1 h-[40px] lg:h-[44px] xl:h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
-                {/* Apple */}
+              <button type="button" onClick={handleFacebookLogin} className="flex-1 h-[40px] lg:h-[44px] xl:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
+                {/* Facebook */}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clipPath="url(#clip0_1_155)">
-                    <path d="M17.4863 -7.05128e-06C16.125 0.0918678 14.6681 0.901868 13.7663 1.99499C12.9769 2.95687 12.315 4.36874 12.5663 5.83499C12.3413 5.76562 12.1369 5.75812 11.8913 5.66999C11.2219 5.43187 10.4569 5.17499 9.50625 5.17499C7.61813 5.17499 5.685 6.29812 4.46625 8.17499C2.6925 10.9012 3.04875 15.6994 5.74125 19.8C6.21563 20.52 6.76875 21.3056 7.45125 21.93C8.13375 22.5544 8.95875 23.0306 9.92625 23.04C10.7531 23.0494 11.3288 22.7737 11.8463 22.545C12.3638 22.3162 12.8456 22.1137 13.7513 22.11C13.7569 22.11 13.7606 22.11 13.7663 22.11C14.6681 22.1025 15.135 22.3012 15.6413 22.53C16.1475 22.7587 16.7175 23.0475 17.5463 23.04C18.5325 23.0325 19.3706 22.4925 20.0663 21.825C20.7619 21.1575 21.3338 20.3381 21.8063 19.62C22.4831 18.5887 22.755 18.0262 23.2763 16.875C23.3306 16.755 23.3325 16.6162 23.28 16.4944C23.2294 16.3725 23.13 16.2769 23.0063 16.23C21.3 15.585 20.3269 14.0756 20.1863 12.48C20.0456 10.8844 20.7206 9.24187 22.4213 8.30999C22.5469 8.24249 22.635 8.12437 22.665 7.98562C22.6931 7.84687 22.6594 7.70062 22.5713 7.58999C21.3506 6.07312 19.6331 5.17499 17.9513 5.17499C16.8788 5.17499 16.0913 5.42812 15.4463 5.66999C15.3394 5.71124 15.2606 5.70749 15.1613 5.74499C15.8156 5.39999 16.3931 4.92187 16.8263 4.36499C17.6138 3.35437 18.2213 1.91624 17.9963 0.404993C17.9588 0.157493 17.7356 -0.0187571 17.4863 -7.05128e-06ZM16.9763 1.13999C16.9444 2.10937 16.6125 3.05812 16.0613 3.76499C15.4838 4.50749 14.5125 5.02124 13.5713 5.17499C13.5881 4.24312 13.9556 3.27749 14.5163 2.59499C15.105 1.88249 16.08 1.36874 16.9763 1.13999ZM9.50625 6.13499C9.92625 6.13499 10.9013 6.33562 11.5613 6.56999C12.2213 6.80437 12.9169 7.07999 13.7363 7.07999C14.5369 7.07999 15.1706 6.80249 15.7913 6.56999C16.4119 6.33749 17.0306 6.13499 17.9513 6.13499C19.1531 6.13499 20.4525 6.75937 21.4763 7.84499C19.8375 9.00187 19.0706 10.8056 19.2263 12.555C19.3819 14.3231 20.4469 16.0012 22.1963 16.875C22.1937 16.8805 22.1912 16.8859 22.1888 16.8913C21.8142 17.7072 21.5644 18.2512 21.0113 19.095C20.5519 19.7944 20.0063 20.5594 19.4063 21.135C18.8063 21.7106 18.1706 22.0744 17.5313 22.08C16.9144 22.0856 16.5638 21.9019 16.0313 21.66C15.4988 21.4181 14.8106 21.1406 13.7513 21.15C12.6938 21.1556 11.9963 21.4219 11.4563 21.66C10.9163 21.8981 10.5619 22.0856 9.94125 22.08C9.285 22.0744 8.67563 21.7556 8.09625 21.225C7.51688 20.6944 6.99375 19.9706 6.53625 19.275C4.01625 15.435 3.81375 10.9237 5.26125 8.69999C6.3225 7.06687 9.08625 6.13499 9.50625 6.13499Z" fill="black"/>
-                    <path d="M9.50625 6.13499C9.92625 6.13499 10.9013 6.33562 11.5613 6.56999C12.2213 6.80437 12.9169 7.07999 13.7363 7.07999C14.5369 7.07999 15.1706 6.80249 15.7913 6.56999C16.4119 6.33749 17.0306 6.13499 17.9513 6.13499C19.1531 6.13499 20.4525 6.75937 21.4763 7.84499C19.8375 9.00187 19.0706 10.8056 19.2263 12.555C19.3819 14.3231 20.4469 16.0012 22.1963 16.875L22.1888 16.8913C21.8142 17.7072 21.5644 18.2512 21.0113 19.095C20.5519 19.7944 20.0063 20.5594 19.4063 21.135C18.8063 21.7106 18.1706 22.0744 17.5313 22.08C16.9144 22.0856 16.5638 21.9019 16.0313 21.66C15.4988 21.4181 14.8106 21.1406 13.7513 21.15C12.6938 21.1556 11.9963 21.4219 11.4563 21.66C10.9163 21.8981 10.5619 22.0856 9.94125 22.08C9.285 22.0744 8.67563 21.7556 8.09625 21.225C7.51688 20.6944 6.99375 19.9706 6.53625 19.275C4.01625 15.435 3.81375 10.9237 5.26125 8.69999C6.3225 7.06687 9.08625 6.13499 9.50625 6.13499Z" fill="black"/>
-                    <path d="M16.9763 1.13999C16.9444 2.10937 16.6125 3.05812 16.0613 3.76499C15.4838 4.50749 14.5125 5.02124 13.5713 5.17499C13.5881 4.24312 13.9556 3.27749 14.5163 2.59499C15.105 1.88249 16.08 1.36874 16.9763 1.13999Z" fill="black"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_1_155">
-                      <rect width="24" height="24" fill="white"/>
-                    </clipPath>
-                  </defs>
+                  <path d="M24 12.0733C24 5.40546 18.6274 0 12 0C5.37258 0 0 5.40546 0 12.0733C0 18.0995 4.3882 23.0942 10.125 23.9994V15.5636H7.07813V12.0733H10.125V9.41306C10.125 6.38751 11.9165 4.71627 14.6576 4.71627C15.9705 4.71627 17.3438 4.95189 17.3438 4.95189V7.92146H15.8306C14.34 7.92146 13.875 8.85225 13.875 9.80723V12.0733H17.2031L16.6711 15.5636H13.875V23.9994C19.6118 23.0942 24 18.0995 24 12.0733Z" fill="#1877F2"/>
+                  <path d="M16.6711 15.5636L17.2031 12.0733H13.875V9.80723C13.875 8.85225 14.34 7.92146 15.8306 7.92146H17.3438V4.95189C17.3438 4.95189 15.9705 4.71627 14.6576 4.71627C11.9165 4.71627 10.125 6.38751 10.125 9.41306V12.0733H7.07813V15.5636H10.125V23.9994C10.7359 24.0942 11.3623 24.1466 12 24.1466C12.6377 24.1466 13.2641 24.0942 13.875 23.9994V15.5636H16.6711Z" fill="white"/>
                 </svg>
                 <span className="font-sans font-medium text-[14px] lg:text-[16px] leading-[24px] text-[#000000] whitespace-nowrap">
-                  {t('Sign in with Apple', 'Apple')}
+                  {t('Sign in with Facebook', 'Facebook')}
                 </span>
               </button>
-              <button type="button" onClick={handleGoogleLogin} className="flex-1 h-[40px] lg:h-[44px] xl:h-[48px] bg-white border border-[#000000] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
+              <button type="button" onClick={handleGoogleLogin} className="flex-1 h-[40px] lg:h-[44px] xl:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
                 {/* Google */}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107"/>
@@ -251,7 +247,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side: Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#174CD2] flex-col items-center justify-center">
+      <div className="hidden lg:flex lg:w-1/2 h-[calc(100%-3rem)] mt-6 mb-6 mr-6 relative overflow-hidden rounded-[24px] bg-[#174CD2] flex-col items-center justify-center">
         
         {/* Background Vectors */}
         <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>

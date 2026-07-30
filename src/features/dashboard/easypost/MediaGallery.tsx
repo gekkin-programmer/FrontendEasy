@@ -7,7 +7,6 @@ import {
     FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
 } from 'react-icons/fi';
 import { SiCanva, SiDropbox, SiGoogledrive } from 'react-icons/si';
-import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { api } from '@/lib/api';
@@ -42,7 +41,6 @@ export default function MediaGallery({
   workspaceId?: string;
 }) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [canvaModalOpen, setCanvaModalOpen] = useState(false);
@@ -71,15 +69,8 @@ export default function MediaGallery({
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const canvaParam = params.get('canva');
-    if (canvaParam === 'connected') {
-      toast.success(t('Canva connected!', 'Canva connecté !'));
+    if (canvaParam === 'connected' || canvaParam === 'returned') {
       setCanvaModalOpen(true);
-    } else if (canvaParam === 'returned') {
-      toast.success(t('Back from Canva — import your design below', 'Retour depuis Canva — importez votre design'));
-      setCanvaModalOpen(true);
-    } else if (canvaParam === 'error') {
-      const errMsg = params.get('canva_error') ?? 'Authorization failed';
-      toast.error(t(`Canva: ${errMsg}`, `Canva : ${errMsg}`));
     }
     if (canvaParam === 'connected' || canvaParam === 'returned' || canvaParam === 'error') {
       const url = new URL(window.location.href);
@@ -94,11 +85,7 @@ export default function MediaGallery({
     const params = new URLSearchParams(window.location.search);
     const dropboxParam = params.get('dropbox');
     if (dropboxParam === 'connected') {
-      toast.success(t('Dropbox connected!', 'Dropbox connecté !'));
       setDropboxModalOpen(true);
-    } else if (dropboxParam === 'error') {
-      const errMsg = params.get('dropbox_error') ?? 'Authorization failed';
-      toast.error(t(`Dropbox: ${errMsg}`, `Dropbox : ${errMsg}`));
     }
     if (dropboxParam === 'connected' || dropboxParam === 'error') {
       const url = new URL(window.location.href);
@@ -109,7 +96,7 @@ export default function MediaGallery({
   }, []);
 
   const handleDropboxClick = async () => {
-    if (!workspaceId) { toast.error('No workspace'); return; }
+    if (!workspaceId) return;
     try {
       const res: any = await api.get(`/dropbox/status?workspaceId=${workspaceId}`);
       const connected = res?.data?.connected ?? res?.connected;
@@ -120,12 +107,12 @@ export default function MediaGallery({
         window.location.href = authRes?.data?.url ?? authRes?.url;
       }
     } catch {
-      toast.error(t('Could not connect to Dropbox', 'Impossible de connecter Dropbox'));
+      // Silent — the user can just try again.
     }
   };
 
   const handleGoogleDriveClick = async () => {
-    if (!workspaceId) { toast.error('No workspace'); return; }
+    if (!workspaceId) return;
     setGoogleDriveImporting(true);
     try {
       const picked = await openGoogleDrivePicker();
@@ -136,18 +123,17 @@ export default function MediaGallery({
         accessToken: picked.accessToken,
         folderId: currentFolderId,
       });
-      toast.success(t('Imported to media library!', 'Importé dans la médiathèque !'));
       queryClient.invalidateQueries({ queryKey: ['media'] });
       queryClient.invalidateQueries({ queryKey: ['media-usage'] });
-    } catch (err: any) {
-      toast.error(t(`Google Drive: ${err?.message || 'Import failed'}`, `Google Drive : ${err?.message || "Échec de l'import"}`));
+    } catch {
+      // Silent — the user can just try again.
     } finally {
       setGoogleDriveImporting(false);
     }
   };
 
   const handleCanvaClick = async () => {
-    if (!workspaceId) { toast.error('No workspace'); return; }
+    if (!workspaceId) return;
     try {
       const statusRes = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
       const connected = statusRes?.data?.connected ?? statusRes?.connected;
@@ -158,27 +144,33 @@ export default function MediaGallery({
         window.location.href = authRes?.data?.url ?? authRes?.url;
       }
     } catch {
-      toast.error(t('Could not connect to Canva', 'Impossible de connecter Canva'));
+      // Silent — the user can just try again.
     }
   };
 
   const editInCanva = async (asset: any) => {
     if (!workspaceId) return;
     setCanvaUploading(asset.id);
+    // Open the tab synchronously, inside the click — setting its location later
+    // (after the awaits below) is outside the user-gesture window and popup
+    // blockers silently swallow it, which looks identical to a backend failure.
+    const tab = window.open('', '_blank');
     try {
       const statusRes = await (api as any).get(`/canva/status?workspaceId=${workspaceId}`);
       const connected = statusRes?.data?.connected ?? statusRes?.connected;
       if (!connected) {
+        tab?.close();
         const authRes = await (api as any).get(`/canva/auth?workspaceId=${workspaceId}`);
         window.location.href = authRes?.data?.url ?? authRes?.url;
         return;
       }
       const res = await api.post<any>('/canva/edit-asset', { workspaceId, assetId: asset.id });
       const editUrl = (res as any)?.editUrl ?? (res as any)?.data?.editUrl;
-      window.open(editUrl, '_blank', 'noopener,noreferrer');
-      toast.success(t('Asset sent to Canva — edit and return when done', 'Asset envoyé à Canva'));
+      if (tab) tab.location.href = editUrl;
+      else window.location.href = editUrl;
     } catch {
-      toast.error(t('Could not open in Canva', "Impossible d'ouvrir dans Canva"));
+      tab?.close();
+      // Silent — the user can just try again.
     } finally {
       setCanvaUploading(null);
     }
@@ -254,7 +246,6 @@ export default function MediaGallery({
         return api.post('/media/upload', formData);
     },
     onSuccess: () => {
-        toast.success(t("Upload successful", "Téléchargement réussi"));
         queryClient.invalidateQueries({ queryKey: ['media'] });
         queryClient.invalidateQueries({ queryKey: ['media-usage'] });
     }
@@ -285,7 +276,6 @@ export default function MediaGallery({
   const deleteAssetMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
-        toast.success(t("Asset deleted", "Média supprimé"));
         queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
@@ -293,7 +283,6 @@ export default function MediaGallery({
   const deleteFolderMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/folders/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
-        toast.success(t("Folder deleted", "Dossier supprimé"));
         queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
@@ -335,16 +324,10 @@ export default function MediaGallery({
     setUploadProgress(null);
 
     const succeeded = results.filter(r => r.status === 'fulfilled').length;
-    const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
 
     if (succeeded > 0) {
-      toast.success(t(`Upload complete: ${succeeded} file${succeeded > 1 ? 's' : ''}`, `Téléchargement terminé: ${succeeded} fichier${succeeded > 1 ? 's' : ''}`));
       queryClient.invalidateQueries({ queryKey: ['media'] });
       queryClient.invalidateQueries({ queryKey: ['media-usage'] });
-    }
-    if (failed.length > 0) {
-      const details = failed.map(f => f.reason?.message || 'Unknown error').join('; ');
-      toast.error(t(`${failed.length} file${failed.length > 1 ? 's' : ''} failed: ${details}`, `${failed.length} fichier${failed.length > 1 ? 's' : ''} en échec : ${details}`));
     }
     // reset input so same files can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -613,7 +596,6 @@ export default function MediaGallery({
                                         onUse(asset, sections[0]?.id);
                                     } else {
                                         navigator.clipboard.writeText(asset.url).catch(() => {});
-                                        toast.success(t("URL copied", "URL copiée"));
                                     }
                                 }}
                             >

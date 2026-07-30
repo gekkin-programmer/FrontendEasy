@@ -426,7 +426,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                                 <div className="max-h-80 overflow-y-auto py-1 px-2">
                                     {allChannels.map((c: any) => {
                                         const checked = selectedChannelIds.includes(c.id);
-                                        const picture = c.picture || c.profileImageUrl || c.avatarUrl;
+                                        const picture = c.avatar || c.picture || c.profileImageUrl || c.avatarUrl;
                                         return (
                                             <button
                                                 key={c.id}

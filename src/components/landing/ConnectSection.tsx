@@ -20,7 +20,7 @@ export default function ConnectSection() {
         <div className="flex flex-row items-center justify-center md:justify-between flex-wrap gap-[24px] md:gap-y-[40px] w-full max-w-full min-h-[60px]">
           
           {/* Facebook */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
             <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="16" cy="16" r="14" fill="url(#paint0_linear_fb_conn)"/>
               <path d="M21.2137 20.2816L21.8356 16.3301H17.9452V13.767C17.9452 12.6857 18.4877 11.6311 20.2302 11.6311H22V8.26699C22 8.26699 20.3945 8 18.8603 8C15.6548 8 13.5617 9.89294 13.5617 13.3184V16.3301H10V20.2816H13.5617V29.8345C14.2767 29.944 15.0082 30 15.7534 30C16.4986 30 17.2302 29.944 17.9452 29.8345V20.2816H21.2137Z" fill="white"/>
@@ -34,7 +34,7 @@ export default function ConnectSection() {
           </div>
 
           {/* YouTube */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
             <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2.24451 9.94111C2.37304 7.96233 3.96395 6.41157 5.94447 6.31345C8.81239 6.17136 12.9115 6 16 6C19.0885 6 23.1876 6.17136 26.0555 6.31345C28.0361 6.41157 29.627 7.96233 29.7555 9.94111C29.8786 11.8369 30 14.1697 30 16C30 17.8303 29.8786 20.1631 29.7555 22.0589C29.627 24.0377 28.0361 25.5884 26.0555 25.6866C23.1876 25.8286 19.0885 26 16 26C12.9115 26 8.81239 25.8286 5.94447 25.6866C3.96395 25.5884 2.37304 24.0377 2.24451 22.0589C2.12136 20.1631 2 17.8303 2 16C2 14.1697 2.12136 11.8369 2.24451 9.94111Z" fill="#FC0D1B"/>
               <path d="M13 12V20L21 16L13 12Z" fill="white"/>
@@ -49,7 +49,7 @@ export default function ConnectSection() {
           </div>
 
           {/* Telegram */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
              <svg width="100%" height="100%" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_56_363_tele_conn)">
                   <path d="M40 80C62.0914 80 80 62.0914 80 40C80 17.9086 62.0914 0 40 0C17.9086 0 0 17.9086 0 40C0 62.0914 17.9086 80 40 80Z" fill="url(#paint0_linear_56_363_tele_conn)"/>
@@ -68,7 +68,7 @@ export default function ConnectSection() {
           </div>
 
           {/* Pinterest */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
              <svg width="100%" height="100%" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_56_368_pint_conn)">
                   <path d="M40 80C62.0914 80 80 62.0914 80 40C80 17.9086 62.0914 0 40 0C17.9086 0 0 17.9086 0 40C0 62.0914 17.9086 80 40 80Z" fill="white"/>
@@ -83,21 +83,21 @@ export default function ConnectSection() {
           </div>
 
           {/* LinkedIn */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
              <svg width="100%" height="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M55.5708 0H4.42917C3.25448 0 2.1279 0.466644 1.29727 1.29727C0.466644 2.1279 0 3.25448 0 4.42917V55.5708C0 56.7455 0.466644 57.8721 1.29727 58.7027C2.1279 59.5334 3.25448 60 4.42917 60H55.5708C56.7455 60 57.8721 59.5334 58.7027 58.7027C59.5334 57.8721 60 56.7455 60 55.5708V4.42917C60 3.25448 59.5334 2.1279 58.7027 1.29727C57.8721 0.466644 56.7455 0 55.5708 0ZM17.8833 51.1125H8.8625V22.4583H17.8833V51.1125ZM13.3667 18.4875C12.3434 18.4817 11.3448 18.173 10.4968 17.6002C9.64888 17.0274 8.9896 16.2163 8.60219 15.2692C8.21479 14.3221 8.11662 13.2815 8.32008 12.2786C8.52354 11.2758 9.0195 10.3557 9.74539 9.63445C10.4713 8.91322 11.3945 8.42317 12.3987 8.22615C13.4028 8.02914 14.4428 8.13398 15.3874 8.52746C16.332 8.92094 17.1388 9.58542 17.7062 10.437C18.2735 11.2886 18.5758 12.2892 18.575 13.3125C18.5847 13.9976 18.4563 14.6776 18.1975 15.312C17.9388 15.9464 17.555 16.5223 17.0689 17.0052C16.5829 17.4881 16.0046 17.8682 15.3686 18.1229C14.7325 18.3775 14.0517 18.5016 13.3667 18.4875ZM51.1333 51.1375H42.1167V35.4833C42.1167 30.8667 40.1542 29.4417 37.6208 29.4417C34.9458 29.4417 32.3208 31.4583 32.3208 35.6V51.1375H23.3V22.4792H31.975V26.45H32.0917C32.9625 24.6875 36.0125 21.675 40.6667 21.675C45.7 21.675 51.1375 24.6625 51.1375 33.4125L51.1333 51.1375Z" fill="#0A66C2"/>
              </svg>
           </div>
 
           {/* Snapchat */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
             <svg width="100%" height="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M59.1406 46.2934C48.6204 41.139 46.9437 33.1807 46.8691 32.5904C46.7788 31.8754 46.6764 31.3132 47.4557 30.5859C48.2073 29.8832 51.5416 27.7943 52.4667 27.1408C53.9959 26.0586 54.6694 24.9782 54.1729 23.65C53.8258 22.7312 52.9805 22.3851 52.0901 22.3851C51.8092 22.386 51.5293 22.4178 51.2552 22.48C49.575 22.8489 47.9435 23.701 46.9992 23.9311C46.8858 23.9607 46.7693 23.9767 46.6521 23.9786C46.1487 23.9786 45.9578 23.7519 46.0064 23.1388C46.1244 21.2801 46.3744 17.6523 46.0845 14.2635C45.687 9.60091 44.2013 7.29072 42.4395 5.24756C41.5873 4.25673 37.6299 0 29.9927 0C22.3556 0 18.4034 4.25673 17.5563 5.23527C15.7894 7.27842 14.3053 9.58862 13.9113 14.2512C13.6215 17.64 13.8818 21.2661 13.9894 23.1265C14.0242 23.7098 13.8471 23.9663 13.3438 23.9663C13.2266 23.9642 13.1101 23.9483 12.9966 23.9188C12.0541 23.6887 10.4226 22.8366 8.74238 22.4677C8.46832 22.4055 8.18838 22.3737 7.90751 22.3729C7.01361 22.3729 6.17179 22.7242 5.82465 23.6377C5.32824 24.9659 5.99822 26.0463 7.53259 27.1285C8.45773 27.782 11.792 29.8691 12.5436 30.5736C13.3212 31.3009 13.2205 31.8631 13.1303 32.5781C13.0556 33.1772 11.3772 41.1355 0.858775 46.2811C0.242597 46.5833 -0.805774 47.2228 1.04276 48.2558C3.94487 49.8791 5.87672 49.7051 7.37811 50.6837C8.65213 51.5147 7.89883 53.3066 8.8257 53.9531C9.96433 54.7489 13.3299 53.8969 17.6778 55.3497C21.3228 56.5655 23.5376 60 30.0014 60C36.4652 60 38.7442 56.5496 42.325 55.3497C46.6642 53.8969 50.0367 54.7489 51.1771 53.9531C52.1022 53.3066 51.3507 51.5147 52.6247 50.6837C54.1261 49.7051 56.0562 49.8791 58.96 48.2558C60.8051 47.2351 59.7567 46.5956 59.1406 46.2934Z" fill="#FFD633"/>
             </svg>
           </div>
 
           {/* Instagram */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
              <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#paint0_radial_1334_663_insta_conn)"/>
                 <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#paint1_radial_1334_663_insta_conn)"/>
@@ -127,7 +127,7 @@ export default function ConnectSection() {
           </div>
 
           {/* Google */}
-          <div className="w-[60px] h-[60px] 3xl:w-[76px] 3xl:h-[76px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
+          <div className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] 3xl:w-[50px] 3xl:h-[50px] flex-shrink-0 cursor-pointer hover:scale-110 transition-transform">
              <svg width="100%" height="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_137_206)">
                 <path d="M59.4156 30.6911C59.4156 28.6518 59.2503 26.6015 58.8975 24.5952H30.6006V36.1477H46.8049C46.1325 39.8736 43.9719 43.1695 40.8082 45.264V52.7598H50.4757C56.1527 47.5348 59.4156 39.8184 59.4156 30.6911Z" fill="#4285F4"/>
@@ -146,8 +146,8 @@ export default function ConnectSection() {
         </div>
         
         {/* & plus */}
-        <div className="flex justify-center w-full mt-[50px]">
-          <span className="font-['Rubik'] font-medium text-[32px] leading-[38px] text-[#000000] cursor-pointer">
+        <div className="flex justify-center w-full mt-[32px] md:mt-[40px]">
+          <span className="font-['Rubik'] font-medium text-[20px] md:text-[24px] leading-[26px] md:leading-[30px] text-[#000000] cursor-pointer hover:text-[#174CD2] transition-colors">
             {t("& more", "& plus")}
           </span>
         </div>

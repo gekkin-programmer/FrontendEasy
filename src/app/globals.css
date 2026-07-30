@@ -278,9 +278,6 @@
 .dark ::-webkit-scrollbar-thumb {
   background: #333; /* Dark gray */
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #304AEB; /* Brand Blue on hover */
-}
 
 /* Grey scrollbar (default + hover) for flat dashboard panels */
 .scrollbar-grey::-webkit-scrollbar-thumb {

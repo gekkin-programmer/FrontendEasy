@@ -28,7 +28,7 @@ export default function Navbar() {
       
       {/* Logo (Left Aligned) — lien vers l'accueil */}
       <Link href="/" className="flex items-center justify-start cursor-pointer">
-        <img src="/assets/eazypost-logo-primary-lockup-white.png" alt="Eazlypost" className="h-[54px] md:h-[92px] 2xl:h-[100px] 3xl:h-[108px] w-auto object-contain" />
+        <img src="/assets/eazypost-logo-primary-lockup-white.png" alt="Eazlypost" className="h-[78px] md:h-[132px] 2xl:h-[144px] 3xl:h-[156px] w-auto object-contain" />
       </Link>
 
       {/* Nav Links (Perfectly Centered) */}

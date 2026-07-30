@@ -322,10 +322,10 @@ export function PlatformSpecificPanels({
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
-                <p className="text-xs text-[#8E8E8E] mt-1">{firstComment.length}/2200</p>
+                {/* Character count intentionally hidden from users for now — backlog item to revisit. */}
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Alt text (accessibility)', 'Texte alternatif (accessibilité)')}</label>
+                <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">{t('Alt text', 'Texte alternatif')}</label>
                 <input type="text" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder={t('Describe this image for screen readers', "Décrivez cette image pour les lecteurs d'écran")} className={inputCls} />
               </div>
             </div>

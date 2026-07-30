@@ -42,9 +42,9 @@ const tabContent: Record<string, { title: string; description: string }> = {
   return (
     <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px]">
       {/* Content Wrapper */}
-      <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col items-start relative px-[16px] md:px-[52px]">
+      <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col items-center md:items-start relative px-[16px] md:px-[52px]">
         {/* Title Area */}
-        <div className="w-full flex flex-col mb-6">
+        <div className="w-full flex flex-col items-center md:items-start text-center md:text-left mb-6">
           <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
             {t("Manage all your", "Pilotez tous vos")}
           </h2>
@@ -56,7 +56,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
           </h2>
         </div>
         <p 
-          className="text-[#000000] text-[16px] md:text-[20px] font-normal leading-[26px] md:leading-[30px] max-w-[656px] mt-2 mb-[60px] md:mb-[120px]"
+          className="text-[#000000] text-[16px] md:text-[20px] font-normal leading-[26px] md:leading-[30px] max-w-[656px] mt-2 mb-[60px] md:mb-[120px] text-center md:text-left mx-auto md:mx-0"
           style={{ fontFamily: "'Rubik', sans-serif" }}
         >
           {t("Create your content, schedule your posts, collaborate with your team, and analyze your statistics directly from a single application.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}
@@ -110,7 +110,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
             </div>
             
             {/* Text Area */}
-            <div className="flex flex-col gap-[28px] max-w-[331px]">
+            <div className="flex flex-col gap-[28px] max-w-[331px] items-center md:items-start text-center md:text-left">
               <h3 className="text-white font-bold text-[32px] leading-[36px] font-['Rubik']">
               {tabContent[activeTab].title}
             </h3>
@@ -118,7 +118,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
               {tabContent[activeTab].description}
             </p>
 
-            <button className="bg-white text-[#174CD2] font-semibold py-3 px-6 rounded-full flex items-center justify-center gap-2 w-fit hover:bg-gray-100 transition-all hover:scale-105">
+            <button className="bg-white text-[#174CD2] font-semibold py-3 px-6 rounded-full flex items-center justify-center gap-2 w-fit hover:bg-gray-100 transition-all hover:scale-105 mx-auto md:mx-0">
               {t("Learn more", "En savoir plus")}
             </button>
 

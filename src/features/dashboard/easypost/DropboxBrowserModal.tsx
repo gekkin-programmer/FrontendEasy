@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X, RefreshCw, Download, Folder, File as FileIcon, ChevronLeft, LogOut } from 'lucide-react';
-import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -31,7 +30,6 @@ function normalizeEntry(raw: any): DropboxEntry {
 
 export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onImported, onDisconnected }: DropboxBrowserModalProps) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [entries, setEntries] = useState<DropboxEntry[]>([]);
   const [pathStack, setPathStack] = useState<{ path: string; name: string }[]>([]);
@@ -57,7 +55,7 @@ export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onIm
       setCursor(body?.cursor);
       setHasMore(!!(body?.hasMore ?? body?.has_more));
     } catch {
-      toast.error(t('Failed to load Dropbox files', 'Impossible de charger les fichiers Dropbox'));
+      // Silent — the list just stays empty/unchanged.
     } finally {
       setLoading(false);
     }
@@ -96,10 +94,9 @@ export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onIm
     setImporting(entry.path);
     try {
       await api.post('/dropbox/import', { workspaceId, path: entry.path });
-      toast.success(t('Imported to media library!', 'Importé dans la médiathèque !'));
       onImported();
     } catch {
-      toast.error(t('Import failed', "Échec de l'import"));
+      // Silent — the item stays in the browser for the user to retry.
     } finally {
       setImporting(null);
     }
@@ -109,11 +106,10 @@ export default function DropboxBrowserModal({ isOpen, onClose, workspaceId, onIm
     setDisconnecting(true);
     try {
       await api.delete(`/dropbox/disconnect?workspaceId=${workspaceId}`);
-      toast.success(t('Dropbox disconnected', 'Dropbox déconnecté'));
       onDisconnected();
       onClose();
     } catch {
-      toast.error(t('Could not disconnect Dropbox', 'Impossible de déconnecter Dropbox'));
+      // Silent — the modal just stays open for the user to retry.
     } finally {
       setDisconnecting(false);
     }
