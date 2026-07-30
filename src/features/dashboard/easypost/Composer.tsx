@@ -452,7 +452,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const handleSubmit = async (action: 'queue' | 'execute' | 'review') => {
     setSubmitAttempted(true);
     if (!text && mediaPreviews.length === 0) {
-      toast.error(t('Write something or add media before publishing.', 'Ajoutez du texte ou un média avant de publier.'));
       return;
     }
     if (isPreviewActive && onPreviewToggle) onPreviewToggle();
@@ -473,7 +472,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
     // Past Date Validation
     if (date && date < new Date()) {
-        toast.error(t('The selected date is in the past.', 'La date sélectionnée est dans le passé.'));
         return;
     }
 
@@ -487,7 +485,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
     const targets = postAccountIds.length > 0 ? postAccountIds : (accounts.length > 0 ? [accounts[0].id] : []);
     if (targets.length === 0) {
-      toast.error(t('Connect or select at least one social account before publishing.', 'Connectez ou sélectionnez au moins un compte social avant de publier.'));
       return;
     }
 
@@ -573,7 +570,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       alt=""
                     />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center overflow-hidden"><PlatformIcon platform={acc.platform} size={16} /></div>
                     {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
                   </div>
                 );

@@ -1,14 +1,40 @@
 import React from 'react';
-import { 
-  FacebookIcon, 
-  InstagramIcon, 
-  TwitterIcon, 
-  LinkedInIcon, 
-  WhatsAppIcon, 
-  YoutubeIcon 
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TwitterIcon,
+  LinkedInIcon,
+  WhatsAppIcon,
+  YoutubeIcon
 } from './SocialIcons';
 
-export default function AnimatedIcons({ right = false }: { right?: boolean }) {
+export default function AnimatedIcons({ right = false, horizontal = false }: { right?: boolean; horizontal?: boolean }) {
+  if (horizontal) {
+    return (
+      <>
+        <g className="icon-h-lane1" style={{ animationDelay: '0s' }}>
+          <FacebookIcon />
+        </g>
+        <g className="icon-h-lane1" style={{ animationDelay: '6.66s' }}>
+          <InstagramIcon />
+        </g>
+        <g className="icon-h-lane1" style={{ animationDelay: '13.33s' }}>
+          <TwitterIcon />
+        </g>
+
+        <g className="icon-h-lane2" style={{ animationDelay: '3.33s' }}>
+          <LinkedInIcon />
+        </g>
+        <g className="icon-h-lane2" style={{ animationDelay: '10s' }}>
+          <WhatsAppIcon />
+        </g>
+        <g className="icon-h-lane2" style={{ animationDelay: '16.66s' }}>
+          <YoutubeIcon />
+        </g>
+      </>
+    );
+  }
+
   if (right) {
     return (
       <>

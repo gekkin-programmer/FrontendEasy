@@ -3,7 +3,6 @@
 import React, { useState, useRef } from 'react';
 import { Mic, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -15,7 +14,6 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { t } = useLanguage();
-  const toast = useAppToast();
 
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
@@ -39,10 +37,8 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       startTime.current = Date.now();
       mediaRecorder.current.start();
       setIsRecording(true);
-      toast.info(t("Listening... (Release to send)", "Écoute... (Relâchez pour envoyer)"));
     } catch (err) {
       console.error(err);
-      toast.error(t("Microphone access denied. Please check browser settings.", "Accès au microphone refusé. Vérifiez les paramètres du navigateur."));
     }
   };
 
@@ -55,7 +51,6 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
 
     // Minimum recording duration check
     if (duration < 500) {
-      toast.warning(t("Hold longer to record!", "Maintenez plus longtemps pour enregistrer !"));
       if (mediaRecorder.current) {
           mediaRecorder.current.onstop = null; // Remove handler to prevent upload
           mediaRecorder.current.stop();
@@ -95,34 +90,8 @@ export default function VoiceAiButton({ onCommand }: VoiceAiButtonProps) {
       const intent = data.createdPost?.intent || data.intent; 
 
       onCommand(data.transcription, intent);
-
-      toast.success(t("AI processed command!", "Commande IA traitée !"), {
-        description: `"${data.transcription}"`
-      });
-
-      // FREEMIUM HOOK: AI USAGE TOAST
-      if (data.aiUsageCount >= 8 && data.aiUsageCount < 10) {
-        setTimeout(() => {
-          toast.info(t(
-            `${10 - data.aiUsageCount} generations remaining this month.`,
-            `${10 - data.aiUsageCount} générations restantes ce mois.`
-          ), {
-            description: t(
-              "Upgrade to Starter for 100 generations!",
-              "Passez à Starter pour 100 générations !"
-            ),
-            action: {
-              label: t("Upgrade", "Passer"),
-              onClick: () => window.location.href = '/tarifs'
-            }
-          });
-        }, 1500);
-      }
-
     } catch (error: any) {
       console.error("Voice Upload Error:", error);
-      const msg = error.response?.data?.message || error.message;
-      toast.error(t(`Failed: ${msg}`, `Échec : ${msg}`));
     } finally {
       setIsProcessing(false);
     }

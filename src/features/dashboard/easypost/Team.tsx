@@ -132,8 +132,7 @@ export default function Team({ workspaceId }: TeamProps) {
   // ── MUTATIONS ─────────────────────────────────────────────────────────
   const inviteMutation = useMutation({
     mutationFn: (data: { email: string; role: string }) => api.post(`/workspaces/${workspaceId}/members/invite`, data),
-    onSuccess: () => { toast.success(t('Invitation sent', 'Invitation envoyée')); refetchMembers(); },
-    onError: (e: any) => toast.error(e.message || t('Invite failed', 'Échec de l\'invitation')),
+    onSuccess: () => { refetchMembers(); },
   });
 
   const approveMutation = useMutation({
@@ -149,12 +148,12 @@ export default function Team({ workspaceId }: TeamProps) {
 
   const rejectMutation = useMutation({
     mutationFn: (postId: string) => api.patch(`/posts/${postId}`, { status: 'DRAFT' }),
-    onSuccess: () => { toast.warning(t('Sent back to draft', 'Renvoyé en brouillon')); refetchApprovals(); },
+    onSuccess: () => { refetchApprovals(); },
   });
 
   const removeMemberMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/workspaces/${workspaceId}/members/${id}`),
-    onSuccess: () => { toast.success(t('Member removed', 'Membre retiré')); refetchMembers(); },
+    onSuccess: () => { refetchMembers(); },
   });
 
   // ── FORM STATE ────────────────────────────────────────────────────────
@@ -172,7 +171,7 @@ export default function Team({ workspaceId }: TeamProps) {
   }, []);
 
   const handleInvite = () => {
-    if (!email.includes('@')) return toast.error(t('Invalid email', 'E-mail invalide'));
+    if (!email.includes('@')) return;
     inviteMutation.mutate({ email, role });
     setEmail("");
   };
@@ -282,7 +281,6 @@ export default function Team({ workspaceId }: TeamProps) {
     } catch {
       // Remove optimistic on failure
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
-      toast.error(t('Message failed to send', 'Échec de l\'envoi du message'));
       setChatInput(text);
     }
   };

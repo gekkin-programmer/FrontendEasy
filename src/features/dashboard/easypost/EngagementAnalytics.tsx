@@ -12,7 +12,6 @@ import {
   FaTwitter, FaInstagram, FaFacebookF, FaLinkedinIn, FaTiktok, FaYoutube
 } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
-import { useAppToast } from '@/hooks/useAppToast';
 import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -27,7 +26,6 @@ type TimeRange = '7d' | '30d' | '90d';
 export default function EngagementAnalytics() {
   const params = useParams();
   const { t } = useLanguage();
-  const toast = useAppToast();
   const workspaceId = typeof params?.id === 'string' ? params.id : '';
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
@@ -71,7 +69,7 @@ export default function EngagementAnalytics() {
     enabled: !!workspaceId
   });
 
-  const handleDownload = () => toast.success(t("Report queued for generation", "Rapport mis en file de génération"));
+  const handleDownload = () => {};
 
   if (isLoading) return (
     <div className="max-w-6xl mx-auto space-y-8 p-2">

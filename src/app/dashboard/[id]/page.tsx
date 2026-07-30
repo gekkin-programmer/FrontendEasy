@@ -595,7 +595,6 @@ function DashboardContent() {
 
         api.post(`/workspaces/${workspaceId}/members/accept`, { token: inviteToken })
             .then(() => {
-                toast.success('You joined the workspace!');
                 queryClient.invalidateQueries({ queryKey: ['team-members', workspaceId] });
                 queryClient.invalidateQueries({ queryKey: ['workspaces'] });
             })
@@ -617,7 +616,6 @@ function DashboardContent() {
         const token = searchParams.get('exchange_token');
 
         if (connected === 'true' || success === 'true') {
-            toast.success(t('Social account connected successfully', 'Compte social connecté avec succès'));
             setTimeout(() => addNotification('success', 'Social account connected successfully'), 0);
             const url = new URL(window.location.href);
             url.searchParams.delete('social_connected');
@@ -848,7 +846,6 @@ function DashboardContent() {
                                                 workspaceTimezone={workspaceTimezone}
                                                 onPostClick={(post) => {
                                                     if (post.status === 'PUBLISHED') {
-                                                        toast.info(t('Published posts cannot be edited', 'Les publications publiées ne peuvent pas être modifiées'));
                                                         return;
                                                     }
                                                     setEditingPost(post);

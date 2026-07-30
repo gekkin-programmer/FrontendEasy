@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAppToast } from '@/hooks/useAppToast';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@astryxdesign/core/Skeleton';
 import { api } from '@/lib/api';
@@ -160,7 +159,6 @@ export default function Settings({ workspaceId, workspaceName }: { workspaceId: 
 // --- SUB-COMPONENT: WORKSPACE SETTINGS ---
 function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, initialName: string }) {
     const { t } = useLanguage();
-    const toast = useAppToast();
     const [formData, setFormData] = useState({
         name: initialName,
         description: '',
@@ -203,20 +201,18 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
             const data = await api.upload<any>('/media/upload', uploadFormData);
             const logoUrl = data.media?.url || data.url || data.secure_url;
             setFormData(prev => ({ ...prev, logo: logoUrl }));
-            toast.success(t('Logo uploaded', 'Logo téléchargé'));
-        } catch (err: any) { toast.error(t('Upload error', 'Erreur de téléchargement')); } finally { setUploading(false); }
+        } catch (err: any) { /* Silent — the logo preview just stays unchanged. */ } finally { setUploading(false); }
     };
 
     const handleUpdate = async () => {
-        if (!formData.name.trim()) return toast.error(t('Name is required', 'Le nom est requis'));
+        if (!formData.name.trim()) return;
         setLoading(true);
         try {
             await api.patch(`/workspaces/${workspaceId}`, {
                 ...formData,
                 website: formData.website.trim() === "" ? undefined : formData.website
             });
-            toast.success(t('Workspace updated', 'Espace de travail mis à jour'));
-        } catch (e: any) { toast.error(t('Update failed', 'Échec de la mise à jour')); } finally { setLoading(false); }
+        } catch (e: any) { /* Silent — the form just stays as entered for the user to retry. */ } finally { setLoading(false); }
     };
 
     const handleDelete = async () => {
@@ -224,9 +220,8 @@ function WorkspaceSettings({ workspaceId, initialName }: { workspaceId: string, 
         setLoading(true);
         try {
             await api.delete(`/workspaces/${workspaceId}`);
-            toast.success(t('Workspace deleted', 'Espace de travail supprimé'));
             window.location.href = '/dashboard';
-        } catch (e) { toast.error(t('Delete failed', 'Échec de la suppression')); } finally { setLoading(false); }
+        } catch (e) { /* Silent — the workspace just stays as-is for the user to retry. */ } finally { setLoading(false); }
     };
 
     return (
@@ -296,7 +291,6 @@ const getAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/notionists/
 // --- SUB-COMPONENT: PROFILE SETTINGS ---
 function ProfileSettings() {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', avatar: '' });
   const [loading, setLoading] = useState(false);
@@ -331,8 +325,7 @@ function ProfileSettings() {
           const data = await api.upload<any>('/media/upload', uploadFormData);
           const avatarUrl = data.media?.url || data.url || data.secure_url;
           setFormData(prev => ({ ...prev, avatar: avatarUrl }));
-          toast.success(t('Avatar uploaded', 'Avatar téléchargé'));
-      } catch (err: any) { toast.error(t('Upload error', 'Erreur de téléchargement')); } finally { setUploading(false); }
+      } catch (err: any) { /* Silent — the avatar preview just stays unchanged. */ } finally { setUploading(false); }
   };
 
   const handleSave = async () => {
@@ -341,8 +334,7 @@ function ProfileSettings() {
     setLoading(true);
     try {
         await api.patch(`/users/${userId}`, formData);
-        toast.success(t('Profile updated', 'Profil mis à jour'));
-    } catch (e) { toast.error(t('Update failed', 'Échec de la mise à jour')); } finally { setLoading(false); }
+    } catch (e) { /* Silent — the form just stays as entered for the user to retry. */ } finally { setLoading(false); }
   };
 
   if (!user) return (
@@ -430,7 +422,6 @@ function NotifRow({ label, desc, value, onToggle }: { label: string; desc: strin
 // --- SUB-COMPONENT: NOTIFICATIONS SETTINGS ---
 function NotificationsSettings() {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [prefs, setPrefs] = useState<NotifPrefs>({
     emailPostPublished: true, emailPostFailed: true, emailWeeklyReport: false,
     emailTeamInvite: true, pushNewComment: true, pushScheduleReminder: true, pushPlatformAlert: true,
@@ -443,7 +434,6 @@ function NotificationsSettings() {
     setSaving(true);
     await new Promise(r => setTimeout(r, 600));
     setSaving(false);
-    toast.success(t('Notification preferences saved', 'Préférences de notification enregistrées'));
   };
 
   return (
@@ -475,7 +465,6 @@ function NotificationsSettings() {
 // --- SUB-COMPONENT: MEMBERS SETTINGS ---
 function MembersSettings({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -552,7 +541,6 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
                           if (!confirm(`${t('Remove', 'Retirer')} ${m.user?.email}?`)) return;
                           await api.delete(`/workspace-members/${m.id}`);
                           setMembers(prev => prev.filter(x => x.id !== m.id));
-                          toast.success(t('Member removed', 'Membre retiré'));
                         }}
                         className="p-1.5 rounded-[8px] text-[#8E8E8E] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 transition-all"
                         title={t('Remove member', 'Retirer le membre')}
@@ -574,7 +562,6 @@ function MembersSettings({ workspaceId }: { workspaceId: string }) {
 // --- SUB-COMPONENT: API TOKENS SETTINGS ---
 function ApiTokensSettings({ workspaceId }: { workspaceId: string }) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const queryClient = useQueryClient();
   const [tokenName, setTokenName] = useState('');
   const [expiresInDays, setExpiresInDays] = useState('90');
@@ -601,16 +588,13 @@ function ApiTokensSettings({ workspaceId }: { workspaceId: string }) {
       setTokenName('');
       queryClient.invalidateQueries({ queryKey: ['api-tokens', workspaceId] });
     },
-    onError: (e: any) => toast.error(e?.message || t('Failed to create token', 'Échec de la création du jeton')),
   });
 
   const revokeMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/settings/tokens/${id}`),
     onSuccess: () => {
-      toast.success(t('Token revoked', 'Jeton révoqué'));
       queryClient.invalidateQueries({ queryKey: ['api-tokens', workspaceId] });
     },
-    onError: () => toast.error(t('Failed to revoke token', 'Échec de la révocation du jeton')),
   });
 
   const handleCopy = () => {
@@ -734,7 +718,6 @@ const PLAN_LABEL: Record<string, string> = { FREE: 'Free', STARTER: 'Starter', P
 // --- SUB-COMPONENT: STRIPE CARD FORM ---
 function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -750,17 +733,15 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
         payment_method: { card: elements.getElement(CardElement)! },
       });
       if (result.error) {
-        toast.error(result.error.message || t('Card error', 'Erreur de carte'));
         return;
       }
       await api.post('/payments/methods/card/confirm', {
         stripePaymentMethodId: result.setupIntent!.payment_method,
       });
-      toast.success(t('Card saved', 'Carte enregistrée'));
       qc.invalidateQueries({ queryKey: ['payment-methods'] });
       onSuccess();
     } catch {
-      toast.error(t('Failed to save card', 'Échec de l\'enregistrement de la carte'));
+      // Silent — the form just stays open for the user to retry.
     } finally {
       setLoading(false);
     }
@@ -797,7 +778,6 @@ function StripeCardForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
 // --- SUB-COMPONENT: ADD MOBILE MONEY MODAL ---
 function MobileMoneyModal({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [msisdn, setMsisdn] = useState('');
   const [label, setLabel] = useState('');
   const [loading, setLoading] = useState(false);
@@ -814,11 +794,10 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
     setLoading(true);
     try {
       await api.post('/payments/methods/mobile-money', { msisdn, label: label || undefined });
-      toast.success(t('Number saved', 'Numéro enregistré'));
       qc.invalidateQueries({ queryKey: ['payment-methods'] });
       onClose();
     } catch {
-      toast.error(t('Failed to save number', 'Échec de l\'enregistrement du numéro'));
+      // Silent — the form just stays open for the user to retry.
     } finally {
       setLoading(false);
     }
@@ -878,7 +857,6 @@ function MobileMoneyModal({ onClose }: { onClose: () => void }) {
 // --- SUB-COMPONENT: PAYMENT METHODS CARD ---
 function PaymentMethodsCard() {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const qc = useQueryClient();
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showCardForm, setShowCardForm] = useState(false);
@@ -891,14 +869,12 @@ function PaymentMethodsCard() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/payments/methods/${id}`),
-    onSuccess: () => { toast.success(t('Removed', 'Supprimé')); qc.invalidateQueries({ queryKey: ['payment-methods'] }); },
-    onError: () => toast.error(t('Failed to remove', 'Échec de la suppression')),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['payment-methods'] }); },
   });
 
   const defaultMutation = useMutation({
     mutationFn: (id: string) => api.patch(`/payments/methods/${id}/default`, {}),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['payment-methods'] }),
-    onError: () => toast.error(t('Failed to update', 'Échec de la mise à jour')),
   });
 
   const stripeReady = !!stripePromise;
@@ -983,7 +959,7 @@ function PaymentMethodsCard() {
               <Image src="/assets/MTNmoney.png" alt="MTN MoMo" width={110} height={46} className="object-contain block" />
             </button>
             <button
-              onClick={() => stripeReady ? setShowCardForm(v => !v) : toast.info(t('Stripe not configured yet', 'Stripe n\'est pas encore configuré'))}
+              onClick={() => { if (stripeReady) setShowCardForm(v => !v); }}
               className="flex items-center gap-2 px-4 py-3 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 text-[#040028] dark:text-white font-semibold text-xs hover:border-[#174CD2]/40 transition-all"
             >
               <FiCreditCard size={16} /> {t('Add Visa/Card', 'Ajouter Visa/Carte')}

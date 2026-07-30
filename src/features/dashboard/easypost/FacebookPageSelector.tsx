@@ -42,7 +42,6 @@ export const FacebookPageSelector = ({ isOpen, onClose, onAccountConnected, exch
             pageId: page.id, pageName: page.name, pageAccessToken: page.access_token, exchangeToken
         }),
         onSuccess: (res, variables) => {
-            toast.success(t(`Connected: ${variables.name}`, `Connecté : ${variables.name}`));
             if (onAccountConnected) {
                 const optimisticAccount = {
                     id: res.data?.id || `temp-${Date.now()}`,

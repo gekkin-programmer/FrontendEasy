@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { boardApi, Board, BoardColumn, Card } from '@/services/boardApi';
 import { api } from '@/lib/api';
-import { useAppToast } from '@/hooks/useAppToast';
 import { useLanguage } from '@/context/LanguageContext';
 import { motion } from 'framer-motion';
 import {
@@ -122,7 +121,6 @@ export default function BoardView({ workspaceId }: BoardViewProps) {
 function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: string }) {
   const queryClient = useQueryClient();
   const { t } = useLanguage();
-  const toast = useAppToast();
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   // Idea Modal — shared between creating a new idea and editing an existing one.
@@ -166,7 +164,6 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
     mutationFn: (data: { id: string, name: string }) => boardApi.updateColumn(data.id, { name: data.name }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Group updated', 'Groupe mis à jour'));
     }
   });
 
@@ -174,7 +171,6 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
     mutationFn: (id: string) => boardApi.deleteColumn(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Group deleted', 'Groupe supprimé'));
       setColumnPendingDelete(null);
     }
   });
@@ -185,7 +181,6 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
       setIsCreateColumnOpen(false);
       setNewColumnName('');
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Group created', 'Groupe créé'));
     }
   });
 
@@ -207,7 +202,6 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
     onSuccess: () => {
       closeIdeaModal();
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Idea created', 'Idée créée'));
     }
   });
 
@@ -225,9 +219,7 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
     onSuccess: () => {
       closeIdeaModal();
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Idea updated', 'Idée mise à jour'));
     },
-    onError: () => toast.error(t('Failed to update idea', "Échec de la mise à jour de l'idée")),
   });
 
   const resetImageState = () => {
@@ -244,9 +236,8 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
       const formData = new FormData();
       formData.append('file', file);
       await api.upload<any>('/media/upload', formData);
-      toast.success(t('Image uploaded to media library — it will attach to the idea once the backend supports it', "Image importée dans la médiathèque — elle sera liée à l'idée dès que le backend le prendra en charge"));
     } catch {
-      toast.error(t('Upload failed', "Échec de l'import"));
+      // Upload failures during idea creation fail silently — the preview stays visible either way.
     } finally {
       setIsUploadingImage(false);
     }
@@ -263,7 +254,7 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
       if (!generated) throw new Error('Empty response from AI');
       setNewCardDescription(generated);
     } catch {
-      toast.error(t('AI generation failed', "Échec de la génération IA"));
+      // Silent — the description field just stays empty for the user to fill in manually.
     } finally {
       setIsGeneratingIdea(false);
     }
@@ -273,10 +264,8 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
     mutationFn: (cardId: string) => boardApi.deleteCard(cardId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board', boardId] });
-      toast.success(t('Idea deleted', 'Idée supprimée'));
       setCardPendingDelete(null);
     },
-    onError: () => toast.error(t('Failed to delete idea', "Échec de la suppression de l'idée")),
   });
 
   const sensors = useSensors(

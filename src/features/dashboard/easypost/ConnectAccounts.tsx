@@ -183,12 +183,10 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       async (response: any) => {
         if (response.authResponse?.code) {
           try {
-            const res: any = await api.post('/whatsapp/connect', {
+            await api.post('/whatsapp/connect', {
               workspaceId,
               code: response.authResponse.code,
             });
-            const data = res.data ?? res;
-            toast.success(t(`WhatsApp connected: ${data.phoneNumber}`, `WhatsApp connecté: ${data.phoneNumber}`));
             queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
           } catch {
             toast.error(t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));

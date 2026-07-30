@@ -232,7 +232,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
         queryClient.invalidateQueries({ queryKey: ['calendar'] });
         queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
     },
-    onError: () => toast.error(t("Reschedule failed", "Échec de la replanification"))
   });
 
   const approveMutation = useMutation({
@@ -271,7 +270,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
         if (!post) return;
 
         if (post.status === 'PUBLISHED' || post.status === 'PUBLISHING') {
-            toast.info(t("Published posts cannot be rescheduled", "Les publications publiées ne peuvent pas être replanifiées"));
             return;
         }
 
@@ -310,7 +308,6 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
       URL.revokeObjectURL(url);
 
       trackAction('calendar_export', { workspaceId, postCount: posts.length });
-      toast.success(t("Export generated", "Export généré"));
   };
 
   const navigate = (direction: 'prev' | 'next') => {

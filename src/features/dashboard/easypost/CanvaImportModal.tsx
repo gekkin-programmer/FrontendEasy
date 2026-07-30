@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { X, RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight, ExternalLink } from 'lucide-react';
-import { useAppToast } from '@/hooks/useAppToast';
+import { RefreshCw, Download, Image as ImageIcon, Film, Check, ChevronRight, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSocket } from '@/context/SocketContext';
 import { cn } from '@/lib/utils';
+import { NeuModal } from './DashboardUI';
 
 type Tab = 'designs' | 'assets';
 type ExportFormat = 'jpg' | 'png' | 'gif' | 'mp4' | 'pdf';
@@ -21,7 +20,6 @@ interface CanvaImportModalProps {
 
 export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImported }: CanvaImportModalProps) {
   const { t } = useLanguage();
-  const toast = useAppToast();
   const { socket } = useSocket();
   const [tab, setTab] = useState<Tab>('designs');
   const [designs, setDesigns] = useState<any[]>([]);
@@ -37,7 +35,6 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
   useEffect(() => {
     if (!socket || !isOpen) return;
     const handler = (data: { type: string; designId?: string }) => {
-      toast.info(t(`Canva update: ${data.type}`, `Canva: ${data.type}`));
       onImported(); // refresh media library
       if (tab === 'designs') loadDesigns(true);
       else loadAssets(true);
@@ -54,7 +51,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
       setDesigns(prev => reset ? (res.designs ?? []) : [...prev, ...(res.designs ?? [])]);
       setDesignsContinuation(res.continuation);
     } catch {
-      toast.error(t('Failed to load Canva designs', 'Impossible de charger les designs Canva'));
+      // Silent — the list just stays empty/unchanged.
     } finally {
       setLoading(false);
     }
@@ -66,7 +63,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
       const res = await api.get<any>(`/canva/assets?workspaceId=${workspaceId}`);
       setAssets(prev => reset ? (res.assets ?? []) : [...prev, ...(res.assets ?? [])]);
     } catch {
-      toast.error(t('Failed to load Canva assets', 'Impossible de charger les assets Canva'));
+      // Silent — the list just stays empty/unchanged.
     } finally {
       setLoading(false);
     }
@@ -89,9 +86,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
         format: exportFormat,
       });
       setPollingJobId(job.id);
-      toast.info(t('Export started — processing…', 'Export démarré…'));
     } catch {
-      toast.error(t('Failed to start export', "Impossible de démarrer l'export"));
       setImporting(null);
     }
   };
@@ -110,14 +105,12 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
             jobId: pollingJobId,
             filename: `${selectedDesign?.title || 'canva_design'}.${exportFormat}`,
           });
-          toast.success(t('Design imported to media library!', 'Design importé dans la médiathèque !'));
           setPollingJobId(null);
           setImporting(null);
           setSelectedDesign(null);
           onImported();
         } else if (job.status === 'failed') {
           clearInterval(interval);
-          toast.error(t('Export failed', "L'export a échoué"));
           setPollingJobId(null);
           setImporting(null);
         }
@@ -137,26 +130,9 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
     return `https://www.canva.com/design/${designId}/edit?return_url=${encodeURIComponent(returnUrl)}`;
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#333333]/20 backdrop-blur-sm p-4">
-      <motion.div
-        initial={{ scale: 0.96, opacity: 0, y: 10 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.96, opacity: 0, y: 10 }}
-        className="bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between bg-[#174CD2] text-white px-5 py-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-sm">{t('Canva import', 'Import Canva')}</span>
-          </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-
+    <NeuModal isOpen={isOpen} onClose={onClose} title={t('Canva import', 'Import Canva')} maxWidth="max-w-2xl" className="max-h-[85vh]">
+      <div className="-m-6 flex flex-col max-h-[calc(85vh-64px)]">
         {/* Tabs */}
         <div className="flex border-b border-black/5 dark:border-white/5 flex-shrink-0">
           {(['designs', 'assets'] as Tab[]).map(tb => (
@@ -316,7 +292,7 @@ export default function CanvaImportModal({ isOpen, onClose, workspaceId, onImpor
             </div>
           )}
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </NeuModal>
   );
 }

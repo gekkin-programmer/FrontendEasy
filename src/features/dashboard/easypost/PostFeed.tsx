@@ -570,29 +570,23 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     setOptimisticOverrides(prev => ({ ...prev, [postId]: { status: 'DRAFT', scheduledFor: undefined } }));
     try {
         await api.post(`/posts/${postId}/cancel-schedule?workspaceId=${workspaceId}`, {});
-        toast.success(t("Schedule cancelled", "Planification annulée"));
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] }),
           queryClient.invalidateQueries({ queryKey: ['calendar'] }),
         ]);
         clearOptimisticOverride(postId);
     } catch (e) {
-        toast.error(t("Cancellation failed", "Échec de l'annulation"));
         clearOptimisticOverride(postId);
     }
   };
 
   const repostPost = async (postId: string) => {
     try {
-      toast.loading(t("Reposting...", "Republication en cours..."));
       await api.post(`/posts/${postId}/repost?workspaceId=${workspaceId}`, {});
-      toast.dismiss();
-      toast.success(t("Reposted!", "Republié !"));
       queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] });
       queryClient.invalidateQueries({ queryKey: ['calendar'] });
     } catch (e) {
-      toast.dismiss();
-      toast.error(t("Repost failed", "Échec de la republication"));
+      // Silent — the post stays as-is for the user to retry.
     }
   };
 
@@ -610,9 +604,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   const publishPost = async (postId: string) => {
     setOptimisticOverrides(prev => ({ ...prev, [postId]: { status: 'PUBLISHED' } }));
     try {
-        toast.loading(t("Publishing...", "Publication en cours..."));
         await api.post(`/posts/${postId}/publish?workspaceId=${workspaceId}`, {});
-        toast.dismiss();
         toast.success(t("Published successfully", "Publié avec succès"));
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ['posts', workspaceId] }),
@@ -620,7 +612,6 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         ]);
         clearOptimisticOverride(postId);
     } catch (e) {
-        toast.dismiss();
         toast.error(t("Publish failed", "Échec de la publication"));
         clearOptimisticOverride(postId);
     }

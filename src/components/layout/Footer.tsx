@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 function AccordionSection({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
@@ -32,7 +31,7 @@ function SocialIcon({ href, children }: { href: string; children: React.ReactNod
   return (
     <a 
       href={href} 
-      className="w-[44px] max-[375px]:w-[36px] max-[375px]:h-[36px] h-[44px] flex items-center justify-center rounded-full hover:scale-110 transition-transform bg-white/10"
+      className="w-[44px] max-[375px]:w-[36px] max-[375px]:h-[36px] h-[44px] flex items-center justify-center rounded-full hover:scale-110 transition-transform bg-transparent"
       target="_blank" rel="noopener noreferrer"
     >
       {children}
@@ -44,19 +43,6 @@ export default function Footer() {
   const pathname = usePathname();
   const { language, setLanguage, t } = useLanguage();
   const [isLangOpen, setIsLangOpen] = useState(false);
-  const [showBackToTop, setShowBackToTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 400);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   if (pathname?.startsWith('/login') || pathname?.startsWith('/signup') || pathname?.startsWith('/checkout') || pathname?.startsWith('/dashboard')) {
     return null;
@@ -226,8 +212,8 @@ export default function Footer() {
           <div className="mt-auto">
 
           {/* --- Social Icons --- */}
-          <div className="pt-4 border-t border-white/10">
-            <span className="text-[13px] max-[375px]:text-[11px] text-white/60 block mb-3">
+          <div className="py-4 border-t border-white/10">
+            <span className="text-[13px] max-[375px]:text-[11px] text-white block mb-3">
               {t('Follow us', 'Suivez-nous')}
             </span>
             <div className="flex gap-3 max-[375px]:gap-2">
@@ -354,16 +340,6 @@ export default function Footer() {
 
       </div>
 
-      {/* Back to Top Button */}
-      {showBackToTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 3xl:bottom-8 3xl:right-8 z-50 w-[44px] h-[44px] 3xl:w-[56px] 3xl:h-[56px] bg-white text-[#040028] rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
-          aria-label={t('Back to top', 'Retour en haut')}
-        >
-          <ArrowUp className="w-5 h-5 3xl:w-7 3xl:h-7" />
-        </button>
-      )}
     </footer>
   );
 }
