@@ -65,6 +65,7 @@ export default function Engagement() {
 
   const selectConversation = (id: string) => {
     setActiveId(id);
+    setSendError(null);
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       window.history.pushState({ conversationId: id }, '');
     }
@@ -72,6 +73,7 @@ export default function Engagement() {
 
   const handleBackToList = () => {
     setActiveId(null);
+    setSendError(null);
   };
 
   // 🟢 1. FETCH ENGAGEMENT
@@ -147,7 +149,7 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/status`, { status });
     },
     onSuccess: (_, variables) => {
-        if (variables.status === 'archived') setActiveId(null);
+        if (variables.status === 'archived') { setActiveId(null); setSendError(null); }
         queryClient.invalidateQueries({ queryKey: ['engagement'] });
     }
   });
@@ -189,9 +191,6 @@ export default function Engagement() {
         conversationId: activeEngagement?.conversationId,
       });
   };
-
-  // Reset the send error whenever the agent switches conversation or edits their draft
-  useEffect(() => { setSendError(null); }, [activeId]);
 
   const isActiveWhatsappDm = activeEngagement?.type === 'dm' && activeEngagement?.platform === 'whatsapp' && !!activeEngagement?.conversationId;
 
