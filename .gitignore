@@ -125,3 +125,6 @@ desktop.ini
 .vscode/
 *.swp
 *.swo
+
+# Infra exports (embed registry passwords / deploy webhook tokens)
+app.json
