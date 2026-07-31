@@ -81,7 +81,9 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
     if (!response.ok) {
         // Log the error for production monitoring
         console.error(`API_ERROR [${response.status}] ${url}`, data);
-        throw new Error(data.message || `API_ERR_${response.status}`);
+        const apiError = new Error(data.message || `API_ERR_${response.status}`);
+        (apiError as any).status = response.status;
+        throw apiError;
     }
 
     return data as T;

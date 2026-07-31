@@ -64,7 +64,7 @@ export default function Engagement() {
   };
 
   // 🟢 1. FETCH ENGAGEMENT
-  const { data: rawEngagements = [], isLoading } = useQuery({
+  const { data: rawEngagements = [], isLoading, error: engagementError } = useQuery({
     queryKey: ['engagement', workspaceId],
     gcTime: 0,
     queryFn: async () => {
@@ -73,6 +73,7 @@ export default function Engagement() {
     }
   });
   const engagements = rawEngagements;
+  const isWorkspaceForbidden = (engagementError as any)?.status === 403;
 
   // 🟢 1b. WHATSAPP INBOX LIST — carries canReplyFreely/windowExpiresAt so the
   // left panel can mark closed threads before an agent opens them.
@@ -109,7 +110,7 @@ export default function Engagement() {
       if (type === 'dm' && platform === 'whatsapp' && conversationId) {
         await api.post(`/whatsapp/inbox/${conversationId}/send`, { text });
       } else {
-        await api.post(`/engagement/${id}/reply`, { text });
+        await api.post(`/engagement/${id}/reply`, { text, workspaceId });
       }
     },
     onSuccess: (_, vars) => {
@@ -126,6 +127,10 @@ export default function Engagement() {
         });
     },
     onError: (err: any) => {
+        if (err?.status === 403) {
+          setSendError(t("You no longer have access to this workspace. Switch to a workspace you're a member of.", "Vous n'avez plus accès à cet espace de travail. Changez pour un espace auquel vous appartenez."));
+          return;
+        }
         setSendError(err?.message || t('Something went wrong. Please try again.', 'Une erreur est survenue. Veuillez réessayer.'));
     },
   });
@@ -133,7 +138,7 @@ export default function Engagement() {
   // 🟢 3. STATUS MUTATION
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: string }) => {
-        await api.post(`/engagement/${id}/status`, { status });
+        await api.post(`/engagement/${id}/status`, { status, workspaceId });
     },
     onSuccess: (_, variables) => {
         if (variables.status === 'archived') { setActiveId(null); setSendError(null); }
@@ -271,7 +276,14 @@ export default function Engagement() {
               </div>
             )}
 
-            {!isLoading && filteredEngagements.length === 0 && (
+            {!isLoading && isWorkspaceForbidden && (
+              <div className="p-8 text-center text-[#8E8E8E]">
+                <FiLock size={32} className="mx-auto mb-2 opacity-40" />
+                <p className="text-xs font-semibold">{t("You no longer have access to this workspace. Switch to a workspace you're a member of.", "Vous n'avez plus accès à cet espace de travail. Changez pour un espace auquel vous appartenez.")}</p>
+              </div>
+            )}
+
+            {!isLoading && !isWorkspaceForbidden && filteredEngagements.length === 0 && (
               <div className="p-8 text-center text-[#8E8E8E]">
                 <FiMessageCircle size={32} className="mx-auto mb-2 opacity-40" />
                 <p className="text-xs font-semibold">{t('No discussions found', 'Aucune discussion trouvée')}</p>
