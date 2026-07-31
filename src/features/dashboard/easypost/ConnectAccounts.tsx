@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
@@ -133,6 +133,40 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [waConnecting, setWaConnecting] = useState(false);
+  const waSignupDataRef = useRef<{ wabaId?: string; phoneNumberId?: string }>({});
+
+  // Meta posts the WABA/phone number IDs via postMessage during the Embedded
+  // Signup popup flow, separately from the FB.login callback's auth code —
+  // the message arrives first, so stash it here for connectWhatsApp to read
+  // once the callback fires. CANCEL is the most common outcome (user just
+  // closes the dialog) and is not an error; ERROR carries Meta's own message.
+  useEffect(() => {
+    const handleSignupMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://www.facebook.com') return;
+      let payload: any;
+      try {
+        payload = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+      if (payload?.type !== 'WA_EMBEDDED_SIGNUP') return;
+
+      if (payload.event === 'FINISH') {
+        waSignupDataRef.current = {
+          wabaId: payload.data?.waba_id,
+          phoneNumberId: payload.data?.phone_number_id,
+        };
+      } else if (payload.event === 'CANCEL') {
+        toast.info(t('WhatsApp setup cancelled — you can try again anytime', 'Configuration WhatsApp annulée — vous pouvez réessayer à tout moment'));
+        setWaConnecting(false);
+      } else if (payload.event === 'ERROR') {
+        toast.error(payload.data?.error_message || t('WhatsApp setup failed', 'Échec de la configuration WhatsApp'));
+        setWaConnecting(false);
+      }
+    };
+    window.addEventListener('message', handleSignupMessage);
+    return () => window.removeEventListener('message', handleSignupMessage);
+  }, [t, toast]);
   const token = getCookie('accessToken');
   let tokenStatus = t("Unknown", "Inconnu");
   let tokenExpiry = null;
@@ -173,6 +207,7 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
 
   const connectWhatsApp = () => {
     setWaConnecting(true);
+    waSignupDataRef.current = {};
     // Meta Embedded Signup — launches the FB SDK dialog
     if (typeof window === 'undefined' || !(window as any).FB) {
       toast.error(t('Meta SDK not loaded — please refresh', 'SDK Meta non chargé — actualisez la page'));
@@ -181,28 +216,43 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     }
     (window as any).FB.login(
       async (response: any) => {
-        if (response.authResponse?.code) {
-          try {
-            await api.post('/whatsapp/connect', {
-              workspaceId,
-              code: response.authResponse.code,
-            });
-            queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
-          } catch {
-            toast.error(t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
+        if (!response.authResponse) {
+          // CANCEL/ERROR feedback is handled by the postMessage listener above.
+          setWaConnecting(false);
+          return;
+        }
+        const { wabaId, phoneNumberId } = waSignupDataRef.current;
+        if (!wabaId || !phoneNumberId) {
+          // FINISH never arrived on the message channel.
+          toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
+          setWaConnecting(false);
+          return;
+        }
+        try {
+          const res: any = await api.post('/whatsapp/connect', {
+            workspaceId,
+            code: response.authResponse.code,
+            wabaId,
+            phoneNumberId,
+          });
+          const body = res?.data ?? res;
+          if (body?.warnings?.length) {
+            toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
+          } else {
+            toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
           }
-        } else {
-          toast.error(t('WhatsApp connection cancelled', 'Connexion WhatsApp annulée'));
+          queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+        } catch (err: any) {
+          toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
         }
         setWaConnecting(false);
       },
       {
-        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID || '',
+        config_id: process.env.NEXT_PUBLIC_META_ES_CONFIG_ID || '',
         response_type: 'code',
         override_default_response_type: true,
         extras: {
-          setup: {},
-          featureType: '',
+          version: 'v4',
           sessionInfoVersion: '3',
         },
       },

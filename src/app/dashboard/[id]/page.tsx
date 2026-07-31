@@ -487,15 +487,20 @@ function DashboardContent() {
     // Load Meta FB SDK for WhatsApp Embedded Signup
     useEffect(() => {
         if (typeof window === 'undefined' || (window as any).FB) return;
+        // Guard against injecting a second <script> tag before the first has
+        // finished loading (e.g. a StrictMode double-invoke) — Meta explicitly
+        // warns that importing two SDK versions breaks FB.login unpredictably.
+        if (document.querySelector('script[src*="connect.facebook.net"]')) return;
         const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID;
         if (!metaAppId) return;
         (window as any).fbAsyncInit = function () {
-            (window as any).FB.init({ appId: metaAppId, autoLogAppEvents: true, xfbml: true, version: 'v21.0' });
+            (window as any).FB.init({ appId: metaAppId, autoLogAppEvents: true, xfbml: true, version: 'v26.0' });
         };
         const script = document.createElement('script');
         script.src = 'https://connect.facebook.net/en_US/sdk.js';
         script.async = true;
         script.defer = true;
+        script.crossOrigin = 'anonymous';
         document.head.appendChild(script);
     }, []);
 
