@@ -484,21 +484,6 @@ function DashboardContent() {
         window.scrollTo(0, 0);
     }, [activeTab]);
 
-    // Load Meta FB SDK for WhatsApp Embedded Signup
-    useEffect(() => {
-        if (typeof window === 'undefined' || (window as any).FB) return;
-        const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID;
-        if (!metaAppId) return;
-        (window as any).fbAsyncInit = function () {
-            (window as any).FB.init({ appId: metaAppId, autoLogAppEvents: true, xfbml: true, version: 'v21.0' });
-        };
-        const script = document.createElement('script');
-        script.src = 'https://connect.facebook.net/en_US/sdk.js';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    }, []);
-
     // --- QUERIES ---
     const { data: myWorkspaces = [] } = useQuery({
         queryKey: ['workspaces'],

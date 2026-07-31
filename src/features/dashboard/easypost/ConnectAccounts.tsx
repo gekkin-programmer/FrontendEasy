@@ -132,7 +132,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const toast = useAppToast();
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
-  const [waConnecting, setWaConnecting] = useState(false);
   const token = getCookie('accessToken');
   let tokenStatus = t("Unknown", "Inconnu");
   let tokenExpiry = null;
@@ -170,44 +169,6 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
     },
   });
-
-  const connectWhatsApp = () => {
-    setWaConnecting(true);
-    // Meta Embedded Signup — launches the FB SDK dialog
-    if (typeof window === 'undefined' || !(window as any).FB) {
-      toast.error(t('Meta SDK not loaded — please refresh', 'SDK Meta non chargé — actualisez la page'));
-      setWaConnecting(false);
-      return;
-    }
-    (window as any).FB.login(
-      async (response: any) => {
-        if (response.authResponse?.code) {
-          try {
-            await api.post('/whatsapp/connect', {
-              workspaceId,
-              code: response.authResponse.code,
-            });
-            queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
-          } catch {
-            toast.error(t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
-          }
-        } else {
-          toast.error(t('WhatsApp connection cancelled', 'Connexion WhatsApp annulée'));
-        }
-        setWaConnecting(false);
-      },
-      {
-        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID || '',
-        response_type: 'code',
-        override_default_response_type: true,
-        extras: {
-          setup: {},
-          featureType: '',
-          sessionInfoVersion: '3',
-        },
-      },
-    );
-  };
 
   const disconnectMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
@@ -455,14 +416,9 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
               </button>
             ) : (
-              <button
-                onClick={connectWhatsApp}
-                disabled={waConnecting}
-                className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm hover:bg-[#123a9e] transition-all disabled:opacity-50"
-              >
-                {waConnecting ? <Loader2 size={16} className="inline animate-spin mr-2" /> : <FaWhatsapp size={16} className="inline mr-2" />}
-                {waConnecting ? t('Connecting...', 'Connexion...') : t('Connect via Meta', 'Connecter via Meta')}
-              </button>
+              <div className="w-full py-2.5 px-4 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-xs font-medium text-[#8E8E8E] text-center">
+                {t('Contact our team to get your WhatsApp Business number connected', 'Contactez notre équipe pour connecter votre numéro WhatsApp Business')}
+              </div>
             )}
           </div>
         </div>
