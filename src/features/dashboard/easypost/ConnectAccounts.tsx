@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
@@ -132,6 +132,31 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
   const toast = useAppToast();
   const queryClient = useQueryClient();
   const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [waConnecting, setWaConnecting] = useState(false);
+  const waSignupDataRef = useRef<{ wabaId?: string; phoneNumberId?: string }>({});
+
+  // Meta posts the WABA/phone number IDs via postMessage during the Embedded
+  // Signup popup flow, separately from the FB.login callback's auth code —
+  // capture them here so connectWhatsApp can combine both once login finishes.
+  useEffect(() => {
+    const handleSignupMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://www.facebook.com') return;
+      let data: any;
+      try {
+        data = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+      if (data?.type === 'WA_EMBEDDED_SIGNUP' && data?.data?.waba_id) {
+        waSignupDataRef.current = {
+          wabaId: data.data.waba_id,
+          phoneNumberId: data.data.phone_number_id,
+        };
+      }
+    };
+    window.addEventListener('message', handleSignupMessage);
+    return () => window.removeEventListener('message', handleSignupMessage);
+  }, []);
   const token = getCookie('accessToken');
   let tokenStatus = t("Unknown", "Inconnu");
   let tokenExpiry = null;
@@ -169,6 +194,59 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
     },
   });
+
+  const connectWhatsApp = () => {
+    setWaConnecting(true);
+    waSignupDataRef.current = {};
+    // Meta Embedded Signup — launches the FB SDK dialog
+    if (typeof window === 'undefined' || !(window as any).FB) {
+      toast.error(t('Meta SDK not loaded — please refresh', 'SDK Meta non chargé — actualisez la page'));
+      setWaConnecting(false);
+      return;
+    }
+    (window as any).FB.login(
+      async (response: any) => {
+        if (response.authResponse?.code) {
+          const { wabaId, phoneNumberId } = waSignupDataRef.current;
+          if (!wabaId || !phoneNumberId) {
+            toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
+            setWaConnecting(false);
+            return;
+          }
+          try {
+            const res: any = await api.post('/whatsapp/connect', {
+              workspaceId,
+              code: response.authResponse.code,
+              wabaId,
+              phoneNumberId,
+            });
+            const body = res?.data ?? res;
+            if (body?.warnings?.length) {
+              toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
+            } else {
+              toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
+            }
+            queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+          } catch {
+            toast.error(t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
+          }
+        } else {
+          toast.error(t('WhatsApp connection cancelled', 'Connexion WhatsApp annulée'));
+        }
+        setWaConnecting(false);
+      },
+      {
+        config_id: process.env.NEXT_PUBLIC_META_ES_CONFIG_ID || '',
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: '',
+          sessionInfoVersion: '3',
+        },
+      },
+    );
+  };
 
   const disconnectMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/social-accounts/${id}`),
@@ -416,9 +494,14 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
                 <Trash2 size={14} className="inline mr-2" /> {t("Disconnect", "Déconnecter")}
               </button>
             ) : (
-              <div className="w-full py-2.5 px-4 rounded-[10px] bg-[#F5F7FA] dark:bg-white/5 text-xs font-medium text-[#8E8E8E] text-center">
-                {t('Contact our team to get your WhatsApp Business number connected', 'Contactez notre équipe pour connecter votre numéro WhatsApp Business')}
-              </div>
+              <button
+                onClick={connectWhatsApp}
+                disabled={waConnecting}
+                className="w-full py-2.5 rounded-[10px] bg-[#174CD2] text-white font-semibold text-sm hover:bg-[#123a9e] transition-all disabled:opacity-50"
+              >
+                {waConnecting ? <Loader2 size={16} className="inline animate-spin mr-2" /> : <FaWhatsapp size={16} className="inline mr-2" />}
+                {waConnecting ? t('Connecting...', 'Connexion...') : t('Connect via Meta', 'Connecter via Meta')}
+              </button>
             )}
           </div>
         </div>
