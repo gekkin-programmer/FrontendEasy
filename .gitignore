@@ -125,3 +125,6 @@ desktop.ini
 .vscode/
 *.swp
 *.swo
+
+# Dokploy service exports — these embed the registry password and deploy webhook token
+app.json
