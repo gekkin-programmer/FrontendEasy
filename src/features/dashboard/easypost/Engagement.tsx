@@ -86,22 +86,60 @@ export default function Engagement() {
     enabled: !!workspaceId,
   });
 
-  const whatsappStatusById = useMemo(() => {
-    const map = new Map<string, { canReplyFreely: boolean; windowExpiresAt: string | null }>();
-    whatsappInbox.forEach((c: any) => {
-      const id = c.conversationId || c._id || c.id;
-      if (id) map.set(id, { canReplyFreely: c.canReplyFreely, windowExpiresAt: c.windowExpiresAt ?? null });
-    });
-    return map;
-  }, [whatsappInbox]);
+  // 🟢 1c. MERGE — /engagement doesn't carry WhatsApp DMs itself, so any conversation
+  // from /whatsapp/inbox not already present has to be added as its own list item,
+  // not just used to annotate matches (that silently dropped every WhatsApp thread).
+  const engagementsWithStatus = useMemo(() => {
+    const existingWaIds = new Set(
+      engagements
+        .filter((e: any) => e.platform === 'whatsapp' && e.type === 'dm' && e.conversationId)
+        .map((e: any) => e.conversationId)
+    );
 
-  const engagementsWithStatus = useMemo(() => engagements.map((e: any) => {
-    if (e.platform === 'whatsapp' && e.type === 'dm' && e.conversationId && whatsappStatusById.has(e.conversationId)) {
-      const status = whatsappStatusById.get(e.conversationId)!;
-      return { ...e, canReplyFreely: status.canReplyFreely, windowExpiresAt: status.windowExpiresAt };
-    }
-    return e;
-  }), [engagements, whatsappStatusById]);
+    const waStatusById = new Map<string, { canReplyFreely: boolean; windowExpiresAt: string | null }>();
+    whatsappInbox.forEach((c: any) => {
+      const id = c.conversationId || c.id || c._id;
+      if (id) waStatusById.set(id, { canReplyFreely: c.canReplyFreely, windowExpiresAt: c.windowExpiresAt ?? null });
+    });
+
+    const annotated = engagements.map((e: any) => {
+      if (e.platform === 'whatsapp' && e.type === 'dm' && e.conversationId && waStatusById.has(e.conversationId)) {
+        const status = waStatusById.get(e.conversationId)!;
+        return { ...e, canReplyFreely: status.canReplyFreely, windowExpiresAt: status.windowExpiresAt };
+      }
+      return e;
+    });
+
+    const whatsappOnly = whatsappInbox
+      .filter((c: any) => {
+        const id = c.conversationId || c.id || c._id;
+        return id && !existingWaIds.has(id);
+      })
+      .map((c: any) => {
+        const id = c.conversationId || c.id || c._id;
+        return {
+          _id: id,
+          conversationId: id,
+          type: 'dm',
+          platform: 'whatsapp',
+          authorName: c.participantName || c.participantId || 'WhatsApp',
+          authorAvatar: c.participantAvatar ?? null,
+          content: c.lastMessage?.content ?? '',
+          receivedAt: c.lastMessage?.sentAt ?? c.lastMessageAt ?? null,
+          status: c.status ?? (c.unreadCount > 0 ? 'unread' : 'read'),
+          unreadCount: c.unreadCount ?? 0,
+          canReplyFreely: c.canReplyFreely,
+          windowExpiresAt: c.windowExpiresAt ?? null,
+          _synthetic: true,
+        };
+      });
+
+    return [...annotated, ...whatsappOnly].sort((a: any, b: any) => {
+      const at = a.receivedAt ? new Date(a.receivedAt).getTime() : 0;
+      const bt = b.receivedAt ? new Date(b.receivedAt).getTime() : 0;
+      return bt - at;
+    });
+  }, [engagements, whatsappInbox]);
 
   // 🟢 2. REPLY MUTATION
   const [sendError, setSendError] = useState<string | null>(null);
@@ -355,8 +393,12 @@ export default function Engagement() {
                      </div>
                   </div>
                   <div className="flex items-center gap-1 md:gap-2 shrink-0">
-                      <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
-                      <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
+                      {!activeEngagement._synthetic && (
+                        <>
+                          <ActionButton icon={<FiCheckCircle />} tooltip={t('Mark read', 'Marquer comme lu')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'read' })} />
+                          <ActionButton icon={<FiArchive />} tooltip={t('Archive', 'Archiver')} onClick={() => statusMutation.mutate({ id: activeEngagement._id, status: 'archived' })} />
+                        </>
+                      )}
                       <div className="w-px h-5 md:h-6 bg-black/10 dark:bg-white/10 mx-1 md:mx-2 hidden sm:block" />
                       {/* Prev / Next navigation */}
                       <span className="text-xs text-[#8E8E8E] select-none hidden sm:inline">
