@@ -80,6 +80,38 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
         return () => window.removeEventListener('message', handleSignupMessage);
     }, [t, toast]);
 
+    const handleWhatsappLoginResponse = async (response: any) => {
+        if (!response.authResponse) {
+            setWaConnecting(false);
+            return;
+        }
+        const { wabaId, phoneNumberId } = waSignupDataRef.current;
+        if (!wabaId || !phoneNumberId) {
+            toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
+            setWaConnecting(false);
+            return;
+        }
+        try {
+            const res: any = await api.post('/whatsapp/connect', {
+                workspaceId,
+                code: response.authResponse.code,
+                wabaId,
+                phoneNumberId,
+            });
+            const body = res?.data ?? res;
+            if (body?.warnings?.length) {
+                toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
+            } else {
+                toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
+            }
+            queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+            refreshData();
+        } catch (err: any) {
+            toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
+        }
+        setWaConnecting(false);
+    };
+
     const connectWhatsApp = () => {
         setWaConnecting(true);
         waSignupDataRef.current = {};
@@ -88,37 +120,13 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
             setWaConnecting(false);
             return;
         }
+        // FB.login's own type-checking rejects an async function as the callback
+        // ("Expression is of type asyncfunction, not function") and throws before
+        // ever opening the popup — so this must stay a plain sync function that
+        // fires the async handler without being async itself.
         (window as any).FB.login(
-            async (response: any) => {
-                if (!response.authResponse) {
-                    setWaConnecting(false);
-                    return;
-                }
-                const { wabaId, phoneNumberId } = waSignupDataRef.current;
-                if (!wabaId || !phoneNumberId) {
-                    toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
-                    setWaConnecting(false);
-                    return;
-                }
-                try {
-                    const res: any = await api.post('/whatsapp/connect', {
-                        workspaceId,
-                        code: response.authResponse.code,
-                        wabaId,
-                        phoneNumberId,
-                    });
-                    const body = res?.data ?? res;
-                    if (body?.warnings?.length) {
-                        toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
-                    } else {
-                        toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
-                    }
-                    queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
-                    refreshData();
-                } catch (err: any) {
-                    toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
-                }
-                setWaConnecting(false);
+            (response: any) => {
+                void handleWhatsappLoginResponse(response);
             },
             {
                 config_id: process.env.NEXT_PUBLIC_META_ES_CONFIG_ID || '',
