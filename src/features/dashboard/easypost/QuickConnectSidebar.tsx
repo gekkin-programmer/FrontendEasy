@@ -87,10 +87,12 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
         }
         const { wabaId, phoneNumberId } = waSignupDataRef.current;
         if (!wabaId || !phoneNumberId) {
+            console.error('[WhatsApp Connect Debug] guard clause fired — missing wabaId/phoneNumberId', { workspaceId, waSignupData: waSignupDataRef.current });
             toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
             setWaConnecting(false);
             return;
         }
+        console.error('[WhatsApp Connect Debug] sending POST /whatsapp/connect', { workspaceId, wabaId, phoneNumberId, hasCode: !!response.authResponse.code });
         try {
             const res: any = await api.post('/whatsapp/connect', {
                 workspaceId,
@@ -99,6 +101,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
                 phoneNumberId,
             });
             const body = res?.data ?? res;
+            console.error('[WhatsApp Connect Debug] POST succeeded', { body });
             if (body?.warnings?.length) {
                 toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
             } else {
@@ -107,6 +110,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
             queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
             refreshData();
         } catch (err: any) {
+            console.error('[WhatsApp Connect Debug] POST failed', { status: err?.status, message: err?.message });
             toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
         }
         setWaConnecting(false);
