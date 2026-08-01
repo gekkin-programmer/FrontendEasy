@@ -64,6 +64,7 @@ export const QuickConnectSidebar = ({ accounts, workspaceId, refreshData, onMana
             if (payload?.type !== 'WA_EMBEDDED_SIGNUP') return;
 
             if (payload.event === 'FINISH') {
+                console.error('[WhatsApp Connect Debug] raw FINISH payload', payload);
                 waSignupDataRef.current = {
                     wabaId: payload.data?.waba_id,
                     phoneNumberId: payload.data?.phone_number_id,
