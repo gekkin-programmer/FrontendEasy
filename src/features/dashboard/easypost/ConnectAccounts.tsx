@@ -205,6 +205,39 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
     },
   });
 
+  const handleWhatsappLoginResponse = async (response: any) => {
+    if (!response.authResponse) {
+      // CANCEL/ERROR feedback is handled by the postMessage listener above.
+      setWaConnecting(false);
+      return;
+    }
+    const { wabaId, phoneNumberId } = waSignupDataRef.current;
+    if (!wabaId || !phoneNumberId) {
+      // FINISH never arrived on the message channel.
+      toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
+      setWaConnecting(false);
+      return;
+    }
+    try {
+      const res: any = await api.post('/whatsapp/connect', {
+        workspaceId,
+        code: response.authResponse.code,
+        wabaId,
+        phoneNumberId,
+      });
+      const body = res?.data ?? res;
+      if (body?.warnings?.length) {
+        toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
+      } else {
+        toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
+      }
+      queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
+    } catch (err: any) {
+      toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
+    }
+    setWaConnecting(false);
+  };
+
   const connectWhatsApp = () => {
     setWaConnecting(true);
     waSignupDataRef.current = {};
@@ -214,38 +247,13 @@ export default function ConnectAccounts({ workspaceId }: { workspaceId: string }
       setWaConnecting(false);
       return;
     }
+    // FB.login's own type-checking rejects an async function as the callback
+    // ("Expression is of type asyncfunction, not function") and throws before
+    // ever opening the popup — so this must stay a plain sync function that
+    // fires the async handler without being async itself.
     (window as any).FB.login(
-      async (response: any) => {
-        if (!response.authResponse) {
-          // CANCEL/ERROR feedback is handled by the postMessage listener above.
-          setWaConnecting(false);
-          return;
-        }
-        const { wabaId, phoneNumberId } = waSignupDataRef.current;
-        if (!wabaId || !phoneNumberId) {
-          // FINISH never arrived on the message channel.
-          toast.error(t("WhatsApp setup didn't finish — please try again", "La configuration WhatsApp ne s'est pas terminée — veuillez réessayer"));
-          setWaConnecting(false);
-          return;
-        }
-        try {
-          const res: any = await api.post('/whatsapp/connect', {
-            workspaceId,
-            code: response.authResponse.code,
-            wabaId,
-            phoneNumberId,
-          });
-          const body = res?.data ?? res;
-          if (body?.warnings?.length) {
-            toast.success(t(`Connected, but: ${body.warnings.join(' ')}`, `Connecté, mais : ${body.warnings.join(' ')}`));
-          } else {
-            toast.success(t('WhatsApp connected', 'WhatsApp connecté'));
-          }
-          queryClient.invalidateQueries({ queryKey: ['whatsapp-status', workspaceId] });
-        } catch (err: any) {
-          toast.error(err?.message || t('WhatsApp connection failed', 'Connexion WhatsApp échouée'));
-        }
-        setWaConnecting(false);
+      (response: any) => {
+        void handleWhatsappLoginResponse(response);
       },
       {
         config_id: process.env.NEXT_PUBLIC_META_ES_CONFIG_ID || '',
