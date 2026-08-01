@@ -69,7 +69,7 @@ export default function Engagement() {
     gcTime: 0,
     queryFn: async () => {
         const res: any = await api.get(`/engagement?workspaceId=${workspaceId}`);
-        return res.data || [];
+        return Array.isArray(res) ? res : (res?.data ?? []);
     }
   });
   const engagements = rawEngagements;
@@ -81,7 +81,7 @@ export default function Engagement() {
     queryKey: ['whatsapp-inbox', workspaceId],
     queryFn: async () => {
       const res: any = await api.get(`/whatsapp/inbox?workspaceId=${workspaceId}`);
-      return res.data || [];
+      return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: !!workspaceId,
   });
