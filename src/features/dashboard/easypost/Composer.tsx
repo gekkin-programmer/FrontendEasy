@@ -8,7 +8,7 @@ import {
   Image as ImageIcon, Video, X, Clock, Send,
   Tag, LayoutGrid, Plus, Copy,
   ChevronDown, Check, CornerLeftUp, Wand2, Loader2,
-  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft
+  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft, Calendar as CalendarIcon
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -554,65 +554,106 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* HEADER */}
         <div className="px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5 transition-colors">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
-
-            {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
-                const isExpired = acc.isActive === false;
-                // TEMP PREVIEW — real accounts don't carry a profile picture from
-                // the platform yet (needs backend/OAuth work to fetch and store
-                // one); fall back to a placeholder instead of a bare letter.
-                const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
-                return (
-                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
-                    <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
-                    <img
-                      src={avatarSrc}
-                      className="absolute inset-0 w-full h-full object-cover rounded-full"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      alt=""
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
-                    {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
-                  </div>
-                );
-            })}
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
-                  <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="right" sideOffset={8}>
-                <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
-                <div className="max-h-60 overflow-y-auto">
-                  {accounts.map((acc) => {
-                    const isExpired = acc.isActive === false;
-                    const isSelected = selectedAccountIds.includes(acc.id);
-                    return (
-                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-[#174CD2]/8 cursor-pointer")}>
-                        <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center", isExpired ? "border-red-500" : "border-black/20 dark:border-white/20")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 rounded-[2px] bg-[#174CD2]" />)}</div>
-                        <div className="flex-1"><div className={cn("text-xs font-semibold text-[#040028] dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[10px] text-[#8E8E8E]">{acc.platform} {isExpired && `(${t("expired", "expiré")})`}</div></div>
-                        <PlatformIcon platform={acc.platform} size={14} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="flex gap-2">
+          <div className="flex items-center">
              <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+              <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E] hidden md:block">{t("Targets", "Cibles")}</span>
+
+              {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
+                  const isExpired = acc.isActive === false;
+                  const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
+                  return (
+                    <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                      <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
+                      <img
+                        src={avatarSrc}
+                        className="absolute inset-0 w-full h-full object-cover rounded-full"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        alt=""
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
+                      {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+                    </div>
+                  );
+              })}
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
+                    <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="right" sideOffset={8}>
+                  <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {accounts.map((acc) => {
+                      const isExpired = acc.isActive === false;
+                      const isSelected = selectedAccountIds.includes(acc.id);
+                      return (
+                        <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-[#174CD2]/8 cursor-pointer")}>
+                          <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center", isExpired ? "border-red-500" : "border-black/20 dark:border-white/20")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 rounded-[2px] bg-[#174CD2]" />)}</div>
+                          <div className="flex-1"><div className={cn("text-xs font-semibold text-[#040028] dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[10px] text-[#8E8E8E]">{acc.platform} {isExpired && `(${t("expired", "expiré")})`}</div></div>
+                          <PlatformIcon platform={acc.platform} size={14} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="w-px h-6 bg-black/10 dark:bg-white/10 shrink-0" />
+
+            <div className="flex items-center gap-1 shrink-0">
+                <div className="relative w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer" title={scheduleDateOnly ? scheduleDateOnly : t('Date', 'Date')}>
+                    <CalendarIcon size={18} className={scheduleDateOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
+                    <div className="absolute inset-0 opacity-0 overflow-hidden [&_*]:cursor-pointer">
+                        <DateInput
+                            label={t('Date', 'Date')}
+                            isLabelHidden
+                            value={scheduleDateOnly as ISODateString | undefined}
+                            onChange={(value) => handleScheduleDateChange(value)}
+                        />
+                    </div>
+                </div>
+
+                <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center" title={selectedTimeSlot ? selectedTimeSlot.label : t('Time', 'Heure')}>
+                      <Clock size={18} className={scheduleTimeOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[200] overflow-hidden" align="end">
+                    <div className="max-h-60 overflow-y-auto py-1">
+                      {TIME_SLOTS.map((slot) => (
+                        <button
+                          key={slot.value}
+                          type="button"
+                          onClick={() => handleScheduleTimeChange(slot.value)}
+                          className={cn(
+                            'w-full flex items-center justify-between gap-2 h-8 px-3 text-left transition-colors text-xs font-medium text-[#040028] dark:text-white',
+                            slot.value === scheduleTimeOnly ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10'
+                          )}
+                        >
+                          <span>{slot.label}</span>
+                          {slot.value === scheduleTimeOnly && <Check size={14} className="shrink-0" />}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+            </div>
           </div>
         </div>
 
@@ -705,7 +746,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
         <div className="px-4 md:px-6 pt-4 md:pt-6 pb-2 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[340px]")} />
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("What's new?", "Quoi de neuf ?")} className={cn("border border-black/10 dark:border-white/10 shadow-sm resize-none focus-visible:ring-1 focus-visible:ring-[#174CD2]/50 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-4 rounded-[10px] leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[120px]" : "min-h-[220px] md:min-h-[380px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -798,48 +839,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                             </PopoverContent>
                           </Popover>
                           )}
-
-                          <div className="shrink-0 min-w-[140px]">
-                            <DateInput
-                              label={t('Date', 'Date')}
-                              isLabelHidden
-                              size="md"
-                              hasClear
-                              placeholder="DD/MM/YYYY"
-                              value={scheduleDateOnly as ISODateString | undefined}
-                              onChange={(value) => handleScheduleDateChange(value)}
-                            />
-                          </div>
-
-                          <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
-                            <PopoverTrigger asChild>
-                              <button
-                                className="shrink-0 px-3 py-2 text-xs font-semibold bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] text-[#040028] dark:text-white hover:border-[#174CD2]/40 transition-all flex items-center gap-2 h-[38px]"
-                              >
-                                <Clock size={12} />
-                                {selectedTimeSlot ? selectedTimeSlot.label : t('Select a time', 'Choisir une heure')}
-                                <ChevronDown size={12} className={cn('opacity-50 transition-transform', isTimeOpen && 'rotate-180')} />
-                              </button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 overflow-hidden" align="start">
-                              <div className="max-h-60 overflow-y-auto py-1">
-                                {TIME_SLOTS.map((slot) => (
-                                  <button
-                                    key={slot.value}
-                                    type="button"
-                                    onClick={() => handleScheduleTimeChange(slot.value)}
-                                    className={cn(
-                                      'w-full flex items-center justify-between gap-2 h-8 px-3 text-left transition-colors text-xs font-medium text-[#040028] dark:text-white',
-                                      slot.value === scheduleTimeOnly ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10'
-                                    )}
-                                  >
-                                    <span>{slot.label}</span>
-                                    {slot.value === scheduleTimeOnly && <Check size={14} className="shrink-0" />}
-                                  </button>
-                                ))}
-                              </div>
-                            </PopoverContent>
-                          </Popover>
                 </div>
                 
                 {/* Desktop action buttons */}
