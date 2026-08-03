@@ -1,4 +1,7 @@
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
 @import url('https://fonts.googleapis.com/css2?family=Rubik+One&display=swap');
+@import '../lib/eazypost.css';
 
 /* Cascade layer order, lowest → highest priority. Astryx's reset.css /
    astryx.css / theme.css self-declare into `reset` / `astryx-base` /
@@ -17,15 +20,12 @@
   @tailwind base;
 }
 
-@import '@astryxdesign/core/reset.css';
-@import '@astryxdesign/core/astryx.css';
 /* Pre-built brand theme (astryx theme build), not the runtime-injected
    theme-neutral default — runtime `<Theme>` injection only happens client-side
    after hydration, so SSR'd pages had zero theme CSS on first paint. This
    static file is scoped to [data-astryx-theme="eazypost"] and is present
    immediately, matching Astryx's own SSR guidance. Rebuild after editing
    src/lib/astryxTheme.ts: `npx @astryxdesign/cli theme build src/lib/astryxTheme.ts`. */
-@import '../lib/eazypost.css';
 
 @layer tw-utilities {
   @tailwind components;

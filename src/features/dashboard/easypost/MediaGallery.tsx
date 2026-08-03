@@ -371,11 +371,11 @@ export default function MediaGallery({
   };
 
   return (
-    <div className="flex flex-col gap-4 font-sans text-[#040028] dark:text-white transition-colors">
+    <div className="relative flex h-full flex-col overflow-hidden bg-white dark:bg-[#0A0A2E] font-sans text-[#040028] dark:text-white transition-colors">
 
-      {/* Toolbar + Storage — sticky as one unit so only the grid below scrolls */}
-      <div className="sticky top-0 isolate z-20 flex flex-col gap-4 bg-[#F7F6F3] dark:bg-[#0A0A2E] pb-1">
-      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white">
+      {/* Toolbar + Storage — fixed top block, totally opaque */}
+      <div className="relative z-20 shrink-0 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] pb-3">
+      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-[#F7F6F3] dark:bg-white/5">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -438,7 +438,7 @@ export default function MediaGallery({
 
       {/* Storage */}
       {!hideUsage && (
-        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] rounded-[14px] border border-black/5 dark:border-white/5 p-4">
+        <div className="bg-[#F7F6F3] dark:bg-white/5 rounded-[14px] border border-black/5 dark:border-white/5 p-4">
             <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
                 <span>{t("Usage", "Utilisation")}</span>
                 <span>{formatSize(usage)} / {formatSize(storageQuota)}</span>
@@ -452,8 +452,8 @@ export default function MediaGallery({
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
-      {/* Explorer Grid — independently scrollable */}
-      <div className="overflow-y-auto scrollbar-hide min-h-[160px]">
+      {/* Explorer Grid — scrollable folder area */}
+      <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[160px] pt-1">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
          {isLoading ? (
              <>
