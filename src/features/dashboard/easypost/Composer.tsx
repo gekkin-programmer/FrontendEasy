@@ -945,7 +945,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
              exit={{ opacity: 0, height: isMobile ? undefined : 0 }} 
              className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors
                         md:relative md:max-h-[70vh]
-                        fixed top-16 left-0 right-0 bottom-0 z-[100] h-[calc(100dvh-4rem)] md:inset-auto md:h-auto md:z-auto"
+                        fixed top-16 left-0 right-0 bottom-0 z-[100] md:inset-auto md:h-auto md:z-auto"
           >
             <div className="px-4 pt-2 pb-3 md:py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex flex-col md:flex-row items-start md:items-center justify-between transition-colors flex-shrink-0">
                 {/* Mobile Back Button */}
