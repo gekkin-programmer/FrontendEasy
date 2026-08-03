@@ -13,6 +13,7 @@ import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
+import Folder from '@/components/Folder';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import CanvaImportModal from './CanvaImportModal';
 import DropboxBrowserModal from './DropboxBrowserModal';
@@ -464,7 +465,7 @@ export default function MediaGallery({
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a1 1 0 0 1 1 1v6.5l2.6 3.9a1 1 0 0 1-.83 1.6H13v6l-1 2-1-2v-6H5.23a1 1 0 0 1-.83-1.6L7 10.5V4a1 1 0 0 1 1-1h8Z"/></svg>
                             </div>
                         )}
-                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round"/><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round"/></svg>
+                        <Folder color="#174CD2" size={0.8} />
                         {renamingFolderId === folder.id ? (
                             <input
                                 autoFocus

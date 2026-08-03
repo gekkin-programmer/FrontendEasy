@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
@@ -8,6 +9,9 @@ import { Loader2 } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaApple, FaCheck } from 'react-icons/fa6';
 import { setCookie } from 'cookies-next';
+
+// WebGL (react-three-fiber) — must never run during SSR.
+const Silk = dynamic(() => import('@/components/Silk'), { ssr: false });
 
 export default function SignupPage() {
   const router = useRouter();
@@ -19,6 +23,9 @@ export default function SignupPage() {
   const [code, setCode] = React.useState('');
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  // Password requirement hints only show once the user has tried to submit,
+  // not live while they're still typing.
+  const [submitAttempted, setSubmitAttempted] = React.useState(false);
 
   // API Config
   const API_URL =
@@ -36,6 +43,7 @@ export default function SignupPage() {
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitAttempted(true);
     if (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) {
       setError(t('Password must be at least 7 characters and contain at least one capital letter.', 'Le mot de passe doit contenir au moins 7 caractères et une lettre majuscule.'));
       return;
@@ -117,10 +125,10 @@ export default function SignupPage() {
                 <Link href="/" className="hidden md:block p-0 m-0 w-fit">
                   <img src="/assets/eazypost-logo-primary-lockup-black.png" alt="Eazlypost Logo" className="w-auto h-[64px] lg:h-[88px] object-contain cursor-pointer" />
                 </Link>
-                <h1 className="font-sans font-medium text-[clamp(24px,4vw,32px)] leading-[clamp(32px,5vw,48px)] text-[#000000]">
+                <h1 className="font-sans font-bold text-[clamp(24px,4vw,32px)] leading-[clamp(32px,5vw,48px)] text-[#000000]">
                   {t('Get Started Now', 'Commencer maintenant')}
                 </h1>
-                <p className="font-sans font-medium text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#000000]">
+                <p className="font-sans font-normal text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#000000]">
                   {t('Enter your Credentials to create your account', 'Entrez vos identifiants pour créer votre compte')}
                 </p>
               </div>
@@ -185,9 +193,9 @@ export default function SignupPage() {
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder={t('Enter your password', 'Entrez votre mot de passe')}
-                    className={`w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] ${formData.password.length > 0 && (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) ? 'border-red-400' : 'border-[#D9D9D9]'}`}
+                    className={`w-full h-[40px] [@media(min-height:740px)]:h-[44px] [@media(min-height:840px)]:h-[48px] lg:h-[48px] bg-white border rounded-[10px] pl-[10px] pr-[10px] font-sans font-medium text-[14px] text-[#000000] outline-none focus:border-[#174CD2] transition-colors placeholder:text-[#8E8E8E] placeholder:font-medium placeholder:text-[14px] placeholder:leading-[21px] [&:-webkit-autofill]:[box-shadow:0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black] ${submitAttempted && (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) ? 'border-red-400' : 'border-[#D9D9D9]'}`}
                   />
-                  {formData.password.length > 0 && (
+                  {submitAttempted && formData.password.length > 0 && (
                     <div className="flex flex-col gap-[2px] mt-[2px]">
                       {formData.password.length < 7 && (
                         <span className="text-[11px] font-sans text-red-400">
@@ -322,23 +330,18 @@ export default function SignupPage() {
       </div>
 
       {/* Right Side: Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 h-[calc(100%-3rem)] mt-6 mb-6 mr-6 relative overflow-hidden rounded-[24px] bg-[#174CD2] flex-col items-center justify-center">
-        
-        {/* Background Vectors */}
-        <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>
-        <div className="absolute top-[20%] left-[60%] w-[52%] h-[41%] bg-[#174CD2] bg-opacity-50"></div>
-        <div className="absolute top-[23%] left-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tr-[40px]"></div>
-        <svg className="absolute top-[30%] -right-[20%] w-[120%] max-w-[900px] h-auto opacity-80 pointer-events-none" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
-        </svg>
-
-        {/* Content Wrapper */}
-        <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
-          <img 
-            src="/assets/LoginImage.png" 
-            alt="Recruitment Scene Illustration" 
-            className="w-full h-auto max-h-[80vh] object-contain scale-110 2xl:scale-125"
+      <div className="hidden lg:flex lg:w-1/2 mt-6 mb-6 mr-6 relative overflow-hidden rounded-[24px] bg-[#174CD2] flex-col items-center justify-center">
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <Silk
+            speed={3.9}
+            scale={1}
+            color="#174CD2"
+            noiseIntensity={1.5}
+            rotation={0}
           />
+          <p className="absolute bottom-8 right-8 z-10 max-w-[380px] text-right font-sans font-extrabold text-[33px] leading-[36px] text-white">
+            {t('Join our active users and boost your online presence', 'Rejoignez nos utilisateurs actifs et boostez votre présence en ligne')}
+          </p>
         </div>
       </div>
 
