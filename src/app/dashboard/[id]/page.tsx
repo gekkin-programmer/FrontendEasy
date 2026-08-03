@@ -834,7 +834,7 @@ function DashboardContent() {
                                     onPreviewDataChange={setPreviewData}
                                     workspaceTimezone={workspaceTimezone}
                                 />
-                                            </NeuCard>
+                                            </div>
                                             <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
                                         </div>
                                     )}
