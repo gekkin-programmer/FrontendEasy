@@ -224,7 +224,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
       )}
 
-      <div className={cn("flex justify-between items-start mb-3", draggable && "pl-4")}>
+      <div className={cn("flex justify-between items-start mb-3", draggable && "md:pl-4")}>
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {socialAccounts.map((sa: any, idx: number) => (
@@ -248,7 +248,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </NeuBadge>
       </div>
 
-      <div className={cn("flex gap-3", draggable && "pl-4")}>
+      <div className={cn("flex gap-3", draggable && "md:pl-4")}>
         {post.media && post.media.length > 0 && (
           <div className="shrink-0 flex flex-col gap-1.5">
             <div className={cn(
@@ -293,7 +293,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
       )}
 
-      <div className={cn("mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center", draggable && "pl-4")}>
+      <div className={cn("mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center", draggable && "md:pl-4")}>
         <div className="flex items-center gap-1.5 text-xs font-medium text-[#8E8E8E]">
            {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
            <span>

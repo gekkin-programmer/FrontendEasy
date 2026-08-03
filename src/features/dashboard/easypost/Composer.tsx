@@ -821,7 +821,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-2 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors">
             
             {/* Horizontal scroll on mobile, flex-row on desktop for tools */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 md:pb-0 px-1 shrink-0 w-full md:w-auto">
@@ -918,7 +918,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 </div>
 
                 {/* Mobile: Centered Bibliothèque Button */}
-                <div className="w-full flex md:hidden mt-4">
+                <div className="w-full flex md:hidden mt-1">
                     <button onClick={() => setIsLibraryOpen(true)} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98] mx-auto">
                        <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
                     </button>
