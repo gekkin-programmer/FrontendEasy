@@ -6,6 +6,20 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { Loader2 } from 'lucide-react';
 import { setCookie } from 'cookies-next';
+import GridMotion from '@/components/GridMotion';
+
+// Images for the login page's background grid — cycled to fill the grid's 28 cells.
+const GRID_MOTION_IMAGES = [
+  '/assets/magnific__background__70466.png',
+  '/assets/magnific_l7uVXlugv9.png',
+  '/assets/magnific_swEz1K6l8e.png',
+  '/assets/rainbow.png',
+  '/assets/Rosine 3.jpg',
+  '/assets/selena.png',
+  '/assets/blanche-bailey.png',
+  '/assets/JDK.jpg',
+];
+const GRID_MOTION_ITEMS = Array.from({ length: 28 }, (_, i) => GRID_MOTION_IMAGES[i % GRID_MOTION_IMAGES.length]);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -115,8 +129,8 @@ export default function LoginPage() {
     <div className="fixed inset-0 z-50 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
       
       {/* Left Side: Form */}
-      <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-6 sm:p-12 lg:p-20 relative overflow-y-auto">
-        <div className="w-full max-w-[404px] xl:max-w-[480px] 2xl:max-w-[560px] 3xl:max-w-[640px] flex flex-col justify-center min-h-full my-auto py-8">
+      <div className="w-full lg:w-1/2 h-full flex flex-col items-center px-8 sm:px-16 lg:px-24 py-6 sm:py-12 lg:py-20 relative overflow-y-auto">
+        <div className="w-full max-w-[480px] xl:max-w-[560px] 2xl:max-w-[640px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8">
           
           {authError && (
             <div className="p-3 mb-6 rounded-md bg-red-50 text-red-600 text-sm border border-red-200">
@@ -132,14 +146,11 @@ export default function LoginPage() {
           <div className="flex flex-col">
             
             {/* Header Texts */}
-            <div className="flex flex-col gap-[5px] mb-[24px] xl:mb-[40px] 2xl:mb-[58px]">
-              <Link href="/" className="block p-0 m-0 w-fit">
-                <img src="/assets/eazypost-logo-primary-lockup-black.png" alt="Eazlypost Logo" className="w-auto h-[64px] lg:h-[88px] object-contain cursor-pointer" />
-              </Link>
-              <h1 className="font-sans font-medium text-[24px] lg:text-[28px] xl:text-[32px] leading-[32px] lg:leading-[40px] xl:leading-[48px] text-[#000000]">
+            <div className="flex flex-col gap-[5px] mb-[16px] xl:mb-[24px] 2xl:mb-[42px]">
+              <h1 className="font-sans font-bold text-[24px] lg:text-[28px] xl:text-[32px] leading-[32px] lg:leading-[40px] xl:leading-[48px] text-[#000000]">
                 {t('Welcome Back', 'Bon retour')}
               </h1>
-              <p className="font-sans font-medium text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#000000]">
+              <p className="font-sans font-normal text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#8E8E8E]">
                 {t('Enter your Credentials to access your account', 'Entrez vos identifiants pour accéder à votre compte')}
               </p>
             </div>
@@ -247,28 +258,9 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side: Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 h-[calc(100%-3rem)] mt-6 mb-6 mr-6 relative overflow-hidden rounded-[24px] bg-[#174CD2] flex-col items-center justify-center">
-        
-        {/* Background Vectors */}
-        <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-[#174CD2] bg-opacity-50 rounded-full blur-[80px]"></div>
-        <div className="absolute top-[20%] left-[60%] w-[52%] h-[41%] bg-[#174CD2] bg-opacity-50"></div>
-        <div className="absolute top-[23%] left-[0%] w-[44%] h-[36%] bg-[#FFFFFF] rounded-tr-[40px]"></div>
-        <svg className="absolute top-[30%] -right-[20%] w-[120%] max-w-[900px] h-auto opacity-80 pointer-events-none" viewBox="0 0 763 616" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fillRule="evenodd" clipRule="evenodd" d="M466.793 132.299C583.258 79.7038 685.136 -14.9811 811.792 2.01323C960.42 21.9559 1114.97 93.3614 1180.8 228.102C1246.36 362.31 1188.92 518.451 1131.44 656.315C1079.01 782.065 998.699 894.574 877.204 956.226C754.811 1018.33 617.123 1011.07 482.227 985.758C317.378 954.826 116.407 945.538 35.9427 798.372C-45.3184 649.75 24.1243 458.399 116.123 316.173C190.644 200.967 341.746 188.769 466.793 132.299Z" fill="#174CD2"/>
-        </svg>
-
-        {/* Content Wrapper */}
-        <div className="relative z-10 w-full max-w-[837px] flex justify-center p-8 2xl:p-12">
-          
-          {/* Illustration Image */}
-          <div className="w-full flex justify-center">
-            <img 
-              src="/assets/svg-login-page.svg" 
-              alt="Login Scene Illustration" 
-              className="w-full h-auto max-h-[80vh] object-contain scale-110 2xl:scale-125"
-            />
-          </div>
-
+      <div className="hidden lg:flex lg:w-1/2 mt-3 mb-3 mr-3 relative overflow-hidden rounded-[24px] flex-col items-center justify-center">
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <GridMotion gradientColor="transparent" items={GRID_MOTION_ITEMS} />
         </div>
       </div>
 
