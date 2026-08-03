@@ -207,9 +207,16 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   // UI State
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setIsLibraryOpen(true);
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      if (window.innerWidth >= 768) {
+        setIsLibraryOpen(true);
+      }
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
     }
   }, []);
   const [isAiOpen, setIsAiOpen] = useState(false);
@@ -932,13 +939,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
       {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div 
-             initial={{ opacity: 0, height: 0 }} 
-             animate={{ height: 'auto', opacity: 1 }} 
-             exit={{ opacity: 0, height: 0 }} 
+           <motion.div 
+             initial={{ opacity: 0, height: isMobile ? undefined : 0 }} 
+             animate={{ height: isMobile ? undefined : 'auto', opacity: 1 }} 
+             exit={{ opacity: 0, height: isMobile ? undefined : 0 }} 
              className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors
                         md:relative md:max-h-[70vh]
-                        fixed top-16 left-0 right-0 bottom-0 z-[100] max-md:!h-[calc(100dvh-4rem)] h-[calc(100dvh-4rem)] max-h-[calc(100dvh-4rem)] md:inset-auto md:h-auto md:z-auto"
+                        fixed top-16 left-0 right-0 bottom-0 z-[100] h-[calc(100dvh-4rem)] md:inset-auto md:h-auto md:z-auto"
           >
             <div className="px-4 pt-2 pb-3 md:py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex flex-col md:flex-row items-start md:items-center justify-between transition-colors flex-shrink-0">
                 {/* Mobile Back Button */}
