@@ -558,7 +558,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
       <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border md:border-[#D9D9D9] md:dark:border-white/10 md:pt-4 rounded-none relative overflow-hidden transition-all">
         {/* DESKTOP TITLE */}
-        <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white px-4 md:px-6">
+        <h2 className="hidden md:flex text-xl font-bold mb-1 items-center gap-2 text-[#040028] dark:text-white px-4 md:px-6">
             {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}
         </h2>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
@@ -633,26 +633,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
         </div>
 
         {/* DESKTOP HEADER */}
-        <div className="hidden md:flex px-4 md:px-6 py-3 items-center justify-between transition-colors">
+        <div className="hidden md:flex px-4 md:px-6 pt-2 pb-1 items-center justify-between transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
-                // TEMP PREVIEW — real accounts don't carry a profile picture from
-                // the platform yet (needs backend/OAuth work to fetch and store
-                // one); fall back to a placeholder instead of a bare letter.
                 const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
                 return (
-                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shrink-0" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
                     <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
-                    <img
-                      src={avatarSrc}
-                      className="absolute inset-0 w-full h-full object-cover rounded-full"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      alt=""
-                    />
+                    <img src={avatarSrc} className="absolute inset-0 w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; }} alt="" />
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
                     {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
                   </div>
@@ -684,9 +675,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             </Popover>
           </div>
 
-          <div className="flex gap-2">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
-                <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
+          <div className="flex gap-2 shrink-0">
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-1.5 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
+                <LayoutGrid size={12} /> <span>{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
           </div>
         </div>
@@ -779,8 +770,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="pt-2 pb-2 md:px-6 md:pt-2 md:pb-6 transition-colors relative">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[340px]")} />
+        <div className="pt-2 pb-1 md:px-6 md:pt-1 md:pb-2 transition-colors relative">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[260px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -830,13 +821,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-6 py-4 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors">
             
             {/* Horizontal scroll on mobile, flex-row on desktop for tools */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 md:pb-0 px-1 shrink-0 w-full md:w-auto">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <ToolButton icon={Wand2} onClick={() => setIsAiOpen(v => !v)} tooltip={t("AI Assistant", "Assistant IA")} />
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
               
               {/* On mobile, also push Action Buttons here into the scrollable row */}
