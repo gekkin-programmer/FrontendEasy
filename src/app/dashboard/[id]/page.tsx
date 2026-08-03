@@ -822,7 +822,7 @@ function DashboardContent() {
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
                                             <div className="relative pt-0 md:pt-4 md:bg-white md:dark:bg-[#0A0A2E] md:border md:border-[#D9D9D9] md:dark:border-white/10 md:rounded-none">
-                                                <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Publication', 'Publication')}</h2>
+                                                <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white px-4 md:px-6">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}

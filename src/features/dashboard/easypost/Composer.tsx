@@ -556,7 +556,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-transparent md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E] border-0 md:border md:border-black/5 md:dark:border-white/5 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-transparent border-0 rounded-none relative overflow-hidden transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* MOBILE HEADER */}
@@ -629,7 +629,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
         </div>
 
         {/* DESKTOP HEADER */}
-        <div className="hidden md:flex px-4 py-3 items-center justify-between border-b border-black/5 dark:border-white/5 transition-colors">
+        <div className="hidden md:flex px-4 md:px-6 py-3 items-center justify-between transition-colors">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
 
@@ -775,8 +775,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="pt-2 pb-2 md:px-6 md:pt-6 md:bg-white md:dark:bg-[#0A0A2E] transition-colors relative">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("What's new?", "Quoi de neuf ?")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[340px]")} />
+        <div className="pt-2 pb-2 md:px-6 md:pt-2 md:pb-6 transition-colors relative">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[340px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
