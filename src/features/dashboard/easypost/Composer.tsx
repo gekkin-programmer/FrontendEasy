@@ -8,7 +8,7 @@ import {
   Image as ImageIcon, Video, X, Clock, Send,
   Tag, LayoutGrid, Plus, Copy,
   ChevronDown, Check, CornerLeftUp, Wand2, Loader2,
-  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft
+  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft, Calendar as CalendarIcon
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
