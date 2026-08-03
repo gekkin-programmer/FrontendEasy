@@ -470,11 +470,7 @@ function DashboardContent() {
     }, [workspaceId]);
 
     // Theme switcher
-    const [isDark] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        const stored = localStorage.getItem('theme');
-        return stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    });
+    const [isDark] = useState(false);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', isDark);
