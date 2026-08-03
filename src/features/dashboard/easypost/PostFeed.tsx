@@ -723,7 +723,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     <>
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDndDragStart} onDragEnd={handleDndDragEnd}>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 px-4 md:px-0 box-border w-full max-w-full">
         <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")}
@@ -802,7 +802,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         </DroppableList>
       </div>
 
-      <div className="relative group flex flex-col gap-4">
+      <div className="relative group flex flex-col gap-4 px-4 md:px-0 box-border w-full max-w-full">
         <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
