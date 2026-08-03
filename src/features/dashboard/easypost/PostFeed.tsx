@@ -66,7 +66,28 @@ interface Post {
   errorMessage?: string;
   title?: string;
   description?: string;
+  metrics?: { likes?: number; shares?: number; views?: number };
 }
+
+// 🟢 PERFORMANCE METRICS — prefer a top-level `metrics` block (mock posts), otherwise
+// sum whatever per-account stats the real API attaches to `socialAccounts`.
+const getPostMetrics = (post: Post): { likes: number; shares: number; reach: number } => {
+  if (post.metrics) {
+    return { likes: post.metrics.likes ?? 0, shares: post.metrics.shares ?? 0, reach: post.metrics.views ?? 0 };
+  }
+  return (post.socialAccounts ?? []).reduce((acc: any, psa: any) => ({
+    likes: acc.likes + (psa.likes || 0),
+    shares: acc.shares + (psa.shares || 0),
+    reach: acc.reach + (psa.views || psa.reach || 0),
+  }), { likes: 0, shares: 0, reach: 0 });
+};
+
+// 🟢 2-DAY QUEUE ROLL-OFF — published posts fall out of the Queue view once they're
+// more than 2 days past their publish date, so the list stays focused on what's
+// upcoming/recent rather than accumulating every post ever published.
+const PUBLISHED_RETENTION_MS = 2 * 24 * 60 * 60 * 1000;
+const isRolledOffQueue = (post: Post) =>
+  post.status === 'PUBLISHED' && !!post.scheduledFor && (Date.now() - new Date(post.scheduledFor).getTime()) > PUBLISHED_RETENTION_MS;
 
 interface Account {
   id: string;
@@ -88,7 +109,7 @@ interface PostFeedProps {
 import { Skeleton } from '@astryxdesign/core/Skeleton';
 
 const SkeletonCard = () => (
-  <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4">
+  <div className="p-3 md:p-4 border-b border-black/5 dark:border-white/5 md:border md:rounded-[16px] bg-transparent md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E]">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
         <Skeleton width={32} height={32} radius="rounded" />
@@ -146,12 +167,12 @@ const MediaThumbnail = ({ pm }: { pm: PostMediaItem }) => {
   );
 };
 
-// 🟢 QUEUE SORT — soonest/most recent date first, undated items last
-const byScheduledDateAsc = (a: Post, b: Post) => {
+// 🟢 QUEUE SORT — most recent date first (soonest upcoming / most recently published), oldest at the bottom, undated items last
+const byScheduledDateDesc = (a: Post, b: Post) => {
   if (!a.scheduledFor && !b.scheduledFor) return 0;
   if (!a.scheduledFor) return 1;
   if (!b.scheduledFor) return -1;
-  return new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime();
+  return new Date(b.scheduledFor).getTime() - new Date(a.scheduledFor).getTime();
 };
 
 // 🟢 PLATFORM ICON HELPER
@@ -169,7 +190,7 @@ const PlatformIcon = ({ platform }: { platform?: string }) => {
 };
 
 // 🟢 SINGLE POST CARD COMPONENT
-const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, onApprove, isQueued, draggable, dragHandleProps, cardRef, isDraggingActive, canApprove, workspaceTimezone }: any) => {
+const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRetry, onRepost, onApprove, onOpenDetails, isQueued, draggable, dragHandleProps, cardRef, isDraggingActive, canApprove, workspaceTimezone }: any) => {
   const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
@@ -208,9 +229,15 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
+      onClick={() => { if (post.status === 'PUBLISHED') onOpenDetails?.(); }}
       className={cn(
-        "group relative bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all duration-150 rounded-[16px]",
+        "group relative transition-all duration-150 w-full max-w-full",
+        // Mobile continuous list styling (transparent bg, 1px thin bottom border divider, 12-16px padding, no floating card effect)
+        "bg-transparent dark:bg-transparent border-0 border-b border-black/10 dark:border-white/10 rounded-none p-3.5 sm:p-4 last:border-b-0 shadow-none",
+        // Desktop / tablet floating card styling (100% unchanged)
+        "md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E] md:border md:border-black/5 md:dark:border-white/5 md:rounded-[16px] md:p-4 md:shadow-none md:last:border-b",
         draggable ? "cursor-grab active:cursor-grabbing touch-none" : "",
+        post.status === 'PUBLISHED' ? "cursor-pointer hover:border-black/10 dark:hover:border-white/10" : "",
         isDraggingActive ? "!opacity-40 !border-dashed !border-black/10 dark:!border-white/10 !shadow-none" : ""
       )}
     >
@@ -403,7 +430,7 @@ const SortableCard = ({ id, children }: { id: string; children: (drag: { cardRef
 const DroppableList = ({ id, children }: { id: string; children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="space-y-4 min-h-[200px] z-10">
+    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0">
       {children}
     </div>
   );
@@ -433,7 +460,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   const [manualDraftOrder, setManualDraftOrder] = useState<string[]>([]);
   const displayPosts = posts.map(p => (optimisticOverrides[p.id] ? { ...p, ...optimisticOverrides[p.id] } : p));
   const drafts = sortByManualOrder(displayPosts.filter(p => p.status === 'DRAFT'), manualDraftOrder);
-  const queued = displayPosts.filter(p => p.status !== 'DRAFT').sort(byScheduledDateAsc);
+  const queued = displayPosts.filter(p => p.status !== 'DRAFT' && !isRolledOffQueue(p)).sort(byScheduledDateDesc);
   const [dismissedMockIds, setDismissedMockIds] = useState<Set<string>>(new Set());
   const dismissMock = (id: string) => setDismissedMockIds(prev => new Set(prev).add(id));
   // Single override map for every mock-card state change (drag to queue/drafts, cancel
@@ -444,6 +471,9 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
   const moveMockToQueue = (id: string) => setMockStatus(id, 'SCHEDULED');
   const publishMockNow = (id: string) => setMockStatus(id, 'PUBLISHED');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [detailsPostId, setDetailsPostId] = useState<string | null>(null);
+  // Frozen once on mount rather than computed inline during render (impure Date.now() call).
+  const [mockRecentPublishedAt] = useState(() => new Date(Date.now() - 6 * 3600000).toISOString());
 
   const mockDraftDefs: Post[] = [
     {
@@ -512,6 +542,17 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
       socialAccounts: [{ socialAccount: { platform: 'instagram', username: 'Your Brand' } }],
       media: [{ id: 'mock-media-queued-1', order: 0, media: { id: 'mock-media-queued-1', url: '/assets/brutalism5.jpg', filename: 'new-collection.jpg', mimeType: 'image/jpeg' } }],
     },
+    {
+      // Kept within the 2-day queue roll-off window (relative to "now", not a fixed
+      // 2026 date like the others) so there's always a published card to click into.
+      id: 'mock-queued-4',
+      content: t('Our new feature just went live — check out the announcement!', 'Notre nouvelle fonctionnalité est en ligne — découvrez l’annonce !'),
+      status: 'PUBLISHED',
+      scheduledFor: mockRecentPublishedAt,
+      socialAccounts: [{ socialAccount: { platform: 'instagram', username: 'Your Brand' } }],
+      media: [{ id: 'mock-media-queued-2', order: 0, media: { id: 'mock-media-queued-2', url: '/assets/brutalism5.jpg', filename: 'feature-launch.jpg', mimeType: 'image/jpeg' } }],
+      metrics: { likes: 128, shares: 14, views: 3400 },
+    },
   ];
 
   const MOCK_SCHEDULE_OFFSET_HOURS: Record<string, number> = {
@@ -547,15 +588,23 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     .map(applyMockOverride);
 
   const mockDrafts: Post[] = sortByManualOrder(mockAllEffective.filter(p => p.status === 'DRAFT'), manualDraftOrder);
-  const mockQueued: Post[] = mockAllEffective.filter(p => p.status !== 'DRAFT').sort(byScheduledDateAsc);
+  const mockQueued: Post[] = mockAllEffective.filter(p => p.status !== 'DRAFT' && !isRolledOffQueue(p)).sort(byScheduledDateDesc);
 
   const activeDraftIds = (drafts.length > 0 ? drafts : mockDrafts).map(p => p.id);
+
+  const allKnownPosts = [...displayPosts, ...mockAllEffective];
+  const confirmDeletePost = allKnownPosts.find(p => p.id === confirmDeleteId) ?? null;
+  const detailsPost = allKnownPosts.find(p => p.id === detailsPostId) ?? null;
 
   const requestDelete = (postId: string) => setConfirmDeleteId(postId);
   const confirmDelete = async () => {
     if (!confirmDeleteId) return;
     const postId = confirmDeleteId;
     setConfirmDeleteId(null);
+    if (postId.startsWith('mock-')) {
+        dismissMock(postId);
+        return;
+    }
     try {
         await api.delete(`/posts/${postId}?workspaceId=${workspaceId}`);
         toast.success(t("Post deleted", "Publication supprimée"));
@@ -757,14 +806,14 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             posts.length === 0 && mockDrafts.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
                 <AnimatePresence mode="popLayout">
                   {mockDrafts.map((post) => (
                     <SortableCard key={post.id} id={post.id}>
                       {(drag) => (
                         <PostCard
                           post={post}
-                          onDelete={() => dismissMock(post.id)}
+                          onDelete={() => requestDelete(post.id)}
                           onEdit={() => onEdit?.(post)}
                           onPublishNow={() => publishMockNow(post.id)}
                           onRetry={() => publishMockNow(post.id)}
@@ -832,6 +881,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                   onRetry={() => publishPost(post.id)}
                   onRepost={() => repostPost(post.id)}
                   onApprove={() => approvePost(post.id)}
+                  onOpenDetails={() => setDetailsPostId(post.id)}
                   canApprove={canApprove}
                   workspaceTimezone={workspaceTimezone}
                   isQueued
@@ -841,7 +891,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
             posts.length === 0 && mockQueued.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
                 <AnimatePresence mode="popLayout">
                   {mockQueued.map((post) => (
                     isReversibleStatus(post.status) ? (
@@ -849,7 +899,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                         {(drag) => (
                           <PostCard
                             post={post}
-                            onDelete={() => dismissMock(post.id)}
+                            onDelete={() => requestDelete(post.id)}
                             onEdit={() => onEdit?.(post)}
                             onCancelSchedule={() => moveMockToDrafts(post.id)}
                             onPublishNow={() => publishMockNow(post.id)}
@@ -864,7 +914,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                         )}
                       </DraggableCard>
                     ) : (
-                      <PostCard key={post.id} post={post} onDelete={() => dismissMock(post.id)} onEdit={() => onEdit?.(post)} isQueued workspaceTimezone={workspaceTimezone} />
+                      <PostCard key={post.id} post={post} onDelete={() => requestDelete(post.id)} onEdit={() => onEdit?.(post)} onOpenDetails={() => setDetailsPostId(post.id)} isQueued workspaceTimezone={workspaceTimezone} />
                     )
                   ))}
                 </AnimatePresence>
@@ -900,6 +950,12 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         <p className="text-sm text-[#8E8E8E]">
           {t('This action cannot be undone.', 'Cette action est irréversible.')}
         </p>
+        {confirmDeletePost?.status === 'PUBLISHED' && (
+          <div className="flex items-start gap-2 p-3 rounded-[10px] bg-yellow-50 dark:bg-yellow-900/20 text-xs font-medium text-yellow-800 dark:text-yellow-400">
+            <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+            <span>{t("This only deletes the post from Eazypost — it will stay live on the connected social account(s). You'll need to remove it there separately.", "Ceci supprime uniquement la publication d'Eazypost — elle restera en ligne sur le(s) compte(s) connecté(s). Vous devrez la retirer séparément sur la plateforme.")}</span>
+          </div>
+        )}
         <div className="flex justify-end gap-3">
           <NeuButton onClick={() => setConfirmDeleteId(null)}>
             {t('Cancel', 'Annuler')}
@@ -912,6 +968,39 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </NeuButton>
         </div>
       </div>
+    </NeuModal>
+    <NeuModal
+      isOpen={!!detailsPostId}
+      onClose={() => setDetailsPostId(null)}
+      title={t('Post performance', 'Performance de la publication')}
+    >
+      {detailsPost && (() => {
+        const metrics = getPostMetrics(detailsPost);
+        return (
+          <div className="space-y-4">
+            {detailsPost.media?.[0] && (
+              <div className="w-full h-40 rounded-[12px] overflow-hidden">
+                <MediaThumbnail pm={detailsPost.media[0]} />
+              </div>
+            )}
+            <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-3">
+              {detailsPost.content}
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: t('Likes', "J'aime"), value: metrics.likes },
+                { label: t('Shares', 'Partages'), value: metrics.shares },
+                { label: t('Reach', 'Portée'), value: metrics.reach },
+              ].map((stat) => (
+                <div key={stat.label} className="py-3 px-3 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 text-center">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-[#8E8E8E] mb-1">{stat.label}</div>
+                  <div className="text-xl font-bold tabular-nums text-[#040028] dark:text-white">{stat.value.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </NeuModal>
     </>
   );

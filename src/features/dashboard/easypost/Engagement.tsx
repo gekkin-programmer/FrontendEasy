@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
+import { useAppToast } from '@/hooks/useAppToast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
@@ -10,12 +11,16 @@ import { useSocket } from '@/context/SocketContext';
 // Icons
 import {
   FiMessageCircle, FiCheck, FiCheckCircle,
-  FiSend, FiSmile, FiArchive,
-  FiChevronLeft, FiChevronRight, FiLock, FiClock
+  FiSmile, FiArchive,
+  FiChevronLeft, FiChevronRight, FiLock, FiClock, FiSearch, FiX
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@astryxdesign/core/Skeleton';
+import { Avatar } from '@astryxdesign/core/Avatar';
+import {
+  ChatLayout, ChatMessageList, ChatMessage, ChatMessageBubble, ChatMessageMetadata, ChatComposer,
+} from '@astryxdesign/core/Chat';
 import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
 
 // --- CONFIGS ---
@@ -26,18 +31,113 @@ const SENTIMENT_STYLES: any = {
   question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
 
+const PLATFORM_FILTERS = [
+  { id: 'all', labelEn: 'All', labelFr: 'Tous' },
+  { id: 'unread', labelEn: 'Unread', labelFr: 'Non lus' },
+  { id: 'facebook', labelEn: 'Facebook', labelFr: 'Facebook' },
+  { id: 'instagram', labelEn: 'Instagram', labelFr: 'Instagram' },
+  { id: 'tiktok', labelEn: 'TikTok', labelFr: 'TikTok' },
+  { id: 'whatsapp', labelEn: 'WhatsApp', labelFr: 'WhatsApp' },
+  { id: 'youtube', labelEn: 'YouTube', labelFr: 'YouTube' },
+];
+
+// The Chat kit's `sender` prop is 'user' | 'assistant' | 'system' — AI-copilot naming,
+// where 'user' renders right-aligned and 'assistant' left-aligned. This is a two-human
+// conversation (customer <-> agent) today, with room to slot an AI-authored reply in on
+// the agent's side later — route every message through this instead of hardcoding
+// 'assistant'/'user' so the actual meaning stays explicit at each call site.
+type ChatAuthorRole = 'customer' | 'agent' | 'ai';
+const roleToSender = (role: ChatAuthorRole): 'user' | 'assistant' => (role === 'customer' ? 'assistant' : 'user');
+
+// Dev-only avatar placeholder — inline SVG so it never depends on network access.
+const MOCK_AVATAR = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="%23174CD2"/><text x="50%" y="50%" fill="white" font-family="sans-serif" font-size="16" text-anchor="middle" dy=".35em">A</text></svg>'
+);
+
+// Local design-preview data only — never rendered when NODE_ENV is production,
+// and only used as a fallback when the real fetch returns nothing.
+function buildMockWhatsappStates() {
+  const now = Date.now();
+  return [
+    {
+      _id: 'mock-unread', conversationId: 'mock-unread', type: 'dm', platform: 'whatsapp',
+      authorName: 'Amara N.', authorAvatar: MOCK_AVATAR,
+      content: 'Hey! Do you still have the blue one in stock?',
+      receivedAt: new Date(now - 3 * 60 * 1000).toISOString(),
+      status: 'unread', unreadCount: 3, canReplyFreely: true,
+      windowExpiresAt: new Date(now + 23 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      _id: 'mock-read', conversationId: 'mock-read', type: 'dm', platform: 'whatsapp',
+      authorName: 'Jordan Lee', authorAvatar: null,
+      content: 'Perfect, thank you so much!',
+      receivedAt: new Date(now - 45 * 60 * 1000).toISOString(),
+      status: 'read', unreadCount: 0, canReplyFreely: true,
+      windowExpiresAt: new Date(now + 10 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      _id: 'mock-nearing-expiry', conversationId: 'mock-nearing-expiry', type: 'dm', platform: 'whatsapp',
+      authorName: 'Bryan T.', authorAvatar: null,
+      content: 'Ok noted, will check tomorrow morning.',
+      receivedAt: new Date(now - 22 * 60 * 60 * 1000).toISOString(),
+      status: 'read', unreadCount: 0, canReplyFreely: true,
+      windowExpiresAt: new Date(now + 45 * 60 * 1000).toISOString(),
+    },
+    {
+      _id: 'mock-closed', conversationId: 'mock-closed', type: 'dm', platform: 'whatsapp',
+      authorName: 'Fatou D.', authorAvatar: null,
+      content: 'Alright, talk soon!',
+      receivedAt: new Date(now - 30 * 60 * 60 * 1000).toISOString(),
+      status: 'read', unreadCount: 0, canReplyFreely: false,
+      windowExpiresAt: null,
+    },
+    {
+      _id: 'mock-replied', conversationId: 'mock-replied', type: 'dm', platform: 'whatsapp',
+      authorName: 'Kwame O.', authorAvatar: null,
+      content: 'Sounds good, appreciate the quick turnaround on this one.',
+      receivedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
+      status: 'replied', unreadCount: 0, canReplyFreely: true,
+      windowExpiresAt: new Date(now + 19 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      _id: 'mock-long', conversationId: 'mock-long', type: 'dm', platform: 'whatsapp',
+      authorName: 'Chidinma Okonkwo-Adeyemi', authorAvatar: null,
+      content: "I wanted to follow up on the order from last week — I think there might have been a mix-up with the sizing, could someone take a look and get back to me when they have a moment? No rush at all, just want to make sure it's sorted before the weekend.",
+      receivedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+      status: 'unread', unreadCount: 12, canReplyFreely: true,
+      windowExpiresAt: new Date(now + 21 * 60 * 60 * 1000).toISOString(),
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// TEMP PREVIEW DATA — remove once the API returns real engagement items.
+// Only kicks in when the query comes back empty, so real data always wins.
+// ---------------------------------------------------------------------------
+const MOCK_ENGAGEMENTS = [
+  { _id: 'mock-1', authorName: 'Amara K.', authorAvatar: 'https://i.pravatar.cc/64?img=47', platform: 'instagram', content: 'Adore ce produit ! Où puis-je l\'acheter ?', receivedAt: new Date(Date.now() - 2 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'positive', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-2', authorName: 'Jason M.', authorAvatar: 'https://i.pravatar.cc/64?img=13', platform: 'facebook', content: 'Est-ce que la livraison est disponible au Cameroun ?', receivedAt: new Date(Date.now() - 5 * 3600000).toISOString(), status: 'unread', unreadCount: 2, sentiment: 'question', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-3', authorName: 'Sarah T.', authorAvatar: 'https://i.pravatar.cc/64?img=25', platform: 'tiktok', content: 'Ce n\'est pas arrivé comme prévu, un peu déçue.', receivedAt: new Date(Date.now() - 8 * 3600000).toISOString(), status: 'read', sentiment: 'negative', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+  { _id: 'mock-4', authorName: 'Kevin O.', authorAvatar: 'https://i.pravatar.cc/64?img=52', platform: 'whatsapp', content: 'Merci pour la réponse rapide !', receivedAt: new Date(Date.now() - 26 * 3600000).toISOString(), status: 'replied', sentiment: 'positive', type: 'dm', conversationId: 'mock-conv-4' },
+  { _id: 'mock-5', authorName: 'Linda P.', authorAvatar: 'https://i.pravatar.cc/64?img=31', platform: 'youtube', content: 'Super tuto, merci beaucoup 🙌', receivedAt: new Date(Date.now() - 30 * 3600000).toISOString(), status: 'read', sentiment: 'positive', type: 'comment', postId: 'post-3', postCaption: 'Nouveau tuto vidéo cette semaine' },
+  { _id: 'mock-6', authorName: 'Marc D.', authorAvatar: 'https://i.pravatar.cc/64?img=8', platform: 'facebook', content: 'Vous proposez ça aussi en taille XL ?', receivedAt: new Date(Date.now() - 48 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'question', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+];
+
 export default function Engagement() {
   const { t } = useLanguage();
   const params = useParams();
   const workspaceId = params.id as string;
   const queryClient = useQueryClient();
   const { socket } = useSocket();
+  const toast = useAppToast();
 
   // STATE
   const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [isCannedOpen, setIsCannedOpen] = useState(false);
   const [inboxViewMode, setInboxViewMode] = useState<'list' | 'post'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [platformFilter, setPlatformFilter] = useState<'all' | 'unread' | 'facebook' | 'instagram' | 'tiktok' | 'whatsapp' | 'youtube'>('all');
 
   // Handle browser back button on mobile view
   useEffect(() => {
@@ -134,11 +234,21 @@ export default function Engagement() {
         };
       });
 
-    return [...annotated, ...whatsappOnly].sort((a: any, b: any) => {
+    const merged = [...annotated, ...whatsappOnly].sort((a: any, b: any) => {
       const at = a.receivedAt ? new Date(a.receivedAt).getTime() : 0;
       const bt = b.receivedAt ? new Date(b.receivedAt).getTime() : 0;
       return bt - at;
     });
+
+    // Design-preview only — lets us see every visual state (unread, closed,
+    // nearing expiry, replied, long content, plus a broader cross-platform mix)
+    // without hunting for real conversations in each state. Never runs in
+    // production, never overrides real data.
+    if (merged.length === 0 && process.env.NODE_ENV !== 'production') {
+      return [...MOCK_ENGAGEMENTS, ...buildMockWhatsappStates()];
+    }
+
+    return merged;
   }, [engagements, whatsappInbox]);
 
   // 🟢 2. REPLY MUTATION
@@ -179,6 +289,7 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/status`, { status, workspaceId });
     },
     onSuccess: (_, variables) => {
+        toast.success(t('Status updated', 'Statut mis à jour'));
         if (variables.status === 'archived') { setActiveId(null); setSendError(null); }
         queryClient.invalidateQueries({ queryKey: ['engagement'] });
     }
@@ -186,9 +297,29 @@ export default function Engagement() {
 
   // DERIVED STATE
   const activeEngagement = engagementsWithStatus.find((e: any) => e._id === activeId);
-  const filteredEngagements = engagementsWithStatus.filter((e: any) => e.status !== 'archived');
 
-  // Group by post for the "By post" inbox view — items without a postId fall under a shared bucket
+  const filteredEngagements = engagementsWithStatus.filter((e: any) => {
+    if (e.status === 'archived') return false;
+
+    // Platform & unread status filter
+    if (platformFilter === 'unread') {
+      if (e.status !== 'unread' && !(e.unreadCount > 0)) return false;
+    } else if (platformFilter !== 'all') {
+      if (e.platform?.toLowerCase() !== platformFilter) return false;
+    }
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = e.authorName?.toLowerCase().includes(q);
+      const contentMatch = e.content?.toLowerCase().includes(q);
+      if (!nameMatch && !contentMatch) return false;
+    }
+
+    return true;
+  });
+
+  // Group by post for the "By post" inbox view
   const postGroups: { key: string; caption: string; items: any[] }[] = [];
   filteredEngagements.forEach((e: any) => {
     const key = e.postId ?? 'no-post';
@@ -211,11 +342,12 @@ export default function Engagement() {
     if (hasPrev) { selectConversation(filteredEngagements[activeIndex - 1]._id); setReplyText(''); }
   };
 
-  const handleReply = () => {
-      if (!activeId || !replyText) return;
+  const handleReply = (text?: string) => {
+      const value = text ?? replyText;
+      if (!activeId || !value) return;
       replyMutation.mutate({
         id: activeId,
-        text: replyText,
+        text: value,
         type: activeEngagement?.type,
         platform: activeEngagement?.platform,
         conversationId: activeEngagement?.conversationId,
@@ -265,7 +397,7 @@ export default function Engagement() {
     <div className="flex flex-col h-[calc(100dvh-60px)] md:h-[calc(100vh-140px)] font-sans text-[#040028] dark:text-white transition-colors w-full max-w-full">
 
       {/* PAGE HEADER (Hidden on mobile when detail view is open to maximize screen space) */}
-      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between mb-2 md:mb-4 gap-2 flex-shrink-0 w-full px-3 sm:px-0", activeId !== null ? "hidden md:flex" : "flex")}>
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2 flex-shrink-0 w-full px-3 sm:px-0", activeId !== null ? "hidden md:flex" : "flex")}>
         <div>
           <h2 className="text-lg md:text-xl font-bold text-[#040028] dark:text-white">{t('Discussions', 'Messages')}</h2>
         </div>
@@ -290,9 +422,49 @@ export default function Engagement() {
 
         {/* LEFT PANEL: INBOX LIST (Full-width on mobile when activeId === null, fixed column on desktop) */}
         <div className={cn(
-          "flex flex-col border-r-0 md:border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] transition-all w-full md:w-[340px] lg:w-[380px] shrink-0 h-full",
+          "flex flex-col bg-white dark:bg-[#0A0A2E] transition-all w-full md:w-[340px] lg:w-[380px] shrink-0 h-full",
           activeId !== null ? "hidden md:flex" : "flex"
         )}>
+
+          {/* Search & Platform Filters */}
+          <div className="p-3 border-b border-black/5 dark:border-white/5 space-y-2 bg-white dark:bg-[#0A0A2E] w-full">
+            {/* Search Input */}
+            <div className="relative flex items-center w-full">
+              <FiSearch className="absolute left-3 text-[#8E8E8E]" size={15} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('Search conversations...', 'Rechercher une discussion...')}
+                className="w-full pl-9 pr-8 py-2 text-xs font-medium bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] border border-transparent focus:border-[#174CD2] focus:outline-none text-[#040028] dark:text-white placeholder:text-[#8E8E8E] transition-all"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2.5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white">
+                  <FiX size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Platform / Status Filters Bar (Horizontally scrollable on mobile) */}
+            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1 px-0.5 touch-pan-x select-none w-full">
+              {PLATFORM_FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setPlatformFilter(f.id as any)}
+                  className={cn(
+                    "shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#174CD2]/30",
+                    platformFilter === f.id
+                      ? "bg-[#174CD2] text-white shadow-xs"
+                      : "bg-[#F7F6F3] dark:bg-white/5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                  )}
+                >
+                  {f.id !== 'all' && f.id !== 'unread' && <PlatformIcon platform={f.id} size={12} />}
+                  <span>{t(f.labelEn, f.labelFr)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* List Content */}
           <div className="flex-1 overflow-y-auto bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors">
@@ -423,81 +595,86 @@ export default function Engagement() {
                   </div>
                </div>
 
-               {/* Content Area */}
-               <div className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0 bg-[#F7F6F3] dark:bg-transparent transition-colors">
-                   <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
-
-                       <div className="flex gap-3 md:gap-4">
-                           <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-[#F5F7FA] dark:bg-white/10 flex-shrink-0 flex items-center justify-center text-sm md:text-base font-semibold text-[#040028] dark:text-white">
-                              {activeEngagement.authorName.charAt(0)}
-                           </div>
-                           <div className="flex-1 min-w-0">
-                               <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[14px] p-4 md:p-6 text-[#040028] dark:text-white transition-colors shadow-xs">
-                                  <div className="flex justify-between items-center mb-3 border-b border-black/5 dark:border-white/5 pb-2.5">
-                                       <div className="flex items-center gap-2">
-                                          <span className="font-semibold text-xs md:text-sm">{activeEngagement.authorName}</span>
-                                          <span className="text-[11px] text-[#8E8E8E]">{new Date(activeEngagement.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                       </div>
-                                  </div>
-                                  <p className="text-[#040028] dark:text-white text-sm md:text-base font-medium leading-relaxed break-words">{activeEngagement.content}</p>
-                               </div>
-                           </div>
+               {/* Chat thread + composer */}
+               <ChatLayout
+                 density="balanced"
+                 className="flex-1 min-h-0"
+                 composer={
+                   <ChatComposer
+                     value={replyText}
+                     onChange={setReplyText}
+                     onSubmit={(text) => handleReply(text)}
+                     isDisabled={!activeCanReplyFreely || replyMutation.isPending}
+                     placeholder={activeCanReplyFreely ? `${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...` : t('Replies are disabled for this conversation', 'Les réponses sont désactivées pour cette conversation')}
+                     footerActions={
+                       <div className="relative">
+                         <IconButton icon={<FiSmile />} disabled={!activeCanReplyFreely} />
+                         <IconButton icon={<FiMessageCircle />} onClick={() => setIsCannedOpen(v => !v)} disabled={!activeCanReplyFreely} />
+                         {isCannedOpen && (
+                             <div className="absolute bottom-full left-0 mb-2 w-64 md:w-72 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden z-30">
+                                 {CANNED_REPLIES.map((reply, i) => (
+                                     <button
+                                         key={i}
+                                         type="button"
+                                         onClick={() => { setReplyText(reply); setIsCannedOpen(false); }}
+                                         className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 text-xs font-medium text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors truncate"
+                                     >
+                                         {reply}
+                                     </button>
+                                 ))}
+                             </div>
+                         )}
                        </div>
-                   </div>
-               </div>
+                     }
+                     status={
+                       sendError
+                         ? { type: 'error', message: sendError }
+                         : !activeCanReplyFreely
+                           ? { type: 'warning', message: t("This conversation is past the 24-hour window. WhatsApp no longer allows a free-form reply.", "Cette conversation a dépassé la fenêtre de 24 h. WhatsApp n'autorise plus de réponse libre.") }
+                           : undefined
+                     }
+                   />
+                 }
+               >
+                 <ChatMessageList>
+                   <ChatMessage
+                     sender={roleToSender('customer')}
+                     avatar={<Avatar name={activeEngagement.authorName} src={activeEngagement.authorAvatar || undefined} size="md" />}
+                   >
+                     <ChatMessageBubble
+                       name={activeEngagement.authorName}
+                       metadata={<ChatMessageMetadata timestamp={new Date(activeEngagement.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} />}
+                     >
+                       {activeEngagement.content}
+                     </ChatMessageBubble>
+                   </ChatMessage>
 
-               {/* Composer */}
-               <div className="p-3 md:p-6 bg-white dark:bg-[#0A0A2E] border-t border-black/5 dark:border-white/5 z-20 transition-colors">
-                  <div className="max-w-3xl mx-auto">
-                      {!activeCanReplyFreely && (
-                          <div className="flex items-start gap-2 p-3 mb-3 rounded-[10px] bg-red-50 text-red-600 text-xs md:text-sm border border-red-200">
-                              <FiLock size={14} className="mt-0.5 shrink-0" />
-                              <span>{t("This conversation is past the 24-hour window. WhatsApp no longer allows a free-form reply.", "Cette conversation a dépassé la fenêtre de 24 h. WhatsApp n'autorise plus de réponse libre.")}</span>
-                          </div>
-                      )}
-                      {sendError && (
-                          <div className="p-3 mb-3 rounded-[10px] bg-red-50 text-red-600 text-xs md:text-sm border border-red-200">
-                              {sendError}
-                          </div>
-                      )}
-                      <div className={cn("relative rounded-[14px] border border-[#D9D9D9] dark:border-white/10 bg-white dark:bg-white/5 focus-within:border-[#174CD2] focus-within:ring-2 focus-within:ring-[#174CD2]/15 transition-all", !activeCanReplyFreely && "opacity-60")}>
-                          <textarea
-                             value={replyText}
-                             onChange={(e) => setReplyText(e.target.value)}
-                             disabled={!activeCanReplyFreely}
-                             className="w-full p-3 md:p-4 text-xs md:text-sm font-medium focus:outline-none bg-transparent resize-none min-h-[70px] md:min-h-[100px] placeholder:text-[#8E8E8E] text-[#040028] dark:text-white disabled:cursor-not-allowed"
-                             placeholder={activeCanReplyFreely ? `${t('Reply to', 'Répondre à')} ${activeEngagement.authorName}...` : t('Replies are disabled for this conversation', 'Les réponses sont désactivées pour cette conversation')}
-                          />
-                          <div className="flex items-center justify-between p-2 border-t border-black/5 dark:border-white/5 transition-colors gap-2">
-                              <div className="flex gap-1 md:gap-2 relative">
-                                  <IconButton icon={<FiSmile />} disabled={!activeCanReplyFreely} />
-                                  <IconButton icon={<FiMessageCircle />} onClick={() => setIsCannedOpen(v => !v)} disabled={!activeCanReplyFreely} />
-                                  {isCannedOpen && (
-                                      <div className="absolute bottom-full left-0 mb-2 w-64 md:w-72 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 rounded-[14px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden z-30">
-                                          {CANNED_REPLIES.map((reply, i) => (
-                                              <button
-                                                  key={i}
-                                                  type="button"
-                                                  onClick={() => { setReplyText(reply); setIsCannedOpen(false); }}
-                                                  className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 text-xs font-medium text-[#040028] dark:text-white hover:bg-[#F5F7FA] dark:hover:bg-white/5 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors truncate"
-                                              >
-                                                  {reply}
-                                              </button>
-                                          ))}
-                                      </div>
-                                  )}
-                              </div>
-                              <button
-                                  onClick={handleReply}
-                                  disabled={!replyText || replyMutation.isPending || !activeCanReplyFreely}
-                                  className="bg-[#174CD2] text-white text-xs md:text-sm font-semibold px-4 md:px-5 py-2 rounded-[10px] hover:bg-[#123a9e] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shrink-0"
-                              >
-                                  <FiSend size={14} /> {replyMutation.isPending ? t('Sending...', 'Envoi...') : t('Reply', 'Répondre')}
-                              </button>
-                          </div>
-                      </div>
-                  </div>
-               </div>
+                   {/* Design-preview only, on mock threads — real message history isn't
+                       available from the backend yet (it only gives us the latest
+                       message per conversation). Shows the agent + a future AI-authored
+                       reply on the "us" side so the hybrid layout is actually visible. */}
+                   {process.env.NODE_ENV !== 'production' && typeof activeEngagement._id === 'string' && activeEngagement._id.startsWith('mock-') && (
+                     <>
+                       <ChatMessage sender={roleToSender('agent')} avatar={<Avatar name="You" size="md" />}>
+                         <ChatMessageBubble
+                           name={t('You', 'Vous')}
+                           metadata={<ChatMessageMetadata timestamp={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} status="read" />}
+                         >
+                           {t('Thanks for reaching out — let me check that for you!', 'Merci de nous avoir contactés — je vérifie ça tout de suite !')}
+                         </ChatMessageBubble>
+                       </ChatMessage>
+                       <ChatMessage sender={roleToSender('ai')} avatar={<Avatar name="AI" size="md" />}>
+                         <ChatMessageBubble
+                           name={t('AI Assistant', 'Assistant IA')}
+                           metadata={<ChatMessageMetadata timestamp={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} footer={t('AI-drafted', 'Rédigé par IA')} />}
+                         >
+                           {t("I found their last order — want me to draft a reply?", "J'ai trouvé leur dernière commande — je rédige une réponse ?")}
+                         </ChatMessageBubble>
+                       </ChatMessage>
+                     </>
+                   )}
+                 </ChatMessageList>
+               </ChatLayout>
              </>
           ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-[#040028] dark:text-white transition-colors p-4">
@@ -546,25 +723,27 @@ const EngagementListItem = ({ e, active, onClick, t }: any) => (
             <p className="text-xs line-clamp-2 text-[#8E8E8E] leading-relaxed">
                 {e.content}
             </p>
-            <div className="flex gap-1.5 mt-2 flex-wrap items-center">
-                 {e.type === 'dm' && (
-                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
-                         {t('DM', 'MP')}
-                     </span>
-                 )}
+            <div className="flex items-center justify-between mt-2 gap-2">
+                 <div className="flex gap-1.5 flex-wrap items-center min-w-0">
+                     {e.type === 'dm' && (
+                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white">
+                             {t('DM', 'MP')}
+                         </span>
+                     )}
+                     {e.status === 'replied' && (
+                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
+                             <FiCheck size={10} strokeWidth={3} /> {t('Replied', 'Répondu')}
+                         </span>
+                     )}
+                     {e.platform === 'whatsapp' && e.type === 'dm' && e.canReplyFreely === false && (
+                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700">
+                             <FiLock size={9} /> {t('Closed', 'Fermé')}
+                         </span>
+                     )}
+                 </div>
                  {(e.unreadCount ?? 0) > 0 && (
-                     <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#174CD2] text-white min-w-[20px]">
+                     <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[10px] font-semibold bg-[#040028] text-white shrink-0">
                          {e.unreadCount}
-                     </span>
-                 )}
-                 {e.status === 'replied' && (
-                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
-                         <FiCheck size={10} strokeWidth={3} /> {t('Replied', 'Répondu')}
-                     </span>
-                 )}
-                 {e.platform === 'whatsapp' && e.type === 'dm' && e.canReplyFreely === false && (
-                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700">
-                         <FiLock size={9} /> {t('Closed', 'Fermé')}
                      </span>
                  )}
             </div>
