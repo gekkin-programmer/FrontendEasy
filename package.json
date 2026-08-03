@@ -43,6 +43,7 @@
     "jwt-decode": "^4.0.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.561.0",
+    "motion": "^12.43.0",
     "next": "15.3.8",
     "posthog-js": "^1.371.3",
     "react": "19.2.0",

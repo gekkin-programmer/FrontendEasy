@@ -17,7 +17,7 @@ import {
 // Icons
 import {
   MessageCircle, TrendingUp, TrendingDown,
-  Search, Heart,
+  Search, Send,
   FileText, Filter, Check, X as XIcon, ChevronDown
 } from "lucide-react";
 import { PlatformIcon } from '@/features/dashboard/easypost/composer/PlatformIcon';
@@ -146,6 +146,43 @@ const NeuCard = ({ title, icon: Icon, children, className, action }: any) => (
   </div>
 );
 
+function TopPostCard({ post, rank, metricMode, t }: { post: any; rank: number; metricMode: 'reactions' | 'comments'; t: (en: string, fr: string) => string }) {
+    const metricValue = metricMode === 'reactions' ? (post.metrics?.likes || 0) : (post.metrics?.comments || 0);
+    const metricLabel = metricMode === 'reactions' ? t('Reactions', 'Réactions') : t('Comments', 'Commentaires');
+    const platform = (post.socialAccounts?.[0]?.socialAccount?.platform || post.platform || '').toLowerCase();
+    const dateLabel = post.publishedAt
+        ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '';
+    const hasMedia = !!post.mediaUrls?.[0];
+
+    return (
+        <div className="rounded-[12px] border border-black/5 dark:border-white/10 overflow-hidden bg-white dark:bg-white/5">
+            <div className="flex items-center justify-between px-3 py-2 bg-white dark:bg-white/5">
+                <span className="text-sm font-bold text-[#040028] dark:text-white">#{rank}</span>
+                <span className="text-xs font-semibold text-[#040028] dark:text-white">{metricValue} {metricLabel}</span>
+            </div>
+            <div className="flex items-center gap-3 p-3">
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-[#8E8E8E] mb-1.5">
+                        {platform && <PlatformIcon platform={platform} size={12} />}
+                        <span>{dateLabel}</span>
+                    </div>
+                    <p className="text-sm font-medium text-[#040028] dark:text-white truncate">
+                        {post.content || (hasMedia ? t('Media only', 'Média uniquement') : t('No text content', 'Aucun contenu textuel'))}
+                    </p>
+                </div>
+                <div className="w-20 h-20 rounded-[8px] bg-[#F7F6F3] dark:bg-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    {hasMedia ? <img src={post.mediaUrls[0]} className="w-full h-full object-cover" alt="" /> : <FileText size={20} className="text-[#8E8E8E]" />}
+                </div>
+            </div>
+            <div className="flex items-center gap-2 px-3 pb-3">
+                <span className="flex items-center gap-1 px-2 py-1 rounded-[6px] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-semibold text-[#040028] dark:text-white"><MessageCircle size={12} /> {post.metrics?.comments || 0}</span>
+                <span className="flex items-center justify-center w-6 h-6 rounded-[6px] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 text-[#040028] dark:text-white"><Send size={12} /></span>
+            </div>
+        </div>
+    );
+}
+
 // --- MAIN COMPONENT ---
 export default function Analytics() {
   const params = useParams();
@@ -209,12 +246,12 @@ const MOCK_ACCOUNTS = [
     { id: 'mock-li', platform: 'linkedin', name: 'Eazlypost Inc.', posts: 6, reactions: 340, comments: 28, engagementRate: 1.4, followersAtStart: 3100, followersGained: 210 },
 ];
 const MOCK_POSTS = [
-    { id: 'mock-p1', content: 'Ravis de partager notre dernière mise à jour produit ! Swipez pour découvrir les nouveautés. 🚀', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 842, comments: 56, shares: 34, views: 12500 }, socialAccounts: [{ socialAccountId: 'mock-ig' }] },
-    { id: 'mock-p2', content: '5 astuces pour développer votre audience ce mois-ci — voir le fil.', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 610, comments: 41, shares: 22, views: 9800 }, socialAccounts: [{ socialAccountId: 'mock-tt' }] },
-    { id: 'mock-p3', content: 'Les coulisses de notre dernier shooting photo 📸', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 455, comments: 30, shares: 12, views: 7200 }, socialAccounts: [{ socialAccountId: 'mock-fb' }] },
-    { id: 'mock-p4', content: 'Merci à tous ceux qui ont rejoint notre session en direct aujourd\'hui !', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 398, comments: 27, shares: 9, views: 6100 }, socialAccounts: [{ socialAccountId: 'mock-li' }] },
-    { id: 'mock-p5', content: 'La nouvelle collection est en ligne — venez voir ! ✨', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 301, comments: 19, shares: 14, views: 5400 }, socialAccounts: [{ socialAccountId: 'mock-ig' }] },
-    { id: 'mock-p6', content: 'Petit sondage : quelle fonctionnalité devrait-on développer ensuite ?', mediaUrls: [], publishedAt: new Date().toISOString(), metrics: { likes: 212, comments: 64, shares: 5, views: 3900 }, socialAccounts: [{ socialAccountId: 'mock-tt' }] },
+    { id: 'mock-p1', content: 'Ravis de partager notre dernière mise à jour produit ! Swipez pour découvrir les nouveautés. 🚀', mediaUrls: ['https://picsum.photos/seed/mock-p1/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 842, comments: 56, shares: 34, views: 12500 }, socialAccounts: [{ socialAccountId: 'mock-ig' }] },
+    { id: 'mock-p2', content: '5 astuces pour développer votre audience ce mois-ci — voir le fil.', mediaUrls: ['https://picsum.photos/seed/mock-p2/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 610, comments: 41, shares: 22, views: 9800 }, socialAccounts: [{ socialAccountId: 'mock-tt' }] },
+    { id: 'mock-p3', content: 'Les coulisses de notre dernier shooting photo 📸', mediaUrls: ['https://picsum.photos/seed/mock-p3/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 455, comments: 30, shares: 12, views: 7200 }, socialAccounts: [{ socialAccountId: 'mock-fb' }] },
+    { id: 'mock-p4', content: 'Merci à tous ceux qui ont rejoint notre session en direct aujourd\'hui !', mediaUrls: ['https://picsum.photos/seed/mock-p4/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 398, comments: 27, shares: 9, views: 6100 }, socialAccounts: [{ socialAccountId: 'mock-li' }] },
+    { id: 'mock-p5', content: 'La nouvelle collection est en ligne — venez voir ! ✨', mediaUrls: ['https://picsum.photos/seed/mock-p5/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 301, comments: 19, shares: 14, views: 5400 }, socialAccounts: [{ socialAccountId: 'mock-ig' }] },
+    { id: 'mock-p6', content: 'Petit sondage : quelle fonctionnalité devrait-on développer ensuite ?', mediaUrls: ['https://picsum.photos/seed/mock-p6/200/200'], publishedAt: new Date().toISOString(), metrics: { likes: 212, comments: 64, shares: 5, views: 3900 }, socialAccounts: [{ socialAccountId: 'mock-tt' }] },
 ];
 const MOCK_OVERVIEW = { posts: 55, totalFollowers: 48400, followerDelta: 12, reactions: 21970, comments: 1416, engagementRate: 6.8, shares: 96, reach: 184000, views: 312000 };
 
@@ -226,6 +263,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
     const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
     const [channelFilterOpen, setChannelFilterOpen] = useState(false);
     const [followersChartMode, setFollowersChartMode] = useState<'bar' | 'line' | 'growth'>('bar');
+    const [topPostsMetric, setTopPostsMetric] = useState<'reactions' | 'comments'>('reactions');
 
     const { from, to } = getRangeDates(range, customFrom, customTo);
 
@@ -488,7 +526,25 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
             </NeuCard>
 
             {/* Top 5 Posts */}
-            <NeuCard title={t('Top 5 Posts', 'Top 5 publications')}>
+            <NeuCard
+                title={t('Top 5 Posts', 'Top 5 publications')}
+                action={
+                    <div className="flex items-center gap-3">
+                        <span className="hidden sm:inline text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>
+                        <div className="flex bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-[8px] p-1 gap-0.5">
+                            {(['reactions', 'comments'] as const).map((mode) => (
+                                <button
+                                    key={mode}
+                                    onClick={() => setTopPostsMetric(mode)}
+                                    className={cn("px-3 py-1 text-xs font-semibold rounded-[6px] transition-colors", topPostsMetric === mode ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "text-[#8E8E8E]")}
+                                >
+                                    {mode === 'reactions' ? t('Reactions', 'Réactions') : t('Comments', 'Commentaires')}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                }
+            >
                 {topPosts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-14 text-center">
                         <div className="w-14 h-14 rounded-full bg-[#F7F6F3] dark:bg-white/5 flex items-center justify-center mb-3">
@@ -498,18 +554,9 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                         <p className="text-xs text-[#8E8E8E] mt-1">{t('Try another date range.', 'Essayez une autre période.')}</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-black/5 dark:divide-white/5">
-                        {topPosts.map((p: any) => (
-                            <div key={p.id} className="flex items-center gap-3 py-3">
-                                <div className="w-10 h-10 rounded-[8px] bg-white dark:bg-white/5 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                                    {p.mediaUrls?.[0] ? <img src={p.mediaUrls[0]} className="w-full h-full object-cover" alt="" /> : <FileText size={16} className="text-[#040028] dark:text-white" />}
-                                </div>
-                                <p className="flex-1 min-w-0 text-sm font-medium text-[#040028] dark:text-white truncate">{p.content || t('No text content', 'Aucun contenu textuel')}</p>
-                                <div className="flex items-center gap-4 text-xs font-semibold text-[#040028] dark:text-white flex-shrink-0">
-                                    <span className="flex items-center gap-1"><Heart size={12} /> {p.metrics?.likes || 0}</span>
-                                    <span className="flex items-center gap-1"><MessageCircle size={12} /> {p.metrics?.comments || 0}</span>
-                                </div>
-                            </div>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                        {topPosts.map((p: any, i: number) => (
+                            <TopPostCard key={p.id} post={p} rank={i + 1} metricMode={topPostsMetric} t={t} />
                         ))}
                     </div>
                 )}
@@ -517,7 +564,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
 
             {/* Performance table */}
             <NeuCard title={t('Performance', 'Performance')} action={<span className="text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>}>
-                <div className="overflow-x-auto">
+                <div className="rounded-[12px] bg-white dark:bg-white/5 p-4 md:p-5 overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="text-left text-[11px] font-semibold uppercase tracking-wide text-[#8E8E8E] border-b border-black/5 dark:border-white/5">
@@ -556,7 +603,7 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
             <NeuCard
                 title={t('Followers', 'Abonnés')}
                 action={
-                    <div className="flex bg-[#F5F7FA] dark:bg-white/5 rounded-[8px] p-0.5">
+                    <div className="flex bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-[8px] p-1 gap-0.5">
                         {(['bar', 'line', 'growth'] as const).map((mode) => (
                             <button
                                 key={mode}
@@ -569,102 +616,106 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
                     </div>
                 }
             >
-                <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
-                    {rangeLabel} · {t('Showing', 'Affichage de')} {followerRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
-                    <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#040028] dark:hover:text-white transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
-                </p>
-                {followerRows.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-14 text-center">
-                        <div className="w-14 h-14 rounded-full bg-[#F7F6F3] dark:bg-white/5 flex items-center justify-center mb-3">
-                            <Search className="w-6 h-6 text-[#040028] dark:text-white" />
+                <div className="rounded-[12px] bg-white dark:bg-white/5 p-4 md:p-5">
+                    <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
+                        {rangeLabel} · {t('Showing', 'Affichage de')} {followerRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
+                        <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#040028] dark:hover:text-white transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
+                    </p>
+                    {followerRows.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-14 text-center">
+                            <div className="w-14 h-14 rounded-full bg-[#F7F6F3] dark:bg-white/5 flex items-center justify-center mb-3">
+                                <Search className="w-6 h-6 text-[#040028] dark:text-white" />
+                            </div>
+                            <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
+                            <p className="text-xs text-[#8E8E8E] mt-1">
+                                {t('Try another date range', 'Essayez une autre période')}
+                                {selectedChannelIds.length > 0 && (
+                                    <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
+                                )}
+                            </p>
                         </div>
-                        <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
-                        <p className="text-xs text-[#8E8E8E] mt-1">
-                            {t('Try another date range', 'Essayez une autre période')}
-                            {selectedChannelIds.length > 0 && (
-                                <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
-                            )}
-                        </p>
-                    </div>
-                ) : followersChartMode === 'bar' ? (
-                    <div style={{ height: Math.max(200, followerRows.length * 84) }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
-                                <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
-                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} cursor={{ fill: 'transparent' }} />
-                                <Bar dataKey="atStart" stackId="followers" name={t('At range start', 'Au début de la période')} fill="#040028" radius={[0, 0, 0, 0]} barSize={56} />
-                                <Bar dataKey="gained" stackId="followers" name={t('Gained in range', 'Gagnés sur la période')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={56} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                ) : followersChartMode === 'line' ? (
-                    <div className="h-[220px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                                data={[
-                                    { point: t('Start', 'Début'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.atStart])) },
-                                    { point: t('End', 'Fin'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.total])) },
-                                ]}
-                                margin={{ left: 0, right: 20 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
-                                <XAxis dataKey="point" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} />
-                                <YAxis tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} />
-                                {followerRows.map((r: any, i: number) => (
-                                    <Line key={r.id} type="monotone" dataKey={r.id} name={r.name} stroke={CHANNEL_COLORS[i % CHANNEL_COLORS.length]} strokeWidth={2.5} dot={{ r: 4 }} />
-                                ))}
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                ) : (
-                    <div style={{ height: Math.max(120, followerRows.length * 48) }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
-                                <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} unit="%" />
-                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} formatter={(v: any) => `${v}%`} cursor={{ fill: 'transparent' }} />
-                                <Bar dataKey="growthPct" name={t('Growth', 'Croissance')} radius={[0, 6, 6, 0]} barSize={22}>
-                                    {followerRows.map((r: any, i: number) => <Cell key={i} fill={r.growthPct >= 0 ? '#22c55e' : '#ef4444'} />)}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                )}
+                    ) : followersChartMode === 'bar' ? (
+                        <div style={{ height: Math.max(200, followerRows.length * 84) }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                    <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                    <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} cursor={{ fill: 'transparent' }} />
+                                    <Bar dataKey="atStart" stackId="followers" name={t('At range start', 'Au début de la période')} fill="#040028" radius={[0, 0, 0, 0]} barSize={56} />
+                                    <Bar dataKey="gained" stackId="followers" name={t('Gained in range', 'Gagnés sur la période')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={56} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    ) : followersChartMode === 'line' ? (
+                        <div className="h-[220px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart
+                                    data={[
+                                        { point: t('Start', 'Début'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.atStart])) },
+                                        { point: t('End', 'Fin'), ...Object.fromEntries(followerRows.map((r: any) => [r.id, r.total])) },
+                                    ]}
+                                    margin={{ left: 0, right: 20 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+                                    <XAxis dataKey="point" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} />
+                                    <YAxis tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                    <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} />
+                                    {followerRows.map((r: any, i: number) => (
+                                        <Line key={r.id} type="monotone" dataKey={r.id} name={r.name} stroke={CHANNEL_COLORS[i % CHANNEL_COLORS.length]} strokeWidth={2.5} dot={{ r: 4 }} />
+                                    ))}
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    ) : (
+                        <div style={{ height: Math.max(120, followerRows.length * 48) }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={followerRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                    <XAxis type="number" tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} unit="%" />
+                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                    <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} formatter={(v: any) => `${v}%`} cursor={{ fill: 'transparent' }} />
+                                    <Bar dataKey="growthPct" name={t('Growth', 'Croissance')} radius={[0, 6, 6, 0]} barSize={22}>
+                                        {followerRows.map((r: any, i: number) => <Cell key={i} fill={r.growthPct >= 0 ? '#22c55e' : '#ef4444'} />)}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+                </div>
             </NeuCard>
 
             {/* Posts per channel */}
             <NeuCard title={t('Posts', 'Publications')} action={<span className="text-xs font-medium text-[#8E8E8E]">{rangeLabel}</span>}>
-                <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
-                    {rangeLabel} · {t('Showing', 'Affichage de')} {postRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
-                    <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#040028] dark:hover:text-white transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
-                </p>
-                {postRows.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-14 text-center">
-                        <div className="w-14 h-14 rounded-full bg-[#F7F6F3] dark:bg-white/5 flex items-center justify-center mb-3">
-                            <Search className="w-6 h-6 text-[#040028] dark:text-white" />
+                <div className="rounded-[12px] bg-white dark:bg-white/5 p-4 md:p-5">
+                    <p className="text-xs font-medium text-[#8E8E8E] -mt-2 mb-4">
+                        {rangeLabel} · {t('Showing', 'Affichage de')} {postRows.length} {t('of', 'sur')} {allChannels.length} {t('channels.', 'canaux.')}{' '}
+                        <button onClick={() => setChannelFilterOpen(true)} className="underline hover:text-[#040028] dark:hover:text-white transition-colors">{t('Filter by channel to see a different set.', 'Filtrez par canal pour voir un autre ensemble.')}</button>
+                    </p>
+                    {postRows.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-14 text-center">
+                            <div className="w-14 h-14 rounded-full bg-[#F7F6F3] dark:bg-white/5 flex items-center justify-center mb-3">
+                                <Search className="w-6 h-6 text-[#040028] dark:text-white" />
+                            </div>
+                            <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
+                            <p className="text-xs text-[#8E8E8E] mt-1">
+                                {t('Try another date range', 'Essayez une autre période')}
+                                {selectedChannelIds.length > 0 && (
+                                    <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
+                                )}
+                            </p>
                         </div>
-                        <p className="text-sm font-medium text-[#040028] dark:text-white">{t('No data found for these channels in this date range.', 'Aucune donnée trouvée pour ces canaux sur cette période.')}</p>
-                        <p className="text-xs text-[#8E8E8E] mt-1">
-                            {t('Try another date range', 'Essayez une autre période')}
-                            {selectedChannelIds.length > 0 && (
-                                <> {t('or', 'ou')} <button onClick={() => setSelectedChannelIds([])} className="underline hover:text-[#174CD2]">{t('clear the channel filter', 'effacez le filtre de canal')}</button>.</>
-                            )}
-                        </p>
-                    </div>
-                ) : (
-                    <div style={{ height: Math.max(120, postRows.length * 48) }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={postRows} layout="vertical" margin={{ left: 0, right: 20 }}>
-                                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
-                                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} cursor={{ fill: 'transparent' }} />
-                                <Bar dataKey="posts" name={t('Posts', 'Publications')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={22} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                )}
+                    ) : (
+                        <div style={{ height: Math.max(120, postRows.length * 48) }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={postRows} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }} />
+                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontWeight: 600, fill: 'currentColor' }} width={100} axisLine={false} tickLine={false} />
+                                    <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '11px' }} cursor={{ fill: 'transparent' }} />
+                                    <Bar dataKey="posts" name={t('Posts', 'Publications')} fill="#174CD2" radius={[0, 6, 6, 0]} barSize={22} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+                </div>
             </NeuCard>
         </motion.div>
     )
