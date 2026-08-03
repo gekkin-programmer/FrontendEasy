@@ -213,7 +213,6 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
     }
   }, []);
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const [isTimeOpen, setIsTimeOpen] = useState(false);
   const [isTimeOpenDesktop, setIsTimeOpenDesktop] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
