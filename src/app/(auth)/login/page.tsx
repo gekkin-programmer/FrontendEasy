@@ -228,7 +228,7 @@ export default function LoginPage() {
                   <path d="M16.6711 15.5636L17.2031 12.0733H13.875V9.80723C13.875 8.85225 14.34 7.92146 15.8306 7.92146H17.3438V4.95189C17.3438 4.95189 15.9705 4.71627 14.6576 4.71627C11.9165 4.71627 10.125 6.38751 10.125 9.41306V12.0733H7.07813V15.5636H10.125V23.9994C10.7359 24.0942 11.3623 24.1466 12 24.1466C12.6377 24.1466 13.2641 24.0942 13.875 23.9994V15.5636H16.6711Z" fill="white"/>
                 </svg>
                 <span className="font-sans font-medium text-[14px] lg:text-[16px] leading-[24px] text-[#000000] whitespace-nowrap">
-                  {t('Sign in with Facebook', 'Facebook')}
+                  {t('Log in with Facebook', 'Facebook')}
                 </span>
               </button>
               <button type="button" onClick={handleGoogleLogin} className="flex-1 h-[40px] lg:h-[44px] xl:h-[48px] bg-white border border-[#D9D9D9] rounded-[10px] flex items-center justify-center gap-[10px] transition-colors">
@@ -240,7 +240,7 @@ export default function LoginPage() {
                   <path d="M21.8055 10.0415H21V10H12V14H17.6515C17.2555 15.1185 16.536 16.083 15.608 16.7855L15.6095 16.7845L18.7045 19.4035C18.4855 19.6025 22 17 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#1976D2"/>
                 </svg>
                 <span className="font-sans font-medium text-[14px] lg:text-[16px] leading-[24px] text-[#000000] whitespace-nowrap">
-                  {t('Sign in with Google', 'Google')}
+                  {t('Log in with Google', 'Google')}
                 </span>
               </button>
             </div>
