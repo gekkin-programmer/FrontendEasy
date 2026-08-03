@@ -556,7 +556,11 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-transparent border-0 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border md:border-[#D9D9D9] md:dark:border-white/10 md:pt-4 rounded-none relative overflow-hidden transition-all">
+        {/* DESKTOP TITLE */}
+        <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white px-4 md:px-6">
+            {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}
+        </h2>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* MOBILE HEADER */}
