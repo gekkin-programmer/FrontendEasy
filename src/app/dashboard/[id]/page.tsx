@@ -821,20 +821,22 @@ function DashboardContent() {
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
-                                            <NeuCard className="relative overflow-hidden rounded-none border border-[#D9D9D9] dark:border-white/10 pt-4">
-                                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Publication', 'Publication')}</h2>
+                                            <div className="relative pt-4 md:overflow-hidden md:rounded-none md:border md:border-[#D9D9D9] md:dark:border-white/10 md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E] md:p-4">
+                                                <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white">
+                                                    {editingPost ? t('Edit content', 'Modifier le contenu') : t('Publication', 'Publication')}
+                                                </h2>
                                                 <Composer
-                                    workspaceId={workspaceId}
-                                    onSchedule={handleAddPost}
-                                    accounts={accounts}
-                                    postToEdit={editingPost}
-                                    initialDate={quickCreateDate}
-                                    isPreviewActive={isPreviewMode}
-                                    onPreviewToggle={() => setIsPreviewMode(v => !v)}
-                                    onPreviewDataChange={setPreviewData}
-                                    workspaceTimezone={workspaceTimezone}
-                                />
-                                            </NeuCard>
+                                                    workspaceId={workspaceId}
+                                                    onSchedule={handleAddPost}
+                                                    accounts={accounts}
+                                                    postToEdit={editingPost}
+                                                    initialDate={quickCreateDate}
+                                                    isPreviewActive={isPreviewMode}
+                                                    onPreviewToggle={() => setIsPreviewMode(v => !v)}
+                                                    onPreviewDataChange={setPreviewData}
+                                                    workspaceTimezone={workspaceTimezone}
+                                                />
+                                            </div>
                                             <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
                                         </div>
                                     )}

@@ -554,21 +554,22 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] md:border md:border-black/5 md:dark:border-white/5 md:rounded-none relative transition-all">
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
         {/* HEADER */}
-        <div className="px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5 transition-colors">
-          <div className="flex items-center">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
+        <div className="mb-4 md:mb-0 md:px-4 md:py-3 flex items-center justify-between w-full md:border-b md:border-black/5 md:dark:border-white/5 transition-colors">
+          <div className="flex items-center gap-4 shrink-0">
+             <h2 className="md:hidden text-xl font-bold flex items-center gap-2 text-[#040028] dark:text-white">
+                 {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Publication', 'Publication')}
+             </h2>
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 shrink-0">
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-              <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E] hidden md:block">{t("Targets", "Cibles")}</span>
-
+          <div className="flex items-center justify-end gap-2 md:gap-4 flex-1 min-w-0">
+            <div className="flex items-center justify-end gap-1 md:gap-2 flex-wrap">
               {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                   const isExpired = acc.isActive === false;
                   const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
@@ -613,9 +614,9 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
               </Popover>
             </div>
 
-            <div className="w-px h-6 bg-black/10 dark:bg-white/10 shrink-0" />
+            <div className="w-px h-6 bg-black/10 dark:bg-white/10 shrink-0 mx-1 md:mx-0 md:hidden" />
 
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex md:hidden items-center justify-end gap-1 shrink-0">
                 <div className="relative w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer" title={scheduleDateOnly ? scheduleDateOnly : t('Date', 'Date')}>
                     <CalendarIcon size={18} className={scheduleDateOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
                     <div className="absolute inset-0 opacity-0 overflow-hidden [&_*]:cursor-pointer">
@@ -745,8 +746,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="px-4 md:px-6 pt-4 md:pt-6 pb-2 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("What's new?", "Quoi de neuf ?")} className={cn("border border-black/10 dark:border-white/10 shadow-sm resize-none focus-visible:ring-1 focus-visible:ring-[#174CD2]/50 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-4 rounded-[10px] leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[120px]" : "min-h-[220px] md:min-h-[380px]")} />
+        <div className="pt-2 pb-2 md:px-6 md:pt-6 md:bg-transparent transition-colors">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("What's new?", "Quoi de neuf ?")} className={cn("border-0 md:border md:border-black/10 md:dark:border-white/10 shadow-none md:shadow-sm resize-none focus-visible:ring-0 md:focus-visible:ring-1 md:focus-visible:ring-[#174CD2]/50 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E] p-2 md:p-4 md:rounded-[10px] leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[120px]" : "min-h-[220px] md:min-h-[380px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -842,7 +843,41 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 </div>
                 
                 {/* Desktop action buttons */}
-                <div className="hidden md:flex gap-2">
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="relative">
+                      <DateInput
+                          label={t('Date', 'Date')}
+                          value={scheduleDateOnly as ISODateString | undefined}
+                          onChange={(value) => handleScheduleDateChange(value)}
+                      />
+                  </div>
+                  <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] text-xs font-semibold hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-colors">
+                        <Clock size={14} className="text-[#8E8E8E]" />
+                        {selectedTimeSlot ? selectedTimeSlot.label : t('Time', 'Heure')}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[200] overflow-hidden" align="end">
+                      <div className="max-h-60 overflow-y-auto py-1">
+                        {TIME_SLOTS.map((slot) => (
+                          <button
+                            key={slot.value}
+                            type="button"
+                            onClick={() => handleScheduleTimeChange(slot.value)}
+                            className={cn(
+                              'w-full flex items-center justify-between gap-2 h-8 px-3 text-left transition-colors text-xs font-medium text-[#040028] dark:text-white',
+                              slot.value === scheduleTimeOnly ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10'
+                            )}
+                          >
+                            <span>{slot.label}</span>
+                            {slot.value === scheduleTimeOnly && <Check size={14} className="shrink-0" />}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
@@ -852,12 +887,14 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 </div>
 
                 {/* Mobile: Big Bibliothèque Button */}
-                <button 
-                  onClick={() => setIsLibraryOpen(true)} 
-                  className="md:hidden mt-2 w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98]"
-                >
-                   <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
-                </button>
+                <div className="w-full flex justify-center md:hidden mt-2">
+                    <button 
+                      onClick={() => setIsLibraryOpen(true)} 
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98]"
+                    >
+                       <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
+                    </button>
+                </div>
             </div>
           </div>
         </div>
