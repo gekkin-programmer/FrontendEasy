@@ -338,6 +338,27 @@ export default function Footer() {
 
         </div>
 
+        {/* ===== DESKTOP LEGAL LINKS (hidden on mobile — the mobile block has its own) ===== */}
+        <div className="hidden md:flex flex-col lg:flex-row lg:items-center justify-between gap-[12px] lg:gap-6 z-10 w-full mt-[24px] 3xl:mt-[32px] pt-[16px] 3xl:pt-[20px]">
+          <div className="flex flex-wrap items-center gap-x-[24px] 3xl:gap-x-[32px] gap-y-[8px]">
+            <Link href="/legal/terms" className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] hover:text-gray-300 transition-colors">
+              {t('Terms of Service', "Conditions d'utilisation")}
+            </Link>
+            <Link href="/legal/privacy" className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] hover:text-gray-300 transition-colors">
+              {t('Privacy Policy', 'Politique de confidentialité')}
+            </Link>
+            <Link href="/legal/cookies" className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] hover:text-gray-300 transition-colors">
+              {t('Cookie Policy', 'Politique des cookies')}
+            </Link>
+            <Link href="/legal/data-deletion" className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] hover:text-gray-300 transition-colors">
+              {t('GDPR', 'Données personnelles')}
+            </Link>
+          </div>
+          <span className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] whitespace-nowrap">
+            © {new Date().getFullYear()} BEST-CORP
+          </span>
+        </div>
+
       </div>
 
     </footer>
