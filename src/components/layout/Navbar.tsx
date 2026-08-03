@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronDown, Globe, Menu, X } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import SpecularButton from '@/components/SpecularButton';
 
 export default function Navbar() {
+  const router = useRouter();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,7 +35,7 @@ export default function Navbar() {
       </Link>
 
       {/* Nav Links (Perfectly Centered) */}
-      <div className="hidden lg:flex h-full items-center justify-center ml-[40px] gap-[6px] xl:gap-[24px] 2xl:gap-[32px] 3xl:gap-[60px] font-['Rubik_One'] font-normal text-[11px] xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px]">
+      <div className="hidden lg:flex h-full items-center justify-center ml-[40px] gap-[14px] xl:gap-[24px] 2xl:gap-[32px] 3xl:gap-[60px] font-['Rubik_One'] font-normal text-[11px] xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 
@@ -516,9 +519,28 @@ export default function Navbar() {
         </Link>
 
         {/* CTA */}
-        <Link href="/signup" className="hidden sm:flex items-center justify-center px-[16px] lg:px-[10px] xl:px-[32px] 2xl:px-[36px] 3xl:px-[40px] h-[40px] md:h-[54px] lg:h-[32px] xl:h-[54px] 2xl:h-[56px] 3xl:h-[60px] border-[2px] border-white rounded-[12px] md:rounded-[18px] 2xl:rounded-[19px] 3xl:rounded-[20px] text-[12px] md:text-[16px] lg:text-[12px] xl:text-[16px] 2xl:text-[17px] 3xl:text-[18px] font-medium hover:bg-white hover:text-[#040028] transition-all whitespace-nowrap">
+        <SpecularButton
+          size="lg"
+          radius={19}
+          tint="#ffffff"
+          tintOpacity={0}
+          blur={0}
+          textColor="#f5f5f5"
+          lineColor="#ffffff"
+          baseColor="#ffffff"
+          intensity={1.55}
+          shineSize={41}
+          shineFade={49}
+          thickness={1}
+          speed={0.35}
+          followMouse
+          proximity={250}
+          autoAnimate={false}
+          onClick={() => router.push('/signup')}
+          className="hidden sm:inline-flex whitespace-nowrap"
+        >
           {t("Start free trial", "Commencer l'essai")}
-        </Link>
+        </SpecularButton>
 
         {/* Hamburger Menu Toggle */}
         <button className="lg:hidden flex items-center ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
