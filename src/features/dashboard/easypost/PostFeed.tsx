@@ -407,7 +407,7 @@ const SortableCard = ({ id, children }: { id: string; children: (drag: { cardRef
 const DroppableList = ({ id, children }: { id: string; children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0">
+    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-transparent rounded-none border-0 divide-y-0">
       {children}
     </div>
   );
@@ -723,8 +723,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     <>
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDndDragStart} onDragEnd={handleDndDragEnd}>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="flex flex-col gap-4 px-4 md:px-0 box-border w-full max-w-full">
-        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
+      <div className="flex flex-col gap-0 md:gap-4 px-0 box-border w-full max-w-full">
+        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border-0 border-b md:border border-black/5 dark:border-white/5 rounded-none md:rounded-[12px] p-3 flex items-center justify-between w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")}
             </h3>
@@ -770,7 +770,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             posts.length === 0 && mockDrafts.length > 0 ? (
-              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
+              <div className="space-y-0 md:space-y-4 bg-transparent rounded-none border-0 divide-y-0">
                 <AnimatePresence mode="popLayout">
                   {mockDrafts.map((post) => (
                     <SortableCard key={post.id} id={post.id}>
@@ -793,7 +793,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+              <div className="text-center p-8 rounded-none md:rounded-[16px] border-0 border-b md:border border-dashed border-black/10 dark:border-white/10 bg-transparent md:bg-white dark:bg-transparent md:dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
                 {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
               </div>
             )
@@ -802,8 +802,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         </DroppableList>
       </div>
 
-      <div className="relative group flex flex-col gap-4 px-4 md:px-0 box-border w-full max-w-full">
-        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
+      <div className="relative group flex flex-col gap-0 md:gap-4 px-0 box-border w-full max-w-full">
+        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border-0 border-b md:border border-black/5 dark:border-white/5 rounded-none md:rounded-[12px] p-3 w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
             </h3>
@@ -883,7 +883,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+              <div className="text-center p-12 rounded-none md:rounded-[16px] border-0 border-b md:border border-dashed border-black/10 dark:border-white/10 bg-transparent md:bg-white dark:bg-transparent md:dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
                 {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
               </div>
             )
