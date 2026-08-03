@@ -8,7 +8,7 @@ import {
   Image as ImageIcon, Video, X, Clock, Send,
   Tag, LayoutGrid, Plus, Copy,
   ChevronDown, Check, CornerLeftUp, Wand2, Loader2,
-  Sparkles, AlertTriangle, MessageCircle, RefreshCw
+  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -874,11 +874,23 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
              exit={{ opacity: 0, height: 0 }} 
              className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors
                         md:relative md:max-h-[70vh]
-                        fixed inset-0 z-[100] h-[100dvh] max-h-[100dvh] md:h-auto md:z-auto"
+                        fixed top-16 left-0 right-0 bottom-0 z-[100] h-[calc(100dvh-4rem)] max-h-[calc(100dvh-4rem)] md:inset-auto md:h-auto md:z-auto"
           >
-            <div className="px-4 py-4 md:py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0">
-                <span className="text-base md:text-sm font-semibold flex items-center gap-2"><LayoutGrid size={16} className="md:w-3.5 md:h-3.5" /> {t("Media library", "Bibliothèque de médias")}</span>
-                <button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-2 md:p-1 transition-colors"><X size={24} className="md:w-3.5 md:h-3.5" /></button>
+            <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex items-center gap-3 transition-colors flex-shrink-0">
+                {/* Mobile Back Button */}
+                <button onClick={() => setIsLibraryOpen(false)} className="md:hidden flex items-center gap-1 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10 rounded-[10px] py-1.5 px-2 -ml-2 transition-colors shrink-0">
+                    <ArrowLeft size={18} />
+                    {t("Back", "Retour")}
+                </button>
+                
+                <span className="text-base md:text-sm font-semibold flex items-center gap-2 flex-1 md:flex-none justify-center md:justify-start">
+                    <LayoutGrid size={16} className="md:w-3.5 md:h-3.5 hidden md:block" />
+                    {t("Media library", "Bibliothèque de médias")}
+                </span>
+                
+                {/* Placeholder to keep title centered on mobile, or desktop close button */}
+                <div className="md:hidden w-[72px] shrink-0" />
+                <button onClick={() => setIsLibraryOpen(false)} className="hidden md:block hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-2 md:p-1 transition-colors ml-auto"><X size={24} className="md:w-3.5 md:h-3.5" /></button>
             </div>
             <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-hidden flex flex-col flex-1 min-h-0 scrollbar-grey">
                 <MediaGallery
