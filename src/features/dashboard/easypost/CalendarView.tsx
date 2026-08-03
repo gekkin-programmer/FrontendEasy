@@ -194,7 +194,7 @@ const DraggablePost = ({ post, onClick, viewType, canApprove, onApprove }: { pos
   );
 };
 
-export default function CalendarView({ workspaceId, onPostClick, onDateClick, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, onDateClick?: (dateStr: string) => void, canApprove?: boolean, workspaceTimezone?: string }) {
+export default function CalendarView({ workspaceId, onPostClick, onDateClick, onQuickPost, canApprove = false, workspaceTimezone = 'UTC' }: { workspaceId: string, onPostClick?: (post: any) => void, onDateClick?: (dateStr: string) => void, onQuickPost?: () => void, canApprove?: boolean, workspaceTimezone?: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<ViewType>('month');
   const [activePost, setActivePost] = useState<any>(null);
@@ -321,49 +321,90 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
   return (
     <div className="bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none transition-all overflow-hidden">
 
-      <div className="flex flex-col lg:flex-row items-center justify-between p-6 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white gap-6 border-b border-black/5 dark:border-white/5">
-        <div className="flex items-center gap-4">
-            <div>
-                <h2 className="text-2xl font-bold leading-none">
-                {format(currentDate, viewType === 'month' ? 'MMMM yyyy' : 'MMM d, yyyy')}
-                </h2>
+      <div className="flex flex-col p-3.5 md:p-6 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white gap-3 md:gap-6 border-b border-black/5 dark:border-white/5">
+        <div className="flex items-center justify-between w-full gap-2">
+          <div className="flex flex-col">
+            <span className="text-[10px] md:text-xs font-bold text-[#174CD2] dark:text-blue-400 uppercase tracking-wider leading-none mb-0.5">
+              {format(currentDate, 'yyyy')}
+            </span>
+            <h2 className="text-xl md:text-2xl font-black text-[#040028] dark:text-white capitalize leading-tight">
+              {format(currentDate, viewType === 'month' ? 'MMMM' : 'MMM d')}
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-1.5 md:gap-3">
+            <div className="hidden md:flex bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/10 p-1 rounded-[10px]">
+              {(['month', 'week', 'day'] as ViewType[]).map(v => (
+                <button
+                  key={v}
+                  onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all",
+                    viewType === v ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-xs" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
+                  )}
+                >
+                  {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
+                </button>
+              ))}
             </div>
+
+            <div className="flex gap-1">
+              <button
+                onClick={() => navigate('prev')}
+                title={t('Previous', 'Précédent')}
+                className="p-2 md:p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() => navigate('next')}
+                title={t('Next', 'Suivant')}
+                className="p-2 md:p-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+
+            <button
+              onClick={handleExport}
+              title={t("Export", "Exporter le calendrier")}
+              className="p-2 md:px-3 md:py-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 md:bg-white md:dark:bg-[#0A0A2E] border border-transparent md:border-[#D9D9D9] md:dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-black/5 md:hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-2"
+            >
+              <Download size={18} />
+              <span className="hidden md:inline">{t("Export", "Exporter")}</span>
+            </button>
+
+            <button
+              onClick={() => onQuickPost ? onQuickPost() : (onDateClick ? onDateClick(format(new Date(), 'yyyy-MM-dd')) : undefined)}
+              title={t("Quick post", "Publication rapide")}
+              className="p-2 md:px-3 md:py-2.5 rounded-[10px] bg-[#040028] dark:bg-white text-white dark:text-[#040028] font-semibold text-sm hover:opacity-90 transition-all flex items-center gap-1.5 shadow-xs"
+            >
+              <Plus size={18} strokeWidth={2.5} />
+              <span className="hidden md:inline">{t("Quick post", "Publication rapide")}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-3">
-          <div className="flex bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 p-1 rounded-[10px]">
-              {(['month', 'week', 'day'] as ViewType[]).map(v => (
-                  <button
-                    key={v}
-                    onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
-                    className={cn(
-                        "px-3 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all",
-                        viewType === v ? "bg-[#F7F6F3] dark:bg-[#0A0A2E] text-[#040028] dark:text-white" : "text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white"
-                    )}
-                  >
-                      {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
-                  </button>
-              ))}
-          </div>
-
-          <div className="flex gap-2">
-            <button onClick={() => navigate('prev')} className="p-2.5 rounded-[10px] bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronLeft size={18} /></button>
-            <button onClick={() => navigate('next')} className="p-2.5 rounded-[10px] bg-white dark:bg-white/5 border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"><ChevronRight size={18}/></button>
-          </div>
-
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white font-semibold text-sm hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all"
-          >
-            <Download size={16} /> {t("Export", "Exporter")}
-          </button>
+        <div className="flex md:hidden bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/10 p-1 rounded-[10px] w-full justify-between">
+          {(['month', 'week', 'day'] as ViewType[]).map(v => (
+            <button
+              key={v}
+              onClick={() => { setViewType(v); trackAction('calendar_view_change', { type: v }); }}
+              className={cn(
+                "flex-1 py-1.5 rounded-[8px] text-xs font-semibold capitalize transition-all text-center",
+                viewType === v ? "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white shadow-xs" : "text-[#8E8E8E]"
+              )}
+            >
+              {t(v, v === 'month' ? 'Mois' : v === 'week' ? 'Semaine' : 'Jour')}
+            </button>
+          ))}
         </div>
       </div>
 
       {viewType !== 'day' && (
         <div className="grid grid-cols-7 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
             {[t('Sun','Dim'), t('Mon','Lun'), t('Tue','Mar'), t('Wed','Mer'), t('Thu','Jeu'), t('Fri','Ven'), t('Sat','Sam')].map((day, i) => (
-            <div key={i} className="p-3 text-center font-semibold text-xs text-[#8E8E8E]">{day}</div>
+            <div key={i} className="p-1.5 md:p-3 text-center font-semibold text-[10px] md:text-xs text-[#8E8E8E]">{day}</div>
             ))}
         </div>
       )}
@@ -393,9 +434,9 @@ export default function CalendarView({ workspaceId, onPostClick, onDateClick, ca
                     isPast={isPast}
                     onQuickCreate={onDateClick ? () => onDateClick(dayStr) : undefined}
                     className={cn(
-                        "transition-colors relative flex flex-col gap-2 p-2",
-                        viewType === 'day' ? "min-h-[400px]" : "min-h-[140px]",
-                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F7F6F3] dark:bg-white/[0.02] opacity-50' : 'bg-white dark:bg-[#0A0A2E]'
+                        "transition-colors relative flex flex-col gap-1 p-1 md:p-2",
+                        viewType === 'day' ? "min-h-[300px] md:min-h-[400px]" : "min-h-[75px] md:min-h-[140px]",
+                        !isCurrentMonth && viewType === 'month' ? 'bg-[#F7F6F3] dark:bg-white/[0.02] opacity-40' : 'bg-white dark:bg-[#0A0A2E]'
                     )}
                 >
                     <div className={cn(

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
+import { useAppToast } from '@/hooks/useAppToast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useLanguage } from '@/context/LanguageContext';
@@ -11,7 +12,7 @@ import { useSocket } from '@/context/SocketContext';
 import {
   FiMessageCircle, FiCheck, FiCheckCircle,
   FiSmile, FiArchive,
-  FiChevronLeft, FiChevronRight, FiLock, FiClock
+  FiChevronLeft, FiChevronRight, FiLock, FiClock, FiSearch, FiX
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,16 @@ const SENTIMENT_STYLES: any = {
   neutral: 'bg-[#F5F7FA] text-[#040028]',
   question: 'bg-[#174CD2]/10 text-[#174CD2]',
 };
+
+const PLATFORM_FILTERS = [
+  { id: 'all', labelEn: 'All', labelFr: 'Tous' },
+  { id: 'unread', labelEn: 'Unread', labelFr: 'Non lus' },
+  { id: 'facebook', labelEn: 'Facebook', labelFr: 'Facebook' },
+  { id: 'instagram', labelEn: 'Instagram', labelFr: 'Instagram' },
+  { id: 'tiktok', labelEn: 'TikTok', labelFr: 'TikTok' },
+  { id: 'whatsapp', labelEn: 'WhatsApp', labelFr: 'WhatsApp' },
+  { id: 'youtube', labelEn: 'YouTube', labelFr: 'YouTube' },
+];
 
 // The Chat kit's `sender` prop is 'user' | 'assistant' | 'system' — AI-copilot naming,
 // where 'user' renders right-aligned and 'assistant' left-aligned. This is a two-human
@@ -99,18 +110,34 @@ function buildMockWhatsappStates() {
   ];
 }
 
+// ---------------------------------------------------------------------------
+// TEMP PREVIEW DATA — remove once the API returns real engagement items.
+// Only kicks in when the query comes back empty, so real data always wins.
+// ---------------------------------------------------------------------------
+const MOCK_ENGAGEMENTS = [
+  { _id: 'mock-1', authorName: 'Amara K.', authorAvatar: 'https://i.pravatar.cc/64?img=47', platform: 'instagram', content: 'Adore ce produit ! Où puis-je l\'acheter ?', receivedAt: new Date(Date.now() - 2 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'positive', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-2', authorName: 'Jason M.', authorAvatar: 'https://i.pravatar.cc/64?img=13', platform: 'facebook', content: 'Est-ce que la livraison est disponible au Cameroun ?', receivedAt: new Date(Date.now() - 5 * 3600000).toISOString(), status: 'unread', unreadCount: 2, sentiment: 'question', type: 'comment', postId: 'post-1', postCaption: 'Ravis de partager notre dernière mise à jour produit !' },
+  { _id: 'mock-3', authorName: 'Sarah T.', authorAvatar: 'https://i.pravatar.cc/64?img=25', platform: 'tiktok', content: 'Ce n\'est pas arrivé comme prévu, un peu déçue.', receivedAt: new Date(Date.now() - 8 * 3600000).toISOString(), status: 'read', sentiment: 'negative', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+  { _id: 'mock-4', authorName: 'Kevin O.', authorAvatar: 'https://i.pravatar.cc/64?img=52', platform: 'whatsapp', content: 'Merci pour la réponse rapide !', receivedAt: new Date(Date.now() - 26 * 3600000).toISOString(), status: 'replied', sentiment: 'positive', type: 'dm', conversationId: 'mock-conv-4' },
+  { _id: 'mock-5', authorName: 'Linda P.', authorAvatar: 'https://i.pravatar.cc/64?img=31', platform: 'youtube', content: 'Super tuto, merci beaucoup 🙌', receivedAt: new Date(Date.now() - 30 * 3600000).toISOString(), status: 'read', sentiment: 'positive', type: 'comment', postId: 'post-3', postCaption: 'Nouveau tuto vidéo cette semaine' },
+  { _id: 'mock-6', authorName: 'Marc D.', authorAvatar: 'https://i.pravatar.cc/64?img=8', platform: 'facebook', content: 'Vous proposez ça aussi en taille XL ?', receivedAt: new Date(Date.now() - 48 * 3600000).toISOString(), status: 'unread', unreadCount: 1, sentiment: 'question', type: 'comment', postId: 'post-2', postCaption: 'Les coulisses de notre dernier shooting photo' },
+];
+
 export default function Engagement() {
   const { t } = useLanguage();
   const params = useParams();
   const workspaceId = params.id as string;
   const queryClient = useQueryClient();
   const { socket } = useSocket();
+  const toast = useAppToast();
 
   // STATE
   const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [isCannedOpen, setIsCannedOpen] = useState(false);
   const [inboxViewMode, setInboxViewMode] = useState<'list' | 'post'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [platformFilter, setPlatformFilter] = useState<'all' | 'unread' | 'facebook' | 'instagram' | 'tiktok' | 'whatsapp' | 'youtube'>('all');
 
   // Handle browser back button on mobile view
   useEffect(() => {
@@ -214,11 +241,11 @@ export default function Engagement() {
     });
 
     // Design-preview only — lets us see every visual state (unread, closed,
-    // nearing expiry, replied, long content) without hunting for real
-    // conversations in each state. Never runs in production, never overrides
-    // real data.
+    // nearing expiry, replied, long content, plus a broader cross-platform mix)
+    // without hunting for real conversations in each state. Never runs in
+    // production, never overrides real data.
     if (merged.length === 0 && process.env.NODE_ENV !== 'production') {
-      return buildMockWhatsappStates();
+      return [...MOCK_ENGAGEMENTS, ...buildMockWhatsappStates()];
     }
 
     return merged;
@@ -262,6 +289,7 @@ export default function Engagement() {
         await api.post(`/engagement/${id}/status`, { status, workspaceId });
     },
     onSuccess: (_, variables) => {
+        toast.success(t('Status updated', 'Statut mis à jour'));
         if (variables.status === 'archived') { setActiveId(null); setSendError(null); }
         queryClient.invalidateQueries({ queryKey: ['engagement'] });
     }
@@ -269,9 +297,29 @@ export default function Engagement() {
 
   // DERIVED STATE
   const activeEngagement = engagementsWithStatus.find((e: any) => e._id === activeId);
-  const filteredEngagements = engagementsWithStatus.filter((e: any) => e.status !== 'archived');
 
-  // Group by post for the "By post" inbox view — items without a postId fall under a shared bucket
+  const filteredEngagements = engagementsWithStatus.filter((e: any) => {
+    if (e.status === 'archived') return false;
+
+    // Platform & unread status filter
+    if (platformFilter === 'unread') {
+      if (e.status !== 'unread' && !(e.unreadCount > 0)) return false;
+    } else if (platformFilter !== 'all') {
+      if (e.platform?.toLowerCase() !== platformFilter) return false;
+    }
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = e.authorName?.toLowerCase().includes(q);
+      const contentMatch = e.content?.toLowerCase().includes(q);
+      if (!nameMatch && !contentMatch) return false;
+    }
+
+    return true;
+  });
+
+  // Group by post for the "By post" inbox view
   const postGroups: { key: string; caption: string; items: any[] }[] = [];
   filteredEngagements.forEach((e: any) => {
     const key = e.postId ?? 'no-post';
@@ -377,6 +425,46 @@ export default function Engagement() {
           "flex flex-col bg-white dark:bg-[#0A0A2E] transition-all w-full md:w-[340px] lg:w-[380px] shrink-0 h-full",
           activeId !== null ? "hidden md:flex" : "flex"
         )}>
+
+          {/* Search & Platform Filters */}
+          <div className="p-3 border-b border-black/5 dark:border-white/5 space-y-2 bg-white dark:bg-[#0A0A2E] w-full">
+            {/* Search Input */}
+            <div className="relative flex items-center w-full">
+              <FiSearch className="absolute left-3 text-[#8E8E8E]" size={15} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('Search conversations...', 'Rechercher une discussion...')}
+                className="w-full pl-9 pr-8 py-2 text-xs font-medium bg-[#F7F6F3] dark:bg-white/5 rounded-[10px] border border-transparent focus:border-[#174CD2] focus:outline-none text-[#040028] dark:text-white placeholder:text-[#8E8E8E] transition-all"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2.5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white">
+                  <FiX size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Platform / Status Filters Bar (Horizontally scrollable on mobile) */}
+            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1 px-0.5 touch-pan-x select-none w-full">
+              {PLATFORM_FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setPlatformFilter(f.id as any)}
+                  className={cn(
+                    "shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#174CD2]/30",
+                    platformFilter === f.id
+                      ? "bg-[#174CD2] text-white shadow-xs"
+                      : "bg-[#F7F6F3] dark:bg-white/5 text-[#8E8E8E] hover:text-[#040028] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                  )}
+                >
+                  {f.id !== 'all' && f.id !== 'unread' && <PlatformIcon platform={f.id} size={12} />}
+                  <span>{t(f.labelEn, f.labelFr)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* List Content */}
           <div className="flex-1 overflow-y-auto bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors">

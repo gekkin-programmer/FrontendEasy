@@ -475,6 +475,7 @@ function DashboardContent() {
         const stored = localStorage.getItem('theme');
         return stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
     });
+
     useEffect(() => {
         document.documentElement.classList.toggle('dark', isDark);
     }, [isDark]);
@@ -758,7 +759,7 @@ function DashboardContent() {
 
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-[#0A0A2E] border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
-                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-[10px] active:bg-[#174CD2]/10 transition-colors"><Menu size={22} className="text-[#040028] dark:text-white" /></button><div className="font-['Rubik_One'] text-lg text-[#174CD2]">azypost</div></div>
+                <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-[10px] active:bg-[#174CD2]/10 transition-colors"><Menu size={22} className="text-[#040028] dark:text-white" /></button><div className="font-['Rubik_One'] text-lg text-[#174CD2]">Eazlypost</div></div>
                 <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
@@ -811,12 +812,17 @@ function DashboardContent() {
                     </div>
                 </aside>
 
-                <div className="flex-1 pl-4 md:pl-8 pr-2 md:pr-4 pb-32 pt-8 bg-white dark:bg-[#0A0A2E] lg:pl-72">
+                <div className={cn(
+                    "flex-1 bg-white dark:bg-[#0A0A2E] lg:pl-72",
+                    activeTab === 'engagement'
+                        ? "p-0 pb-0 pt-0 md:pl-8 md:pr-4 md:pb-32 md:pt-8"
+                        : "px-3 sm:px-4 md:pl-8 md:pr-4 pb-32 pt-4 md:pt-8"
+                )}>
                     <div className="max-w-[1600px] mx-auto">
                         <div className="min-w-0">
                             {/* OnboardingGuide hidden — not enough space */}
                             <AnimatePresence mode="wait">
-                                <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="ml-4">
+                                <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className={cn(activeTab === 'engagement' ? "m-0 md:ml-4" : "ml-0 md:ml-4")}>
 
                                     {activeTab === 'queue' && (
                                         <div className="grid gap-8">
@@ -842,7 +848,7 @@ function DashboardContent() {
                                     )}
                                     {activeTab === 'calendar' && (
                                         <div className="space-y-4">
-                                            <div className="flex justify-between items-center">
+                                            <div className="hidden md:flex justify-between items-center">
                                                 <h2 className="text-xl font-bold text-[#040028] dark:text-white">{t("Content timeline", "Calendrier de contenu")}</h2>
                                                 <NeuButton onClick={() => setActiveTab('queue')} className="hover:border-[#D9D9D9] dark:hover:border-white/20">+ {t("Quick post", "Publication rapide")}</NeuButton>
                                             </div>
@@ -850,6 +856,10 @@ function DashboardContent() {
                                                 workspaceId={workspaceId}
                                                 canApprove={canApprove}
                                                 workspaceTimezone={workspaceTimezone}
+                                                onQuickPost={() => {
+                                                    setEditingPost(null);
+                                                    setActiveTab('queue');
+                                                }}
                                                 onPostClick={(post) => {
                                                     if (post.status === 'PUBLISHED') {
                                                         return;

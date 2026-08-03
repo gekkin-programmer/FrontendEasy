@@ -109,7 +109,7 @@ interface PostFeedProps {
 import { Skeleton } from '@astryxdesign/core/Skeleton';
 
 const SkeletonCard = () => (
-  <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-[16px] p-4">
+  <div className="p-3 md:p-4 border-b border-black/5 dark:border-white/5 md:border md:rounded-[16px] bg-transparent md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E]">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center gap-3">
         <Skeleton width={32} height={32} radius="rounded" />
@@ -231,7 +231,11 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       transition={{ duration: 0.2 }}
       onClick={() => { if (post.status === 'PUBLISHED') onOpenDetails?.(); }}
       className={cn(
-        "group relative bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 p-4 transition-all duration-150 rounded-[16px]",
+        "group relative transition-all duration-150 w-full max-w-full",
+        // Mobile continuous list styling (transparent bg, 1px thin bottom border divider, 12-16px padding, no floating card effect)
+        "bg-transparent dark:bg-transparent border-0 border-b border-black/10 dark:border-white/10 rounded-none p-3.5 sm:p-4 last:border-b-0 shadow-none",
+        // Desktop / tablet floating card styling (100% unchanged)
+        "md:bg-[#F7F6F3] md:dark:bg-[#0A0A2E] md:border md:border-black/5 md:dark:border-white/5 md:rounded-[16px] md:p-4 md:shadow-none md:last:border-b",
         draggable ? "cursor-grab active:cursor-grabbing touch-none" : "",
         post.status === 'PUBLISHED' ? "cursor-pointer hover:border-black/10 dark:hover:border-white/10" : "",
         isDraggingActive ? "!opacity-40 !border-dashed !border-black/10 dark:!border-white/10 !shadow-none" : ""
@@ -426,7 +430,7 @@ const SortableCard = ({ id, children }: { id: string; children: (drag: { cardRef
 const DroppableList = ({ id, children }: { id: string; children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="space-y-4 min-h-[200px] z-10">
+    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0">
       {children}
     </div>
   );
@@ -802,7 +806,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             posts.length === 0 && mockDrafts.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
                 <AnimatePresence mode="popLayout">
                   {mockDrafts.map((post) => (
                     <SortableCard key={post.id} id={post.id}>
@@ -887,7 +891,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
             posts.length === 0 && mockQueued.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
                 <AnimatePresence mode="popLayout">
                   {mockQueued.map((post) => (
                     isReversibleStatus(post.status) ? (
