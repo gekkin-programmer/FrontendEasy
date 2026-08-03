@@ -821,10 +821,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-2 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
             
             {/* Horizontal scroll on mobile, flex-row on desktop for tools */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 md:pb-0 px-1 shrink-0 w-full md:w-auto">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 md:pb-0 px-1 shrink-0 w-full max-w-full md:w-auto min-w-0">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
@@ -840,8 +840,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
-                <div className="flex items-center gap-2 w-full overflow-x-auto scrollbar-hide flex-nowrap">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 w-full max-w-full md:w-auto min-w-0">
+                <div className="hidden md:flex items-center gap-2 w-full overflow-x-auto scrollbar-hide flex-nowrap min-w-0">
                           {hasSchedulingData && (
                           <Popover>
                             <PopoverTrigger asChild>
@@ -918,8 +918,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 </div>
 
                 {/* Mobile: Centered Bibliothèque Button */}
-                <div className="w-full flex md:hidden mt-1">
-                    <button onClick={() => setIsLibraryOpen(true)} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98] mx-auto">
+                <div className="w-full flex md:hidden mt-0">
+                    <button onClick={() => setIsLibraryOpen(true)} className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98] mx-auto">
                        <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
                     </button>
                 </div>

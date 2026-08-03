@@ -820,7 +820,7 @@ function DashboardContent() {
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className={cn(activeTab === 'engagement' ? "m-0 md:ml-4" : "ml-0 md:ml-4")}>
 
                                     {activeTab === 'queue' && (
-                                        <div className="grid gap-8">
+                                        <div className="grid gap-2 md:gap-8">
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
@@ -832,7 +832,7 @@ function DashboardContent() {
                                     onPreviewDataChange={setPreviewData}
                                     workspaceTimezone={workspaceTimezone}
                                 />
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
+                                            <div className="mt-0 md:mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
