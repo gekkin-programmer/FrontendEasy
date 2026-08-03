@@ -206,7 +206,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const hasAutoSelectedRef = useRef(false);
 
   // UI State
-  const [isLibraryOpen, setIsLibraryOpen] = useState(true);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setIsLibraryOpen(true);
+    }
+  }, []);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -605,7 +610,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           </div>
 
           <div className="flex gap-2">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className="flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
                 <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
           </div>
@@ -749,19 +754,33 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             tiktokHasVideo={tiktokHasVideo}
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 py-4 px-4 md:px-6 -mx-4 md:-mx-6 border-t border-black/5 dark:border-white/5 gap-4 bg-[#F7F6F3] dark:bg-transparent transition-colors">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 sm:pb-0 px-1 shrink-0">
+          {/* Desktop & Mobile Responsive Footer */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-6 py-4 px-4 md:px-6 -mx-4 md:-mx-6 border-t border-black/5 dark:border-white/5 gap-4 bg-[#F7F6F3] dark:bg-transparent transition-colors">
+            
+            {/* Horizontal scroll on mobile, flex-row on desktop for tools */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1 md:pb-0 px-1 shrink-0 w-full md:w-auto">
               <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
               <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
               <ToolButton icon={Wand2} onClick={() => setIsAiOpen(v => !v)} tooltip={t("AI Assistant", "Assistant IA")} />
               <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
+              
+              {/* On mobile, also push Action Buttons here into the scrollable row */}
+              <div className="flex md:hidden items-center gap-2 border-l border-black/10 dark:border-white/10 pl-2">
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("shrink-0 px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="shrink-0 px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="shrink-0 px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
+                      {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
+                      {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
+                  </NeuButton>
+              </div>
             </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                          {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
+
+            <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+                <div className="flex items-center gap-2 w-full overflow-x-auto scrollbar-hide flex-nowrap">
                           {hasSchedulingData && (
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">
+                              <button className="shrink-0 px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">
                                 <Sparkles size={14} className="text-[#174CD2] animate-pulse" /> {t("AI scheduler", "Planif. IA")}
                               </button>
                             </PopoverTrigger>
@@ -780,22 +799,22 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                           </Popover>
                           )}
 
-                          <DateInput
-                            label={t('Date', 'Date')}
-                            isLabelHidden
-                            size="md"
-                            hasClear
-                            placeholder="DD/MM/YYYY"
-                            value={scheduleDateOnly as ISODateString | undefined}
-                            onChange={(value) => handleScheduleDateChange(value)}
-                          />
+                          <div className="shrink-0 min-w-[140px]">
+                            <DateInput
+                              label={t('Date', 'Date')}
+                              isLabelHidden
+                              size="md"
+                              hasClear
+                              placeholder="DD/MM/YYYY"
+                              value={scheduleDateOnly as ISODateString | undefined}
+                              onChange={(value) => handleScheduleDateChange(value)}
+                            />
+                          </div>
 
-                          {/* Click-only time dropdown — no text entry, matches "we don't type" */}
                           <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
                             <PopoverTrigger asChild>
                               <button
-                                type="button"
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white transition-all"
+                                className="shrink-0 px-3 py-2 text-xs font-semibold bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] text-[#040028] dark:text-white hover:border-[#174CD2]/40 transition-all flex items-center gap-2 h-[38px]"
                               >
                                 <Clock size={12} />
                                 {selectedTimeSlot ? selectedTimeSlot.label : t('Select a time', 'Choisir une heure')}
@@ -821,14 +840,25 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                               </div>
                             </PopoverContent>
                           </Popover>
-              <div className="flex gap-2">
+                </div>
+                
+                {/* Desktop action buttons */}
+                <div className="hidden md:flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
                   <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </NeuButton>
-              </div>
+                </div>
+
+                {/* Mobile: Big Bibliothèque Button */}
+                <button 
+                  onClick={() => setIsLibraryOpen(true)} 
+                  className="md:hidden mt-2 w-full flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98]"
+                >
+                   <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
+                </button>
             </div>
           </div>
         </div>
@@ -838,8 +868,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
       {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors max-h-[70vh]">
-            <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0"><span className="text-sm font-semibold flex items-center gap-2"><LayoutGrid size={14} /> {t("Media library", "Bibliothèque de médias")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-1 transition-colors"><X size={14} /></button></div>
+          <motion.div 
+             initial={{ opacity: 0, height: 0 }} 
+             animate={{ height: 'auto', opacity: 1 }} 
+             exit={{ opacity: 0, height: 0 }} 
+             className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors
+                        md:relative md:max-h-[70vh]
+                        fixed inset-0 z-[100] h-[100dvh] max-h-[100dvh] md:h-auto md:z-auto"
+          >
+            <div className="px-4 py-4 md:py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0">
+                <span className="text-base md:text-sm font-semibold flex items-center gap-2"><LayoutGrid size={16} className="md:w-3.5 md:h-3.5" /> {t("Media library", "Bibliothèque de médias")}</span>
+                <button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-2 md:p-1 transition-colors"><X size={24} className="md:w-3.5 md:h-3.5" /></button>
+            </div>
             <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-hidden flex flex-col flex-1 min-h-0 scrollbar-grey">
                 <MediaGallery
                     hideUsage={false}
