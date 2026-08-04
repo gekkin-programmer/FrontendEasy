@@ -392,17 +392,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
             </p>
          </div>
 
-         <div className="shrink-0 flex items-center gap-2">
-            {post.media && post.media.length > 0 && (
-              <div className="w-10 h-10 rounded-md overflow-hidden bg-black/5 dark:bg-white/5 relative shrink-0">
-                 <MediaThumbnail pm={post.media[0]} />
-                 {post.media.length > 1 && (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-[10px] font-bold">
-                       +{post.media.length - 1}
-                    </div>
-                 )}
-              </div>
-            )}
+         <div className="shrink-0 flex items-center">
              <Popover>
                <PopoverTrigger asChild>
                  <button className="text-[#FF2D55] p-2 -mr-2 active:opacity-70 transition-opacity" onClick={(e) => e.stopPropagation()}>
