@@ -759,8 +759,8 @@ function DashboardContent() {
             <AnimatePresence>
                 {isSidebarOpen && (
                     <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-[#040028]/40 z-50 backdrop-blur-sm" />
-                        <motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0A0A2E] flex flex-col z-50 shadow-[0_0_40px_rgba(0,0,0,0.15)]">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed top-0 left-0 right-0 h-[100dvh] w-screen bg-[#040028]/40 z-[50] backdrop-blur-sm" />
+                        <motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed top-0 left-0 h-[100dvh] w-72 bg-white dark:bg-[#0A0A2E] flex flex-col z-[60] shadow-[0_0_40px_rgba(0,0,0,0.15)]">
                             <div className="p-6 flex justify-between items-center bg-[#040028] dark:bg-black text-white">
                                 <span className="font-bold text-xl">Menu</span>
                                 <button onClick={() => setIsSidebarOpen(false)} className="text-white/80 hover:text-white transition-colors p-1"><X/></button>
