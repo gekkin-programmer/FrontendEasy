@@ -375,7 +375,7 @@ export default function MediaGallery({
 
       {/* Toolbar + Storage — fixed top block, totally opaque */}
       <div className="relative z-20 shrink-0 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] pb-3">
-      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-[#F7F6F3] dark:bg-white/5">
+      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-[14px] md:rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-[#F7F6F3] dark:bg-white/5">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -454,7 +454,7 @@ export default function MediaGallery({
 
       {/* Explorer Grid — scrollable folder area */}
       <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[160px] pt-1">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
          {isLoading ? (
              <>
                {[...Array(10)].map((_, i) => (
@@ -505,7 +505,7 @@ export default function MediaGallery({
                                     onClick={(e) => e.stopPropagation()}
                                     className={cn(
                                         "absolute top-1 right-1 px-2.5 py-1.5 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all",
-                                        folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                        folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
                                     )}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -558,7 +558,7 @@ export default function MediaGallery({
                                 onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
                                 className={cn(
                                     "absolute inset-0 m-auto w-10 h-10 rounded-full bg-white/90 text-[#040028] flex items-center justify-center transition-opacity",
-                                    playingAssetId === asset.id ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                                    playingAssetId === asset.id ? "opacity-0 group-hover:opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
                                 )}
                             >
                                 {playingAssetId === asset.id ? <FiPause size={16} /> : <FiPlay size={16} className="ml-0.5" />}
@@ -568,7 +568,7 @@ export default function MediaGallery({
                         <div
                             className={cn(
                                 "absolute inset-0 transition-all flex flex-col justify-between p-2 pointer-events-none [&>*]:pointer-events-auto",
-                                optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
                             )}
                         >
                             {/* Top row: overflow menu (Edit in Canva / Delete) */}
