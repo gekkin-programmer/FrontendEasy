@@ -376,11 +376,17 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       {/* Mobile view */}
       <div className="md:hidden flex items-center justify-between w-full px-4 py-3 bg-white dark:bg-[#0A0A2E]">
          <div className="flex -space-x-2 shrink-0 mr-3">
-             {socialAccounts.map((sa: any, idx: number) => (
-                 <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-[#F7F6F3] dark:ring-black/10 flex items-center justify-center z-[1]">
-                     <PlatformIcon platform={sa.socialAccount?.platform} />
+             {socialAccounts.length > 0 ? (
+                 socialAccounts.map((sa: any, idx: number) => (
+                     <div key={idx} className="w-12 h-12 rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center z-[1]">
+                         <PlatformIcon platform={sa.socialAccount?.platform} />
+                     </div>
+                 ))
+             ) : (
+                 <div className="w-12 h-12 rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center z-[1]">
+                     <span className="text-gray-400 dark:text-zinc-500 font-bold text-lg">#</span>
                  </div>
-             ))}
+             )}
          </div>
 
          <div className="flex-1 min-w-0 mr-3 flex flex-col justify-center">
