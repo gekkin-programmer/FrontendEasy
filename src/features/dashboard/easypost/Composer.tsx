@@ -17,8 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { zonedTimeToUtc, utcToZonedNaiveISO } from '@/lib/timezone';
-import { DateInput } from '@astryxdesign/core/DateInput';
-import { type ISODateString } from '@astryxdesign/core/Calendar';
+import { Calendar, type ISODateString } from '@astryxdesign/core/Calendar';
 import MediaGallery from './MediaGallery';
 import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
@@ -169,6 +168,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  const [isDateOpen, setIsDateOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
 
   // Populate from postToEdit
@@ -612,12 +612,23 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
               </PopoverContent>
             </Popover>
 
-            <div className="relative w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer shrink-0" title={scheduleDateOnly ? scheduleDateOnly : t('Date', 'Date')}>
-                <CalendarIcon size={18} className={scheduleDateOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
-                <div className="absolute inset-0 opacity-0 overflow-hidden [&_*]:cursor-pointer">
-                    <DateInput label={t('Date', 'Date')} isLabelHidden value={scheduleDateOnly as ISODateString | undefined} onChange={(value) => handleScheduleDateChange(value)} />
-                </div>
-            </div>
+            <Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
+              <PopoverTrigger asChild>
+                <button className="w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0" title={scheduleDateOnly ? scheduleDateOnly : t('Date', 'Date')}>
+                  <CalendarIcon size={18} className={scheduleDateOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[200] overflow-hidden" align="end" sideOffset={8}>
+                <Calendar
+                  mode="single"
+                  value={scheduleDateOnly as ISODateString | undefined}
+                  onChange={(val) => {
+                    handleScheduleDateChange(val as string);
+                    setIsDateOpen(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
 
             <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
               <PopoverTrigger asChild>
