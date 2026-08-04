@@ -852,10 +852,10 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
               <div className="flex md:hidden items-center gap-2 border-l border-black/10 dark:border-white/10 pl-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("shrink-0 px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="shrink-0 px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="shrink-0 px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
-                      {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
+                  <button onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} className="shrink-0 px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none">
+                      {isSubmitting ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : (date && <Clock className="w-3.5 h-3.5"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
-                  </NeuButton>
+                  </button>
               </div>
             </div>
 
