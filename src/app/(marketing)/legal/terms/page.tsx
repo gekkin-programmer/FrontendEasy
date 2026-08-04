@@ -7,7 +7,7 @@ export default function TermsPage() {
         <h1 className="text-3xl font-bold text-white mb-2">Terms of Service</h1>
         <p className="text-sm text-gray-400 mb-8">Effective Date: January 4, 2026</p>
 
-        <div className="space-y-8 text-gray-300 leading-relaxed">
+        <div className="space-y-8 text-white leading-relaxed">
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Agreement to Terms</h2>
             <p>
@@ -107,6 +107,114 @@ export default function TermsPage() {
               <li>Eazlypost uses Meta Webhooks to receive real-time updates about your connected accounts solely to power features you have enabled (e.g., comment notifications, message delivery receipts).</li>
               <li>You may revoke Eazlypost&apos;s access to your Meta accounts at any time through the Eazlypost dashboard or directly in Facebook under <em>Settings &amp; Privacy → Settings → Apps and Websites</em>.</li>
               <li>Eazlypost is an independent service and is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-white mb-3">3c. Google Sign-In Terms</h2>
+            <p>
+              When you sign in with Google, you additionally agree to comply with{' '}
+              <a
+                href="https://policies.google.com/terms"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&apos;s Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://policies.google.com/privacy"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&apos;s Privacy Policy
+              </a>. By using Google Sign-In you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>Eazlypost uses Google Sign-In (OAuth 2.0) solely to authenticate your account, requesting only the <strong className="text-gray-100">email</strong> and <strong className="text-gray-100">profile</strong> scopes.</li>
+              <li>Our handling of Google user data complies with the{' '}
+                <a
+                  href="https://developers.google.com/terms/api-services-user-data-policy"
+                  className="text-blue-400 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google API Services User Data Policy
+                </a>, including its Limited Use requirements.
+              </li>
+              <li>You may revoke Eazlypost&apos;s access to your Google account at any time via{' '}
+                <a
+                  href="https://myaccount.google.com/permissions"
+                  className="text-blue-400 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google Account → Security → Third-party apps with account access
+                </a>.
+              </li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by Google LLC.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-white mb-3">3d. Snapchat Platform Terms</h2>
+            <p>
+              When you connect your Snapchat account and use Eazlypost to publish content through it, you additionally agree to comply with{' '}
+              <a
+                href="https://snap.com/en-US/terms"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snapchat&apos;s Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://snap.com/en-US/terms/snap-kit"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snap Kit Terms of Service
+              </a>. By using Snapchat publishing features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the rightful owner of, or have full rights to publish, any content you submit to Snapchat via Eazlypost.</li>
+              <li>Eazlypost accesses your Snapchat account using the <strong className="text-gray-100">user.display_name</strong> and <strong className="text-gray-100">user.bitmoji.avatar</strong> Login Kit permissions solely to identify your connected account.</li>
+              <li>You may revoke Eazlypost&apos;s access to your Snapchat account at any time under <em>Settings → Privacy Controls → Connected Apps</em>.</li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by Snap Inc.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-white mb-3">3e. LinkedIn Platform Terms</h2>
+            <p>
+              When you connect your LinkedIn account and use Eazlypost to publish content through it, you additionally agree to comply with{' '}
+              <a
+                href="https://www.linkedin.com/legal/user-agreement"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s User Agreement
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.linkedin.com/legal/l/api-terms-of-use"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s API Terms of Use
+              </a>. By using LinkedIn publishing features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the rightful owner of, or have full rights to publish, any content you submit to LinkedIn via Eazlypost.</li>
+              <li>Eazlypost accesses your LinkedIn account using the <strong className="text-gray-100">openid</strong>, <strong className="text-gray-100">profile</strong>, and <strong className="text-gray-100">w_member_social</strong> scopes solely to identify your account and post content you explicitly authorize.</li>
+              <li>You may revoke Eazlypost&apos;s access to your LinkedIn account at any time under <em>Settings &amp; Privacy → Data privacy → Other applications</em>.</li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by LinkedIn Corporation.</li>
             </ul>
           </section>
 
