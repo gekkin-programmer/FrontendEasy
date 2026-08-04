@@ -395,14 +395,14 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
         </div>
       </div>
 
-      <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto md:overflow-y-hidden overflow-x-hidden md:overflow-x-auto pb-4 custom-scrollbar">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex flex-nowrap gap-6 h-full min-w-max pr-8">
+          <div className="flex flex-col md:flex-row md:flex-nowrap gap-6 md:h-full md:min-w-max pr-0 md:pr-8">
             {board.columns?.map((column) => (
               <KanbanColumn
                 key={column.id}
@@ -416,7 +416,7 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
             ))}
 
             {isCreateColumnOpen ? (
-              <div className="flex-shrink-0 w-80 flex flex-col h-full">
+              <div className="flex-shrink-0 w-full md:w-80 flex flex-col h-[60vh] md:h-full">
                 <div className="mb-4 px-2">
                   <input
                     autoFocus
@@ -722,7 +722,7 @@ function KanbanColumn({ column, onAddCard, onCardClick, onCardDelete, onRename, 
   };
 
   return (
-    <div className="flex-shrink-0 w-80 flex flex-col h-full">
+    <div className="flex-shrink-0 w-full md:w-80 flex flex-col h-[60vh] md:h-full">
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-2 min-w-0">
           {isRenaming ? (
