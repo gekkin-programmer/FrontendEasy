@@ -374,7 +374,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
       </div>
 
       {/* Mobile view */}
-      <div className="md:hidden flex items-center justify-between w-full">
+      <div className="md:hidden flex items-center justify-between w-full px-4 py-3 bg-white dark:bg-[#0A0A2E]">
          <div className="flex -space-x-2 shrink-0 mr-3">
              {socialAccounts.map((sa: any, idx: number) => (
                  <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-[#F7F6F3] dark:ring-black/10 flex items-center justify-center z-[1]">

@@ -394,7 +394,7 @@ export default function MediaGallery({
               </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
               <button
                 onClick={() => createFolderMutation.mutate(nextFolderName())}
                 disabled={createFolderMutation.isPending}
