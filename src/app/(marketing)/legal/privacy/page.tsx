@@ -359,6 +359,76 @@ export default function PrivacyPage() {
           </section>
           {/* ─────────────────────────────────────────────────────────── */}
 
+          {/* ─── LinkedIn API — required by LinkedIn Community Management review ─── */}
+          <section className="border border-gray-700 bg-black rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              3e. LinkedIn API &amp; User Data
+            </h2>
+            <p className="mb-4">
+              Eazlypost integrates with LinkedIn (Sign In with LinkedIn using OpenID Connect, plus the Share on LinkedIn product) to allow you to connect your LinkedIn account and publish posts on your behalf. Our use of LinkedIn APIs complies with{' '}
+              <a
+                href="https://www.linkedin.com/legal/l/api-terms-of-use"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s API Terms of Use
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.linkedin.com/legal/privacy-policy"
+                className="text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s Privacy Policy
+              </a>.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Scopes Requested</h3>
+                <p>When you connect your LinkedIn account, we request the following OAuth 2.0 scopes:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-100">openid</strong> — required by LinkedIn&apos;s OpenID Connect flow to authenticate the connection.</li>
+                  <li><strong className="text-gray-100">profile</strong> — your LinkedIn member ID, name, and profile picture, used to label your connected account inside Eazlypost.</li>
+                  <li><strong className="text-gray-100">email</strong> — requested as part of the OpenID Connect flow, but not stored or used beyond the authentication handshake.</li>
+                  <li><strong className="text-gray-100">w_member_social</strong> — allows Eazlypost to publish posts to LinkedIn on your behalf, exclusively when you schedule or manually trigger a post.</li>
+                </ul>
+                <p className="mt-2">
+                  We do not request access to your LinkedIn connections, messages, or any Page/Organization data beyond what is listed above.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li>We retrieve your LinkedIn <strong className="text-gray-100">member ID</strong>, <strong className="text-gray-100">name</strong>, and <strong className="text-gray-100">profile picture</strong> via LinkedIn&apos;s OpenID Connect userinfo endpoint to identify your connected account.</li>
+                  <li>We store your LinkedIn <strong className="text-gray-100">OAuth access token</strong> and <strong className="text-gray-100">refresh token</strong> (encrypted at rest) to authenticate publishing requests and read your own post history on your behalf.</li>
+                  <li>We read your own previously-published LinkedIn posts (read-only) to display them in your Eazlypost history/analytics view.</li>
+                  <li>Post text, images, and videos you schedule are transmitted directly to LinkedIn&apos;s API when published and are <strong className="text-gray-100">not</strong> permanently stored by Eazlypost beyond what is needed to display publishing status.</li>
+                  <li>LinkedIn user data is <strong className="text-gray-100">never</strong> used to train AI models, shared with advertisers, or sold to third parties.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Data Sharing</h3>
+                <p>
+                  LinkedIn user data (member ID, name, profile picture, access/refresh tokens) is stored in our Neon PostgreSQL database and is not shared with any third party outside of the LinkedIn API itself, including our AI content-generation providers (OpenAI, DeepSeek, Groq).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your LinkedIn account at any time from the Eazlypost dashboard (Connected Accounts page), which immediately deletes your stored LinkedIn tokens from our database. Alternatively, revoke access directly in LinkedIn under{' '}
+                  <em>Settings &amp; Privacy → Data privacy → Other applications</em>.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">4. How We Use Your Data</h2>
             <p>We use your information for the following legitimate business purposes:</p>
