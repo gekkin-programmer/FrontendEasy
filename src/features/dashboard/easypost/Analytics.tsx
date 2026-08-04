@@ -234,9 +234,14 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryKey: ['analytics-channels', workspaceId],
         gcTime: 0,
         queryFn: async () => {
-            const res: any = await api.get(`/social-accounts?workspaceId=${workspaceId}`);
-            const payload = res.data || res;
-            return Array.isArray(payload) ? payload : [];
+            try {
+                const res: any = await api.get(`/social-accounts?workspaceId=${workspaceId}`);
+                const payload = res.data || res;
+                return Array.isArray(payload) ? payload : [];
+            } catch (err) {
+                console.warn("Analytics channels API error:", err);
+                return [];
+            }
         }
     });
 
@@ -245,8 +250,13 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryKey: ['analytics-overview', workspaceId, from, to],
         gcTime: 0,
         queryFn: async () => {
-            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW&from=${from}&to=${to}`);
-            return res.overview || res.data?.overview || res.data || res || {};
+            try {
+                const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=OVERVIEW&from=${from}&to=${to}`);
+                return res.overview || res.data?.overview || res.data || res || {};
+            } catch (err) {
+                console.warn("Analytics API error:", err);
+                return {};
+            }
         }
     });
 
@@ -255,9 +265,14 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryKey: ['analytics-accounts', workspaceId, from, to],
         gcTime: 0,
         queryFn: async () => {
-            const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS&from=${from}&to=${to}`);
-            const payload = res.data || res;
-            return Array.isArray(payload) ? payload : (payload.accounts || []);
+            try {
+                const res: any = await api.get(`/analytics?workspaceId=${workspaceId}&type=ACCOUNTS&from=${from}&to=${to}`);
+                const payload = res.data || res;
+                return Array.isArray(payload) ? payload : (payload.accounts || []);
+            } catch (err) {
+                console.warn("Analytics accounts API error:", err);
+                return [];
+            }
         }
     });
 
@@ -266,21 +281,26 @@ function StrategyView({ workspaceId }: { workspaceId: string }) {
         queryKey: ['analytics-top-posts', workspaceId, from, to],
         gcTime: 0,
         queryFn: async () => {
-            const res: any = await api.get(`/posts?workspaceId=${workspaceId}&limit=100&status=PUBLISHED`);
-            const payload = res.data || res;
-            const rawPosts = payload.items || payload || [];
-            return rawPosts
-                .map((p: any) => ({
-                    ...p,
-                    mediaUrls: p.media?.map((pm: any) => pm.media?.url).filter(Boolean) ?? [],
-                    metrics: (p.socialAccounts ?? []).reduce((acc: any, psa: any) => ({
-                        likes: acc.likes + (psa.likes || 0),
-                        comments: acc.comments + (psa.comments || 0),
-                        shares: acc.shares + (psa.shares || 0),
-                        views: acc.views + (psa.views || 0),
-                    }), { likes: 0, comments: 0, shares: 0, views: 0 }),
-                }))
-                .filter((p: any) => p.publishedAt && p.publishedAt.slice(0, 10) >= from && p.publishedAt.slice(0, 10) <= to);
+            try {
+                const res: any = await api.get(`/posts?workspaceId=${workspaceId}&limit=100&status=PUBLISHED`);
+                const payload = res.data || res;
+                const rawPosts = payload.items || payload || [];
+                return rawPosts
+                    .map((p: any) => ({
+                        ...p,
+                        mediaUrls: p.media?.map((pm: any) => pm.media?.url).filter(Boolean) ?? [],
+                        metrics: (p.socialAccounts ?? []).reduce((acc: any, psa: any) => ({
+                            likes: acc.likes + (psa.likes || 0),
+                            comments: acc.comments + (psa.comments || 0),
+                            shares: acc.shares + (psa.shares || 0),
+                            views: acc.views + (psa.views || 0),
+                        }), { likes: 0, comments: 0, shares: 0, views: 0 }),
+                    }))
+                    .filter((p: any) => p.publishedAt && p.publishedAt.slice(0, 10) >= from && p.publishedAt.slice(0, 10) <= to);
+            } catch (err) {
+                console.warn("Analytics posts API error:", err);
+                return [];
+            }
         }
     });
 
