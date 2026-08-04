@@ -414,39 +414,39 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
                     <MoreVertical size={20} />
                  </button>
                </PopoverTrigger>
-               <PopoverContent align="end" className="w-56 p-1.5 bg-[#1C1C1E] border-[#333] text-white rounded-[14px] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+               <PopoverContent align="end" className="w-56 p-1.5 bg-[#040028] dark:bg-black border-white/10 text-white rounded-[14px] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
                   {(post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW') && canApprove && (
-                    <button onClick={(e) => { e.stopPropagation(); onApprove?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onApprove?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Approve & publish', 'Approuver et publier')}</span>
                       <FileCheck size={18} className="opacity-80" />
                     </button>
                   )}
                   {post.status === 'PUBLISHED' && (
-                    <button onClick={(e) => { e.stopPropagation(); onRepost?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onRepost?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Repost', 'Republier')}</span>
                       <RefreshCw size={18} className="opacity-80" />
                     </button>
                   )}
                   {post.status === 'FAILED' && (
-                    <button onClick={(e) => { e.stopPropagation(); onRetry?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onRetry?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Retry publication', 'Réessayer la publication')}</span>
                       <RefreshCw size={18} className="opacity-80" />
                     </button>
                   )}
                   {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && post.status !== 'PUBLISHING' && (
-                    <button onClick={(e) => { e.stopPropagation(); onPublishNow?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onPublishNow?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Publish now', 'Publier maintenant')}</span>
                       <Send size={18} className="opacity-80" />
                     </button>
                   )}
                   {isQueued && post.status === 'SCHEDULED' && (
-                    <button onClick={(e) => { e.stopPropagation(); onCancelSchedule?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onCancelSchedule?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Cancel schedule', 'Annuler')}</span>
                       <Clock size={18} className="opacity-80" />
                     </button>
                   )}
                   {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
-                    <button onClick={(e) => { e.stopPropagation(); onEdit?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-[#333]">
+                    <button onClick={(e) => { e.stopPropagation(); onEdit?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-white/10 transition-colors border-b border-white/10">
                       <span>{t('Edit post', 'Modifier')}</span>
                       <Edit2 size={18} className="opacity-80" />
                     </button>
