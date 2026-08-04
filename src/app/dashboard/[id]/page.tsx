@@ -753,7 +753,6 @@ function DashboardContent() {
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-[#0A0A2E] border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-[10px] active:bg-[#174CD2]/10 transition-colors"><Menu size={22} className="text-[#040028] dark:text-white" /></button><div className="font-['Rubik_One'] text-lg text-[#174CD2]">Eazlypost</div></div>
-                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
