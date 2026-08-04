@@ -14,7 +14,7 @@ import { api } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger, PopoverAnchor } from '@/components/ui/popover';
 import CanvaImportModal from './CanvaImportModal';
 import DropboxBrowserModal from './DropboxBrowserModal';
 import { openGoogleDrivePicker } from '@/lib/googleDrivePicker';
@@ -517,9 +517,16 @@ export default function MediaGallery({
 
                   {/* Right side on mobile: 3-dot menu */}
                   <Popover open={folderMenuOpenFor === folder.id} onOpenChange={(open) => setFolderMenuOpenFor(open ? folder.id : null)}>
-                    <PopoverTrigger asChild>
+                    <PopoverAnchor asChild>
                       <button
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setFolderMenuOpenFor(folderMenuOpenFor === folder.id ? null : folder.id);
+                        }}
+                        onPointerDown={(e) => {
+                          e.stopPropagation(); // Prevents click-outside from triggering immediately on touch
+                        }}
                         className={cn(
                           "relative sm:absolute sm:top-1 sm:right-1 px-1.5 py-1.5 sm:px-2.5 sm:py-1.5 sm:rounded-[8px] bg-transparent sm:bg-white sm:dark:bg-[#0A0A2E] sm:border border-[#D9D9D9] sm:dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all",
                           folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
@@ -528,7 +535,7 @@ export default function MediaGallery({
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:hidden text-[#171717] dark:text-white pointer-events-none"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden sm:block pointer-events-none"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </button>
-                    </PopoverTrigger>
+                    </PopoverAnchor>
                     <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
                       <button
                         onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
