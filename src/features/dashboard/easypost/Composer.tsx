@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { DateInput } from '@astryxdesign/core/DateInput';
 import { zonedTimeToUtc, utcToZonedNaiveISO } from '@/lib/timezone';
 import { Calendar, type ISODateString } from '@astryxdesign/core/Calendar';
 import MediaGallery from './MediaGallery';
