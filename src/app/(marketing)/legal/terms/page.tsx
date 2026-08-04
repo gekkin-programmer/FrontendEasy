@@ -2,28 +2,28 @@ import React from 'react';
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#000000] py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto bg-[#000000] p-8 md:p-12 rounded-2xl border border-gray-700">
-        <h1 className="text-3xl font-bold text-white mb-2">Terms of Service</h1>
-        <p className="text-sm text-gray-400 mb-8">Effective Date: January 4, 2026</p>
+    <div className="min-h-screen bg-white dark:bg-gray-900 py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto bg-white dark:bg-gray-950 p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Terms of Service</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Effective Date: January 4, 2026</p>
 
-        <div className="space-y-8 text-gray-300 leading-relaxed">
+        <div className="space-y-8 text-gray-600 dark:text-gray-300 leading-relaxed">
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">1. Agreement to Terms</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Agreement to Terms</h2>
             <p>
               By accessing or using Eazlypost, you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">2. Description of Service</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">2. Description of Service</h2>
             <p>
               Eazlypost provides social media management tools, including scheduling, analytics, and AI content generation. We reserve the right to modify or discontinue features at any time.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">3. User Responsibilities</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. User Responsibilities</h2>
             <p>You agree NOT to use the platform to:</p>
             <ul className="list-disc pl-5 space-y-2 mt-2">
               <li>Upload illegal, harmful, or offensive content.</li>
@@ -34,12 +34,12 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">3a. TikTok Platform Terms</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3a. TikTok Platform Terms</h2>
             <p>
               When you connect your TikTok account and publish content through Eazlypost, you additionally agree to comply with{' '}
               <a
                 href="https://www.tiktok.com/legal/page/row/terms-of-service/en"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -48,7 +48,7 @@ export default function TermsPage() {
               and{' '}
               <a
                 href="https://www.tiktok.com/legal/page/row/community-guidelines/en"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -57,19 +57,19 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-5 space-y-2 mt-2">
               <li>You are the rightful owner of, or have full rights to publish, any video content you submit to TikTok via Eazlypost.</li>
-              <li>Eazlypost accesses your TikTok account using the <strong className="text-gray-100">video.publish</strong> and <strong className="text-gray-100">user.info.basic</strong> scopes solely to post content you explicitly authorize.</li>
+              <li>Eazlypost accesses your TikTok account using the <strong className="text-gray-900 dark:text-gray-100">video.publish</strong> and <strong className="text-gray-900 dark:text-gray-100">user.info.basic</strong> scopes solely to post content you explicitly authorize.</li>
               <li>You may revoke Eazlypost&apos;s access to your TikTok account at any time through TikTok&apos;s app settings under <em>Settings &amp; Privacy → Security → Manage Account Access</em>.</li>
               <li>Eazlypost is not affiliated with, endorsed by, or sponsored by TikTok or ByteDance Ltd.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">3b. Meta Platform Terms</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3b. Meta Platform Terms</h2>
             <p>
               When you connect your Facebook Page, Instagram Business account, or WhatsApp Business number and use Eazlypost to publish content or send messages through those accounts, you additionally agree to comply with{' '}
               <a
                 href="https://developers.facebook.com/terms/"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -77,7 +77,7 @@ export default function TermsPage() {
               </a>,{' '}
               <a
                 href="https://www.facebook.com/policies"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -85,7 +85,7 @@ export default function TermsPage() {
               </a>,{' '}
               <a
                 href="https://help.instagram.com/581066165581870"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -93,7 +93,7 @@ export default function TermsPage() {
               </a>, and{' '}
               <a
                 href="https://www.whatsapp.com/legal/business-terms/"
-                className="text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -111,23 +111,131 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">4. Account Termination</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3c. Google Sign-In Terms</h2>
+            <p>
+              When you sign in with Google, you additionally agree to comply with{' '}
+              <a
+                href="https://policies.google.com/terms"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&apos;s Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://policies.google.com/privacy"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&apos;s Privacy Policy
+              </a>. By using Google Sign-In you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>Eazlypost uses Google Sign-In (OAuth 2.0) solely to authenticate your account, requesting only the <strong className="text-gray-900 dark:text-gray-100">email</strong> and <strong className="text-gray-900 dark:text-gray-100">profile</strong> scopes.</li>
+              <li>Our handling of Google user data complies with the{' '}
+                <a
+                  href="https://developers.google.com/terms/api-services-user-data-policy"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google API Services User Data Policy
+                </a>, including its Limited Use requirements.
+              </li>
+              <li>You may revoke Eazlypost&apos;s access to your Google account at any time via{' '}
+                <a
+                  href="https://myaccount.google.com/permissions"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google Account → Security → Third-party apps with account access
+                </a>.
+              </li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by Google LLC.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3d. Snapchat Platform Terms</h2>
+            <p>
+              When you connect your Snapchat account and use Eazlypost to publish content through it, you additionally agree to comply with{' '}
+              <a
+                href="https://snap.com/en-US/terms"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snapchat&apos;s Terms of Service
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://snap.com/en-US/terms/snap-kit"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Snap Kit Terms of Service
+              </a>. By using Snapchat publishing features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the rightful owner of, or have full rights to publish, any content you submit to Snapchat via Eazlypost.</li>
+              <li>Eazlypost accesses your Snapchat account using the <strong className="text-gray-900 dark:text-gray-100">user.display_name</strong> and <strong className="text-gray-900 dark:text-gray-100">user.bitmoji.avatar</strong> Login Kit permissions solely to identify your connected account.</li>
+              <li>You may revoke Eazlypost&apos;s access to your Snapchat account at any time under <em>Settings → Privacy Controls → Connected Apps</em>.</li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by Snap Inc.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3e. LinkedIn Platform Terms</h2>
+            <p>
+              When you connect your LinkedIn account and use Eazlypost to publish content through it, you additionally agree to comply with{' '}
+              <a
+                href="https://www.linkedin.com/legal/user-agreement"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s User Agreement
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://www.linkedin.com/legal/l/api-terms-of-use"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn&apos;s API Terms of Use
+              </a>. By using LinkedIn publishing features you acknowledge that:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mt-2">
+              <li>You are the rightful owner of, or have full rights to publish, any content you submit to LinkedIn via Eazlypost.</li>
+              <li>Eazlypost accesses your LinkedIn account using the <strong className="text-gray-900 dark:text-gray-100">openid</strong>, <strong className="text-gray-900 dark:text-gray-100">profile</strong>, and <strong className="text-gray-900 dark:text-gray-100">w_member_social</strong> scopes solely to identify your account and post content you explicitly authorize.</li>
+              <li>You may revoke Eazlypost&apos;s access to your LinkedIn account at any time under <em>Settings &amp; Privacy → Data privacy → Other applications</em>.</li>
+              <li>Eazlypost is not affiliated with, endorsed by, or sponsored by LinkedIn Corporation.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">4. Account Termination</h2>
             <p>
               We may suspend or terminate your account immediately, without prior notice, if you breach these Terms. Upon termination, your right to use the Service will cease immediately.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">5. Limitation of Liability</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">5. Limitation of Liability</h2>
             <p>
               Eazlypost is provided &ldquo;AS IS&rdquo;. We are not liable for any indirect damages, loss of data, or loss of business revenue resulting from the use or inability to use our service.
             </p>
           </section>
 
-          <section className="border-t border-gray-700 pt-8 mt-8">
+          <section className="border-t border-gray-200 dark:border-gray-800 pt-8 mt-8">
             <p className="text-sm">
               If you have questions about these terms, please contact us at{' '}
-              <a href="mailto:support@eazlypost.cm" className="text-blue-400 hover:underline">
+              <a href="mailto:support@eazlypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
                 support@eazlypost.cm
               </a>.
             </p>
