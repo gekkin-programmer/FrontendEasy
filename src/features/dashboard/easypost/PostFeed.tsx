@@ -410,7 +410,7 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
          <div className="shrink-0 flex items-center">
              <Popover>
                <PopoverTrigger asChild>
-                 <button className="text-[#FF2D55] p-2 -mr-2 active:opacity-70 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                 <button className="text-[#040028] dark:text-white/80 p-2 -mr-2 active:opacity-70 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     <MoreVertical size={20} />
                  </button>
                </PopoverTrigger>
