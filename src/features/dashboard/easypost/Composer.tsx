@@ -937,8 +937,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 </div>
 
                 {/* Mobile: Centered Bibliothèque Button */}
-                <div className="w-full flex md:hidden mt-0 px-0 box-border">
-                    <button onClick={() => setIsLibraryOpen(true)} className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-sm transition-all active:scale-[0.98] mx-auto">
+                <div className="w-full flex md:hidden mt-2 mb-2 justify-center">
+                    <button onClick={() => setIsLibraryOpen(true)} className="flex items-center justify-center gap-2 px-6 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-[0px_2px_4px_rgba(0,0,0,0.05)] transition-all active:scale-[0.98]">
                        <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
                     </button>
                 </div>
