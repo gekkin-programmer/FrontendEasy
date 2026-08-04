@@ -854,7 +854,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
             posts.length === 0 && mockQueued.length > 0 ? (
-              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
+              <div className="space-y-0 md:space-y-4 bg-transparent rounded-none border-0 divide-y-0">
                 <AnimatePresence mode="popLayout">
                   {mockQueued.map((post) => (
                     isReversibleStatus(post.status) ? (
