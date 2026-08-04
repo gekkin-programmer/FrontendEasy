@@ -464,7 +464,7 @@ export default function MediaGallery({
             <>
               {[...Array(10)].map((_, i) => (
                 <div key={i} className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 p-3 rounded-none sm:rounded-[14px] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
-                  <Skeleton width="40px" height="40px" radius={8} className="sm:w-full sm:h-auto sm:aspect-square" index={i} />
+                  <Skeleton width="40px" height="40px" radius={2} className="sm:w-full sm:h-auto sm:aspect-square" index={i} />
                   <div className="flex-1 w-full"><Skeleton width="75%" height={10} radius={1} index={i} /></div>
                 </div>
               ))}
