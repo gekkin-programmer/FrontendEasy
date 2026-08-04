@@ -7,10 +7,11 @@ import Footer from '@/components/layout/Footer';
 export default function AppLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const shouldHideFooter = pathname?.startsWith('/legal') || pathname === '/forgot-password' || pathname === '/forgot-password/';
+  const noFixedNavbar = pathname?.startsWith('/legal');
 
   return (
     <>
-      <main className="min-h-screen pt-16 md:pt-1">
+      <main className={`min-h-screen ${noFixedNavbar ? '' : 'pt-16 md:pt-1'}`}>
         {children}
       </main>
       {!shouldHideFooter && <Footer />}
