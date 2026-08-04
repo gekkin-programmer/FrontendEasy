@@ -194,6 +194,10 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
   const { t } = useLanguage();
   const socialAccounts = post.socialAccounts || [];
   const firstAccount = socialAccounts[0]?.socialAccount;
+  // A post can be PUBLISHED overall while individual platforms still failed
+  // (partial success doesn't flip post.status to FAILED), so per-account
+  // errors need their own check independent of the post-level status.
+  const failedAccounts = socialAccounts.filter((sa: any) => sa.status === 'FAILED' && sa.errorMessage);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -251,7 +255,14 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {socialAccounts.map((sa: any, idx: number) => (
-                <div key={idx} className="w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 ring-white dark:ring-[#0A0A2E] flex items-center justify-center transition-all z-[1]">
+                <div
+                  key={idx}
+                  title={sa.status === 'FAILED' && sa.errorMessage ? sa.errorMessage : undefined}
+                  className={cn(
+                    "w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 flex items-center justify-center transition-all z-[1]",
+                    sa.status === 'FAILED' ? "ring-red-400" : "ring-white dark:ring-[#0A0A2E]"
+                  )}
+                >
                     <PlatformIcon platform={sa.socialAccount?.platform} />
                 </div>
             ))}
@@ -313,6 +324,21 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400">
           <AlertTriangle size={12} className="inline mr-1.5" />
           {post.errorMessage}
+        </div>
+      )}
+
+      {/* Partial failure: post.status stays PUBLISHED when at least one account
+          succeeded, so a failed platform is otherwise invisible in the list. */}
+      {post.status !== 'FAILED' && failedAccounts.length > 0 && (
+        <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400 space-y-1">
+          {failedAccounts.map((sa: any, idx: number) => (
+            <div key={idx} className="flex items-start gap-1.5">
+              <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+              <span>
+                <span className="capitalize">{sa.socialAccount?.platform?.toLowerCase()}</span>: {sa.errorMessage}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 
