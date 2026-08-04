@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
-    FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
+  FiImage, FiUploadCloud, FiTrash2, FiLoader, FiFolder, FiChevronLeft, FiPlus,
+  FiCornerUpLeft, FiMove, FiMoreVertical, FiShare2, FiEdit2, FiPlay, FiPause
 } from 'react-icons/fi';
 import { SiCanva, SiDropbox, SiGoogledrive } from 'react-icons/si';
 import { useAppToast } from '@/hooks/useAppToast';
@@ -55,15 +55,15 @@ export default function MediaGallery({
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const togglePlayback = (assetId: string) => {
-      const video = videoRefs.current[assetId];
-      if (!video) return;
-      if (video.paused) {
-          video.play();
-          setPlayingAssetId(assetId);
-      } else {
-          video.pause();
-          setPlayingAssetId(null);
-      }
+    const video = videoRefs.current[assetId];
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setPlayingAssetId(assetId);
+    } else {
+      video.pause();
+      setPlayingAssetId(null);
+    }
   };
 
   // Detect ?canva=connected (OAuth callback) or ?canva=returned (return navigation)
@@ -186,21 +186,21 @@ export default function MediaGallery({
 
   // Navigation State
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const [folderPath, setFolderPath] = useState<{id: string, name: string}[]>([]);
+  const [folderPath, setFolderPath] = useState<{ id: string, name: string }[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const pinnedKey = `media_pinned_folders_${workspaceId}`;
   const [pinnedFolderIds, setPinnedFolderIds] = useState<string[]>(() => {
-      if (typeof window === 'undefined') return [];
-      try { return JSON.parse(localStorage.getItem(pinnedKey) || '[]'); } catch { return []; }
+    if (typeof window === 'undefined') return [];
+    try { return JSON.parse(localStorage.getItem(pinnedKey) || '[]'); } catch { return []; }
   });
   const togglePinFolder = (id: string) => {
-      setPinnedFolderIds(prev => {
-          const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
-          try { localStorage.setItem(pinnedKey, JSON.stringify(next)); } catch {}
-          return next;
-      });
+    setPinnedFolderIds(prev => {
+      const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+      try { localStorage.setItem(pinnedKey, JSON.stringify(next)); } catch { }
+      return next;
+    });
   };
 
   // 1. Fetch Media & Folders
@@ -212,11 +212,11 @@ export default function MediaGallery({
     gcTime: 0,
     placeholderData: (previousData) => previousData,
     queryFn: async () => {
-        const params = new URLSearchParams();
-        if (workspaceId) params.set('workspaceId', workspaceId);
-        if (currentFolderId) params.set('folderId', currentFolderId);
-        const qs = params.toString();
-        return api.get<{ folders: any[], assets: any[] }>(qs ? `/media?${qs}` : '/media');
+      const params = new URLSearchParams();
+      if (workspaceId) params.set('workspaceId', workspaceId);
+      if (currentFolderId) params.set('folderId', currentFolderId);
+      const qs = params.toString();
+      return api.get<{ folders: any[], assets: any[] }>(qs ? `/media?${qs}` : '/media');
     },
   });
 
@@ -228,9 +228,9 @@ export default function MediaGallery({
     queryKey: ['media-usage', workspaceId],
     gcTime: 0,
     queryFn: async () => {
-        const url = workspaceId ? `/media/usage?workspaceId=${workspaceId}` : '/media/usage';
-        const res = await api.get<number>(url);
-        return typeof res === 'number' ? res : (res as any).data || 0;
+      const url = workspaceId ? `/media/usage?workspaceId=${workspaceId}` : '/media/usage';
+      const res = await api.get<number>(url);
+      return typeof res === 'number' ? res : (res as any).data || 0;
     }
   });
 
@@ -247,62 +247,62 @@ export default function MediaGallery({
   // 3. Mutations
   const uploadMutation = useMutation({
     mutationFn: (file: File) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        if (currentFolderId) formData.append('folderId', currentFolderId);
-        if (workspaceId) formData.append('workspaceId', workspaceId);
-        return api.post('/media/upload', formData);
+      const formData = new FormData();
+      formData.append('file', file);
+      if (currentFolderId) formData.append('folderId', currentFolderId);
+      if (workspaceId) formData.append('workspaceId', workspaceId);
+      return api.post('/media/upload', formData);
     },
     onSuccess: () => {
-        toast.success(t("Upload successful", "Téléchargement réussi"));
-        queryClient.invalidateQueries({ queryKey: ['media'] });
-        queryClient.invalidateQueries({ queryKey: ['media-usage'] });
+      toast.success(t("Upload successful", "Téléchargement réussi"));
+      queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media-usage'] });
     }
   });
 
   const createFolderMutation = useMutation({
-      mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId, workspaceId }),
-      onSuccess: (res) => {
-          const created = res?.data ?? res;
-          queryClient.invalidateQueries({ queryKey: ['media'] });
-          if (created?.id) {
-              setRenamingFolderId(created.id);
-              setRenameValue(created.name || "");
-          }
+    mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId, workspaceId }),
+    onSuccess: (res) => {
+      const created = res?.data ?? res;
+      queryClient.invalidateQueries({ queryKey: ['media'] });
+      if (created?.id) {
+        setRenamingFolderId(created.id);
+        setRenameValue(created.name || "");
       }
+    }
   });
 
   const nextFolderName = () => {
-      const base = t("Folder", "Dossier");
-      const pattern = new RegExp(`^${base} (\\d+)$`);
-      const usedNumbers = folders
-          .map((f: any) => { const m = f.name?.match(pattern); return m ? parseInt(m[1], 10) : null; })
-          .filter((n: number | null): n is number => n !== null);
-      const next = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
-      return `${base} ${next}`;
+    const base = t("Folder", "Dossier");
+    const pattern = new RegExp(`^${base} (\\d+)$`);
+    const usedNumbers = folders
+      .map((f: any) => { const m = f.name?.match(pattern); return m ? parseInt(m[1], 10) : null; })
+      .filter((n: number | null): n is number => n !== null);
+    const next = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
+    return `${base} ${next}`;
   };
 
   const deleteAssetMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
-        toast.success(t("Asset deleted", "Média supprimé"));
-        queryClient.invalidateQueries({ queryKey: ['media'] });
+      toast.success(t("Asset deleted", "Média supprimé"));
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
 
   const deleteFolderMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/media/folders/${id}${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
     onSuccess: () => {
-        toast.success(t("Folder deleted", "Dossier supprimé"));
-        queryClient.invalidateQueries({ queryKey: ['media'] });
+      toast.success(t("Folder deleted", "Dossier supprimé"));
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
 
   const renameFolderMutation = useMutation({
     mutationFn: ({ id, name }: { id: string; name: string }) => api.patch(`/media/folders/${id}`, { name, workspaceId }),
     onSuccess: () => {
-        setRenamingFolderId(null);
-        queryClient.invalidateQueries({ queryKey: ['media'] });
+      setRenamingFolderId(null);
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     }
   });
 
@@ -351,15 +351,15 @@ export default function MediaGallery({
   };
 
   const enterFolder = (folder: any) => {
-      setFolderPath(prev => [...prev, { id: folder.id, name: folder.name }]);
-      setCurrentFolderId(folder.id);
+    setFolderPath(prev => [...prev, { id: folder.id, name: folder.name }]);
+    setCurrentFolderId(folder.id);
   };
 
   const goBack = () => {
-      const newPath = [...folderPath];
-      newPath.pop();
-      setFolderPath(newPath);
-      setCurrentFolderId(newPath.length > 0 ? newPath[newPath.length - 1].id : null);
+    const newPath = [...folderPath];
+    newPath.pop();
+    setFolderPath(newPath);
+    setCurrentFolderId(newPath.length > 0 ? newPath[newPath.length - 1].id : null);
   };
 
   const formatSize = (bytes: number) => {
@@ -375,293 +375,293 @@ export default function MediaGallery({
 
       {/* Toolbar — fixed top block, totally opaque */}
       <div className="relative z-20 shrink-0 flex flex-col gap-3 bg-white dark:bg-[#0A0A2E] pb-2 px-2 sm:px-0">
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between p-0 sm:p-3 rounded-none sm:rounded-[14px] border-0 sm:border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-white sm:bg-[#F7F6F3] dark:bg-[#0A0A2E] sm:dark:bg-white/5 border-b border-[#E5E5E5] dark:border-white/10 pb-3 sm:pb-0">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between p-0 sm:p-3 rounded-none sm:rounded-[14px] border-0 sm:border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-white sm:bg-[#F7F6F3] dark:bg-[#0A0A2E] sm:dark:bg-white/5 border-b border-[#E5E5E5] dark:border-white/10 pb-3 sm:pb-0">
           <div className="flex flex-row items-center justify-between w-full sm:w-auto">
-              <div className="flex items-center gap-3">
-                  {currentFolderId && (
-                      <button onClick={goBack} className="p-1.5 sm:p-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
-                          <FiChevronLeft size={18} />
-                      </button>
-                  )}
-                  <div className="flex items-center gap-2 font-semibold text-sm text-[#040028] dark:text-white">
-                      <FiFolder className="text-[#8E8E8E] hidden sm:block" />
-                      <span>{t("Root", "Racine")}</span>
-                      {folderPath.map(p => (
-                          <React.Fragment key={p.id}>
-                              <span className="text-[#8E8E8E]">/</span>
-                              <span>{p.name}</span>
-                          </React.Fragment>
-                      ))}
-                  </div>
+            <div className="flex items-center gap-3">
+              {currentFolderId && (
+                <button onClick={goBack} className="p-1.5 sm:p-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
+                  <FiChevronLeft size={18} />
+                </button>
+              )}
+              <div className="flex items-center gap-2 font-semibold text-sm text-[#040028] dark:text-white">
+                <FiFolder className="text-[#8E8E8E] hidden sm:block" />
+                <span>{t("Root", "Racine")}</span>
+                {folderPath.map(p => (
+                  <React.Fragment key={p.id}>
+                    <span className="text-[#8E8E8E]">/</span>
+                    <span>{p.name}</span>
+                  </React.Fragment>
+                ))}
               </div>
+            </div>
 
-              <div className="flex sm:hidden items-center gap-2">
-                  <button
-                    onClick={() => createFolderMutation.mutate(nextFolderName())}
-                    disabled={createFolderMutation.isPending}
-                    className="flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#040028] dark:bg-white text-white dark:text-[#0A0A2E] hover:bg-black/80 transition-all disabled:opacity-50"
-                  >
-                      <FiPlus size={16} />
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center justify-center w-7 h-7 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white transition-all"
-                  >
-                      <FiUploadCloud size={16} />
-                  </button>
-              </div>
-          </div>
-
-          <div className="flex flex-row flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
+            <div className="flex sm:hidden items-center gap-2">
               <button
                 onClick={() => createFolderMutation.mutate(nextFolderName())}
                 disabled={createFolderMutation.isPending}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all disabled:opacity-50"
+                className="flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#040028] dark:bg-white text-white dark:text-[#0A0A2E] hover:bg-black/80 transition-all disabled:opacity-50"
               >
-                  <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
+                <FiPlus size={16} />
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+                className="flex items-center justify-center w-7 h-7 rounded-[8px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white transition-all"
               >
-                  <FiUploadCloud size={14} />
-                  {uploadProgress
-                    ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
-                    : t("Upload asset", "Importer un média")}
+                <FiUploadCloud size={16} />
               </button>
-              <button
-                onClick={handleCanvaClick}
-                className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all"
-                title={t("Import from Canva", "Importer depuis Canva")}
-              >
-                  <SiCanva size={13} /> Canva
-              </button>
-              <button
-                onClick={handleDropboxClick}
-                className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all"
-                title={t("Import from Dropbox", "Importer depuis Dropbox")}
-              >
-                  <SiDropbox size={13} /> Dropbox
-              </button>
-              <button
-                onClick={handleGoogleDriveClick}
-                disabled={googleDriveImporting}
-                className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all disabled:opacity-50"
-                title={t("Import from Google Drive", "Importer depuis Google Drive")}
-              >
-                  {googleDriveImporting ? <FiLoader size={13} className="animate-spin" /> : <SiGoogledrive size={13} />} Google Drive
-              </button>
+            </div>
           </div>
-      </div>
+
+          <div className="flex flex-row flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
+            <button
+              onClick={() => createFolderMutation.mutate(nextFolderName())}
+              disabled={createFolderMutation.isPending}
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all disabled:opacity-50"
+            >
+              <FiPlus size={14} /> {t("New folder", "Nouveau dossier")}
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
+            >
+              <FiUploadCloud size={14} />
+              {uploadProgress
+                ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
+                : t("Upload asset", "Importer un média")}
+            </button>
+            <button
+              onClick={handleCanvaClick}
+              className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all"
+              title={t("Import from Canva", "Importer depuis Canva")}
+            >
+              <SiCanva size={13} /> Canva
+            </button>
+            <button
+              onClick={handleDropboxClick}
+              className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all"
+              title={t("Import from Dropbox", "Importer depuis Dropbox")}
+            >
+              <SiDropbox size={13} /> Dropbox
+            </button>
+            <button
+              onClick={handleGoogleDriveClick}
+              disabled={googleDriveImporting}
+              className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-[8px] sm:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-[11px] sm:text-xs font-semibold transition-all disabled:opacity-50"
+              title={t("Import from Google Drive", "Importer depuis Google Drive")}
+            >
+              {googleDriveImporting ? <FiLoader size={13} className="animate-spin" /> : <SiGoogledrive size={13} />} Google Drive
+            </button>
+          </div>
+        </div>
       </div>
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
       {/* Explorer Grid — scrollable folder area */}
       <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[160px] pt-1">
-      <div className="flex flex-col sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-6">
-         {isLoading ? (
-             <>
-               {[...Array(10)].map((_, i) => (
-                 <div key={i} className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 p-3 rounded-none sm:rounded-[14px] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
-                   <Skeleton width="40px" height="40px" radius={8} className="sm:w-full sm:h-auto sm:aspect-square" index={i} />
-                   <div className="flex-1 w-full"><Skeleton width="75%" height={10} radius={1} index={i} /></div>
-                 </div>
-               ))}
-             </>
-         ) : (
+        <div className="flex flex-col sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-6">
+          {isLoading ? (
+            <>
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 p-3 rounded-none sm:rounded-[14px] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E]">
+                  <Skeleton width="40px" height="40px" radius={8} className="sm:w-full sm:h-auto sm:aspect-square" index={i} />
+                  <div className="flex-1 w-full"><Skeleton width="75%" height={10} radius={1} index={i} /></div>
+                </div>
+              ))}
+            </>
+          ) : (
             <AnimatePresence mode="popLayout">
-                {/* 1. Folders */}
-                {[...folders].sort((a, b) => (pinnedFolderIds.includes(b.id) ? 1 : 0) - (pinnedFolderIds.includes(a.id) ? 1 : 0)).map((folder: any) => (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.15 }}
-                        key={folder.id}
-                        onClick={() => { if (renamingFolderId !== folder.id) enterFolder(folder); }}
-                        className="group cursor-pointer flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 sm:gap-2 px-2 py-3 sm:p-4 rounded-none sm:rounded-[14px] bg-white sm:bg-[#F7F6F3] dark:bg-transparent sm:dark:bg-[#0A0A2E] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 hover:bg-[#F7F6F3] sm:hover:border-[#040028]/20 sm:dark:hover:border-white/20 transition-all relative"
-                    >
-                        <div className="flex flex-row sm:flex-col items-center gap-4 w-full">
-                            {/* Left side on mobile: icon */}
-                            <div className="relative shrink-0">
-                                {pinnedFolderIds.includes(folder.id) && (
-                                    <div className="absolute -top-1 -left-1 text-[#040028] dark:text-white" title={t('Pinned', 'Épinglé')}>
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a1 1 0 0 1 1 1v6.5l2.6 3.9a1 1 0 0 1-.83 1.6H13v6l-1 2-1-2v-6H5.23a1 1 0 0 1-.83-1.6L7 10.5V4a1 1 0 0 1 1-1h8Z"/></svg>
-                                    </div>
-                                )}
-                                <svg className="w-10 h-10 sm:w-[52px] sm:h-[52px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round"/><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round"/></svg>
-                            </div>
-                            
-                            {/* Center on mobile: Text */}
-                            <div className="flex flex-col items-start sm:items-center min-w-0 flex-1">
-                                {renamingFolderId === folder.id ? (
-                                    <input
-                                        autoFocus
-                                        value={renameValue}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) => setRenameValue(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && renameValue.trim()) renameFolderMutation.mutate({ id: folder.id, name: renameValue.trim() });
-                                            if (e.key === 'Escape') setRenamingFolderId(null);
-                                        }}
-                                        onBlur={() => setRenamingFolderId(null)}
-                                        className="w-full text-xs font-semibold text-left sm:text-center bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[6px] px-1 py-0.5 text-[#040028] dark:text-white focus:outline-none"
-                                    />
-                                ) : (
-                                    <span className="text-sm sm:text-xs font-semibold text-left sm:text-center truncate w-full text-[#040028] dark:text-white">{folder.name}</span>
-                                )}
-                                <span className="text-[11px] text-[#8E8E8E] sm:hidden block mt-0.5">{folder.createdAt ? format(new Date(folder.createdAt), 'dd MMM yyyy') : t("Folder", "Dossier")}</span>
-                            </div>
+              {/* 1. Folders */}
+              {[...folders].sort((a, b) => (pinnedFolderIds.includes(b.id) ? 1 : 0) - (pinnedFolderIds.includes(a.id) ? 1 : 0)).map((folder: any) => (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  key={folder.id}
+                  onClick={() => { if (renamingFolderId !== folder.id) enterFolder(folder); }}
+                  className="group cursor-pointer flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 sm:gap-2 px-2 py-3 sm:p-4 rounded-none sm:rounded-[14px] bg-white sm:bg-[#F7F6F3] dark:bg-transparent sm:dark:bg-[#0A0A2E] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 hover:bg-[#F7F6F3] sm:hover:border-[#040028]/20 sm:dark:hover:border-white/20 transition-all relative"
+                >
+                  <div className="flex flex-row sm:flex-col items-center gap-4 w-full">
+                    {/* Left side on mobile: icon */}
+                    <div className="relative shrink-0">
+                      {pinnedFolderIds.includes(folder.id) && (
+                        <div className="absolute -top-1 -left-1 text-[#040028] dark:text-white" title={t('Pinned', 'Épinglé')}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3a1 1 0 0 1 1 1v6.5l2.6 3.9a1 1 0 0 1-.83 1.6H13v6l-1 2-1-2v-6H5.23a1 1 0 0 1-.83-1.6L7 10.5V4a1 1 0 0 1 1-1h8Z" /></svg>
                         </div>
-
-                        {/* Right side on mobile: 3-dot menu */}
-                        <Popover open={folderMenuOpenFor === folder.id} onOpenChange={(open) => setFolderMenuOpenFor(open ? folder.id : null)}>
-                            <PopoverTrigger asChild>
-                                <button
-                                    onClick={(e) => e.stopPropagation()}
-                                    className={cn(
-                                        "relative sm:absolute sm:top-1 sm:right-1 px-1.5 py-1.5 sm:px-2.5 sm:py-1.5 sm:rounded-[8px] bg-transparent sm:bg-white sm:dark:bg-[#0A0A2E] sm:border border-[#D9D9D9] sm:dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all",
-                                        folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
-                                    )}
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:hidden text-[#171717] dark:text-white"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden sm:block"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                </button>
-                            </PopoverTrigger>
-                            <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
-                                >
-                                    {t('Rename', 'Renommer')}
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); togglePinFolder(folder.id); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
-                                >
-                                    {pinnedFolderIds.includes(folder.id) ? t('Unpin', 'Désépingler') : t('Pin to top', 'Épingler en haut')}
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); deleteFolderMutation.mutate(folder.id); }}
-                                    className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
-                                >
-                                    {t('Delete', 'Supprimer')}
-                                </button>
-                            </PopoverContent>
-                        </Popover>
-                    </motion.div>
-                ))}
-
-                {/* 2. Assets */}
-                {assets.map((asset: any) => (
-                    <div
-                        key={asset.id}
-                        className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 transition-all overflow-hidden"
-                    >
-                        {asset.mimeType?.startsWith('video/') ? (
-                            <video
-                                ref={(el) => { videoRefs.current[asset.id] = el; }}
-                                src={asset.url}
-                                className="w-full h-full object-cover"
-                                playsInline
-                                onEnded={() => setPlayingAssetId(null)}
-                                onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
-                            />
-                        ) : (
-                            <img src={asset.url} className="w-full h-full object-cover" alt="" />
-                        )}
-                        {asset.mimeType?.startsWith('video/') && (
-                            <button
-                                onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
-                                className={cn(
-                                    "absolute inset-0 m-auto w-10 h-10 rounded-full bg-white/90 text-[#040028] flex items-center justify-center transition-opacity",
-                                    playingAssetId === asset.id ? "opacity-0 group-hover:opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
-                                )}
-                            >
-                                {playingAssetId === asset.id ? <FiPause size={16} /> : <FiPlay size={16} className="ml-0.5" />}
-                            </button>
-                        )}
-
-                        <div
-                            className={cn(
-                                "absolute inset-0 transition-all flex flex-col justify-between p-2 pointer-events-none [&>*]:pointer-events-auto",
-                                optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
-                            )}
-                        >
-                            {/* Top row: overflow menu (Edit in Canva / Delete) */}
-                            <div className="flex justify-end">
-                                <Popover open={optionsMenuOpenFor === asset.id} onOpenChange={(open) => setOptionsMenuOpenFor(open ? asset.id : null)}>
-                                    <PopoverTrigger asChild>
-                                        <button
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="p-1.5 rounded-full bg-white text-[#040028] hover:bg-[#F7F6F3] transition-colors"
-                                        >
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                        </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); editInCanva(asset); }}
-                                            disabled={canvaUploading === asset.id}
-                                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50"
-                                        >
-                                            {canvaUploading === asset.id
-                                                ? <FiLoader size={14} className="animate-spin" />
-                                                : <FiEdit2 size={14} />
-                                            }
-                                            {t('Edit in Canva', 'Retoucher sur Canva')}
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); deleteAssetMutation.mutate(asset.id); }}
-                                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-red-500 hover:bg-black/5 dark:hover:bg-white/10"
-                                        >
-                                            <FiTrash2 size={14} />
-                                            {t('Delete', 'Supprimer')}
-                                        </button>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                            {/* Bottom: Use — attaches directly, no section picker */}
-                            <button
-                                className="w-full rounded-[8px] bg-[#F7F6F3] text-[#040028] py-1.5 text-xs font-semibold"
-                                onClick={() => {
-                                    if (onUse) {
-                                        onUse(asset, sections[0]?.id);
-                                    } else {
-                                        navigator.clipboard.writeText(asset.url).catch(() => {});
-                                        toast.success(t("URL copied", "URL copiée"));
-                                    }
-                                }}
-                            >
-                                {t("Use", "Utiliser")}
-                            </button>
-                        </div>
+                      )}
+                      <svg className="w-10 h-10 sm:w-[52px] sm:h-[52px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.21736 5.94201C1.21736 4.972 1.31578 3.0322 3.67787 3.0322C4.36858 3.03246 8.41366 2.72544 8.59874 4.00214C9.09084 7.39674 15.9803 5.45704 18.9329 5.45704C21.8855 5.45704 22.8697 6.42698 22.8697 8.85181C22.8697 9.10966 22.8808 9.43881 22.8966 9.82175C23.029 13.0399 23.4878 20.0576 20.4093 20.4909C16.9646 20.9759 1.70944 21.9458 1.21736 18.5511C0.936945 16.6165 0.972797 12.5986 1.07592 9.33678C1.11756 8.01951 1.17018 6.82557 1.21736 5.94201Z" stroke="#040028" strokeLinecap="round" /><path d="M1.07593 9.33667C8.19441 9.33667 22.5244 9.43366 22.8966 9.82164" stroke="#040028" strokeOpacity="0.3" strokeLinecap="round" /></svg>
                     </div>
-                ))}
-            </AnimatePresence>
-         )}
 
-         {!isLoading && assets.length === 0 && folders.length === 0 && (
-             <div className="col-span-full py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10 text-[#8E8E8E] font-semibold text-lg">
-                 {t("Folder is empty", "Le dossier est vide")}
-             </div>
-         )}
-      </div>
-      
-      {/* Storage - Moved to bottom */}
-      {!hideUsage && (
-        <div className="mt-6 mb-2 mx-2 sm:mx-0 bg-[#F7F6F3] dark:bg-white/5 rounded-[14px] border border-black/5 dark:border-white/5 p-4 shrink-0">
+                    {/* Center on mobile: Text */}
+                    <div className="flex flex-col items-start sm:items-center min-w-0 flex-1">
+                      {renamingFolderId === folder.id ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onClick={(e) => e.stopPropagation()}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && renameValue.trim()) renameFolderMutation.mutate({ id: folder.id, name: renameValue.trim() });
+                            if (e.key === 'Escape') setRenamingFolderId(null);
+                          }}
+                          onBlur={() => setRenamingFolderId(null)}
+                          className="w-full text-xs font-semibold text-left sm:text-center bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[6px] px-1 py-0.5 text-[#040028] dark:text-white focus:outline-none"
+                        />
+                      ) : (
+                        <span className="text-sm sm:text-xs font-semibold text-left sm:text-center truncate w-full text-[#040028] dark:text-white">{folder.name}</span>
+                      )}
+                      <span className="text-[11px] text-[#8E8E8E] sm:hidden block mt-0.5">{folder.createdAt ? format(new Date(folder.createdAt), 'dd MMM yyyy') : t("Folder", "Dossier")}</span>
+                    </div>
+                  </div>
+
+                  {/* Right side on mobile: 3-dot menu */}
+                  <Popover open={folderMenuOpenFor === folder.id} onOpenChange={(open) => setFolderMenuOpenFor(open ? folder.id : null)}>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className={cn(
+                          "relative sm:absolute sm:top-1 sm:right-1 px-1.5 py-1.5 sm:px-2.5 sm:py-1.5 sm:rounded-[8px] bg-transparent sm:bg-white sm:dark:bg-[#0A0A2E] sm:border border-[#D9D9D9] sm:dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all",
+                          folderMenuOpenFor === folder.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
+                        )}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:hidden text-[#171717] dark:text-white"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden sm:block"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); setRenamingFolderId(folder.id); setRenameValue(folder.name); }}
+                        className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
+                      >
+                        {t('Rename', 'Renommer')}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); togglePinFolder(folder.id); }}
+                        className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
+                      >
+                        {pinnedFolderIds.includes(folder.id) ? t('Unpin', 'Désépingler') : t('Pin to top', 'Épingler en haut')}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setFolderMenuOpenFor(null); deleteFolderMutation.mutate(folder.id); }}
+                        className="w-full h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10"
+                      >
+                        {t('Delete', 'Supprimer')}
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+                </motion.div>
+              ))}
+
+              {/* 2. Assets */}
+              {assets.map((asset: any) => (
+                <div
+                  key={asset.id}
+                  className="group relative aspect-square rounded-[14px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 transition-all overflow-hidden"
+                >
+                  {asset.mimeType?.startsWith('video/') ? (
+                    <video
+                      ref={(el) => { videoRefs.current[asset.id] = el; }}
+                      src={asset.url}
+                      className="w-full h-full object-cover"
+                      playsInline
+                      onEnded={() => setPlayingAssetId(null)}
+                      onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
+                    />
+                  ) : (
+                    <img src={asset.url} className="w-full h-full object-cover" alt="" />
+                  )}
+                  {asset.mimeType?.startsWith('video/') && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); togglePlayback(asset.id); }}
+                      className={cn(
+                        "absolute inset-0 m-auto w-10 h-10 rounded-full bg-white/90 text-[#040028] flex items-center justify-center transition-opacity",
+                        playingAssetId === asset.id ? "opacity-0 group-hover:opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
+                      )}
+                    >
+                      {playingAssetId === asset.id ? <FiPause size={16} /> : <FiPlay size={16} className="ml-0.5" />}
+                    </button>
+                  )}
+
+                  <div
+                    className={cn(
+                      "absolute inset-0 transition-all flex flex-col justify-between p-2 pointer-events-none [&>*]:pointer-events-auto",
+                      optionsMenuOpenFor === asset.id ? "opacity-100" : "opacity-100 md:opacity-0 group-hover:opacity-100"
+                    )}
+                  >
+                    {/* Top row: overflow menu (Edit in Canva / Delete) */}
+                    <div className="flex justify-end">
+                      <Popover open={optionsMenuOpenFor === asset.id} onOpenChange={(open) => setOptionsMenuOpenFor(open ? asset.id : null)}>
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-full bg-white text-[#040028] hover:bg-[#F7F6F3] transition-colors"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="#171717" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="end">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); editInCanva(asset); }}
+                            disabled={canvaUploading === asset.id}
+                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50"
+                          >
+                            {canvaUploading === asset.id
+                              ? <FiLoader size={14} className="animate-spin" />
+                              : <FiEdit2 size={14} />
+                            }
+                            {t('Edit in Canva', 'Retoucher sur Canva')}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setOptionsMenuOpenFor(null); deleteAssetMutation.mutate(asset.id); }}
+                            className="w-full h-9 px-4 flex items-center gap-2 text-left transition-colors text-sm font-medium text-red-500 hover:bg-black/5 dark:hover:bg-white/10"
+                          >
+                            <FiTrash2 size={14} />
+                            {t('Delete', 'Supprimer')}
+                          </button>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* Bottom: Use — attaches directly, no section picker */}
+                    <button
+                      className="w-full rounded-[8px] bg-[#F7F6F3] text-[#040028] py-1.5 text-xs font-semibold"
+                      onClick={() => {
+                        if (onUse) {
+                          onUse(asset, sections[0]?.id);
+                        } else {
+                          navigator.clipboard.writeText(asset.url).catch(() => { });
+                          toast.success(t("URL copied", "URL copiée"));
+                        }
+                      }}
+                    >
+                      {t("Use", "Utiliser")}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </AnimatePresence>
+          )}
+
+          {!isLoading && assets.length === 0 && folders.length === 0 && (
+            <div className="col-span-full py-20 text-center rounded-[16px] border border-dashed border-black/10 dark:border-white/10 text-[#8E8E8E] font-semibold text-lg">
+              {t("Folder is empty", "Le dossier est vide")}
+            </div>
+          )}
+        </div>
+
+        {/* Storage - Moved to bottom */}
+        {!hideUsage && (
+          <div className="mt-6 mb-2 mx-2 sm:mx-0 bg-[#F7F6F3] dark:bg-white/5 rounded-[14px] border border-black/5 dark:border-white/5 p-4 shrink-0">
             <div className="flex justify-between text-xs font-semibold text-[#040028] dark:text-white mb-2">
-                <span>{t("Usage", "Utilisation")}</span>
-                <span>{formatSize(usage)} / {formatSize(storageQuota)}</span>
+              <span>{t("Usage", "Utilisation")}</span>
+              <span>{formatSize(usage)} / {formatSize(storageQuota)}</span>
             </div>
             <div className="h-2 rounded-full bg-[#E5E5E5] dark:bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / storageQuota) * 100, 100)}%` }} />
+              <div className="h-full rounded-full bg-[#174CD2]" style={{ width: `${Math.min((usage / storageQuota) * 100, 100)}%` }} />
             </div>
-        </div>
-      )}
+          </div>
+        )}
       </div>
 
       {canvaModalOpen && workspaceId && (
