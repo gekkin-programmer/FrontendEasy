@@ -814,7 +814,7 @@ function DashboardContent() {
             </AnimatePresence>
 
             {/* Main Layout */}
-            <main className="relative z-10 flex flex-col min-h-screen">
+            <main className="relative flex flex-col min-h-screen">
                 <header className="hidden lg:flex sticky top-0 z-30 h-16 shrink-0 bg-white/90 dark:bg-[#0A0A2E]/90 backdrop-blur-md border-b border-gray-200 dark:border-white/10 items-center justify-between px-8">
                     <div className="flex items-center gap-8 self-stretch -ml-8">
                         <div className="relative group self-stretch"><button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="w-72 h-full flex items-center gap-3 pl-8 pr-6 border-r border-gray-200 dark:border-white/10 bg-[#F7F6F3] dark:bg-[#0A0A2E] transition-colors"><div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div><span className="text-sm font-semibold truncate max-w-[120px] text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 text-[#040028]/50 dark:text-white/50"><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
