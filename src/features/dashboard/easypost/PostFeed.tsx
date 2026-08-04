@@ -2,16 +2,18 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Clock, Edit2, FileText, CalendarCheck, GripVertical, AlertTriangle, Send, RefreshCw, FileCheck, Image as ImageIcon, MoreVertical } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useAppToast } from '@/hooks/useAppToast';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatDateTimeInTz } from '@/lib/timezone';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon, TiktokIcon, YoutubeIcon,
 } from '@/components/icons/PlatformIcons';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaXTwitter } from 'react-icons/fa6';
 import {
   DndContext,
   PointerSensor,
@@ -251,171 +253,267 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
         </div>
       )}
 
-      <div className={cn("flex justify-between items-start mb-3", draggable && "pl-4")}>
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {socialAccounts.map((sa: any, idx: number) => (
-                <div
-                  key={idx}
-                  title={sa.status === 'FAILED' && sa.errorMessage ? sa.errorMessage : undefined}
-                  className={cn(
-                    "w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 flex items-center justify-center transition-all z-[1]",
-                    sa.status === 'FAILED' ? "ring-red-400" : "ring-white dark:ring-[#0A0A2E]"
-                  )}
-                >
-                    <PlatformIcon platform={sa.socialAccount?.platform} />
-                </div>
-            ))}
+      {/* Desktop view */}
+      <div className="hidden md:block">
+        <div className={cn("flex justify-between items-start mb-3", draggable && "md:pl-4")}>
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {socialAccounts.map((sa: any, idx: number) => (
+                  <div
+                    key={idx}
+                    title={sa.status === 'FAILED' && sa.errorMessage ? sa.errorMessage : undefined}
+                    className={cn(
+                      "w-8 h-8 rounded-full bg-white dark:bg-[#0A0A2E] ring-2 flex items-center justify-center transition-all z-[1]",
+                      sa.status === 'FAILED' ? "ring-red-400" : "ring-white dark:ring-[#0A0A2E]"
+                    )}
+                  >
+                      <PlatformIcon platform={sa.socialAccount?.platform} />
+                  </div>
+              ))}
+            </div>
+            <div className="text-xs">
+              <p className="font-semibold text-[#040028] dark:text-white">
+                  {firstAccount?.username || firstAccount?.platformUsername || t("Draft", "Brouillon")}
+              </p>
+              <p className="text-[#8E8E8E] mt-0.5 capitalize">
+                  {socialAccounts.length > 1 ? t(`${socialAccounts.length} targets`, `${socialAccounts.length} cibles`) : (firstAccount?.platform?.toLowerCase() || t("Local", "Local"))}
+              </p>
+            </div>
           </div>
-          <div className="text-xs">
-            <p className="font-semibold text-[#040028] dark:text-white">
-                {firstAccount?.username || firstAccount?.platformUsername || t("Draft", "Brouillon")}
+
+          <NeuBadge className={getStatusColor(post.status)}>
+            {getStatusLabel(post.status)}
+          </NeuBadge>
+        </div>
+
+        <div className={cn("flex gap-3", draggable && "md:pl-4")}>
+          {post.media && post.media.length > 0 && (
+            <div className="shrink-0 flex flex-col gap-1.5">
+              <div className={cn(
+                "grid gap-1 relative overflow-hidden rounded-[10px]",
+                post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
+              )}>
+                {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
+                  <MediaThumbnail key={i} pm={pm} />
+                ))}
+              </div>
+              <div className="space-y-0.5 max-w-[128px]">
+                {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
+                  <div key={i} className="flex items-center gap-1 min-w-0">
+                    <span className={cn(
+                      "text-[8px] font-semibold px-1 rounded-[3px] flex-shrink-0",
+                      pm.media.mimeType?.startsWith('video/') ? "bg-[#040028] text-white" : "bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white"
+                    )}>
+                      {pm.media.mimeType?.startsWith('video/') ? t('Video', 'Vidéo') : t('Image', 'Image')}
+                    </span>
+                    <span className="text-[9px] text-[#8E8E8E] truncate">{pm.media.filename}</span>
+                  </div>
+                ))}
+                {post.media.length > 2 && (
+                  <span className="text-[9px] text-[#8E8E8E]">+{post.media.length - 2} {t('more', 'de plus')}</span>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="flex-1 min-w-0 space-y-1">
+            {post.title && <h4 className="font-semibold text-sm text-[#040028] dark:text-white truncate">{post.title}</h4>}
+            <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-2 leading-relaxed">
+              {post.content}
             </p>
-            <p className="text-[#8E8E8E] mt-0.5 capitalize">
-                {socialAccounts.length > 1 ? t(`${socialAccounts.length} targets`, `${socialAccounts.length} cibles`) : (firstAccount?.platform?.toLowerCase() || t("Local", "Local"))}
-            </p>
+            {post.description && <p className="text-xs text-[#8E8E8E] line-clamp-2 mt-1">{post.description}</p>}
           </div>
         </div>
 
-        <NeuBadge className={getStatusColor(post.status)}>
-          {getStatusLabel(post.status)}
-        </NeuBadge>
-      </div>
-
-      <div className={cn("flex gap-3", draggable && "pl-4")}>
-        {post.media && post.media.length > 0 && (
-          <div className="shrink-0 flex flex-col gap-1.5">
-            <div className={cn(
-              "grid gap-1 relative overflow-hidden rounded-[10px]",
-              post.media.length === 1 ? "w-20 h-20 grid-cols-1" : "w-32 h-32 grid-cols-2"
-            )}>
-              {post.media.slice(0, 4).map((pm: PostMediaItem, i: number) => (
-                <MediaThumbnail key={i} pm={pm} />
-              ))}
-            </div>
-            <div className="space-y-0.5 max-w-[128px]">
-              {post.media.slice(0, 2).map((pm: PostMediaItem, i: number) => (
-                <div key={i} className="flex items-center gap-1 min-w-0">
-                  <span className={cn(
-                    "text-[8px] font-semibold px-1 rounded-[3px] flex-shrink-0",
-                    pm.media.mimeType?.startsWith('video/') ? "bg-[#040028] text-white" : "bg-[#F5F7FA] dark:bg-white/10 text-[#040028] dark:text-white"
-                  )}>
-                    {pm.media.mimeType?.startsWith('video/') ? t('Video', 'Vidéo') : t('Image', 'Image')}
-                  </span>
-                  <span className="text-[9px] text-[#8E8E8E] truncate">{pm.media.filename}</span>
-                </div>
-              ))}
-              {post.media.length > 2 && (
-                <span className="text-[9px] text-[#8E8E8E]">+{post.media.length - 2} {t('more', 'de plus')}</span>
-              )}
-            </div>
+        {post.status === 'FAILED' && post.errorMessage && (
+          <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400">
+            <AlertTriangle size={12} className="inline mr-1.5" />
+            {post.errorMessage}
           </div>
         )}
-        <div className="flex-1 min-w-0 space-y-1">
-          {post.title && <h4 className="font-semibold text-sm text-[#040028] dark:text-white truncate">{post.title}</h4>}
-          <p className="text-sm font-medium text-[#040028] dark:text-white line-clamp-2 leading-relaxed">
-            {post.content}
-          </p>
-          {post.description && <p className="text-xs text-[#8E8E8E] line-clamp-2 mt-1">{post.description}</p>}
+
+        {/* Partial failure: post.status stays PUBLISHED when at least one account
+            succeeded, so a failed platform is otherwise invisible in the list. */}
+        {post.status !== 'FAILED' && failedAccounts.length > 0 && (
+          <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400 space-y-1">
+            {failedAccounts.map((sa: any, idx: number) => (
+              <div key={idx} className="flex items-start gap-1.5">
+                <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+                <span>
+                  <span className="capitalize">{sa.socialAccount?.platform?.toLowerCase()}</span>: {sa.errorMessage}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className={cn("mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center", draggable && "md:pl-4")}>
+          <div className="flex items-center gap-1.5 text-xs font-medium text-[#8E8E8E]">
+             {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
+             <span>
+               {post.scheduledFor
+                 ? formatDateTimeInTz(post.scheduledFor, workspaceTimezone)
+                 : t('No date set', 'Aucune date')}
+             </span>
+          </div>
+
+          <div className="flex gap-1">
+            {(post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW') && canApprove && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onApprove?.(); }}
+                title={t('Approve & publish', 'Approuver et publier')}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <FileCheck size={14} />
+              </NeuButton>
+            )}
+
+            {post.status === 'PUBLISHED' && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
+                title={t('Repost', 'Republier')}
+              >
+                <RefreshCw size={14} />
+              </NeuButton>
+            )}
+
+            {post.status === 'FAILED' && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
+                title={t('Retry publication', 'Réessayer la publication')}
+              >
+                <RefreshCw size={14} />
+              </NeuButton>
+            )}
+
+            {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && post.status !== 'PUBLISHING' && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
+                title={t('Publish now', 'Publier maintenant')}
+              >
+                <Send size={14} />
+              </NeuButton>
+            )}
+
+            {isQueued && post.status === 'SCHEDULED' && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
+                title={t('Cancel schedule', 'Annuler la planification')}
+              >
+                <Clock size={14} />
+              </NeuButton>
+            )}
+
+            {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
+              <NeuButton
+                onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
+                title={t('Edit post', 'Modifier le post')}
+              >
+                <Edit2 size={14} />
+              </NeuButton>
+            )}
+
+            <button
+              onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
+              title={t('Delete post', 'Supprimer le post')}
+              className="p-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent text-[#040028] dark:text-white hover:text-red-500 hover:border-red-500 transition-all"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {post.status === 'FAILED' && post.errorMessage && (
-        <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400">
-          <AlertTriangle size={12} className="inline mr-1.5" />
-          {post.errorMessage}
-        </div>
-      )}
+      {/* Mobile view */}
+      <div className="md:hidden flex items-center justify-between w-full px-4 py-3 bg-white dark:bg-[#0A0A2E]">
+         <div className="flex -space-x-2 shrink-0 mr-3">
+             {socialAccounts.length > 0 ? (
+                 socialAccounts.map((sa: any, idx: number) => (
+                     <div
+                       key={idx}
+                       title={sa.status === 'FAILED' && sa.errorMessage ? sa.errorMessage : undefined}
+                       className={cn(
+                         "w-12 h-12 rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 border flex items-center justify-center z-[1]",
+                         sa.status === 'FAILED' ? "border-red-400 border-2" : "border-black/5 dark:border-white/5"
+                       )}
+                     >
+                         {sa.socialAccount?.platform?.toUpperCase() === 'FACEBOOK' && <FaFacebookF size={20} className="text-[#1877F2]" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'INSTAGRAM' && <FaInstagram size={20} className="text-[#E1306C]" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'LINKEDIN' && <FaLinkedinIn size={20} className="text-[#0A66C2]" />}
+                         {(sa.socialAccount?.platform?.toUpperCase() === 'TWITTER' || sa.socialAccount?.platform?.toUpperCase() === 'X') && <FaXTwitter size={20} className="text-black dark:text-white" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'TIKTOK' && <FaTiktok size={20} className="text-black dark:text-white" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'YOUTUBE' && <FaYoutube size={20} className="text-[#FF0000]" />}
+                         {!['FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'TWITTER', 'X', 'TIKTOK', 'YOUTUBE'].includes(sa.socialAccount?.platform?.toUpperCase()) && (
+                             <PlatformIcon platform={sa.socialAccount?.platform} />
+                         )}
+                     </div>
+                 ))
+             ) : (
+                 <div className="w-12 h-12 rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center z-[1]">
+                     <span className="text-gray-400 dark:text-zinc-500 font-bold text-lg">#</span>
+                 </div>
+             )}
+         </div>
 
-      {/* Partial failure: post.status stays PUBLISHED when at least one account
-          succeeded, so a failed platform is otherwise invisible in the list. */}
-      {post.status !== 'FAILED' && failedAccounts.length > 0 && (
-        <div className="mt-3 p-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-600 dark:text-red-400 space-y-1">
-          {failedAccounts.map((sa: any, idx: number) => (
-            <div key={idx} className="flex items-start gap-1.5">
-              <AlertTriangle size={12} className="shrink-0 mt-0.5" />
-              <span>
-                <span className="capitalize">{sa.socialAccount?.platform?.toLowerCase()}</span>: {sa.errorMessage}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+         <div className="flex-1 min-w-0 mr-3 flex flex-col justify-center">
+            <p className="font-semibold text-[15px] text-[#040028] dark:text-white truncate">
+                {post.title || post.content || t("Draft", "Brouillon")}
+            </p>
+            <p className="text-xs text-[#8E8E8E] mt-0.5 truncate">
+                {getStatusLabel(post.status)} • {post.scheduledFor ? formatDateTimeInTz(post.scheduledFor, workspaceTimezone) : (socialAccounts.length > 1 ? t(`${socialAccounts.length} targets`, `${socialAccounts.length} cibles`) : (firstAccount?.platform?.toLowerCase() || t("Local", "Local")))}
+            </p>
+         </div>
 
-      <div className={cn("mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between items-center", draggable && "pl-4")}>
-        <div className="flex items-center gap-1.5 text-xs font-medium text-[#8E8E8E]">
-           {isQueued ? <CalendarCheck className="w-3.5 h-3.5" /> : <Edit2 className="w-3.5 h-3.5" />}
-           <span>
-             {post.scheduledFor
-               ? formatDateTimeInTz(post.scheduledFor, workspaceTimezone)
-               : t('No date set', 'Aucune date')}
-           </span>
-        </div>
-
-        <div className="flex gap-1">
-          {(post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW') && canApprove && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onApprove?.(); }}
-              title={t('Approve & publish', 'Approuver et publier')}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <FileCheck size={14} />
-            </NeuButton>
-          )}
-
-          {post.status === 'PUBLISHED' && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onRepost?.(); }}
-              title={t('Repost', 'Republier')}
-            >
-              <RefreshCw size={14} />
-            </NeuButton>
-          )}
-
-          {post.status === 'FAILED' && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onRetry?.(); }}
-              title={t('Retry publication', 'Réessayer la publication')}
-            >
-              <RefreshCw size={14} />
-            </NeuButton>
-          )}
-
-          {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && post.status !== 'PUBLISHING' && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onPublishNow?.(); }}
-              title={t('Publish now', 'Publier maintenant')}
-            >
-              <Send size={14} />
-            </NeuButton>
-          )}
-
-          {isQueued && post.status === 'SCHEDULED' && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onCancelSchedule?.(); }}
-              title={t('Cancel schedule', 'Annuler la planification')}
-            >
-              <Clock size={14} />
-            </NeuButton>
-          )}
-
-          {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
-            <NeuButton
-              onClick={(e: any) => { e.stopPropagation(); onEdit?.(); }}
-              title={t('Edit post', 'Modifier le post')}
-            >
-              <Edit2 size={14} />
-            </NeuButton>
-          )}
-
-          <button
-            onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
-            title={t('Delete post', 'Supprimer le post')}
-            className="p-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5 border border-transparent text-[#040028] dark:text-white hover:text-red-500 hover:border-red-500 transition-all"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+         <div className="shrink-0 flex items-center">
+             <Popover>
+               <PopoverTrigger asChild>
+                 <button className="text-[#040028] dark:text-white/80 p-2 -mr-2 active:opacity-70 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                    <MoreVertical size={20} />
+                 </button>
+               </PopoverTrigger>
+               <PopoverContent align="end" className="w-56 p-1.5 bg-white dark:bg-[#0A0A2E] border-black/10 dark:border-white/10 text-[#040028] dark:text-white rounded-[14px] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+                  {(post.status === 'PENDING_APPROVAL' || post.status === 'REVIEW') && canApprove && (
+                    <button onClick={(e) => { e.stopPropagation(); onApprove?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Approve & publish', 'Approuver et publier')}</span>
+                      <FileCheck size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  {post.status === 'PUBLISHED' && (
+                    <button onClick={(e) => { e.stopPropagation(); onRepost?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Repost', 'Republier')}</span>
+                      <RefreshCw size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  {post.status === 'FAILED' && (
+                    <button onClick={(e) => { e.stopPropagation(); onRetry?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Retry publication', 'Réessayer la publication')}</span>
+                      <RefreshCw size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  {post.status !== 'PUBLISHED' && post.status !== 'FAILED' && post.status !== 'PUBLISHING' && (
+                    <button onClick={(e) => { e.stopPropagation(); onPublishNow?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Publish now', 'Publier maintenant')}</span>
+                      <Send size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  {isQueued && post.status === 'SCHEDULED' && (
+                    <button onClick={(e) => { e.stopPropagation(); onCancelSchedule?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Cancel schedule', 'Annuler')}</span>
+                      <Clock size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  {post.status !== 'PUBLISHED' && post.status !== 'PUBLISHING' && (
+                    <button onClick={(e) => { e.stopPropagation(); onEdit?.(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm active:bg-black/5 dark:active:bg-white/10 transition-colors border-b border-black/5 dark:border-white/10">
+                      <span>{t('Edit post', 'Modifier')}</span>
+                      <Edit2 size={18} className="opacity-80" />
+                    </button>
+                  )}
+                  <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="w-full flex items-center justify-between px-3 py-3 text-sm text-[#FF2D55] active:bg-black/5 dark:active:bg-white/10 transition-colors">
+                    <span>{t('Delete post', 'Retirer')}</span>
+                    <Trash2 size={18} className="opacity-80" />
+                  </button>
+               </PopoverContent>
+             </Popover>
+         </div>
       </div>
     </motion.div>
   );
@@ -456,7 +554,7 @@ const SortableCard = ({ id, children }: { id: string; children: (drag: { cardRef
 const DroppableList = ({ id, children }: { id: string; children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0">
+    <div ref={setNodeRef} className="space-y-0 md:space-y-4 min-h-[200px] z-10 w-full max-w-full bg-transparent rounded-none border-0 divide-y-0">
       {children}
     </div>
   );
@@ -785,8 +883,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
     <>
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDndDragStart} onDragEnd={handleDndDragEnd}>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-20 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="flex flex-col gap-4">
-        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 flex items-center justify-between w-full">
+      <div className="flex flex-col gap-0 md:gap-4 px-0 box-border w-full max-w-full">
+        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border-0 border-b md:border border-black/5 dark:border-white/5 rounded-none md:rounded-[12px] p-3 flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 w-full">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <FileText className="w-4 h-4 text-[#8E8E8E]" /> {t("Drafts", "Brouillons")}
             </h3>
@@ -832,7 +930,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && drafts.length === 0 && (
             posts.length === 0 && mockDrafts.length > 0 ? (
-              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
+              <div className="space-y-0 md:space-y-4 bg-transparent rounded-none border-0 divide-y-0">
                 <AnimatePresence mode="popLayout">
                   {mockDrafts.map((post) => (
                     <SortableCard key={post.id} id={post.id}>
@@ -855,7 +953,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="text-center p-8 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+              <div className="text-center p-8 rounded-none md:rounded-[16px] border-0 border-b md:border border-dashed border-black/10 dark:border-white/10 bg-transparent md:bg-white dark:bg-transparent md:dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
                 {posts.length === 0 ? t("No drafts yet", "Aucun brouillon") : t("No matching drafts", "Aucun brouillon correspondant")}
               </div>
             )
@@ -864,8 +962,8 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
         </DroppableList>
       </div>
 
-      <div className="relative group flex flex-col gap-4">
-        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none p-3 w-full">
+      <div className="relative group flex flex-col gap-0 md:gap-4 px-0 box-border w-full max-w-full">
+        <div className="bg-[#F7F6F3] dark:bg-[#0A0A2E] border-0 border-b md:border border-black/5 dark:border-white/5 rounded-none md:rounded-[12px] p-3 flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 w-full mt-8 lg:mt-0">
             <h3 className="font-bold text-sm flex items-center gap-2 text-[#040028] dark:text-white">
               <Clock className="w-4 h-4 text-[#8E8E8E]" /> {t("Queue / scheduled", "File / programmé")}
             </h3>
@@ -917,7 +1015,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
           </AnimatePresence>
           {!isLoading && queued.length === 0 && (
             posts.length === 0 && mockQueued.length > 0 ? (
-              <div className="space-y-0 md:space-y-4 divide-y divide-black/5 dark:divide-white/5 md:divide-y-0 bg-white dark:bg-[#0A0A2E] md:bg-transparent md:dark:bg-transparent rounded-[12px] md:rounded-none overflow-hidden border border-black/5 dark:border-white/5 md:border-0">
+              <div className="space-y-0 md:space-y-4 bg-transparent rounded-none border-0 divide-y-0">
                 <AnimatePresence mode="popLayout">
                   {mockQueued.map((post) => (
                     isReversibleStatus(post.status) ? (
@@ -946,7 +1044,7 @@ export default function PostFeed({ posts, accounts, workspaceId, onEdit, isLoadi
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="text-center p-12 rounded-[16px] border border-dashed border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
+              <div className="text-center p-12 rounded-none md:rounded-[16px] border-0 border-b md:border border-dashed border-black/10 dark:border-white/10 bg-transparent md:bg-white dark:bg-transparent md:dark:bg-[#0A0A2E] text-sm font-medium text-[#8E8E8E] transition-colors">
                 {posts.length === 0 ? t("Drag a draft here to schedule", "Glissez un brouillon ici pour planifier") : t("No matching queue items", "Aucun élément dans la file")}
               </div>
             )

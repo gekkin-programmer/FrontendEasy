@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -36,8 +37,12 @@ export const NeuInput = ({ className = "", ...props }: any) => (
 );
 
 export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-xl", className = "", headerClassName = "bg-[#174CD2] text-white", iconClassName = "text-white/80 hover:text-white" }: any) => {
-    if (!isOpen) return null;
-    return (
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
+    if (!mounted) return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
@@ -52,9 +57,9 @@ export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-x
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.96, opacity: 0, y: 10 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={cn("bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full overflow-hidden z-10 max-h-[90vh] flex flex-col", maxWidth, className)}
+                        className={cn("bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full overflow-hidden z-10 max-h-[90dvh] flex flex-col", maxWidth, className)}
                     >
-                        <div className={cn("px-5 py-4 flex justify-between items-center", headerClassName)}>
+                        <div className={cn("px-5 py-4 flex justify-between items-center shrink-0", headerClassName)}>
                             <span className="font-bold">{title}</span>
                             <button onClick={onClose} className={cn("transition-colors", iconClassName)}>
                                 <X size={20}/>
@@ -64,7 +69,8 @@ export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-x
                     </motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
 
