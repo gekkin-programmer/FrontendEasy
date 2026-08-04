@@ -21,7 +21,6 @@ export default function SignupPage() {
   const [step, setStep] = React.useState<'FORM' | 'VERIFY'>('FORM');
   const [formData, setFormData] = React.useState({ firstName: '', lastName: '', email: '', password: '', agreeTerms: false });
   const [code, setCode] = React.useState('');
-  const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   // Password requirement hints only show once the user has tried to submit,
   // not live while they're still typing.
@@ -45,15 +44,12 @@ export default function SignupPage() {
     e.preventDefault();
     setSubmitAttempted(true);
     if (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) {
-      setError(t('Password must be at least 7 characters and contain at least one capital letter.', 'Le mot de passe doit contenir au moins 7 caractères et une lettre majuscule.'));
       return;
     }
     if (!formData.agreeTerms) {
-      setError(t('You must agree to the terms and policy', 'Vous devez accepter les conditions et la politique'));
       return;
     }
     setIsLoading(true);
-    setError('');
     try {
       const res = await fetch(`${API_URL}/auth/email/send-otp`, {
         method: 'POST',
@@ -64,7 +60,7 @@ export default function SignupPage() {
       if (!res.ok) throw new Error(data.message || 'Failed to send code');
       setStep('VERIFY');
     } catch (err: any) {
-      setError(err.message);
+      console.error('Failed to send signup OTP:', err.message);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +69,6 @@ export default function SignupPage() {
   const handleFinalRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
@@ -98,7 +93,7 @@ export default function SignupPage() {
       });
       router.push('/onboarding');
     } catch (err: any) {
-      setError(err.message);
+      console.error('Failed to complete signup:', err.message);
     } finally {
       setIsLoading(false);
     }
@@ -106,16 +101,10 @@ export default function SignupPage() {
 
   return (
     <div className="fixed inset-0 w-full h-[100dvh] md:h-screen flex flex-col lg:flex-row bg-[#FFFFFF] font-sans overflow-hidden">
-      
+
       {/* Left Side: Form */}
       <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative overflow-y-auto">
         <div className="w-full max-w-[480px] xl:max-w-[540px] 2xl:max-w-[620px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8 lg:py-12">
-          
-          {error && (
-            <div className="p-3 mb-6 rounded-md bg-red-50 text-red-600 text-sm border border-red-200">
-                {error}
-            </div>
-          )}
 
           {step === 'FORM' ? (
             <div className="flex flex-col">
