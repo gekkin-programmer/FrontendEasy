@@ -211,7 +211,7 @@ export default function HelpPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:support@eazlypost.cm"
+              href="mailto:support@eazypost.cm"
               className="inline-flex items-center justify-center gap-2 bg-[#174CD2] text-white font-black uppercase px-6 py-4 border-4 border-black dark:border-white/20 shadow-[6px_6px_0px_0px_#000] dark:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000] dark:hover:shadow-none transition-all"
             >
               <Mail size={18} /> {t('Email Support', 'Contacter par Email')}

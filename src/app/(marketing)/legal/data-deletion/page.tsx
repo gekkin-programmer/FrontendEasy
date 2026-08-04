@@ -30,7 +30,7 @@ export default function DataDeletionPage() {
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Method 2: Permanent Account Deletion</h2>
             <p className="mb-4">To request a full deletion of your Eazlypost account and all associated data from our servers:</p>
             <ol className="list-decimal pl-5 space-y-3">
-              <li>Send an email to <strong>support@eazlypost.cm</strong>.</li>
+              <li>Send an email to <strong>support@eazypost.cm</strong>.</li>
               <li>Subject Line: <strong>&ldquo;Data Deletion Request&rdquo;</strong>.</li>
               <li>Include your registered email address.</li>
             </ol>
