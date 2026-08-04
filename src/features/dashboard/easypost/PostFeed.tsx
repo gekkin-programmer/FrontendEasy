@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import {
   FacebookIcon, InstagramIcon, TwitterIcon, LinkedinIcon, TiktokIcon, YoutubeIcon,
 } from '@/components/icons/PlatformIcons';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTiktok, FaYoutube, FaXTwitter } from 'react-icons/fa6';
 import {
   DndContext,
   PointerSensor,
@@ -379,7 +380,15 @@ const PostCard = ({ post, onDelete, onEdit, onCancelSchedule, onPublishNow, onRe
              {socialAccounts.length > 0 ? (
                  socialAccounts.map((sa: any, idx: number) => (
                      <div key={idx} className="w-12 h-12 rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center z-[1]">
-                         <PlatformIcon platform={sa.socialAccount?.platform} />
+                         {sa.socialAccount?.platform?.toUpperCase() === 'FACEBOOK' && <FaFacebookF size={20} className="text-[#1877F2]" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'INSTAGRAM' && <FaInstagram size={20} className="text-[#E1306C]" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'LINKEDIN' && <FaLinkedinIn size={20} className="text-[#0A66C2]" />}
+                         {(sa.socialAccount?.platform?.toUpperCase() === 'TWITTER' || sa.socialAccount?.platform?.toUpperCase() === 'X') && <FaXTwitter size={20} className="text-black dark:text-white" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'TIKTOK' && <FaTiktok size={20} className="text-black dark:text-white" />}
+                         {sa.socialAccount?.platform?.toUpperCase() === 'YOUTUBE' && <FaYoutube size={20} className="text-[#FF0000]" />}
+                         {!['FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'TWITTER', 'X', 'TIKTOK', 'YOUTUBE'].includes(sa.socialAccount?.platform?.toUpperCase()) && (
+                             <PlatformIcon platform={sa.socialAccount?.platform} />
+                         )}
                      </div>
                  ))
              ) : (
