@@ -375,7 +375,7 @@ export default function MediaGallery({
 
       {/* Toolbar + Storage — fixed top block, totally opaque */}
       <div className="relative z-20 shrink-0 flex flex-col gap-4 bg-white dark:bg-[#0A0A2E] pb-3">
-      <div className="flex flex-wrap gap-4 items-center justify-between p-3 rounded-[14px] md:rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-[#F7F6F3] dark:bg-white/5">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-center sm:justify-between p-3 rounded-[14px] md:rounded-none border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-[#F7F6F3] dark:bg-white/5">
           <div className="flex items-center gap-3">
               {currentFolderId && (
                   <button onClick={goBack} className="p-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 text-[#040028] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all">
@@ -394,7 +394,7 @@ export default function MediaGallery({
               </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center sm:justify-end">
               <button
                 onClick={() => createFolderMutation.mutate(nextFolderName())}
                 disabled={createFolderMutation.isPending}
