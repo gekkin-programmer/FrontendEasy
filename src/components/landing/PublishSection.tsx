@@ -94,7 +94,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
               <SafariHeroVideo
                 imageSrc={tabImages[activeTab]}
                 videoSrc={DEMO_VIDEO_SRC}
-                url="app.eazypost.cm"
+                url="app.eazlypost.com"
               />
             </div>
             

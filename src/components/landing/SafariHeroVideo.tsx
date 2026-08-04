@@ -16,7 +16,7 @@ interface SafariHeroVideoProps {
 // fullscreen modal behavior. Neither shadcn/magicui component accepts children,
 // so they can't nest directly — this reimplements the modal piece instead of
 // forking the vendored HeroVideoDialog file.
-export function SafariHeroVideo({ imageSrc, videoSrc, url = "app.eazypost.cm", className }: SafariHeroVideoProps) {
+export function SafariHeroVideo({ imageSrc, videoSrc, url = "app.eazlypost.com", className }: SafariHeroVideoProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false)
 
   return (
