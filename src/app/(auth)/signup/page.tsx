@@ -2,24 +2,26 @@
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { Loader2 } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaApple, FaCheck } from 'react-icons/fa6';
-import { setCookie } from 'cookies-next';
 
 // WebGL (react-three-fiber) — must never run during SSR.
 const Silk = dynamic(() => import('@/components/Silk'), { ssr: false });
 
 export default function SignupPage() {
-  const router = useRouter();
   const { t } = useLanguage();
 
   // --- FORM STATE ---
   const [formData, setFormData] = React.useState({ firstName: '', lastName: '', email: '', password: '', agreeTerms: false });
   const [isLoading, setIsLoading] = React.useState(false);
+  // Registration itself is instant, but the account isn't usable until the
+  // user clicks the confirmation link emailed to them — that link is what
+  // actually logs them in and lands them on the dashboard. This just shows
+  // that state; it doesn't set any session itself.
+  const [registered, setRegistered] = React.useState(false);
   // Password requirement hints only show once the user has tried to submit,
   // not live while they're still typing.
   const [submitAttempted, setSubmitAttempted] = React.useState(false);
@@ -49,10 +51,11 @@ export default function SignupPage() {
     }
     setIsLoading(true);
     try {
-      // Account creation is instant now — no OTP gate. Email/phone
-      // verification moved to an optional 2FA flow in settings instead.
-      // NOTE: backend's RegisterDto still marks `code` as required, so this
-      // will 400 until that's dropped server-side.
+      // Account creation is instant — no OTP gate. The account isn't usable
+      // yet though: the backend sends a confirmation email, and clicking
+      // that link is what actually logs the user in and lands them on the
+      // dashboard (via /auth/callback, same handoff Google OAuth uses).
+      // Nothing is stored client-side here on purpose.
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,14 +69,7 @@ export default function SignupPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Registration failed');
 
-      if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
-      setCookie('accessToken', data.accessToken, {
-        maxAge: 60 * 60 * 24,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
-      router.push('/onboarding');
+      setRegistered(true);
     } catch (err: any) {
       console.error('Failed to complete signup:', err.message);
     } finally {
@@ -88,6 +84,25 @@ export default function SignupPage() {
       <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative overflow-y-auto">
         <div className="w-full max-w-[480px] xl:max-w-[540px] 2xl:max-w-[620px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8 lg:py-12">
 
+          {registered ? (
+            <div className="flex flex-col items-start gap-[16px]">
+              <Link href="/" className="hidden md:block p-0 m-0 w-fit">
+                <img src="/assets/eazypost-logo-primary-lockup-black.png" alt="Eazlypost Logo" className="w-auto h-[64px] lg:h-[88px] object-contain cursor-pointer" />
+              </Link>
+              <h1 className="font-sans font-bold text-[clamp(24px,4vw,32px)] leading-[clamp(32px,5vw,48px)] text-[#000000]">
+                {t('Check your email', 'Vérifiez votre e-mail')}
+              </h1>
+              <p className="font-sans font-normal text-[14px] lg:text-[16px] leading-[20px] lg:leading-[24px] text-[#000000]">
+                {t(
+                  `We sent a confirmation link to ${formData.email}. Click it to activate your account.`,
+                  `Nous avons envoyé un lien de confirmation à ${formData.email}. Cliquez dessus pour activer votre compte.`
+                )}
+              </p>
+              <Link href="/login" className="font-sans font-medium text-[14px] text-[#174CD2] hover:underline">
+                {t('Back to login', 'Retour à la connexion')}
+              </Link>
+            </div>
+          ) : (
           <div className="flex flex-col">
 
               {/* Header Texts */}
@@ -261,6 +276,7 @@ export default function SignupPage() {
               </div>
 
             </div>
+          )}
 
         </div>
       </div>
