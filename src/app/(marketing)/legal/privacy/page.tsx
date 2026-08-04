@@ -109,8 +109,8 @@ export default function PrivacyPage() {
                 </ul>
                 <p className="mt-2">
                   To request deletion, email{' '}
-                  <a href="mailto:support@eazlypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
-                    support@eazlypost.cm
+                  <a href="mailto:support@eazypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
+                    support@eazypost.cm
                   </a>{' '}
                   with the subject line <strong className="text-gray-900 dark:text-gray-100">&ldquo;Data Deletion Request&rdquo;</strong> and your registered email address, or follow the steps at{' '}
                   <a href="/legal/data-deletion" className="text-blue-600 dark:text-blue-400 hover:underline">
@@ -429,6 +429,44 @@ export default function PrivacyPage() {
           </section>
           {/* ─────────────────────────────────────────────────────────── */}
 
+          {/* ─── Pinterest API — required by Pinterest developer review ─── */}
+          <section className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              3f. Pinterest API &amp; User Data
+            </h2>
+
+            <div className="space-y-5">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Scopes Requested</h3>
+                <p>When you connect your Pinterest account, we request the following OAuth 2.0 scopes:</p>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  <li><strong className="text-gray-900 dark:text-gray-100">user_accounts:read</strong> — to read your Pinterest username and profile image, so we can show you which account is connected.</li>
+                  <li><strong className="text-gray-900 dark:text-gray-100">boards:read</strong> — to list the boards you own, so you can choose where a Pin should be published.</li>
+                  <li><strong className="text-gray-900 dark:text-gray-100">pins:read</strong> — to read Pins you have created through Eazlypost, so we can show their status.</li>
+                  <li><strong className="text-gray-900 dark:text-gray-100">pins:write</strong> — to create Pins on your behalf, at the time you have scheduled.</li>
+                </ul>
+                <p className="mt-2">
+                  We only access the boards and Pins of the account you have connected. We never read or write to other Pinterest users&apos; boards or Pins, and we do not access your Pinterest home feed, followers, or messages.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Data Accessed &amp; Usage</h3>
+                <p>
+                  Images and captions you schedule are transmitted directly to Pinterest&apos;s servers via the Pinterest API v5 at publish time and are <strong className="text-gray-900 dark:text-gray-100">not</strong> permanently stored by Eazlypost after publishing. We retain the Pin identifier returned by Pinterest so that we can display the published Pin in your dashboard.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Revoking Access</h3>
+                <p>
+                  You can disconnect your Pinterest account from Eazlypost at any time from your workspace settings, which deletes the stored access token immediately. You can also revoke access directly from your Pinterest account settings.
+                </p>
+              </div>
+            </div>
+          </section>
+          {/* ─────────────────────────────────────────────────────────── */}
+
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">4. How We Use Your Data</h2>
             <p>We use your information for the following legitimate business purposes:</p>
@@ -455,8 +493,8 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">6. Your Rights</h2>
             <p>
               Depending on your location, you may have the right to access, rectify, or delete your personal data at any time. To exercise these rights, contact us at{' '}
-              <a href="mailto:support@eazlypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
-                support@eazlypost.cm
+              <a href="mailto:support@eazypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
+                support@eazypost.cm
               </a>{' '}
               or visit our{' '}
               <a href="/legal/data-deletion" className="text-blue-600 dark:text-blue-400 hover:underline">
@@ -468,8 +506,8 @@ export default function PrivacyPage() {
           <section className="border-t border-gray-200 dark:border-gray-800 pt-8 mt-8">
             <p className="text-sm">
               If you have questions about this policy, please contact us at{' '}
-              <a href="mailto:support@eazlypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
-                support@eazlypost.cm
+              <a href="mailto:support@eazypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
+                support@eazypost.cm
               </a>.
             </p>
           </section>

@@ -235,8 +235,8 @@ export default function TermsPage() {
           <section className="border-t border-gray-200 dark:border-gray-800 pt-8 mt-8">
             <p className="text-sm">
               If you have questions about these terms, please contact us at{' '}
-              <a href="mailto:support@eazlypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
-                support@eazlypost.cm
+              <a href="mailto:support@eazypost.cm" className="text-blue-600 dark:text-blue-400 hover:underline">
+                support@eazypost.cm
               </a>.
             </p>
           </section>
