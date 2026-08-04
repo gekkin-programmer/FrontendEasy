@@ -18,9 +18,7 @@ export default function SignupPage() {
   const { t } = useLanguage();
 
   // --- FORM STATE ---
-  const [step, setStep] = React.useState<'FORM' | 'VERIFY'>('FORM');
   const [formData, setFormData] = React.useState({ firstName: '', lastName: '', email: '', password: '', agreeTerms: false });
-  const [code, setCode] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   // Password requirement hints only show once the user has tried to submit,
   // not live while they're still typing.
@@ -40,7 +38,7 @@ export default function SignupPage() {
     window.location.href = `${API_URL}/auth/facebook`;
   };
 
-  const handleRequestCode = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
     if (formData.password.length < 7 || !/[A-Z]/.test(formData.password)) {
@@ -51,25 +49,10 @@ export default function SignupPage() {
     }
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_URL}/auth/email/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to send code');
-      setStep('VERIFY');
-    } catch (err: any) {
-      console.error('Failed to send signup OTP:', err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFinalRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
+      // Account creation is instant now — no OTP gate. Email/phone
+      // verification moved to an optional 2FA flow in settings instead.
+      // NOTE: backend's RegisterDto still marks `code` as required, so this
+      // will 400 until that's dropped server-side.
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,11 +61,10 @@ export default function SignupPage() {
           password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
-          code,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Verification failed');
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
 
       if (typeof window !== 'undefined') localStorage.removeItem('accessToken');
       setCookie('accessToken', data.accessToken, {
@@ -106,9 +88,8 @@ export default function SignupPage() {
       <div className="w-full lg:w-1/2 h-full flex flex-col items-center p-4 sm:p-6 lg:p-10 3xl:p-20 relative overflow-y-auto">
         <div className="w-full max-w-[480px] xl:max-w-[540px] 2xl:max-w-[620px] 3xl:max-w-[720px] flex flex-col justify-center min-h-full my-auto py-8 lg:py-12">
 
-          {step === 'FORM' ? (
-            <div className="flex flex-col">
-              
+          <div className="flex flex-col">
+
               {/* Header Texts */}
               <div className="flex flex-col gap-[2px] mb-[10px] [@media(min-height:740px)]:mb-[16px] [@media(min-height:840px)]:mb-[24px] lg:mb-[16px] 3xl:mb-[40px]">
                 <Link href="/" className="hidden md:block p-0 m-0 w-fit">
@@ -123,7 +104,7 @@ export default function SignupPage() {
               </div>
 
               {/* Form Fields */}
-              <form className="flex flex-col gap-[8px] [@media(min-height:740px)]:gap-[12px] [@media(min-height:840px)]:gap-[16px] lg:gap-[12px] 3xl:gap-[20px]" onSubmit={handleRequestCode}>
+              <form className="flex flex-col gap-[8px] [@media(min-height:740px)]:gap-[12px] [@media(min-height:840px)]:gap-[16px] lg:gap-[12px] 3xl:gap-[20px]" onSubmit={handleRegister}>
                 
                 {/* Name */}
                 <div className="flex flex-col sm:flex-row gap-[8px]">
@@ -280,40 +261,6 @@ export default function SignupPage() {
               </div>
 
             </div>
-          ) : (
-            /* VERIFICATION STEP */
-            <form onSubmit={handleFinalRegister} className="flex flex-col gap-[28px] animate-in fade-in slide-in-from-right-8 duration-500">
-                <div className="flex flex-col gap-[20px]">
-                  <h3 className="font-sans font-medium text-[24px] text-[#000000] mb-[20px]">
-                    {t('Enter Verification Code', 'Entrez le code de vérification')}
-                  </h3>
-                  <div className="w-full border border-[#D9D9D9] rounded-[10px] overflow-hidden">
-                    <input 
-                      type="text" 
-                      placeholder="123456" 
-                      maxLength={6} 
-                      value={code} 
-                      onChange={(e) => setCode(e.target.value)} 
-                      className="w-full h-[60px] bg-transparent text-center text-3xl tracking-[0.5em] font-mono font-bold outline-none text-[#000000] focus:bg-gray-50 transition-colors" 
-                      autoFocus 
-                    />
-                  </div>
-                  <p className="font-sans text-[14px] text-[#555C60] text-center">
-                    {t('We sent a verification code to your email.', 'Nous avons envoyé un code à votre e-mail.')}
-                  </p>
-                </div>
-                <button 
-                  type="submit" 
-                  disabled={isLoading} 
-                  className="w-full h-[32px] bg-[#174CD2] rounded-[10px] flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50 gap-2"
-                >
-                  {isLoading ? <Loader2 className="animate-spin w-[20px] h-[20px] text-white"/> : <><FaCheck className="text-white"/> <span className="text-white font-sans font-bold">{t('Verify & Create Account', 'Vérifier & Créer le compte')}</span></>}
-                </button>
-                <button type="button" onClick={() => setStep('FORM')} className="text-[#000000] hover:underline hover:text-[#174CD2] text-[14px] font-sans">
-                  {t('Change email address', 'Changer d\'adresse e-mail')}
-                </button>
-            </form>
-          )}
 
         </div>
       </div>
