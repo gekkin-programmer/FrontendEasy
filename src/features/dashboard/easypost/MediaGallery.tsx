@@ -444,7 +444,7 @@ export default function MediaGallery({
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" multiple />
 
       {/* Explorer Grid — scrollable folder area */}
-      <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[160px] pt-1">
+      <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[400px] pt-1 pb-3 sm:px-1">
         <div className="flex flex-col sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-6">
           {isLoading ? (
             <>

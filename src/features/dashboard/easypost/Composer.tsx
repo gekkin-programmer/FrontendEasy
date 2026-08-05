@@ -843,7 +843,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:px-6 md:-mx-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:pl-6 md:-ml-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
             
             {/* Single horizontal line on mobile without scroll, flex-row on desktop */}
             <div className="flex flex-nowrap items-center justify-center md:justify-start gap-1 py-1 md:pb-0 px-1 shrink-0 w-full max-w-full md:w-auto min-w-0 overflow-hidden">
@@ -901,7 +901,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                           <Popover open={isTimeOpenDesktop} onOpenChange={setIsTimeOpenDesktop}>
                             <PopoverTrigger asChild>
                               <button
-                                className="hidden md:flex shrink-0 px-3 py-2 text-xs font-semibold bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] text-[#040028] dark:text-white hover:border-[#174CD2]/40 transition-all items-center gap-2 h-[38px]"
+                                className="hidden md:flex shrink-0 px-3 py-2 text-xs font-semibold bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] text-[#040028] dark:text-white transition-all items-center gap-2 h-[38px] outline-none focus:outline-none focus-visible:outline-none"
                               >
                                 <Clock size={12} />
                                 {selectedTimeSlot ? selectedTimeSlot.label : t('Select a time', 'Choisir une heure')}

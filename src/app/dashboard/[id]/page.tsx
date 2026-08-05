@@ -876,7 +876,6 @@ function DashboardContent() {
                                                 <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{t("Queue", "File d'attente")}</h2>
                                             </div>
                                             <NeuCard className="relative overflow-hidden rounded-none border border-[#D9D9D9] dark:border-white/10 pt-4">
-                                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
