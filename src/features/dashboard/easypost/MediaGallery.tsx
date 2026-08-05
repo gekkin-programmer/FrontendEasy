@@ -359,7 +359,7 @@ export default function MediaGallery({
 
       {/* Toolbar — fixed top block, totally opaque */}
       <div className="relative z-20 shrink-0 flex flex-col gap-3 bg-white dark:bg-[#0A0A2E] pb-2 px-2 sm:px-0">
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between p-0 sm:p-3 rounded-none sm:rounded-[14px] border-0 sm:border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-white sm:bg-[#F7F6F3] dark:bg-[#0A0A2E] sm:dark:bg-white/5 border-b sm:border-b-0 border-[#E5E5E5] dark:border-white/10 pb-3 sm:pb-0">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between p-0 sm:p-3 rounded-none sm:rounded-[14px] border-0 sm:border border-black/5 dark:border-white/5 text-[#040028] dark:text-white bg-white sm:bg-[#F7F6F3] dark:bg-[#0A0A2E] sm:dark:bg-white/5 border-b sm:border-b-0 border-[#E5E5E5] dark:border-white/10 pb-3 sm:pb-5">
           <div className="flex flex-row items-center justify-between w-full sm:w-auto">
             <div className="flex items-center gap-3">
               {currentFolderId && (
