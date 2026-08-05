@@ -183,6 +183,10 @@ export default function MediaGallery({
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [folderPath, setFolderPath] = useState<{ id: string, name: string }[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
+  // Per-file byte progress (0-100), keyed by a client-generated id. fetch() has no
+  // upload-progress event, so these uploads go through XHR instead of api.post —
+  // that's the only way to get a real percentage rather than faking one.
+  const [uploadingFiles, setUploadingFiles] = useState<{ id: string; name: string; percent: number }[]>([]);
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const pinnedKey = `media_pinned_folders_${workspaceId}`;
@@ -307,21 +311,35 @@ export default function MediaGallery({
     let done = 0;
     const results = await Promise.allSettled(
       files.map(async (file) => {
-        if (file.size > MAX_FILE_SIZE) {
-          throw new Error(`${file.name}: ${t('File too large. Maximum size is 500 MB.', 'Fichier trop volumineux. Taille maximale : 500 Mo.')}`);
-        }
-        const formData = new FormData();
-        formData.append('file', file);
-        if (currentFolderId) formData.append('folderId', currentFolderId);
-        if (workspaceId) formData.append('workspaceId', workspaceId);
+        const uploadId = `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`;
+        setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, percent: 0 }]);
         try {
-          await api.post('/media/upload', formData);
-        } catch (err: any) {
-          console.error('[MediaGallery] Upload failed', { fileName: file.name, fileType: file.type, err });
-          throw new Error(`${file.name}: ${err?.message || 'Unknown error'}`);
+          if (file.size > MAX_FILE_SIZE) {
+            throw new Error(`${file.name}: ${t('File too large. Maximum size is 500 MB.', 'Fichier trop volumineux. Taille maximale : 500 Mo.')}`);
+          }
+          const formData = new FormData();
+          formData.append('file', file);
+          if (currentFolderId) formData.append('folderId', currentFolderId);
+          if (workspaceId) formData.append('workspaceId', workspaceId);
+          try {
+            await api.uploadWithProgress('/media/upload', formData, (percent) => {
+              setUploadingFiles((prev) => prev.map((f) => f.id === uploadId ? { ...f, percent } : f));
+            });
+          } catch (err: any) {
+            console.error('[MediaGallery] Upload failed', { fileName: file.name, fileType: file.type, err });
+            throw new Error(`${file.name}: ${err?.message || 'Unknown error'}`);
+          }
+          done++;
+          setUploadProgress({ done, total: files.length });
+          // Stays mounted at 100% for a beat so the fill animation is visible,
+          // then the real thumbnail takes over once the grid refetches.
+          setUploadingFiles((prev) => prev.map((f) => f.id === uploadId ? { ...f, percent: 100 } : f));
+          setTimeout(() => setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId)), 400);
+        } catch (err) {
+          // Failed before completion — remove immediately rather than faking 100%.
+          setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
+          throw err;
         }
-        done++;
-        setUploadProgress({ done, total: files.length });
       })
     );
     setUploadProgress(null);
@@ -411,9 +429,7 @@ export default function MediaGallery({
               className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[#040028] dark:text-white text-xs font-semibold transition-all"
             >
               <FiUploadCloud size={14} />
-              {uploadProgress
-                ? t(`${uploadProgress.done}/${uploadProgress.total} uploading...`, `${uploadProgress.done}/${uploadProgress.total} en cours...`)
-                : t("Upload asset", "Importer un média")}
+              {t("Upload asset", "Importer un média")}
             </button>
             <button
               onClick={handleCanvaClick}
@@ -457,6 +473,38 @@ export default function MediaGallery({
             </>
           ) : (
             <AnimatePresence mode="popLayout">
+              {/* 0. In-flight uploads — a real gauge driven by XHR progress events,
+                  not a fake animation. Each tile is replaced by the real thumbnail
+                  once the grid refetches on upload success. */}
+              {uploadingFiles.map((f) => {
+                const radius = 26;
+                const circumference = 2 * Math.PI * radius;
+                return (
+                  <motion.div
+                    key={f.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex flex-row sm:flex-col items-center justify-center gap-4 sm:gap-2 p-4 rounded-none sm:rounded-[14px] border-b sm:border border-[#E5E5E5] sm:border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] sm:aspect-square"
+                  >
+                    <svg width="64" height="64" viewBox="0 0 64 64" className="shrink-0 -rotate-90">
+                      <circle cx="32" cy="32" r={radius} fill="none" stroke="currentColor" strokeWidth="5" className="text-[#E5E5E5] dark:text-white/10" />
+                      <circle
+                        cx="32" cy="32" r={radius} fill="none" stroke="#174CD2" strokeWidth="5" strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={circumference * (1 - f.percent / 100)}
+                        style={{ transition: 'stroke-dashoffset 150ms linear' }}
+                      />
+                      <text x="32" y="32" textAnchor="middle" dominantBaseline="central" className="text-[13px] font-bold fill-[#040028] dark:fill-white" style={{ transform: 'rotate(90deg)', transformOrigin: '32px 32px' }}>
+                        {f.percent}%
+                      </text>
+                    </svg>
+                    <span className="text-xs font-semibold text-center truncate w-full text-[#040028] dark:text-white">{f.name}</span>
+                  </motion.div>
+                );
+              })}
+
               {/* 1. Folders */}
               {[...folders].sort((a, b) => (pinnedFolderIds.includes(b.id) ? 1 : 0) - (pinnedFolderIds.includes(a.id) ? 1 : 0)).map((folder: any) => (
                 <motion.div

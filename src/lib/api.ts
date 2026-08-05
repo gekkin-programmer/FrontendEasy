@@ -39,8 +39,53 @@ export const api = {
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  delete: <T>(endpoint: string, options?: FetchOptions) => 
+  delete: <T>(endpoint: string, options?: FetchOptions) =>
     request<T>(endpoint, { ...options, method: 'DELETE' }),
+
+  // fetch() has no upload-progress event — XHR is the only way to get a real
+  // percentage instead of faking one. Same auth/URL handling as request(),
+  // minus the retry/redirect niceties that don't apply mid-upload.
+  uploadWithProgress: <T>(endpoint: string, formData: FormData, onProgress: (percent: number) => void): Promise<T> =>
+    new Promise((resolve, reject) => {
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${BASE_URL}${cleanEndpoint}`);
+      xhr.withCredentials = true;
+      const token = getCookie('accessToken');
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+      };
+
+      xhr.onload = () => {
+        let data: any = {};
+        try { data = xhr.responseText ? JSON.parse(xhr.responseText) : {}; } catch { /* non-JSON response */ }
+        if (xhr.status === 401) {
+          deleteCookie('accessToken');
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            window.location.href = '/login?reason=expired';
+          }
+          reject(new Error('UNAUTHORIZED'));
+          return;
+        }
+        if (xhr.status < 200 || xhr.status >= 300) {
+          console.error(`API_ERROR [${xhr.status}] ${cleanEndpoint}`, data);
+          const apiError = new Error(data.message || `API_ERR_${xhr.status}`);
+          (apiError as any).status = xhr.status;
+          reject(apiError);
+          return;
+        }
+        resolve(data as T);
+      };
+
+      xhr.onerror = () => {
+        console.error("NETWORK_DISCONNECTED :: Check 3G/Fiber status");
+        reject(new Error('NETWORK_OFFLINE'));
+      };
+
+      xhr.send(formData);
+    }),
 };
 
 async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
