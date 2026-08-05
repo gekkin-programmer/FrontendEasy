@@ -14,7 +14,7 @@
     "i18n:check": "node scripts/check-i18n.mjs",
     "jira": "node scripts/jira.mjs",
     "verify": "pnpm lint && pnpm test && pnpm build",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
     "@astryxdesign/core": "^0.1.8",
