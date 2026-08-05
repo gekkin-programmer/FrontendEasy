@@ -625,7 +625,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
       </div>
       <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
-      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border-l md:border-r md:border-b md:border-[#D9D9D9] md:dark:border-white/10 rounded-none relative overflow-hidden md:overflow-visible transition-all">
+      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border-l md:border-r md:border-b md:border-[#D9D9D9] md:dark:border-white/10 rounded-none relative overflow-hidden transition-all">
 
         {/* MOBILE HEADER */}
         <div className="md:hidden flex items-center justify-between w-full mb-4 px-1 min-w-0">
@@ -846,7 +846,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:pl-6 md:-ml-6 md:w-[calc(100%+74px)] md:max-w-[calc(100%+74px)] md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
             
             {/* Single horizontal line on mobile without scroll, flex-row on desktop */}
             <div className="flex flex-nowrap items-center justify-center md:justify-start gap-1 py-1 md:pb-0 px-1 shrink-0 w-full max-w-full md:w-auto min-w-0 overflow-hidden">
