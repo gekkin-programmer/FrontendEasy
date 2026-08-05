@@ -798,7 +798,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="pt-2 pb-1 md:px-6 md:pt-1 md:pb-2 transition-colors relative">
+        <div className="pt-2 pb-1 md:px-6 md:pt-0 md:pb-2 transition-colors relative">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[380px]")} />
 
           {mediaPreviews.length > 0 && (
@@ -849,7 +849,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           />
 
           {/* Desktop & Mobile Responsive Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:pl-6 md:-ml-6 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:pl-6 md:-ml-6 md:w-[calc(100%+24px)] md:max-w-[calc(100%+24px)] md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
             
             {/* Single horizontal line on mobile without scroll, flex-row on desktop */}
             <div className="flex flex-nowrap items-center justify-center md:justify-start gap-1 py-1 md:pb-0 px-1 shrink-0 w-full max-w-full md:w-auto min-w-0 overflow-hidden">

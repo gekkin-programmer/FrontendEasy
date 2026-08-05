@@ -182,7 +182,6 @@ export default function MediaGallery({
   // Navigation State
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [folderPath, setFolderPath] = useState<{ id: string, name: string }[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   // Per-file byte progress (0-100), keyed by a client-generated id. fetch() has no
   // upload-progress event, so these uploads go through XHR instead of api.post —
   // that's the only way to get a real percentage rather than faking one.
@@ -244,20 +243,6 @@ export default function MediaGallery({
   const storageQuota = STORAGE_QUOTA_BYTES[planType] ?? STORAGE_QUOTA_BYTES.FREE;
 
   // 3. Mutations
-  const uploadMutation = useMutation({
-    mutationFn: (file: File) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      if (currentFolderId) formData.append('folderId', currentFolderId);
-      if (workspaceId) formData.append('workspaceId', workspaceId);
-      return api.post('/media/upload', formData);
-    },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['media'] });
-        queryClient.invalidateQueries({ queryKey: ['media-usage'] });
-    }
-  });
-
   const createFolderMutation = useMutation({
     mutationFn: (name: string) => api.post<any>('/media/folders', { name, parentId: currentFolderId, workspaceId }),
     onSuccess: (res) => {
@@ -307,8 +292,6 @@ export default function MediaGallery({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    setUploadProgress({ done: 0, total: files.length });
-    let done = 0;
     const results = await Promise.allSettled(
       files.map(async (file) => {
         const uploadId = `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`;
@@ -329,8 +312,6 @@ export default function MediaGallery({
             console.error('[MediaGallery] Upload failed', { fileName: file.name, fileType: file.type, err });
             throw new Error(`${file.name}: ${err?.message || 'Unknown error'}`);
           }
-          done++;
-          setUploadProgress({ done, total: files.length });
           // Stays mounted at 100% for a beat so the fill animation is visible,
           // then the real thumbnail takes over once the grid refetches.
           setUploadingFiles((prev) => prev.map((f) => f.id === uploadId ? { ...f, percent: 100 } : f));
@@ -342,7 +323,6 @@ export default function MediaGallery({
         }
       })
     );
-    setUploadProgress(null);
 
     const succeeded = results.filter(r => r.status === 'fulfilled').length;
 
@@ -461,7 +441,7 @@ export default function MediaGallery({
 
       {/* Explorer Grid — scrollable folder area */}
       <div className="relative z-10 flex-1 overflow-y-auto bg-white dark:bg-[#0A0A2E] scrollbar-hide min-h-[400px] pt-1 pb-3 sm:px-1">
-        <div className="flex flex-col sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-6">
+        <div className="flex flex-col sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-6 pb-4">
           {isLoading ? (
             <>
               {[...Array(10)].map((_, i) => (
