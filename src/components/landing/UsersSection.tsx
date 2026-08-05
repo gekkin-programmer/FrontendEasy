@@ -16,7 +16,7 @@ const USER_PHOTOS_BY_CATEGORY = [
     { id: 'c3', img: 'https://picsum.photos/id/1011/400/620', height: 620, name: 'Blanche Bally', followers: '1.1M Followers', platform: 'Facebook' },
     { id: 'c4', img: 'https://picsum.photos/id/1012/400/460', height: 460, name: 'Kwame O.', followers: '850K Followers', platform: 'YouTube' },
     { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers', platform: 'Instagram' },
-    { id: 'c6', img: 'https://picsum.photos/id/1025/400/640', height: 640, name: 'Jordan Lee', followers: '2.3M Followers', platform: 'TikTok' },
+    { id: 'c6', img: '/images/claudio-njalla.jpg', height: 640, name: 'Claudio Njalla', followers: '2.5M Followers', platform: 'TikTok' },
     { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers', platform: 'Facebook' },
     { id: 'c8', img: 'https://picsum.photos/id/1041/400/440', height: 440, name: 'Selena V.', followers: '1.4M Followers', platform: 'YouTube' },
   ],
