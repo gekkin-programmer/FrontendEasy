@@ -11,10 +11,10 @@ import Masonry from '@/components/Masonry';
 const USER_PHOTOS_BY_CATEGORY = [
   // 0: Creators & Influencers
   [
-    { id: 'c1', img: 'https://picsum.photos/id/1027/400/500', height: 500, name: 'Blanche Bahoken', followers: '1.1M Followers', platform: 'Instagram' },
-    { id: 'c2', img: 'https://picsum.photos/id/1005/400/380', height: 380, name: 'Mayole Francine', followers: '1.1M Followers', platform: 'TikTok' },
-    { id: 'c3', img: 'https://picsum.photos/id/1011/400/620', height: 620, name: 'Blanche Bally', followers: '1.1M Followers', platform: 'Facebook' },
-    { id: 'c4', img: 'https://picsum.photos/id/1012/400/460', height: 460, name: 'Kwame O.', followers: '850K Followers', platform: 'YouTube' },
+    { id: 'c1', img: '/images/tenor.jpg', height: 500, name: 'Tenor', followers: '4M Followers', platform: 'Facebook' },
+    { id: 'c2', img: '/images/koc-c.jpg', height: 380, name: 'Ko-C (Kocee)', followers: '1.5M Followers', platform: 'Facebook' },
+    { id: 'c3', img: '/images/christian-abegan.jpg', height: 620, name: 'Christian Abegan', followers: '4.6K Followers', platform: 'Instagram' },
+    { id: 'c4', img: '/images/maahlox-le-vibeur.webp', height: 460, name: 'Maahlox Le Vibeur', followers: '341K Followers', platform: 'Instagram' },
     { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers', platform: 'Instagram' },
     { id: 'c6', img: '/images/claudio-njalla.jpg', height: 640, name: 'Claudio Njalla', followers: '2.5M Followers', platform: 'TikTok' },
     { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers', platform: 'Facebook' },
