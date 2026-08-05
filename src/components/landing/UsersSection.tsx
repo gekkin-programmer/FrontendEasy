@@ -25,22 +25,22 @@ const USER_PHOTOS_BY_CATEGORY: UserPhoto[][] = [
   ],
   // 1: Small & Medium Businesses
   [
-    { id: 's1', img: '/logos/SN_SHOES.jpeg', height: 500, name: '' },
-    { id: 's2', img: '/logos/YXNGERAKODE.jpeg', height: 380, name: '' },
+    { id: 's1', img: '/logos/SN_SHOES.jpeg', height: 500, name: 'S_n Shoes' },
+    { id: 's2', img: '/logos/YXNGERAKODE.jpeg', height: 380, name: 'Yxng Era Kode Agency' },
     { id: 's3', img: '/logos/ATLstudio.PNG', height: 620, name: 'ATL Studio' },
     { id: 's4', img: '/logos/BookHub.jpeg', height: 460, name: 'Bookhub.cm' },
-    { id: 's5', img: '/logos/dibato.PNG', height: 560, name: '' },
+    { id: 's5', img: '/logos/dibato.PNG', height: 560, name: 'Dibato' },
     { id: 's6', img: '/logos/MaxBurger.jpeg', height: 640, name: 'Max Burger Grill' },
-    { id: 's7', img: '/logos/newDelices.png', height: 500, name: "" },
-    { id: 's8', img: '/logos/PBD.jpg', height: 440, name: '' },
+    { id: 's7', img: '/logos/newDelices.png', height: 500, name: "Délices d'Edith" },
+    { id: 's8', img: '/logos/PBD.jpg', height: 440, name: 'PBD - Prestige Bio Derma' },
   ],
   // 2: Agencies
   [
-    { id: 'a1', img: '/logos/mbiydzela.jpg', height: 500 },
-    { id: 'a2', img: '/logos/vitna.png', height: 380 },
-    { id: 'a3', img: '/logos/didacweb.jpg', height: 620 },
-    { id: 'a4', img: '/logos/adjemson.jpg', height: 460 },
-    { id: 'a5', img: '/logos/numerix.png', height: 560 },
+    { id: 'a1', img: '/logos/mbiydzela.jpg', height: 500, name: 'Mbiydzela Digital' },
+    { id: 'a2', img: '/logos/vitna.png', height: 380, name: 'Vitna Media' },
+    { id: 'a3', img: '/logos/didacweb.jpg', height: 620, name: 'Didac Web' },
+    { id: 'a4', img: '/logos/adjemson.jpg', height: 460, name: 'Adjemson & Consulting' },
+    { id: 'a5', img: '/logos/numerix.png', height: 560, name: 'Numerix Media' },
     { id: 'a6', img: 'https://picsum.photos/id/1065/400/640', height: 640, name: 'NovaAds', followers: '260K Followers', platform: 'TikTok' },
     { id: 'a7', img: 'https://picsum.photos/id/1066/400/500', height: 500, name: 'Reach Collective', followers: '180K Followers', platform: 'Facebook' },
     { id: 'a8', img: 'https://picsum.photos/id/1067/400/440', height: 440, name: 'Clicksmith', followers: '75K Followers', platform: 'YouTube' },
@@ -331,7 +331,16 @@ export default function UsersSection() {
             <div className="hidden md:block absolute top-[400px] left-0 right-0 bottom-[40px] z-20 px-4">
               <Masonry
                 key={selectedCard}
-                items={USER_PHOTOS_BY_CATEGORY[selectedCard]}
+                items={
+                  // SME/Agency tiles are business logos that already read fine on
+                  // their own on desktop — no name overlay there (mobile still
+                  // shows it, see the profile cards below, since a small
+                  // thumbnail next to text needs the label to be legible).
+                  selectedCard === 1 || selectedCard === 2
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    ? USER_PHOTOS_BY_CATEGORY[selectedCard].map(({ name, followers, ...rest }) => rest)
+                    : USER_PHOTOS_BY_CATEGORY[selectedCard]
+                }
                 ease="power3.out"
                 duration={0.6}
                 stagger={0.05}
@@ -351,34 +360,58 @@ export default function UsersSection() {
           {/* Large Blue Background Box containing audience card carousel, dot indicators, and vertical profile cards */}
           <div className="w-full max-w-[500px] bg-[#174CD2] rounded-[30px] sm:rounded-[40px] pt-8 pb-10 px-4 sm:px-6 flex flex-col items-center shadow-xl box-border">
             
-            {/* Audience Cards Carousel */}
-            <div className="w-[260px] mx-auto overflow-hidden py-2 relative z-10">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out w-[1040px]"
-                style={{ transform: `translateX(-${selectedCard * 260}px)` }}
-                onTouchStart={onTouchStart}
-                onTouchMove={onTouchMove}
-                onTouchEnd={onTouchEnd}
+            {/* Audience Cards Carousel — swipe still works, plus explicit arrows */}
+            <div className="w-full flex items-center justify-center gap-1 relative z-10">
+              <button
+                type="button"
+                onClick={() => setSelectedCard((prev) => (prev - 1 + 4) % 4)}
+                aria-label={t('Previous category', 'Catégorie précédente')}
+                className="shrink-0 w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center transition-all"
               >
-                {[0, 1, 2, 3].map((index) => {
-                  const baseMobileClasses = "relative bg-white rounded-[10px] cursor-pointer w-[229px] h-[231px] transition-all duration-300 origin-center mx-auto";
-                  const isSelected = selectedCard === index;
-                  const mobileClasses = isSelected 
-                    ? `${baseMobileClasses} shadow-2xl scale-[1.02] z-20` 
-                    : `${baseMobileClasses} shadow-[0px_4px_4px_rgba(0,0,0,0.15)] opacity-60 scale-95 z-10`;
-                  
-                  return (
-                    <div key={index} className="w-[260px] flex-shrink-0 flex justify-center items-center">
-                      <div 
-                        onClick={() => setSelectedCard(index)}
-                        className={mobileClasses}
-                      >
-                        {renderCardContent(index)}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+
+              <div className="w-[260px] overflow-hidden py-2">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out w-[1040px]"
+                  style={{ transform: `translateX(-${selectedCard * 260}px)` }}
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
+                  {[0, 1, 2, 3].map((index) => {
+                    const baseMobileClasses = "relative bg-white rounded-[10px] cursor-pointer w-[229px] h-[231px] transition-all duration-300 origin-center mx-auto";
+                    const isSelected = selectedCard === index;
+                    const mobileClasses = isSelected
+                      ? `${baseMobileClasses} shadow-2xl scale-[1.02] z-20`
+                      : `${baseMobileClasses} shadow-[0px_4px_4px_rgba(0,0,0,0.15)] opacity-60 scale-95 z-10`;
+
+                    return (
+                      <div key={index} className="w-[260px] flex-shrink-0 flex justify-center items-center">
+                        <div
+                          onClick={() => setSelectedCard(index)}
+                          className={mobileClasses}
+                        >
+                          {renderCardContent(index)}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedCard((prev) => (prev + 1) % 4)}
+                aria-label={t('Next category', 'Catégorie suivante')}
+                className="shrink-0 w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center transition-all"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 6L15 12L9 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
             </div>
 
             {/* Dot Indicators */}
