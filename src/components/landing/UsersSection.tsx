@@ -15,10 +15,10 @@ const USER_PHOTOS_BY_CATEGORY = [
     { id: 'c2', img: '/images/koc-c.jpg', height: 380, name: 'Ko-C (Kocee)', followers: '1.5M Followers', platform: 'Facebook' },
     { id: 'c3', img: '/images/christian-abegan.jpg', height: 620, name: 'Christian Abegan', followers: '4.6K Followers', platform: 'Instagram' },
     { id: 'c4', img: '/images/maahlox-le-vibeur.webp', height: 460, name: 'Maahlox Le Vibeur', followers: '341K Followers', platform: 'Instagram' },
-    { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers', platform: 'Instagram' },
+    { id: 'c5', img: '/images/muriel-blanche.jpg', height: 560, name: 'Muriel Blanche', followers: '3.9M Followers', platform: 'TikTok' },
     { id: 'c6', img: '/images/claudio-njalla.jpg', height: 640, name: 'Claudio Njalla', followers: '2.5M Followers', platform: 'TikTok' },
-    { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers', platform: 'Facebook' },
-    { id: 'c8', img: 'https://picsum.photos/id/1041/400/440', height: 440, name: 'Selena V.', followers: '1.4M Followers', platform: 'YouTube' },
+    { id: 'c7', img: '/images/rosine-nguemgaing.jpg', height: 500, name: 'Rosine Nguemgaing', followers: '5M Followers', platform: 'TikTok' },
+    { id: 'c8', img: '/images/celeste-victorien.jpg', height: 440, name: 'Céleste Victorien', platform: 'TikTok' },
   ],
   // 1: Small & Medium Businesses
   [
