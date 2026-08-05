@@ -561,70 +561,74 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      {/* DESKTOP TITLE — sits directly on the outer NeuCard's #F7F6F3 background,
-          not inside the white content box below. */}
-      <h2 className="hidden md:flex text-xl font-bold items-center gap-2 text-[#040028] dark:text-white px-4 md:px-6">
-          {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}
-      </h2>
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
+      {/* DESKTOP HEADER — title + targets row, grouped into one block so the gap-8
+          on the outer flex only applies once (after this group, not between the
+          two), then pulled down with -mb-8 to cancel that remaining gap entirely
+          so it touches the white content box. Bordered on t/l/r to fuse with the
+          white box's own border (which drops its top border to match) into what
+          reads as a single card. */}
+      <div className="hidden md:flex md:flex-col gap-3 md:bg-[#F7F6F3] md:dark:bg-white/5 md:border md:border-b-0 md:border-[#D9D9D9] md:dark:border-white/10 pt-4 px-4 md:px-6 pb-3 -mb-8">
+        <h2 className="text-xl font-bold flex items-center gap-2 text-[#040028] dark:text-white">
+            {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}
+        </h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
 
-      {/* TARGETS ROW — same gray background as the title, above the white content box. */}
-      <div className="hidden md:flex px-4 md:px-6 items-center justify-between transition-colors -mt-4">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
+            {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
+                const isExpired = acc.isActive === false;
+                const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
+                return (
+                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shrink-0" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                    <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
+                    <img
+                      src={avatarSrc}
+                      className="absolute inset-0 w-full h-full object-cover rounded-full"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      alt=""
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center overflow-hidden"><PlatformIcon platform={acc.platform} size={16} /></div>
+                    {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+                  </div>
+                );
+            })}
 
-          {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
-              const isExpired = acc.isActive === false;
-              const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
-              return (
-                <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shrink-0" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
-                  <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
-                  <img
-                    src={avatarSrc}
-                    className="absolute inset-0 w-full h-full object-cover rounded-full"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    alt=""
-                  />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center overflow-hidden"><PlatformIcon platform={acc.platform} size={16} /></div>
-                  {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
+                  <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="right" sideOffset={8}>
+                <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
+                <div className="max-h-60 overflow-y-auto">
+                  {accounts.map((acc) => {
+                    const isExpired = acc.isActive === false;
+                    const isSelected = selectedAccountIds.includes(acc.id);
+                    return (
+                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-[#174CD2]/8 cursor-pointer")}>
+                        <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center", isExpired ? "border-red-500" : "border-black/20 dark:border-white/20")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 rounded-[2px] bg-[#174CD2]" />)}</div>
+                        <div className="flex-1"><div className={cn("text-xs font-semibold text-[#040028] dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[10px] text-[#8E8E8E]">{acc.platform} {isExpired && `(${t("expired", "expiré")})`}</div></div>
+                        <PlatformIcon platform={acc.platform} size={14} />
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-          })}
+              </PopoverContent>
+            </Popover>
+          </div>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
-                <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="right" sideOffset={8}>
-              <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
-              <div className="max-h-60 overflow-y-auto">
-                {accounts.map((acc) => {
-                  const isExpired = acc.isActive === false;
-                  const isSelected = selectedAccountIds.includes(acc.id);
-                  return (
-                    <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-[#174CD2]/8 cursor-pointer")}>
-                      <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center", isExpired ? "border-red-500" : "border-black/20 dark:border-white/20")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 rounded-[2px] bg-[#174CD2]" />)}</div>
-                      <div className="flex-1"><div className={cn("text-xs font-semibold text-[#040028] dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[10px] text-[#8E8E8E]">{acc.platform} {isExpired && `(${t("expired", "expiré")})`}</div></div>
-                      <PlatformIcon platform={acc.platform} size={14} />
-                    </div>
-                  );
-                })}
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="flex gap-2 shrink-0">
-           <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-1.5 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
-              <LayoutGrid size={12} /> <span>{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
-           </button>
+          <div className="flex gap-2 shrink-0">
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-1.5 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
+                <LayoutGrid size={12} /> <span>{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
+             </button>
+          </div>
         </div>
       </div>
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
 
-      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border md:border-[#D9D9D9] md:dark:border-white/10 rounded-none relative overflow-hidden transition-all">
+      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border-l md:border-r md:border-b md:border-[#D9D9D9] md:dark:border-white/10 rounded-none relative overflow-hidden transition-all">
 
         {/* MOBILE HEADER */}
         <div className="md:hidden flex items-center justify-between w-full mb-4 px-1 min-w-0">
