@@ -4,11 +4,14 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import Masonry from '@/components/Masonry';
 
-// Placeholder web images — swap for real user photos later. One set per
-// audience card (Creators / SMEs / Agencies / Organizations) so the gallery
-// actually changes when a different card is selected, matching the category
-// cards above it.
-const USER_PHOTOS_BY_CATEGORY = [
+// One set per audience card (Creators / SMEs / Agencies / Organizations) so
+// the gallery actually changes when a different card is selected, matching
+// the category cards above it. Mobile reuses this same data (see `influencers`
+// below) instead of a separate hardcoded set, so both views show the same
+// real content. name/followers/platform are optional — several categories
+// intentionally have no name (logos) or no follower count to show.
+type UserPhoto = { id: string; img: string; height: number; name?: string; followers?: string; platform?: string };
+const USER_PHOTOS_BY_CATEGORY: UserPhoto[][] = [
   // 0: Creators & Influencers
   [
     { id: 'c1', img: '/images/tenor.jpg', height: 500, name: 'Tenor', followers: '4M Followers', platform: 'Facebook' },
@@ -222,118 +225,66 @@ export default function UsersSection() {
     }
   };
 
-  const influencersData = [
-    // 0: Creators & Influencers
-    [
-      {
-        name: "Blanche Bahoken",
-        image: "/star1.png",
-        tiktok: "1.1M",
-        instagram: "1.1M",
-        facebook: "1.1M",
-        position: "md:top-[417px] md:left-[202px] md:rotate-[-2deg]",
-      },
-      {
-        name: "Mayole Francine",
-        image: "/star2.png",
-        tiktok: "1.1M",
-        instagram: "1.1M",
-        facebook: "1.1M",
-        position: "md:top-[500px] md:right-[140px] md:rotate-[2deg]",
-      },
-      {
-        name: "Blanche Bally",
-        image: "/assets/blanche-bailey.png",
-        tiktok: "1.1M",
-        instagram: "1.1M",
-        facebook: "1.1M",
-        position: "md:top-[650px] md:left-[500px] xl:left-[400px] 2xl:left-[500px] md:rotate-[-1deg]",
-      },
-    ],
-    // 1: SMEs
-    [
-      {
-        name: "Boutique Chez Maman",
-        image: "/star1.png",
-        tiktok: "10K",
-        instagram: "25K",
-        facebook: "50K",
-        position: "md:top-[450px] md:left-[300px] xl:left-[250px] 2xl:left-[300px] md:rotate-[3deg]",
-      },
-      {
-        name: "Tech Solutions",
-        image: "/star2.png",
-        tiktok: "5K",
-        instagram: "15K",
-        facebook: "30K",
-        position: "md:top-[550px] md:right-[250px] md:rotate-[-3deg]",
-      },
-      {
-        name: "African Resto",
-        image: "/assets/blanche-bailey.png",
-        tiktok: "50K",
-        instagram: "40K",
-        facebook: "80K",
-        position: "md:top-[700px] md:left-[400px] xl:left-[300px] 2xl:left-[400px] md:rotate-[1deg]",
-      },
-    ],
-    // 2: Agencies
-    [
-      {
-        name: "Digital Pulse Agency",
-        image: "/star1.png",
-        tiktok: "100K",
-        instagram: "200K",
-        facebook: "150K",
-        position: "md:top-[400px] md:left-[250px] md:rotate-[-1deg]",
-      },
-      {
-        name: "Creative Media",
-        image: "/star2.png",
-        tiktok: "80K",
-        instagram: "120K",
-        facebook: "90K",
-        position: "md:top-[520px] md:right-[180px] md:rotate-[4deg]",
-      },
-      {
-        name: "Africa Buzz",
-        image: "/assets/blanche-bailey.png",
-        tiktok: "500K",
-        instagram: "300K",
-        facebook: "400K",
-        position: "md:top-[680px] md:left-[450px] xl:left-[350px] 2xl:left-[450px] md:rotate-[-2deg]",
-      },
-    ],
-    // 3: Organizations
-    [
-      {
-        name: "Ministère de la Santé",
-        image: "/star1.png",
-        tiktok: "50K",
-        instagram: "100K",
-        facebook: "500K",
-        position: "md:top-[430px] md:left-[220px] md:rotate-[2deg]",
-      },
-      {
-        name: "ONG Environnement",
-        image: "/star2.png",
-        tiktok: "20K",
-        instagram: "45K",
-        facebook: "120K",
-        position: "md:top-[580px] md:right-[200px] md:rotate-[-1deg]",
-      },
-      {
-        name: "Université Digitale",
-        image: "/assets/blanche-bailey.png",
-        tiktok: "200K",
-        instagram: "150K",
-        facebook: "250K",
-        position: "md:top-[620px] md:left-[550px] xl:left-[450px] 2xl:left-[550px] md:rotate-[1deg]",
-      },
-    ]
-  ];
+  // Mobile profile cards mirror the same real content as the desktop Masonry
+  // gallery (first 3 per category) instead of a separate hardcoded placeholder
+  // set, so switching categories shows the same people/logos on both.
+  const influencers = USER_PHOTOS_BY_CATEGORY[selectedCard].slice(0, 3);
 
-  const influencers = influencersData[selectedCard];
+  const renderMobilePlatformIcon = (platform: string, index: number) => {
+    switch (platform) {
+      case 'TikTok':
+        return (
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
+            <path d="M57.2541 28.8782C62.3986 32.5688 68.7008 34.7403 75.5076 34.7403V21.5954C74.2194 21.5956 72.9345 21.4608 71.6742 21.1929V31.5398C64.868 31.5398 58.5666 29.3683 53.4207 25.678V52.5029C53.4207 65.9221 42.581 76.7997 29.2103 76.7997C24.2214 76.7997 19.5844 75.2861 15.7324 72.6901C20.1288 77.2014 26.2599 79.9999 33.0428 79.9999C46.4143 79.9999 57.2546 69.1223 57.2546 55.7026V28.8782H57.2541ZM61.9829 15.6166C59.3538 12.7341 57.6276 9.00891 57.2541 4.89057V3.19986H53.6214C54.5358 8.43426 57.6546 12.9062 61.9829 15.6166ZM24.1894 62.3927C22.7205 60.4598 21.9267 58.0953 21.9302 55.6641C21.9302 49.5267 26.8882 44.5504 33.0051 44.5504C34.1451 44.5501 35.2782 44.7253 36.3646 45.0712V31.6326C35.095 31.4579 33.8137 31.3838 32.5329 31.411V41.871C31.4457 41.5251 30.312 41.3494 29.1717 41.3505C23.0549 41.3505 18.0971 46.3262 18.0971 52.4645C18.0971 56.8046 20.5753 60.5622 24.1894 62.3927Z" fill="#FF004F"/>
+            <path d="M53.4232 25.6777C58.5691 29.368 64.8705 31.5395 71.6768 31.5395V21.1926C67.8776 20.3804 64.5143 18.388 61.9855 15.6166C57.6569 12.9059 54.5383 8.43399 53.624 3.19986H44.082V55.702C44.0604 61.8227 39.1108 66.7787 33.0071 66.7787C29.4103 66.7787 26.2149 65.0581 24.1911 62.3927C20.5773 60.5622 18.0991 56.8044 18.0991 52.4647C18.0991 46.327 23.0569 41.3507 29.1737 41.3507C30.3457 41.3507 31.4753 41.5339 32.5349 41.8713V31.4113C19.3991 31.6836 8.83472 42.455 8.83472 55.7023C8.83472 62.3152 11.4655 68.3102 15.7353 72.6904C19.5872 75.2861 24.2242 76.8 29.2131 76.8C42.5841 76.8 53.4235 65.9218 53.4235 52.5029V25.6777H53.4232Z" fill="black"/>
+            <path d="M71.6751 21.1927V18.3949C68.2492 18.4002 64.8905 17.4373 61.9839 15.6164C64.5569 18.4435 67.9451 20.3929 71.6751 21.1927ZM53.6223 3.19994C53.5351 2.6997 53.4681 2.19617 53.4216 1.69071V0H40.2467V52.5027C40.2257 58.6226 35.2764 63.5786 29.1721 63.5786C27.38 63.5786 25.6879 63.1516 24.1895 62.393C26.2132 65.0581 29.4086 66.7785 33.0055 66.7785C39.1087 66.7785 44.059 61.8231 44.0804 55.7024V3.19994H53.6223ZM32.5338 31.4114V28.433C31.4329 28.282 30.323 28.2062 29.2118 28.2067C15.8397 28.2065 5 39.0846 5 52.5027C5 60.9151 9.2602 68.3289 15.7339 72.69C11.4641 68.31 8.83336 62.3148 8.83336 55.7021C8.83336 42.4551 19.3975 31.6837 32.5338 31.4114Z" fill="#00F2EA"/>
+          </svg>
+        );
+      case 'Instagram':
+        return (
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
+            <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint0_radial_mob_insta_${index})`}/>
+            <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint1_radial_mob_insta_${index})`}/>
+            <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint2_radial_mob_insta_${index})`}/>
+            <path d="M23 10.5C23 11.3284 22.3284 12 21.5 12C20.6716 12 20 11.3284 20 10.5C20 9.67157 20.6716 9 21.5 9C22.3284 9 23 9.67157 23 10.5Z" fill="white"/>
+            <path fillRule="evenodd" clipRule="evenodd" d="M16 21C18.7614 21 21 18.7614 21 16C21 13.2386 18.7614 11 16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21ZM16 19C17.6569 19 19 17.6569 19 16C19 14.3431 17.6569 13 16 13C14.3431 13 13 14.3431 13 16C13 17.6569 14.3431 19 16 19Z" fill="white"/>
+            <path fillRule="evenodd" clipRule="evenodd" d="M6 15.6C6 12.2397 6 10.5595 6.65396 9.27606C7.2292 8.14708 8.14708 7.2292 9.27606 6.65396C10.5595 6 12.2397 6 15.6 6H16.4C19.7603 6 21.4405 6 22.7239 6.65396C23.8529 7.2292 24.7708 8.14708 25.346 9.27606C26 10.5595 26 12.2397 26 15.6V16.4C26 19.7603 26 21.4405 25.346 22.7239C24.7708 23.8529 23.8529 24.7708 22.7239 25.346C21.4405 26 19.7603 26 16.4 26H15.6C12.2397 26 10.5595 26 9.27606 25.346C8.14708 24.7708 7.2292 23.8529 6.65396 22.7239C6 21.4405 6 19.7603 6 16.4V15.6ZM15.6 8H16.4C18.1132 8 19.2777 8.00156 20.1779 8.0751C21.0548 8.14674 21.5032 8.27659 21.816 8.43597C22.5686 8.81947 23.1805 9.43139 23.564 10.184C23.7234 10.4968 23.8533 10.9452 23.9249 11.8221C23.9984 12.7223 24 13.8868 24 15.6V16.4C24 18.1132 23.9984 19.2777 23.9249 20.1779C23.8533 21.0548 23.7234 21.5032 23.564 21.816C23.1805 22.5686 22.5686 23.1805 21.816 23.564C21.5032 23.7234 21.0548 23.8533 20.1779 23.9249C19.2777 23.9984 18.1132 24 16.4 24H15.6C13.8868 24 12.7223 23.9984 11.8221 23.9249C10.9452 23.8533 10.4968 23.7234 10.184 23.564C9.43139 23.1805 8.81947 22.5686 8.43597 21.816C8.27659 21.5032 8.14674 21.0548 8.0751 20.1779C8.00156 19.2777 8 18.1132 8 16.4V15.6C8 13.8868 8.00156 12.7223 8.0751 11.8221C8.14674 10.9452 8.27659 10.4968 8.43597 10.184C8.81947 9.43139 9.43139 8.81947 10.184 8.43597C10.4968 8.27659 10.9452 8.14674 11.8221 8.0751C12.7223 8.00156 13.8868 8 15.6 8Z" fill="white"/>
+            <defs>
+              <radialGradient id={`paint0_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12 23) rotate(-55.3758) scale(25.5196)">
+                <stop stopColor="#B13589"/><stop offset="0.79309" stopColor="#C62F94"/><stop offset="1" stopColor="#8A3AC8"/>
+              </radialGradient>
+              <radialGradient id={`paint1_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(11 31) rotate(-65.1363) scale(22.5942)">
+                <stop stopColor="#E0E8B7"/><stop offset="0.444662" stopColor="#FB8A2E"/><stop offset="0.71474" stopColor="#E2425C"/><stop offset="1" stopColor="#E2425C" stopOpacity="0"/>
+              </radialGradient>
+              <radialGradient id={`paint2_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0.500002 3) rotate(-8.1301) scale(38.8909 8.31836)">
+                <stop offset="0.156701" stopColor="#406ADC"/><stop offset="0.467799" stopColor="#6A45BE"/><stop offset="1" stopColor="#6A45BE" stopOpacity="0"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        );
+      case 'Facebook':
+        return (
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
+            <circle cx="16" cy="16" r="14" fill={`url(#paint0_linear_mob_fb_${index})`}/>
+            <path d="M21.2137 20.2816L21.8356 16.3301H17.9452V13.767C17.9452 12.6857 18.4877 11.6311 20.2302 11.6311H22V8.26699C22 8.26699 20.3945 8 18.8603 8C15.6548 8 13.5617 9.89294 13.5617 13.3184V16.3301H10V20.2816H13.5617V29.8345C14.2767 29.944 15.0082 30 15.7534 30C16.4986 30 17.2302 29.944 17.9452 29.8345V20.2816H21.2137Z" fill="white"/>
+            <defs>
+              <linearGradient id={`paint0_linear_mob_fb_${index}`} x1="16" y1="2" x2="16" y2="29.917" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#18ACFE"/><stop offset="1" stopColor="#0163E0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        );
+      case 'YouTube':
+        return (
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
+            <circle cx="16" cy="16" r="14" fill="#FC0D1B" />
+            <path d="M13 12V20L21 16L13 12Z" fill="white" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
 
 
   return (
@@ -448,73 +399,29 @@ export default function UsersSection() {
             <div className="w-full flex flex-col items-center gap-4 transition-all duration-300">
               {influencers.map((person, index) => (
                 <div
-                  key={`${selectedCard}-${person.name}`}
+                  key={person.id}
                   className="w-full max-w-[420px] bg-white rounded-[16px] p-3 flex items-center gap-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.01]"
                 >
                   <img
-                    src={person.image}
-                    alt={person.name}
+                    src={person.img}
+                    alt={person.name || ''}
                     className="w-[72px] h-[76px] rounded-[8px] object-cover flex-shrink-0"
                   />
                   <div className="flex flex-col justify-center gap-1 min-w-0">
-                    <h4 className="font-semibold text-[15px] leading-none text-black truncate">
-                      {person.name}
-                    </h4>
-                    <div className="mt-2 flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
-                          <path d="M57.2541 28.8782C62.3986 32.5688 68.7008 34.7403 75.5076 34.7403V21.5954C74.2194 21.5956 72.9345 21.4608 71.6742 21.1929V31.5398C64.868 31.5398 58.5666 29.3683 53.4207 25.678V52.5029C53.4207 65.9221 42.581 76.7997 29.2103 76.7997C24.2214 76.7997 19.5844 75.2861 15.7324 72.6901C20.1288 77.2014 26.2599 79.9999 33.0428 79.9999C46.4143 79.9999 57.2546 69.1223 57.2546 55.7026V28.8782H57.2541ZM61.9829 15.6166C59.3538 12.7341 57.6276 9.00891 57.2541 4.89057V3.19986H53.6214C54.5358 8.43426 57.6546 12.9062 61.9829 15.6166ZM24.1894 62.3927C22.7205 60.4598 21.9267 58.0953 21.9302 55.6641C21.9302 49.5267 26.8882 44.5504 33.0051 44.5504C34.1451 44.5501 35.2782 44.7253 36.3646 45.0712V31.6326C35.095 31.4579 33.8137 31.3838 32.5329 31.411V41.871C31.4457 41.5251 30.312 41.3494 29.1717 41.3505C23.0549 41.3505 18.0971 46.3262 18.0971 52.4645C18.0971 56.8046 20.5753 60.5622 24.1894 62.3927Z" fill="#FF004F"/>
-                          <path d="M53.4232 25.6777C58.5691 29.368 64.8705 31.5395 71.6768 31.5395V21.1926C67.8776 20.3804 64.5143 18.388 61.9855 15.6166C57.6569 12.9059 54.5383 8.43399 53.624 3.19986H44.082V55.702C44.0604 61.8227 39.1108 66.7787 33.0071 66.7787C29.4103 66.7787 26.2149 65.0581 24.1911 62.3927C20.5773 60.5622 18.0991 56.8044 18.0991 52.4647C18.0991 46.327 23.0569 41.3507 29.1737 41.3507C30.3457 41.3507 31.4753 41.5339 32.5349 41.8713V31.4113C19.3991 31.6836 8.83472 42.455 8.83472 55.7023C8.83472 62.3152 11.4655 68.3102 15.7353 72.6904C19.5872 75.2861 24.2242 76.8 29.2131 76.8C42.5841 76.8 53.4235 65.9218 53.4235 52.5029V25.6777H53.4232Z" fill="black"/>
-                          <path d="M71.6751 21.1927V18.3949C68.2492 18.4002 64.8905 17.4373 61.9839 15.6164C64.5569 18.4435 67.9451 20.3929 71.6751 21.1927ZM53.6223 3.19994C53.5351 2.6997 53.4681 2.19617 53.4216 1.69071V0H40.2467V52.5027C40.2257 58.6226 35.2764 63.5786 29.1721 63.5786C27.38 63.5786 25.6879 63.1516 24.1895 62.393C26.2132 65.0581 29.4086 66.7785 33.0055 66.7785C39.1087 66.7785 44.059 61.8231 44.0804 55.7024V3.19994H53.6223ZM32.5338 31.4114V28.433C31.4329 28.282 30.323 28.2062 29.2118 28.2067C15.8397 28.2065 5 39.0846 5 52.5027C5 60.9151 9.2602 68.3289 15.7339 72.69C11.4641 68.31 8.83336 62.3148 8.83336 55.7021C8.83336 42.4551 19.3975 31.6837 32.5338 31.4114Z" fill="#00F2EA"/>
-                        </svg>
-                        <span className="text-[12px] text-gray-700">{person.tiktok} {t("Followers", "Abonnés")}</span>
+                    {person.name && (
+                      <h4 className="font-semibold text-[15px] leading-none text-black truncate">
+                        {person.name}
+                      </h4>
+                    )}
+                    {person.platform && person.followers && (
+                      <div className="mt-2 flex items-center gap-2">
+                        {renderMobilePlatformIcon(person.platform, index)}
+                        <span className="text-[12px] text-gray-700">{person.followers}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
-                          <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint0_radial_mob_insta_${index})`}/>
-                          <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint1_radial_mob_insta_${index})`}/>
-                          <rect x="0" y="0" width="32" height="32" rx="8" fill={`url(#paint2_radial_mob_insta_${index})`}/>
-                          <path d="M23 10.5C23 11.3284 22.3284 12 21.5 12C20.6716 12 20 11.3284 20 10.5C20 9.67157 20.6716 9 21.5 9C22.3284 9 23 9.67157 23 10.5Z" fill="white"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M16 21C18.7614 21 21 18.7614 21 16C21 13.2386 18.7614 11 16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21ZM16 19C17.6569 19 19 17.6569 19 16C19 14.3431 17.6569 13 16 13C14.3431 13 13 14.3431 13 16C13 17.6569 14.3431 19 16 19Z" fill="white"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M6 15.6C6 12.2397 6 10.5595 6.65396 9.27606C7.2292 8.14708 8.14708 7.2292 9.27606 6.65396C10.5595 6 12.2397 6 15.6 6H16.4C19.7603 6 21.4405 6 22.7239 6.65396C23.8529 7.2292 24.7708 8.14708 25.346 9.27606C26 10.5595 26 12.2397 26 15.6V16.4C26 19.7603 26 21.4405 25.346 22.7239C24.7708 23.8529 23.8529 24.7708 22.7239 25.346C21.4405 26 19.7603 26 16.4 26H15.6C12.2397 26 10.5595 26 9.27606 25.346C8.14708 24.7708 7.2292 23.8529 6.65396 22.7239C6 21.4405 6 19.7603 6 16.4V15.6ZM15.6 8H16.4C18.1132 8 19.2777 8.00156 20.1779 8.0751C21.0548 8.14674 21.5032 8.27659 21.816 8.43597C22.5686 8.81947 23.1805 9.43139 23.564 10.184C23.7234 10.4968 23.8533 10.9452 23.9249 11.8221C23.9984 12.7223 24 13.8868 24 15.6V16.4C24 18.1132 23.9984 19.2777 23.9249 20.1779C23.8533 21.0548 23.7234 21.5032 23.564 21.816C23.1805 22.5686 22.5686 23.1805 21.816 23.564C21.5032 23.7234 21.0548 23.8533 20.1779 23.9249C19.2777 23.9984 18.1132 24 16.4 24H15.6C13.8868 24 12.7223 23.9984 11.8221 23.9249C10.9452 23.8533 10.4968 23.7234 10.184 23.564C9.43139 23.1805 8.81947 22.5686 8.43597 21.816C8.27659 21.5032 8.14674 21.0548 8.0751 20.1779C8.00156 19.2777 8 18.1132 8 16.4V15.6C8 13.8868 8.00156 12.7223 8.0751 11.8221C8.14674 10.9452 8.27659 10.4968 8.43597 10.184C8.81947 9.43139 9.43139 8.81947 10.184 8.43597C10.4968 8.27659 10.9452 8.14674 11.8221 8.0751C12.7223 8.00156 13.8868 8 15.6 8Z" fill="white"/>
-                        <defs>
-                          <radialGradient id={`paint0_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(12 23) rotate(-55.3758) scale(25.5196)">
-                            <stop stopColor="#B13589"/>
-                            <stop offset="0.79309" stopColor="#C62F94"/>
-                            <stop offset="1" stopColor="#8A3AC8"/>
-                          </radialGradient>
-                          <radialGradient id={`paint1_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(11 31) rotate(-65.1363) scale(22.5942)">
-                            <stop stopColor="#E0E8B7"/>
-                            <stop offset="0.444662" stopColor="#FB8A2E"/>
-                            <stop offset="0.71474" stopColor="#E2425C"/>
-                            <stop offset="1" stopColor="#E2425C" stopOpacity="0"/>
-                          </radialGradient>
-                          <radialGradient id={`paint2_radial_mob_insta_${index}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0.500002 3) rotate(-8.1301) scale(38.8909 8.31836)">
-                            <stop offset="0.156701" stopColor="#406ADC"/>
-                            <stop offset="0.467799" stopColor="#6A45BE"/>
-                            <stop offset="1" stopColor="#6A45BE" stopOpacity="0"/>
-                          </radialGradient>
-                        </defs>
-                      </svg>
-                      <span className="text-[12px] text-gray-700">{person.instagram} {t("Followers", "Abonnés")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 shrink-0">
-                        <circle cx="16" cy="16" r="14" fill={`url(#paint0_linear_mob_fb_${index})`}/>
-                        <path d="M21.2137 20.2816L21.8356 16.3301H17.9452V13.767C17.9452 12.6857 18.4877 11.6311 20.2302 11.6311H22V8.26699C22 8.26699 20.3945 8 18.8603 8C15.6548 8 13.5617 9.89294 13.5617 13.3184V16.3301H10V20.2816H13.5617V29.8345C14.2767 29.944 15.0082 30 15.7534 30C16.4986 30 17.2302 29.944 17.9452 29.8345V20.2816H21.2137Z" fill="white"/>
-                        <defs>
-                          <linearGradient id={`paint0_linear_mob_fb_${index}`} x1="16" y1="2" x2="16" y2="29.917" gradientUnits="userSpaceOnUse">
-                            <stop stopColor="#18ACFE"/>
-                            <stop offset="1" stopColor="#0163E0"/>
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      <span className="text-[12px] text-gray-700">{person.facebook} {t("Followers", "Abonnés")}</span>
-                    </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>

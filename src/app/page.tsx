@@ -65,7 +65,7 @@ export default function Home() {
       <HeroBackground>
         <div className="flex flex-col w-full h-full">
           {/* Hero Content below Navbar */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 pb-16 md:pb-4 relative overflow-hidden w-full mt-[87px] min-h-[400px] md:min-h-[500px] 3xl:min-h-[750px]">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 pt-2 md:pt-4 pb-16 md:pb-4 relative overflow-hidden w-full mt-[87px] min-h-[400px] md:min-h-[500px] 3xl:min-h-[750px]">
             <div className="relative w-[230px] h-[250px] mb-10 sm:w-[300px] sm:h-[275px] sm:mb-0 md:w-[350px] md:h-[320px] lg:w-[393px] lg:h-[355px] scale-[0.95] md:scale-[0.8] lg:scale-[0.95] xl:scale-[1.0] 2xl:scale-[1.15] 3xl:scale-[1.6] transition-transform duration-300">
               {/* Mobile Horizontal Lines - vertically centered on the cube, spans full viewport width so icons appear to enter/exit its left and right points */}
               <div className="md:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-[130vw] -z-10 pointer-events-none">
