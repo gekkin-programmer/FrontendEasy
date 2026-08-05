@@ -220,6 +220,11 @@ const Masonry = ({
             {colorShiftOnHover && (
               <div className="color-overlay absolute inset-0 rounded-[10px] bg-gradient-to-tr from-pink-500/50 to-sky-500/50 opacity-0 pointer-events-none" />
             )}
+            {item.platform && (
+              <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm normal-case">
+                <p className="text-white text-[10px] font-semibold leading-none truncate">{item.platform}</p>
+              </div>
+            )}
             {(item.name || item.followers) && (
               <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 bg-gradient-to-t from-black/70 via-black/25 to-transparent normal-case">
                 {item.name && (

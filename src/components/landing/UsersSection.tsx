@@ -11,47 +11,47 @@ import Masonry from '@/components/Masonry';
 const USER_PHOTOS_BY_CATEGORY = [
   // 0: Creators & Influencers
   [
-    { id: 'c1', img: 'https://picsum.photos/id/1027/400/500', height: 500, name: 'Blanche Bahoken', followers: '1.1M Followers' },
-    { id: 'c2', img: 'https://picsum.photos/id/1005/400/380', height: 380, name: 'Mayole Francine', followers: '1.1M Followers' },
-    { id: 'c3', img: 'https://picsum.photos/id/1011/400/620', height: 620, name: 'Blanche Bally', followers: '1.1M Followers' },
-    { id: 'c4', img: 'https://picsum.photos/id/1012/400/460', height: 460, name: 'Kwame O.', followers: '850K Followers' },
-    { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers' },
-    { id: 'c6', img: 'https://picsum.photos/id/1025/400/640', height: 640, name: 'Jordan Lee', followers: '2.3M Followers' },
-    { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers' },
-    { id: 'c8', img: 'https://picsum.photos/id/1041/400/440', height: 440, name: 'Selena V.', followers: '1.4M Followers' },
+    { id: 'c1', img: 'https://picsum.photos/id/1027/400/500', height: 500, name: 'Blanche Bahoken', followers: '1.1M Followers', platform: 'Instagram' },
+    { id: 'c2', img: 'https://picsum.photos/id/1005/400/380', height: 380, name: 'Mayole Francine', followers: '1.1M Followers', platform: 'TikTok' },
+    { id: 'c3', img: 'https://picsum.photos/id/1011/400/620', height: 620, name: 'Blanche Bally', followers: '1.1M Followers', platform: 'Facebook' },
+    { id: 'c4', img: 'https://picsum.photos/id/1012/400/460', height: 460, name: 'Kwame O.', followers: '850K Followers', platform: 'YouTube' },
+    { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers', platform: 'Instagram' },
+    { id: 'c6', img: 'https://picsum.photos/id/1025/400/640', height: 640, name: 'Jordan Lee', followers: '2.3M Followers', platform: 'TikTok' },
+    { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers', platform: 'Facebook' },
+    { id: 'c8', img: 'https://picsum.photos/id/1041/400/440', height: 440, name: 'Selena V.', followers: '1.4M Followers', platform: 'YouTube' },
   ],
   // 1: Small & Medium Businesses
   [
-    { id: 's1', img: 'https://picsum.photos/id/1050/400/500', height: 500, name: 'Boutique Chez Maman', followers: '50K Followers' },
-    { id: 's2', img: 'https://picsum.photos/id/1051/400/380', height: 380, name: 'Tech Solutions', followers: '30K Followers' },
-    { id: 's3', img: 'https://picsum.photos/id/1052/400/620', height: 620, name: 'African Resto', followers: '80K Followers' },
-    { id: 's4', img: 'https://picsum.photos/id/1053/400/460', height: 460, name: 'Cafe Douala', followers: '22K Followers' },
-    { id: 's5', img: 'https://picsum.photos/id/1054/400/560', height: 560, name: 'Atelier Textile', followers: '18K Followers' },
-    { id: 's6', img: 'https://picsum.photos/id/1055/400/640', height: 640, name: 'Fresh Market', followers: '45K Followers' },
-    { id: 's7', img: 'https://picsum.photos/id/1056/400/500', height: 500, name: 'Studio Beaute', followers: '33K Followers' },
-    { id: 's8', img: 'https://picsum.photos/id/1057/400/440', height: 440, name: 'Auto Parts CM', followers: '15K Followers' },
+    { id: 's1', img: 'https://picsum.photos/id/1050/400/500', height: 500, name: 'Boutique Chez Maman', followers: '50K Followers', platform: 'Instagram' },
+    { id: 's2', img: 'https://picsum.photos/id/1051/400/380', height: 380, name: 'Tech Solutions', followers: '30K Followers', platform: 'TikTok' },
+    { id: 's3', img: 'https://picsum.photos/id/1052/400/620', height: 620, name: 'African Resto', followers: '80K Followers', platform: 'Facebook' },
+    { id: 's4', img: 'https://picsum.photos/id/1053/400/460', height: 460, name: 'Cafe Douala', followers: '22K Followers', platform: 'YouTube' },
+    { id: 's5', img: 'https://picsum.photos/id/1054/400/560', height: 560, name: 'Atelier Textile', followers: '18K Followers', platform: 'Instagram' },
+    { id: 's6', img: 'https://picsum.photos/id/1055/400/640', height: 640, name: 'Fresh Market', followers: '45K Followers', platform: 'TikTok' },
+    { id: 's7', img: 'https://picsum.photos/id/1056/400/500', height: 500, name: 'Studio Beaute', followers: '33K Followers', platform: 'Facebook' },
+    { id: 's8', img: 'https://picsum.photos/id/1057/400/440', height: 440, name: 'Auto Parts CM', followers: '15K Followers', platform: 'YouTube' },
   ],
   // 2: Agencies
   [
-    { id: 'a1', img: 'https://picsum.photos/id/1060/400/500', height: 500, name: 'Digital Pulse Agency', followers: '200K Followers' },
-    { id: 'a2', img: 'https://picsum.photos/id/1061/400/380', height: 380, name: 'Creative Media', followers: '120K Followers' },
-    { id: 'a3', img: 'https://picsum.photos/id/1062/400/620', height: 620, name: 'Africa Buzz', followers: '400K Followers' },
-    { id: 'a4', img: 'https://picsum.photos/id/1063/400/460', height: 460, name: 'Pixel Studio', followers: '95K Followers' },
-    { id: 'a5', img: 'https://picsum.photos/id/1064/400/560', height: 560, name: 'Brandwave', followers: '150K Followers' },
-    { id: 'a6', img: 'https://picsum.photos/id/1065/400/640', height: 640, name: 'NovaAds', followers: '260K Followers' },
-    { id: 'a7', img: 'https://picsum.photos/id/1066/400/500', height: 500, name: 'Reach Collective', followers: '180K Followers' },
-    { id: 'a8', img: 'https://picsum.photos/id/1067/400/440', height: 440, name: 'Clicksmith', followers: '75K Followers' },
+    { id: 'a1', img: 'https://picsum.photos/id/1060/400/500', height: 500, name: 'Digital Pulse Agency', followers: '200K Followers', platform: 'Instagram' },
+    { id: 'a2', img: 'https://picsum.photos/id/1061/400/380', height: 380, name: 'Creative Media', followers: '120K Followers', platform: 'TikTok' },
+    { id: 'a3', img: 'https://picsum.photos/id/1062/400/620', height: 620, name: 'Africa Buzz', followers: '400K Followers', platform: 'Facebook' },
+    { id: 'a4', img: 'https://picsum.photos/id/1063/400/460', height: 460, name: 'Pixel Studio', followers: '95K Followers', platform: 'YouTube' },
+    { id: 'a5', img: 'https://picsum.photos/id/1064/400/560', height: 560, name: 'Brandwave', followers: '150K Followers', platform: 'Instagram' },
+    { id: 'a6', img: 'https://picsum.photos/id/1065/400/640', height: 640, name: 'NovaAds', followers: '260K Followers', platform: 'TikTok' },
+    { id: 'a7', img: 'https://picsum.photos/id/1066/400/500', height: 500, name: 'Reach Collective', followers: '180K Followers', platform: 'Facebook' },
+    { id: 'a8', img: 'https://picsum.photos/id/1067/400/440', height: 440, name: 'Clicksmith', followers: '75K Followers', platform: 'YouTube' },
   ],
   // 3: Organizations & Institutions
   [
-    { id: 'o1', img: 'https://picsum.photos/id/1070/400/500', height: 500, name: 'Ministère de la Santé', followers: '500K Followers' },
-    { id: 'o2', img: 'https://picsum.photos/id/1071/400/380', height: 380, name: 'ONG Environnement', followers: '45K Followers' },
-    { id: 'o3', img: 'https://picsum.photos/id/1072/400/620', height: 620, name: 'Université Digitale', followers: '250K Followers' },
-    { id: 'o4', img: 'https://picsum.photos/id/1074/400/460', height: 460, name: 'Croix-Rouge Locale', followers: '90K Followers' },
-    { id: 'o5', img: 'https://picsum.photos/id/1076/400/560', height: 560, name: 'Fondation Jeunesse', followers: '60K Followers' },
-    { id: 'o6', img: 'https://picsum.photos/id/1078/400/640', height: 640, name: 'Institut Culturel', followers: '110K Followers' },
-    { id: 'o7', img: 'https://picsum.photos/id/1080/400/500', height: 500, name: 'Réseau Solidarité', followers: '38K Followers' },
-    { id: 'o8', img: 'https://picsum.photos/id/1084/400/440', height: 440, name: 'Chambre de Commerce', followers: '70K Followers' },
+    { id: 'o1', img: 'https://picsum.photos/id/1070/400/500', height: 500, name: 'Ministère de la Santé', followers: '500K Followers', platform: 'Facebook' },
+    { id: 'o2', img: 'https://picsum.photos/id/1071/400/380', height: 380, name: 'ONG Environnement', followers: '45K Followers', platform: 'Instagram' },
+    { id: 'o3', img: 'https://picsum.photos/id/1072/400/620', height: 620, name: 'Université Digitale', followers: '250K Followers', platform: 'YouTube' },
+    { id: 'o4', img: 'https://picsum.photos/id/1074/400/460', height: 460, name: 'Croix-Rouge Locale', followers: '90K Followers', platform: 'Facebook' },
+    { id: 'o5', img: 'https://picsum.photos/id/1076/400/560', height: 560, name: 'Fondation Jeunesse', followers: '60K Followers', platform: 'Instagram' },
+    { id: 'o6', img: 'https://picsum.photos/id/1078/400/640', height: 640, name: 'Institut Culturel', followers: '110K Followers', platform: 'TikTok' },
+    { id: 'o7', img: 'https://picsum.photos/id/1080/400/500', height: 500, name: 'Réseau Solidarité', followers: '38K Followers', platform: 'Facebook' },
+    { id: 'o8', img: 'https://picsum.photos/id/1084/400/440', height: 440, name: 'Chambre de Commerce', followers: '70K Followers', platform: 'Instagram' },
   ],
 ];
 
@@ -385,8 +385,7 @@ export default function UsersSection() {
                 duration={0.6}
                 stagger={0.05}
                 animateFrom="bottom"
-                scaleOnHover
-                hoverScale={0.95}
+                scaleOnHover={false}
                 blurToFocus
                 colorShiftOnHover={false}
               />
