@@ -561,16 +561,13 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      {/* DESKTOP HEADER — title + targets row, grouped into one block so the gap-8
-          on the outer flex only applies once (after this group, not between the
-          two), then pulled down with -mb-8 to cancel that remaining gap entirely
-          so it touches the white content box. Bordered on t/l/r to fuse with the
-          white box's own border (which drops its top border to match) into what
-          reads as a single card. */}
-      <div className="hidden md:flex md:flex-col gap-3 md:bg-[#F7F6F3] md:dark:bg-white/5 md:border md:border-b-0 md:border-[#D9D9D9] md:dark:border-white/10 pt-4 px-4 md:px-6 pb-3 -mb-8">
-        <h2 className="text-xl font-bold flex items-center gap-2 text-[#040028] dark:text-white">
-            {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}
-        </h2>
+      {/* DESKTOP HEADER — targets row only; the "Create new content" title lives
+          in the page-level NeuCard behind this component (pre-chris-merge desktop
+          layout), not here. Pulled down with -mb-8 to cancel the outer gap-8 so it
+          touches the white content box; bordered on t/l/r to fuse with the white
+          box's own border (which drops its top border to match) into what reads
+          as a single card. */}
+      <div className="hidden md:flex md:flex-col md:bg-[#F7F6F3] md:dark:bg-white/5 md:border md:border-b-0 md:border-[#D9D9D9] md:dark:border-white/10 pt-4 px-4 md:px-6 pb-3 -mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
