@@ -263,6 +263,20 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const [tiktokYourBrand, setTiktokYourBrand] = useState(false);
   const [tiktokBrandContent, setTiktokBrandContent] = useState(false);
   const [tiktokHashtags, setTiktokHashtags] = useState('');
+  // Fetched lazily when the TikTok panel opens (hits TikTok live) — not at page load.
+  const [tiktokCreatorInfo, setTiktokCreatorInfo] = useState<{
+    creator_nickname: string;
+    creator_username: string;
+    creator_avatar_url?: string;
+    privacy_level_options: string[];
+    comment_disabled: boolean;
+    duet_disabled: boolean;
+    stitch_disabled: boolean;
+    max_video_post_duration_sec: number;
+  } | null>(null);
+  const [tiktokCreatorInfoLoading, setTiktokCreatorInfoLoading] = useState(false);
+  const [tiktokCreatorInfoError, setTiktokCreatorInfoError] = useState<'unauthorized' | 'error' | null>(null);
+  const [tiktokVideoDurationSec, setTiktokVideoDurationSec] = useState<number | null>(null);
   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -434,6 +448,46 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const tiktokHasVideo = mediaTypes.some(t => t === 'video');
   const hasTikTokInPost = platformMode.postPlatforms.some(p => p.id === 'tiktok');
   const tiktokDisclosureInvalid = hasTikTokInPost && tiktokDisclosure && !tiktokYourBrand && !tiktokBrandContent;
+  const tiktokDurationInvalid = !!(
+    tiktokCreatorInfo && tiktokVideoDurationSec != null &&
+    tiktokVideoDurationSec > tiktokCreatorInfo.max_video_post_duration_sec
+  );
+  const tiktokPublishBlockedReason = tiktokDisclosureInvalid
+    ? 'You need to indicate if your content promotes yourself, a third party, or both'
+    : tiktokDurationInvalid
+      ? `Video exceeds TikTok's ${tiktokCreatorInfo?.max_video_post_duration_sec}s limit for this account`
+      : undefined;
+
+  // Reset the fetched creator info whenever the target TikTok account changes,
+  // so a stale creator's privacy options / limits can't leak onto a new one.
+  useEffect(() => {
+    setTiktokCreatorInfo(null);
+    setTiktokCreatorInfoError(null);
+  }, [tiktokAccount?.id]);
+
+  const fetchTiktokCreatorInfo = () => {
+    if (!tiktokAccount) return;
+    setTiktokCreatorInfoLoading(true);
+    setTiktokCreatorInfoError(null);
+    api.get<typeof tiktokCreatorInfo>(`/social-accounts/${tiktokAccount.id}/tiktok/creator-info`)
+      .then((info) => setTiktokCreatorInfo(info))
+      .catch((err: any) => setTiktokCreatorInfoError(err?.status === 401 ? 'unauthorized' : 'error'))
+      .finally(() => setTiktokCreatorInfoLoading(false));
+  };
+
+  // Real video duration, read client-side from the first video's own metadata —
+  // needed to validate against TikTok's max_video_post_duration_sec before schedule.
+  useEffect(() => {
+    if (!tiktokHasVideo) { setTiktokVideoDurationSec(null); return; }
+    const videoIdx = mediaTypes.findIndex((t) => t === 'video');
+    const videoUrl = videoIdx !== -1 ? mediaPreviews[videoIdx] : undefined;
+    if (!videoUrl) { setTiktokVideoDurationSec(null); return; }
+    const videoEl = document.createElement('video');
+    videoEl.preload = 'metadata';
+    videoEl.onloadedmetadata = () => setTiktokVideoDurationSec(videoEl.duration);
+    videoEl.src = videoUrl;
+    return () => { videoEl.src = ''; };
+  }, [tiktokHasVideo, mediaTypes, mediaPreviews]);
 
   // Smart scheduling availability — only show AI SCHEDULER button when data exists
   const selectedPlatform = accounts.find(a => selectedAccountIds.includes(a.id))?.platform ?? 'FACEBOOK';
@@ -479,7 +533,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
     // TikTok required field validation
     if (hasTikTokInPost) {
-      if (!tiktokTitle || !tiktokPrivacyLevel || tiktokDisclosureInvalid) {
+      if (!tiktokTitle || !tiktokPrivacyLevel || tiktokDisclosureInvalid || tiktokDurationInvalid) {
         setExpandedPanels(prev => new Set([...prev, 'tiktok']));
         return;
       }
@@ -527,15 +581,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
         if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
         if (liArticleMode) platformMeta.linkedin = { articleMode: true };
         if (firstComment) platformMeta.firstComment = firstComment;
+        // Field names must match the backend contract exactly (allowDuet/allowStitch/
+        // brandOrganic/brandedContent, not duet/stitch/yourBrand/brandContent) — a
+        // mismatch here doesn't error, it just silently drops the setting server-side.
         if (hasTikTokInPost) platformMeta.tiktok = {
           title: tiktokTitle,
           privacyLevel: tiktokPrivacyLevel,
           allowComment: tiktokAllowComment,
-          duet: tiktokDuet,
-          stitch: tiktokStitch,
-          disclosure: tiktokDisclosure,
-          yourBrand: tiktokDisclosure ? tiktokYourBrand : false,
-          brandContent: tiktokDisclosure ? tiktokBrandContent : false,
+          allowDuet: tiktokDuet,
+          allowStitch: tiktokStitch,
+          brandOrganic: tiktokDisclosure ? tiktokYourBrand : false,
+          brandedContent: tiktokDisclosure ? tiktokBrandContent : false,
           hashtags: tiktokHashtags || undefined,
         };
         if (!hasTikTokInPost && tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
@@ -817,11 +873,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           <PlatformSpecificPanels
             platformMode={platformMode}
             expandedPanels={expandedPanels}
-            onTogglePanel={(id) => setExpandedPanels(prev => {
-              const next = new Set(prev);
-              next.has(id) ? next.delete(id) : next.add(id);
-              return next;
-            })}
+            onTogglePanel={(id) => {
+              const opening = !expandedPanels.has(id);
+              setExpandedPanels(prev => {
+                const next = new Set(prev);
+                next.has(id) ? next.delete(id) : next.add(id);
+                return next;
+              });
+              // Hits TikTok live — only fetch when the panel actually opens, not on page load.
+              if (id === 'tiktok' && opening && !tiktokCreatorInfo && !tiktokCreatorInfoLoading) {
+                fetchTiktokCreatorInfo();
+              }
+            }}
             submitAttempted={submitAttempted}
             ytTitle={ytTitle} setYtTitle={setYtTitle}
             ytCategory={ytCategory} setYtCategory={setYtCategory}
@@ -833,6 +896,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             firstComment={firstComment} setFirstComment={setFirstComment}
             altText={altText} setAltText={setAltText}
             tiktokCreatorNickname={tiktokCreatorNickname}
+            tiktokCreatorInfo={tiktokCreatorInfo}
+            tiktokCreatorInfoLoading={tiktokCreatorInfoLoading}
+            tiktokCreatorInfoError={tiktokCreatorInfoError}
+            onRetryTiktokCreatorInfo={fetchTiktokCreatorInfo}
+            tiktokVideoDurationSec={tiktokVideoDurationSec}
+            tiktokDurationInvalid={tiktokDurationInvalid}
             tiktokTitle={tiktokTitle} setTiktokTitle={setTiktokTitle}
             tiktokPrivacyLevel={tiktokPrivacyLevel} setTiktokPrivacyLevel={setTiktokPrivacyLevel}
             tiktokAllowComment={tiktokAllowComment} setTiktokAllowComment={setTiktokAllowComment}
@@ -858,7 +927,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
               <div className="flex md:hidden flex-nowrap items-center justify-center gap-1">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("shrink-0 px-1.5 py-1.5 font-semibold text-[10px] rounded-[8px] transition-all flex items-center gap-1", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="shrink-0 px-1.5 py-1.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-[10px] rounded-[8px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1">{t("Review", "Révision")}</button>
-                  <button onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} className="shrink-0 px-2 py-1.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-[10px] rounded-[8px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none">
+                  <button onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid || tiktokDurationInvalid} title={tiktokPublishBlockedReason} className="shrink-0 px-2 py-1.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-[10px] rounded-[8px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none">
                       {isSubmitting ? <Loader2 className="animate-spin w-3 h-3" /> : (date && <Clock className="w-3 h-3"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </button>
@@ -936,7 +1005,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                 <div className="hidden md:flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid || tiktokDurationInvalid} title={tiktokPublishBlockedReason} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </NeuButton>

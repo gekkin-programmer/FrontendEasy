@@ -35,6 +35,21 @@ interface PlatformSpecificPanelsProps {
   altText: string; setAltText: (v: string) => void;
   // TikTok
   tiktokCreatorNickname?: string;
+  tiktokCreatorInfo: {
+    creator_nickname: string;
+    creator_username: string;
+    creator_avatar_url?: string;
+    privacy_level_options: string[];
+    comment_disabled: boolean;
+    duet_disabled: boolean;
+    stitch_disabled: boolean;
+    max_video_post_duration_sec: number;
+  } | null;
+  tiktokCreatorInfoLoading: boolean;
+  tiktokCreatorInfoError: 'unauthorized' | 'error' | null;
+  onRetryTiktokCreatorInfo: () => void;
+  tiktokVideoDurationSec: number | null;
+  tiktokDurationInvalid: boolean;
   tiktokTitle: string; setTiktokTitle: (v: string) => void;
   tiktokPrivacyLevel: string; setTiktokPrivacyLevel: (v: string) => void;
   tiktokAllowComment: boolean; setTiktokAllowComment: (v: boolean) => void;
@@ -143,6 +158,12 @@ export function PlatformSpecificPanels({
   firstComment, setFirstComment,
   altText, setAltText,
   tiktokCreatorNickname,
+  tiktokCreatorInfo,
+  tiktokCreatorInfoLoading,
+  tiktokCreatorInfoError,
+  onRetryTiktokCreatorInfo,
+  tiktokVideoDurationSec,
+  tiktokDurationInvalid,
   tiktokTitle, setTiktokTitle,
   tiktokPrivacyLevel, setTiktokPrivacyLevel,
   tiktokAllowComment, setTiktokAllowComment,
@@ -169,6 +190,16 @@ export function PlatformSpecificPanels({
     if (tag && !ytTags.includes(tag)) setYtTags([...ytTags, tag]);
     setTagInput('');
   };
+
+  // TikTok enforces these server-side too, but keep the visible checkbox state
+  // honest with what the creator's account actually allows once it's known.
+  React.useEffect(() => {
+    if (!tiktokCreatorInfo) return;
+    if (tiktokCreatorInfo.comment_disabled && tiktokAllowComment) setTiktokAllowComment(false);
+    if (tiktokCreatorInfo.duet_disabled && tiktokDuet) setTiktokDuet(false);
+    if (tiktokCreatorInfo.stitch_disabled && tiktokStitch) setTiktokStitch(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tiktokCreatorInfo]);
 
   if (!hasYT && !hasPin && !hasLI && !hasIG && !hasTK) return null;
 
@@ -339,7 +370,7 @@ export function PlatformSpecificPanels({
           <PanelHeader
             id="tiktok" platform="tiktok" label={t('TikTok Settings', 'Paramètres TikTok')}
             badge={
-              (submitAttempted && (!tiktokTitle || !tiktokPrivacyLevel)) || tiktokDisclosureInvalid
+              (submitAttempted && (!tiktokTitle || !tiktokPrivacyLevel)) || tiktokDisclosureInvalid || tiktokDurationInvalid
                 ? t('Required fields', 'Champs requis')
                 : undefined
             }
@@ -349,15 +380,51 @@ export function PlatformSpecificPanels({
           {expandedPanels.has('tiktok') && (
             <div className="px-4 py-4 space-y-4 bg-white dark:bg-[#0A0A2E]">
 
-              {/* Point 1: Creator Info */}
-              {tiktokCreatorNickname && (
+              {/* 1 — Creator */}
+              {tiktokCreatorInfoError === 'unauthorized' ? (
+                <div className="flex items-start gap-2 px-3 py-2.5 rounded-[10px] bg-red-50 dark:bg-red-900/20">
+                  <AlertTriangle size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-red-600">{t('TikTok connection expired', 'Connexion TikTok expirée')}</p>
+                    <p className="text-xs text-red-600/80 mt-0.5">{t('Reconnect this account from Settings → Connected accounts, then reopen this panel.', 'Reconnectez ce compte depuis Réglages → Comptes connectés, puis rouvrez ce panneau.')}</p>
+                  </div>
+                  <button type="button" onClick={onRetryTiktokCreatorInfo} className="text-xs font-semibold underline text-red-600 flex-shrink-0">
+                    {t('Retry', 'Réessayer')}
+                  </button>
+                </div>
+              ) : tiktokCreatorInfoError === 'error' ? (
+                <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5">
+                  <span className="text-xs text-[#8E8E8E]">{t("Couldn't load creator info", "Impossible de charger les infos du créateur")}</span>
+                  <button type="button" onClick={onRetryTiktokCreatorInfo} className="text-xs font-semibold underline text-[#040028] dark:text-white">
+                    {t('Retry', 'Réessayer')}
+                  </button>
+                </div>
+              ) : (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[#F7F6F3] dark:bg-white/5">
+                  {tiktokCreatorInfo?.creator_avatar_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={tiktokCreatorInfo.creator_avatar_url} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                  )}
                   <span className="text-xs font-semibold text-[#8E8E8E]">{t('Posting as:', 'Publication en tant que :')}</span>
-                  <span className="text-xs font-semibold text-[#040028] dark:text-white">@{tiktokCreatorNickname}</span>
+                  <span className="text-xs font-semibold text-[#040028] dark:text-white">
+                    {tiktokCreatorInfoLoading
+                      ? t('Loading...', 'Chargement...')
+                      : `@${tiktokCreatorInfo?.creator_nickname || tiktokCreatorNickname || ''}`}
+                  </span>
                 </div>
               )}
 
-              {/* Point 2: Post Title */}
+              {tiktokDurationInvalid && tiktokCreatorInfo && (
+                <p className="text-xs font-medium text-red-600">
+                  {t(
+                    `This video is ${Math.round(tiktokVideoDurationSec || 0)}s — longer than the ${tiktokCreatorInfo.max_video_post_duration_sec}s this account allows.`,
+                    `Cette vidéo dure ${Math.round(tiktokVideoDurationSec || 0)}s, plus que la limite de ${tiktokCreatorInfo.max_video_post_duration_sec}s autorisée pour ce compte.`
+                  )}
+                </p>
+              )}
+
+              {/* Required by TikTok's own API for every post — not one of the reviewer's
+                  5 sections, kept here alongside Creator since it's per-post identity info. */}
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
                   {t('Post title', 'Titre du post')} <span className="text-red-500">*</span>
@@ -374,7 +441,8 @@ export function PlatformSpecificPanels({
                 )}
               </div>
 
-              {/* Point 2: Privacy Status */}
+              {/* 2 — Privacy — options come only from privacy_level_options, which
+                  differs per creator; falls back to the full set while it's loading. */}
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
                   {t('Privacy status', 'Confidentialité')} <span className="text-red-500">*</span>
@@ -384,70 +452,68 @@ export function PlatformSpecificPanels({
                   onChange={setTiktokPrivacyLevel}
                   placeholder={t('Select privacy...', 'Choisir la confidentialité...')}
                   error={submitAttempted && !tiktokPrivacyLevel}
-                  options={[
-                    { value: 'PUBLIC_TO_EVERYONE', label: t('Everyone', 'Tout le monde') },
-                    { value: 'MUTUAL_FOLLOW_FRIENDS', label: t('Friends', 'Amis') },
-                    { value: 'FOLLOWER_OF_CREATOR', label: t('Followers', 'Abonnés') },
-                    ...(!tiktokBrandContent ? [{ value: 'SELF_ONLY', label: t('Only me', 'Moi uniquement') }] : []),
-                  ]}
+                  options={
+                    (tiktokCreatorInfo?.privacy_level_options ?? ['PUBLIC_TO_EVERYONE', 'MUTUAL_FOLLOW_FRIENDS', 'FOLLOWER_OF_CREATOR', 'SELF_ONLY'])
+                      .filter((v) => v !== 'SELF_ONLY' || !tiktokBrandContent)
+                      .map((v) => ({
+                        value: v,
+                        label: {
+                          PUBLIC_TO_EVERYONE: t('Everyone', 'Tout le monde'),
+                          MUTUAL_FOLLOW_FRIENDS: t('Friends', 'Amis'),
+                          FOLLOWER_OF_CREATOR: t('Followers', 'Abonnés'),
+                          SELF_ONLY: t('Only me', 'Moi uniquement'),
+                        }[v] || v,
+                      }))
+                  }
                 />
                 {submitAttempted && !tiktokPrivacyLevel && (
                   <p className="text-xs text-red-600 font-medium mt-1">{t('Privacy is required for TikTok', 'La confidentialité est requise pour TikTok')}</p>
                 )}
               </div>
 
-              {/* Point 2: Interaction Settings */}
+              {/* 3 — Interaction — Duet/Stitch don't apply to photo posts; each
+                  checkbox greys out when the creator's account has it disabled. */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-[#8E8E8E] block">
                   {t('Interaction settings', "Paramètres d'interaction")}
                 </span>
-                <label className="flex items-center gap-2 cursor-pointer select-none">
+                <label className={`flex items-center gap-2 select-none ${tiktokCreatorInfo?.comment_disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
                   <input
                     type="checkbox"
                     checked={tiktokAllowComment}
+                    disabled={tiktokCreatorInfo?.comment_disabled}
                     onChange={e => setTiktokAllowComment(e.target.checked)}
-                    className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
+                    className="w-3.5 h-3.5 accent-[#040028] cursor-pointer disabled:cursor-not-allowed"
                   />
-                  <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow comment', 'Autoriser les commentaires')}</span>
+                  <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow Comment', 'Autoriser les commentaires')}</span>
                 </label>
                 {tiktokHasVideo && (
                   <>
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <label className={`flex items-center gap-2 select-none ${tiktokCreatorInfo?.duet_disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
                       <input
                         type="checkbox"
                         checked={tiktokDuet}
+                        disabled={tiktokCreatorInfo?.duet_disabled}
                         onChange={e => setTiktokDuet(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <span className="text-xs font-medium text-[#040028] dark:text-white">Duet</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow Duet', 'Autoriser le Duet')}</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <label className={`flex items-center gap-2 select-none ${tiktokCreatorInfo?.stitch_disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
                       <input
                         type="checkbox"
                         checked={tiktokStitch}
+                        disabled={tiktokCreatorInfo?.stitch_disabled}
                         onChange={e => setTiktokStitch(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
+                        className="w-3.5 h-3.5 accent-[#040028] cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <span className="text-xs font-medium text-[#040028] dark:text-white">Stitch</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Allow Stitch', 'Autoriser le Stitch')}</span>
                     </label>
                   </>
                 )}
               </div>
 
-              {/* Point 2: Music Usage Declaration */}
-              <p className="text-xs text-[#8E8E8E] leading-relaxed">
-                By posting, you agree to TikTok&apos;s{' '}
-                <a
-                  href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-semibold text-[#040028] dark:text-white transition-colors"
-                >
-                  Music Usage Confirmation
-                </a>
-              </p>
-
-              {/* Point 3: Content Disclosure Setting */}
+              {/* 4 — Commercial disclosure */}
               <div className="rounded-[14px] bg-[#F7F6F3] dark:bg-white/5 p-3 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1">
@@ -455,7 +521,7 @@ export function PlatformSpecificPanels({
                       {t('Content disclosure setting', 'Divulgation de contenu')}
                     </span>
                     <p className="text-xs text-[#8E8E8E] mt-0.5 leading-relaxed">
-                      {t('Indicate if content promotes yourself, a brand, product, or service', 'Indiquez si le contenu fait la promotion de vous-même, d\'une marque, d\'un produit ou d\'un service')}
+                      {t('Indicate whether this content promotes yourself, a brand, product or service', 'Indiquez si le contenu fait la promotion de vous-même, d\'une marque, d\'un produit ou d\'un service')}
                     </p>
                   </div>
                   <button
@@ -476,7 +542,10 @@ export function PlatformSpecificPanels({
                 </div>
 
                 {tiktokDisclosure && (
-                  <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/10">
+                  <div
+                    className="space-y-2 pt-2 border-t border-black/5 dark:border-white/10"
+                    title={tiktokDisclosureInvalid ? t('You need to indicate if your content promotes yourself, a third party, or both', 'Vous devez indiquer si votre contenu fait la promotion de vous-même, d\'un tiers, ou des deux') : undefined}
+                  >
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
@@ -484,7 +553,7 @@ export function PlatformSpecificPanels({
                         onChange={e => setTiktokYourBrand(e.target.checked)}
                         className="w-3.5 h-3.5 accent-[#040028] cursor-pointer"
                       />
-                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Your brand', 'Votre marque')}</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Your Brand', 'Votre marque')}</span>
                     </label>
                     <label
                       className={`flex items-center gap-2 select-none ${
@@ -503,7 +572,7 @@ export function PlatformSpecificPanels({
                         }}
                         className="w-3.5 h-3.5 accent-[#040028] cursor-pointer disabled:cursor-not-allowed"
                       />
-                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Branded content', 'Contenu de marque')}</span>
+                      <span className="text-xs font-medium text-[#040028] dark:text-white">{t('Branded Content', 'Contenu de marque')}</span>
                     </label>
 
                     {(tiktokYourBrand || tiktokBrandContent) ? (
@@ -517,39 +586,11 @@ export function PlatformSpecificPanels({
                         {t('Select at least one option above to continue', 'Sélectionnez au moins une option ci-dessus pour continuer')}
                       </p>
                     )}
-
-                    {tiktokBrandContent && (
-                      <p className="text-xs text-[#8E8E8E] leading-relaxed">
-                        By posting, you agree to TikTok&apos;s{' '}
-                        <a
-                          href="https://www.tiktok.com/legal/page/global/bc-policy/en"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline font-semibold text-[#040028] dark:text-white transition-colors"
-                        >
-                          Branded Content Policy
-                        </a>
-                        {' '}and{' '}
-                        <a
-                          href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline font-semibold text-[#040028] dark:text-white transition-colors"
-                        >
-                          Music Usage Confirmation
-                        </a>
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
 
-              {/* Point 5: Post-publish processing notice */}
-              <p className="text-xs text-[#8E8E8E] leading-relaxed">
-                {t('After you finish publishing your content, it may take a few minutes for the content to process and be visible on their profile.', 'Après la publication, le traitement du contenu peut prendre quelques minutes avant d\'être visible sur le profil.')}
-              </p>
-
-              {/* Hashtags */}
+              {/* Extra utility field, not one of the 5 required sections */}
               <div>
                 <label className="text-xs font-semibold text-[#8E8E8E] block mb-1">
                   {t('Hashtags', 'Hashtags')}
@@ -563,6 +604,46 @@ export function PlatformSpecificPanels({
                 />
                 <p className="text-xs text-[#8E8E8E] mt-1">{tiktokHashtags.length}/2200</p>
               </div>
+
+              {/* 5 — Compliance line, directly above Publish. Wording must match
+                  exactly (reviewers check it literally) and switches based on
+                  whether Branded Content is ticked. */}
+              <p className="text-xs text-[#8E8E8E] leading-relaxed">
+                {tiktokBrandContent ? (
+                  <>
+                    By posting, you agree to TikTok&apos;s{' '}
+                    <a
+                      href="https://www.tiktok.com/legal/page/global/bc-policy/en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-semibold text-[#040028] dark:text-white transition-colors"
+                    >
+                      Branded Content Policy
+                    </a>
+                    {' '}and{' '}
+                    <a
+                      href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-semibold text-[#040028] dark:text-white transition-colors"
+                    >
+                      Music Usage Confirmation
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    By posting, you agree to TikTok&apos;s{' '}
+                    <a
+                      href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-semibold text-[#040028] dark:text-white transition-colors"
+                    >
+                      Music Usage Confirmation
+                    </a>
+                  </>
+                )}
+              </p>
             </div>
           )}
         </>
