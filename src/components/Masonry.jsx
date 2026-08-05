@@ -213,23 +213,25 @@ const Masonry = ({
           onMouseEnter={e => handleMouseEnter(item.id, e.currentTarget)}
           onMouseLeave={e => handleMouseLeave(item.id, e.currentTarget)}
         >
-          <div
-            className="relative w-full h-full bg-cover bg-center rounded-[10px] shadow-[0px_10px_50px_-10px_rgba(0,0,0,0.2)] overflow-hidden uppercase text-[10px] leading-[10px]"
-            style={{ backgroundImage: `url("${encodeURI(item.img)}")` }}
-          >
-            {colorShiftOnHover && (
-              <div className="color-overlay absolute inset-0 rounded-[10px] bg-gradient-to-tr from-pink-500/50 to-sky-500/50 opacity-0 pointer-events-none" />
-            )}
-            {(item.name || item.followers) && (
-              <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 bg-gradient-to-t from-black/70 via-black/25 to-transparent normal-case">
-                {item.name && (
-                  <p className="text-white text-[13px] font-semibold leading-tight truncate">{item.name}</p>
-                )}
-                {item.followers && (
-                  <p className="text-white/85 text-[11px] leading-tight truncate">{item.followers}</p>
-                )}
-              </div>
-            )}
+          <div className="relative w-full h-full rounded-[10px] shadow-[0px_10px_50px_-10px_rgba(0,0,0,0.2)] uppercase text-[10px] leading-[10px] p-2 bg-white">
+            <div
+              className="relative w-full h-full bg-cover bg-center rounded-[8px] overflow-hidden"
+              style={{ backgroundImage: `url("${encodeURI(item.img)}")` }}
+            >
+              {colorShiftOnHover && (
+                <div className="color-overlay absolute inset-0 rounded-[8px] bg-gradient-to-tr from-pink-500/50 to-sky-500/50 opacity-0 pointer-events-none" />
+              )}
+              {(item.name || item.followers) && (
+                <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 bg-gradient-to-t from-black/70 via-black/25 to-transparent normal-case">
+                  {item.name && (
+                    <p className="text-white text-[13px] font-semibold leading-tight truncate">{item.name}</p>
+                  )}
+                  {item.followers && (
+                    <p className="text-white/85 text-[11px] leading-tight truncate">{item.followers}</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ))}

@@ -91,10 +91,10 @@ export default function FaqSection() {
                 type="button"
                 onClick={() => toggleFaq(index)}
                 aria-expanded={isOpen}
-                className="w-full rounded-[18px] border border-slate-200 bg-white px-[24px] py-[18px] text-left shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-[1px]"
+                className="w-full rounded-[18px] border border-slate-200 bg-white px-[24px] py-[18px] text-left shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <span className="text-[16px] md:text-[18px] font-medium pr-[40px] text-black" style={{ fontFamily: "'Rubik One', sans-serif" }}>
+                  <span className="text-[16px] md:text-[18px] font-normal pr-[40px] text-black font-sans">
                     {faq.question}
                   </span>
 

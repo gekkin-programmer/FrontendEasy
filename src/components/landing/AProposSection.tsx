@@ -43,7 +43,11 @@ export default function AProposSection() {
   </div>
 
   {/* Button */}
-  <button className="w-[80%] max-w-[280px] md:max-w-[347px] h-[55px] md:h-[70px] bg-[#174CD2] rounded-full flex justify-center items-center shadow-lg cursor-pointer hover:scale-105 transition-transform">
+  <button
+    type="button"
+    onClick={() => window.open('https://bestcorpcmr.com', '_blank', 'noopener,noreferrer')}
+    className="w-[80%] max-w-[280px] md:max-w-[347px] h-[55px] md:h-[70px] bg-[#174CD2] rounded-full flex justify-center items-center shadow-lg cursor-pointer hover:scale-105 transition-transform"
+  >
     <span className="font-bold text-lg md:text-xl text-white" style={{ fontFamily: "'Rubik', sans-serif" }}>
       {t("Learn more about us", "En savoir plus sur nous")}
     </span>

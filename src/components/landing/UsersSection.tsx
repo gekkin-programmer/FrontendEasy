@@ -11,47 +11,47 @@ import Masonry from '@/components/Masonry';
 const USER_PHOTOS_BY_CATEGORY = [
   // 0: Creators & Influencers
   [
-    { id: 'c1', img: 'https://picsum.photos/id/1027/400/500', height: 500, name: 'Blanche Bahoken', followers: '1.1M Followers' },
-    { id: 'c2', img: 'https://picsum.photos/id/1005/400/380', height: 380, name: 'Mayole Francine', followers: '1.1M Followers' },
-    { id: 'c3', img: 'https://picsum.photos/id/1011/400/620', height: 620, name: 'Blanche Bally', followers: '1.1M Followers' },
-    { id: 'c4', img: 'https://picsum.photos/id/1012/400/460', height: 460, name: 'Kwame O.', followers: '850K Followers' },
-    { id: 'c5', img: 'https://picsum.photos/id/1013/400/560', height: 560, name: 'Ama Serwaa', followers: '620K Followers' },
-    { id: 'c6', img: 'https://picsum.photos/id/1025/400/640', height: 640, name: 'Jordan Lee', followers: '2.3M Followers' },
-    { id: 'c7', img: 'https://picsum.photos/id/1035/400/500', height: 500, name: 'Nadia K.', followers: '410K Followers' },
-    { id: 'c8', img: 'https://picsum.photos/id/1041/400/440', height: 440, name: 'Selena V.', followers: '1.4M Followers' },
+    { id: 'c1', img: '/images/tenor.jpg', height: 500, name: 'Tenor', followers: '4M Followers', platform: 'Facebook' },
+    { id: 'c2', img: '/images/koc-c.jpg', height: 380, name: 'Ko-C (Kocee)', followers: '1.5M Followers', platform: 'Facebook' },
+    { id: 'c3', img: '/images/christian-abegan.jpg', height: 620, name: 'Christian Abegan', followers: '4.6K Followers', platform: 'Instagram' },
+    { id: 'c4', img: '/images/maahlox-le-vibeur.webp', height: 460, name: 'Maahlox Le Vibeur', followers: '341K Followers', platform: 'Instagram' },
+    { id: 'c5', img: '/images/muriel-blanche.jpg', height: 560, name: 'Muriel Blanche', followers: '3.9M Followers', platform: 'TikTok' },
+    { id: 'c6', img: '/images/claudio-njalla.jpg', height: 640, name: 'Claudio Njalla', followers: '2.5M Followers', platform: 'TikTok' },
+    { id: 'c7', img: '/images/rosine-nguemgaing.jpg', height: 500, name: 'Rosine Nguemgaing', followers: '5M Followers', platform: 'TikTok' },
+    { id: 'c8', img: '/images/celeste-victorien.jpg', height: 440, name: 'Céleste Victorien', platform: 'TikTok' },
   ],
   // 1: Small & Medium Businesses
   [
-    { id: 's1', img: 'https://picsum.photos/id/1050/400/500', height: 500, name: 'Boutique Chez Maman', followers: '50K Followers' },
-    { id: 's2', img: 'https://picsum.photos/id/1051/400/380', height: 380, name: 'Tech Solutions', followers: '30K Followers' },
-    { id: 's3', img: 'https://picsum.photos/id/1052/400/620', height: 620, name: 'African Resto', followers: '80K Followers' },
-    { id: 's4', img: 'https://picsum.photos/id/1053/400/460', height: 460, name: 'Cafe Douala', followers: '22K Followers' },
-    { id: 's5', img: 'https://picsum.photos/id/1054/400/560', height: 560, name: 'Atelier Textile', followers: '18K Followers' },
-    { id: 's6', img: 'https://picsum.photos/id/1055/400/640', height: 640, name: 'Fresh Market', followers: '45K Followers' },
-    { id: 's7', img: 'https://picsum.photos/id/1056/400/500', height: 500, name: 'Studio Beaute', followers: '33K Followers' },
-    { id: 's8', img: 'https://picsum.photos/id/1057/400/440', height: 440, name: 'Auto Parts CM', followers: '15K Followers' },
+    { id: 's1', img: '/logos/SN_SHOES.jpeg', height: 500, name: '' },
+    { id: 's2', img: '/logos/YXNGERAKODE.jpeg', height: 380, name: '' },
+    { id: 's3', img: '/logos/ATLstudio.PNG', height: 620, name: 'ATL Studio' },
+    { id: 's4', img: '/logos/BookHub.jpeg', height: 460, name: 'Bookhub.cm' },
+    { id: 's5', img: '/logos/dibato.PNG', height: 560, name: '' },
+    { id: 's6', img: '/logos/MaxBurger.jpeg', height: 640, name: 'Max Burger Grill' },
+    { id: 's7', img: '/logos/newDelices.png', height: 500, name: "" },
+    { id: 's8', img: '/logos/PBD.jpg', height: 440, name: '' },
   ],
   // 2: Agencies
   [
-    { id: 'a1', img: 'https://picsum.photos/id/1060/400/500', height: 500, name: 'Digital Pulse Agency', followers: '200K Followers' },
-    { id: 'a2', img: 'https://picsum.photos/id/1061/400/380', height: 380, name: 'Creative Media', followers: '120K Followers' },
-    { id: 'a3', img: 'https://picsum.photos/id/1062/400/620', height: 620, name: 'Africa Buzz', followers: '400K Followers' },
-    { id: 'a4', img: 'https://picsum.photos/id/1063/400/460', height: 460, name: 'Pixel Studio', followers: '95K Followers' },
-    { id: 'a5', img: 'https://picsum.photos/id/1064/400/560', height: 560, name: 'Brandwave', followers: '150K Followers' },
-    { id: 'a6', img: 'https://picsum.photos/id/1065/400/640', height: 640, name: 'NovaAds', followers: '260K Followers' },
-    { id: 'a7', img: 'https://picsum.photos/id/1066/400/500', height: 500, name: 'Reach Collective', followers: '180K Followers' },
-    { id: 'a8', img: 'https://picsum.photos/id/1067/400/440', height: 440, name: 'Clicksmith', followers: '75K Followers' },
+    { id: 'a1', img: '/logos/mbiydzela.jpg', height: 500 },
+    { id: 'a2', img: '/logos/vitna.png', height: 380 },
+    { id: 'a3', img: '/logos/didacweb.jpg', height: 620 },
+    { id: 'a4', img: '/logos/adjemson.jpg', height: 460 },
+    { id: 'a5', img: '/logos/numerix.png', height: 560 },
+    { id: 'a6', img: 'https://picsum.photos/id/1065/400/640', height: 640, name: 'NovaAds', followers: '260K Followers', platform: 'TikTok' },
+    { id: 'a7', img: 'https://picsum.photos/id/1066/400/500', height: 500, name: 'Reach Collective', followers: '180K Followers', platform: 'Facebook' },
+    { id: 'a8', img: 'https://picsum.photos/id/1067/400/440', height: 440, name: 'Clicksmith', followers: '75K Followers', platform: 'YouTube' },
   ],
   // 3: Organizations & Institutions
   [
-    { id: 'o1', img: 'https://picsum.photos/id/1070/400/500', height: 500, name: 'Ministère de la Santé', followers: '500K Followers' },
-    { id: 'o2', img: 'https://picsum.photos/id/1071/400/380', height: 380, name: 'ONG Environnement', followers: '45K Followers' },
-    { id: 'o3', img: 'https://picsum.photos/id/1072/400/620', height: 620, name: 'Université Digitale', followers: '250K Followers' },
-    { id: 'o4', img: 'https://picsum.photos/id/1074/400/460', height: 460, name: 'Croix-Rouge Locale', followers: '90K Followers' },
-    { id: 'o5', img: 'https://picsum.photos/id/1076/400/560', height: 560, name: 'Fondation Jeunesse', followers: '60K Followers' },
-    { id: 'o6', img: 'https://picsum.photos/id/1078/400/640', height: 640, name: 'Institut Culturel', followers: '110K Followers' },
-    { id: 'o7', img: 'https://picsum.photos/id/1080/400/500', height: 500, name: 'Réseau Solidarité', followers: '38K Followers' },
-    { id: 'o8', img: 'https://picsum.photos/id/1084/400/440', height: 440, name: 'Chambre de Commerce', followers: '70K Followers' },
+    { id: 'o1', img: 'https://picsum.photos/id/1070/400/500', height: 500, name: 'Ministère de la Santé', followers: '500K Followers', platform: 'Facebook' },
+    { id: 'o2', img: 'https://picsum.photos/id/1071/400/380', height: 380, name: 'ONG Environnement', followers: '45K Followers', platform: 'Instagram' },
+    { id: 'o3', img: 'https://picsum.photos/id/1072/400/620', height: 620, name: 'Université Digitale', followers: '250K Followers', platform: 'YouTube' },
+    { id: 'o4', img: 'https://picsum.photos/id/1074/400/460', height: 460, name: 'Croix-Rouge Locale', followers: '90K Followers', platform: 'Facebook' },
+    { id: 'o5', img: 'https://picsum.photos/id/1076/400/560', height: 560, name: 'Fondation Jeunesse', followers: '60K Followers', platform: 'Instagram' },
+    { id: 'o6', img: 'https://picsum.photos/id/1078/400/640', height: 640, name: 'Institut Culturel', followers: '110K Followers', platform: 'TikTok' },
+    { id: 'o7', img: 'https://picsum.photos/id/1080/400/500', height: 500, name: 'Réseau Solidarité', followers: '38K Followers', platform: 'Facebook' },
+    { id: 'o8', img: 'https://picsum.photos/id/1084/400/440', height: 440, name: 'Chambre de Commerce', followers: '70K Followers', platform: 'Instagram' },
   ],
 ];
 
@@ -385,8 +385,7 @@ export default function UsersSection() {
                 duration={0.6}
                 stagger={0.05}
                 animateFrom="bottom"
-                scaleOnHover
-                hoverScale={0.95}
+                scaleOnHover={false}
                 blurToFocus
                 colorShiftOnHover={false}
               />

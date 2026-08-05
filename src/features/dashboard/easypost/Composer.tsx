@@ -8,7 +8,7 @@ import {
   Image as ImageIcon, Video, X, Clock, Send,
   Tag, LayoutGrid, Plus, Copy,
   ChevronDown, Check, CornerLeftUp, Wand2, Loader2,
-  Sparkles, AlertTriangle, MessageCircle, RefreshCw
+  Sparkles, AlertTriangle, MessageCircle, RefreshCw, ArrowLeft, Calendar as CalendarIcon
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,9 +16,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { zonedTimeToUtc, utcToZonedNaiveISO } from '@/lib/timezone';
 import { DateInput } from '@astryxdesign/core/DateInput';
-import { type ISODateString } from '@astryxdesign/core/Calendar';
+import { zonedTimeToUtc, utcToZonedNaiveISO } from '@/lib/timezone';
+import { Calendar, type ISODateString } from '@astryxdesign/core/Calendar';
 import MediaGallery from './MediaGallery';
 import { usePlatformMode } from './composer/usePlatformMode';
 import { PlatformContextBar } from './composer/PlatformContextBar';
@@ -112,7 +112,7 @@ const RetroFolder = ({ name, onClick }: { name: string, onClick: () => void }) =
     <span className="text-[11px] font-medium text-center max-w-full truncate w-full text-[#040028] dark:text-white">{name}</span>
   </div>
 );
-const ToolButton = ({ icon: Icon, onClick, tooltip }: any) => (<button onClick={onClick} title={tooltip} className="p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white"><Icon size={18} /></button>);
+const ToolButton = ({ icon: Icon, onClick, tooltip, className }: any) => (<button onClick={onClick} title={tooltip} className={cn("shrink-0 p-2.5 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all text-[#040028] dark:text-white", className)}><Icon className="w-4 h-4 md:w-[18px] md:h-[18px]" /></button>);
 
 const AiSchedulerContent = ({ workspaceId, platform, onSelect }: { workspaceId: string, platform: string, onSelect: (hour: number) => void }) => {
   const { t } = useLanguage();
@@ -169,6 +169,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   /* ---- State ---- */
   const [text, setText] = useState('');
   const [date, setDate] = useState<Date>();
+  const [isDateOpen, setIsDateOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
 
   // Populate from postToEdit
@@ -206,8 +207,21 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const hasAutoSelectedRef = useRef(false);
 
   // UI State
-  const [isLibraryOpen, setIsLibraryOpen] = useState(true);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      if (window.innerWidth >= 768) {
+        setIsLibraryOpen(true);
+      }
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
+  }, []);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isTimeOpenDesktop, setIsTimeOpenDesktop] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -249,6 +263,20 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const [tiktokYourBrand, setTiktokYourBrand] = useState(false);
   const [tiktokBrandContent, setTiktokBrandContent] = useState(false);
   const [tiktokHashtags, setTiktokHashtags] = useState('');
+  // Fetched lazily when the TikTok panel opens (hits TikTok live) — not at page load.
+  const [tiktokCreatorInfo, setTiktokCreatorInfo] = useState<{
+    creator_nickname: string;
+    creator_username: string;
+    creator_avatar_url?: string;
+    privacy_level_options: string[];
+    comment_disabled: boolean;
+    duet_disabled: boolean;
+    stitch_disabled: boolean;
+    max_video_post_duration_sec: number;
+  } | null>(null);
+  const [tiktokCreatorInfoLoading, setTiktokCreatorInfoLoading] = useState(false);
+  const [tiktokCreatorInfoError, setTiktokCreatorInfoError] = useState<'unauthorized' | 'error' | null>(null);
+  const [tiktokVideoDurationSec, setTiktokVideoDurationSec] = useState<number | null>(null);
   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -420,6 +448,46 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
   const tiktokHasVideo = mediaTypes.some(t => t === 'video');
   const hasTikTokInPost = platformMode.postPlatforms.some(p => p.id === 'tiktok');
   const tiktokDisclosureInvalid = hasTikTokInPost && tiktokDisclosure && !tiktokYourBrand && !tiktokBrandContent;
+  const tiktokDurationInvalid = !!(
+    tiktokCreatorInfo && tiktokVideoDurationSec != null &&
+    tiktokVideoDurationSec > tiktokCreatorInfo.max_video_post_duration_sec
+  );
+  const tiktokPublishBlockedReason = tiktokDisclosureInvalid
+    ? 'You need to indicate if your content promotes yourself, a third party, or both'
+    : tiktokDurationInvalid
+      ? `Video exceeds TikTok's ${tiktokCreatorInfo?.max_video_post_duration_sec}s limit for this account`
+      : undefined;
+
+  // Reset the fetched creator info whenever the target TikTok account changes,
+  // so a stale creator's privacy options / limits can't leak onto a new one.
+  useEffect(() => {
+    setTiktokCreatorInfo(null);
+    setTiktokCreatorInfoError(null);
+  }, [tiktokAccount?.id]);
+
+  const fetchTiktokCreatorInfo = () => {
+    if (!tiktokAccount) return;
+    setTiktokCreatorInfoLoading(true);
+    setTiktokCreatorInfoError(null);
+    api.get<typeof tiktokCreatorInfo>(`/social-accounts/${tiktokAccount.id}/tiktok/creator-info`)
+      .then((info) => setTiktokCreatorInfo(info))
+      .catch((err: any) => setTiktokCreatorInfoError(err?.status === 401 ? 'unauthorized' : 'error'))
+      .finally(() => setTiktokCreatorInfoLoading(false));
+  };
+
+  // Real video duration, read client-side from the first video's own metadata —
+  // needed to validate against TikTok's max_video_post_duration_sec before schedule.
+  useEffect(() => {
+    if (!tiktokHasVideo) { setTiktokVideoDurationSec(null); return; }
+    const videoIdx = mediaTypes.findIndex((t) => t === 'video');
+    const videoUrl = videoIdx !== -1 ? mediaPreviews[videoIdx] : undefined;
+    if (!videoUrl) { setTiktokVideoDurationSec(null); return; }
+    const videoEl = document.createElement('video');
+    videoEl.preload = 'metadata';
+    videoEl.onloadedmetadata = () => setTiktokVideoDurationSec(videoEl.duration);
+    videoEl.src = videoUrl;
+    return () => { videoEl.src = ''; };
+  }, [tiktokHasVideo, mediaTypes, mediaPreviews]);
 
   // Smart scheduling availability — only show AI SCHEDULER button when data exists
   const selectedPlatform = accounts.find(a => selectedAccountIds.includes(a.id))?.platform ?? 'FACEBOOK';
@@ -446,6 +514,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
     const day = scheduleDateOnly || utcToZonedNaiveISO(new Date(), workspaceTimezone).slice(0, 10);
     setDate(zonedTimeToUtc(`${day}T${value}`, workspaceTimezone));
     setIsTimeOpen(false);
+    setIsTimeOpenDesktop(false);
   };
 
   // ➤ LOGIC: SUBMIT
@@ -464,7 +533,7 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
     // TikTok required field validation
     if (hasTikTokInPost) {
-      if (!tiktokTitle || !tiktokPrivacyLevel || tiktokDisclosureInvalid) {
+      if (!tiktokTitle || !tiktokPrivacyLevel || tiktokDisclosureInvalid || tiktokDurationInvalid) {
         setExpandedPanels(prev => new Set([...prev, 'tiktok']));
         return;
       }
@@ -512,15 +581,17 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
         if (pinBoard || pinTitle || pinDestUrl) platformMeta.pinterest = { board: pinBoard || undefined, title: pinTitle || undefined, destinationUrl: pinDestUrl || undefined };
         if (liArticleMode) platformMeta.linkedin = { articleMode: true };
         if (firstComment) platformMeta.firstComment = firstComment;
+        // Field names must match the backend contract exactly (allowDuet/allowStitch/
+        // brandOrganic/brandedContent, not duet/stitch/yourBrand/brandContent) — a
+        // mismatch here doesn't error, it just silently drops the setting server-side.
         if (hasTikTokInPost) platformMeta.tiktok = {
           title: tiktokTitle,
           privacyLevel: tiktokPrivacyLevel,
           allowComment: tiktokAllowComment,
-          duet: tiktokDuet,
-          stitch: tiktokStitch,
-          disclosure: tiktokDisclosure,
-          yourBrand: tiktokDisclosure ? tiktokYourBrand : false,
-          brandContent: tiktokDisclosure ? tiktokBrandContent : false,
+          allowDuet: tiktokDuet,
+          allowStitch: tiktokStitch,
+          brandOrganic: tiktokDisclosure ? tiktokYourBrand : false,
+          brandedContent: tiktokDisclosure ? tiktokBrandContent : false,
           hashtags: tiktokHashtags || undefined,
         };
         if (!hasTikTokInPost && tiktokHashtags) platformMeta.tiktok = { hashtags: tiktokHashtags };
@@ -546,22 +617,22 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
   return (
     <div className="w-full flex flex-col gap-8 font-sans text-[#040028] dark:text-white transition-colors">
-      <div className="w-full bg-[#F7F6F3] dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none relative overflow-hidden transition-all">
-        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
-
-        {/* HEADER */}
-        <div className="px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5 transition-colors">
+      {/* DESKTOP HEADER — targets row only; the "Create new content" title lives
+          in the page-level NeuCard behind this component (pre-chris-merge desktop
+          layout), not here. Pulled down with -mb-8 to cancel the outer gap-8 so it
+          touches the white content box; bordered on t/l/r to fuse with the white
+          box's own border (which drops its top border to match) into what reads
+          as a single card. */}
+      <div className="hidden md:flex md:flex-col md:bg-[#F7F6F3] md:dark:bg-white/5 md:border md:border-b-0 md:border-[#D9D9D9] md:dark:border-white/10 pt-4 px-4 md:px-6 pb-3 -mb-8">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="text-[10px] font-bold uppercase tracking-widest mr-2 text-[#8E8E8E]">{t("Targets", "Cibles")}</span>
 
             {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
                 const isExpired = acc.isActive === false;
-                // TEMP PREVIEW — real accounts don't carry a profile picture from
-                // the platform yet (needs backend/OAuth work to fetch and store
-                // one); fall back to a placeholder instead of a bare letter.
                 const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
                 return (
-                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shrink-0" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
                     <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
                     <img
                       src={avatarSrc}
@@ -601,10 +672,94 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             </Popover>
           </div>
 
-          <div className="flex gap-2">
-             <button onClick={() => setIsLibraryOpen(v => !v)} className="flex items-center gap-2 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
-                <LayoutGrid size={12} /> <span className="hidden sm:inline">{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
+          <div className="flex gap-2 shrink-0">
+             <button onClick={() => setIsLibraryOpen(v => !v)} className="hidden md:flex items-center gap-1.5 px-3 py-1.5 font-semibold text-xs rounded-[10px] transition-all bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10">
+                <LayoutGrid size={12} /> <span>{isLibraryOpen ? t('Close library', 'Fermer bib.') : t('Open library', 'Ouvrir bib.')}</span>
              </button>
+          </div>
+        </div>
+      </div>
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,video/*" multiple className="hidden" />
+
+      <div className="w-full bg-transparent md:bg-white md:dark:bg-[#0A0A2E] border-0 md:border-l md:border-r md:border-b md:border-[#D9D9D9] md:dark:border-white/10 rounded-none relative overflow-hidden transition-all">
+
+        {/* MOBILE HEADER */}
+        <div className="md:hidden flex items-center justify-between w-full mb-4 px-1 min-w-0">
+          <h2 className="text-xl font-bold flex items-center gap-2 text-[#040028] dark:text-white shrink-0 mr-2">
+             {postToEdit ? t('Edit content', 'Modifier le contenu') : t('Publication', 'Publication')}
+          </h2>
+          <div className="flex items-center justify-end gap-1 flex-wrap min-w-0">
+            {accounts.filter(a => selectedAccountIds.includes(a.id)).map((acc) => {
+                const isExpired = acc.isActive === false;
+                const avatarSrc = acc.avatar || `https://i.pravatar.cc/64?u=${acc.id}`;
+                return (
+                  <div key={acc.id} className="relative w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#0A0A2E] flex items-center justify-center shrink-0" title={isExpired ? t('Connection expired', 'Connexion expirée') : acc.username}>
+                    <span className="text-xs font-bold text-[#040028] dark:text-white">{acc.username?.[0]?.toUpperCase()}</span>
+                    <img src={avatarSrc} className="absolute inset-0 w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; }} alt="" />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 z-10 flex items-center justify-center"><PlatformIcon platform={acc.platform} size={9} /></div>
+                    {isExpired && <div className="absolute inset-0 rounded-full bg-red-600/80 flex items-center justify-center z-20 cursor-not-allowed"><AlertTriangle className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+                  </div>
+                );
+            })}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={cn("w-8 h-8 flex-shrink-0 rounded-full border border-dashed border-black/20 dark:border-white/20 hover:bg-[#174CD2]/8 flex items-center justify-center transition-all", selectedAccountIds.length === 0 ? "bg-white" : "bg-white dark:bg-[#0A0A2E]")}>
+                  <Plus size={14} strokeWidth={2.5} className="text-[#040028] dark:text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.15)] rounded-[14px] overflow-hidden" align="start" side="bottom">
+                <div className="bg-[#174CD2] text-white p-2 px-3 text-[10px] font-bold uppercase tracking-wide">{t("Available accounts", "Comptes disponibles")}</div>
+                <div className="max-h-60 overflow-y-auto">
+                  {accounts.map((acc) => {
+                    const isExpired = acc.isActive === false;
+                    const isSelected = selectedAccountIds.includes(acc.id);
+                    return (
+                      <div key={acc.id} onClick={() => { if (isExpired) { return; } setSelectedAccountIds((prev) => prev.includes(acc.id) ? prev.filter((id) => id !== acc.id) : [...prev, acc.id]); }} className={cn("flex items-center gap-3 p-3 border-b border-black/5 dark:border-white/5 last:border-0 transition-colors", isExpired ? "bg-red-50 dark:bg-red-900/20 opacity-70 cursor-not-allowed" : "hover:bg-[#174CD2]/8 cursor-pointer")}>
+                        <div className={cn("w-4 h-4 rounded-[4px] border flex items-center justify-center", isExpired ? "border-red-500" : "border-black/20 dark:border-white/20")}>{isExpired ? (<AlertTriangle className="w-3 h-3 text-red-500" />) : (isSelected && <div className="w-2 h-2 rounded-[2px] bg-[#174CD2]" />)}</div>
+                        <div className="flex-1"><div className={cn("text-xs font-semibold text-[#040028] dark:text-white", isExpired && "text-red-600")}>{acc.username}</div><div className="text-[10px] text-[#8E8E8E]">{acc.platform} {isExpired && `(${t("expired", "expiré")})`}</div></div>
+                        <PlatformIcon platform={acc.platform} size={14} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            <Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
+              <PopoverTrigger asChild>
+                <button className="w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0" title={scheduleDateOnly ? scheduleDateOnly : t('Date', 'Date')}>
+                  <CalendarIcon size={18} className={scheduleDateOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[200] overflow-hidden" align="end" sideOffset={8}>
+                <Calendar
+                  mode="single"
+                  value={scheduleDateOnly as ISODateString | undefined}
+                  onChange={(val) => {
+                    handleScheduleDateChange(val as string);
+                    setIsDateOpen(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
+              <PopoverTrigger asChild>
+                <button className="w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0" title={selectedTimeSlot ? selectedTimeSlot.label : t('Time', 'Heure')}>
+                  <Clock size={18} className={scheduleTimeOnly ? "text-[#174CD2]" : "text-[#040028] dark:text-white"} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-[200] overflow-hidden" align="end">
+                <div className="max-h-60 overflow-y-auto py-1">
+                  {TIME_SLOTS.map((slot) => (
+                    <button key={slot.value} type="button" onClick={() => handleScheduleTimeChange(slot.value)} className={cn('w-full flex items-center justify-between gap-2 h-8 px-3 text-left transition-colors text-xs font-medium text-[#040028] dark:text-white', slot.value === scheduleTimeOnly ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}>
+                      <span>{slot.label}</span>
+                      {slot.value === scheduleTimeOnly && <Check size={14} className="shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
@@ -696,8 +851,8 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
 
         {/* COMPOSER BODY — shown for post + split modes */}
         {(platformMode.mode === 'post' || platformMode.mode === 'split') && (
-        <div className="px-6 pt-6 pb-2 bg-white dark:bg-[#0A0A2E] transition-colors">
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-0 rounded-none leading-relaxed text-[#040028] dark:text-white", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[340px]")} />
+        <div className="pt-2 pb-1 md:px-6 md:pt-2 md:pb-2 transition-colors relative">
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t("Write your content here...", "Rédigez votre contenu ici...")} className={cn("border-none shadow-none resize-none focus-visible:ring-0 text-lg font-medium placeholder:text-[#8E8E8E] dark:placeholder:text-zinc-600 bg-transparent p-2 md:p-0 rounded-none leading-relaxed text-[#040028] dark:text-white relative z-10", mediaPreviews.length > 0 ? "min-h-[100px]" : "min-h-[180px] md:min-h-[380px]")} />
 
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -718,11 +873,18 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
           <PlatformSpecificPanels
             platformMode={platformMode}
             expandedPanels={expandedPanels}
-            onTogglePanel={(id) => setExpandedPanels(prev => {
-              const next = new Set(prev);
-              next.has(id) ? next.delete(id) : next.add(id);
-              return next;
-            })}
+            onTogglePanel={(id) => {
+              const opening = !expandedPanels.has(id);
+              setExpandedPanels(prev => {
+                const next = new Set(prev);
+                next.has(id) ? next.delete(id) : next.add(id);
+                return next;
+              });
+              // Hits TikTok live — only fetch when the panel actually opens, not on page load.
+              if (id === 'tiktok' && opening && !tiktokCreatorInfo && !tiktokCreatorInfoLoading) {
+                fetchTiktokCreatorInfo();
+              }
+            }}
             submitAttempted={submitAttempted}
             ytTitle={ytTitle} setYtTitle={setYtTitle}
             ytCategory={ytCategory} setYtCategory={setYtCategory}
@@ -734,6 +896,12 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             firstComment={firstComment} setFirstComment={setFirstComment}
             altText={altText} setAltText={setAltText}
             tiktokCreatorNickname={tiktokCreatorNickname}
+            tiktokCreatorInfo={tiktokCreatorInfo}
+            tiktokCreatorInfoLoading={tiktokCreatorInfoLoading}
+            tiktokCreatorInfoError={tiktokCreatorInfoError}
+            onRetryTiktokCreatorInfo={fetchTiktokCreatorInfo}
+            tiktokVideoDurationSec={tiktokVideoDurationSec}
+            tiktokDurationInvalid={tiktokDurationInvalid}
             tiktokTitle={tiktokTitle} setTiktokTitle={setTiktokTitle}
             tiktokPrivacyLevel={tiktokPrivacyLevel} setTiktokPrivacyLevel={setTiktokPrivacyLevel}
             tiktokAllowComment={tiktokAllowComment} setTiktokAllowComment={setTiktokAllowComment}
@@ -746,18 +914,32 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
             tiktokHasVideo={tiktokHasVideo}
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 py-4 px-6 -mx-6 border-t border-black/5 dark:border-white/5 gap-4 bg-[#F7F6F3] dark:bg-transparent transition-colors">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 pl-1">
-              <ToolButton icon={ImageIcon} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
-              <ToolButton icon={Video} onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
-              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={12} /> {category} <ChevronDown size={12} className={cn('opacity-50 transition-transform', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
+          {/* Desktop & Mobile Responsive Footer */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mt-0 md:mt-2 py-1 md:py-3 md:border-t md:border-black/5 md:dark:border-white/5 gap-1 md:gap-4 md:bg-[#F7F6F3] md:dark:bg-transparent transition-colors w-full max-w-full min-w-0 overflow-hidden">
+            
+            {/* Single horizontal line on mobile without scroll, flex-row on desktop */}
+            <div className="flex flex-nowrap items-center justify-center md:justify-start gap-1 py-1 md:pb-0 px-1 shrink-0 w-full max-w-full md:w-auto min-w-0 overflow-hidden">
+              <ToolButton icon={ImageIcon} className="p-1.5 md:p-2.5" onClick={() => fileInputRef.current?.click()} tooltip={t("Upload image", "Télécharger une image")} />
+              <ToolButton icon={Video} className="p-1.5 md:p-2.5" onClick={() => fileInputRef.current?.click()} tooltip={t("Upload video", "Télécharger une vidéo")} />
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}><PopoverTrigger asChild><button className="shrink-0 flex items-center gap-1 md:gap-1.5 px-1.5 md:px-3 py-1.5 md:py-2 rounded-[8px] md:rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-[10px] md:text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white"><Tag size={10} className="md:w-3 md:h-3" /> <span className="truncate max-w-[40px] sm:max-w-[80px]">{category}</span> <ChevronDown size={10} className={cn('opacity-50 transition-transform md:w-3 md:h-3', isCategoryOpen && 'rotate-180')} /></button></PopoverTrigger><PopoverContent className="w-64 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 overflow-hidden" align="start">{CATEGORIES.map((cat) => (<button key={cat} onClick={() => { setCategory(cat); setIsCategoryOpen(false); }} className={cn('w-full flex items-center gap-3 h-9 px-4 text-left transition-colors text-sm font-medium text-[#171717] dark:text-white', cat === category ? 'bg-[#F7F6F3] dark:bg-white/5' : 'hover:bg-[#F7F6F3] dark:hover:bg-white/10')}><span className="flex-1 truncate">{cat}</span>{category === cat && <Check size={16} className="text-[#171717] dark:text-white flex-shrink-0" />}</button>))}</PopoverContent></Popover>
+              
+              {/* On mobile, also push Action Buttons here into the single line */}
+              <div className="flex md:hidden flex-nowrap items-center justify-center gap-1">
+                  <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("shrink-0 px-1.5 py-1.5 font-semibold text-[10px] rounded-[8px] transition-all flex items-center gap-1", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
+                  <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="shrink-0 px-1.5 py-1.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-[10px] rounded-[8px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1">{t("Review", "Révision")}</button>
+                  <button onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid || tiktokDurationInvalid} title={tiktokPublishBlockedReason} className="shrink-0 px-2 py-1.5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-[10px] rounded-[8px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none">
+                      {isSubmitting ? <Loader2 className="animate-spin w-3 h-3" /> : (date && <Clock className="w-3 h-3"/>)}
+                      {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
+                  </button>
+              </div>
             </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                          {/* AI SMART SCHEDULING BUTTON — only shown when historical data exists */}
+
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 w-full max-w-full md:w-auto min-w-0">
+                <div className="hidden md:flex items-center gap-2 w-full overflow-x-auto scrollbar-hide flex-nowrap min-w-0">
                           {hasSchedulingData && (
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">
+                              <button className="shrink-0 px-3 py-2 bg-white dark:bg-[#0A0A2E] hover:border-[#174CD2]/40 text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5">
                                 <Sparkles size={14} className="text-[#174CD2] animate-pulse" /> {t("AI scheduler", "Planif. IA")}
                               </button>
                             </PopoverTrigger>
@@ -776,26 +958,26 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                           </Popover>
                           )}
 
-                          <DateInput
-                            label={t('Date', 'Date')}
-                            isLabelHidden
-                            size="md"
-                            hasClear
-                            placeholder="DD/MM/YYYY"
-                            value={scheduleDateOnly as ISODateString | undefined}
-                            onChange={(value) => handleScheduleDateChange(value)}
-                          />
+                          <div className="hidden md:flex shrink-0 min-w-[140px]">
+                            <DateInput
+                              label={t('Date', 'Date')}
+                              isLabelHidden
+                              size="md"
+                              hasClear
+                              placeholder="DD/MM/YYYY"
+                              value={scheduleDateOnly as ISODateString | undefined}
+                              onChange={(value) => handleScheduleDateChange(value)}
+                            />
+                          </div>
 
-                          {/* Click-only time dropdown — no text entry, matches "we don't type" */}
-                          <Popover open={isTimeOpen} onOpenChange={setIsTimeOpen}>
+                          <Popover open={isTimeOpenDesktop} onOpenChange={setIsTimeOpenDesktop}>
                             <PopoverTrigger asChild>
                               <button
-                                type="button"
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 text-xs font-semibold whitespace-nowrap text-[#040028] dark:text-white transition-all"
+                                className="hidden md:flex shrink-0 px-3 py-2 text-xs font-semibold bg-white dark:bg-[#0A0A2E] border border-[#D9D9D9] dark:border-white/10 rounded-[10px] text-[#040028] dark:text-white transition-all items-center gap-2 h-[38px] outline-none focus:outline-none focus-visible:outline-none"
                               >
                                 <Clock size={12} />
                                 {selectedTimeSlot ? selectedTimeSlot.label : t('Select a time', 'Choisir une heure')}
-                                <ChevronDown size={12} className={cn('opacity-50 transition-transform', isTimeOpen && 'rotate-180')} />
+                                <ChevronDown size={12} className={cn('opacity-50 transition-transform', isTimeOpenDesktop && 'rotate-180')} />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-44 p-0 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_12px_16px_-4px_rgba(0,0,0,0.08),0px_4px_6px_-2px_rgba(0,0,0,0.03)] z-50 overflow-hidden" align="start">
@@ -817,14 +999,24 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
                               </div>
                             </PopoverContent>
                           </Popover>
-              <div className="flex gap-2">
+                </div>
+                
+                {/* Desktop action buttons */}
+                <div className="hidden md:flex gap-2">
                   <button onClick={() => onPreviewToggle ? onPreviewToggle() : setIsPreviewOpen(true)} className={cn("px-3 py-2 font-semibold text-xs rounded-[10px] transition-all flex items-center gap-1.5", isPreviewActive ? "bg-[#040028] dark:bg-white text-white dark:text-[#040028]" : "bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>{t("Preview", "Aperçu")}</button>
                   <button onClick={() => handleSubmit('review')} disabled={isSubmitting} className="px-3 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white font-semibold text-xs rounded-[10px] border border-black/10 dark:border-white/10 hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-all flex items-center gap-1.5">{t("Review", "Révision")}</button>
-                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid} title={tiktokDisclosureInvalid ? 'You need to indicate if your content promotes yourself, a third party, or both' : undefined} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
+                  <NeuButton onClick={() => handleSubmit(date ? 'queue' : 'execute')} disabled={isSubmitting || tiktokDisclosureInvalid || tiktokDurationInvalid} title={tiktokPublishBlockedReason} variant="primary" className="px-4 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-[#D9D9D9] dark:border-white/10 shadow-none hover:bg-[#F7F6F3] dark:hover:bg-[#0A0A2E]">
                       {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : (date && <Clock className="w-4 h-4 mr-2"/>)}
                       {postToEdit ? t('Update', 'Mettre à jour') : (date ? t('Schedule', 'Planifier') : t('Publish', 'Publier'))}
                   </NeuButton>
-              </div>
+                </div>
+
+                {/* Mobile: Centered Bibliothèque Button */}
+                <div className="w-full flex md:hidden mt-2 mb-2 justify-center">
+                    <button onClick={() => setIsLibraryOpen(true)} className="flex items-center justify-center gap-2 px-6 py-2 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white border border-black/10 dark:border-white/10 rounded-[10px] font-bold text-sm shadow-[0px_2px_4px_rgba(0,0,0,0.05)] transition-all active:scale-[0.98]">
+                       <LayoutGrid size={16} /> {t("Open media library", "Ouvrir la bibliothèque")}
+                    </button>
+                </div>
             </div>
           </div>
         </div>
@@ -834,9 +1026,29 @@ export default function Composer({ onSchedule, accounts = [], postToEdit, initia
       {/* LIBRARY & MODALS */}
       <AnimatePresence>
         {isLibraryOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors max-h-[70vh]">
-            <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex justify-between items-center transition-colors flex-shrink-0"><span className="text-sm font-semibold flex items-center gap-2"><LayoutGrid size={14} /> {t("Media library", "Bibliothèque de médias")}</span><button onClick={() => setIsLibraryOpen(false)} className="hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-1 transition-colors"><X size={14} /></button></div>
-            <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-y-auto flex-1 min-h-0 scrollbar-grey">
+           <motion.div 
+             initial={{ opacity: 0, height: isMobile ? undefined : 0 }} 
+             animate={{ height: isMobile ? undefined : 'auto', opacity: 1 }} 
+             exit={{ opacity: 0, height: isMobile ? undefined : 0 }} 
+             className="w-full bg-white dark:bg-[#0A0A2E] border border-black/5 dark:border-white/5 rounded-none overflow-hidden flex flex-col transition-colors
+                        md:relative md:max-h-[70vh]
+                        fixed top-16 left-0 right-0 bottom-0 z-[100] md:inset-auto md:h-auto md:z-auto"
+          >
+            <div className="px-4 pt-2 pb-3 md:py-3 border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white flex flex-col md:flex-row items-start md:items-center justify-between transition-colors flex-shrink-0">
+                {/* Mobile Back Button */}
+                <button onClick={() => setIsLibraryOpen(false)} className="md:hidden flex items-center gap-1 text-[15px] font-medium text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white py-1.5 px-2 -ml-2 mb-1 transition-colors shrink-0">
+                    <ArrowLeft size={18} />
+                    {t("Back", "Retour")}
+                </button>
+                
+                <span className="text-2xl md:text-sm font-bold md:font-semibold flex items-center gap-2">
+                    <LayoutGrid size={16} className="md:w-3.5 md:h-3.5 hidden md:block" />
+                    {t("Library", "Bibliothèque")}
+                </span>
+                
+                <button onClick={() => setIsLibraryOpen(false)} className="hidden md:block hover:bg-black/5 dark:hover:bg-white/10 rounded-full p-2 md:p-1 transition-colors ml-auto"><X size={24} className="md:w-3.5 md:h-3.5" /></button>
+            </div>
+            <div className="p-4 bg-white dark:bg-[#0A0A2E] overflow-hidden flex flex-col flex-1 min-h-0 scrollbar-grey">
                 <MediaGallery
                     hideUsage={false}
                     workspaceId={workspaceId}

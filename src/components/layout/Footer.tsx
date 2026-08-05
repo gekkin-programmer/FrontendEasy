@@ -354,9 +354,6 @@ export default function Footer() {
               {t('GDPR', 'Données personnelles')}
             </Link>
           </div>
-          <span className="font-normal text-[13px] 3xl:text-[15px] leading-[16px] 3xl:leading-[20px] text-[#FFFFFF] whitespace-nowrap">
-            © {new Date().getFullYear()} BEST-CORP
-          </span>
         </div>
 
       </div>

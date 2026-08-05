@@ -756,13 +756,63 @@ function DashboardContent() {
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-white dark:bg-[#0A0A2E] border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2"><button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-[10px] active:bg-[#174CD2]/10 transition-colors"><Menu size={22} className="text-[#040028] dark:text-white" /></button><div className="font-['Rubik_One'] text-lg text-[#174CD2]">Eazlypost</div></div>
-                <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10"><img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" /></div></div>
             </div>
 
             {/* Mobile Sidebar */}
             <AnimatePresence>
                 {isSidebarOpen && (
-                    <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed inset-0 bg-[#040028]/40 z-50 backdrop-blur-sm" /><motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0A0A2E] flex flex-col z-50 shadow-[0_0_40px_rgba(0,0,0,0.15)]"><div className="p-6 flex justify-between items-center bg-[#174CD2] text-white"><span className="font-bold text-xl">Menu</span><button onClick={() => setIsSidebarOpen(false)} className="text-white/80 hover:text-white transition-colors p-1"><X/></button></div><nav className="p-4 space-y-2">{navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}</nav></motion.aside></>
+                    <>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="lg:hidden fixed top-0 left-0 right-0 h-[100dvh] w-screen bg-[#040028]/40 z-[50] backdrop-blur-sm" />
+                        <motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed top-0 left-0 h-[100dvh] w-72 bg-white dark:bg-[#0A0A2E] flex flex-col z-[60] shadow-[0_0_40px_rgba(0,0,0,0.15)]">
+                            <div className="p-6 flex justify-between items-center bg-[#040028] dark:bg-black text-white">
+                                <span className="font-bold text-xl">Menu</span>
+                                <button onClick={() => setIsSidebarOpen(false)} className="text-white/80 hover:text-white transition-colors p-1"><X/></button>
+                            </div>
+                            <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+                                {navItems.map(item => (<SidebarItem key={item.id} icon={item.icon} label={item.label} active={activeTab === item.id} onClick={() => { setActiveTab(item.id as TabType); setIsSidebarOpen(false); }} />))}
+                            </nav>
+                            
+                            {/* Workspace Selector for Mobile */}
+                            <div className="p-4 border-t border-black/5 dark:border-white/10 mt-auto bg-white dark:bg-[#0A0A2E]">
+                                <div className="relative">
+                                    <AnimatePresence>
+                                        {isAccountMenuOpen && (
+                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-[#0A0A2E] border border-[#E5E5E5] dark:border-white/10 rounded-[8px] shadow-[0px_-12px_16px_-4px_rgba(0,0,0,0.08),0px_-4px_6px_-2px_rgba(0,0,0,0.03)] z-50 py-1 origin-bottom overflow-hidden">
+                                                {myWorkspaces.map((ws: any) => { 
+                                                    const isSelected = currentWorkspace?.id === ws.id; 
+                                                    return (
+                                                        <button key={ws.id} onClick={() => { router.push(`/dashboard/${ws.id}`); setIsAccountMenuOpen(false); setIsSidebarOpen(false); }} className={cn("w-full flex items-center gap-3 h-12 px-4 text-left transition-colors", isSelected ? "bg-[#F7F6F3] dark:bg-white/5" : "hover:bg-[#F7F6F3] dark:hover:bg-white/10")}>
+                                                            <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-50 dark:bg-white/10 flex-shrink-0">
+                                                                <img src={ws.logo || getAvatarUrl(ws.name)} className="w-full h-full object-cover" />
+                                                            </div>
+                                                            <span className="flex-1 text-base font-medium truncate text-[#171717] dark:text-white">{ws.name}</span>
+                                                            {isSelected && <Check size={20} className="text-[#171717] dark:text-white flex-shrink-0"/>}
+                                                        </button>
+                                                    ); 
+                                                })}
+                                                <div className="h-px bg-black/5 dark:bg-white/10 my-1"/>
+                                                <button onClick={() => { setIsCreateModalOpen(true); setIsAccountMenuOpen(false); setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-colors">
+                                                    <Plus size={20}/> {t("New workspace", "Nouvel espace")}
+                                                </button>
+                                                <div className="h-px bg-black/5 dark:bg-white/10 my-1"/>
+                                                <div className="px-4 py-2 text-sm text-gray-400 truncate">{currentUser?.email}</div>
+                                                <button onClick={handleLogout} className="w-full flex items-center gap-3 h-12 px-4 text-base font-medium text-[#171717] dark:text-white hover:bg-[#F7F6F3] dark:hover:bg-white/10 transition-colors">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 7L21 12L16 17M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> {t("Log out", "Déconnexion")}
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <button onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)} className="w-full flex items-center gap-3 p-3 rounded-[10px] bg-[#F7F6F3] dark:bg-[#0A0A2E] hover:bg-[#E5E5E5] dark:hover:bg-white/10 border border-[#E5E5E5] dark:border-white/10 transition-colors">
+                                        <div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#0A0A2E] border border-black/10 dark:border-white/10 flex-shrink-0">
+                                            <img src={currentWorkspace?.logo || getAvatarUrl(currentWorkspace?.name || 'User')} className="w-full h-full object-cover" />
+                                        </div>
+                                        <span className="flex-1 text-sm font-semibold truncate text-left text-[#040028] dark:text-white">{currentWorkspace?.name || 'Select'}</span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("text-[#040028]/50 dark:text-white/50 transition-transform", isAccountMenuOpen ? "rotate-90" : "-rotate-90")}><path d="M16 18L22 12L16 6M8 6L2 12L8 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.aside>
+                    </>
                 )}
             </AnimatePresence>
 
@@ -821,12 +871,12 @@ function DashboardContent() {
                                 <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className={cn(activeTab === 'engagement' ? "m-0 md:ml-4" : "ml-0 md:ml-4")}>
 
                                     {activeTab === 'queue' && (
-                                        <div className="grid gap-8">
+                                        <div className="grid gap-2 md:gap-8">
                                             <div className="flex flex-col md:flex-row md:items-center justify-between flex-shrink-0 gap-4">
                                                 <h2 className="text-2xl font-bold text-[#040028] dark:text-white">{t("Queue", "File d'attente")}</h2>
                                             </div>
                                             <NeuCard className="relative overflow-hidden rounded-none border border-[#D9D9D9] dark:border-white/10 pt-4">
-                                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
+                                                <h2 className="hidden md:flex text-xl font-bold mb-4 items-center gap-2 text-[#040028] dark:text-white">{editingPost ? t('Edit content', 'Modifier le contenu') : t('Create new content', 'Créer un nouveau contenu')}</h2>
                                                 <Composer
                                     workspaceId={workspaceId}
                                     onSchedule={handleAddPost}
@@ -839,7 +889,7 @@ function DashboardContent() {
                                     workspaceTimezone={workspaceTimezone}
                                 />
                                             </NeuCard>
-                                            <div className="mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
+                                            <div className="mt-0 md:mt-4"><PostFeed posts={posts} accounts={accounts} workspaceId={workspaceId} onEdit={setEditingPost} isLoading={postsLoading} canApprove={canApprove} workspaceTimezone={workspaceTimezone} /></div>
                                         </div>
                                     )}
                                     {activeTab === 'calendar' && (
