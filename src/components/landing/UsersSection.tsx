@@ -22,14 +22,14 @@ const USER_PHOTOS_BY_CATEGORY = [
   ],
   // 1: Small & Medium Businesses
   [
-    { id: 's1', img: 'https://picsum.photos/id/1050/400/500', height: 500, name: 'Boutique Chez Maman', followers: '50K Followers', platform: 'Instagram' },
-    { id: 's2', img: 'https://picsum.photos/id/1051/400/380', height: 380, name: 'Tech Solutions', followers: '30K Followers', platform: 'TikTok' },
-    { id: 's3', img: 'https://picsum.photos/id/1052/400/620', height: 620, name: 'African Resto', followers: '80K Followers', platform: 'Facebook' },
-    { id: 's4', img: 'https://picsum.photos/id/1053/400/460', height: 460, name: 'Cafe Douala', followers: '22K Followers', platform: 'YouTube' },
-    { id: 's5', img: 'https://picsum.photos/id/1054/400/560', height: 560, name: 'Atelier Textile', followers: '18K Followers', platform: 'Instagram' },
-    { id: 's6', img: 'https://picsum.photos/id/1055/400/640', height: 640, name: 'Fresh Market', followers: '45K Followers', platform: 'TikTok' },
-    { id: 's7', img: 'https://picsum.photos/id/1056/400/500', height: 500, name: 'Studio Beaute', followers: '33K Followers', platform: 'Facebook' },
-    { id: 's8', img: 'https://picsum.photos/id/1057/400/440', height: 440, name: 'Auto Parts CM', followers: '15K Followers', platform: 'YouTube' },
+    { id: 's1', img: '/logos/SN_SHOES.jpeg', height: 500, name: 'S_n Shoes' },
+    { id: 's2', img: '/logos/YXNGERAKODE.jpeg', height: 380, name: 'Yxng Era Kode Agency' },
+    { id: 's3', img: '/logos/ATLstudio.PNG', height: 620, name: 'ATL Studio' },
+    { id: 's4', img: '/logos/BookHub.jpeg', height: 460, name: 'Bookhub.cm' },
+    { id: 's5', img: '/logos/dibato.PNG', height: 560, name: 'Dibato' },
+    { id: 's6', img: '/logos/MaxBurger.jpeg', height: 640, name: 'Max Burger Grill' },
+    { id: 's7', img: '/logos/newDelices.png', height: 500, name: "Délices d'Edith" },
+    { id: 's8', img: '/logos/PBD.jpg', height: 440, name: 'PBD - Prestige Bio Derma' },
   ],
   // 2: Agencies
   [
