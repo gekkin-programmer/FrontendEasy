@@ -3,11 +3,25 @@
 // Reads credentials from .env.jira (gitignored, copy .env.jira.example to start).
 //
 // Usage:
-//   node scripts/jira.mjs create "Title" "Description text" [IssueType]   (IssueType default: Task)
+//   node scripts/jira.mjs create "Title" "Description text" [IssueType] [flags]   (IssueType default: Task)
+//   node scripts/jira.mjs update ISSUE-123 [flags]                        (edit an existing ticket)
 //   node scripts/jira.mjs list ["extra JQL filter"]                        (defaults to your open tickets)
+//   node scripts/jira.mjs sprints                                          (lists the board's sprints, with IDs)
 //   node scripts/jira.mjs comment ISSUE-123 "Comment text"
 //   node scripts/jira.mjs done ISSUE-123                                   (transitions to the first "done"-like status)
 //   node scripts/jira.mjs open ISSUE-123                                   (prints the ticket's URL)
+//
+// Flags (create & update), all optional:
+//   --sprint <id>       Sprint id (see: node scripts/jira.mjs sprints)
+//   --labels a,b,c       Comma-separated labels
+//   --start YYYY-MM-DD   Start date
+//   --due YYYY-MM-DD     Due date
+//   --points <number>    Story point estimate
+//
+// Field IDs are specific to this JIRA instance (project SCRUM) — found via
+// GET /rest/api/3/field and /rest/api/3/issue/{key}/editmeta. If the project
+// is ever rebuilt/recreated these customfield_* ids can change; re-run that
+// lookup if create/update starts erroring on an unknown field.
 
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -71,12 +85,54 @@ function toADF(text) {
   };
 }
 
-const [, , cmd, ...args] = process.argv;
+// Custom field IDs for this JIRA instance (project SCRUM) — see the flag
+// comment block above for how these were found.
+const FIELD = {
+  sprint: 'customfield_10020',
+  points: 'customfield_10016',
+  start: 'customfield_10015',
+  due: 'duedate', // standard field, not custom
+};
+
+// Pulls --flag value pairs out of an args array, returning [positionalArgs, flags].
+function splitFlags(args) {
+  const positional = [];
+  const flags = {};
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a.startsWith('--')) {
+      flags[a.slice(2)] = args[i + 1];
+      i++;
+    } else {
+      positional.push(a);
+    }
+  }
+  return [positional, flags];
+}
+
+// Builds the `fields` object for create/update from parsed flags. Only sets
+// keys the user actually passed, so `update` never clobbers unrelated fields.
+function fieldsFromFlags(flags) {
+  const fields = {};
+  // Jira's sprint field wants a bare number on issue update, not an array
+  // (confirmed against this instance: array form 400s with "sprint id must
+  // be a number").
+  if (flags.sprint) fields[FIELD.sprint] = Number(flags.sprint);
+  if (flags.points) fields[FIELD.points] = Number(flags.points);
+  if (flags.start) fields[FIELD.start] = flags.start;
+  if (flags.due) fields[FIELD.due] = flags.due;
+  if (flags.labels) fields.labels = flags.labels.split(',').map((l) => l.trim()).filter(Boolean);
+  return fields;
+}
+
+const [, , cmd, ...rawArgs] = process.argv;
+
+const [args, flags] = splitFlags(rawArgs);
 
 switch (cmd) {
   case 'create': {
     const [title, description = '', issueType = 'Task'] = args;
-    if (!title) { console.error('Usage: node scripts/jira.mjs create "Title" "Description" [IssueType]'); process.exit(1); }
+    if (!title) { console.error('Usage: node scripts/jira.mjs create "Title" "Description" [IssueType] [flags]'); process.exit(1); }
     const data = await jiraFetch('/issue', {
       method: 'POST',
       body: JSON.stringify({
@@ -85,10 +141,37 @@ switch (cmd) {
           summary: title,
           description: toADF(description),
           issuetype: { name: issueType },
+          ...fieldsFromFlags(flags),
         },
       }),
     });
     console.log(`Created ${data.key}: ${siteUrl}/browse/${data.key}`);
+    break;
+  }
+
+  case 'update': {
+    const [key] = args;
+    if (!key) { console.error('Usage: node scripts/jira.mjs update ISSUE-123 [flags]'); process.exit(1); }
+    const fields = fieldsFromFlags(flags);
+    if (Object.keys(fields).length === 0) { console.error('No flags given — nothing to update. See flags in the usage header.'); process.exit(1); }
+    await jiraFetch(`/issue/${key}`, { method: 'PUT', body: JSON.stringify({ fields }) });
+    console.log(`Updated ${key}: ${siteUrl}/browse/${key}`);
+    break;
+  }
+
+  case 'sprints': {
+    const boards = await fetch(`${siteUrl}/rest/agile/1.0/board?projectKeyOrId=${JIRA_PROJECT_KEY}`, {
+      headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+    }).then((r) => r.json());
+    const board = boards.values?.[0];
+    if (!board) { console.log('No board found for this project.'); break; }
+    const sprints = await fetch(`${siteUrl}/rest/agile/1.0/board/${board.id}/sprint?state=active,future`, {
+      headers: { Authorization: `Basic ${auth}`, Accept: 'application/json' },
+    }).then((r) => r.json());
+    if (!sprints.values?.length) { console.log('No active/future sprints.'); break; }
+    for (const s of sprints.values) {
+      console.log(`${s.id}  [${s.state}]  ${s.name}${s.startDate ? `  ${s.startDate.slice(0, 10)} → ${s.endDate?.slice(0, 10) ?? '?'}` : ''}`);
+    }
     break;
   }
 
@@ -144,6 +227,6 @@ switch (cmd) {
   }
 
   default:
-    console.error('Unknown command. Use: create | list | comment | done | open');
+    console.error('Unknown command. Use: create | update | list | sprints | comment | done | open');
     process.exit(1);
 }
