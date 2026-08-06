@@ -1,0 +1,55 @@
+#!/bin/sh
+# Enforces a ticket trailer (e.g. "Refs SCRUM-123") on process/tooling commits,
+# per CLAUDE.md's "process changes need a ticket" rule. Routine feature/bugfix
+# commits are unaffected — only commits whose conventional-commit type/scope
+# marks them as process work (chore/ci/build, or a (tooling) scope) are checked,
+# so this adds zero friction to day-to-day feature/fix commits.
+#
+# Installed automatically via the "prepare" script in package.json
+# (git config core.hooksPath .githooks). To bypass in a genuine pinch:
+# git commit --no-verify
+
+commit_msg_file="$1"
+# Strip comment lines (git's own "# On branch ..." template lines, which can
+# otherwise contain a branch name that accidentally looks like a ticket ref
+# and lets a real un-ticketed commit through).
+commit_msg=$(grep -v '^#' "$commit_msg_file")
+first_line=$(printf '%s\n' "$commit_msg" | head -n1)
+
+# Always allow merge commits.
+case "$first_line" in
+  "Merge "*) exit 0 ;;
+esac
+
+# Is this a "process" commit? Conventional-commit type chore/ci/build, or a
+# (tooling) scope on any type.
+is_process=0
+if printf '%s\n' "$first_line" | grep -Eq '^(chore|ci|build)(\([a-zA-Z0-9_-]+\))?:'; then
+  is_process=1
+fi
+if printf '%s\n' "$first_line" | grep -Eq '\(tooling\)'; then
+  is_process=1
+fi
+
+if [ "$is_process" -eq 0 ]; then
+  exit 0
+fi
+
+# Look for a real ticket trailer, e.g. "Refs SCRUM-123" / "Closes SCRUM-123" /
+# "Fixes SCRUM-123". Anchored to one of these keywords specifically (not just
+# any capitalized-word-hyphen-number pattern) — a bare regex like
+# [A-Z][A-Z0-9]+-[0-9]+ also matches "UTF-8", "SHA-256", "HTTP-2", etc., which
+# would silently defeat the whole point of the check.
+if printf '%s\n' "$commit_msg" | grep -Eiq '\b(refs|closes|fixes|resolves)\s+[A-Z][A-Z0-9]{1,9}-[0-9]+\b'; then
+  exit 0
+fi
+
+echo ""
+echo "commit-msg hook: this looks like a process/tooling change (chore/ci/build type, or a (tooling) scope)."
+echo "Per CLAUDE.md, process changes need a JIRA ticket referenced in the commit."
+echo ""
+echo "  - File one:  npm run jira -- create \"Title\" \"Description\""
+echo "  - Then add a trailer line: \"Refs SCRUM-123\" (or Closes/Fixes/Resolves)."
+echo "  - Genuinely can't right now? Bypass with: git commit --no-verify"
+echo ""
+exit 1
