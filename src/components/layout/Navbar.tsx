@@ -35,7 +35,7 @@ export default function Navbar() {
       </Link>
 
       {/* Nav Links (Perfectly Centered) */}
-      <div className="hidden lg:flex h-full items-center justify-center ml-[40px] gap-[14px] xl:gap-[24px] 2xl:gap-[32px] 3xl:gap-[60px] font-['Rubik_One'] font-normal text-[11px] xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px]">
+      <div className="hidden lg:flex h-full items-center justify-center ml-[40px] gap-[14px] xl:gap-[36px] 2xl:gap-[66px] 3xl:gap-[60px] font-['Rubik_One'] font-normal text-[11px] xl:text-[14px] 2xl:text-[15px] 3xl:text-[16px]">
         
         {/* Frame 14: Fonctionnalités */}
         <div 

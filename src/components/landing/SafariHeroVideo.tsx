@@ -30,7 +30,7 @@ export function SafariHeroVideo({ imageSrc, videoSrc, url = "app.eazypost.cm", c
         <Safari
           imageSrc={imageSrc}
           url={url}
-          className="w-full transition-all duration-200 ease-out group-hover:brightness-[0.85]"
+          className="w-full transition-all duration-200 ease-out"
         />
         <div className="absolute inset-0 flex scale-[0.9] items-center justify-center transition-all duration-200 ease-out group-hover:scale-100">
           <div className="bg-primary/10 flex size-16 md:size-24 items-center justify-center rounded-full backdrop-blur-md">
