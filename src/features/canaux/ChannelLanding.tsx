@@ -135,7 +135,7 @@ function SplitSection({
           </div>
           <div className="flex-1 w-full max-w-[664px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt={imageAlt} className="w-full h-[380px] lg:h-[560px] object-cover rounded-[16px]" />
+            <img src={image} alt={imageAlt} className="w-full h-[480px] lg:h-[680px] object-cover rounded-[16px]" />
           </div>
         </div>
       </div>
@@ -191,11 +191,11 @@ export default function ChannelLanding({ channelName }: { channelName: string })
 
   // Creator cards for the marquee strip
   const creators = [
-    { img: '/assets/selena.png', handle: '@sarah.creates', bg: MAROON, radius: 'rounded-[16px]' },
-    { img: '/assets/rainbow.png', handle: '@blanche.b', bg: PINK, radius: 'rounded-[16px]' },
-    { img: '/assets/Sarah.jpg', handle: '@nadia.cuisine', bg: LIME, radius: 'rounded-[64px]' },
+    { img: '/images/tenor.jpg', handle: '@tenor', bg: MAROON, radius: 'rounded-[16px]' },
+    { img: '/images/koc-c.jpg', handle: '@ko-c', bg: PINK, radius: 'rounded-[16px]' },
+    { img: '/images/christian-abegan.jpg', handle: '@christian.abegan', bg: LIME, radius: 'rounded-[64px]' },
     { img: '/assets/Rosine 3.jpg', handle: '@rosine.style', bg: MAROON, radius: 'rounded-full' },
-    { img: '/assets/Creatriceee.png', handle: '@lifeofkarl', bg: PINK, radius: 'rounded-[64px]' },
+    { img: '/images/maahlox-le-vibeur.webp', handle: '@maahlox', bg: PINK, radius: 'rounded-[64px]' },
   ];
 
   return (

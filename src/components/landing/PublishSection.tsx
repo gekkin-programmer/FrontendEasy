@@ -44,7 +44,7 @@ const tabContent: Record<string, { title: string; description: string }> = {
 
 
   return (
-    <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px]">
+    <section className="w-full bg-white relative pb-[60px] md:pb-[100px] flex flex-col items-center pt-[60px] md:pt-[100px] mt-5">
       {/* Content Wrapper */}
       <div className="w-full max-w-[1435px] 3xl:max-w-[1900px] mx-auto flex flex-col items-center md:items-start relative px-[16px] md:px-[52px]">
         {/* Title Area */}
@@ -55,12 +55,9 @@ const tabContent: Record<string, { title: string; description: string }> = {
           <h1 className="font-['Rubik_One'] font-normal text-[48px] md:text-[58px] lg:text-[70px] leading-tight lg:leading-[87px] text-[#174CD2] mt-[-5px] md:mt-[-10px] lg:mt-[-20px] relative z-1">
             {t("Social networks", "Reseaux sociaux")}
           </h1>
-          <h2 className="font-['Rubik_One'] font-normal text-[24px] md:text-[30px] lg:text-[36px] leading-tight lg:leading-[45px] text-black relative z-2">
-            {t("in one place", "au meme endroit")}
-          </h2>
         </div>
         <p 
-          className="text-[#000000] text-[16px] md:text-[20px] font-normal leading-[26px] md:leading-[30px] max-w-[656px] mt-2 mb-[60px] md:mb-[120px] text-center md:text-left mx-auto md:mx-0"
+          className="text-[#666666] text-[16px] md:text-[18px] font-medium leading-[26px] md:leading-[30px] max-w-[656px] mt-3 mb-[60px] md:mb-[120px] text-center md:text-left mx-auto md:mx-0"
           style={{ fontFamily: "'Rubik', sans-serif" }}
         >
           {t("Create your content, schedule your posts, collaborate with your team, and analyze your statistics directly from a single application.", "Créez vos contenus, planifiez vos publications, collaborez en équipe et analysez vos statistiques directement depuis une seule et unique application.")}

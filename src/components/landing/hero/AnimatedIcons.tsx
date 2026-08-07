@@ -15,21 +15,21 @@ export default function AnimatedIcons({ right = false, horizontal = false }: { r
         <g className="icon-h-lane1" style={{ animationDelay: '0s' }}>
           <FacebookIcon />
         </g>
-        <g className="icon-h-lane1" style={{ animationDelay: '6.66s' }}>
+        <g className="icon-h-lane1" style={{ animationDelay: '10s' }}>
           <InstagramIcon />
         </g>
-        <g className="icon-h-lane1" style={{ animationDelay: '13.33s' }}>
+        <g className="icon-h-lane1" style={{ animationDelay: '20s' }}>
           <TwitterIcon />
         </g>
 
-        <g className="icon-h-lane2" style={{ animationDelay: '3.33s' }}>
+        <g className="icon-h-lane2" style={{ animationDelay: '5s' }}>
+          <YoutubeIcon />
+        </g>
+        <g className="icon-h-lane2" style={{ animationDelay: '15s' }}>
           <LinkedInIcon />
         </g>
-        <g className="icon-h-lane2" style={{ animationDelay: '10s' }}>
+        <g className="icon-h-lane2" style={{ animationDelay: '25s' }}>
           <WhatsAppIcon />
-        </g>
-        <g className="icon-h-lane2" style={{ animationDelay: '16.66s' }}>
-          <YoutubeIcon />
         </g>
       </>
     );
@@ -38,24 +38,24 @@ export default function AnimatedIcons({ right = false, horizontal = false }: { r
   if (right) {
     return (
       <>
-        <g className="icon-lane1-right" style={{ animationDelay: '1.5s' }}>
-          <YoutubeIcon />
-        </g>
-        <g className="icon-lane1-right" style={{ animationDelay: '8.16s' }}>
+        <g className="icon-lane1-right" style={{ animationDelay: '0s' }}>
           <LinkedInIcon />
         </g>
-        <g className="icon-lane1-right" style={{ animationDelay: '14.83s' }}>
+        <g className="icon-lane1-right" style={{ animationDelay: '10s' }}>
           <WhatsAppIcon />
         </g>
-
-        <g className="icon-lane2-right" style={{ animationDelay: '4.83s' }}>
-          <TwitterIcon />
-        </g>
-        <g className="icon-lane2-right" style={{ animationDelay: '11.5s' }}>
+        <g className="icon-lane1-right" style={{ animationDelay: '20s' }}>
           <FacebookIcon />
         </g>
-        <g className="icon-lane2-right" style={{ animationDelay: '18.16s' }}>
+
+        <g className="icon-lane2-right" style={{ animationDelay: '5s' }}>
+          <YoutubeIcon />
+        </g>
+        <g className="icon-lane2-right" style={{ animationDelay: '15s' }}>
           <InstagramIcon />
+        </g>
+        <g className="icon-lane2-right" style={{ animationDelay: '25s' }}>
+          <TwitterIcon />
         </g>
       </>
     );
@@ -66,21 +66,21 @@ export default function AnimatedIcons({ right = false, horizontal = false }: { r
       <g className="icon-lane1" style={{ animationDelay: '0s' }}>
         <FacebookIcon />
       </g>
-      <g className="icon-lane1" style={{ animationDelay: '6.66s' }}>
-        <InstagramIcon />
-      </g>
-      <g className="icon-lane1" style={{ animationDelay: '13.33s' }}>
+      <g className="icon-lane1" style={{ animationDelay: '10s' }}>
         <TwitterIcon />
       </g>
-
-      <g className="icon-lane2" style={{ animationDelay: '3.33s' }}>
+      <g className="icon-lane1" style={{ animationDelay: '20s' }}>
         <LinkedInIcon />
       </g>
-      <g className="icon-lane2" style={{ animationDelay: '10s' }}>
-        <WhatsAppIcon />
+
+      <g className="icon-lane2" style={{ animationDelay: '5s' }}>
+        <InstagramIcon />
       </g>
-      <g className="icon-lane2" style={{ animationDelay: '16.66s' }}>
+      <g className="icon-lane2" style={{ animationDelay: '15s' }}>
         <YoutubeIcon />
+      </g>
+      <g className="icon-lane2" style={{ animationDelay: '25s' }}>
+        <WhatsAppIcon />
       </g>
     </>
   );

@@ -54,12 +54,12 @@ export default function Home() {
           90% { opacity: 1; }
           100% { transform: translate(440px, 82px); opacity: 0; }
         }
-        .icon-lane1 { animation: slide1 20s linear infinite; animation-fill-mode: backwards; }
-        .icon-lane2 { animation: slide2 20s linear infinite; animation-fill-mode: backwards; }
-        .icon-lane1-right { animation: slide1-right 20s linear infinite; animation-fill-mode: backwards; }
-        .icon-lane2-right { animation: slide2-right 20s linear infinite; animation-fill-mode: backwards; }
-        .icon-h-lane1 { animation: slideH1 14s linear infinite; animation-fill-mode: backwards; }
-        .icon-h-lane2 { animation: slideH2 14s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane1 { animation: slide1 30s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane2 { animation: slide2 30s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane1-right { animation: slide1-right 30s linear infinite; animation-fill-mode: backwards; }
+        .icon-lane2-right { animation: slide2-right 30s linear infinite; animation-fill-mode: backwards; }
+        .icon-h-lane1 { animation: slideH1 20s linear infinite; animation-fill-mode: backwards; }
+        .icon-h-lane2 { animation: slideH2 20s linear infinite; animation-fill-mode: backwards; }
       `}</style>
       <Navbar />
       <HeroBackground>
