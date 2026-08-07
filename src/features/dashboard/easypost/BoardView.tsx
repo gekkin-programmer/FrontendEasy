@@ -504,6 +504,7 @@ function KanbanBoard({ boardId, boardName }: { boardId: string, boardName: strin
         maxWidth="max-w-2xl"
         headerClassName="bg-white dark:bg-[#0A0A2E] text-[#040028] dark:text-white"
         iconClassName="text-[#040028]/70 hover:text-[#040028] dark:text-white/70 dark:hover:text-white"
+        fullScreenOnMobile={true}
       >
         <div className="space-y-4">
           <div>

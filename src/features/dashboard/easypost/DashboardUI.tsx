@@ -35,7 +35,7 @@ export const NeuInput = ({ className = "", ...props }: any) => (
   />
 );
 
-export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-xl", className = "", headerClassName = "bg-[#174CD2] text-white", iconClassName = "text-white/80 hover:text-white" }: any) => {
+export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-xl", className = "", headerClassName = "bg-[#174CD2] text-white", iconClassName = "text-white/80 hover:text-white", fullScreenOnMobile = false }: any) => {
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => setMounted(true), []);
 
@@ -49,14 +49,14 @@ export const NeuModal = ({ title, isOpen, onClose, children, maxWidth = "max-w-x
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#333333]/70 backdrop-blur-none"
+                    className={cn("fixed inset-0 z-[100] flex items-center justify-center bg-[#333333]/70 backdrop-blur-none", fullScreenOnMobile ? "p-0 md:p-4" : "p-4")}
                 >
                     <motion.div
                         initial={{ scale: 0.96, opacity: 0, y: 10 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.96, opacity: 0, y: 10 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={cn("bg-white dark:bg-[#0A0A2E] rounded-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] w-full overflow-hidden z-10 max-h-[90dvh] flex flex-col", maxWidth, className)}
+                        className={cn("bg-white dark:bg-[#0A0A2E] w-full overflow-hidden z-10 flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2)]", fullScreenOnMobile ? "rounded-none md:rounded-[16px] h-[100dvh] md:h-auto md:max-h-[90dvh]" : "rounded-[16px] max-h-[90dvh]", maxWidth, className)}
                     >
                         <div className={cn("px-5 py-4 flex justify-between items-center shrink-0", headerClassName)}>
                             <span className="font-bold">{title}</span>
